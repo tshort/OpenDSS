@@ -1,0 +1,163 @@
+! LOAD DEFINITIONS WITH TRANSFORMERS
+
+! THREE-PHASE EQUIVALENT LOADS
+
+! CIRCUIT 1 bus = ckt1-13
+! Equivalent 3-ph Transformer is 5 MVA, 3%, grounded Y-Y; Load is defined for 480V
+! Transformer neutral is connected to system neutral (node 10) and grounded separately
+New Transformer.Load1 Phases=3 Windings=2 XHL=3
+~ Wdg=1 kV=13.2 kVA=5000  conn=wye  Bus=ckt1-13.1.2.3.10
+~ Wdg=2 kV=0.48 kVA=5000  conn=wye  Bus=Ckt1-Load.1.2.3.0 ! (Node 0 = zero volts)
+
+! Grounding Resistance - 25 ohms (use a reactor model)
+New Reactor.Load1Ground Phases=1 Bus1=ckt1-13.10 Bus2=ckt1-13.0 R=25 X=0
+
+! Individual Phase loads connected line-neutral (hence voltage-277V)
+New Load.Ckt1-1 Phases=1 Bus1=Ckt1-Load.1 kV=.277 kW=1000 PF=0.90 Spectrum=8Pct3rd
+New Load.Ckt1-2 Phases=1 Bus1=Ckt1-Load.2 kV=.277 kW=1400 PF=0.85 Spectrum=8Pct3rd
+New Load.Ckt1-3 Phases=1 Bus1=Ckt1-Load.3 kV=.277 kW=1500 PF=0.95 Spectrum=8Pct3rd
+
+! CIRCUIT 2 bus = ckt2-19
+! Equivalent 3-ph Transformer is 8 MVA, 3%, grounded Y-Y; Load is defined for 480V
+New Transformer.Load2 Phases=3 Windings=2 XHL=3
+~ Wdg=1 kV=13.2 kVA=8000  conn=wye  Bus=ckt2-19.1.2.3.10
+~ Wdg=2 kV=0.48 kVA=8000  conn=wye  Bus=Ckt2-Load.1.2.3.0
+
+! Grounding Resistance - 15 ohms 
+New Reactor.Load2Ground Phases=1 Bus1=ckt2-19.10 Bus2=ckt2-19.0 R=15 X=0
+
+! Individual Phase loads connected line-neutral (hence voltage-277V)
+New Load.Ckt2-1 Phases=1 Bus1=Ckt2-Load.1 kV=.277 kW=2400 PF=0.90 Spectrum=10Pct3rd
+New Load.Ckt2-2 Phases=1 Bus1=Ckt2-Load.2 kV=.277 kW=2500 PF=0.90 Spectrum=10Pct3rd
+New Load.Ckt2-3 Phases=1 Bus1=Ckt2-Load.3 kV=.277 kW=2300 PF=0.90 Spectrum=10Pct3rd
+
+
+! CIRCUIT 3 bus = ckt3-25
+! Equivalent 3-ph Transformer is 7 MVA, 3%, grounded Y-Y; Load is defined for 480V
+New Transformer.Load3 Phases=3 Windings=2 XHL=3
+~ Wdg=1 kV=13.2 kVA=8000  conn=wye  Bus=ckt3-25.1.2.3.10
+~ Wdg=2 kV=0.48 kVA=8000  conn=wye  Bus=Ckt3-Load.1.2.3.0
+
+! Grounding Resistance - 10 ohms 
+New Reactor.Load3Ground Phases=1 Bus1=ckt3-25.10 Bus2=ckt3-25.0 R=10 X=0
+
+! Individual Phase loads connected line-neutral (hence voltage-277V)
+New Load.Ckt3-1 Phases=1 Bus1=Ckt3-Load.1 kV=.277 kW=2000 PF=0.80 Spectrum=7Pct3rd
+New Load.Ckt3-2 Phases=1 Bus1=Ckt3-Load.2 kV=.277 kW=1800 PF=0.90 Spectrum=7Pct3rd
+New Load.Ckt3-3 Phases=1 Bus1=Ckt3-Load.3 kV=.277 kW=2100 PF=0.90 Spectrum=7Pct3rd
+
+
+
+! CIRCUIT 4 bus = ckt4-18
+! Equivalent 3-ph Transformer is 10 MVA, 3%, grounded Y-Y; Load is defined for 480V
+New Transformer.Load4 Phases=3 Windings=2 XHL=3
+~ Wdg=1 kV=13.2 kVA=8000  conn=wye  Bus=ckt4-18.1.2.3.10
+~ Wdg=2 kV=0.48 kVA=8000  conn=wye  Bus=Ckt4-Load.1.2.3.0
+
+! Grounding Resistance - 10 ohms 
+New Reactor.Load4Ground Phases=1 Bus1=ckt4-18.10 Bus2=ckt4-18.0 R=10 X=0
+
+! Individual Phase loads connected line-neutral (hence voltage-277V)
+New Load.Ckt4-1 Phases=1 Bus1=Ckt4-Load.1 kV=.277 kW=4000 PF=0.90 Spectrum=8Pct3rd
+New Load.Ckt4-2 Phases=1 Bus1=Ckt4-Load.2 kV=.277 kW=3000 PF=0.90 Spectrum=8Pct3rd
+New Load.Ckt4-3 Phases=1 Bus1=Ckt4-Load.3 kV=.277 kW=3500 PF=0.80 Spectrum=8Pct3rd
+
+!================================================================================================
+! SINGLE-PHASE EQUIVALENT LOADS
+
+! - - - - - - -- - - - - -
+! CIRCUIT 1 BUS=ckt1-1-7
+
+! SERVICE TRANSFORMER (Modeled as a 3-winding transformer to get center tap)
+! PRIMARY CONNECTED LINE-NEUTRAL AT POLE
+New Transformer.1phsLoad1A    Phases=1 Windings=3 Xhl=1.44 Xht = 1.44  Xlt=.96
+~ wdg=1 bus=ckt1-1-7.1.10     kv=7.62 kva=25  %r=0.65 
+~ wdg=2 bus=Load1A-X.1.10     kv=.12  kva=25  %r=1.3  conn=delta   ! X1-X2
+~ wdg=3 bus=Load1A-X.10.2     kv=.12  kva=25  %r=1.3  conn=delta   ! X2-X3
+
+! JUMPER FROM X2 BUSHING TO SYSTEM NEUTRAL
+! (THIS CAN BE REMOVED TO SEE THE EFFECT OF A NEUTRAL ISOLATOR)
+New Reactor.Jumper1 Phases=1 Bus1=ckt1-1-7.10  Bus2=Load1A-X.10  R=0.01 X=0.0
+
+! 1/0 Triplex (retain node 10 as neutral conductor for consistency)
+New Line.Tplx1A Phases=3 Bus1=Load1A-X.1.10.2  Bus2=Load1A.1.10.2 LineCode=1/0TPLX Length=50 Units=m
+
+! Grounding Resistance - 25 ohms 
+New Reactor.Load1aGround Phases=1 Bus1=Load1A.10 Bus2=Load1A.0 R=25 X=0
+
+! EACH OF THE 3 LOADS
+New Load.Load1A-120-1 Phases=1 Bus1=Load1A.1.10 kV=.120 kW=1.2 PF=1.0  Spectrum=5Pct3rd  ! 120V Load
+New Load.Load1A-120-2 Phases=1 Bus1=Load1A.2.10 kV=.120 kW=1.0 PF=1.0  Spectrum=20Pct3rd  ! 120V Load
+New Load.Load1A-240   Phases=1 Bus1=Load1A.1.2  kV=.240 kW=4.0 PF=0.7  Spectrum=50Pct3rd  ! 240V Load
+
+! - - - - - - -- - - - - -
+! CIRCUIT 2 BUS=ckt2-1-5
+
+! SERVICE TRANSFORMER (Modeled as a 3-winding transformer to get center tap)
+! PRIMARY CONNECTED LINE-NEUTRAL AT POLE
+New Transformer.1phsLoad2C    Phases=1 Windings=3 Xhl=1.44 Xht = 1.44  Xlt=.96
+~ wdg=1 bus=ckt2-1-5.1.10     kv=7.62 kva=15  %r=0.65 
+~ wdg=2 bus=Load2C-X.1.10     kv=.12  kva=15  %r=1.3  conn=delta   ! X1-X2
+~ wdg=3 bus=Load2C-X.10.2     kv=.12  kva=15  %r=1.3  conn=delta   ! X2-X3
+
+! JUMPER FROM X2 BUSHING TO SYSTEM NEUTRAL
+New Reactor.Jumper2 Phases=1 Bus1=ckt2-1-5.10  Bus2=Load2C-X.10  R=0.01 X=0.0
+
+! 1/0 Triplex (retain node 10 as neutral conductor for consistency)
+New Line.Tplx2c Phases=3 Bus1=Load2C-X.1.10.2  Bus2=Load2C.1.10.2 LineCode=1/0TPLX Length=30 Units=m
+
+! Grounding Resistance - 10 ohms 
+New Reactor.Load2CGround Phases=1 Bus1=Load2C.10 Bus2=Load2C.0 R=10 X=0
+
+! EACH OF THE 3 LOADS
+New Load.Load2C-120-1 Phases=1 Bus1=Load2C.1.10 kV=.120 kW=1.5 PF=1.0  Spectrum=10Pct3rd  ! 120V Load
+New Load.Load2C-120-2 Phases=1 Bus1=Load2C.2.10 kV=.120 kW=2.5 PF=1.0  Spectrum=30Pct3rd  ! 120V Load
+New Load.Load2C-240   Phases=1 Bus1=Load2C.1.2  kV=.240 kW=5.0 PF=1.0  Spectrum=1Pct3rd   ! 240V Load
+
+! - - - - - - -- - - - - -
+! CIRCUIT 3 BUS=ckt3-1-6
+
+! SERVICE TRANSFORMER (Modeled as a 3-winding transformer to get center tap)
+! PRIMARY CONNECTED LINE-NEUTRAL AT POLE
+New Transformer.1phsLoad3B    Phases=1 Windings=3 Xhl=1.44 Xht = 1.44  Xlt=.96
+~ wdg=1 bus=ckt3-1-6.1.10     kv=7.62 kva=25  %r=0.65 
+~ wdg=2 bus=Load3B-X.1.10     kv=.12  kva=25  %r=1.3  conn=delta   ! X1-X2
+~ wdg=3 bus=Load3B-X.10.2     kv=.12  kva=25  %r=1.3  conn=delta   ! X2-X3
+
+! JUMPER FROM X2 BUSHING TO SYSTEM NEUTRAL
+New Reactor.Jumper3 Phases=1 Bus1=ckt3-1-6.10  Bus2=Load3B-X.10  R=0.01 X=0.0
+
+! 1/0 Triplex (retain node 10 as neutral conductor for consistency)
+New Line.Tplx3B Phases=3 Bus1=Load3B-X.1.10.2  Bus2=Load3B.1.10.2 LineCode=1/0TPLX Length=30 Units=m
+
+! Grounding Resistance - 50 ohms 
+New Reactor.Load3BGround Phases=1 Bus1=Load3B.10 Bus2=Load3B.0 R=50 X=0
+
+! EACH OF THE 3 LOADS
+New Load.Load3B-120-1 Phases=1 Bus1=Load3B.1.10 kV=.120 kW=1.7 PF=0.8  Spectrum=20Pct3rd  ! 120V Load
+New Load.Load3B-120-2 Phases=1 Bus1=Load3B.2.10 kV=.120 kW=2.2 PF=0.8  Spectrum=15Pct3rd  ! 120V Load
+New Load.Load3B-240   Phases=1 Bus1=Load3B.1.2  kV=.240 kW=4.0 PF=0.9  Spectrum=1Pct3rd   ! 240V Load
+
+! - - - - - - -- - - - - -
+! CIRCUIT 4 BUS=ckt4-1-8
+
+! SERVICE TRANSFORMER (Modeled as a 3-winding transformer to get center tap)
+! PRIMARY CONNECTED LINE-NEUTRAL AT POLE
+New Transformer.1phsLoad4c    Phases=1 Windings=3 Xhl=1.44 Xht = 1.44  Xlt=.96
+~ wdg=1 bus=ckt4-1-8.1.10     kv=7.62 kva=37.5  %r=0.65 
+~ wdg=2 bus=Load4c-X.1.10     kv=.12  kva=37.5  %r=1.3  conn=delta   ! X1-X2
+~ wdg=3 bus=Load4c-X.10.2     kv=.12  kva=37.5  %r=1.3  conn=delta   ! X2-X3
+
+! JUMPER FROM X2 BUSHING TO SYSTEM NEUTRAL
+New Reactor.Jumper4 Phases=1 Bus1=ckt4-1-8.10  Bus2=Load4c-X.10  R=0.01 X=0.0
+
+! 1/0 Triplex (retain node 10 as neutral conductor for consistency)
+New Line.Tplx4c Phases=3 Bus1=Load4c-X.1.10.2  Bus2=Load4c.1.10.2 LineCode=4/0TPLX Length=30 Units=m
+
+! Grounding Resistance - 50 ohms 
+New Reactor.Load4cGround Phases=1 Bus1=Load4c.10 Bus2=Load4c.0 R=50 X=0
+
+! EACH OF THE 3 LOADS
+New Load.Load4c-120-1 Phases=1 Bus1=Load4c.1.10 kV=.120 kW=12 PF=0.95  Spectrum=2Pct3rd  ! 120V Load
+New Load.Load4c-120-2 Phases=1 Bus1=Load4c.2.10 kV=.120 kW=7  PF=0.9   Spectrum=10Pct3rd  ! 120V Load
+New Load.Load4c-240   Phases=1 Bus1=Load4c.1.2  kV=.240 kW=20 PF=0.8   Spectrum=1Pct3rd   ! 240V Load

@@ -1,0 +1,17 @@
+
+New Transformer.SubXFMR Phases=3 Windings=2 Xhl=10.63 wdg=1 conn=delta bus=SourceBus kV=230 kVA=45000 wdg=2 bus=SubXfmr_LSB kV=34.5 kVA=45000 conn=wye mintap=0.9 maxtap=1.1 sub=yes
+~ %noloadloss=0.18 !assumed
+~ %Rs = (0.12,0.12)
+~ emergHkva = 75000
+
+
+!New Regcontrol.SubXFMR_Regulator  transformer=SubXFMR  winding=2  vreg=126.0  band=2.0 ptratio=165.9882024 enabled=True debugtrace=yes delay=5 
+
+New Regcontrol.SubXFMR_Regulator  transformer=SubXFMR  winding=2   vreg=123.0 band=3 ptratio=166 ctprim=2000 R=7 X=0 enabled=True debugtrace=yes delay=45 
+
+
+!New line.fdr_05422 bus1=SubXfmr_LSB bus2=05422 linecode=busbar phases=3 length=100 units=ft  !will stub this out later
+New line.fdr_05410 bus1=SubXfmr_LSB bus2=05410 linecode=busbar phases=3 length=1 units=ft
+
+New monitor.SubXFMR_taps element=Transformer.SubXFMR terminal=2 mode=2
+

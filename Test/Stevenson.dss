@@ -1,0 +1,19 @@
+! check positive-sequence line parameters, with and without long-line correction
+! from page 106 of Stevenson, 3rd edition
+
+clear
+
+new circuit.stevenson basekv=200 pu=1.16 mvasc3=500000 mvasc1=500000
+
+set cktmodel=positive
+
+! note: Stevenson gives L1=2.18 mH/mi and rounds X1 to 3 digits
+new line.long phases=3 bus1=sourcebus bus2=load length=225 r1=0.172 x1=0.822 C1=13.6
+
+! Stevenson posed a load at receiving end and solved for sending end voltage
+! translate this to a constant current load, should have same magnitude voltage drop
+new load.balanced phases=3 bus1=load kv=200 kw=125000 pf=1 model=5
+
+solve 
+
+

@@ -1,0 +1,27 @@
+! This script is executed after the circuit is defined and the base case is solved
+
+! In this example, a 1-week simulation is performed starting at hour 5208 out of 8760
+! This was the peak week in the load shapes defined for the source of this script
+! (the default is to start at hour=1 and simulate 8760 hrs)
+
+set casename=ExampleCase
+set mode=yearly number= 168    ! one week simulation (omit "number=168' for whole year)
+
+! Set "DemandInterval" to true so that energy quantities recorded by energy meters are recorded for 
+! each time step and set "casename" to define a directory under default directory in which all of the 
+! demand interval data is recorded.  (NOTE: Setting Demand=true resets all energymeters.)
+
+Set overloadreport=true  ! TURN OVERLOAD REPORT ON
+Set voltexcept=true      ! voltage exception report
+set demand=true          ! demand interval ON
+set DIVerbose=true       ! verbose mode is ON
+
+
+Set Year=1        ! This statement resets all meters
+Set hour=5208     ! start at this hour  (omit to do whole year)
+solve 
+
+closedi     ! close demand interval files at end of run
+
+
+

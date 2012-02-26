@@ -1,0 +1,857 @@
+
+Object = EXECUTIVE
+Property	Description
+//	Comment.  Command line is ignored.
+?	Inquiry for property value.  Result is put into GlobalReault and can be seen in the Result Window. Specify the full property name.Example: ? Line.Line1.R1Note you can set this property merely by saying:Line.line1.r1=.058
+_DoControlActions	For step control of solution process: Pops control actions off the control queue according to the present control mode rules. Dispatches contol actions to proper control element "DoPendingAction" handlers.
+_InitSnap	For step control of solution process: Intialize iteration counters, etc. that normally occurs at the start of a snapshot solution process.
+_SampleControls	For step control of solution process: Sample the control elements, which push control action requests onto the control queue.
+_ShowControlQueue	For step control of solution process: Show the present control queue contents.
+_SolveDirect	For step control of solution process: Invoke direct solution function in DSS. Non-iterative solution of Y matrix and active sources only.
+_SolveNoControl	For step control of solution process: Solves the circuit in present state but does not check for control actions.
+_SolvePFlow	For step control of solution process: Invoke iterative power flow solution function of DSS directly.
+~	Continuation of editing on the active object. An abbreviation.Example:New Line.Line1 Bus1=aaa  bus2=bbb~ R1=.058~ X1=.1121
+About	Display "About Box".  (Result string set to Version string.)
+AddMarker	Add a marker to the active plot. Example: AddMarker Bus=busname code=nn color=$00FF0000 size=3
+AlignFile	Alignfile [file=]filename.  Aligns DSS script files in columns for easier reading.
+Allocateloads	Estimates the allocation factors for loads that are defined using the XFKVA property. Requires that energymeter objects be defined with the PEAKCURRENT property set. Loads that are not in the zone of an energymeter cannot be allocated.
+BuildY	Forces rebuild of Y matrix upon next Solve command regardless of need. The usual reason for doing this would be to reset the matrix for another load level when using LoadModel=PowerFlow (the default) when the system is difficult to solve when the load is far from its base value.  Works by invalidating the Y primitive matrices for all the Power Conversion elements.
+Buscoords	Define x,y coordinates for buses.  Execute after Solve command performed so that bus lists are defined.Reads coordinates from a CSV file with records of the form: busname, x, y.Example: BusCoords [file=]xxxx.csv
+Calcvoltagebases	Calculates voltagebase for buses based on voltage bases defined with Set voltagebases=... command.
+Capacity	Find the maximum load the active circuit can serve in the PRESENT YEAR. Uses the EnergyMeter objects with the registers set with the SET UEREGS= (..) command for the AutoAdd functions.  Syntax (defaults shown):capacity [start=]0.9 [increment=]0.005Returns the metered kW (load + losses - generation) and per unit load multiplier for the loading level at which something in the system reports an overload or undervoltage. If no violations, then it returns the metered kW for peak load for the year (1.0 multiplier). Aborts and returns 0 if no energymeters.
+CD	Change default directory to specified directoryCD dirname
+Cktlosses	Returns the total losses for the active circuit in the Result string in kW, kvar.
+Classes	List of intrinsic DSS Classes. Returns comma-separated list in Result variable.
+Clear	Clear all circuits currently in memory.
+Close	Opposite of the Open command.
+CloseDI	Close all DI files ... useful at end of yearly solution where DI files are left open. (Reset and Set Year=nnn will also close the DI files)
+Comparecases	[Case1=]casename [case2=]casename [register=](register number) [meter=]{Totals* | SystemMeter | metername}. Compares yearly simulations of two specified cases with respect to the quantity in the designated register from the designated meter file. Defaults: Register=9 meter=Totals.  Example:Comparecases base pvgens 10
+Compile	Reads the designated file name containing DSS commands and processes them as if they were entered directly into the command line. The file is said to be "compiled." Similar to "redirect" except changes the default directory to the path of the specified file.Syntax:Compile filename
+Currents	Returns the currents for each conductor of ALL terminals of the active circuit element in the Result string. (See Select command.)Returned as comma-separated magnitude and angle.
+DI_plot	[case=]casename [year=]yr [registers=](reg1, reg2,...)  [peak=]y/n  [meter=]meternamePlots demand interval (DI) results from yearly simulation cases.  Plots selected registers from selected meter file (default = DI_Totals.CSV).  Peak defaults to NO.  If YES, only daily peak of specified registers is plotted. Example: DI_Plot basecase year=5 registers=(9,11) no
+Disable	Disables a circuit element or entire class.  Example:Disable load.loadxxxDisable generator.*  (Disables all generators)The item remains defined, but is not included in the solution.
+Distribute	kw=nn how={Proportional | Uniform |Random | Skip} skip=nn PF=nn file=filename MW=nnDistributes generators on the system in the manner specified by "how".kW = total generation to be distributed (default=1000) how= process name as indicated (default=proportional to load)skip = no. of buses to skip for "How=Skip" (default=1)PF = power factor for new generators (default=1.0)file = name of file to save (default=distgenerators.txt)MW = alternate way to specify kW (default = 1)
+DOScmd	Do a DOS command. Sends the command "cmd ... " to Windows. Execute the "cmd /?" command in a DOS window to see the options. To do a DOS command and automatically exit, do DOScmd /c ...command string ...To keep the DOS window open, use /k switch.
+Dump	Display the properties of either a specific DSS object or a complete dump on all variables in the problem (Warning! Could be very large!). Brings up the default text editor with the text file written by this command. Syntax: dump [class.obj] [debug] Examples: Dump line.line1  Dump solution  (dumps all solution vars)  Dump commands  (dumps all commands to a text file)  Dump transformer.*  (dumps all transformers) Dump ALLOCationfactors  (load allocation factors) Dump      (dumps all objects in circuit) 
+Edit	Edit an object. The object is selected and it then becomes the active object.Note that Edit is the default command.  You many change a property value simply by giving the full property name and the new value, for example:line.line1.r1=.04vsource.source.kvll=230
+Enable	Enables a circuit element or entire class.  Example:Enable load.loadxxxEnable generator.*  (enables all generators)
+Estimate	Execute state estimator on present circuit given present sensor values.
+Export	Export various solution values to CSV (or XML) files for import into other programs. Creates a new file except for Energymeter and Generator objects, for which the results for each device of this class are APPENDED to the CSV File. You may export to a specific file by specifying the file name as the LAST parameter on the line. Otherwise, the default file names shown below are used. For Energymeter and Generator, specifying the switch "/multiple" (or /m) for the file name will cause a separate file to be written for each meter or generator. The default is for a single file containing all elements.Syntax for Implemented Exports:Export Voltages  [Filename]   (EXP_VOLTAGES.CSV)Export SeqVoltages [Filename] (EXP_SEQVOLTAGES.CSV)Export Currents [Filename]    (EXP_CURRENTS.CSV)Export Estimation [Filename]  (EXP_ESTIMATION.CSV)Export Capacity [Filename]    (EXP_CAPACITY.CSV)Export Overloads [Filename]    EXP_OVERLOADS.CSV)Export Unserved  [UEonly] [Filename]   EXP_UNSERVED.CSV)Export SeqCurrents [Filename] (EXP_SEQCURRENTS.CSV)Export Powers [MVA] [Filename](EXP_POWERS.CSV)Export P_Byphase [MVA] [Filename](EXP_P_BYPHASE.CSV)Export SeqPowers [MVA] [Filename](EXP_SEQPOWERS.CSV)Export Faultstudy [Filename]  (EXP_FAULTS.CSV)Export Generators [Filename | /m ]  (EXP_GENMETERS.CSV)Export Loads [Filename]       (EXP_LOADS.CSV)Export Meters [Filename |/m ] (EXP_METERS.CSV)Export Monitors monitorname   (file name is assigned) Export Yprims  [Filename]     (EXP_YPRIMS.CSV)   (all YPrim matrices)Export Y  [Filename]          (EXP_Y.CSV)   (system Y matrix)Export seqZ  [Filename]       (EXP_SEQZ.CSV) (equiv sequence Z1, Z0 to bus)Export CDPSM [Filename]       (CDPSM.XML) (IEC 61968-13, CDPSM format)Export Buscoords [Filename]   [EXP_BUSCOORDS.CSV]May be abreviated Export V, Export C, etc.  Default is "V". If Set ShowExport=Yes, the output file will be automatically displayed in the default editor.
+Fileedit	Edit specified file in default text file editor (see Set Editor= option).Fileedit EXP_METERS.CSV (brings up the meters export file)"FileEdit" may be abbreviated to a unique character string.
+Formedit	FormEdit [class.object].  Brings up form editor on active DSS object.
+Get	Returns DSS property values set using the Set command. Result is returne in Result property of the Text interface. VBA Example:DSSText.Command = "Get mode"Answer = DSSText.ResultMultiple properties may be requested on one get.  The results are appended and the individual values separated by commas.See help on Set command for property names.
+Help	Gives this display.
+Init	This command forces reinitialization of the solution for the next Solve command. To minimize iterations, most solutions start with the previous solution unless there has been a circuit change.  However, if the previous solution is bad, it may be necessary to re-initialize.  In most cases, a re-initiallization results in a zero-load power flow solution with only the series power delivery elements considered.
+Interpolate	{All | MeterName}  Default is "All". Interpolates coordinates for missing bus coordinates in meter zone
+Losses	Returns the total losses for the active circuit element (see Select command) in the Result string in kW, kvar.
+M	Continuation of editing on the active object. An abbreviation for More
+MakeBusList	Updates the buslist using the currently enabled circuit elements.  (This happens automatically for Solve command.)
+MakePosSeq	Attempts to convert present circuit model to a positive sequence equivalent. It is recommended to Save the circuit after this and edit the saved version to correct possible misinterpretations.
+More	Continuation of editing on the active object.
+New	Create a new object within the DSS. Object becomes the active objectExample: New Line.line1 ...
+Next	{Year | Hour | t}  Increments year, hour, or time as specified.  If "t" is specified, then increments time by current step size.
+Open	Opens the specified terminal and conductor of the specified circuit element. If the conductor is not specified, all phase conductors of the terminal are opened.Examples:Open line.line1 2 (opens all phases of terminal 2)Open line.line1 2 3(opens the 3rd conductor of terminal 2)
+Panel	Displays main control panel window.
+Phaselosses	Returns the losses for the active circuit element (see Select command) for each PHASE in the Result string in comma-separated kW, kvar pairs.
+Plot	Plots results in a variety of manners.  Implemented options (in order): Type = {Circuit | Monitor | Daisy | Zones | AutoAdd | General (bus data) }Quantity = {Voltage | Current | Power | Losses | Capacity | (Value Index for General, AutoAdd, or Circuit[w/ file]) }Max = {0 | value corresponding to max scale or line thickness}Dots = {Y | N}Labels = {Y | N}Object = [metername for Zone plot | Monitor name | File Name for General bus data or Circuit branch data]ShowLoops = {Y | N} (default=N)R3 = pu value for tri-color plot max range [.85] (Color C3)R2 = pu value for tri-color plot mid range [.50] (Color C2)C1, C2, C3 = {RGB color number} Channels=(array of channel numbers for monitor plot)Bases=(array of base values for each channel for monitor plot).  Default is 1.0 for each.  Set Base= after defining channels.Subs={Y | N} (default=N) (show substations)Thickness=max thickness allowed for lines in circuit plots (default=7)Buslist=[Array of Bus Names | File=filename ] (for Daisy plot)Power and Losses in kW.  C1 used for default color.  C2, C3 used for gradients, tri-color plots. Scale determined automatically of Max = 0 or not specified.  Example:Plot daisy power 5000 dots=N !! Generators by defaultPlot daisy power 5000 dots=N Buslist=[file=MyBusList.txt]Plot circuit quantity=7 Max=.010 dots=Y Object=branchdata.csvPlot General Quantity=2 Object=valuefile.csv
+Powers	Returns the powers (complex) going into each conductors of ALL terminals of the active circuit element in the Result string. (See Select command.)Returned as comma-separated kW and kvar.
+puvoltages	Just like the Voltages command, except the voltages are in per unit if the kVbase at the bus is defined.
+Quit	Shuts down DSS unless this is the DLL version.  Then it does nothing;  DLL parent is responsible for shutting down the DLL.
+Reconductor	Reconductor a line section. Must be in an EnergyMeter zone. Syntax: Reconductor Line1=... Line2=... [LineCode= | Geometry = ] Line1 and Line2 may be given in any order. All lines in the path between the two are redefined with either the LineCode or Geometry.
+Redirect	Reads the designated file name containing DSS commands and processes them as if they were entered directly into the command line. Similar to "Compile", but leaves current directory where it was when Redirect command is invoked.Can temporarily change to subdirectories if nested Redirect commands require.ex:  redirect filename
+Reduce	{All | MeterName}  Default is "All".  Reduce the circuit according to reduction options. See "Set ReduceOptions" and "Set Keeplist" options.Energymeter objects actually perform the reduction.  "All" causes all meters to reduce their zones.
+Reset	{MOnitors | MEters | Faults | Controls | Eventlog | Keeplist |(no argument) } Resets all Monitors, Energymeters, etc. If no argument specified, resets all options listed.
+Rotate	Usage: Rotate [angle=]nnn.  Rotate circuit plotting coordinates by specified angle (degrees). 
+Sample	Force all monitors and meters to take a sample now.
+Save	{Save [class=]{Meters | Circuit | Voltages | (classname)} [file=]filename [dir=]directory  Default class = Meters, which saves the present values in both monitors and energy meters in the active circuit. "Save Circuit" saves the present enabled circuit elements to the specified subdirectory in standard DSS form with a Master.txt file and separate files for each class of data. If Dir= not specified a unique name based on the circuit name is created automatically.  If Dir= is specified, any existing files are overwritten. "Save Voltages" saves the present solution in a simple CSV format in a file called DSS_SavedVoltages. Used for VDIFF command.Any class can be saved to a file.  If no filename specified, the classname is used.
+Select	Selects an element and makes it the active element.  You can also specify the active terminal (default = 1).Syntax:Select [element=]elementname  [terminal=]terminalnumber Example:Select Line.Line1 ~ R1=.1(continue editing)Select Line.Line1 2 Voltages  (returns voltages at terminal 2 in Result)
+Seqcurrents	Returns the sequence currents into all terminals of the active circuit element (see Select command) in Result string.  Returned as comma-separated magnitude only values.Order of returned values: 0, 1, 2  (for each terminal).
+Seqpowers	Returns the sequence powers into all terminals of the active circuit element (see Select command) in Result string.  Returned as comma-separated kw, kvar pairs.Order of returned values: 0, 1, 2  (for each terminal).
+Seqvoltages	Returns the sequence voltages at all terminals of the active circuit element (see Select command) in Result string.  Returned as comma-separated magnitude only values.Order of returned values: 0, 1, 2  (for each terminal).
+Set	Used to set various DSS solution modes and options.  You may also set the options with the Solve command. See "Options" for help.
+SetkVBase	Command to explicitly set the base voltage for a bus. Bus must be previously defined. Parameters in order are:Bus = {bus name}kVLL = (line-to-line base kV)kVLN = (line-to-neutral base kV)kV base is normally given in line-to-line kV (phase-phase). However, it may also be specified by line-to-neutral kV.The following exampes are equivalent:setkvbase Bus=B9654 kVLL=13.2setkvbase B9654 13.2setkvbase B9654 kvln=7.62
+Show	Writes selected results to a text file and brings up the editor (see Set Editor=....) with the file for you to browse.Valid Options (*=default):Show BusesShow Currents  [[residual=]yes|no*] [Seq* | Elements]Show COnvergence  (convergence report)Show CONTrolQueue  Show ELements [Classname] (shows names of all elements in circuit or all elements of a class)Show Faults (after Fault Study)Show GeneratorsShow LossesShow MEtersShow Monitor MonitornameShow PAnel (control panel)Show Powers [MVA|kVA*] [Seq* | Elements]Show Voltages [LL |LN*]  [Seq* | Nodes | Elements]Show Zone  EnergyMeterName [Treeview]Show AutoAdded  (see AutoAdd solution mode)Show Taps  (regulated transformers)Show Overloads (overloaded PD elements)Show Unserved [UEonly] (unserved loads)Show EVentlogShow VAriablesShow IsolatedShow Ratings  (ratings of PD Elements)Show LOOpsShow YPrim  (shows Yprim for active ckt element)Show Y      (shows system Y)Show BUSFlow busname [MVA|kVA*] [Seq* | Elements]Show LIneConstants [frequency] [none|mi|km|kft|m|me|ft|in|cm] [rho]Default is "show voltages LN Seq".  
+Solve	Perform the solution of the present solution mode. You can set any option that you can set with the Set command (see Set). The Solve command is virtually synonymous with the Set command except that a solution is performed after the options are processed.
+Summary	Displays a power flow summary of the most recent solution.
+TOP	[class=]{Loadshape | Monitor  } [object=]{ALL (Loadshapes only) | objectname}. Send specified object to TOP.  Loadshapes must be hourly fixed interval. 
+Totals	Totals all EnergyMeter objects in the circuit and reports register totals in the result string.
+Userclasses	List of user-defined DSS Classes. Returns comma-separated list in Result variable.
+Varnames	Returns variable names for active element if PC element. Otherwise, returns null.
+VarValues	Returns variable values for active element if PC element. Otherwise, returns null.
+Vdiff	Displays the difference between the present solution and the last on saved using the SAVE VOLTAGES command.
+Visualize	[What=] one of {Currents* | Voltages | Powers} [element=]full_element_name  (class.name). Shows the selected quantity for selected element on a multiphase line drawing in phasor values.
+Voltages	Returns the voltages for the ACTIVE BUS in the Result string. For setting the active Bus, use the Select command or the Set Bus= option. Returned as magnitude and angle quantities, comma separated, one set per conductor of the terminal.
+YearlyCurves	[cases=](case1, case2, ...) [registers=](reg1, reg2, ...)  [meter=]{Totals* | SystemMeter | metername}Plots yearly curves for specified cases and registers. Default: meter=Totals. Example: yearlycurves cases=(basecase, pvgens) registers=9
+Ysc	Returns full Ysc matrix for the ACTIVE BUS in comma-separated complex number form G + jB.
+Zsc	Returns full Zsc matrix for the ACTIVE BUS in comma-separated complex number form.
+Zsc10	Returns symmetrical component impedances, Z1, Z0 for the ACTIVE BUS in comma-separated R+jX form.
+ZscRefresh	Refreshes Zsc matrix for the ACTIVE BUS.
+
+Object = OPTIONS
+Property	Description
+%growth	Set default annual growth rate, percent, for loads with no growth curve specified. Default is 2.5.
+%mean	Percent mean to use for global load multiplier. Default is 65%.
+%Normal	Sets the Normal rating of all lines to a specified percent of the emergency rating.  Note: This action takes place immediately. Only the in-memory value is changed for the duration of the run.
+%stddev	Percent Standard deviation to use for global load multiplier. Default is 9%.
+Addtype	{Generator | Capacitor} Default is Generator. Type of device for AutoAdd Mode.
+Algorithm	{Normal | Newton}  Solution algorithm type.  Normal is a fixed point iteration that is a little quicker than the Newton iteration.  Normal is adequate for most radial distribution circuits.  Newton is more robust for circuits that are difficult to solve.
+Allocationfactors	Sets the connected kVA allocation factors for all loads in the active circuit to the value given.
+Allowduplicates	{YES/TRUE | NO/FALSE}   Default is No. Flag to indicate if it is OK to have devices of same name in the same class. If No, then a New command is treated as an Edit command. If Yes, then a New command will always result in a device being added.
+Autobuslist	Array of bus names to include in AutoAdd searches. Or, you can specify a text file holding the names, one to a line, by using the syntax (file=filename) instead of the actual array elements. Default is null, which results in the program using either the buses in the EnergyMeter object zones or, if no EnergyMeters, all the buses, which can make for lengthy solution times. Examples:Set autobuslist=(bus1, bus2, bus3, ... )Set autobuslist=(file=buslist.txt)
+Basefrequency	Default = 60. Set the fundamental frequency for harmonic solution and the default base frequency for all impedance quantities. Side effect: also changes the value of the solution frequency. Saved as default for next circuit.
+Bus	Set Active Bus by name.  Can also be done with Select and SetkVBase commands and the "Set Terminal="  option. The bus connected to the active terminal becomes the active bus. See Zsc and Zsc012 commands.
+CapkVAR	Size of capacitor, kVAR, to automatically add to system.  Default is 600.0.
+Casename	Name of case for yearly simulations with demand interval data. Becomes the name of the subdirectory under which all the year data are stored. Default = circuit name Side Effect: Sets the prefix for output files
+Cfactors	Sets the CFactors for for all loads in the active circuit to the value given.
+circuit	Set the active circuit by name.
+Cktmodel	{Multiphase | Positive}  Default = Multiphase.  Designates whether circuit model is to interpreted as a normal multi-phase model or a positive-sequence only model
+class	Synonym for Type=. (See above)
+Controlmode	{OFF | STATIC |EVENT | TIME}  Default is "STATIC".  Control mode for the solution. Set to OFF to prevent controls from changing.STATIC = Time does not advance.  Control actions are executed in order of shortest time to act until all actions are cleared from the control queue.  Use this mode for power flow solutions which may require several regulator tap changes per solution.EVENT = solution is event driven.  Only the control actions nearest in time are executed and the time is advanced automatically to the time of the event. TIME = solution is time driven.  Control actions are executed when the time for the pending action is reached or surpassed.Controls may reset and may choose not to act when it comes their time. Use TIME mode when modeling a control externally to the DSS and a solution mode such as DAILY or DUTYCYCLE that advances time, or set the time (hour and sec) explicitly from the external program. 
+Daisysize	Default is 1.0. Relative size (a multiplier applied to default size) of daisy circles on daisy plot.
+Datapath	Set the data path for files written or read by the DSS.  Defaults to the startup path. May be Null.  Executes a CHDIR to this path if non-null. Does not require a circuit defined.
+DefaultBaseFrequency	Set Default Base Frequency, Hz. Side effect: Sets solution Frequency and default Circuit Base Frequency. This value is saved when the DSS closes down.
+Defaultdaily	Default daily load shape name. Default value is "default", which is a 24-hour curve defined when the DSS is started.
+Defaultyearly	Default yearly load shape name. Default value is "default", which is a 24-hour curve defined when the DSS is started.
+DemandInterval	{YES/TRUE | NO/FALSE} Default = no. Set for keeping demand interval data for daily, yearly, etc, simulations. Side Effect:  Resets all meters!!!
+DIVerbose	{YES/TRUE | NO/FALSE} Default = FALSE.  Set to Yes/True if you wish a separate demand interval (DI) file written for each meter.  Otherwise, only the totalizing meters are written.
+editor	Set the command string required to start up the editor preferred by the user. Does not require a circuit defined.
+element	Sets the active DSS element by name. You can use the complete object spec (class.name) or just the name.  if full name is specifed, class becomes the active class, also.
+emergvmaxpu	Maximum permissible per unit voltage for emergency (contingency) conditions. Default is 1.08.
+emergvminpu	Minimum permissible per unit voltage for emergency (contingency) conditions. Default is 0.90.
+frequency	Sets the frequency for the solution of the active circuit.
+Genkw	Size of generator, kW, to automatically add to system. Default is 1000.0
+Genmult	Global multiplier for the kW output of every generator in the circuit. Default is 1.0. Applies to all but Autoadd solution modes. Ignored for generators designated as Status=Fixed.
+Genpf	Power factor of generator to assume for automatic addition. Default is 1.0.
+h	Alternate name for time step size.
+Harmonics	{ALL | (list of harmonics) }  Default = ALL. Array of harmonics for which to perform a solution in Harmonics mode. If ALL, then solution is performed for all harmonics defined in spectra currently being used. Otherwise, specify a more limited list such as:    Set Harmonics=(1 5 7 11 13)
+hour	Sets the hour used for the start time of the solution.
+KeepList	Array of bus names to keep when performing circuit reductions. You can specify a text file holding the names, one to a line, by using the syntax (file=filename) instead of the actual array elements. Command is cumulative (reset keeplist first). Reduction algorithm may keep other buses automatically. Examples:Reset Keeplist (sets all buses to FALSE (no keep))Set KeepList=(bus1, bus2, bus3, ... )Set KeepList=(file=buslist.txt)
+LDCurve	Set Load-Duration Curve. Global load multiplier is defined by this curve for LD1 and LD2 solution modes. Default is Nil.
+Loadmodel	{Powerflow | Admittance} depending on the type of solution you wish to perform. If admittance, a non-iterative, direct solution is done with all loads and generators modeled by their equivalent admittance.
+Loadmult	Global load multiplier for this circuit.  Does not affect loads designated to be "fixed".  All other base kW values are multiplied by this number. Defaults to 1.0 when the circuit is created. As with other values, it always stays at the last value to which it was set until changed again.
+Log	{YES/TRUE | NO/FALSE} Default = FALSE.  Significant solution events are added to the Event Log, primarily for debugging.
+Lossregs	Which EnergyMeter register(s) to use for Losses in AutoAdd Mode. May be one or more registers.  if more than one, register values are summed together. Array of integer values > 0.  Defaults to 13 (for Zone kWh Losses). for a list of EnergyMeter register numbers, do the "Show Meters" command after defining a circuit.
+Lossweight	Weighting factor for Losses in AutoAdd functions.  Defaults to 1.0.Autoadd mode minimizes(Lossweight * Losses + UEweight * UE). If you wish to ignore Losses, set to 0. This applies only when there are EnergyMeter objects. Otherwise, AutoAdd mode minimizes total system losses.
+Markercode	Number code for node marker on circuit plots. Number from 0 to 47. Default is 16 (open circle). 24 is solid circle. Try other values for other symbols. See also Nodewidth
+Markswitches	{YES/TRUE | NO/FALSE}  Default is NO. Mark lines that are switches or are isolated with a symbol. See SwitchMarkerCode.
+Marktransformers	{YES/TRUE | NO/FALSE}  Default is NO. Mark transformer locations with a symbol. See TransMarkerCode. The coordinate of one of the buses for winding 1 or 2 must be defined for the symbol to show
+Maxcontroliter	Max control iterations per solution.  Default is 10.
+maxiterations	Sets the maximum allowable iterations for power flow solutions. Default is 15.
+mode	Set the solution Mode: One of  Snapshot,  Daily,  DIrect,  DUtycycle,  DYnamic,  Harmonic,  M1 (Monte Carlo 1),  M2 (Monte Carlo 2),  M3 (Monte Carlo 3),  Faultstudy,  Yearly (follow Yearly curve),  MF (monte carlo fault study)  Peakday,  LD1 (load-duration 1)  LD2 (load-duration 2)  AutoAdd (see AddType)Side effect: setting the Mode propergy resets all monitors and energy meters. It also resets the time step, etc. to defaults for each mode.  After the initial reset, the user must explicitly reset the monitors and/or meters until another Set Mode= command.
+Nodewidth	Width of node marker. Default=1. See MarkerCode
+normvmaxpu	Maximum permissible per unit voltage for normal conditions. Default is 1.05.
+normvminpu	Minimum permissible per unit voltage for normal conditions. Default is 0.95.
+Numallociterations	Default is 2. Maximum number of iterations for load allocations for each time the AllocateLoads or Estimate command is given.
+number	Number of solutions to perform for Monte Carlo or dutycycle solutions.
+object	Synonym for Element=. (See above)
+Overloadreport	{YES/TRUE | NO/FALSE} Default = FALSE. For yearly solution mode, sets overload reporting on/off. DemandInterval must be set to true for this to have effect.
+Pricecurve	Sets the curve to use to obtain for price signal. Default is none (null string). If none, price signal either remains constant or is set by an external process. Curve is defined as a loadshape (not normalized) and should correspond to the type of analysis being performed (daily, yearly, load-duration, etc.).
+Pricesignal	Sets the price signal ($/MWh) for the circuit.  Initial value is 25.
+random	One of [Uniform | Gaussian | Lognormal | None ] for Monte Carlo Variables.
+Recorder	{YES/TRUE | NO/FALSE} Default = FALSE. Opens DSSRecorder.DSS in DSS install folder and enables recording of all commands that come through the text command interface. Closed by either setting to NO/FALSE or exiting the program. When closed by this command, the file name can be found in the Result. Does not require a circuit defined.
+ReduceOption	{ Default or [null] | Stubs [Zmag=nnn] | MergeParallel | BreakLoops | Switches | TapEnds [maxangle=nnn] | Ends}  Strategy for reducing feeders. Default is to eliminate all dangling end buses and buses without load, caps, or taps. "Stubs [Zmag=0.02]" merges short branches with impedance less than Zmag (default = 0.02 ohms) "MergeParallel" merges lines that have been found to be in parallel "Breakloops" disables one of the lines at the head of a loop. "Tapends [maxangle=15]" eliminates all buses except those at the feeder ends, at tap points and where the feeder turns by greater than maxangle degrees. "Ends" eliminates dangling ends only."Switches" merges switches with downline lines and eliminates dangling switches.Marking buses with "Keeplist" will prevent their elimination.
+sec	Sets the seconds from the hour for the start time of the solution.
+Showexport	{YES/TRUE | NO/FALSE} Default = FALSE. If YES/TRUE will automatically show the results of an Export Command after it is written.
+stepsize	Sets the time step size for the active circuit.  Default units are s. May also be specified in minutes or hours by appending "m" or "h" to the value. For example:   stepsize=.25h   stepsize=15m  stepsize=900s
+Switchmarkercode	Numeric marker code for lines with switches or are isolated from the circuit. Default is 4. See markswitches option.
+Terminal	Set the active terminal of the active circuit element. May also be done with Select command.
+time	Specify the solution start time as an array:time=(hour, secs)
+tolerance	Sets the solution tolerance.  Default is 0.0001.
+Tracecontrol	{YES/TRUE | NO/FALSE}  Set to YES to trace the actions taken in the control queue.  Creates a file named TRACE_CONTROLQUEUE.CSV in the default directory. The names of all circuit elements taking an action are logged.
+TransMarkerCode	Numeric marker code for transformers. Default is 35. See markstransformers option.
+TransMarkerSize	Size of transformer marker. Default is 1.
+Trapezoidal	{YES/TRUE | NO/FALSE}  Default is "No". Specifies whether to use trapezoidal integration for accumulating energy meter registers. Applies to EnergyMeter and Generator objects.  Default method simply multiplies the present value of the registers times the width of the interval. Trapezoidal is more accurate when there are sharp changes in a load shape or unequal intervals. Trapezoidal is automatically used for some load-duration curve simulations where the interval size varies considerably. Keep in mind that for Trapezoidal, you have to solve one more point than the number of intervals. That is, to do a Daily simulation on a 24-hr load shape, you would set Number=25 to force a solution at the first point again to establish the last (24th) interval.
+type	Sets the active DSS class type.  Same as Class=...
+UEregs	Which EnergyMeter register(s) to use for UE in AutoAdd Mode. May be one or more registers.  if more than one, register values are summed together. Array of integer values > 0.  Defaults to 11 (for Load EEN). for a list of EnergyMeter register numbers, do the "Show Meters" command after defining a circuit.
+UEweight	Weighting factor for UE/EEN in AutoAdd functions.  Defaults to 1.0.Autoadd mode minimizes(Lossweight * Losses + UEweight * UE). If you wish to ignore UE, set to 0. This applies only when there are EnergyMeter objects. Otherwise, AutoAdd mode minimizes total system losses.
+Voltagebases	Define legal bus voltage bases for this circuit.  Enter an array of the legal voltage bases, in phase-to-phase voltages, for example:set voltagebases=".208, .480, 12.47, 24.9, 34.5, 115.0, 230.0" When the CalcVoltageBases command is issued, a snapshot solution is performed with no load injections and the bus base voltage is set to the nearest legal voltage base. The defaults are as shown in the example above.
+Voltexceptionreport	{YES/TRUE | NO/FALSE} Default = FALSE. For yearly solution mode, sets voltage exception reporting on/off. DemandInterval must be set to true for this to have effect.
+year	Sets the Year (integer number) to be used for the solution. for certain solution types, this determines the growth multiplier.
+Zonelock	{YES/TRUE | NO/FALSE}  Default is No. if No, then meter zones are recomputed each time there is a change in the circuit. If Yes, then meter zones are not recomputed unless they have not yet been computed. Meter zones are normally recomputed on Solve command following a circuit change.
+
+Object = CAPACITOR
+Property	Description
+(1) bus1	Name of first bus. Examples:bus1=busnamebus1=busname.1.2.3
+(2) bus2	Name of 2nd bus. Defaults to all phases connected to first bus, node 0. (Shunt Wye Connection)Not necessary to specify for delta (LL) connection
+(3) phases	Number of phases.
+(4) kvar	Total kvar, if one step, or ARRAY of kvar ratings for each step.  Evenly divided among phases. See rules for NUMSTEPS.
+(5) kv	For 2, 3-phase, kV phase-phase. Otherwise specify actual can rating.
+(6) conn	={wye | delta |LN |LL}  Default is wye, which is equivalent to LN
+(7) cmatrix	Nodal cap. matrix, lower triangle, microfarads, of the following form:cmatrix="c11 | -c21 c22 | -c31 -c32 c33"All steps are assumed the same if this property is used.
+(8) cuf	ARRAY of Capacitance, each phase, for each step, microfarads.See Rules for NumSteps.
+(9) R	ARRAY of series resistance in each phase (line), ohms. Default is 0.0
+(10) XL	ARRAY of series inductive reactance(s) in each phase (line) for filter, ohms at base frequency. Use this OR "h" property to define filter. Default is 0.0.
+(11) Harm	ARRAY of harmonics to which each step is tuned. Zero is interpreted as meaning zero reactance (no filter). Default is zero.
+(12) Numsteps	Number of steps in this capacitor bank. Default = 1. Forces reallocation of the capacitance, reactor, and states array.  Rules: If this property was previously =1, the value in the kvar property is divided equally among the steps. The kvar property does not need to be reset if that is accurate.  If the Cuf or Cmatrix property was used previously, all steps are set to the value of the first step. The states property is set to all steps on. All filter steps are set to the same harmonic. If this property was previously >1, the arrays are reallocated, but no values are altered. You must SUBSEQUENTLY assign all array properties.
+(13) states	ARRAY of integers {1|0} states representing the state of each step (on|off). Defaults to 1 when reallocated (on). Capcontrol will modify this array as it turns steps on or off.
+(14) normamps	Normal rated current.
+(15) emergamps	Maximum current.
+(16) faultrate	No. of failures per year.
+(17) pctperm	Percent of failures that become permanent.
+(18) repair	Hours to repair.
+(19) basefreq	Base Frequency for ratings.
+(20) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(21) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = CAPCONTROL
+Property	Description
+(1) element	Full object name of the circuit element, typically a line or transformer, to which the capacitor control's PT and/or CT are connected.There is no default; must be specified.
+(2) terminal	Number of the terminal of the circuit element to which the CapControl is connected. 1 or 2, typically.  Default is 1.
+(3) capacitor	Name of Capacitor element which the CapControl controls. No Default; Must be specified.Do not specify the full object name; "Capacitor" is assumed for the object class.  Example:Capacitor=cap1
+(4) type	{Current | voltage | kvar | PF | time } Control type.  Specify the ONsetting and OFFsetting appropriately with the type of control. (See help for ONsetting)
+(5) PTratio	Ratio of the PT that converts the monitored voltage to the control voltage. Default is 60.  If the capacitor is Wye, the 1st phase line-to-neutral voltage is monitored.  Else, the line-to-line voltage (1st - 2nd phase) is monitored.
+(6) CTratio	Ratio of the CT from line amps to control ampere setting for current and kvar control types. 
+(7) ONsetting	Value at which the control arms to switch the capacitor ON (or ratchet up a step).  Type of Control:Current: Line Amps / CTratioVoltage: Line-Neutral (or Line-Line for delta) Volts / PTratiokvar:    Total kvar, all phases (3-phase for pos seq model). This is directional. PF:      Power Factor, Total power in monitored terminal. Negative for Leading. Time:    Hrs from Midnight as a floating point number (decimal). 7:30am would be entered as 7.5.
+(8) OFFsetting	Value at which the control arms to switch the capacitor OFF. (See help for ONsetting)For Time control, is OK to have Off time the next day ( < On time)
+(9) Delay	Time delay, in seconds, from when the control is armed before it sends out the switching command to turn ON.  The control may reset before the action actually occurs. This is used to determine which capacity control will act first. Default is 15.  You may specify any floating point number to achieve a model of whatever condition is necessary.
+(10) VoltOverride	{Yes | No}  Default is No.  Switch to indicate whether VOLTAGE OVERRIDE is to be considered. Vmax and Vmin must be set to reasonable values if this property is Yes.
+(11) Vmax	Maximum voltage, in volts.  If the voltage across the capacitor divided by the PTRATIO is greater than this voltage, the capacitor will switch OFF regardless of other control settings. Default is 126 (goes with a PT ratio of 60 for 12.47 kV system).
+(12) Vmin	Minimum voltage, in volts.  If the voltage across the capacitor divided by the PTRATIO is less than this voltage, the capacitor will switch ON regardless of other control settings. Default is 115 (goes with a PT ratio of 60 for 12.47 kV system).
+(13) DelayOFF	Time delay, in seconds, for control to turn OFF when present state is ON. Default is 15.
+(14) DeadTime	Dead time after capacitor is turned OFF before it can be turned back ON. Default is 300 sec.
+(15) basefreq	Base Frequency for ratings.
+(16) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(17) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = ENERGYMETER
+Property	Description
+(1) element	Name (Full Object name) of element to which the monitor is connected.
+(2) terminal	Number of the terminal of the circuit element to which the monitor is connected. 1 or 2, typically.
+(3) action	{Clear (reset) | Save | Take | Zonedump | Allocate | Reduce} (A)llocate = Allocate loads on the meter zone to match PeakCurrent.(C)lear = reset all registers to zero(R)educe = reduces zone by merging lines (see Set Keeplist & ReduceOption)(S)ave = saves the current register values to a file.   File name is "MTR_metername.CSV".(T)ake = Takes a sample at present solution(Z)onedump = Dump names of elements in meter zone to a file   File name is "Zone_metername.CSV".
+(4) option	Enter a string ARRAY of any combination of the following. Options processed left-to-right:(E)xcess : (default) UE/EEN is estimate of energy over capacity (T)otal : UE/EEN is total energy after capacity exceeded(R)adial : (default) Treats zone as a radial circuit(M)esh : Treats zone as meshed network (not radial).(C)ombined : (default) Load UE/EEN computed from combination of overload and undervoltage.(V)oltage : Load UE/EEN computed based on voltage only.Example: option=(E, R)
+(5) kVAnormal	Upper limit on kVA load in the zone, Normal configuration. Default is 0.0 (ignored). Overrides limits on individual lines for overload EEN. With "LocalOnly=Yes" option, uses only load in metered branch.
+(6) kVAemerg	Upper limit on kVA load in the zone, Emergency configuration. Default is 0.0 (ignored). Overrides limits on individual lines for overload UE. With "LocalOnly=Yes" option, uses only load in metered branch.
+(7) peakcurrent	ARRAY of current magnitudes representing the peak currents measured at this location for the load allocation function.  Default is (400, 400, 400). Enter one current for each phase
+(8) Zonelist	ARRAY of full element names for this meter's zone.  Default is for meter to find it's own zone. If specified, DSS uses this list instead.  Can access the names in a single-column text file.  Examples: zonelist=[line.L1, transformer.T1, Line.L3] zonelist=(file=branchlist.txt)
+(9) LocalOnly	{Yes | No}  Default is NO.  If Yes, meter considers only the monitored element for EEN and UE calcs.  Uses whole zone for losses.
+(10) Mask	Mask for adding registers whenever all meters are totalized.  Array of floating point numbers representing the multiplier to be used for summing each register from this meter. Default = (1, 1, 1, 1, ... ).  You only have to enter as many as are changed (positional). Useful when two meters monitor same energy, etc.
+(11) Losses	{Yes | No}  Default is YES. Compute Zone losses. If NO, then no losses at all are computed.
+(12) LineLosses	{Yes | No}  Default is YES. Compute Line losses. If NO, then none of the losses are computed.
+(13) XfmrLosses	{Yes | No}  Default is YES. Compute Transformer losses. If NO, transformers are ignored in loss calculations.
+(14) SeqLosses	{Yes | No}  Default is YES. Compute Sequence losses in lines and segregate by line mode losses and zero mode losses.
+(15) 3phaseLosses	{Yes | No}  Default is YES. Compute Line losses and segregate by 3-phase and other (1- and 2-phase) line losses. 
+(16) VbaseLosses	{Yes | No}  Default is YES. Compute losses and segregate by voltage base. If NO, then voltage-based tabulation is not reported.
+(17) basefreq	Base Frequency for ratings.
+(18) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(19) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = FAULT
+Property	Description
+(1) bus1	Name of first bus. Examples:bus1=busnamebus1=busname.1.2.3
+(2) bus2	Name of 2nd bus. Defaults to all phases connected to first bus, node 0. (Shunt Wye Connection)
+(3) phases	Number of Phases. Default is 1.
+(4) r	Resistance, each phase, ohms. Default is 0.0001. Assumed to be Mean value if gaussian random mode.Max value if uniform mode.  A Fault is actually a series resistance that defaults to a wye connection to ground on the second terminal.  You may reconnect the 2nd terminal to achieve whatever connection.  Use the Gmatrix property to specify an arbitrary conductance matrix.
+(5) %stddev	Percent standard deviation in resistance to assume for Monte Carlo fault (MF) solution mode for GAUSSIAN distribution. Default is 0 (no variation from mean).
+(6) Gmatrix	Use this to specify a nodal conductance (G) matrix to represent some arbitrary resistance network. Specify in lower triangle form as usual for DSS matrices.
+(7) ONtime	Time (sec) at which the fault is established for time varying simulations. Default is 0.0 (on at the beginning of the simulation)
+(8) temporary	{Yes | No} Default is No.  Designate whether the fault is temporary.  For Time-varying simulations, the fault will be removed if the current through the fault drops below the MINAMPS criteria.
+(9) MinAmps	Minimum amps that can sustain a temporary fault. Default is 5.
+(10) normamps	Normal rated current.
+(11) emergamps	Maximum current.
+(12) faultrate	No. of failures per year.
+(13) pctperm	Percent of failures that become permanent.
+(14) repair	Hours to repair.
+(15) basefreq	Base Frequency for ratings.
+(16) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(17) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = FEEDER
+Property	Description
+(1) spectrum	Name of harmonic spectrum for this device.
+(2) basefreq	Base Frequency for ratings.
+(3) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(4) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = FUSE
+Property	Description
+(1) MonitoredObj	Full object name of the circuit element, typically a line, transformer, load, or generator, to which the Fuse is connected. This is the "monitored" element. There is no default; must be specified.
+(2) MonitoredTerm	Number of the terminal of the circuit element to which the Fuse is connected. 1 or 2, typically.  Default is 1.
+(3) SwitchedObj	Name of circuit element switch that the Fuse controls. Specify the full object name.Defaults to the same as the Monitored element. This is the "controlled" element.
+(4) SwitchedTerm	Number of the terminal of the controlled element in which the switch is controlled by the Fuse. 1 or 2, typically.  Default is 1.  Assumes all phases of the element have a fuse of this type.
+(5) FuseCurve	Name of the TCC Curve object that determines the fuse blowing.  Must have been previously defined as a TCC_Curve object. Default is "Tlink". Multiplying the current values in the curve by the "RatedCurrent" value gives the actual current.
+(6) RatedCurrent	Multiplier or actual phase amps for the phase TCC curve.  Defaults to 1.0.
+(7) Delay	Fixed delay time (sec) added to Fuse blowing time determined from the TCC curve. Default is 0.0. Used to represent fuse clearing time or any other delay.
+(8) Action	{Trip/Open | Close}  Action that overrides the Fuse control. Simulates manual control on Fuse "Trip" or "Open" causes the controlled element to open and lock out. "Close" causes the controlled element to close and the Fuse to reset.
+(9) basefreq	Base Frequency for ratings.
+(10) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(11) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = GENDISPATCHER
+Property	Description
+(1) Element	Full object name of the circuit element, typically a line or transformer, which the control is monitoring. There is no default; must be specified.
+(2) Terminal	Number of the terminal of the circuit element to which the GenDispatcher control is connected. 1 or 2, typically.  Default is 1. Make sure you have the direction on the power matching the sign of kWLimit.
+(3) kWLimit	kW Limit for the monitored element. The generators are dispatched to hold the power in band.
+(4) kWBand	Bandwidth (kW) of the dead band around the target limit.No dispatch changes are attempted if the power in the monitored terminal stays within this band.
+(5) kvarlimit	Max kvar to be delivered through the element.  Uses same dead band as kW.
+(6) GenList	Array list of generators to be dispatched.  If not specified, all generators in the circuit are assumed dispatchable.
+(7) basefreq	Base Frequency for ratings.
+(8) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(9) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = GENERATOR
+Property	Description
+(1) phases	Number of Phases, this Generator.  Power is evenly divided among phases.
+(2) bus1	Bus to which the Generator is connected.  May include specific node specification.
+(3) kv	Nominal rated (1.0 per unit) voltage, kV, for Generator. For 2- and 3-phase Generators, specify phase-phase kV. Otherwise, specify actual kV across each branch of the Generator. If wye (star), specify phase-neutral kV. If delta or phase-phase connected, specify phase-phase kV.
+(4) kW	Total base kW for the Generator.  A positive value denotes power coming OUT of the element, which is the opposite of a load. This value is modified depending on the dispatch mode. Unaffected by the global load multiplier and growth curves. If you want there to be more generation, you must add more generators or change this value.
+(5) pf	Generator power factor. Default is 0.80. Enter negative for leading powerfactor (when kW and kvar have opposite signs.)A positive power factor for a generator signifies that the generator produces vars as is typical for a synchronous generator.  Induction machines would be specified with a negative power factor.
+(6) kvar	Specify the base kvar.  Alternative to specifying the power factor.  Side effect:  the power factor value is altered to agree based on present value of kW.
+(7) model	Integer code for the model to use for generation variation with voltage. Valid values are:1:Generator injects a constant kW at specified power factor.2:Generator is modeled as a constant admittance.3:Const kW, constant kV.  Somewhat like a conventional transmission power flow P-V generator.4:Const kW, Fixed Q (Q never varies)5:Const kW, Fixed Q(as a constant reactance)6:Compute load injection from User-written Model.(see usage of Xd, Xdp)7:Constant kW, kvar, but current limited below Vminpu
+(8) Vminpu	Default = 0.90.  Minimum per unit voltage for which the Model is assumed to apply. Below this value, the load model reverts to a constant impedance model.
+(9) Vmaxpu	Default = 1.10.  Maximum per unit voltage for which the Model is assumed to apply. Above this value, the load model reverts to a constant impedance model.
+(10) yearly	Dispatch shape to use for yearly simulations.  Must be previously defined as a Loadshape object. If this is not specified, a constant value is assumed (no variation). If the generator is assumed to be ON continuously, specify this value as FIXED, or designate a curve that is 1.0 per unit at all times. Nominally for 8760 simulations.  If there are fewer points in the designated shape than the number of points in the solution, the curve is repeated.
+(11) daily	Dispatch shape to use for daily simulations.  Must be previously defined as a Loadshape object of 24 hrs, typically.  If generator is assumed to be ON continuously, specify this value as FIXED, or designate a Loadshape objectthat is 1.0 perunit for all hours.
+(12) duty	Load shape to use for duty cycle dispatch simulations such as for wind generation. Must be previously defined as a Loadshape object. Typically would have time intervals less than 1 hr -- perhaps, in seconds. Designate the number of points to solve using the Set Number=xxxx command. If there are fewer points in the actual shape, the shape is assumed to repeat.
+(13) dispmode	{Default | Loadlevel | Price } Default = Default. Dispatch mode. In default mode, gen is either always on or follows dispatch curve as specified. Otherwise, the gen comes on when either the global default load level or the price level exceeds the dispatch value.
+(14) dispvalue	Dispatch value. If = 0.0 Then Generator follow dispatch curves, if any. If > 0  Then Generator is ON only when either the price signal exceeds this value or the load multiplier (set loadmult=) times the default yearly growth factor exceeds this value.  Then the generator follows dispatch curves, if any (see also Status).
+(15) conn	={wye|LN|delta|LL}.  Default is wye.
+(16) Rneut	Removed due to causing confusion - Add neutral impedance externally.
+(17) Xneut	Removed due to causing confusion - Add neutral impedance externally.
+(18) status	={Fixed|Variable}.  If Fixed, then dispatch multipliers do not apply. The generator is alway at full power when it is ON.  Default is Variable  (follows curves).
+(19) class	An arbitrary integer number representing the class of Generator so that Generator values may be segregated by class.
+(20) Vpu	Per Unit voltage set point for Model = 3  (typical power flow model).  Default is 1.0. 
+(21) maxkvar	Maximum kvar limit for Model = 3.  Defaults to twice the specified load kvar.  Always reset this if you change PF or kvar properties.
+(22) minkvar	Minimum kvar limit for Model = 3. Enter a negative number if generator can absorb vars. Defaults to negative of Maxkvar.  Always reset this if you change PF or kvar properties.
+(23) pvfactor	Deceleration factor for P-V generator model (Model=3).  Default is 0.1. If the circuit converges easily, you may want to use a higher number such as 1.0. Use a lower number if solution diverges. Use Debugtrace=yes to create a file that will trace the convergence of a generator model.
+(24) forceon	{Yes | No}  Forces generator ON despite requirements of other dispatch modes. Stays ON until this property is set to NO, or an internal algorithm cancels the forced ON state.
+(25) kVA	kVA rating of electrical machine. Defaults to 1.2* kW if not specified. Applied to machine or inverter definition for Dynamics mode solutions. 
+(26) MVA	MVA rating of electrical machine.  Alternative to using kVA=.
+(27) Xd	Per unit synchronous reactance of machine. Presently used only for Thevinen impedance for power flow calcs of user models (model=6). Typically use a value 0.4 to 1.0. Default is 1.0
+(28) Xdp	Per unit transient reactance of the machine.  Used for Dynamics mode and Fault studies.  Default is 0.27.For user models, this value is used for the Thevinen/Norton impedance for Dynamics Mode.
+(29) Xdpp	Per unit subtransient reactance of the machine.  Used for Harmonics. Default is 0.20.
+(30) H	Per unit mass constant of the machine.  MW-sec/MVA.  Default is 1.0.
+(31) D	Damping constant.  Usual range is 0 to 4. Default is 1.0.  Adjust to get damping
+(32) UserModel	Name of DLL containing user-written model, which computes the terminal currents for Dynamics studies, overriding the default model.  Set to "none" to negate previous setting.
+(33) UserData	String (in quotes or parentheses) that gets passed to user-written model for defining the data required for that model.
+(34) ShaftModel	Name of user-written DLL containing a Shaft model, which models the prime mover and determines the power on the shaft for Dynamics studies. Models additional mass elements other than the single-mass model in the DSS default model. Set to "none" to negate previous setting.
+(35) ShaftData	String (in quotes or parentheses) that gets passed to user-written shaft dynamic model for defining the data for that model.
+(36) debugtrace	{Yes | No }  Default is no.  Turn this on to capture the progress of the generator model for each iteration.  Creates a separate file for each generator named "GEN_name.CSV".
+(37) spectrum	Name of harmonic voltage or current spectrum for this generator. Voltage behind Xd" for machine - default. Current injection for inverter. Default value is "default", which is defined when the DSS starts.
+(38) basefreq	Base Frequency for ratings.
+(39) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(40) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = GROWTHSHAPE
+Property	Description
+(1) npts	Number of points to expect in subsequent vector.
+(2) year	Array of year values, or a text file spec, corresponding to the multipliers. Enter only those years where the growth changes. May be any integer sequence -- just so it is consistent. See help on Mult.
+(3) mult	Array of growth multiplier values, or a text file spec, corresponding to the year values. Enter the multiplier by which you would multiply the previous year's load to get the present year's.Examples:  Year = "1, 2, 5"   Mult="1.05, 1.025, 1.02".  Year= (File=years.txt) Mult= (file=mults.txt).Text files contain one value per line.
+(4) csvfile	Switch input of growth curve data to a csv file containing (year, mult) points, one per line.
+(5) sngfile	Switch input of growth curve data to a binary file of singles containing (year, mult) points, packed one after another.
+(6) dblfile	Switch input of growth curve data to a binary file of doubles containing (year, mult) points, packed one after another.
+(7) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = ISOURCE
+Property	Description
+(1) bus1	Name of bus to which source is connected.bus1=busnamebus1=busname.1.2.3
+(2) amps	Magnitude of current source, each phase, in Amps.
+(3) angle	Phase angle in degrees of first phase: e.g.,Angle=10.3.Phase shift between phases is assumed 120 degrees when number of phases <= 3
+(4) frequency	Source frequency.  Defaults to  circuit fundamental frequency.
+(5) phases	Number of phases.  Defaults to 3. For 3 or less, phase shift is 120 degrees.
+(6) scantype	{pos*| zero | none} Maintain specified sequence for harmonic solution. Default is positive sequence. Otherwise, angle between phases rotates with harmonic.
+(7) spectrum	Harmonic spectrum assumed for this source.  Default is "default".
+(8) basefreq	Base Frequency for ratings.
+(9) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(10) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = LINE
+Property	Description
+(1) bus1	Name of bus to which first terminal is connected.Example:bus1=busname   (assumes all terminals connected in normal phase order)bus1=busname.3.1.2.0 (specify terminal to node connections explicitly)
+(2) bus2	Name of bus to which 2nd terminal is connected.
+(3) linecode	Name of linecode object describing line impedances.If you use a line code, you do not need to specify the impedances here. The line code must have been PREVIOUSLY defined. The values specified last will prevail over those specified earlier (left-to-right sequence of properties).  You can subsequently change the number of phases if symmetrical component quantities are specified.If no line code or impedance data are specified, the line object defaults to 336 MCM ACSR on 4 ft spacing.
+(4) length	Length of line. Default is 1.0. If units do not match the impedance data, specify "units" property. 
+(5) phases	Number of phases, this line.
+(6) r1	Positive-sequence Resistance, ohms per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces the program to use the symmetrical component line definition. See also Rmatrix.
+(7) x1	Positive-sequence Reactance, ohms per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces the program to use the symmetrical component line definition.  See also Xmatrix
+(8) r0	Zero-sequence Resistance, ohms per unit length.
+(9) x0	Zero-sequence Reactance, ohms per unit length.
+(10) c1	Positive-sequence capacitance, nf per unit length.  Setting any of R1, R0, X1, X0, C1, C0 forces the program to use the symmetrical component line definition. See also Cmatrix.
+(11) c0	Zero-sequence capacitance, nf per unit length.
+(12) rmatrix	Resistance matrix, lower triangle, ohms per unit length. Order of the matrix is the number of phases. May be used to specify the impedance of any line configuration. Using any of Rmatrix, Xmatrix, Cmatrix forces program to use the matrix values for line impedance definition. For balanced line models, you may use the standard symmetrical component data definition instead.
+(13) xmatrix	Reactance matrix, lower triangle, ohms per unit length. Order of the matrix is the number of phases. May be used to specify the impedance of any line configuration. Using any of Rmatrix, Xmatrix, Cmatrix forces program to use the matrix values for line impedance definition.  For balanced line models, you may use the standard symmetrical component data definition instead.
+(14) cmatrix	Nodal Capacitance matrix, lower triangle, nf per unit length.Order of the matrix is the number of phases. May be used to specify the shunt capacitance of any line configuration. Using any of Rmatrix, Xmatrix, Cmatrix forces program to use the matrix values for line impedance definition.  For balanced line models, you may use the standard symmetrical component data definition instead.
+(15) Switch	{y/n | T/F}  Default= no/false.  Designates this line as a switch for graphics and algorithmic purposes. SIDE EFFECT: Sets R1=0.001 X1=0.0. You must reset if you want something different.
+(16) Rg	Carson earth return resistance per unit length used to compute impedance values at base frequency. Default is 0.01805 = 60 Hz value in ohms per kft (matches default line impedances). This value is required for harmonic solutions if you wish to adjust the earth return impedances for frequency. If not, set both Rg and Xg = 0.
+(17) Xg	Carson earth return reactance per unit length used to compute impedance values at base frequency.  For making better frequency adjustments. Default is 0.155081 = 60 Hz value in ohms per kft (matches default line impedances). This value is required for harmonic solutions if you wish to adjust the earth return impedances for frequency. If not, set both Rg and Xg = 0.
+(18) rho	Default=100 meter ohms.  Earth resitivity used to compute earth correction factor. Overrides Line geometry definition if specified.
+(19) geometry	Geometry code for LineGeometry Object. Supercedes any previous definition of line impedance. Line constants are computed for each frequency change or rho change. CAUTION: may alter number of phases. You cannot subsequently change the number of phases unless you change how the line impedance is defined.
+(20) units	Length Units = {none | mi|kft|km|m|Ft|in|cm } Default is None - assumes length units match impedance units.
+(21) spacing	Reference to a LineSpacing for use in a line constants calculation.Must be used in conjunction with the Wires property.Specify this before the wires property.
+(22) wires	Array of WireData names for use in a line constants calculation.Must be used in conjunction with the LineSpacing property.Specify the LineSpacing first.
+(23) normamps	Normal rated current.
+(24) emergamps	Maximum current.
+(25) faultrate	No. of failures per year.
+(26) pctperm	Percent of failures that become permanent.
+(27) repair	Hours to repair.
+(28) basefreq	Base Frequency for ratings.
+(29) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(30) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = LINECODE
+Property	Description
+(1) nphases	Number of phases in the line this line code data represents.  Setting this property reinitializes the line code.  Impedance matrix is reset for default symmetrical component.
+(2) r1	Positive-sequence Resistance, ohms per unit length.  See also Rmatrix.
+(3) x1	Positive-sequence Reactance, ohms per unit length.  See also Xmatrix
+(4) r0	Zero-sequence Resistance, ohms per unit length.
+(5) x0	Zero-sequence Reactance, ohms per unit length.
+(6) c1	Positive-sequence capacitance, nf per unit length. See also Cmatrix.
+(7) c0	Zero-sequence capacitance, nf per unit length.
+(8) units	One of (ohms per ...) {none|mi|km|kft|m|me|ft|in|cm}.  Default is none; assumes units agree with length unitsgiven in Line object
+(9) rmatrix	Resistance matrix, lower triangle, ohms per unit length. Order of the matrix is the number of phases. May be used to specify the impedance of any line configuration.  For balanced line models, you may use the standard symmetrical component data definition instead.
+(10) xmatrix	Reactance matrix, lower triangle, ohms per unit length. Order of the matrix is the number of phases. May be used to specify the impedance of any line configuration.  For balanced line models, you may use the standard symmetrical component data definition instead.
+(11) cmatrix	Nodal Capacitance matrix, lower triangle, nf per unit length.Order of the matrix is the number of phases. May be used to specify the shunt capacitance of any line configuration.  For balanced line models, you may use the standard symmetrical component data definition instead.
+(12) baseFreq	Frequency at which impedances are specified.
+(13) normamps	Normal ampere limit on line.  This is the so-called Planning Limit. It may also be the value above which load will have to be dropped in a contingency.  Usually about 75% - 80% of the emergency (one-hour) rating.
+(14) emergamps	Emergency ampere limit on line (usually one-hour rating).
+(15) faultrate	Number of faults per unit length per year.
+(16) pctperm	Percentage of the faults that become permanent.
+(17) repair	Hours to repair.
+(18) Kron	Kron = Y/N. Default=N.  Perform Kron reduction on the impedance matrix after it is formed, reducing order by 1. Eliminates the conductor designated by the "Neutral=" property. Do this after the R, X, and C matrices are defined. Ignored for symmetrical components. May be issued more than once to eliminate more than one conductor by resetting the Neutral property after the previous invoking of this property. Generally, you do not want to do a Kron reduction on the matrix if you intend to solve at a frequency other than the base frequency and exploit the Rg and Xg values.
+(19) Rg	Carson earth return resistance per unit length used to compute impedance values at base frequency.  For making better frequency adjustments. Default is 0.01805 = 60 Hz value in ohms per kft (matches default line impedances). This value is required for harmonic solutions if you wish to adjust the earth return impedances for frequency. If not, set both Rg and Xg = 0.
+(20) Xg	Carson earth return reactance per unit length used to compute impedance values at base frequency.  For making better frequency adjustments. Default value is 0.155081 = 60 Hz value in ohms per kft (matches default line impedances). This value is required for harmonic solutions if you wish to adjust the earth return impedances for frequency. If not, set both Rg and Xg = 0.
+(21) rho	Default=100 meter ohms.  Earth resitivity used to compute earth correction factor.
+(22) neutral	Designates which conductor is the "neutral" conductor that will be eliminated by Kron reduction. Default is the last conductor (nphases value). After Kron reduction is set to 0. Subsequent issuing of Kron=Yes will not do anything until this property is set to a legal value. Applies only to LineCodes defined by R, X, and C matrix.
+(23) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = LINEGEOMETRY
+Property	Description
+(1) nconds	Number of conductors in this geometry. Default is 3. Triggers memory allocations. Define first!
+(2) nphases	Number of phases. Default =3; All other conductors are considered neutrals and might be reduced out.
+(3) cond	Set this = number of the conductor you wish to define. Default is 1.
+(4) wire	Code from WireData. MUST BE PREVIOUSLY DEFINED. no default.
+(5) x	x coordinate.
+(6) h	Height of conductor.
+(7) units	Units for x and h: {mi|kft|km|m|Ft|in|cm } Initial default is "ft", but defaults to last unit defined
+(8) normamps	Normal ampacity, amperes for the line. Defaults to first conductor if not specified.
+(9) emergamps	Emergency ampacity, amperes. Defaults to first conductor if not specified.
+(10) reduce	{Yes | No} Default = no. Reduce to Nphases (Kron Reduction). Reduce out neutrals.
+(11) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = LINESPACING
+Property	Description
+(1) nwires	Number of wires in this geometry. Default is 3. Triggers memory allocations. Define first!
+(2) phases	Number of retained phase conductors. If less than the number of wires, list the retained phase coordinates first.
+(3) x	Array of wire X coordinates.
+(4) h	Array of wire Heights.
+(5) units	Units for x and h: {mi|kft|km|m|Ft|in|cm } Initial default is "ft", but defaults to last unit defined
+(6) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = LOAD
+Property	Description
+(1) phases	Number of Phases, this load.  Load is evenly divided among phases.
+(2) bus1	Bus to which the load is connected.  May include specific node specification.
+(3) kV	Nominal rated (1.0 per unit) voltage, kV, for load. For 2- and 3-phase loads, specify phase-phase kV. Otherwise, specify actual kV across each branch of the load. If wye (star), specify phase-neutral kV. If delta or phase-phase connected, specify phase-phase kV.
+(4) kW	Total base kW for the load.  Normally, you would enter the maximum kW for the load for the first year and allow it to be adjusted by the load shapes, growth shapes, and global load multiplier.Legal ways to define base load:kW, PFkW, kvarkVA, PFXFKVA * Allocationfactor, PFkWh/(kWhdays*24) * Cfactor, PF
+(5) pf	Load power factor.  Enter negative for leading powerfactor (when kW and kvar have opposite signs.)
+(6) model	Integer code for the model to use for load variation with voltage. Valid values are:1:Standard constant P+jQ load. (Default)2:Constant impedance load. 3:Const P, Quadratic Q (like a motor).4:Nominal Linear P, Quadratic Q (feeder mix). Use this with CVRfactor.5:Constant Current Magnitude6:Const P, Fixed Q7:Const P, Fixed Impedance QFor Types 6 and 7, only the P is modified by load multipliers.
+(7) yearly	Load shape to use for yearly simulations.  Must be previously defined as a Loadshape object. Defaults to Daily load shape  when Daily is defined.  The daily load shape is repeated in this case. Otherwise, the default is no variation.
+(8) daily	Load shape to use for daily simulations.  Must be previously defined as a Loadshape object of 24 hrs, typically. Default is no variation (constant) if not defined. Side effect: Sets Yearly load shape if not already defined.
+(9) duty	Load shape to use for duty cycle simulations.  Must be previously defined as a Loadshape object.  Typically would have time intervals less than 1 hr. Designate the number of points to solve using the Set Number=xxxx command. If there are fewer points in the actual shape, the shape is assumed to repeat. Defaults to Daily curve If not specified.
+(10) growth	Characteristic  to use for growth factors by years.  Must be previously defined as a Growthshape object. Defaults to circuit default growth factor (see Set Growth command).
+(11) conn	={wye or LN | delta or LL}.  Default is wye.
+(12) kvar	Specify the base kvar for specifying load as kW & kvar.  Assumes kW has been already defined.  Alternative to specifying the power factor.  Side effect:  the power factor and kVA is altered to agree.
+(13) Rneut	Neutral resistance of wye (star)-connected load in actual ohms.If entered as a negative value, the neutral is assumed to be open, or floating.
+(14) Xneut	Neutral reactance of wye(star)-connected load in actual ohms.  May be + or -.
+(15) status	={Variable | Fixed | Exempt}.  Default is variable. If Fixed, no load multipliers apply;  however, growth multipliers do apply.  All multipliers apply to Variable loads.  Exempt loads are not modified by the global load multiplier, such as in load duration curves, etc.  Daily multipliers do apply, so this is a good way to represent industrial load that stays the same for the period study.
+(16) class	An arbitrary integer number representing the class of load so that load values may be segregated by load value. Default is 1; not used internally.
+(17) Vminpu	Default = 0.95.  Minimum per unit voltage for which the MODEL is assumed to apply. Below this value, the load model reverts to a constant impedance model.
+(18) Vmaxpu	Default = 1.05.  Maximum per unit voltage for which the MODEL is assumed to apply. Above this value, the load model reverts to a constant impedance model.
+(19) Vminnorm	Minimum per unit voltage for load EEN evaluations, Normal limit.  Default = 0, which defaults to system "vminnorm" property (see Set Command under Executive).  If this property is specified, it ALWAYS overrides the system specification. This allows you to have different criteria for different loads. Set to zero to revert to the default system value.
+(20) Vminemerg	Minimum per unit voltage for load UE evaluations, Emergency limit.  Default = 0, which defaults to system "vminemerg" property (see Set Command under Executive).  If this property is specified, it ALWAYS overrides the system specification. This allows you to have different criteria for different loads. Set to zero to revert to the default system value.
+(21) xfkVA	Default = 0.0.  Rated kVA of service transformer for allocating loads based on connected kVA at a bus. Side effect:  kW, PF, and kvar are modified. See help on kVA.
+(22) allocationfactor	Default = 0.5.  Allocation factor for allocating loads based on connected kVA at a bus. Side effect:  kW, PF, and kvar are modified by multiplying this factor times the XFKVA (if > 0).
+(23) kVA	Specify base Load in kVA (and power factor)Legal ways to define base load:kW, PFkW, kvarkVA, PFXFKVA * Allocationfactor, PFkWh/(kWhdays*24) * Cfactor, PF
+(24) %mean	Percent mean value for load to use for monte carlo studies if no loadshape is assigned to this load. Default is 50.
+(25) %stddev	Percent Std deviation value for load to use for monte carlo studies if no loadshape is assigned to this load. Default is 10.
+(26) CVRwatts	Percent reduction in active power (watts) per 1% reduction in voltage from 100% rated. Default=1.  Typical values range from 0.4 to 0.8. Applies to Model=4 only. Intended to represent conservation voltage reduction or voltage optimization measures.
+(27) CVRvars	Percent reduction in reactive power (vars) per 1% reduction in voltage from 100% rated. Default=2.  Typical values range from 2 to 3. Applies to Model=4 only. Intended to represent conservation voltage reduction or voltage optimization measures.
+(28) kwh	kWh billed for this period. Default is 0. See help on kVA and Cfactor and kWhDays.
+(29) kwhdays	Length of kWh billing period in days (24 hr days). Default is 30. Average demand is computed using this value.
+(30) Cfactor	Factor relating average kW to peak kW. Default is 4.0. See kWh and kWhdays. See kVA.
+(31) CVRcurve	Default is NONE. Curve describing both watt and var factors as a function of time. Refers to a LoadShape object with both Mult and Qmult defined. Define a Loadshape to agree with yearly or daily curve according to the type of analysis being done. If NONE, the CVRwatts and CVRvars factors are used and assumed constant.
+(32) NumCust	Number of customers, this load. Default is 1.
+(33) spectrum	Name of harmonic current spectrum for this load.  Default is "defaultload", which is defined when the DSS starts.
+(34) basefreq	Base Frequency for ratings.
+(35) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(36) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = LOADSHAPE
+Property	Description
+(1) npts	Max number of points to expect in load shape vectors. This gets reset to the number of multiplier values found (in files only) if less than specified.
+(2) interval	Time interval for fixed interval data. (hrs) Default = 1. If set = 0 then time data (in hours) is expected using either the Hour property or input files.
+(3) mult	Array of multiplier values for active power (P).  Can also use the syntax: mult = (file=filename)where the file contains one value per line. In "file=" syntax, the number of points may be altered.
+(4) hour	Array of hour values. Only necessary to define for variable interval data. If the data are fixed interval, do not use this property. Can also use the syntax: mult = (file=filename)where the file contains one value per line.
+(5) mean	Mean of the active power multipliers.  Automatically computed when a curve is defined.However, you may set it independently.  Used for Monte Carlo load simulations.
+(6) stddev	Standard deviation of active power multipliers.  This is automatically computed when a vector or file of multipliers is entered.  However, you may set it to another value indepently.Is overwritten if you subsequently read in a curveUsed for Monte Carlo load simulations.
+(7) csvfile	Switch input of active power load curve data to a csv file containing (hour, mult) points, or simply (mult) values for fixed time interval data, one per line. NOTE: This action may reset the number of points to a lower value.
+(8) sngfile	Switch input of active power load curve data to a binary file of singles containing (hour, mult) points, or simply (mult) values for fixed time interval data, packed one after another. NOTE: This action may reset the number of points to a lower value.
+(9) dblfile	Switch input of active power load curve data to a binary file of doubles containing (hour, mult) points, or simply (mult) values for fixed time interval data, packed one after another. NOTE: This action may reset the number of points to a lower value.
+(10) action	NORMALIZE is only defined action. After defining load curve data, setting action=normalize will modify the multipliers so that the peak is 1.0. The mean and std deviation are recomputed.
+(11) qmult	Array of multiplier values for reactive power (Q).  Can also use the syntax: qmult = (file=filename)where the file contains one value per line.
+(12) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = MONITOR
+Property	Description
+(1) element	Name (Full Object name) of element to which the monitor is connected.
+(2) terminal	Number of the terminal of the circuit element to which the monitor is connected. 1 or 2, typically. For monitoring states, attach monitor to terminal 1.
+(3) mode	Bitmask integer designating the values the monitor is to capture: 0 = Voltages and currents1 = Powers2 = Tap Position (Transformers only)3 = State Variables (PCElements only)Normally, these would be actual phasor quantities from solution.Combine with adders below to achieve other results for terminal quantities:+16 = Sequence quantities+32 = Magnitude only+64 = Positive sequence only or avg of all phasesMix adder to obtain desired results. For example:Mode=112 will save positive sequence voltage and current magnitudes onlyMode=48 will save all sequence voltages and currents, but magnitude only.
+(4) action	{Clear | Save | Take}(C)lears or (S)aves current buffer.(T)ake action takes a sample.Note that monitors are automatically reset (cleared) when the Set Mode= command is issued. Otherwise, the user must explicitly reset all monitors (reset monitors command) or individual monitors with the Clear action.
+(5) residual	{Yes/True | No/False} Default = No.  Include Residual cbannel (sum of all phases) for voltage and current. Does not apply to sequence quantity modes or power modes.
+(6) VIPolar	{Yes/True | No/False} Default = YES. Report voltage and current in polar form (Mag/Angle). (default)  Otherwise, it will be real and imaginary.
+(7) PPolar	{Yes/True | No/False} Default = YES. Report power in Apparent power, S, in polar form (Mag/Angle).(default)  Otherwise, is P and Q
+(8) basefreq	Base Frequency for ratings.
+(9) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(10) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = REACTOR
+Property	Description
+(1) bus1	Name of first bus. Examples:bus1=busnamebus1=busname.1.2.3
+(2) bus2	Name of 2nd bus. Defaults to all phases connected to first bus, node 0. (Shunt Wye Connection)Not necessary to specify for delta (LL) connection
+(3) phases	Number of phases.
+(4) kvar	Total kvar, all phases.  Evenly divided among phases. Only determines X. Specify R separately
+(5) kv	For 2, 3-phase, kV phase-phase. Otherwise specify actual coil rating.
+(6) conn	={wye | delta |LN |LL}  Default is wye, which is equivalent to LN. If Delta, then only one terminal.
+(7) Rmatrix	Resistance matrix, lower triangle, ohms at base frequency. Order of the matrix is the number of phases. Mutually exclusive to specifying parameters by kvar or X.
+(8) Xmatrix	Reactance matrix, lower triangle, ohms at base frequency. Order of the matrix is the number of phases. Mutually exclusive to specifying parameters by kvar or X.
+(9) Parallel	{Yes | No}  Default=No. Indicates whether Rmatrix and Xmatrix are to be considered in parallel. Default is series. For other models, specify R and Rp.
+(10) R	Resistance (in series with reactance), each phase, ohms.
+(11) X	Reactance, each phase, ohms at base frequency.
+(12) Rp	Resistance in parallel with R and X (the entire branch). Assumed infinite if not specified.
+(13) normamps	Normal rated current.
+(14) emergamps	Maximum current.
+(15) faultrate	No. of failures per year.
+(16) pctperm	Percent of failures that become permanent.
+(17) repair	Hours to repair.
+(18) basefreq	Base Frequency for ratings.
+(19) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(20) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = RECLOSER
+Property	Description
+(1) MonitoredObj	Full object name of the circuit element, typically a line, transformer, load, or generator, to which the Recloser's PT and/or CT are connected. This is the "monitored" element. There is no default; must be specified.
+(2) MonitoredTerm	Number of the terminal of the circuit element to which the Recloser is connected. 1 or 2, typically.  Default is 1.
+(3) SwitchedObj	Name of circuit element switch that the Recloser controls. Specify the full object name.Defaults to the same as the Monitored element. This is the "controlled" element.
+(4) SwitchedTerm	Number of the terminal of the controlled element in which the switch is controlled by the Recloser. 1 or 2, typically.  Default is 1.
+(5) NumFast	Number of Fast (fuse saving) operations.  Default is 1. (See "Shots")
+(6) PhaseFast	Name of the TCC Curve object that determines the Phase Fast trip.  Must have been previously defined as a TCC_Curve object. Default is "A". Multiplying the current values in the curve by the "phasetrip" value gives the actual current.
+(7) PhaseDelayed	Name of the TCC Curve object that determines the Phase Delayed trip.  Must have been previously defined as a TCC_Curve object. Default is "D".Multiplying the current values in the curve by the "phasetrip" value gives the actual current.
+(8) GroundFast	Name of the TCC Curve object that determines the Ground Fast trip.  Must have been previously defined as a TCC_Curve object. Default is none (ignored). Multiplying the current values in the curve by the "groundtrip" value gives the actual current.
+(9) GroundDelayed	Name of the TCC Curve object that determines the Ground Delayed trip.  Must have been previously defined as a TCC_Curve object. Default is none (ignored).Multiplying the current values in the curve by the "groundtrip" value gives the actual current.
+(10) PhaseTrip	Multiplier or actual phase amps for the phase TCC curve.  Defaults to 1.0.
+(11) GroundTrip	Multiplier or actual ground amps (3I0) for the ground TCC curve.  Defaults to 1.0.
+(12) PhaseInst	Actual amps for instantaneous phase trip which is assumed to happen in 0.01 sec + Delay Time. Default is 0.0, which signifies no inst trip. 
+(13) GroundInst	Actual amps for instantaneous ground trip which is assumed to happen in 0.01 sec + Delay Time.Default is 0.0, which signifies no inst trip.
+(14) Reset	Reset time in sec for Recloser.  Default is 15. 
+(15) Shots	Total Number of fast and delayed shots to lockout.  Default is 4. This is one more than the number of reclose intervals.
+(16) RecloseIntervals	Array of reclose intervals.  Default for Recloser is (0.5, 2.0, 2.0) seconds. A locked out Recloser must be closed manually (action=close).
+(17) Delay	Fixed delay time (sec) added to Recloser trip time. Default is 0.0. Used to represent breaker time or any other delay.
+(18) Action	{Trip/Open | Close}  Action that overrides the Recloser control. Simulates manual control on recloser "Trip" or "Open" causes the controlled element to open and lock out. "Close" causes the controlled element to close and the Recloser to reset to its first operation.
+(19) TDPhFast	Time dial for Phase Fast trip curve. Multiplier on time axis of specified curve. Default=1.0.
+(20) TDGrFast	Time dial for Ground Fast trip curve. Multiplier on time axis of specified curve. Default=1.0.
+(21) TDPhDelayed	Time dial for Phase Delayed trip curve. Multiplier on time axis of specified curve. Default=1.0.
+(22) TDGrDelayed	Time dial for Ground Delayed trip curve. Multiplier on time axis of specified curve. Default=1.0.
+(23) basefreq	Base Frequency for ratings.
+(24) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(25) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = REGCONTROL
+Property	Description
+(1) transformer	Name of Transformer element to which the RegControl is connected. Do not specify the full object name; "Transformer" is assumed for the object class.  Example:Transformer=Xfmr1
+(2) winding	Number of the winding of the transformer element that the RegControl is monitoring. 1 or 2, typically.  Side Effect: Sets TAPWINDING property to the same winding.
+(3) vreg	Voltage regulator setting, in VOLTS, for the winding being controlled.  Multiplying this value times the ptratio should yield the voltage across the WINDING of the controlled transformer. Default is 120.0
+(4) band	Bandwidth in VOLTS for the controlled bus (see help for ptratio property).  Default is 3.0
+(5) ptratio	Ratio of the PT that converts the controlled winding voltage to the regulator voltage. Default is 60.  If the winding is Wye, the line-to-neutral voltage is used.  Else, the line-to-line voltage is used.
+(6) CTprim	Rating, in Amperes, of the primary CT rating for converting the line amps to control amps.The typical default secondary ampere rating is 0.2 Amps (check with manufacturer specs).
+(7) R	R setting on the line drop compensator in the regulator, expressed in VOLTS.
+(8) X	X setting on the line drop compensator in the regulator, expressed in VOLTS.
+(9) bus	Name of a bus in the system to use as the controlled bus instead of the bus to which the winding is connected or the R and X line drop compensator settings.  Do not specify this value if you wish to use the line drop compensator settings.  Default is null string. Assumes the base voltage for this bus is the same as the transformer winding base specified above. Note: This bus WILL BE CREATED by the regulator control upon SOLVE if not defined by some other device.
+(10) delay	Time delay, in seconds, from when the voltage goes out of band to when the tap changing begins. This is used to determine which regulator control will act first. Default is 15.  You may specify any floating point number to achieve a model of whatever condition is necessary.
+(11) reversible	{Yes |No} Indicates whether or not the regulator can be switched to regulate in the reverse direction. Default is No.Typically applies only to line regulators and not to LTC on a substation transformer.
+(12) revvreg	Voltage setting in volts for operation in the reverse direction.
+(13) revband	Bandwidth for operating in the reverse direction.
+(14) revR	R line drop compensator setting for reverse direction.
+(15) revX	X line drop compensator setting for reverse direction.
+(16) tapdelay	Delay in sec between tap changes. Default is 2. This is how long it takes between changes after the first change.
+(17) debugtrace	{Yes | No }  Default is no.  Turn this on to capture the progress of the regulator model for each control iteration.  Creates a separate file for each RegControl named "REG_name.CSV".
+(18) maxtapchange	Maximum allowable tap change per control iteration in STATIC control mode.  Default is 16. Set this to 1 to better approximate actual control action. Set this to 0 to fix the tap in the current position.
+(19) inversetime	{Yes | No } Default is no.  The time delay is adjusted inversely proportional to the amount the voltage is outside the band down to 10%.
+(20) tapwinding	Winding containing the actual taps, if different than the WINDING property. Defaults to the same winding as specified by the WINDING property.
+(21) vlimit	Voltage Limit for bus to which regulated winding is connected (e.g. first customer). Default is 0.0. Set to a value greater then zero to activate this function.
+(22) basefreq	Base Frequency for ratings.
+(23) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(24) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = RELAY
+Property	Description
+(1) MonitoredObj	Full object name of the circuit element, typically a line, transformer, load, or generator, to which the relay's PT and/or CT are connected. This is the "monitored" element. There is no default; must be specified.
+(2) MonitoredTerm	Number of the terminal of the circuit element to which the Relay is connected. 1 or 2, typically.  Default is 1.
+(3) SwitchedObj	Name of circuit element switch that the Relay controls. Specify the full object name.Defaults to the same as the Monitored element. This is the "controlled" element.
+(4) SwitchedTerm	Number of the terminal of the controlled element in which the switch is controlled by the Relay. 1 or 2, typically.  Default is 1.
+(5) type	One of a legal relay type:CurrentVoltageReversepower46 (neg seq current)47 (neg seq voltage)Generic (generic over/under relay)Default is overcurrent relay (Current) Specify the curve and pickup settings appropriate for each type. Generic relays monitor PC Element Control variables and trip on out of over/under range in definite time.
+(6) Phasecurve	Name of the TCC Curve object that determines the phase trip.  Must have been previously defined as a TCC_Curve object. Default is none (ignored). For overcurrent relay, multiplying the current values in the curve by the "phasetrip" value gives the actual current.
+(7) Groundcurve	Name of the TCC Curve object that determines the ground trip.  Must have been previously defined as a TCC_Curve object. Default is none (ignored).For overcurrent relay, multiplying the current values in the curve by the "groundtrip" valuw gives the actual current.
+(8) PhaseTrip	Multiplier or actual phase amps for the phase TCC curve.  Defaults to 1.0.
+(9) GroundTrip	Multiplier or actual ground amps (3I0) for the ground TCC curve.  Defaults to 1.0.
+(10) TDPhase	Time dial for Phase trip curve. Multiplier on time axis of specified curve. Default=1.0.
+(11) TDGround	Time dial for Ground trip curve. Multiplier on time axis of specified curve. Default=1.0.
+(12) PhaseInst	Actual  amps (Current relay) or kW (reverse power relay) for instantaneous phase trip which is assumed to happen in 0.01 sec + Delay Time. Default is 0.0, which signifies no inst trip. Use this value for specifying the Reverse Power threshold (kW) for reverse power relays.
+(13) GroundInst	Actual  amps for instantaneous ground trip which is assumed to happen in 0.01 sec + Delay Time.Default is 0.0, which signifies no inst trip.
+(14) Reset	Reset time in sec for relay.  Default is 15. If 
+(15) Shots	Number of shots to lockout.  Default is 4. This is one more than the number of reclose intervals.
+(16) RecloseIntervals	Array of reclose intervals. If none, specify "NONE". Default for overcurrent relay is (0.5, 2.0, 2.0) seconds. Default for a voltage relay is (5.0). In a voltage relay, this is  seconds after restoration of voltage that the reclose occurs. Reverse power relay is one shot to lockout, so this is ignored.  A locked out relay must be closed manually (set action=close).
+(17) Delay	Trip time delay (sec) for definite time relays. Default is 0.0 for current and voltage relays.  If >0 then this value is used instead of curves.  Used exclusively by RevPower, 46 and 47 relays at this release. Defaults to 0.1 s for these relays.
+(18) Overvoltcurve	TCC Curve object to use for overvoltage relay.  Curve is assumed to be defined with per unit voltage values. Voltage base should be defined for the relay. Default is none (ignored).
+(19) Undervoltcurve	TCC Curve object to use for undervoltage relay.  Curve is assumed to be defined with per unit voltage values. Voltage base should be defined for the relay. Default is none (ignored).
+(20) kvbase	Voltage base (kV) for the relay. Specify line-line for 3 phase devices); line-neutral for 1-phase devices.  Relay assumes the number of phases of the monitored element.  Default is 0.0, which results in assuming the voltage values in the "TCC" curve are specified in actual line-to-neutral volts.
+(21) 47%Pickup	Percent voltage pickup for 47 relay (Neg seq voltage). Default is 2. Specify also base voltage (kvbase) and delay time value.   
+(22) 46BaseAmps	Base current, Amps, for 46 relay (neg seq current).  Used for establishing pickup and per unit I-squared-t.
+(23) 46%Pickup	Percent pickup current for 46 relay (neg seq current).  Default is 20.0.   When current exceeds this value * BaseAmps, I-squared-t calc starts.
+(24) 46isqt	Negative Sequence I-squared-t trip value for 46 relay (neg seq current).  Default is 1 (trips in 1 sec for 1 per unit neg seq current).  Should be 1 to 99.
+(25) Variable	Name of variable in PC Elements being monitored.  Only applies to Generic relay.
+(26) overtrip	Trip setting (high value) for Generic relay variable.  Relay trips in definite time if value of variable exceeds this value.
+(27) undertrip	Trip setting (low value) for Generic relay variable.  Relay trips in definite time if value of variable is less than this value.
+(28) Breakertime	Fixed delay time (sec) added to relay time. Default is 0.0. Designed to represent breaker time or some other delay after a trip decision is made.Use Delay_Time property for setting a fixed trip time delay.Added to trip time of current and voltage relays. Could use in combination with inst trip value to obtain a definite time overcurrent relay.
+(29) action	{Trip/Open | Close}  Action that overrides the relay control. Simulates manual control on breaker. "Trip" or "Open" causes the controlled element to open and lock out. "Close" causes the controlled element to close and the relay to reset to its first operation.
+(30) basefreq	Base Frequency for ratings.
+(31) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(32) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = SENSOR
+Property	Description
+(1) element	Name (Full Object name) of element to which the Sensor is connected.
+(2) terminal	Number of the terminal of the circuit element to which the Sensor is connected. 1 or 2, typically. Default is 1.
+(3) kvbase	Voltage base for the sensor, in kV. If connected to a 2- or 3-phase terminal, specify L-L voltage. For 1-phase devices specify L-N or actual 1-phase voltage. Like many other DSS devices, default is 12.47kV.
+(4) clear	{ Yes | No }. Clear=Yes clears sensor values. Should be issued before putting in a new set of measurements.
+(5) kVs	Array of Voltages (kV) measured by the voltage sensor. For Delta-connected sensors, Line-Line voltages are expected. For Wye, Line-Neutral are expected.
+(6) currents	Array of Currents (amps) measured by the current sensor. Specify this or power quantities; not both.
+(7) kWs	Array of Active power (kW) measurements at the sensor. Is converted into Currents along with q=[...]Will override any i=[...] specification.
+(8) kvars	Array of Reactive power (kvar) measurements at the sensor. Is converted into Currents along with p=[...]
+(9) conn	Voltage sensor Connection: { wye | delta | LN | LL }.  Default is wye. Applies to voltage measurement only. Currents are always assumed to be line currents.If wye or LN, voltage is assumed measured line-neutral; otherwise, line-line.
+(10) Deltadirection	{1 or -1}  Default is 1:  1-2, 2-3, 3-1.  For reverse rotation, enter -1. Any positive or negative entry will suffice.
+(11) %Error	Assumed percent error in the measurement. Default is 1.
+(12) Weight	Weighting factor: Default is 1.
+(13) action	NOT IMPLEMENTED.Action options: SQERROR: Show square error of the present value of the monitored terminal  quantity vs the sensor value. Actual values - convert to per unit in calling program.  Value reported in result window/result variable.
+(14) basefreq	Base Frequency for ratings.
+(15) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(16) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = SOLUTION
+Property	Description
+(1) -------	Use Set Command to set Solution properties.
+(2) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = SPECTRUM
+Property	Description
+(1) NumHarm	Number of frequencies in this spectrum. (See CSVFile)
+(2) harmonic	Array of harmonic values.
+(3) %mag	Array of magnitude values, assumed to be in PERCENT.
+(4) angle	Array of phase angle values, degrees.
+(5) CSVFile	File of spectrum points with (harmonic, magnitude-percent, angle-degrees) values, one set of 3 per line, in CSV format. If fewer than NUMHARM frequencies found in the file, NUMHARM is set to the smaller value.
+(6) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = STORAGE
+Property	Description
+(1) phases	Number of Phases, this Storage element.  Power is evenly divided among phases.
+(2) bus1	Bus to which the Storage element is connected.  May include specific node specification.
+(3) kv	Nominal rated (1.0 per unit) voltage, kV, for Storage element. For 2- and 3-phase Storage elements, specify phase-phase kV. Otherwise, specify actual kV across each branch of the Storage element. If wye (star), specify phase-neutral kV. If delta or phase-phase connected, specify phase-phase kV.
+(4) kW	Get/set the present kW value.  A positive value denotes power coming OUT of the element, which is the opposite of a Load element. A negative value indicates the Storage element is in Charging state. This value is modified internally depending on the dispatch mode. 
+(5) pf	Nominally, the power factor for discharging (acting as a generator). Default is 1.0. Setting this property will also set the kvar property.Enter negative for leading powerfactor (when kW and kvar have opposite signs.)A positive power factor for a generator signifies that the Storage element produces vars as is typical for a generator.  
+(6) conn	={wye|LN|delta|LL}.  Default is wye.
+(7) kvar	Get/set the present kW value.  Alternative to specifying the power factor.  Side effect:  the power factor value is altered to agree based on present value of kW.
+(8) kVA	kVA rating of power output. Defaults to rated kW. Used as the base for Dynamics mode and Harmonics mode values.
+(9) kWrated	kW rating of power output. Side effect: Set KVA property.
+(10) kWhrated	Rated storage capacity in kWh. Default is 50.
+(11) kWhstored	Present amount of energy stored, kWh. Default is same as kWh rated.
+(12) %stored	Present amount of energy stored, % of rated kWh. Default is 100%.
+(13) %reserve	Percent of rated kWh storage capacity to be held in reserve for normal operation. Default = 20. This is treated as the minimum energy discharge level unless there is an emergency. For emergency operation set this property lower. Cannot be less than zero.
+(14) State	{IDLING | CHARGING | DISCHARGING}  Get/Set present operational state. In DISCHARGING mode, the Storage element acts as a generator and the kW property is positive. The element continues discharging at the scheduled output power level until the storage reaches the reserve value. Then the state reverts to IDLING. In the CHARGING state, the Storage element behaves like a Load and the kW property is negative. The element continues to charge until the max storage kWh is reached and Then switches to IDLING state. In IDLING state, the kW property shows zero. However, the resistive and reactive loss elements remain in the circuit and the power flow report will show power being consumed.
+(15) %Discharge	Discharge rate (output power) in Percent of rated kW. Default = 100.
+(16) %Charge	Charging rate (input power) in Percent of rated kW. Default = 100.
+(17) %EffCharge	Percent efficiency for CHARGING the storage element. Default = 90.
+(18) %EffDischarge	Percent efficiency for DISCHARGING the storage element. Default = 90.Idling losses are handled by %IdlingkW property and are in addition to the charging and discharging efficiency losses in the power conversion process inside the unit.
+(19) %IdlingkW	Percent of rated kW consumed while idling. Default = 1.
+(20) %Idlingkvar	Percent of rated kW consumed as reactive power (kvar) while idling. Default = 0.
+(21) %R	Equivalent percent internal resistance, ohms. Default is 0. Placed in series with internal voltage source for harmonics and dynamics modes. Use a combination of %IdlekW and %EffCharge and %EffDischarge to account for losses in power flow modes.
+(22) %X	Equivalent percent internal reactance, ohms. Default is 50%. Placed in series with internal voltage source for harmonics and dynamics modes. (Limits fault current to 2 pu.) Use %Idlekvar and kvar properties to account for any reactive power during power flow solutions.
+(23) model	Integer code for the model to use for powet output variation with voltage. Valid values are:1:Storage element injects a CONSTANT kW at specified power factor.2:Storage element is modeled as a CONSTANT ADMITTANCE.3:Compute load injection from User-written Model.
+(24) Vminpu	Default = 0.90.  Minimum per unit voltage for which the Model is assumed to apply. Below this value, the load model reverts to a constant impedance model.
+(25) Vmaxpu	Default = 1.10.  Maximum per unit voltage for which the Model is assumed to apply. Above this value, the load model reverts to a constant impedance model.
+(26) yearly	Dispatch shape to use for yearly simulations.  Must be previously defined as a Loadshape object. If this is not specified, the Daily dispatch shape, If any, is repeated during Yearly solution modes. In the default dispatch mode, the Storage element uses this loadshape to trigger State changes.
+(27) daily	Dispatch shape to use for daily simulations.  Must be previously defined as a Loadshape object of 24 hrs, typically.  In the default dispatch mode, the Storage element uses this loadshape to trigger State changes.
+(28) duty	Load shape to use for duty cycle dispatch simulations such as for solar ramp rate studies. Must be previously defined as a Loadshape object. Typically would have time intervals of 1-5 seconds. Designate the number of points to solve using the Set Number=xxxx command. If there are fewer points in the actual shape, the shape is assumed to repeat.
+(29) dispmode	{DEFAULT | EXTERNAL | LOADLEVEL | PRICE } Default = "DEFAULT". Dispatch mode. In DEFAULT mode, Storage element state is triggered by the loadshape curve corresponding to the solution mode. In EXTERNAL mode, Storage element state is controlled by an external Storage controller. This mode is automatically set if this Storage element is included in the element list of a StorageController element. For the other two dispatch modes, the Storage element state is controlled by either the global default Loadlevel value or the price level. 
+(30) dischargetrigger	Dispatch trigger value for discharging the storage. If = 0.0 the Storage element state is changed by the State command or by a StorageController object. If <> 0  the Storage element state is set to DISCHARGING when this trigger level is EXCEEDED by either the specified Loadshape curve value or the price signal or global Loadlevel value, depending on dispatch mode. See State property.
+(31) Chargetrigger	Dispatch trigger value for charging the storage. If = 0.0 the Storage element state is changed by the State command or StorageController object.  If <> 0  the Storage element state is set to CHARGING when this trigger level is GREATER than either the specified Loadshape curve value or the price signal or global Loadlevel value, depending on dispatch mode. See State property.
+(32) TimeChargeTrig	Time of day in fractional hours (0230 = 2.5) at which storage element will automatically go into charge state. Default is 2.0.  Enter a negative time value to disable this feature.
+(33) class	An arbitrary integer number representing the class of Storage element so that Storage values may be segregated by class.
+(34) UserModel	Name of DLL containing user-written model, which computes the terminal currents for Dynamics studies, overriding the default model.  Set to "none" to negate previous setting.
+(35) UserData	String (in quotes or parentheses) that gets passed to user-written model for defining the data required for that model.
+(36) debugtrace	{Yes | No }  Default is no.  Turn this on to capture the progress of the Storage model for each iteration.  Creates a separate file for each Storage element named "STORAGE_name.CSV".
+(37) spectrum	Name of harmonic voltage or current spectrum for this Storage element. Current injection is assumed for inverter. Default value is "default", which is defined when the DSS starts.
+(38) basefreq	Base Frequency for ratings.
+(39) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(40) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = STORAGECONTROLLER
+Property	Description
+(1) Element	Full object name of the circuit element, typically a line or transformer, which the control is monitoring. There is no default; must be specified.
+(2) Terminal	Number of the terminal of the circuit element to which the StorageController control is connected. 1 or 2, typically.  Default is 1. Make sure you have the direction on the power matching the sign of kWLimit.
+(3) kWTarget	kW target for Discharging. The storage element fleet is dispatched to try to hold the power in band at least until the storage is depleted.
+(4) %kWBand	Bandwidth (% of Target kW) of the dead band around the kW target value. Default is 2% (+/-1%).No dispatch changes are attempted If the power in the monitored terminal stays within this band.
+(5) PFTarget	Power Factor target for dispatching the reactive power. The reactive power of the storage element fleet is dispatched to try to hold the power factor in band. It is assumed that the storage element inverter can produce kvar up to its kVA limit regardless of storage level.
+(6) PFBand	Bandwidth of the Target power factor of the monitored element. of the dead band around the kvar target value. Default is 0.02 (+/- 0.01%).No dispatch changes of the kvar are attempted If the power factor of the monitored terminal stays within this band.
+(7) ElementList	Array list of Storage elements to be controlled.  If not specified, all storage elements in the circuit are assumed dispatched by this controller.
+(8) Weights	Array of proportional weights corresponding to each storage element in the ElementList. The needed kW or kvar to get back to center band is dispatched to each storage element according to these weights. Default is to set all weights to 1.0.
+(9) ModeDischarge	{Follow | Support | Loadshape | Time} Mode of operation for the DISCHARGE FUNCTION of this controller. In Follow mode, the control attempts to discharge storage to keep power in the monitored element below the kWTarget. In Support mode, the control operates oppositely of Follow mode: storage is discharged to keep kW power output up near the target. In Loadshape mode, both charging and discharging precisely follows the per unit loadshape. Storage is discharged when the loadshape value is positive. In Time mode, the storage discharge is turned on at the specified %RatekW and %Ratekvar at the specified discharge trigger time in fractional hours.
+(10) ModeCharge	{Loadshape | Time} Mode of operation for the CHARGE FUNCTION of this controller. In Loadshape mode, both charging and discharging precisely follows the per unit loadshape. Storage is charged when the loadshape value is negative. In Time mode, the storage charging FUNCTION is triggered at the specified %RateCharge at the specified sharge trigger time in fractional hours.
+(11) TimeDisChargeTrigger	Default time of day (hr) for initiating Discharging of the fleet. During Follow or Support modes discharging at a fixed time will occur each day at this hour. Set this to a negative value to ignore. Default is -1 (ignored). 
+(12) TimeChargeTrigger	Default time of day (hr) for initiating charging in Time control mode. Set this to a negative value to ignore. Default is 2.0.  (0200).When this value is >0 the storage fleet is set to charging at this time regardless of other control criteria to make sure storage is topped off for the next discharge cycle.
+(13) %RatekW	Sets the kW discharge rate in % of rated capacity for each element of the fleet. Applies to TIME control mode or anytime discharging is triggered by time.
+(14) %Ratekvar	Sets the kvar discharge rate in % of rated capacity for each element of the fleet. Applies to TIME control mode or anytime discharging is triggered by time.
+(15) %RateCharge	Sets the kW charging rate in % of rated capacity for each element of the fleet. Applies to TIME control mode and anytime charging mode is entered due to a time trigger.
+(16) %Reserve	Use this property to change the % reserve for each storage element under control of this controller. This might be used, for example, to allow deeper discharges of storage or in case of emergency operation to use the remainder of the storage element.
+(17) kWhTotal	(Read only). Total rated kWh energy storage capacity of storage elements controlled by this controller.
+(18) kWTotal	(Read only). Total rated kW power capacity of storage elements controlled by this controller.
+(19) kWhActual	(Read only). Actual kWh output of all controlled storage elements. 
+(20) kWActual	(Read only). Actual kW output of all controlled storage elements. 
+(21) kWneed	(Read only). KW needed to meet target.
+(22) %Participation	Participation factor, %. Default = 100.
+(23) Yearly	Dispatch loadshape object, If any, for Yearly solution Mode.
+(24) Daily	Dispatch loadshape object, If any, for Daily solution mode.
+(25) Duty	Dispatch loadshape object, If any, for Dutycycle solution mode.
+(26) basefreq	Base Frequency for ratings.
+(27) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(28) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = TCC_CURVE
+Property	Description
+(1) npts	Number of points to expect in time-current arrays.
+(2) C_array	Array of current (or voltage) values corresponding to time values (see help on T_Array).
+(3) T_array	Array of time values in sec. Typical array syntax: t_array = (1, 2, 3, 4, ...)Can also substitute a file designation: t_array =  (file=filename)The specified file has one value per line.
+(4) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = TRANSFORMER
+Property	Description
+(1) phases	Number of phases this transformer. Default is 3.
+(2) windings	Number of windings, this transformers. (Also is the number of terminals) Default is 2.
+(3) wdg	Set this = to the number of the winding you wish to define.  Then set the values for this winding.  Repeat for each winding.  Alternatively, use the array collections (buses, kvas, etc.) to define the windings.  Note: reactances are BETWEEN pairs of windings; they are not the property of a single winding.
+(4) bus	Bus connection spec for this winding.
+(5) conn	Connection of this winding. Default is "wye" with the neutral solidly grounded.
+(6) kV	For 2-or 3-phase, enter phase-phase kV rating.  Otherwise, kV rating of the actual winding
+(7) kVA	Base kVA rating of the winding. Side effect: forces change of max normal and emerg kva ratings.If 2-winding transformer, forces other winding to same value. When winding 1 is defined, all other windings are defaulted to the same rating and the first two winding resistances are defaulted to the %loadloss value.
+(8) tap	Per unit tap that this winding is on.
+(9) %R	Percent resistance this winding.  (half of total for a 2-winding).
+(10) Rneut	Default = -1. Neutral resistance of wye (star)-connected winding in actual ohms.If entered as a negative value, the neutral is assumed to be open, or floating.
+(11) Xneut	Neutral reactance of wye(star)-connected winding in actual ohms.  May be + or -.
+(12) buses	Use this to specify all the bus connections at once using an array. Example:New Transformer.T1 buses="Hibus, lowbus"
+(13) conns	Use this to specify all the Winding connections at once using an array. Example:New Transformer.T1 buses="Hibus, lowbus" ~ conns=(delta, wye)
+(14) kVs	Use this to specify the kV ratings of all windings at once using an array. Example:New Transformer.T1 buses="Hibus, lowbus" ~ conns=(delta, wye)~ kvs=(115, 12.47)See kV= property for voltage rules.
+(15) kVAs	Use this to specify the kVA ratings of all windings at once using an array.
+(16) taps	Use this to specify the p.u. tap of all windings at once using an array.
+(17) Xhl	Use this to specify the percent reactance, H-L (winding 1 to winding 2).  Use for 2- or 3-winding transformers. On the kva base of winding 1.
+(18) Xht	Use this to specify the percent reactance, H-T (winding 1 to winding 3).  Use for 3-winding transformers only. On the kVA base of winding 1.
+(19) Xlt	Use this to specify the percent reactance, L-T (winding 2 to winding 3).  Use for 3-winding transformers only. On the kVA base of winding 1.
+(20) Xscarray	Use this to specify the percent reactance between all pairs of windings as an array. All values are on the kVA base of winding 1.  The order of the values is as follows:(x12 13 14... 23 24.. 34 ..)  There will be n(n-1)/2 values, where n=number of windings.
+(21) thermal	Thermal time constant of the transformer in hours.  Typically about 2.
+(22) n	n Exponent for thermal properties in IEEE C57.  Typically 0.8.
+(23) m	m Exponent for thermal properties in IEEE C57.  Typically 0.9 - 1.0
+(24) flrise	Temperature rise, deg C, for full load.  Default is 65.
+(25) hsrise	Hot spot temperature rise, deg C.  Default is 15.
+(26) %loadloss	Percent load loss at full load. The %R of the High and Low windings (1 and 2) are adjusted to agree at rated kVA loading.
+(27) %noloadloss	Percent no load losses at rated excitatation voltage. Default is 0. Converts to a resistance in parallel with the magnetizing impedance in each winding.
+(28) normhkVA	Normal maximum kVA rating of H winding (winding 1).  Usually 100% - 110% ofmaximum nameplate rating, depending on load shape. Defaults to 110% of kVA rating of Winding 1.
+(29) emerghkVA	Emergency (contingency)  kVA rating of H winding (winding 1).  Usually 140% - 150% ofmaximum nameplate rating, depending on load shape. Defaults to 150% of kVA rating of Winding 1.
+(30) sub	={Yes|No}  Designates whether this transformer is to be considered a substation.Default is No.
+(31) MaxTap	Max per unit tap for the active winding.  Default is 1.10
+(32) MinTap	Min per unit tap for the active winding.  Default is 0.90
+(33) NumTaps	Total number of taps between min and max tap.  Default is 32.
+(34) subname	Substation Name. Optional. Default is null. If specified, printed on plots
+(35) %imag	Percent magnetizing current. Default=0.0. Magnetizing branch is in parallel with windings in each phase. Also, see "ppm_antifloat".
+(36) ppm_antifloat	Default=1 ppm.  Parts per million of transformer winding VA rating connected to ground to protect against accidentally floating a winding without a reference. If positive then the effect is adding a very large reactance to ground.  If negative, then a capacitor.
+(37) %Rs	Use this property to specify all the winding %resistances using an array. Example:New Transformer.T1 buses="Hibus, lowbus" ~ %Rs=(0.2  0.3)
+(38) bank	Name of the bank this transformer is part of, for CIM, MultiSpeak, and other interfaces.
+(39) XfmrCode	Name of a library entry for transformer properties. The named XfmrCode must already be defined.
+(40) normamps	Normal rated current.
+(41) emergamps	Maximum current.
+(42) faultrate	No. of failures per year.
+(43) pctperm	Percent of failures that become permanent.
+(44) repair	Hours to repair.
+(45) basefreq	Base Frequency for ratings.
+(46) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(47) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = VSOURCE
+Property	Description
+(1) bus1	Name of bus to which the main terminal (1) is connected.bus1=busnamebus1=busname.1.2.3
+(2) basekv	Base Source kV, usually phase-phase (L-L) unless you are making a positive-sequence model or 1-phase modelin which case, it will be phase-neutral (L-N) kV.
+(3) pu	Per unit of the base voltage that the source is actually operating at."pu=1.05"
+(4) angle	Phase angle in degrees of first phase: e.g.,Angle=10.3
+(5) frequency	Source frequency.  Defaults to system default base frequency.
+(6) phases	Number of phases.  Defaults to 3.
+(7) MVAsc3	MVA Short circuit, 3-phase fault. Default = 2000. Z1 is determined by squaring the base kv and dividing by this value. For single-phase source, this value is not used.
+(8) MVAsc1	MVA Short Circuit, 1-phase fault. Default = 2100. The "single-phase impedance", Zs, is determined by squaring the base kV and dividing by this value. Then Z0 is determined by Z0 = 3Zs - 2Z1.  For 1-phase sources, Zs is used directly. Use X0R0 to define X/R ratio for 1-phase source.
+(9) x1r1	Positive-sequence  X/R ratio. Default = 4.
+(10) x0r0	Zero-sequence X/R ratio.Default = 3.
+(11) Isc3	Alternate method of defining the source impedance. 3-phase short circuit current, amps.  Default is 10000.
+(12) Isc1	Alternate method of defining the source impedance. single-phase short circuit current, amps.  Default is 10500.
+(13) R1	Alternate method of defining the source impedance. Positive-sequence resistance, ohms.  Default is 1.65.
+(14) X1	Alternate method of defining the source impedance. Positive-sequence reactance, ohms.  Default is 6.6.
+(15) R0	Alternate method of defining the source impedance. Zero-sequence resistance, ohms.  Default is 1.9.
+(16) X0	Alternate method of defining the source impedance. Zero-sequence reactance, ohms.  Default is 5.7.
+(17) ScanType	{pos*| zero | none} Maintain specified sequence for harmonic solution. Default is positive sequence. Otherwise, angle between phases rotates with harmonic.
+(18) bus2	Name of bus to which 2nd terminal is connected.bus2=busnamebus2=busname.1.2.3Default is Bus1.0.0.0 (grounded wye connection)
+(19) spectrum	Name of harmonic spectrum for this source.  Default is "defaultvsource", which is defined when the DSS starts.
+(20) basefreq	Base Frequency for ratings.
+(21) enabled	{Yes|No or True|False} Indicates whether this element is enabled.
+(22) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = WIREDATA
+Property	Description
+(1) Rdc	dc Resistance, ohms per unit length (see Runits). Defaults to Rac if not specified.
+(2) Rac	Resistance at 60 Hz per unit length. Defaults to Rdc if not specified.
+(3) Runits	Length units for resistance: ohms per {mi|kft|km|m|Ft|in|cm } Default=none.
+(4) GMRac	GMR at 60 Hz. Defaults to .7788*radius if not specified.
+(5) GMRunits	Units for GMR: {mi|kft|km|m|Ft|in|cm } Default=none.
+(6) radius	Outside radius of conductor. Defaults to GMR/0.7788 if not specified.
+(7) radunits	Units for outside radius: {mi|kft|km|m|Ft|in|cm } Default=none.
+(8) normamps	Normal ampacity, amperes. Defaults to Emergency amps/1.5 if not specified.
+(9) emergamps	Emergency ampacity, amperes. Defaults to 1.5 * Normal Amps if not specified.
+(10) diam	Diameter; Alternative method for entering radius.
+(11) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...
+
+Object = XFMRCODE
+Property	Description
+(1) phases	Number of phases this transformer. Default is 3.
+(2) windings	Number of windings, this transformers. (Also is the number of terminals) Default is 2.
+(3) wdg	Set this = to the number of the winding you wish to define.  Then set the values for this winding.  Repeat for each winding.  Alternatively, use the array collections (buses, kvas, etc.) to define the windings.  Note: reactances are BETWEEN pairs of windings; they are not the property of a single winding.
+(4) conn	Connection of this winding. Default is "wye" with the neutral solidly grounded.
+(5) kV	For 2-or 3-phase, enter phase-phase kV rating.  Otherwise, kV rating of the actual winding
+(6) kVA	Base kVA rating of the winding. Side effect: forces change of max normal and emerg kva ratings.If 2-winding transformer, forces other winding to same value. When winding 1 is defined, all other windings are defaulted to the same rating and the first two winding resistances are defaulted to the %loadloss value.
+(7) tap	Per unit tap that this winding is normally on.
+(8) %R	Percent resistance this winding.  (half of total for a 2-winding).
+(9) Rneut	Default = -1. Neutral resistance of wye (star)-connected winding in actual ohms.If entered as a negative value, the neutral is assumed to be open, or floating.
+(10) Xneut	Neutral reactance of wye(star)-connected winding in actual ohms.  May be + or -.
+(11) conns	Use this to specify all the Winding connections at once using an array. Example:New Transformer.T1 buses="Hibus, lowbus" ~ conns=(delta, wye)
+(12) kVs	Use this to specify the kV ratings of all windings at once using an array. Example:New Transformer.T1 buses="Hibus, lowbus" ~ conns=(delta, wye)~ kvs=(115, 12.47)See kV= property for voltage rules.
+(13) kVAs	Use this to specify the kVA ratings of all windings at once using an array.
+(14) taps	Use this to specify the normal p.u. tap of all windings at once using an array.
+(15) Xhl	Use this to specify the percent reactance, H-L (winding 1 to winding 2).  Use for 2- or 3-winding transformers. On the kva base of winding 1.
+(16) Xht	Use this to specify the percent reactance, H-T (winding 1 to winding 3).  Use for 3-winding transformers only. On the kVA base of winding 1.
+(17) Xlt	Use this to specify the percent reactance, L-T (winding 2 to winding 3).  Use for 3-winding transformers only. On the kVA base of winding 1.
+(18) Xscarray	Use this to specify the percent reactance between all pairs of windings as an array. All values are on the kVA base of winding 1.  The order of the values is as follows:(x12 13 14... 23 24.. 34 ..)  There will be n(n-1)/2 values, where n=number of windings.
+(19) thermal	Thermal time constant of the transformer in hours.  Typically about 2.
+(20) n	n Exponent for thermal properties in IEEE C57.  Typically 0.8.
+(21) m	m Exponent for thermal properties in IEEE C57.  Typically 0.9 - 1.0
+(22) flrise	Temperature rise, deg C, for full load.  Default is 65.
+(23) hsrise	Hot spot temperature rise, deg C.  Default is 15.
+(24) %loadloss	Percent load loss at full load. The %R of the High and Low windings (1 and 2) are adjusted to agree at rated kVA loading.
+(25) %noloadloss	Percent no load losses at rated excitatation voltage. Default is 0. Converts to a resistance in parallel with the magnetizing impedance in each winding.
+(26) normhkVA	Normal maximum kVA rating of H winding (winding 1).  Usually 100% - 110% ofmaximum nameplate rating, depending on load shape. Defaults to 110% of kVA rating of Winding 1.
+(27) emerghkVA	Emergency (contingency)  kVA rating of H winding (winding 1).  Usually 140% - 150% ofmaximum nameplate rating, depending on load shape. Defaults to 150% of kVA rating of Winding 1.
+(28) MaxTap	Max per unit tap for the active winding.  Default is 1.10
+(29) MinTap	Min per unit tap for the active winding.  Default is 0.90
+(30) NumTaps	Total number of taps between min and max tap.  Default is 32.
+(31) %imag	Percent magnetizing current. Default=0.0. Magnetizing branch is in parallel with windings in each phase. Also, see "ppm_antifloat".
+(32) ppm_antifloat	Default=1 ppm.  Parts per million of transformer winding VA rating connected to ground to protect against accidentally floating a winding without a reference. If positive then the effect is adding a very large reactance to ground.  If negative, then a capacitor.
+(33) %Rs	Use this property to specify all the winding %resistances using an array. Example:New Transformer.T1 buses="Hibus, lowbus" ~ %Rs=(0.2  0.3)
+(34) like	Make like another object, e.g.:New Capacitor.C2 like=c1  ...

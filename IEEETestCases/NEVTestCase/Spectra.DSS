@@ -1,0 +1,15 @@
+! DEFINE THE HARMONIC SPECTRA TO BE USED
+
+! DEFINE ONLY THE 3RD HARMONIC
+
+New Spectrum.1pct3rd NumHarm=1 Harmonic=[3] %mag=[1]  Angle=[0]
+New Spectrum.2pct3rd NumHarm=1 Harmonic=[3] %mag=[2]  Angle=[0]
+New Spectrum.5pct3rd NumHarm=1 Harmonic=[3] %mag=[5]  Angle=[0]
+New Spectrum.7pct3rd NumHarm=1 Harmonic=[3] %mag=[7]  Angle=[0]
+New Spectrum.8pct3rd NumHarm=1 Harmonic=[3] %mag=[8]  Angle=[0]
+New Spectrum.10pct3rd NumHarm=1 Harmonic=[3] %mag=[10]  Angle=[0]
+New Spectrum.15pct3rd NumHarm=1 Harmonic=[3] %mag=[15]  Angle=[0]
+New Spectrum.20pct3rd NumHarm=1 Harmonic=[3] %mag=[20]  Angle=[0]
+New Spectrum.30pct3rd NumHarm=1 Harmonic=[3] %mag=[30]  Angle=[0]
+New Spectrum.50pct3rd NumHarm=1 Harmonic=[3] %mag=[50]  Angle=[0]
+

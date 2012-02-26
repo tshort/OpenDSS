@@ -1,0 +1,245 @@
+! Standard (Mod 1) model of IEEE 34 Bus Test Feeder
+
+! Note: Mod 2 better accounts for distributed load.
+
+Clear
+
+New object=circuit.ieee34-1
+~ basekv=69 pu=1.05 angle=30 mvasc3=200000  !stiffen up a bit over DSS default
+
+! Substation Transformer  -- Modification: Make source very stiff by defining a tiny leakage Z
+New Transformer.SubXF Phases=3 Windings=2 Xhl=0.01    ! normally 8
+~ wdg=1 bus=sourcebus conn=Delta kv=69    kva=25000   %r=0.0005   !reduce %r, too
+~ wdg=2 bus=800       conn=wye   kv=24.9  kva=25000   %r=0.0005
+
+! import line codes with phase impedance matrices
+Redirect        IEEELineCodes.dss   ! revised according to Later test feeder doc
+
+! Lines
+New Line.L1     Phases=3 Bus1=800.1.2.3  Bus2=802.1.2.3  LineCode=300  Length=2.58
+New Line.L2     Phases=3 Bus1=802.1.2.3  Bus2=806.1.2.3  LineCode=300  Length=1.73
+New Line.L3     Phases=3 Bus1=806.1.2.3  Bus2=808.1.2.3  LineCode=300  Length=32.23
+New Line.L4     Phases=1 Bus1=808.2      Bus2=810.2      LineCode=303  Length=5.804
+New Line.L5     Phases=3 Bus1=808.1.2.3  Bus2=812.1.2.3  LineCode=300  Length=37.5
+New Line.L6     Phases=3 Bus1=812.1.2.3  Bus2=814.1.2.3  LineCode=300  Length=29.73
+New Line.L7     Phases=3 Bus1=814r.1.2.3 Bus2=850.1.2.3  LineCode=301  Length=0.01
+New Line.L8     Phases=1 Bus1=816.1      Bus2=818.1      LineCode=302  Length=1.71
+New Line.L9     Phases=3 Bus1=816.1.2.3  Bus2=824.1.2.3  LineCode=301  Length=10.21
+New Line.L10    Phases=1 Bus1=818.1      Bus2=820.1      LineCode=302  Length=48.15
+New Line.L11    Phases=1 Bus1=820.1      Bus2=822.1      LineCode=302  Length=13.74
+New Line.L12    Phases=1 Bus1=824.2      Bus2=826.2      LineCode=303  Length=3.03
+New Line.L13    Phases=3 Bus1=824.1.2.3  Bus2=828.1.2.3  LineCode=301  Length=0.84
+New Line.L14    Phases=3 Bus1=828.1.2.3  Bus2=830.1.2.3  LineCode=301  Length=20.44
+New Line.L15    Phases=3 Bus1=830.1.2.3  Bus2=854.1.2.3  LineCode=301  Length=0.52
+New Line.L16    Phases=3 Bus1=832.1.2.3  Bus2=858.1.2.3  LineCode=301  Length=4.9
+New Line.L17    Phases=3 Bus1=834.1.2.3  Bus2=860.1.2.3  LineCode=301  Length=2.02
+New Line.L18    Phases=3 Bus1=834.1.2.3  Bus2=842.1.2.3  LineCode=301  Length=0.28
+New Line.L19    Phases=3 Bus1=836.1.2.3  Bus2=840.1.2.3  LineCode=301  Length=0.86
+New Line.L20    Phases=3 Bus1=836.1.2.3  Bus2=862.1.2.3  LineCode=301  Length=0.28
+New Line.L21    Phases=3 Bus1=842.1.2.3  Bus2=844.1.2.3  LineCode=301  Length=1.35
+New Line.L22    Phases=3 Bus1=844.1.2.3  Bus2=846.1.2.3  LineCode=301  Length=3.64
+New Line.L23    Phases=3 Bus1=846.1.2.3  Bus2=848.1.2.3  LineCode=301  Length=0.53
+New Line.L24    Phases=3 Bus1=850.1.2.3  Bus2=816.1.2.3  LineCode=301  Length=0.31
+New Line.L25    Phases=3 Bus1=852r.1.2.3 Bus2=832.1.2.3  LineCode=301  Length=0.01
+
+! 24.9/4.16 kV  Transformer
+New Transformer.XFM1  Phases=3 Windings=2 Xhl=4.08
+~ wdg=1 bus=832       conn=wye   kv=24.9  kva=500    %r=0.95
+~ wdg=2 bus=888       conn=Wye   kv=4.16  kva=500    %r=0.95
+
+New Line.L26    Phases=1 Bus1=854.2      Bus2=856.2      LineCode=303  Length=23.33
+New Line.L27    Phases=3 Bus1=854.1.2.3  Bus2=852.1.2.3  LineCode=301  Length=36.83
+! 9-17-10 858-864 changed to phase A per error report
+New Line.L28    Phases=1 Bus1=858.1      Bus2=864.1      LineCode=303  Length=1.62
+New Line.L29    Phases=3 Bus1=858.1.2.3  Bus2=834.1.2.3  LineCode=301  Length=5.83
+New Line.L30    Phases=3 Bus1=860.1.2.3  Bus2=836.1.2.3  LineCode=301  Length=2.68
+New Line.L31    Phases=1 Bus1=862.2      Bus2=838.2      LineCode=304  Length=4.86
+New Line.L32    Phases=3 Bus1=888.1.2.3  Bus2=890.1.2.3  LineCode=300  Length=10.56
+
+! Capacitors
+New Capacitor.C844      Bus1=844        Phases=3        kVAR=300        kV=24.9
+New Capacitor.C848      Bus1=848        Phases=3        kVAR=450        kV=24.9
+
+! Regulators - three independent phases
+! Regulator 1
+new transformer.reg1a phases=1 windings=2 buses=(814.1 814r.1) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg1a transformer=reg1a winding=2 vreg=122 band=2 ptratio=120 ctprim=100 R=2.7 X=1.6
+new transformer.reg1b phases=1 windings=2 buses=(814.2 814r.2) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg1b transformer=reg1b winding=2 vreg=122 band=2 ptratio=120 ctprim=100 R=2.7 X=1.6
+new transformer.reg1c phases=1 windings=2 buses=(814.3 814r.3) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg1c transformer=reg1c winding=2 vreg=122 band=2 ptratio=120 ctprim=100 R=2.7 X=1.6
+
+! Regulator 2
+new transformer.reg2a phases=1 windings=2 buses=(852.1 852r.1) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg2a transformer=reg2a winding=2 vreg=124 band=2 ptratio=120 ctprim=100 R=2.5 X=1.5
+new transformer.reg2b phases=1 windings=2 buses=(852.2 852r.2) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg2b transformer=reg2b winding=2 vreg=124 band=2 ptratio=120 ctprim=100 R=2.5 X=1.5
+new transformer.reg2c phases=1 windings=2 buses=(852.3 852r.3) conns='wye wye' kvs="14.376 14.376" kvas="20000 20000" XHL=1
+new regcontrol.creg2c transformer=reg2c winding=2 vreg=124 band=2 ptratio=120 ctprim=100 R=2.5 X=1.5
+
+! spot loads
+New Load.S860       Bus1=860   Phases=3 Conn=Wye   Model=1 kV= 24.900 kW=  60.0 kVAR=  48.0
+New Load.S840       Bus1=840   Phases=3 Conn=Wye   Model=5 kV= 24.900 kW=  27.0 kVAR=  21.0
+New Load.S844       Bus1=844   Phases=3 Conn=Wye   Model=2 kV= 24.900 kW= 405.0 kVAR= 315.0
+
+New Load.S848       Bus1=848   Phases=3 Conn=Delta Model=1 kV= 24.900 kW=  60.0 kVAR=  48.0
+New Load.S830a      Bus1=830.1.2 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=  10.0 kVAR=   5.0
+New Load.S830b      Bus1=830.2.3 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=  10.0 kVAR=   5.0
+New Load.S830c      Bus1=830.3.1 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=  25.0 kVAR=  10.0
+New Load.S890       Bus1=890   Phases=3 Conn=Delta Model=5 kV=  4.160 kW= 450.0 kVAR= 225.0
+
+! distributed loads
+New Load.D802_806sb Bus1=802.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  15.0 kVAR=   7.5
+New Load.D802_806rb Bus1=806.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  15.0 kVAR=   7.5
+New Load.D802_806sc Bus1=802.3 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  12.5 kVAR=   7.0
+New Load.D802_806rc Bus1=806.3 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  12.5 kVAR=   7.0
+
+New Load.D808_810sb Bus1=808.2 Phases=1 Conn=Wye   Model=4 kV= 14.376 kW=   8.0 kVAR=   4.0
+New Load.D808_810rb Bus1=810.2 Phases=1 Conn=Wye   Model=4 kV= 14.376 kW=   8.0 kVAR=   4.0
+
+New Load.D818_820sa Bus1=818.1 Phases=1 Conn=Wye   Model=2 kV= 14.376 kW=  17.0 kVAR=   8.5
+New Load.D818_820ra Bus1=820.1 Phases=1 Conn=Wye   Model=2 kV= 14.376 kW=  17.0 kVAR=   8.5
+
+New Load.D820_822sa Bus1=820.1 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  67.5 kVAR=  35.0
+New Load.D820_822ra Bus1=822.1 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  67.5 kVAR=  35.0
+
+New Load.D816_824sb Bus1=816.2 Phases=1 Conn=Delta Model=5 kV= 24.900 kW=   2.5 kVAR=   1.0
+New Load.D816_824rb Bus1=824.2 Phases=1 Conn=Delta Model=5 kV= 24.900 kW=   2.5 kVAR=   1.0
+
+New Load.D824_826sb Bus1=824.2 Phases=1 Conn=Wye   Model=5 kV= 14.376 kW=  20.0 kVAR=  10.0
+New Load.D824_826rb Bus1=826.2 Phases=1 Conn=Wye   Model=5 kV= 14.376 kW=  20.0 kVAR=  10.0
+New Load.D824_828sc Bus1=824.3 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   2.0 kVAR=   1.0
+New Load.D824_828rc Bus1=828.3 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   2.0 kVAR=   1.0
+
+New Load.D828_830sa Bus1=828.1 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   3.5 kVAR=   1.5
+New Load.D828_830ra Bus1=830.1 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   3.5 kVAR=   1.5
+
+New Load.D854_856sb Bus1=854.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   2.0 kVAR=   1.0
+New Load.D854_856rb Bus1=856.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   2.0 kVAR=   1.0
+
+New Load.D832_858sa Bus1=832.1 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=   3.5 kVAR=   1.5
+New Load.D832_858ra Bus1=858.1 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=   3.5 kVAR=   1.5
+New Load.D832_858sb Bus1=832.2 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=   1.0 kVAR=   0.5
+New Load.D832_858rb Bus1=858.2 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=   1.0 kVAR=   0.5
+New Load.D832_858sc Bus1=832.3 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=   3.0 kVAR=   1.5
+New Load.D832_858rc Bus1=858.3 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=   3.0 kVAR=   1.5
+
+! 9-17-10 858-864 changed to phase A per error report
+New Load.D858_864sb Bus1=858.1 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   1.0 kVAR=   0.5
+New Load.D858_864rb Bus1=864.1 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   1.0 kVAR=   0.5
+
+New Load.D858_834sa Bus1=858.1.2 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=   2.0 kVAR=   1.0
+New Load.D858_834ra Bus1=834.1.2 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=   2.0 kVAR=   1.0
+New Load.D858_834sb Bus1=858.2.3 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=   7.5 kVAR=   4.0
+New Load.D858_834rb Bus1=834.2.3 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=   7.5 kVAR=   4.0
+New Load.D858_834sc Bus1=858.3.1 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=   6.5 kVAR=   3.5
+New Load.D858_834rc Bus1=834.3.1 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=   6.5 kVAR=   3.5
+
+New Load.D834_860sa Bus1=834.1.2 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=   8.0 kVAR=   4.0
+New Load.D834_860ra Bus1=860.1.2 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=   8.0 kVAR=   4.0
+New Load.D834_860sb Bus1=834.2.3 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=  10.0 kVAR=   5.0
+New Load.D834_860rb Bus1=860.2.3 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=  10.0 kVAR=   5.0
+New Load.D834_860sc Bus1=834.3.1 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=  55.0 kVAR=  27.5
+New Load.D834_860rc Bus1=860.3.1 Phases=1 Conn=Delta Model=2 kV= 24.900 kW=  55.0 kVAR=  27.5
+
+New Load.D860_836sa Bus1=860.1.2 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=  15.0 kVAR=   7.5
+New Load.D860_836ra Bus1=836.1.2 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=  15.0 kVAR=   7.5
+New Load.D860_836sb Bus1=860.2.3 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=   5.0 kVAR=   3.0
+New Load.D860_836rb Bus1=836.2.3 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=   5.0 kVAR=   3.0
+New Load.D860_836sc Bus1=860.3.1 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=  21.0 kVAR=  11.0
+New Load.D860_836rc Bus1=836.3.1 Phases=1 Conn=Delta Model=1 kV= 24.900 kW=  21.0 kVAR=  11.0
+
+New Load.D836_840sa Bus1=836.1.2 Phases=1 Conn=Delta Model=5 kV= 24.900 kW=   9.0 kVAR=   4.5
+New Load.D836_840ra Bus1=840.1.2 Phases=1 Conn=Delta Model=5 kV= 24.900 kW=   9.0 kVAR=   4.5
+New Load.D836_840sb Bus1=836.2.3 Phases=1 Conn=Delta Model=5 kV= 24.900 kW=  11.0 kVAR=   5.5
+New Load.D836_840rb Bus1=840.2.3 Phases=1 Conn=Delta Model=5 kV= 24.900 kW=  11.0 kVAR=   5.5
+
+New Load.D862_838sb Bus1=862.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  14.0 kVAR=   7.0
+New Load.D862_838rb Bus1=838.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  14.0 kVAR=   7.0
+
+New Load.D842_844sa Bus1=842.1 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   4.5 kVAR=   2.5
+New Load.D842_844ra Bus1=844.1 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=   4.5 kVAR=   2.5
+
+New Load.D844_846sb Bus1=844.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  12.5 kVAR=   6.0
+New Load.D844_846rb Bus1=846.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  12.5 kVAR=   6.0
+New Load.D844_846sc Bus1=844.3 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  10.0 kVAR=   5.5
+New Load.D844_846rc Bus1=846.3 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  10.0 kVAR=   5.5
+
+New Load.D846_848sb Bus1=846.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  11.5 kVAR=   5.5
+New Load.D846_848rb Bus1=848.2 Phases=1 Conn=Wye   Model=1 kV= 14.376 kW=  11.5 kVAR=   5.5
+
+! Script to revise Vminpu property on all loads to allow voltage to sag to 85% without switching
+! to constant Z model
+Load.s860.vminpu=.85
+Load.s840.vminpu=.85
+Load.s844.vminpu=.85
+Load.s848.vminpu=.85
+Load.s830a.vminpu=.85
+Load.s830b.vminpu=.85
+Load.s830c.vminpu=.85
+Load.s890.vminpu=.85
+Load.d802_806sb.vminpu=.85
+Load.d802_806rb.vminpu=.85
+Load.d802_806sc.vminpu=.85
+Load.d802_806rc.vminpu=.85
+Load.d808_810sb.vminpu=.85
+Load.d808_810rb.vminpu=.85
+Load.d818_820sa.vminpu=.85
+Load.d818_820ra.vminpu=.85
+Load.d820_822sa.vminpu=.85
+Load.d820_822ra.vminpu=.85
+Load.d816_824sb.vminpu=.85
+Load.d816_824rb.vminpu=.85
+Load.d824_826sb.vminpu=.85
+Load.d824_826rb.vminpu=.85
+Load.d824_828sc.vminpu=.85
+Load.d824_828rc.vminpu=.85
+Load.d828_830sa.vminpu=.85
+Load.d828_830ra.vminpu=.85
+Load.d854_856sb.vminpu=.85
+Load.d854_856rb.vminpu=.85
+Load.d832_858sa.vminpu=.85
+Load.d832_858ra.vminpu=.85
+Load.d832_858sb.vminpu=.85
+Load.d832_858rb.vminpu=.85
+Load.d832_858sc.vminpu=.85
+Load.d832_858rc.vminpu=.85
+Load.d858_864sb.vminpu=.85
+Load.d858_864rb.vminpu=.85
+Load.d858_834sa.vminpu=.85
+Load.d858_834ra.vminpu=.85
+Load.d858_834sb.vminpu=.85
+Load.d858_834rb.vminpu=.85
+Load.d858_834sc.vminpu=.85
+Load.d858_834rc.vminpu=.85
+Load.d834_860sa.vminpu=.85
+Load.d834_860ra.vminpu=.85
+Load.d834_860sb.vminpu=.85
+Load.d834_860rb.vminpu=.85
+Load.d834_860sc.vminpu=.85
+Load.d834_860rc.vminpu=.85
+Load.d860_836sa.vminpu=.85
+Load.d860_836ra.vminpu=.85
+Load.d860_836sb.vminpu=.85
+Load.d860_836rb.vminpu=.85
+Load.d860_836sc.vminpu=.85
+Load.d860_836rc.vminpu=.85
+Load.d836_840sa.vminpu=.85
+Load.d836_840ra.vminpu=.85
+Load.d836_840sb.vminpu=.85
+Load.d836_840rb.vminpu=.85
+Load.d862_838sb.vminpu=.85
+Load.d862_838rb.vminpu=.85
+Load.d842_844sa.vminpu=.85
+Load.d842_844ra.vminpu=.85
+Load.d844_846sb.vminpu=.85
+Load.d844_846rb.vminpu=.85
+Load.d844_846sc.vminpu=.85
+Load.d844_846rc.vminpu=.85
+Load.d846_848sb.vminpu=.85
+Load.d846_848rb.vminpu=.85
+
+
+! let the DSS estimate voltage bases automatically
+Set VoltageBases = "69,24.9,4.16, .48"
+CalcVoltageBases

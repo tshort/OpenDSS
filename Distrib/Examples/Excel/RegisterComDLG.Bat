@@ -1,0 +1,1 @@
+Regsvr32 comdlg32.ocx

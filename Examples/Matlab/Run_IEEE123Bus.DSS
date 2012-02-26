@@ -1,0 +1,63 @@
+! The first script lets the DSS compute the regulator taps, which are generally one off from the posted solution
+
+Compile (C:\opendss\Examples\IEEE123BusAnnotated\IEEE123Master.dss)
+
+! modify the regulator definitions. Allowing 1 tap at a time better emulates actual control
+! The regulator at the head of the feeder will move first
+RegControl.creg1a.maxtapchange=1  Delay=(30 2 /)  !Allow only one tap change per solution. This one moves first
+RegControl.creg2a.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+RegControl.creg3a.maxtapchange=1  Delay=(30 1 +)  !Allow only one tap change per solution
+RegControl.creg4a.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+RegControl.creg3c.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+RegControl.creg4b.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+RegControl.creg4c.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+
+Set maxcontroliter=30
+
+solve
+
+! Show Results
+Show Voltage LN Nodes
+Show Voltage LL Nodes
+
+Show Currents Elements
+Show Powers kva Elements
+Show taps   ! shows regulator taps
+
+! =================================================================
+! 2nd Script
+! =================================================================
+
+! This script give results closer to  Kersting's posted results by forcing the regulators to the same tap
+
+Compile (C:\opendss\IEEETestCases\123Bus\IEEE123Master.dss)
+
+! set regulators on same tap as Kersting computes
+! (uses RPN inline math feature of OpenDSS)
+! Transformer taps are expressed in per unit
+Transformer.reg1a.wdg=2 Tap=(0.00625  7  * 1 +)   ! Tap 7
+Transformer.reg2a.wdg=2 Tap=(0.00625 -1 * 1 +)    ! Tap -1
+Transformer.reg3a.wdg=2 Tap=(0.00625  0  * 1 +)   ! Tap 0
+Transformer.reg3c.wdg=2 Tap=(0.00625 -1 * 1 +)    ! Tap -1
+Transformer.reg4a.wdg=2 Tap=(0.00625  8 * 1 +)    ! Tap 8
+Transformer.reg4b.wdg=2 Tap=(0.00625  1 * 1 +)    ! Tap 1
+Transformer.reg4c.wdg=2 Tap=(0.00625  5 * 1 +)    ! Tap 5
+
+! Lock the regulators so they don't move
+RegControl.creg1a.maxtapchange=0  !Fixed at present tap
+RegControl.creg2a.maxtapchange=0  !Fixed at present tap
+RegControl.creg3a.maxtapchange=0  !Fixed at present tap
+RegControl.creg4a.maxtapchange=0  !Fixed at present tap
+RegControl.creg3c.maxtapchange=0  !Fixed at present tap
+RegControl.creg4b.maxtapchange=0  !Fixed at present tap
+RegControl.creg4c.maxtapchange=0  !Fixed at present tap
+
+solve
+
+! Show Results
+Show Voltage LN Nodes
+Show Currents Elements
+Show Powers kva Elements
+Show taps   ! shows regulator taps
+
+

@@ -1,0 +1,57 @@
+;This help file was created with HelpScribble 7.8.0
+;Licensed to: JGsoft
+
+:BASE PerlRegEx.hlp
+:TITLE TPerlRegEx Help
+:LINK D7VCL.HLP
+1 TPerlRegEx class
+2 TPerlRegEx class Reference=Scribble1010
+2 Properties
+3 Compiled=Scribble1020
+3 FoundMatch=Scribble1025
+3 Match=Scribble1030
+3 MatchLength=Scribble1035
+3 MatchOffset=Scribble1040
+3 Options=Scribble1045
+3 RegEx=Scribble1050
+3 Replacement=Scribble1055
+3 Start=Scribble1060
+3 State=Scribble1065
+3 Stop=Scribble1070
+3 Studied=Scribble1075
+3 GroupCount=Scribble1080
+3 GroupLengths=Scribble1085
+3 GroupOffsets=Scribble1090
+3 Groups=Scribble1095
+3 Subject=Scribble1100
+2 Methods
+3 Compile=Scribble1105
+3 ComputeReplacement=Scribble1110
+3 EscapeRegExChars=Scribble1115
+3 Match=Scribble1120
+3 MatchAgain=Scribble1125
+3 NamedGroup=Scribble1130
+3 Replace=Scribble1135
+3 ReplaceAll=Scribble1140
+3 StoreGroups=Scribble1150
+3 Study=Scribble1155
+2 Events
+3 OnMatch=Scribble1175
+3 OnReplace=Scribble1180
+1 TPerlRegExList class
+2 TPerlRegExList class Reference=Scribble1200
+2 Properties
+3 Count=Scribble1210
+3 MatchedRegEx=Scribble1215
+3 RegEx=Scribble1220
+3 Start=Scribble1225
+3 Stop=Scribble1230
+3 Subject=Scribble1235
+2 Methods
+3 Add=Scribble1245
+3 IndexOf=Scribble1250
+3 Match=Scribble1255
+3 MatchAgain=Scribble1260
+3 Clear=Scribble1265
+3 Delete=Scribble1270
+3 Insert=Scribble1275

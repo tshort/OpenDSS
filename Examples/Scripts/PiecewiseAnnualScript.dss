@@ -1,0 +1,29 @@
+
+new capacitor.c2 .....  type=time ON=10  OFF=22.25
+
+set casename=Case1a
+set mode=yearly   number= 3000  
+
+capacitor.c2.enabled=no
+
+! Set "DemandInterval" to true so that energy quantities recorded by energy meters are recorded for 
+! each time step and set "casename" to define a directory under default directory in which all of the 
+! demand interval data is recorded.  (NOTE: Setting Demand=true resets all energymeters.)
+
+Set overloadreport=true  ! TURN OVERLOAD REPORT ON
+Set voltexcept=true
+set demand=true
+set DIVerbose=true
+
+
+Set Year=1
+
+solve                                ! Does 3000 steps
+capacitor.c2.enabled=yes  ! Turn Capacitor ON
+Solve number=2000
+
+capacitor.c2.enabled=no   ! Turn Capacitor OFF
+
+solve number=3760
+
+closedi                            ! Done with year

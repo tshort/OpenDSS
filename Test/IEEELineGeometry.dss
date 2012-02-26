@@ -1,0 +1,156 @@
+clear
+new circuit.dummy
+
+! output either matrices or sequence impedances per kft
+! Frequency=60
+! Sequence=N
+! Neutral=N
+! Rho=250
+
+! TODO - either enter Rac for the wires, or have OpenDSS do the skin effect correction
+
+new WireData.AA_1000     NormAmps=698 DIAM=1.150  GMRac=0.44160  Rdc=0.019886364   Runits=kft Radunits=in gmrunits=in
+new WireData.AA_500      NormAmps=483 DIAM=0.813  GMRac=0.31200  Rdc=0.039015152   Runits=kft Radunits=in gmrunits=in
+new WireData.AA_250      NormAmps=329 DIAM=0.573  GMRac=0.21720  Rdc=0.077897727   Runits=kft Radunits=in gmrunits=in
+new WireData.AA_2/0      NormAmps=230 DIAM=0.414  GMRac=0.15000  Rdc=0.145643939   Runits=kft Radunits=in gmrunits=in
+new WireData.AA_1/0      NormAmps=310 DIAM=0.368  GMRac=0.13320  Rdc=0.184204546   Runits=kft Radunits=in gmrunits=in
+new WireData.AA_#2       NormAmps=156 DIAM=0.292  GMRac=0.10596  Rdc=0.291666667   Runits=kft Radunits=in gmrunits=in
+new WireData.ACSR_556_5  NormAmps=730 DIAM=0.927  GMRac=0.37320  Rdc=0.035227273   Runits=kft Radunits=in gmrunits=in
+new WireData.ACSR_336_4  NormAmps=530 DIAM=0.721  GMRac=0.29280  Rdc=0.057954545   Runits=kft Radunits=in gmrunits=in
+new WireData.ACSR_4/0    NormAmps=340 DIAM=0.563  GMRac=0.09768  Rdc=0.112121212   Runits=kft Radunits=in gmrunits=in
+new WireData.ACSR_1/0    NormAmps=230 DIAM=0.398  GMRac=0.05352  Rdc=0.212121212   Runits=kft Radunits=in gmrunits=in
+new WireData.ACSR_#2     NormAmps=180 DIAM=0.316  GMRac=0.05016  Rdc=0.320075758   Runits=kft Radunits=in gmrunits=in
+new WireData.ACSR_#4     NormAmps=140 DIAM=0.257  GMRac=0.05424  Rdc=0.482954545   Runits=kft Radunits=in gmrunits=in
+new WireData.CU_1/0      NormAmps=100 DIAM=0.368  GMRac=0.13356  Rdc=0.114962121   Runits=kft Radunits=in gmrunits=in
+new WireData.CU_#10      NormAmps=80  DIAM=0.102  GMRac=0.03972  Rdc=1.117992424   Runits=kft Radunits=in gmrunits=in
+new WireData.CU_#12      NormAmps=75  DIAM=0.081  GMRac=0.03144  Rdc=1.775568182   Runits=kft Radunits=in gmrunits=in
+new WireData.CU_#14      NormAmps=20  DIAM=0.064  GMRac=0.02496  Rdc=2.816666667   Runits=kft Radunits=in gmrunits=in
+new WireData.TS_5-mil    NormAmps=165 DIAM=0.880  GMRac=0.44000  Rdc=0.584300000   Runits=kft Radunits=in gmrunits=in
+
+! [cables]
+! Dins is outside diameter over insulation
+! Dscr is diameter over insulation screen, = I.D. of shield or CN layer
+! mils is insulation thickness, determines insulation I.D. for capacitance
+! id;               PhWire;  CNWire;  Dins   Dscr  mils #CN   k
+! 2(7x) 1/3 CN;        #2 AA;  #14 CU;  0.78   0.85   220   6 2.3
+! 1/0(19x) 1/3 CN;    1/0 AA;  #14 CU;  0.85   0.93   220   6 2.3
+! 2/0(19x) 1/3 CN;    2/0 AA;  #14 CU;  0.90   0.97   220   7 2.3
+! 250(37x) 1/3 CN;    250 AA;  #14 CU;  1.06   1.16   220  13 2.3
+! 500(37x) 1/3 CN;    500 AA;  #12 CU;  1.29   1.39   220  16 2.3
+! 1000(61x) 1/3 CN;  1000 AA;  #10 CU;  1.64   1.77   220  20 2.3
+! 1/0 TS;             1/0 AA; 5-mil TS; 0.82   0.88   220   0 2.3
+
+! [spacings]
+! id;   X1      X2      X3      Xn      H1      H2      H3      Hn[ft]
+! enter zero height for conductor positions not used
+! enter negative height for underground
+! 500;    -4      -1      3       0       28      28      28      24
+! 505;    -4      3       0       0       28      28      0       24
+! 510;    -0.5    0       0       0       29      0       0       24
+! 515;    -0.5    0     0.5       0       -4      -4      -4       0
+! 520;       0    0       0     0.0833    -4      0       0       -4
+
+! [overhead]
+! for now, all phase wires must be the same
+! id; spacing; sequence; phase wire; neutral wire
+
+! IEEE 4 System
+new LineGeometry.400 nconds=4 nphases=3 reduce=y
+~ cond=1 wire=ACSR_336_4 x=-4 h=28 units=ft
+~ cond=2 wire=ACSR_336_4 x=-1 h=28 units=ft
+~ cond=3 wire=ACSR_336_4 x= 3 h=28 units=ft
+~ cond=4 wire=ACSR_4/0   x= 0 h=24 units=ft
+
+! IEEE 13 System
+new LineGeometry.601 nconds=4 nphases=3 reduce=y
+~ cond=1 wire=ACSR_556_5 x=-4 h=28 units=ft
+~ cond=2 wire=ACSR_556_5 x=-1 h=28 units=ft
+~ cond=3 wire=ACSR_556_5 x= 3 h=28 units=ft
+~ cond=4 wire=ACSR_4/0   x= 0 h=24 units=ft
+
+new LineGeometry.602 nconds=4 nphases=3 reduce=y
+~ cond=1 wire=ACSR_4/0   x=-4 h=28 units=ft
+~ cond=2 wire=ACSR_4/0   x=-1 h=28 units=ft
+~ cond=3 wire=ACSR_4/0   x= 3 h=28 units=ft
+~ cond=4 wire=ACSR_4/0   x= 0 h=24 units=ft
+
+new LineGeometry.603 nconds=3 nphases=2 reduce=y
+~ cond=1 wire=ACSR_1/0   x=-4 h=28 units=ft
+~ cond=2 wire=ACSR_1/0   x= 3 h=28 units=ft
+~ cond=3 wire=ACSR_1/0   x= 0 h=24 units=ft
+
+new LineGeometry.604 like=603
+
+new LineGeometry.605 nconds=2 nphases=1 reduce=y
+~ cond=1 wire=ACSR_1/0   x=-0.5 h=29 units=ft
+~ cond=2 wire=ACSR_1/0   x=   0 h=24 units=ft
+
+! IEEE 34 System
+new LineGeometry.300 nconds=4 nphases=3 reduce=y
+~ cond=1 wire=ACSR_1/0   x=-4 h=28 units=ft
+~ cond=2 wire=ACSR_1/0   x=-1 h=28 units=ft
+~ cond=3 wire=ACSR_1/0   x= 3 h=28 units=ft
+~ cond=4 wire=ACSR_1/0   x= 0 h=24 units=ft
+
+new LineGeometry.301 nconds=4 nphases=3 reduce=y
+~ cond=1 wire=ACSR_#2    x=-4 h=28 units=ft
+~ cond=2 wire=ACSR_#2    x=-1 h=28 units=ft
+~ cond=3 wire=ACSR_#2    x= 3 h=28 units=ft
+~ cond=4 wire=ACSR_#2    x= 0 h=24 units=ft
+
+new LineGeometry.302 nconds=2 nphases=1 reduce=y
+~ cond=1 wire=ACSR_#4    x=-0.5 h=29 units=ft
+~ cond=2 wire=ACSR_#4    x=   0 h=24 units=ft
+
+new LineGeometry.303 like=602
+
+new LineGeometry.304 nconds=2 nphases=1 reduce=y
+~ cond=1 wire=ACSR_#2    x=-0.5 h=29 units=ft
+~ cond=2 wire=ACSR_#2    x=   0 h=24 units=ft
+
+! IEEE 123 System
+new LineGeometry.1 nconds=4 nphases=3 reduce=y
+~ cond=1 wire=ACSR_336_4 x=-4 h=28 units=ft
+~ cond=2 wire=ACSR_336_4 x=-1 h=28 units=ft
+~ cond=3 wire=ACSR_336_4 x= 3 h=28 units=ft
+~ cond=4 wire=ACSR_4/0   x= 0 h=24 units=ft
+
+! these are just different phase rotations
+new LineGeometry.2 like=1
+new LineGeometry.3 like=1
+new LineGeometry.4 like=1
+new LineGeometry.5 like=1
+new LineGeometry.6 like=1
+
+new LineGeometry.7 nconds=3 nphases=2 reduce=y
+~ cond=1 wire=ACSR_336_4 x=-4 h=28 units=ft
+~ cond=2 wire=ACSR_336_4 x= 3 h=28 units=ft
+~ cond=3 wire=ACSR_4/0   x= 0 h=24 units=ft
+
+new LineGeometry.8 like=7
+
+new LineGeometry.9 nconds=2 nphases=1 reduce=y
+~ cond=1 wire=ACSR_1/0   x=-0.5 h=29 units=ft
+~ cond=2 wire=ACSR_1/0   x=   0 h=24 units=ft
+
+new LineGeometry.10 like=9
+new LineGeometry.11 like=9
+
+! [underground]
+! for now, all phase cables must be the same
+! id; spacing; sequence; phase cable; neutral wire if it exists
+
+! IEEE 13 System
+! 606;    515;  ABC;  250(37x) 1/3 CN;   ;
+! 607;    520;  A;    1/0 TS;            1/0 CU;
+
+! IEEE 37 System
+! 721;    515;  ABC;  1000(61x) 1/3 CN;  ;
+! 722;    515;  ABC;  500(37x) 1/3 CN;   ;
+! 723;    515;  ABC;  2/0(19x) 1/3 CN;   ;
+! 724;    515;  ABC;  2(7x) 1/3 CN;      ;
+
+! IEEE 123 System
+! 12;     515;  ABC;  1/0(19x) 1/3 CN;   ;
+
+show lineconstants freq=60 units=kft

@@ -1,0 +1,5 @@
+
+New Capacitor.Cap_G2100PL6500 phases=3 kvar=900 bus1=N300521 kV=34.5 conn=wye enabled=true
+New Capacitor.Cap_G2100FK7800 phases=3 kvar=1200 bus1=N292388 kV=34.5 conn=wye enabled=true
+New Capacitor.Cap_G2101AE7400 phases=3 kvar=1200 bus1=N284062 kV=34.5 conn=wye enabled=true
+
