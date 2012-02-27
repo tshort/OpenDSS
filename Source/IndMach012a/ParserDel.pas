@@ -81,7 +81,7 @@ Type
 
 implementation
 
-Uses  Dialogs;
+// Uses  Dialogs;
 
 CONST
   Commentchar = '!';
@@ -388,7 +388,7 @@ Begin
            TokenBuffer := GetToken(NodeBuffer,NodeBufferPos);
         End;
       Except
-          On E: Exception Do MessageDlg('Node Buffer Too Small: ' + E.Message, mterror, [mbOK], 0 );
+//          On E: Exception Do MessageDlg('Node Buffer Too Small: ' + E.Message, mterror, [mbOK], 0 );
       End;
 
       DelimChars := DelimSave;   //restore to original delimiters
@@ -432,7 +432,7 @@ BEGIN
      Result := NumElements;
 
    EXCEPT
-       On E: Exception Do MessageDlg('Vector Buffer in ParseAsVector Probably Too Small: ' + E.Message, mterror, [mbOK], 0 );
+//       On E: Exception Do MessageDlg('Vector Buffer in ParseAsVector Probably Too Small: ' + E.Message, mterror, [mbOK], 0 );
    END;
 
 
@@ -474,7 +474,7 @@ BEGIN
     END;
 
    EXCEPT
-       On E: Exception Do MessageDlg('Matrix Buffer in ParseAsMatrix Probably Too Small: ' + E.Message,  mterror, [mbOK], 0 );
+//       On E: Exception Do MessageDlg('Matrix Buffer in ParseAsMatrix Probably Too Small: ' + E.Message,  mterror, [mbOK], 0 );
    END;
 
    if Assigned (RowBuf) then FreeMem(RowBuf, (Sizeof(Double)*ExpectedOrder));
@@ -521,7 +521,7 @@ BEGIN
     END;
 
    EXCEPT
-       On E: Exception Do MessageDlg('Matrix Buffer in ParseAsSymMatrix Probably Too Small: ' + E.Message, mterror, [mbOK], 0 );
+//       On E: Exception Do MessageDlg('Matrix Buffer in ParseAsSymMatrix Probably Too Small: ' + E.Message, mterror, [mbOK], 0 );
    END;
 
    if Assigned (RowBuf) then FreeMem(RowBuf, (Sizeof(Double)*ExpectedOrder));
