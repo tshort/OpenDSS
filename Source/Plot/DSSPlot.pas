@@ -804,6 +804,7 @@ Var
    DSSGraphProps: TDSSGraphProperties;
    //Width, LRim, RRim, Height, Trim, Brim: Integer;
    RangeLoX, RangeHiX, RangeLoY, RangeHiY: Double;
+   Fname:String;
 
 Begin
 
@@ -813,40 +814,100 @@ Begin
          PlotType := ptGeneralCircuitPlot;
 
    { *** Make a New DSSGraph Plot *** }
-   If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'Plot.DSV') = 0 Then
-   Begin
-      DoSimpleMsg('Make New Plot failed in DSSPlot Execute.', 8734);
-      Exit;
-   End;
+  // If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'Plot.DSV') = 0 Then
+ //  Begin
+ //     DoSimpleMsg('Make New Plot failed in DSSPlot Execute.', 8734);
+ //     Exit;
+ //  End;
 
    Case PlotType of
-      ptmonitorplot:
+      ptmonitorplot: If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'Monitor.DSV') > 0 Then
          Begin
             DoMonitorPlot;
-            Set_Autorange(2.0); // 2% rim
+            Exit;
+         End
+         Else Begin
+            DoSimpleMsg('Make New Plot failed for Monitor Plot.', 8734);
+            Exit;
          End;
-      ptLoadShape:
+      ptLoadShape: If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'Loadshape.DSV') > 0 Then
          Begin
             DoLoadShapePlot(ObjectName);
             Exit; // All we need to do here
+         End Else Begin
+            DoSimpleMsg('Make New Plot failed for Loadshape Plot.', 8734);
+            Exit;
          End;
-      ptTShape:
+      ptTShape: If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'TempShape.DSV') > 0 Then
          Begin
             DoTempShapePlot(ObjectName);
             Exit; // All we need to do here
+         End Else Begin
+            DoSimpleMsg('Make New Plot failed for TempShape Plot.', 8734);
+            Exit;
          End;
-      ptPriceShape:
+      ptPriceShape:If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'Priceshape.DSV') > 0 Then
          Begin
             DoPriceShapePlot(ObjectName);
             Exit; // All we need to do here
+         End Else Begin
+            DoSimpleMsg('Make New Plot failed for PriceShape Plot.', 8734);
+            Exit;
          End;
-      ptProfile:
+      ptProfile: If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'Profile.DSV') > 0 Then
          Begin
             DoProfilePlot;
-
+            Exit;
+         End Else Begin
+            DoSimpleMsg('Make New Plot failed for Profile Plot.', 8734);
             Exit;
          End;
    ELSE { All other plots }
+
+      case PlotType of
+          ptAutoAddLogPlot:If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'AutoADD.DSV') = 0 Then
+                           Begin
+                              DoSimpleMsg('Make New Plot failed for AutoADD Plot.', 8734);
+                              Exit;
+                           End;
+          ptCircuitplot: Begin
+                            Fname := DSSDataDirectory + CircuitName_;
+                            case Quantity of
+                               pqVoltage:  Fname := Fname + 'Voltage.DSV';
+                               pqCurrent:  Fname := Fname + 'Current.DSV';
+                               pqPower:    Fname := Fname + 'Power.DSV';
+                               pqLosses:   Fname := Fname + 'Losses.DSV';
+                               pqCapacity: Fname := Fname + 'Capacity.DSV';
+                               pqNone:     Fname := Fname + 'Circuit.DSV';
+                            end;
+
+                            If MakeNewGraph(Fname) = 0 Then
+                             Begin
+                              DoSimpleMsg('Make New Plot failed for Circuit Plot.', 8734);
+                              Exit;
+                             End;
+                         End;
+          ptGeneralDataPlot: If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'General.DSV') = 0 Then
+                           Begin
+                              DoSimpleMsg('Make New Plot failed for General Data Plot.', 8734);
+                              Exit;
+                           End;
+          ptGeneralCircuitPlot: If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'GeneralCircuit.DSV') = 0 Then
+                           Begin
+                              DoSimpleMsg('Make New Plot failed for GeneralCircuit Plot.', 8734);
+                              Exit;
+                           End;
+          ptMeterZones: If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'MeterZone.DSV') = 0 Then
+                           Begin
+                              DoSimpleMsg('Make New Plot failed for MeterZone Plot.', 8734);
+                              Exit;
+                           End;
+          ptdaisyplot: If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'Daisy.DSV') = 0 Then
+                           Begin
+                              DoSimpleMsg('Make New Plot failed for Daisy Plot.', 8734);
+                              Exit;
+                           End;
+      end;
       AllocateBusLabels;
       Get_Properties(DSSGraphProps);
       With DSSGraphProps Do
@@ -2368,6 +2429,9 @@ begin
          Set_ChartCaption(Str);
       End; { With }
 
+      Set_Autorange(2.0); // 2% rim
+      ShowGraph;
+
    End
    Else
       DoSimpleMsg('Monitor "' + ObjectName + '" not found.', 200);
@@ -2776,7 +2840,7 @@ begin
    End;
    Set_Properties(DSSGraphProps);
    Set_Autorange(2.0); // 2% rim
-  // ShowGraph; { Form Freed on close }
+   ShowGraph;
 end;
 
 procedure TDSSPlot.MarkSubTransformers;
