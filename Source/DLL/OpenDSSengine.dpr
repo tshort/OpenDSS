@@ -187,7 +187,8 @@ uses
   PerlRegEx in '..\TPerlRegEx\PerlRegEx.pas',
   Pstcalc in '..\Shared\Pstcalc.pas',
   GICLine in '..\PCElements\GICLine.pas',
-  GICTransformer in '..\PDElements\GICTransformer.pas';
+  GICTransformer in '..\PDElements\GICTransformer.pas',
+  DSSGraph in '..\Plot\DSSGraph.pas';
 
 exports
   DllGetClassObject,

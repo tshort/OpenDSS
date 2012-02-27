@@ -64,7 +64,7 @@ type
 
 implementation
 
-uses ComServ, ArrayDef, DSSPlot, Graphics, Variants;
+uses ComServ, ArrayDef, DSSPlot, DSSGraph, Graphics, Variants;
 
 VAR
    FColor            :TColor;
@@ -85,7 +85,7 @@ VAR
 function TPlot.NewGraph: Integer;
 begin
     If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
-    MakeNewGraph;
+//    MakeNewGraph;  // TODO - takes a file name parameter
 end;
 
 procedure TPlot.NewLine(X1, Y1, X2, Y2: Double; const Name: WideString);
@@ -141,7 +141,7 @@ VAR
    S:String;
 begin
      S := Value;
-     Set_XaxisLabel(pAnsiChar(AnsiString(S)), Length(S));
+     Set_XaxisLabel(S);
 end;
 
 procedure TPlot.Set_YLabel(const Value: WideString);
@@ -149,7 +149,7 @@ VAR
    S:String;
 begin
      S := Value;
-     Set_YaxisLabel(pAnsiChar(AnsiString(S)), Length(S));
+     Set_YaxisLabel(S);
 end;
 
 procedure TPlot.Set_WindowCaption(const Value: WideString);
@@ -157,7 +157,7 @@ VAR
    S:String;
 begin
      S := Value;
-     Set_Caption(pAnsiChar(AnsiString(S)), Length(S));
+     Set_Caption(S);
 end;
 
 procedure TPlot.Set_PlotCaption(const Value: WideString);
@@ -165,19 +165,19 @@ VAR
    S:String;
 begin
      S := Value;
-     Set_ChartCaption(pAnsiChar(AnsiString(S)), Length(S));
+     Set_ChartCaption(S);
 end;
 
 procedure TPlot.Set_LineWidth(Value: Integer);
 begin
      FThickness := Value;
-     DSSPlot.Set_LineWidth(FThickness);
+     Set_LineWidth(FThickness);
 end;
 
 procedure TPlot.Set_DataColor(Value: Integer);
 begin
      FColor := TColor(Value);
-     DSSPlot.Set_DataColor(FColor);
+     Set_DataColor(FColor);
 end;
 
 procedure TPlot.Set_PenStyle(Value: Integer);
@@ -288,7 +288,8 @@ end;
 
 procedure TPlot.GetRange(var Xlow, Xhigh, Ylow, Yhigh: Double);
 begin
-     Get_range (Xlow, Xhigh, Ylow, Yhigh);
+// TODO - remove this method; GetRange was deprecated in DSSGraph
+//     Get_range (Xlow, Xhigh, Ylow, Yhigh);
 end;
 
 procedure TPlot.Set_TextColor(Value: Integer);
@@ -364,7 +365,8 @@ end;
 
 procedure TPlot.GetWindowParms(var Width, LRim, RRim, Height, TRim, Brim: Integer);
 begin
-     Get_PlotWindowParms (Width, LRim, RRim, Height, TRim, Brim);
+// TODO - remove this method; Get_PlotWindowParms was deprecated
+//     Get_PlotWindowParms (Width, LRim, RRim, Height, TRim, Brim);
 end;
 
 procedure TPlot.GetGraphProperties(var Xmin, Xmax, Ymin, Ymax: Double;
