@@ -405,6 +405,7 @@ begin
          Begin
             // Idx1 := Buslist.Find(StripExtension(pLine.GetBus (1)));
             // Idx2 := Buslist.Find(StripExtension(pLine.GetBus (2)));
+            ActiveCktElement := pLine;
             Bus1Idx := pLine.Terminals^[1].BusRef;
             Bus2Idx := pLine.Terminals^[2].BusRef;
             If Buses^[Bus1Idx].CoordDefined and Buses^[Bus2Idx]
@@ -451,6 +452,7 @@ begin
          Begin
             // Idx1 := Buslist.Find(StripExtension(pLine.GetBus (1)));
             // Idx2 := Buslist.Find(StripExtension(pLine.GetBus (2)));
+            ActiveCktElement := pGICLine;
             Bus1Idx := pGICLine.Terminals^[1].BusRef;
             Bus2Idx := pGICLine.Terminals^[2].BusRef;
             If Buses^[Bus1Idx].CoordDefined and Buses^[Bus2Idx]
@@ -480,6 +482,7 @@ begin
       Begin
          If pTransf.Enabled then
          Begin
+            ActiveCktElement := pTransf;
             Bus1Idx := pTransf.Terminals^[1].BusRef;
             Bus2Idx := pTransf.Terminals^[2].BusRef;
             If Buses^[Bus1Idx].CoordDefined and Buses^[Bus2Idx]
@@ -761,6 +764,7 @@ begin
       Begin
          If pLine.Enabled then
          Begin
+            ActiveCircuit.ActiveCktElement := pLine;
             Idx1 := pLine.Terminals^[1].BusRef;
             Idx2 := pLine.Terminals^[2].BusRef;
             If ShowLoops and pMeter.BranchList.PresentBranch.IsLoopedHere Then
@@ -839,7 +843,7 @@ Begin
       ptProfile:
          Begin
             DoProfilePlot;
-            Set_Autorange(2.0); // 2% rim
+
             Exit;
          End;
    ELSE { All other plots }
@@ -2500,6 +2504,7 @@ begin
          If IslineElement(PresentCktElement) Then
             With ActiveCircuit Do
             Begin
+               ActiveCktElement := PresentCktElement;
                Bus1 := Buses^[PresentCktElement.Terminals^[1].BusRef];
                Bus2 := Buses^[PresentCktElement.Terminals^[2].BusRef];
                { Now determin which phase to plot }
@@ -2770,8 +2775,8 @@ begin
       Drawto(Xmax, NormalMinVolts);
    End;
    Set_Properties(DSSGraphProps);
-
-   ShowGraph; { Form Freed on close }
+   Set_Autorange(2.0); // 2% rim
+  // ShowGraph; { Form Freed on close }
 end;
 
 procedure TDSSPlot.MarkSubTransformers;
@@ -2946,6 +2951,7 @@ begin
       Begin
          If pLine.Enabled then
          Begin
+            ActiveCktElement := pLine;
             Bus1Idx := pLine.Terminals^[1].BusRef;
             Bus2Idx := pLine.Terminals^[2].BusRef;
             If Buses^[Bus1Idx].CoordDefined and Buses^[Bus2Idx]
@@ -3328,3 +3334,4 @@ If Assigned(DSSPlotObj) then
    DSSPlotObj.Free;
 
 end.
+

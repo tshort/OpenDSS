@@ -12,11 +12,12 @@ interface
 
 Uses
     ArrayDef,
-    Graphics;
+    Graphics,
+    Sysutils;
 
 TYPE
      GridStyleType = (gsNone, gsPoints, gsVertLines, gsHorizLines, gsLines, gsHorizDotLines, gsVertDotLines, gsDotLines);
-
+     EDSSGraphProblem = class(Exception);
      TDSSGraphProperties = Packed Record
            Xmin      :Double;
            Xmax      :Double;
@@ -75,15 +76,17 @@ implementation
 
 Uses
     Windows,
-    SysUtils,
     DSSGlobals,
     Utilities,
     ShellAPI,
-    Math;
+    Math,
+    PDElement;
 
 VAR
    ActiveDSSGraphFile :TextFile;
-   ActiveFileName     :String;
+   ActiveSolutionFileHdl :Integer;
+   ActiveFileName,
+   ActiveSolutionFileName     :String;
    ActiveGraphProps   :TDSSGraphProperties;
    TextLabelCount     :Integer;
 
@@ -112,6 +115,26 @@ Begin
         End;
     END;
 
+    ActiveFileName := FileName;
+    ActiveSolutionFileName := ChangeFileExt(ActiveFileName,'.dbl');
+
+    TRY
+       ActiveSolutionFileHdl := Sysutils.FileCreate(ActiveSolutionFileName);
+       If ActiveSolutionFileHdl < 0 Then
+       Begin
+          DoSimpleMsg('Error occured opening DSSView binary Solution file: '+Filename, 45001);
+          CloseFile(ActiveDSSGraphFile);
+          Exit;
+       End;
+
+    EXCEPT
+        On E:Exception Do Begin
+            DoSimpleMsg('Error opening DSSView Solution file: '+Filename+', '+E.message, 45001);
+            Exit;
+        End;
+    END;
+
+
     With  ActiveGraphProps Do
     Begin
            Xmin := 1.0e50;
@@ -129,16 +152,77 @@ Begin
     Set_Properties(ActiveGraphProps);
 
     Result := 1;
-    ActiveFileName := FileName;
+
+
+End;
+
+Function WriteActiveCktElementVIToFile:Int64;
+Var Count:Cardinal;
+    CountWritten :Cardinal;
+Begin
+  // get present file position
+     Result := sysutils.FileSeek(ActiveSolutionFileHdl, int64(0), 1);
+
+     With ActiveCircuit Do
+     Begin
+         ActiveCktElement.ComputeVterminal;
+         ActiveCktElement.ComputeIterminal;
+         Count := ActiveCktElement.Yorder * 2 * Sizeof(double);
+         CountWritten := Sysutils.FileWrite(ActiveSolutionFileHdl, ActiveCktElement.Vterminal^, Count);
+         If CountWritten = Count Then
+         CountWritten := Sysutils.FileWrite(ActiveSolutionFileHdl, ActiveCktElement.Iterminal^, Count);
+     End;
+
+     If CountWritten <> Count Then
+     Begin
+         Sysutils.FileClose(ActiveSolutionFileHdl);
+         CloseFile(ActiveDSSGraphFile);
+         Raise EDSSGraphProblem.Create('Aborting. Problem writing solution file: '+ ActiveSolutionFileName);
+     End;
 
 End;
 
 Procedure AddNewLine(X1, Y1, X2, Y2: Double; Color:TColor;  Thickness:Byte; Style: TPenStyle; Dots: Boolean; Const LineName:String;
                  MarkCenter:Boolean; CenterMarkerCode, NodeMarkerCode, NodeMarkerWidth :Integer);
+Var
+   Offset :Int64;
+   Bus1, Bus2 : String;
+   Bus1Idx :Integer;
+   DataCount :Integer;
+   kV_Base :Double;
+   Dist   :Double;
+   pDElem :TPDElement;
+   NumCust, TotalCust:Integer;
+
 Begin
-     Writeln(ActiveDSSGraphFile, Format('Line, "%s", %.8g, %.8g, %.8g, %.8g, %d, %d, %d, %d, %d, %d, %d, %d',
-            [LineName, X1, Y1, X2, Y2,
-            Color, Thickness, Ord(Style), Ord(Dots), Ord(MarkCenter), CentermarkerCode, NodeMarkerCode, NodeMarkerWidth]));
+     Offset := WriteActiveCktElementVIToFile;
+
+     With ActiveCircuit, ActiveCircuit.ActiveCktElement Do
+     Begin
+        Bus1Idx := Terminals^[1].BusRef;
+        kV_Base := Buses^[Bus1Idx].kVBase ;
+        Dist    := Buses^[Bus1Idx].DistFromMeter;
+        Bus1 := GetBus(1);
+        Bus2 := GetBus(2);
+        DataCount := Yorder;
+     End;
+
+     If ActiveCircuit.ActiveCktElement is TPDElement
+     Then Begin
+        pDElem    := ActiveCircuit.ActiveCktElement as TPDElement;
+        NumCust   := pDElem.NumCustomers;
+        TotalCust := pDElem.TotalCustomers;
+     End
+     Else Begin
+        NumCust   := 0;
+        TotalCust := 0;
+     End;
+
+
+     Writeln(ActiveDSSGraphFile, Format('Line, "%s", "%s", "%s", %d, %d,  %d, %d, %.8g, %.8g, %.8g, %.8g, %.8g, %.8g, %d, %d, %d, %d, %d, %d, %d, %d',
+            [LineName, Bus1, Bus2, Offset, DataCount, NumCust, TotalCust, kV_Base, Dist,
+              X1, Y1, X2, Y2,
+             Color, Thickness, Ord(Style), Ord(Dots), Ord(MarkCenter), CentermarkerCode, NodeMarkerCode, NodeMarkerWidth]));
      CheckMinMax(X1, Y1);
      CheckMinMax(X2, Y2);
 End;
@@ -165,7 +249,8 @@ End;
 
 Procedure AddNewCircle(Xc, Yc, Radius:double; LineColor, FColor:TColor);
 Begin
-     Writeln(ActiveDSSGraphFile, Format('Circle, %.8g, %.8g, %.8g, %d, %d, "%s"',[Xc, Yc, Radius, LineColor, FColor]));
+     Writeln(ActiveDSSGraphFile, Format('Circle, %.8g, %.8g, %.8g, %d, %d',
+                                       [Xc, Yc, Radius, LineColor, FColor]));
      CheckMinMax(Xc, Yc);
 End;
 
@@ -285,12 +370,16 @@ Var
     DSSViewFile :String;
 Begin
        CloseFile(ActiveDSSGraphFile);
+       Sysutils.FileClose(ActiveSolutionFileHdl);
 
         TRY
            If FileExists(ActiveFileName) Then
            Begin
-               DSSViewFile := StartupDirectory + 'DSSView.exe';
-               retval := ShellExecute (0, Nil, PChar(DSSViewFile), PChar(encloseQuotes(ActiveFileName)), Nil, SW_SHOW);
+               DSSViewFile := EncloseQuotes(StartupDirectory + 'DSSView.exe');
+               retval := ShellExecute (0, 'open',
+                                      PChar(DSSViewFile),
+                                      PChar(EncloseQuotes(ActiveFileName)),
+                                       Nil, SW_SHOW);
                LastResultFile := ActiveFileName;
 
                Case Retval of
@@ -344,3 +433,4 @@ End;
 
 
 end.
+
