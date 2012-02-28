@@ -3158,6 +3158,7 @@ VAR
    Idx: Integer;
    xx: Double;
    ActiveGraphProps: TDSSGraphProperties;
+   Fname:String;
    // RangeLoX, RangeHiX, RangeLoY, RangeHiY: Double;
 
    { ----------------------INTERNAL FUNCTIONS--------------------------- }
@@ -3186,19 +3187,19 @@ VAR
 
          Begin
 
-           Set_FontStyle(fsBold); If iopt = 1 Then Begin Moveto(0.0, Y);
-         Drawto(100.0, Y);
-         CenteredText15(15.0, (Y + 2.0), 10, Txt1);
-         CenteredText15(60.0, (Y + 2.0), 10, Txt2);
-         CenteredText15(90.0, (Y + 2.0), 10, arrowright);
+              Set_FontStyle(fsBold); If iopt = 1 Then Begin Moveto(0.0, Y);
+            Drawto(100.0, Y);
+            CenteredText15(15.0, (Y + 2.0), 10, Txt1);
+            CenteredText15(60.0, (Y + 2.0), 10, Txt2);
+            CenteredText15(90.0, (Y + 2.0), 10, arrowright);
 
-         // idx := AddTextLabel(50.0, (Y+1.0), clBlack, , 0);
-         End Else Begin Moveto(Xmx, Y); Drawto(Xmx - 100.0, Y);
-         CenteredText15(Xmx - 90.0, (Y + 2.0), 10, arrowLeft);
-         CenteredText15(Xmx - 60.0, (Y + 2.0), 10, Txt1);
-         CenteredText15(Xmx - 20.0, (Y + 2.0), 10, Txt2);
-         // idx := AddTextLabel(Xmx-50, (Y+1.0), clBlack, Arrowleft+Txt, 0);
-         End;
+            // idx := AddTextLabel(50.0, (Y+1.0), clBlack, , 0);
+            End Else Begin Moveto(Xmx, Y); Drawto(Xmx - 100.0, Y);
+            CenteredText15(Xmx - 90.0, (Y + 2.0), 10, arrowLeft);
+            CenteredText15(Xmx - 60.0, (Y + 2.0), 10, Txt1);
+            CenteredText15(Xmx - 20.0, (Y + 2.0), 10, Txt2);
+            // idx := AddTextLabel(Xmx-50, (Y+1.0), clBlack, Arrowleft+Txt, 0);
+            End;
 
          // TextLabels[idx].Font.Style := [fsBold];
 
@@ -3206,30 +3207,33 @@ VAR
 
          { ------------------------------------------------------------------- }
 
-         begin
+begin
          { Plot Lines representing the phases and ground }
 
-         Ncond := Element.NConds; Nterm := Element.Nterms;
-         CBufferAllocated := FALSE;
+      Ncond := Element.NConds; Nterm := Element.Nterms;
+      CBufferAllocated := FALSE;
 
-         Element.ComputeIterminal; Element.ComputeVTerminal;
+      Element.ComputeIterminal; Element.ComputeVTerminal;
 
-         Xmx := 300.0; // don't use Xmax -- already used
-         For i := 1 to 2 Do kVBase1[i] := 1.0;
+      Xmx := 300.0; // don't use Xmax -- already used
+      For i := 1 to 2 Do kVBase1[i] := 1.0;
 
-         Case Quantity of vizVOLTAGE:
-            Begin
-               arrowLeft := '^ ';
-               arrowright := ' ^';
-            End;
+      Case Quantity of vizVOLTAGE:
+         Begin
+            arrowLeft := '^ ';
+            arrowright := ' ^';
+         End;
       Else
          arrowLeft := '<- ';
          arrowright := ' ->';
       End;
 
+
+      Fname := DSSDataDirectory + CircuitName_;
       Case Quantity of
          vizVOLTAGE:
             Begin
+               FName := FName + Element.Name + '_V.DSV';
                cBuffer := Element.Vterminal;
                For i := 1 to Min(2, Nterm) do
                   kVBase1[i] := Max(1.0,
@@ -3237,9 +3241,13 @@ VAR
                        .kVBase);
             End;
          vizCURRENT:
-            cBuffer := Element.Iterminal;
+            Begin
+                 FName := FName + Element.Name + '_I.DSV';
+                 cBuffer := Element.Iterminal;
+            End;
          vizPOWER:
             Begin
+               FName := FName + Element.Name + '_PQ.DSV';
                cBuffer := Allocmem(Sizeof(Complex) * Element.Yorder);
                CBufferAllocated := TRUE;
                With Element Do
@@ -3251,7 +3259,7 @@ VAR
             End;
       End;
 
-     If MakeNewGraph(DSSDataDirectory + CircuitName_ + 'vizPlot.DSV')=0
+     If MakeNewGraph(Fname)=0
      Then Begin
          DoSimpleMsg('Make New Plot failed in DSSPlot - visualization plot.', 8734);
          Exit;
