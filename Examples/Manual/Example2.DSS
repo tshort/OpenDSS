@@ -61,7 +61,7 @@ new transformer.TR3 phases=3 windings=2
 ! put some loads on the transformers 
 new load.load1 bus1=Genbus1 phases=3 kv=0.48 kw=1000.0 pf=0.88 model=1 class=1  status=fixed
 new load.load2 bus1=Genbus2 phases=3 kv=0.48 kw=1000.0 pf=0.88 model=1 class=1  status=fixed
-new load.load3 bus1=Genbus3 phases=3 kv=0.48 kw=1000.0 pf=0.88 model=1 class=1  status=fixed
+new load.load3 bus1=Genbus3 phases=3 kv=0.48 kw=1000.0 pf=0.88 model=1 class=1  status=fixed conn=delta
 
            
 ! Define monitors at the secondary buses to pick up voltage magnitudes
