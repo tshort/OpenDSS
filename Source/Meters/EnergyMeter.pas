@@ -1111,7 +1111,7 @@ Procedure TEnergyMeterObj.TakeSample;
 // Assumes one time period has taken place since last sample.
 
 VAR
-   i,j :Integer;
+   i,j, idx :Integer;
    
    S_Local,
    S_Totallosses,
@@ -1276,6 +1276,7 @@ Begin
      TotalGenkw    := 0.0;
      TotalGenkvar  := 0.0;
 
+
      {--------------------------------------------------------------------------}
      {--------       Cycle Through Zone Accumulating Load and Losses    --------}
      {--------------------------------------------------------------------------}
@@ -1351,13 +1352,26 @@ Begin
            If FPhaseVoltageReport then
            With BranchList.PresentBranch do
              If VoltBaseIndex > 0  then With ActiveCircuit Do
-             If Buses^[FromBusReference].kVBase > 0.0 Then Begin
-                For i := 1 to Buses^[FromBusReference].NumNodesThisBus Do Begin
+             If Buses^[FromBusReference].kVBase > 0.0
+             Then Begin
+                For i := 1 to Buses^[FromBusReference].NumNodesThisBus
+                Do Begin
                     j := Buses^[FromBusReference].GetNum(i);
                     If (j>0) and (j<4) then Begin
                       puV := Cabs(Solution.NodeV^[Buses^[FromBusReference].GetRef(i)])/Buses^[FromBusReference].kVBase;
-                      VphaseMax^[jiIndex(j, VoltBaseIndex)] := Max(VphaseMax^[jiIndex(j, VoltBaseIndex)], puV);
-                      VphaseMin^[jiIndex(j, VoltBaseIndex)] := Min(VphaseMin^[jiIndex(j, VoltBaseIndex)], puV);
+                      idx := jiIndex(j, VoltBaseIndex);
+                      If puV > VphaseMax^[idx] Then
+                      Begin
+                         VphaseMax^[jiIndex(j, VoltBaseIndex)] := puV;
+                         // VmaxBus := FromBusReference;
+                      End;
+
+                      If puV < VphaseMin^[idx] Then
+                      Begin
+                         VphaseMin^[jiIndex(j, VoltBaseIndex)] := puV;
+                         // VminBus := FromBusReference;
+                      End;
+
                       DblInc(VphaseAccum^[jiIndex(j, VoltBaseIndex)],  puV);
                       Inc(VphaseAccumCount^[jiIndex(j, VoltBaseIndex)]);   // Keep track of counts for average
                     End;
@@ -2420,6 +2434,7 @@ begin
                   For j := 1 to 3 Do Write(VPhase_File, Format(', %.3gkV_Phs_%d_Avg', [vbase, j]));
                 End;
               End;
+              Write(VPhase_File, ', Min Bus, MaxBus');
               Writeln(VPhase_File);
           End;
 
@@ -2923,6 +2938,8 @@ var
   OverCount  :integer;
   OverVmax   :Double;
   UnderVmin  :Double;
+  MinBus     :Integer;
+  MaxBus     :Integer;
 
 begin
      {For any bus with a defined voltage base, test for > Vmax or < Vmin}
@@ -2933,13 +2950,27 @@ begin
      With ActiveCircuit Do Begin
        OverVmax   := NormalMinVolts;
        UnderVmin  := NormalMaxVolts;
-       For i := 1 to NumBuses do With Buses^[i] Do Begin
-           If kVBase > 0.0 Then Begin
-               For j := 1 to NumNodesThisBus Do Begin
+       For i := 1 to NumBuses do
+       With Buses^[i] Do
+       Begin
+           If kVBase > 0.0 Then
+           Begin
+               For j := 1 to NumNodesThisBus Do
+               Begin
                   Vmagpu := Cabs(Solution.NodeV^[GetRef(j)])/kvbase * 0.001;
                   If Vmagpu > 0.1 then Begin // ignore neutral buses
-                     UnderVmin := Min(UnderVmin, Vmagpu);
-                     OverVMax  := Max(OverVmax,  VMagpu);
+                     If Vmagpu < underVmin Then
+                     Begin
+                        UnderVmin := Vmagpu;
+                        MinBus := i;
+                     End;
+
+                     If Vmagpu > OverVMax Then
+                     Begin
+                        OverVMax := Vmagpu;
+                        MaxBus := i;
+                     End;
+
                      If (Vmagpu < NormalMinVolts) Then Begin
                          Inc(UnderCount);
                          Break; {next i}
@@ -2952,7 +2983,8 @@ begin
            End;
        End; {For i}
        With Solution Do Write(FVoltageFile, Format('%-.6g,',[dblHour]));
-       Writeln(FVoltageFile, Format(' %d, %-.6g, %d, %-.6g', [UnderCount, UnderVmin, OverCount, OverVmax ]))
+
+       Writeln(FVoltageFile, Format(' %d, %-.6g, %d, %-.6g, %s, %s', [UnderCount, UnderVmin, OverCount, OverVmax, BusList.Get(minbus), Buslist.Get(maxbus) ]))
     End;
 
 
@@ -3059,7 +3091,7 @@ begin
       AssignFile(FVoltageFile, EnergyMeterClass.DI_Dir+'\DI_VoltExceptions.CSV');
       Rewrite(FVoltageFile);
       VoltageFileIsOpen := TRUE;
-      Writeln(FVoltageFile,'"Hour", "Undervoltages", "Min Voltage", "Overvoltage", "Max Voltage"');
+      Writeln(FVoltageFile,'"Hour", "Undervoltages", "Min Voltage", "Overvoltage", "Max Voltage", "Min Bus", "Max Bus"');
 
   Except
       On E:Exception Do DosimpleMsg('Error opening demand interval file "'+EnergyMeterClass.DI_Dir+'\DI_VoltExceptions.CSV"  for writing.'+CRLF+E.Message, 541);
