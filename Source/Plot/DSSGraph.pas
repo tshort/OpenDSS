@@ -265,6 +265,9 @@ End;
 Procedure Set_Properties(Var Props:TDSSGraphProperties);
 Begin
      ActiveGraphProps := Props;
+     With ActiveGraphProps Do
+     Writeln(ActiveDSSGraphFile, Format('SetProp, %.8g, %8g, %.8g, %.8g, %d, %d, %d, %d',
+                                 [Xmin, Xmax, Ymin, YMax, ChartColor, WindColor, Ord(Isometric), Ord(GridStyle)]));
 End;
 
 Procedure Get_Properties(Var Props:TDSSGraphProperties);
