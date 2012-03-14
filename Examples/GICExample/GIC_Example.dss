@@ -1,0 +1,55 @@
+Clear
+New circuit.GICtest
+
+!GIC Line Data
+New GICLine.1-Bus2-Bus3 bus1=2 bus2=3 R=3.512 Lat1=33.613499 Lon1=-87.373673 Lat2=33.547885 Lon2=-86.074605 EE=1.00 EN=0.00
+New GICLine.2-Bus2-Bus17 bus1=2 bus2=17 R=3.525 Lat1=33.613499 Lon1=-87.373673 Lat2=34.310437 Lon2=-86.365765 EE=1.00 EN=0.00
+New GICLine.3-Bus15-Bus4 bus1=15 bus2=4 R=1.986 Lat1=33.955058 Lon1=-84.679354 Lat2=33.547885 Lon2=-86.074605 EE=1.00 EN=0.00
+New GICLine.4-Bus17-Bus16 bus1=17 bus2=16 R=4.665 Lat1=34.310437 Lon1=-86.365765 Lat2=33.955058 Lon2=-84.679354 EE=1.00 EN=0.00
+New GICLine.5-Bus4-Bus5 bus1=4 bus2=5 R=2.345 Lat1=33.547885 Lon1=-86.074605 Lat2=32.705087 Lon2=-84.663397 EE=1.00 EN=0.00
+New GICLine.6-Bus4-Bus5 bus1=4 bus2=5 R=2.345 Lat1=33.547885 Lon1=-86.074605 Lat2=32.705087 Lon2=-84.663397 EE=1.00 EN=0.00
+New GICLine.7-Bus5-Bus6 bus1=5 bus2=6 R=2.975 Lat1=32.705087 Lon1=-84.663397 Lat2=33.377327 Lon2=-82.618777 EE=1.00 EN=0.00
+New GICLine.8-Bus5-Bus11 bus1=5 bus2=11 C=32.0 R=3.509 Lat1=32.705087 Lon1=-84.663397 Lat2=34.252248 Lon2=-82.836301 EE=1.00 EN=0.00
+New GICLine.9-Bus6-Bus11 bus1=6 bus2=11 R=1.444 Lat1=33.377327 Lon1=-82.618777 Lat2=34.252248 Lon2=-82.836301 EE=1.00 EN=0.00
+New GICLine.10-Bus4-Bus6 bus1=4 bus2=6 R=4.666 Lat1=33.547885 Lon1=-86.074605 Lat2=33.377327 Lon2=-82.618777 EE=1.00 EN=0.00
+New GICLine.11-Bus15-Bus6 bus1=15 bus2=6 R=2.924 Lat1=33.955058 Lon1=-84.679354 Lat2=33.377327 Lon2=-82.618777 EE=1.00 EN=0.00
+New GICLine.12-Bus15-Bus6 bus1=15 bus2=6 R=2.924 Lat1=33.955058 Lon1=-84.679354 Lat2=33.377327 Lon2=-82.618777 EE=1.00 EN=0.00
+New GICLine.13-Bus11-Bus12 bus1=11 bus2=12 R=2.324 Lat1=34.252248 Lon1=-82.836301 Lat2=34.195574 Lon2=-81.098002 EE=1.00 EN=0.00
+New GICLine.14-Bus16-Bus20 bus1=16 bus2=20 R=4.049 Lat1=33.955058 Lon1=-84.679354 Lat2=32.705087 Lon2=-84.663397 EE=1.00 EN=0.00
+New GICLine.15-Bus17-Bus20 bus1=17 bus2=20 R=6.940 Lat1=34.310437 Lon1=-86.365765 Lat2=32.705087 Lon2=-84.663397 EE=1.00 EN=0.00
+!GIC Transformer Data
+New GICTransformer.T1 busH=2 busNH=2.4.4.4 R1=0.1 type=GSU
+New GICTransformer.T2 busH=4 busNH=4.4.4.4 busX=3 busNX=4.4.4.4 R1=0.2 R2=0.1 type=YY
+New GICTransformer.T3 busH=17 busNH=17.4.4.4 R1=0.1 type=GSU
+New GICTransformer.T4 busH=17 busNH=17.4.4.4 R1=0.1 type=GSU
+New GICTransformer.T5 busH=15 busX=16 busNX=15.4.4.4 R1=0.04 R2=0.06 type=Auto
+New GICTransformer.T6 busH=6 busNH=6.4.4.4 R1=0.15 type=GSU
+New GICTransformer.T7 busH=6 busNH=6.4.4.4 R1=0.15 type=GSU
+New GICTransformer.T8 busH=5 busNH=5.4.4.4 busX=20 busNX=5.4.4.4 R1=0.04 R2=0.06 type=YY
+New GICTransformer.T9 busH=5 busNH=5.4.4.4 busX=20 busNX=5.4.4.4 R1=0.04 R2=0.06 type=YY
+New GICTransformer.T10 busH=12 busNH=12.4.4.4 R1=0.10 type=GSU
+New GICTransformer.T11 busH=12 busNH=12.4.4.4 R1=0.10 type=GSU
+New GICTransformer.T12 busH=4 busX=3 busNX=4.4.4.4 R1=0.04 R2=0.06 type=Auto
+New GICTransformer.T13 busH=4 busNH=4.4.4.4 busX=3 busNX=4.4.4.4 R1=0.2 R2=0.1 type=YY
+New GICTransformer.T14 busH=4 busX=3 busNX=4.4.4.4 R1=0.04 R2=0.06 type=Auto
+New GICTransformer.T15 busH=15 busX=16 busNX=15.4.4.4 R1=0.04 R2=0.06 type=Auto
+New Capacitor.T1 bus1=2.4 bus2=2.5 phases=1 cuf=10
+
+!Substation Ground Grid Data
+New Reactor.SUB1gnd phases=1 bus1=2.5 R=0.200 X=0
+New Reactor.SUB2gnd phases=1 bus1=17.4 R=0.200 X=0
+New Reactor.SUB3gnd phases=1 bus1=15.4 R=0.200 X=0
+New Reactor.SUB4gnd phases=1 bus1=4.4 R=1.0 X=0
+New Reactor.SUB5gnd phases=1 bus1=5.4 R=0.100 X=0
+New Reactor.SUB6gnd phases=1 bus1=6.4 R=0.100 X=0
+New Reactor.SUB8gnd phases=1 bus1=12.4 R=0.100 X=0
+
+!Perform analysis
+Set frequency=0.1
+Calcv
+Solve
+
+!Load file with bus coordinates, used for plotting
+LatLongCoords LatLonFile.csv  
+Show Current Elements
+plot circuit Current Max=70 dots=y labels=y subs=n C1=$00FF0000
