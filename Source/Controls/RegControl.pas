@@ -57,6 +57,7 @@ TYPE
             Vreg,
             Bandwidth,
             PTRatio,
+            RemotePTRatio,
             CTRating,
             R,
             X           :Double;
@@ -182,7 +183,7 @@ CONST
     ACTION_TAPCHANGE = 0;
     ACTION_REVERSE   = 1;
 
-    NumPropsThisClass = 26;
+    NumPropsThisClass = 27;
 
 Var
     LastChange:Integer;
@@ -245,6 +246,7 @@ Begin
      PropertyName[24] := 'revDelay';
      PropertyName[25] := 'revNeutral';
      PropertyName[26] := 'EventLog';
+     PropertyName[27] := 'RemotePTRatio';
 
      PropertyHelp[1] := 'Name of Transformer element to which the RegControl is connected. '+
                         'Do not specify the full object name; "Transformer" is assumed for '  +
@@ -256,9 +258,9 @@ Begin
                         'value times the ptratio should yield the voltage across the WINDING of the controlled transformer.' +
                         ' Default is 120.0';
      PropertyHelp[4] := 'Bandwidth in VOLTS for the controlled bus (see help for ptratio property).  Default is 3.0';
-     PropertyHelp[5] := 'Ratio of the PT that converts the controlled winding voltage to the regulator voltage. '+
+     PropertyHelp[5] := 'Ratio of the PT that converts the controlled winding voltage to the regulator control voltage. '+
                         'Default is 60.  If the winding is Wye, the line-to-neutral voltage is used.  Else, the line-to-line ' +
-                        'voltage is used.';
+                        'voltage is used. SIDE EFFECT: Also sets RemotePTRatio property.';
      PropertyHelp[6] := 'Rating, in Amperes, of the primary CT rating for converting the line amps to control amps.'+
                         'The typical default secondary ampere rating is 0.2 Amps (check with manufacturer specs).';
      PropertyHelp[7] := 'R setting on the line drop compensator in the regulator, expressed in VOLTS.';
@@ -296,6 +298,8 @@ Begin
      PropertyHelp[24] := 'Time Delay in seconds (s) for executing the reversing action once the threshold for reversing has been exceeded. Default is 60 s.';
      PropertyHelp[25] := '{Yes | No*} Default is no. Set this to Yes if you want the regulator to go to neutral in the reverse direction.';
      PropertyHelp[26] := '{Yes/True* | No/False} Default is YES for regulator control. Log control actions to Eventlog.';
+     PropertyHelp[27] := 'When regulating a bus (the Bus= property is set), the PT ratio required to convert actual voltage at the remote bus to control voltage. ' +
+                         'Is initialized to PTratio property. Set this property after setting PTratio.';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -377,6 +381,7 @@ Begin
             24: RevDelay := Parser.DblValue;
             25: ReverseNeutral := InterpretYesNo(Param);
             26: ShowEventLog := InterpretYesNo(param);
+            27: RemotePTRatio := Parser.DblValue;
 
          ELSE
            // Inherited parameters
@@ -388,6 +393,7 @@ Begin
                   Tapwinding := ElementTerminal;  // Resets if property re-assigned
                   PropertyValue[20]:= Param ;
                 End;
+            5: RemotePTRatio := PTRatio;  // re-initialise RemotePTRatio whenever PTRatio is set
             17: IF DebugTrace THEN
                  Begin
                    AssignFile(TraceFile,  DSSDataDirectory +'REG_'+Name+'.CSV' );
@@ -431,6 +437,7 @@ Begin
         Vreg              := OtherRegControl.Vreg;
         Bandwidth         := OtherRegControl.Bandwidth;
         PTRatio           := OtherRegControl.PTRatio;
+        RemotePTRatio     := OtherRegControl.RemotePTRatio;
         CTRating          := OtherRegControl.CTRating;
         R                 := OtherRegControl.R;
         X                 := OtherRegControl.X;
@@ -487,6 +494,7 @@ Begin
     Vreg         :=  120.0;
     Bandwidth    :=    3.0;
     PTRatio      :=   60.0;
+    RemotePTRatio := PTRatio;
     CTRating     :=  300.0;
     R            :=    0.0;
     X            :=    0.0;
@@ -932,10 +940,12 @@ begin
                     End
                 End;
           End;
+          Vcontrol := GetControlVoltage(VBuffer, Fnphases, RemotePTRatio );
      End
-     Else ControlledTransformer.GetWindingVoltages(ElementTerminal, VBuffer);
-
-     Vcontrol := GetControlVoltage(VBuffer, Fnphases, PTRatio );
+     Else Begin
+          ControlledTransformer.GetWindingVoltages(ElementTerminal, VBuffer);
+          Vcontrol := GetControlVoltage(VBuffer, Fnphases, PTRatio );
+     End;
 
      // Check Vlimit
      If VlimitActive then
@@ -1128,6 +1138,7 @@ begin
      PropertyValue[24] := '60';
      PropertyValue[25] := 'No';
      PropertyValue[26] := 'YES';
+     PropertyValue[27] := '60';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
