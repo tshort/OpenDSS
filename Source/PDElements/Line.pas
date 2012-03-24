@@ -136,7 +136,7 @@ IMPLEMENTATION
 USES  ParserDel,  DSSClassDefs, DSSGlobals, Sysutils,  ArrayDef,
       Utilities, Mathutil, ControlElem, LineUnits;
 
-Const NumPropsThisClass = 25;
+Const NumPropsThisClass = 27;
     //  MaxPhases = 20; // for fixed buffers
 
 VAR
@@ -190,8 +190,8 @@ Begin
      PropertyName[7] := 'x1';
      PropertyName[8] := 'r0';
      PropertyName[9] := 'x0';
-     PropertyName[10] := 'c1';
-     PropertyName[11] := 'c0';
+     PropertyName[10] := 'C1';
+     PropertyName[11] := 'C0';
      PropertyName[12] := 'rmatrix';
      PropertyName[13] := 'xmatrix';
      PropertyName[14] := 'cmatrix';
@@ -206,6 +206,8 @@ Begin
      PropertyName[23] := 'EarthModel';
      PropertyName[24] := 'cncables';
      PropertyName[25] := 'tscables';
+     PropertyName[26] := 'B1';
+     PropertyName[27] := 'B0';
 
      // define Property help values
 
@@ -230,12 +232,12 @@ Begin
      PropertyHelp[8] := 'Zero-sequence Resistance, ohms per unit length.';
      PropertyHelp[9] := 'Zero-sequence Reactance, ohms per unit length.';
      PropertyHelp[10] := 'Positive-sequence capacitance, nf per unit length.  Setting any of R1, R0, X1, X0, C1, C0 forces ' +
-                        'the program to use the symmetrical component line definition. See also Cmatrix.';
-     PropertyHelp[11] := 'Zero-sequence capacitance, nf per unit length.';
+                        'the program to use the symmetrical component line definition. See also Cmatrix and B1.';
+     PropertyHelp[11] := 'Zero-sequence capacitance, nf per unit length. See also B0.';
      PropertyHelp[12] := 'Resistance matrix, lower triangle, ohms per unit length. Order of the matrix is the number of phases. '+
-                     'May be used to specify the impedance of any line configuration. Using any of Rmatrix, Xmatrix, Cmatrix ' +
-                     'forces program to use the matrix values for line impedance definition. For balanced line models, you may '+
-                     'use the standard symmetrical component data definition instead.';
+                        'May be used to specify the impedance of any line configuration. Using any of Rmatrix, Xmatrix, Cmatrix ' +
+                        'forces program to use the matrix values for line impedance definition. For balanced line models, you may '+
+                        'use the standard symmetrical component data definition instead.';
      PropertyHelp[13] := 'Reactance matrix, lower triangle, ohms per unit length. Order of the matrix is the number of phases. '+
                      'May be used to specify the impedance of any line configuration. Using any of Rmatrix, Xmatrix, Cmatrix ' +
                      'forces program to use the matrix values for line impedance definition.  For balanced line models, you may '+
@@ -277,6 +279,8 @@ Begin
                           'Must be used in conjunction with the Spacing property.' + CRLF +
                           'Specify the Spacing first, using "nphases" tscables.' + CRLF +
                           'You may later specify "nconds-nphases" wires for separate neutrals';
+     PropertyHelp[26] := 'Alternate way to specify C1. MicroS per unit length' ;
+     PropertyHelp[27] := 'Alternate way to specify C0. MicroS per unit length' ;
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -522,11 +526,11 @@ Begin
             7: x1 := Parser.Dblvalue;
             8: r0 := Parser.Dblvalue;
             9: x0 := Parser.Dblvalue;
-           10: c1 := Parser.Dblvalue * 1.0e-9;    // Convert from nano to farads
-           11: c0 := Parser.Dblvalue * 1.0e-9;
+           10: Begin c1 := Parser.Dblvalue * 1.0e-9;  FCapSpecified := TRUE; End; // Convert from nano to farads
+           11: Begin c0 := Parser.Dblvalue * 1.0e-9;  FCapSpecified := TRUE; End;
            12: DoRmatrix;
            13: DoXmatrix;
-           14: DoCMatrix;
+           14: Begin DoCMatrix;  FCapSpecified := TRUE; End;
            15: IsSwitch := InterpretYesNo(Param);
            16: Rg := Parser.DblValue;
            17: Xg := Parser.DblValue;
@@ -543,6 +547,8 @@ Begin
            23: FEarthModel := InterpretEarthModel(Param);
            24: FetchCNCableList(Param);
            25: FetchTSCableList(Param);
+           26: Begin c1 := Parser.Dblvalue / (twopi * BaseFrequency) * 1.0e-6; FCapSpecified := TRUE; End;
+           27: Begin c0 := Parser.Dblvalue / (twopi * BaseFrequency) * 1.0e-6; FCapSpecified := TRUE; End;
          ELSE
             // Inherited Property Edits
              ClassEdit(ActiveLineObj, ParamPointer - NumPropsThisClass)
@@ -566,7 +572,11 @@ Begin
               End Else Begin
                  DoSimpleMsg('Illegal change of number of phases for Line.'+Name, 181);
               End;
-          6..11: Begin FLineCodeSpecified := FALSE; KillGeometrySpecified; KillSpacingSpecified;
+          6..11, 26..27:
+                 Begin
+                       FLineCodeSpecified := FALSE;
+                       KillGeometrySpecified;
+                       KillSpacingSpecified;
                        ResetLengthUnits; SymComponentsChanged := True;
                        SymComponentsModel := TRUE;
                  End;
@@ -601,12 +611,6 @@ Begin
              18: If GeometrySpecified and assigned(FLineGeometryObj) Then FlineGeometryObj.rhoearth := rho;
          ELSE
          End;
-
-         CASE ParamPointer OF
-              10, 11, 14:FCapSpecified := TRUE;
-         ELSE
-         END;
-
 
          ParamName := Parser.NextParam;
          Param     := Parser.StrValue;
@@ -652,6 +656,7 @@ Begin
        Z.CopyFrom(OtherLine.Z);
        // Zinv.CopyFrom(OtherLine.Zinv);
        Yc.CopyFrom(OtherLine.Yc);
+
        R1:= OtherLine.R1;
        X1:= OtherLine.X1;
        R0:= OtherLine.R0;
@@ -659,6 +664,7 @@ Begin
        C1:= OtherLine.C1;
        C0:= OtherLine.C0;
        Len := OtherLine.Len;
+
        SymComponentsModel := OtherLine.SymComponentsModel;
        FCapSpecified := OtherLine.FCapSpecified;
 
@@ -1112,6 +1118,8 @@ begin
            17: Result := Format('%-g', [Xg]);
            18: Result := Format('%-g', [Rho]);
            23: Result := GetEarthModel(FEarthModel);
+           26: If SymComponentsModel Then Result := Format('%.7g', [twopi * Basefrequency * C1 * 1.0e6]) else Result := '----';
+           27: If SymComponentsModel Then Result := Format('%.7g', [twopi * Basefrequency * C0 * 1.0e6]) else Result := '----';
         ELSE
            Result := Inherited GetPropertyValue(index);
         END;
@@ -1190,6 +1198,11 @@ begin
      PropertyValue[21] := '';
      PropertyValue[22] := '';
      PropertyValue[23] := GetEarthModel(SIMPLECARSON);
+     PropertyValue[24] := '';
+     PropertyValue[25] := '';
+     PropertyValue[26] := '1.2818'; // B1  microS
+     PropertyValue[27] := '0.60319'; // B0  microS
+
 
     inherited InitPropertyValues(NumPropsThisClass);
 

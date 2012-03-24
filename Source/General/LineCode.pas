@@ -115,7 +115,7 @@ implementation
 
 USES  ParserDel,  DSSClassDefs, DSSGlobals, Sysutils, Ucomplex, Arraydef, Utilities, LineUnits;
 
-Const      NumPropsThisClass = 22;
+Const      NumPropsThisClass = 24;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TLineCode.Create;  // Creates superstructure for all Line objects
@@ -152,8 +152,8 @@ Begin
      PropertyName[3] := 'x1';
      PropertyName[4] := 'r0';
      PropertyName[5] := 'x0';
-     PropertyName[6] := 'c1';
-     PropertyName[7] := 'c0';
+     PropertyName[6] := 'C1';
+     PropertyName[7] := 'C0';
      PropertyName[8] := 'units';
      PropertyName[9] := 'rmatrix';
      PropertyName[10] := 'xmatrix';
@@ -169,6 +169,8 @@ Begin
      PropertyName[20] := 'Xg';
      PropertyName[21] := 'rho';
      PropertyName[22] := 'neutral';
+     PropertyName[23] := 'B1';
+     PropertyName[24] := 'B0';
 
 
      PropertyHelp[1] := 'Number of phases in the line this line code data represents.  Setting this property reinitializes the line code.  Impedance matrix is reset for default symmetrical component.';
@@ -176,8 +178,8 @@ Begin
      PropertyHelp[3] := 'Positive-sequence Reactance, ohms per unit length.  See also Xmatrix';
      PropertyHelp[4] := 'Zero-sequence Resistance, ohms per unit length.';
      PropertyHelp[5] := 'Zero-sequence Reactance, ohms per unit length.';
-     PropertyHelp[6] := 'Positive-sequence capacitance, nf per unit length. See also Cmatrix.';
-     PropertyHelp[7] := 'Zero-sequence capacitance, nf per unit length.';
+     PropertyHelp[6] := 'Positive-sequence capacitance, nf per unit length. See also Cmatrix and B1.';
+     PropertyHelp[7] := 'Zero-sequence capacitance, nf per unit length. See also B0.';
      PropertyHelp[8] := 'One of (ohms per ...) {none|mi|km|kft|m|me|ft|in|cm}.  Default is none; assumes units agree with length units' +
                     'given in Line object';
      PropertyHelp[9] := 'Resistance matrix, lower triangle, ohms per unit length. Order of the matrix is the number of phases. '+
@@ -216,6 +218,8 @@ Begin
                          'Default is the last conductor (nphases value). After Kron reduction is set to 0. Subsequent issuing of Kron=Yes ' +
                          'will not do anything until this property is set to a legal value. Applies only to LineCodes defined by R, X, and C matrix.';
 
+     PropertyHelp[23] := 'Alternate way to specify C1. MicroS per unit length' ;
+     PropertyHelp[24] := 'Alternate way to specify C0. MicroS per unit length' ;
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -405,6 +409,8 @@ BEGIN
            20: Xg := Parser.DblValue;
            21: rho := Parser.DblValue;
            22: FNeutralConductor := Parser.IntValue;
+           23: SetZ1Z0(5, Parser.Dblvalue / (twopi * BaseFrequency) * 1.0e-6); {B1 -> C1}
+           24: SetZ1Z0(6, Parser.Dblvalue / (twopi * BaseFrequency) * 1.0e-6); {B0 -> C0}
          ELSE
            ClassEdit(ActiveLineCodeObj, Parampointer - NumPropsThisClass)
          END;
@@ -700,6 +706,8 @@ begin
         20: Result := Format('%.5g',[Xg]);
         21: Result := Format('%.5g',[Rho]); 
         22: Result := IntToStr(FNeutralConductor);
+        23: If SymComponentsModel Then Result := Format('%.5g', [twopi * Basefrequency * C1 * 1.0e6]) else Result := '----';
+        24: If SymComponentsModel Then Result := Format('%.5g', [twopi * Basefrequency * C0 * 1.0e6]) else Result := '----';
      Else
         Result := Inherited GetPropertyValue(index);
      end;
@@ -730,6 +738,8 @@ begin
      PropertyValue[20] :=  '.155081'; // 'Xg';
      PropertyValue[21] :=  '100'; // 'rho';
      PropertyValue[22] :=  '3'; // 'Neutral';
+     PropertyValue[23] :=  '1.2818'; // B1  microS
+     PropertyValue[24] :=  '0.60319'; // B0  microS
 
     inherited  InitPropertyValues(NumPropsThisClass);
 
