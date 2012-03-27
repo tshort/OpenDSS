@@ -2508,9 +2508,28 @@ Begin
 End;
 
 PROCEDURE TStorageObj.Set_StorageState(const Value: Integer);
+Var
+     SavedState:Integer;
 Begin
-     If Value <> Fstate Then FStateChanged := TRUE;
-     FState := Value;
+     SavedState := Fstate;
+
+     // Decline if storage is at its limits ; set to idling instead
+
+     CASE Value of
+
+            STORE_CHARGING: Begin
+                            If kWhStored < kWhRating Then Fstate := Value
+                            ELSE Fstate := STORE_IDLING;   // all charged up
+                       End;
+
+           STORE_DISCHARGING: Begin
+                                If kWhStored > kWhReserve Then Fstate := Value
+                                ELSE Fstate := STORE_IDLING;  // not enough storage to discharge
+                          End;
+     END;
+
+     If SavedState <> Fstate Then FStateChanged := TRUE;
+
      //---DEBUG--- WriteDLLDebugFile(Format('t=%.8g, ---State Set To %s', [ActiveCircuit.Solution.dblHour, StateToStr ]));
 End;
 
