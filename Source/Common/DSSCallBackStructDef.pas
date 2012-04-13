@@ -4,6 +4,7 @@ TYPE
   {      Caller must allocate space for pchar values       }
    pDSSCallBacks = ^TDSSCallBacks;  {Pointer to callback structure}
    TDSSCallBacks = Packed Record
+
         MsgCallBack: Procedure (S: pAnsiChar; Maxlen:Cardinal);Stdcall; {Make use of DSS Message handling}
 
         {Routines for using DSS Parser.  This allows you to write models that accept
@@ -21,6 +22,7 @@ TYPE
               This is to handle the syntax "paramname=paramvalue" commonly used in DSS scripts
               Copies the string to the location specified by s up to maxlen characters.
               Caller must allocate space (Maxlen chars)}
+
         DoDSSCommand:             Procedure(S: pAnsiChar; Maxlen:Cardinal); StdCall;
         GetActiveElementBusNames: Procedure(Name1:pAnsiChar; Len1:Cardinal; Name2:pAnsiChar; Len2:Cardinal); StdCall;
         GetActiveElementVoltages: Procedure(Var NumVoltages:Integer; V:pComplexArray); StdCall;
@@ -38,4 +40,10 @@ TYPE
         GetBusCoordinate:         Procedure(BusRef:Integer; Var X, Y:Double); StdCall;
         GetBuskVBase:             Function(BusRef:Integer) :Double; StdCall;
         GetBusDistFromMeter:      Function(BusRef:Integer) :Double; StdCall;
+
+        GetDynamicsStruct:        Procedure(var DynamicsStruct: Pointer); StdCall;  // Returns pointer to dynamics variables structure
+        GetStepSize:              Function():Double; StdCall;  // Return just 'h' from dynamics record
+        GetTimeSec:               Function():Double; StdCall; // returns t in sec from top of hour
+        GetTimeHr:                Function():Double; StdCall; // returns time as a double in hours
+
    End;

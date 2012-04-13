@@ -95,8 +95,8 @@ End;
 
 Procedure DoDSSCommandCallBack(S:pAnsiChar; Maxlen:Cardinal); StdCall;
 Begin
-  SolutionAbort        := FALSE;
-  DSSExecutive.Command := String(S);
+     SolutionAbort        := FALSE;
+     DSSExecutive.Command := String(S);
 End;
 
 {====================================================================================================================}
@@ -309,35 +309,80 @@ Begin
 End;
 
 {====================================================================================================================}
+Procedure GetDynamicsStructCallBack(var DynamicsStruct: Pointer); StdCall;
+Begin
+       If Assigned(ActiveCircuit) Then Begin
+          DynamicsStruct := @ActiveCircuit.Solution.DynaVars;
+       End;
+
+End;
+
+{====================================================================================================================}
+Function GetStepSizeCallBack:Double; StdCall;
+Begin
+       Result := 0.0;
+       If Assigned(ActiveCircuit) Then Begin
+          Result := ActiveCircuit.Solution.DynaVars.h;
+       End;
+End;
+
+{====================================================================================================================}
+Function GetTimeSecCallBack:Double; StdCall;
+Begin
+       Result := 0.0;
+       If Assigned(ActiveCircuit) Then Begin
+          Result := ActiveCircuit.Solution.DynaVars.t;
+       End;
+
+End;
+
+{====================================================================================================================}
+Function GetTimeHrCallBack:Double; StdCall;
+Begin
+       Result := 0.0;
+       If Assigned(ActiveCircuit) Then Begin
+          Result := ActiveCircuit.Solution.dblHour;
+       End;
+End;
+
+{====================================================================================================================}
 
 Initialization
 
 {Initialize Function Interface variables for user-Written Callbacks}
 
-   With CallBackRoutines Do begin
-      MsgCallBack := DoSimpleMsgCallback; // for user-written callbacks
-      GetIntValue := ParserIntValue;
-      GetDblValue := ParserDblValue;
-      GetStrValue := ParserStrValue;
-      LoadParser  := ParserLoad;
-      NextParam   := ParserNextParam;
-      DoDSSCommand := DoDSSCommandCallBack;
-      GetActiveElementBusNames := GetActiveElementBusNamesCallBack;
-      GetActiveElementVoltages := GetActiveElementVoltagesCallBack;
-      GetActiveElementCurrents := GetActiveElementCurrentsCallBack;
-      GetActiveElementLosses   := GetActiveElementLossesCallBack;
-      GetActiveElementPower    := GetActiveElementPowerCallBack;
-      GetActiveElementNumCust  := GetActiveElementNumCustCallBack;
-      GetActiveElementNodeRef  := GetActiveElementNodeRefCallBack;
-      GetActiveElementBusRef   := GetActiveElementBusRefCallBack;
-      GetActiveElementTerminalInfo := GetActiveElementTerminalInfoCallBack;
-      GetPtrToSystemVarray     := GetPtrToSystemVarrayCallBack;
-      GetActiveElementIndex    := GetActiveElementIndexCallBack;
-      IsActiveElementEnabled   := IsActiveElementEnabledCallBack;
-      IsBusCoordinateDefined   := IsBusCoordinateDefinedCallBack;
-      GetBusCoordinate         := GetBusCoordinateCallBack;
-      GetBuskVBase             := GetBuskVBaseCallBack;
-      GetBusDistFromMeter      := GetBusDistFromMeterCallback;
+   With CallBackRoutines Do
+   begin
+         MsgCallBack := DoSimpleMsgCallback; // for user-written callbacks
+         GetIntValue := ParserIntValue;
+         GetDblValue := ParserDblValue;
+         GetStrValue := ParserStrValue;
+         LoadParser  := ParserLoad;
+         NextParam   := ParserNextParam;
+         DoDSSCommand := DoDSSCommandCallBack;
+         GetActiveElementBusNames := GetActiveElementBusNamesCallBack;
+         GetActiveElementVoltages := GetActiveElementVoltagesCallBack;
+         GetActiveElementCurrents := GetActiveElementCurrentsCallBack;
+         GetActiveElementLosses   := GetActiveElementLossesCallBack;
+         GetActiveElementPower    := GetActiveElementPowerCallBack;
+         GetActiveElementNumCust  := GetActiveElementNumCustCallBack;
+         GetActiveElementNodeRef  := GetActiveElementNodeRefCallBack;
+         GetActiveElementBusRef   := GetActiveElementBusRefCallBack;
+         GetActiveElementTerminalInfo := GetActiveElementTerminalInfoCallBack;
+         GetPtrToSystemVarray     := GetPtrToSystemVarrayCallBack;
+         GetActiveElementIndex    := GetActiveElementIndexCallBack;
+         IsActiveElementEnabled   := IsActiveElementEnabledCallBack;
+         IsBusCoordinateDefined   := IsBusCoordinateDefinedCallBack;
+         GetBusCoordinate         := GetBusCoordinateCallBack;
+         GetBuskVBase             := GetBuskVBaseCallBack;
+         GetBusDistFromMeter      := GetBusDistFromMeterCallback;
+
+         // Added 4-9-2012
+         GetDynamicsStruct        := GetDynamicsStructCallBack;
+         GetStepSize              := GetStepSizeCallBack;
+         GetTimeSec               := GetTimeSecCallBack;
+         GetTimeHr                := GetTimeHrCallBack;
+
   End;
 
   CallBackParser  := TParser.Create;
