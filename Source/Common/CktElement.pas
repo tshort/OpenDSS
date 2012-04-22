@@ -89,6 +89,10 @@ TYPE
       Terminals:pTerminalList;
       ActiveTerminal: TPowerTerminal;
 
+      PublicDataStruct : Pointer;  // Generic Pointer to public data Block that may be access by other classes of elements
+                             // Accessing app has to know the structure
+                             // Inited to Nil.  If Nil, accessing app should ignore
+
       constructor Create(ParClass:TDSSClass);
       destructor Destroy; override;
 
@@ -156,7 +160,8 @@ Begin
      FBusNames    := nil;
      Vterminal    := nil;
      Iterminal    := nil;  // present value of terminal current
-     ComplexBuffer := Nil;
+     ComplexBuffer    := Nil;
+     PublicDataStruct := Nil;   // pointer to fixed struct of data to be shared
 
      FHandle     := -1;
      BusIndex    := 0;

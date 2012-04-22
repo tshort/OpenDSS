@@ -347,6 +347,20 @@ End;
 
 {====================================================================================================================}
 
+Procedure GetPublicDataPtrCallBack(var pPublicData : Pointer); StdCall;
+
+Begin
+
+       If Assigned(ActiveCircuit.ActiveCktElement) then
+        With ActiveCircuit Do
+           With ActiveCktElement Do Begin
+              pPublicData := PublicDataStruct;
+        End;
+
+End;
+
+{====================================================================================================================}
+
 Initialization
 
 {Initialize Function Interface variables for user-Written Callbacks}
@@ -383,6 +397,7 @@ Initialization
          GetTimeSec               := GetTimeSecCallBack;
          GetTimeHr                := GetTimeHrCallBack;
 
+         GetPublicDataPtr         := GetPublicDataPtrCallBack;
   End;
 
   CallBackParser  := TParser.Create;

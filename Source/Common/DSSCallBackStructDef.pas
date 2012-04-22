@@ -41,9 +41,11 @@ TYPE
         GetBuskVBase:             Function(BusRef:Integer) :Double; StdCall;
         GetBusDistFromMeter:      Function(BusRef:Integer) :Double; StdCall;
 
-        GetDynamicsStruct:        Procedure(var DynamicsStruct: Pointer); StdCall;  // Returns pointer to dynamics variables structure
+        GetDynamicsStruct:        Procedure(var pDynamicsStruct: Pointer); StdCall;  // Returns pointer to dynamics variables structure
         GetStepSize:              Function():Double; StdCall;  // Return just 'h' from dynamics record
         GetTimeSec:               Function():Double; StdCall; // returns t in sec from top of hour
         GetTimeHr:                Function():Double; StdCall; // returns time as a double in hours
+
+        GetPublicDataPtr:         Procedure(var pPublicData : Pointer); StdCall;
 
    End;
