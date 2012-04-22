@@ -217,15 +217,16 @@ Begin
      OptionHelp[40] := '{Normal | Newton}  Solution algorithm type.  Normal is a fixed point iteration ' +
                         'that is a little quicker than the Newton iteration.  Normal is adequate for most radial '+
                         'distribution circuits.  Newton is more robust for circuits that are difficult to solve.';
-     OptionHelp[41] := '{YES/TRUE | NO/FALSE}  Default is "No". Specifies whether to use trapezoidal integration for accumulating energy meter registers. ' +
+     OptionHelp[41] := '{YES/TRUE | NO/FALSE}  Default is "No/False". Specifies whether to use trapezoidal integration for accumulating energy meter registers. ' +
                         'Applies to EnergyMeter and Generator objects.  Default method simply multiplies the ' +
-                        'present value of the registers times the width of the interval. ' +
+                        'present value of the registers times the width of the interval (Euler). ' +
                         'Trapezoidal is more accurate when there are sharp changes in a load shape or unequal intervals. ' +
                         'Trapezoidal is automatically used for ' +
                         'some load-duration curve simulations where the interval size varies considerably. ' +
                         'Keep in mind that for Trapezoidal, you have to solve one more point than the number of intervals. ' +
                         'That is, to do a Daily simulation on a 24-hr load shape, you would set Number=25 to force a solution ' +
-                        'at the first point again to establish the last (24th) interval.';
+                        'at the first point again to establish the last (24th) interval.' + CRLF+CRLF +
+                        'Note: Set Mode= resets Trapezoidal to No/False. Set this to Yes/True AFTER setting the Mode option.';
      OptionHelp[42] := 'Array of bus names to include in AutoAdd searches. Or, you can specify a text file holding the names, one to a line, ' +
                         'by using the syntax (file=filename) instead of the actual array elements. '  +
                         'Default is null, which results in the program ' +
