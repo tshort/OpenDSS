@@ -87,7 +87,7 @@ unit generator;
 
 interface
 
-USES GenUserModel, DSSClass,  PCClass, PCElement, ucmatrix, ucomplex, LoadShape, GrowthShape, Spectrum, ArrayDef, Dynamics;
+USES GeneratorVars, GenUserModel, DSSClass,  PCClass, PCElement, ucmatrix, ucomplex, LoadShape, GrowthShape, Spectrum, ArrayDef, Dynamics;
 
 Const  NumGenRegisters = 6;    // Number of energy meter registers
        NumGenVariables = 6;
@@ -885,6 +885,11 @@ Begin
          D          := 1.0;
      End;
 
+     {Advertise Genvars struct as public}
+
+     PublicDataStruct := pointer(@Genvars);
+     PublicDataSize   := SizeOf(TGeneratorVars);
+
      UserModel  := TGenUserModel.Create(@Genvars) ;
      ShaftModel := TGenUserModel.Create(@Genvars);
 
@@ -927,8 +932,8 @@ Procedure TGeneratorObj.Randomize(Opt:Integer);
 Begin
    CASE Opt OF
        0: RandomMult := 1.0;
-       GAUSSIAN: RandomMult := Gauss(YearlyShapeObj.Mean, YearlyShapeObj.StdDev);
-       UNIfORM:  RandomMult := Random;  // number between 0 and 1.0
+       GAUSSIAN:  RandomMult := Gauss(YearlyShapeObj.Mean, YearlyShapeObj.StdDev);
+       UNIfORM:   RandomMult := Random;  // number between 0 and 1.0
        LOGNORMAL: RandomMult := QuasiLognormal(YearlyShapeObj.Mean);
    End;
 End;
@@ -2398,6 +2403,7 @@ begin
 
 // Check for user-written exciter model.
     //Function(V, I:pComplexArray; const Pshaft,Theta,Speed,dt,time:Double)
+
     With ActiveCircuit.Solution, GenVars Do  Begin
 
       With DynaVars Do
@@ -2405,7 +2411,6 @@ begin
           ThetaHistory := Theta + 0.5*h*dTheta;
           SpeedHistory := Speed + 0.5*h*dSpeed;
       End;
-
 
       // Compute shaft dynamics
       TracePower := TerminalPowerIn(Vterminal,Iterminal,FnPhases) ;

@@ -16,11 +16,12 @@ unit GenUserModel;
 
 interface
 
-USES  Dynamics, DSSCallBackRoutines, ucomplex, Arraydef;
+USES  GeneratorVars, Dynamics, DSSCallBackRoutines, ucomplex, Arraydef;
 
 TYPE
 
-    pTGeneratorVars = ^TGeneratorVars;
+
+
 
     TGenUserModel  = class(TObject)
       private
