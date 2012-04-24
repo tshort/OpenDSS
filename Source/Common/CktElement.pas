@@ -89,6 +89,7 @@ TYPE
       Terminals:pTerminalList;
       ActiveTerminal: TPowerTerminal;
 
+      PublicDataSize   : Integer;  // size of PublicDataStruct
       PublicDataStruct : Pointer;  // Generic Pointer to public data Block that may be access by other classes of elements
                              // Accessing app has to know the structure
                              // Inited to Nil.  If Nil, accessing app should ignore
@@ -162,6 +163,7 @@ Begin
      Iterminal    := nil;  // present value of terminal current
      ComplexBuffer    := Nil;
      PublicDataStruct := Nil;   // pointer to fixed struct of data to be shared
+     PublicDataSize   := 0;
 
      FHandle     := -1;
      BusIndex    := 0;

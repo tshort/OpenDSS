@@ -786,7 +786,7 @@ Begin
       Result := 0.0;
       for I := 1 to FleetPointerList.ListSize Do Begin
           pStorage :=  FleetPointerList.Get(i);
-          Result := Result + pStorage.kWhStored;
+          Result := Result + pStorage.StorageVars.kWhStored;
       End;
 end;
 
@@ -798,7 +798,7 @@ Begin
       Result := 0.0;
       for I := 1 to FleetPointerList.ListSize Do Begin
           pStorage :=  FleetPointerList.Get(i);
-          Result := Result + pStorage.kWhReserve;
+          Result := Result + pStorage.StorageVars.kWhReserve;
       End;
 
 end;
@@ -910,7 +910,7 @@ Begin
       Sum := 0.0;
       for i := 1 to FleetPointerList.ListSize Do Begin
           pStorage :=  FleetPointerList.Get(i);
-          sum := sum + pStorage.kWhRating;
+          sum := sum + pStorage.StorageVars.kWhRating;
       End;
       Result := Format('%-.8g',[sum]);
 End;
@@ -924,7 +924,7 @@ Begin
       Sum := 0.0;
       for i := 1 to FleetPointerList.ListSize Do Begin
           pStorage :=  FleetPointerList.Get(i);
-          sum := sum + pStorage.kWRating;
+          sum := sum + pStorage.StorageVars.kWRating;
       End;
       Result := Format('%-.8g',[sum]);
 End;
@@ -1262,9 +1262,9 @@ Begin
                             WITH StorageObj Do
                             Begin
                             // compute new dispatch value for this storage element ...
-                                DispatchkW := Min(kWrating, (PresentkW + PDiff *(FWeights^[i]/TotalWeight)));
+                                DispatchkW := Min(StorageVars.kWrating, (PresentkW + PDiff *(FWeights^[i]/TotalWeight)));
                                 If DispatchkW <> PresentkW Then    // redispatch only if change requested
-                                  If kWhStored > kWhReserve Then
+                                  If StorageVars.kWhStored > StorageVars.kWhReserve Then
                                       Begin  // Attempt to set discharge kW;  Storage element will revert to idling if out of capacity
                                            StorageObj.PresentkW  := DispatchkW;
                                            StorekWChanged        := TRUE;     // This is what keeps the control iterations going

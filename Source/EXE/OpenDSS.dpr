@@ -167,7 +167,10 @@ uses
   Pstcalc in '..\Shared\Pstcalc.pas',
   GICLine in '..\PCElements\GICLine.pas',
   GICTransformer in '..\PDElements\GICTransformer.pas',
-  DSSGraph in '..\Plot\DSSGraph.pas';
+  DSSGraph in '..\Plot\DSSGraph.pas',
+  CapUserControl in '..\Controls\CapUserControl.pas',
+  StorageVars in '..\PCElements\StorageVars.pas',
+  GeneratorVars in '..\PCElements\GeneratorVars.pas';
 
 {$R *.RES}
 

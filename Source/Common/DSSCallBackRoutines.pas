@@ -347,7 +347,7 @@ End;
 
 {====================================================================================================================}
 
-Procedure GetPublicDataPtrCallBack(var pPublicData : Pointer); StdCall;
+Procedure GetPublicDataPtrCallBack(var pPublicData : Pointer; var PublicDataBytes:Integer); StdCall;
 
 Begin
 
@@ -355,6 +355,7 @@ Begin
         With ActiveCircuit Do
            With ActiveCktElement Do Begin
               pPublicData := PublicDataStruct;
+              PublicDataBytes := PublicDataSize;
         End;
 
 End;

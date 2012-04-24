@@ -37,7 +37,7 @@ uses
 
 Var
    As2p, Ap2s, ClarkeF, ClarkeR:TcMatrix; {Symmetrical Component Conversion Matrices}
-
+   Sqrt23:Double;
 
 Procedure ETKInvert(A:pDoubleArray; Norder:Integer; Var Error:Integer);
 
@@ -218,6 +218,7 @@ Begin
          MvMult(Vph,VaB0);
      End;
 End;
+
 
 
 Function TerminalPowerIn(V,I:pComplexArray; Nphases:Integer):Complex;
@@ -504,6 +505,7 @@ initialization
     SetAMatrix(Ap2s);
     Ap2s.Invert;
     SetClarkeMatrices;
+    Sqrt23 := Sqrt(2.0/3.0);; // for park
 finalization
     As2p.Free;
     Ap2s.Free;
