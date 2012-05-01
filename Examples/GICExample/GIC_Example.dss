@@ -17,6 +17,7 @@ New GICLine.12-Bus15-Bus6 bus1=15 bus2=6 R=2.924 Lat1=33.955058 Lon1=-84.679354 
 New GICLine.13-Bus11-Bus12 bus1=11 bus2=12 R=2.324 Lat1=34.252248 Lon1=-82.836301 Lat2=34.195574 Lon2=-81.098002 EE=1.00 EN=0.00
 New GICLine.14-Bus16-Bus20 bus1=16 bus2=20 R=4.049 Lat1=33.955058 Lon1=-84.679354 Lat2=32.705087 Lon2=-84.663397 EE=1.00 EN=0.00
 New GICLine.15-Bus17-Bus20 bus1=17 bus2=20 R=6.940 Lat1=34.310437 Lon1=-86.365765 Lat2=32.705087 Lon2=-84.663397 EE=1.00 EN=0.00
+
 !GIC Transformer Data
 New GICTransformer.T1 busH=2 busNH=2.4.4.4 R1=0.1 type=GSU
 New GICTransformer.T2 busH=4 busNH=4.4.4.4 busX=3 busNX=4.4.4.4 R1=0.2 R2=0.1 type=YY
