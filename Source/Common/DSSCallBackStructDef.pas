@@ -47,5 +47,6 @@ TYPE
         GetTimeHr:                Function() : Double; StdCall; // returns time as a double in hours
 
         GetPublicDataPtr:         Procedure(var pPublicData : Pointer; Var PublicDataBytes : Integer); StdCall;
+        GetActiveElementName:     Function(FullName : pAnsiChar; MaxNameLen : Cardinal) : Integer; StdCall;
 
    End;

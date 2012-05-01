@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 9/27/2011 2:31:14 PM (- $Rev: 12980 $, 107564031).
+// File generated on 5/1/2012 5:41:16 PM (- $Rev: 12980 $, 104414901).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -66,8 +66,6 @@ library OpenDSSengine
   coclass SwtControls;
   coclass CapControls;
   coclass RegControls;
-  interface IPlot;
-  coclass Plot;
   interface ITopology;
   coclass Topology;
   interface IDSS_Executive;
@@ -641,7 +639,7 @@ library OpenDSSengine
     [id(0x000000CB), helpstring("Sets the Active DSS Class for use with ActiveClass interface. Same as SetActiveClass in Circuit interface.\0e bus.\0ments.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall SetActiveClass([in] BSTR ClassName, [out, retval] long* Value);
     [propget, id(0x000000CC), helpstring("Interface to DSSGraph plotting routines.\0tiveClass interface. Same as SetActiveClass in Circuit interface.\0e bus.\0ments.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall Plot([out, retval] IPlot** Value);
+    HRESULT _stdcall Plot([out, retval]  IDispatch** Value);
     [propget, id(0x000000CD), helpstring("Interface to DSS Executive commands and options\0ss interface. Same as SetActiveClass in Circuit interface.\0e bus.\0ments.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Executive([out, retval] IDSS_Executive** Value);
     [propget, id(0x000000CE), helpstring("Interface to the DSS Events")]
@@ -1786,103 +1784,6 @@ library OpenDSSengine
   };
 
   [
-    uuid(D35F8A94-9DED-443C-A7B9-62E9C3D5EB9F),
-    version(1.0),
-    helpstring("Dispatch interface for Plot Object\0\0e\0s\0n\0t\0a\0t\0i\0o\0n\0r\0k\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"),
-    dual,
-    oleautomation
-  ]
-  interface IPlot: IDispatch
-  {
-    [id(0x000000C9), helpstring("Make a New DSS Graph Object\0both manual and automatic operation\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall NewGraph([out, retval] long* Value);
-    [id(0x000000CA), helpstring("Add a new line to active graph.\0 manual and automatic operation\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall NewLine([in] double X1, [in] double Y1, [in] double X2, [in] double Y2, [in] BSTR Name);
-    [id(0x000000CB), helpstring("Add a new curve of x and y arrays to graph\0 automatic operation\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall NewCurve([in] VARIANT Xarray, [in] VARIANT Yarray, [in] BSTR Name);
-    [id(0x000000CC), helpstring("Add a new text string to plot.\0ys to graph\0 automatic operation\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall NewText([in] double X1, [in] double Y1, [in] BSTR S);
-    [id(0x000000CD), helpstring("Add a new circle to the plot\0.\0ys to graph\0 automatic operation\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall NewCircle([in] double Xc, [in] double Yc, [in] double Radius);
-    [id(0x000000CE), helpstring("Put a marker at specified (x,y). Marker code range is 0..47.\0on\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall NewMarker([in] double x, [in] double y, [in] unsigned char MarkerCode, [in] unsigned char MarkerSize);
-    [propput, id(0x000000CF), helpstring("X Axis Label\0at specified (x,y). Marker code range is 0..47.\0on\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall XLabel([in] BSTR Param1);
-    [propput, id(0x000000D0), helpstring("Y Axis label\0at specified (x,y). Marker code range is 0..47.\0on\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall YLabel([in] BSTR Param1);
-    [propput, id(0x000000D1), helpstring("Caption on Graph Window\0d (x,y). Marker code range is 0..47.\0on\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall WindowCaption([in] BSTR Param1);
-    [propput, id(0x000000D2), helpstring("Caption for the plot (chart)\0y). Marker code range is 0..47.\0on\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall PlotCaption([in] BSTR Param1);
-    [propput, id(0x000000D3), helpstring("Set Line Width (thickness)\0)\0y). Marker code range is 0..47.\0on\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall LineWidth([in] long Param1);
-    [propput, id(0x000000D4), helpstring("Set data or line color (RGB value)\0rker code range is 0..47.\0on\0sables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall DataColor([in] long Param1);
-    [propput, id(0x000000D5), helpstring("Set penstyle: 0=Solid(default), 1=Dash, 2=dot, 3=Dashdot,4=Dashdotdot, 5=Clear\0ction.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall PenStyle([in] long Param1);
-    [id(0x000000D6), helpstring("Set Font Style: Indicate styles by True/False argument\0t,4=Dashdotdot, 5=Clear\0ction.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall SetFontStyle([in] VARIANT_BOOL Bold, [in] VARIANT_BOOL Italic, [in] VARIANT_BOOL Underline, [in] VARIANT_BOOL Strikeout);
-    [propput, id(0x000000D7), helpstring("Mark the ends (nodes) of lines added with NewLine method. Default is FALSE.\0ar\0ction.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall MarkNodes([in] VARIANT_BOOL Param1);
-    [propput, id(0x000000D8), helpstring("Code for node marker symbol. Default = 16. Range: 0..47\0. Default is FALSE.\0ar\0ction.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall NodeMarkerCode([in] long Param1);
-    [propput, id(0x000000D9), helpstring("Mark the center of lines added with NewLine method. Default is FALSE.\0ALSE.\0ar\0ction.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall MarkCenter([in] VARIANT_BOOL Param1);
-    [propput, id(0x000000DA), helpstring("Code in range of 0..47 indicating which marker to use for marking the line center.\0n.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall CenterMarkerCode([in] long Param1);
-    [propput, id(0x000000DB), helpstring("Integer representing the size of the Node marker for lines added with NewLine method. Default = 1.\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall NodeMarkerWidth([in] long Param1);
-    [propput, id(0x000000DC), helpstring("Mark curves added by the NewCurve method. Default = FALSE.\0added with NewLine method. Default = 1.\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall MarkCurves([in] VARIANT_BOOL Param1);
-    [propput, id(0x000000DD), helpstring("Code in range of 0..47 for symbol to place on a curve added with NewCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall CurveMarkerCode([in] long Param1);
-    [id(0x000000DE), helpstring("Move to point (set drawing cursor at this point)\0urve added with NewCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall MoveToXY([in] double x, [in] double y);
-    [id(0x000000DF), helpstring("Draw a line from the previous drawing cursor location to this one.\0wCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall DrawToXY([in] double x, [in] double y);
-    [id(0x000000E0), helpstring("Draw a rectangle at the specified corner coordinates.\0to this one.\0wCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall DrawRectangle([in] double XLowerLeft, [in] double YLowerLeft, [in] double XUpperRight, [in] double YUpperRight);
-    [id(0x000000E1), helpstring("Show the graph/plot with updated changes.\0oordinates.\0to this one.\0wCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall Show(void);
-    [id(0x000000E2), helpstring("Set the extent range for the graph.\0nges.\0oordinates.\0to this one.\0wCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall SetRange([in] double Xlow, [in] double Xhigh, [in] double Ylow, [in] double Yhigh);
-    [id(0x000000E3), helpstring("Get the present extent range of the graph.\0ordinates.\0to this one.\0wCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall GetRange([in, out] double* Xlow, [in, out] double* Xhigh, [in, out] double* Ylow, [in, out] double* Yhigh);
-    [propput, id(0x000000E4), helpstring("Set Text size; Default = 1;\0 of the graph.\0ordinates.\0to this one.\0wCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall TextSize([in] long Param1);
-    [propput, id(0x000000E5), helpstring("Color code for text; Default = Black;\0aph.\0ordinates.\0to this one.\0wCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall TextColor([in] long Param1);
-    [propput, id(0x000000E6), helpstring("Default = 1 = left justify; 2= center; 3 = right justify\0this one.\0wCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall TextAlign([in] long Param1);
-    [id(0x000000E7), helpstring("Add a new text label; returns an index for later reference.\0s one.\0wCurve method.  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall AddLabel([in] double x, [in] double y, [in] BSTR Txt, [out, retval] long* Value);
-    [id(0x000000E8), helpstring("Locks in text label added by AddLabel method. Index is return value of Addlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall LockInLabel([in] long TxtIndex);
-    [id(0x000000E9), helpstring("Set label referenced by index to Bold.\0ethod. Index is return value of Addlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall SetLabelBold([in] long LblIndex);
-    [id(0x000000EA), helpstring("Set label referenced by Index to Left Justify and transparent\0value of Addlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall SetLabelLeft([in] long LblIndex);
-    [id(0x000000EB), helpstring("Add centered text 15 or less characters.\0tify and transparent\0value of Addlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall AddCentered15([in] double x, [in] double y, [in] BSTR Txt);
-    [propput, id(0x000000EC), helpstring("Set % rim on the plot using AutoRange feature.\0nd transparent\0value of Addlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall pctRim([in] double Param1);
-    [propput, id(0x000000ED), helpstring("True/False;  Keep Aspect Ratio on plot.\0ature.\0nd transparent\0value of Addlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall KeepAspect([in] VARIANT_BOOL Param1);
-    [id(0x000000EE), helpstring("Set the plot to have no scales displayed.\0ure.\0nd transparent\0value of Addlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall SetForNoScales(void);
-    [id(0x000000EF), helpstring("Enable user to click on circuit diagram, for example.\0sparent\0value of Addlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall SetForClickOnDiagram(void);
-    [id(0x000000F0), helpstring("Put a specified marker at location on graph. Marker code range is 0..47;\0dlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall MarkAtXY([in] double x, [in] double y, [in] unsigned char MarkerCode, [in] unsigned char MarkerSize);
-    [id(0x000000F1), helpstring("Get present plot window parameters.\0n graph. Marker code range is 0..47;\0dlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall GetWindowParms([in, out] long* Width, [in, out] long* LRim, [in, out] long* RRim, [in, out] long* Height, [in, out] long* TRim, [in, out] long* Brim);
-    [id(0x000000F2), helpstring("Get various properties of the active graph.\0 Marker code range is 0..47;\0dlabel.\0  Default=5 (x).\0\0r a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall GetGraphProperties([in, out] double* Xmin, [in, out] double* Xmax, [in, out] double* Ymin, [in, out] double* Ymax, [in, out] long* ChartColor, [in, out] long* WindowColor, [in, out] VARIANT_BOOL* Isometric, [in, out] long* Gridstyle);
-    [id(0x000000F3), helpstring("Opposite of GetGraphProperties; Do GetGraphProperties first to initialize values. GridStyle = [1..8] = [none, points, vertical lines, horiz lines, Lines, horiz dotlines, vert dotlines, dotlines].")]
-    HRESULT _stdcall SetGraphProperties([in] double Xmin, [in] double Xmax, [in] double Ymin, [in] double Ymax, [in] long ChartColor, [in] long WindowColor, [in] VARIANT_BOOL Isometric, [in] long Gridstyle);
-  };
-
-  [
     uuid(03FADB98-4F30-416E-ACD2-9BD987A0CBC3),
     version(1.0),
     helpstring("Dispatch interface for Topology Object\0\0n\0t\0a\0t\0i\0o\0n\0r\0k\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"),
@@ -2282,16 +2183,6 @@ library OpenDSSengine
   coclass RegControls
   {
     [default] interface IRegControls;
-  };
-
-  [
-    uuid(749A9035-EC8A-45F5-8BC2-B253EBBB78ED),
-    version(1.0),
-    helpstring("Plot Object\0erface for Plot Object\0\0e\0s\0n\0t\0a\0t\0i\0o\0n\0r\0k\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
-  ]
-  coclass Plot
-  {
-    [default] interface IPlot;
   };
 
   [

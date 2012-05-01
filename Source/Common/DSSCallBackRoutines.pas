@@ -84,10 +84,10 @@ End;
 Function ParserNextParam(ParamName:pAnsiChar; Maxlen:Cardinal):Integer;Stdcall;
 Begin
    With CallBackParser Do Begin
-     CB_ParamName  := NextParam ;
-     CB_Param      := StrValue;
+        CB_ParamName  := NextParam ;
+        CB_Param      := StrValue;
    End;
-   StrlCopy(ParamName, pAnsiChar(AnsiString(CB_ParamName)), Maxlen) ;
+   StrlCopy(ParamName, pAnsiChar(AnsiString(CB_ParamName)), Maxlen) ; // Copies up to Maxlen
    Result := Length(CB_Param);
 End;
 
@@ -360,6 +360,23 @@ Begin
 
 End;
 
+Function GetActiveElementNameCallBack(FullName:pAnsiChar; Maxlen:Cardinal) : Integer; StdCall;
+{Maxlen is num of chars the calling program allocates for the string}
+
+Var
+   S : String;
+Begin
+      Result := 0;
+      If Assigned(ActiveCircuit.ActiveCktElement) then
+        With ActiveCircuit Do
+           With ActiveCktElement Do Begin
+              S := ParentClass.Name + '.' + Name;
+
+          StrlCopy(FullName, pAnsiChar(AnsiString(S)), Maxlen) ;
+          Result := Length(FullName);
+        End;
+End;
+
 {====================================================================================================================}
 
 Initialization
@@ -399,6 +416,7 @@ Initialization
          GetTimeHr                := GetTimeHrCallBack;
 
          GetPublicDataPtr         := GetPublicDataPtrCallBack;
+         GetActiveElementName     := GetActiveElementNameCallBack;
   End;
 
   CallBackParser  := TParser.Create;

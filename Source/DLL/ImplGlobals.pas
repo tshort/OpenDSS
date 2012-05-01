@@ -37,7 +37,6 @@ Uses
        ImplSwtControls,
        ImplCapControls,
        ImplRegControls,
-       ImplPlot,
        ImplTopology,
        ImplDSS_Executive,
        ImplEvents,
@@ -141,7 +140,6 @@ Begin
      FSwtControls := TSwtControls.Create;
      FCapControls := TCapControls.Create;
      FRegcontrols := TRegControls.Create;
-     FPlot        := TPlot.Create;
      FTopology    := TTopology.Create;
      FDSS_Executive := TDSS_Executive.Create;
      FEvents      := TDSSEvents.Create;

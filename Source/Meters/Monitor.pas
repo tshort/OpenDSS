@@ -647,9 +647,8 @@ Begin
      3: Begin
               RecordSize := NumStateVars;   // Statevariabes
               For i := 1 to NumStateVars Do Begin
-                  NameofState := AnsiString(TpcElement(MeteredElement).VariableName(i));
+                  NameofState := AnsiString(TpcElement(MeteredElement).VariableName(i) + ',');
                   strLcat(strPtr, pAnsichar(NameofState), Sizeof(TMonitorStrBuffer));
-                  If i<NumStateVars Then strLcat(strPtr, pAnsichar(', '), Sizeof(TMonitorStrBuffer));
               End;
         End;
      Else Begin

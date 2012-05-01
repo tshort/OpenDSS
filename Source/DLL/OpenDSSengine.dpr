@@ -159,7 +159,6 @@ uses
   ImplCapControls in 'ImplCapControls.pas' {CapControls: CoClass},
   ImplRegControls in 'ImplRegControls.pas' {RegControls: CoClass},
   ImplSwtControls in 'ImplSwtControls.pas' {SwtControls: CoClass},
-  ImplPlot in 'ImplPlot.pas' {Plot: CoClass},
   ImplTopology in 'ImplTopology.pas' {Topology: CoClass},
   ImplDSS_Executive in 'ImplDSS_Executive.pas' {DSS_Executive: CoClass},
   Scriptform in '..\Forms\Scriptform.pas' {MainEditForm},
@@ -188,7 +187,9 @@ uses
   Pstcalc in '..\Shared\Pstcalc.pas',
   GICLine in '..\PCElements\GICLine.pas',
   GICTransformer in '..\PDElements\GICTransformer.pas',
-  DSSGraph in '..\Plot\DSSGraph.pas';
+  DSSGraph in '..\Plot\DSSGraph.pas',
+  GeneratorVars in '..\PCElements\GeneratorVars.pas',
+  StorageVars in '..\PCElements\StorageVars.pas';
 
 exports
   DllGetClassObject,
