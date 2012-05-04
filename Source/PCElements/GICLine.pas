@@ -71,6 +71,8 @@ TYPE
         Lat2,
         Lon2           :Double;
 
+        VN, VE : Double;  // components of vmag
+
         ScanType       :Integer;
         SequenceType   :Integer;
         VoltsSpecified :Boolean;
@@ -379,11 +381,16 @@ End;
 //=============================================================================
 function TGICLineObj.Compute_VLine: Double;
 Var
-   Alpha, VN, VE :Double;
+
+   Phi : Double;
+   DeltaLat, DeltaLon : Double;
 begin
-     Alpha := (Lat2 + Lat1)/2.0 * (pi/180.0);
-     VE    := 111.2 * (Lat2 - Lat1) * ENorth;
-     VN    := 111.2 * (Lon2 - Lon1) * sin(pi/2.0 - Alpha) * EEast ;
+
+     Phi := (Lat2 + Lat1)/2.0 * (pi/180.0);   // deg to radians
+     DeltaLat := Lat2 - Lat1;
+     DeltaLon := Lon2 - Lon1;
+     VE    := (111.133 - 0.56 * cos(2.0*phi) ) * DeltaLat * ENorth;
+     VN    := (111.5065 - 0.1872 * cos(2.0*phi)) * Cos(phi)* DeltaLon  * EEast ;
      Result := VN + VE;
 end;
 
@@ -693,6 +700,8 @@ Begin
         Writeln(F,'BaseFrequency=',BaseFrequency:0:1);
         Writeln(F,'Volts=',Volts:0:2);
         Writeln(F,'VMag=',VMag:0:2);
+        Writeln(F,'VE=',VE:0:4);
+        Writeln(F,'VN=',VN:0:4);
         Writeln(F,'Z Matrix=');
         FOR i := 1 to Fnphases DO Begin
           FOR j := 1 to i DO Begin
