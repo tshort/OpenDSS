@@ -11,17 +11,9 @@ interface
 
 USES CktElement, Bus, ucomplex, DSSClass;
 
-TYPE
+{$INCLUDE ControlActionDefs.txt}
 
-  EControlAction = (
-    NONE,
-    OPEN,
-    CLOSE,
-    CTRL_RESET, // can't use the same name as file reset function
-    LOCK,
-    UNLOCK,
-    TAPUP,
-    TAPDOWN);
+TYPE
 
    TControlElem = class(TDSSCktElement)
 
