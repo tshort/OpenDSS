@@ -48,5 +48,7 @@ TYPE
 
         GetPublicDataPtr:         Procedure(var pPublicData : Pointer; Var PublicDataBytes : Integer); StdCall;
         GetActiveElementName:     Function(FullName : pAnsiChar; MaxNameLen : Cardinal) : Integer; StdCall;
+        GetActiveElementPtr:      Function() : Pointer; StdCall;  // Returns pointer to active circuit element
+        ControlQueuePush:         Function(Const Hour:Integer; Const Sec:Double; Const Code, ProxyHdl:Integer; Owner:Pointer):Integer; StdCall;
 
    End;

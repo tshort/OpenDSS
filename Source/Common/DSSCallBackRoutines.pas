@@ -377,6 +377,16 @@ Begin
         End;
 End;
 
+Function GetActiveElementPtrCallBack() : Pointer; StdCall;  // Returns pointer to active circuit element
+Begin
+     Result := Pointer(ActiveCircuit.ActiveCktElement);
+End;
+
+Function ControlQueuePushCallBack(Const Hour:Integer; Const Sec:Double; Const Code, ProxyHdl:Integer; Owner:Pointer):Integer; StdCall;
+Begin
+     Result := ActiveCircuit.ControlQueue.Push(Hour, Sec, Code, ProxyHdl, Owner);
+End;
+
 {====================================================================================================================}
 
 Initialization
@@ -417,6 +427,8 @@ Initialization
 
          GetPublicDataPtr         := GetPublicDataPtrCallBack;
          GetActiveElementName     := GetActiveElementNameCallBack;
+         GetActiveElementPtr      := GetActiveElementPtrCallBack;
+         ControlQueuePush         := ControlQueuePushCallBack;
   End;
 
   CallBackParser  := TParser.Create;

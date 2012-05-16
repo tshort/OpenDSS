@@ -189,7 +189,9 @@ uses
   GICTransformer in '..\PDElements\GICTransformer.pas',
   DSSGraph in '..\Plot\DSSGraph.pas',
   GeneratorVars in '..\PCElements\GeneratorVars.pas',
-  StorageVars in '..\PCElements\StorageVars.pas';
+  StorageVars in '..\PCElements\StorageVars.pas',
+  CapControlVars in '..\Controls\CapControlVars.pas',
+  CapUserControl in '..\Controls\CapUserControl.pas';
 
 exports
   DllGetClassObject,

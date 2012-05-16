@@ -70,7 +70,6 @@ Var
    FSwtControls :ISwtControls;
    FCapControls :ICapControls;
    FRegcontrols :IRegControls;
-   FPlot        :IPlot;
    FTopology    :ITopology;
    FDSS_Executive :IDSS_Executive;
    FEvents      :IDSSEvents;

@@ -125,6 +125,7 @@ TYPE
         Reg_Price       :Integer;
         ShapeFactor     :Complex;
         Tracefile       :TextFile;
+        IsUserModel     :Boolean;
         UserModel       :TStoreUserModel;   {User-Written Models}
         DynaModel       :TStoreDynaModel;
         kvarBase        :Double;  // Base vars per phase
@@ -166,13 +167,13 @@ TYPE
         PROCEDURE UpdateStorage;    // Update Storage elements based on present kW and IntervalHrs variable
         FUNCTION  NormalizeToTOD(h: Integer; sec: Double): Double;
 
-        FUNCTION InterpretState(const S:String):Integer;
-        FUNCTION StateToStr:String;
-        FUNCTION DecodeState:String;
+        FUNCTION  InterpretState(const S:String):Integer;
+        FUNCTION  StateToStr:String;
+        FUNCTION  DecodeState:String;
 
-        FUNCTION Get_PresentkW:Double;
-        FUNCTION Get_Presentkvar:Double;
-        FUNCTION Get_PresentkV: Double;
+        FUNCTION  Get_PresentkW:Double;
+        FUNCTION  Get_Presentkvar:Double;
+        FUNCTION  Get_PresentkV: Double;
         PROCEDURE Set_PresentkV(const Value: Double);
         PROCEDURE Set_Presentkvar(const Value: Double);
         PROCEDURE Set_PresentkW(const Value: Double);
@@ -180,8 +181,8 @@ TYPE
         PROCEDURE Set_StorageState(const Value: Integer);
         PROCEDURE Set_pctkvarOut(const Value: Double);
         PROCEDURE Set_pctkWOut(const Value: Double);
-        FUNCTION Get_kWTotalLosses: Double;
-        FUNCTION Get_kWIdlingLosses: Double;
+        FUNCTION  Get_kWTotalLosses: Double;
+        FUNCTION  Get_kWIdlingLosses: Double;
 
       Protected
         PROCEDURE Set_ConductorClosed(Index:Integer; Value:Boolean); Override;
@@ -207,7 +208,6 @@ TYPE
         pctkWin         :Double;
         pctReserve      :Double;
         DispatchMode    :Integer;
-
 
         Registers,  Derivatives         :Array[1..NumStorageRegisters] of Double;
 
@@ -238,23 +238,23 @@ TYPE
         // Support for Harmonics Mode
         PROCEDURE InitHarmonics; Override;
 
-       PROCEDURE MakePosSequence;Override;  // Make a positive Sequence Model
+        PROCEDURE MakePosSequence;Override;  // Make a positive Sequence Model
 
-       PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
-       PROCEDURE DumpProperties(VAR F:TextFile; Complete:Boolean);Override;
-       FUNCTION  GetPropertyValue(Index:Integer):String;Override;
+        PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
+        PROCEDURE DumpProperties(VAR F:TextFile; Complete:Boolean);Override;
+        FUNCTION  GetPropertyValue(Index:Integer):String;Override;
 
-       Property PresentkW    :Double  Read Get_PresentkW   Write Set_PresentkW;
-       Property Presentkvar  :Double  Read Get_Presentkvar Write Set_Presentkvar;
-       Property PresentkV    :Double  Read Get_PresentkV   Write Set_PresentkV;
-       Property PowerFactor  :Double  Read PFNominal       Write Set_PowerFactor;
+        Property PresentkW    :Double  Read Get_PresentkW   Write Set_PresentkW;
+        Property Presentkvar  :Double  Read Get_Presentkvar Write Set_Presentkvar;
+        Property PresentkV    :Double  Read Get_PresentkV   Write Set_PresentkV;
+        Property PowerFactor  :Double  Read PFNominal       Write Set_PowerFactor;
 
-       Property StorageState :Integer Read FState          Write Set_StorageState;
-       Property PctkWOut     :Double  Read FpctkWOut       Write Set_pctkWOut;
-       Property PctkVarOut   :Double  Read FpctkvarOut     Write Set_pctkvarOut;
+        Property StorageState :Integer Read FState          Write Set_StorageState;
+        Property PctkWOut     :Double  Read FpctkWOut       Write Set_pctkWOut;
+        Property PctkVarOut   :Double  Read FpctkvarOut     Write Set_pctkvarOut;
 
-       Property kWTotalLosses :Double  Read Get_kWTotalLosses;
-       Property kWIdlingLosses :Double  Read Get_kWIdlingLosses;
+        Property kWTotalLosses :Double  Read Get_kWTotalLosses;
+        Property kWIdlingLosses :Double  Read Get_kWIdlingLosses;
 
    End;
 
@@ -670,7 +670,7 @@ Begin
                 1               : NPhases    := Parser.Intvalue; // num phases
                 2               : SetBus(1, param);
                propKV           : PresentkV    := Parser.DblValue;
-               propKW           : kW_Out       := Parser.DblValue;
+               propKW           : PresentkW    := Parser.DblValue;
                propPF           : PFNominal    := Parser.DblValue;
                propMODEL        : VoltageModel := Parser.IntValue;
                propYEARLY       : YearlyShape  := Param;
@@ -744,6 +744,8 @@ Begin
                    End;
 
                 propKVA: kVANotSet := FALSE;
+                propUSERMODEL: IsUserModel := UserModel.Exists;
+                propDynaDLL:   IsUserModel := DynaModel.Exists;
              END;
          End;
 
@@ -829,6 +831,7 @@ Begin
 
          UserModel.Name   := OtherStorageObj.UserModel.Name;  // Connect to user written models
          DynaModel.Name   := OtherStorageObj.DynaModel.Name;
+         IsUserModel      := OtherStorageObj.IsUserModel;
 
          ClassMakeLike(OtherStorageObj);
 
@@ -966,6 +969,7 @@ Begin
      PublicDataStruct := @StorageVars;
      PublicDataSize   := SizeOf(TStorageVars);
 
+     IsUserModel := FALSE;
      UserModel  := TStoreUserModel.Create;
      DynaModel  := TStoreDynaModel.Create;
 
@@ -1356,8 +1360,8 @@ Begin
     Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
 
     {Update any user-written models}
-    If Usermodel.Exists  Then UserModel.FUpdateModel;
-    If Dynamodel.Exists  Then Dynamodel.FUpdateModel;
+    If Usermodel.Exists  Then UserModel.FUpdateModel;  // Checks for existence and Selects
+    If Dynamodel.Exists  Then Dynamodel.FUpdateModel;  // Checks for existence and Selects
 
 End;
 
@@ -2120,6 +2124,10 @@ Begin
 
     kWhBeforeUpdate :=  kWhStored;   // keep this for reporting change in storage as a variable
 
+    {Assume User model will take care of updating storage in dynamics mode}
+    If ActiveCircuit.solution.IsDynamicModel and  IsUserModel Then  Exit;
+
+
     With ActiveCircuit.Solution Do
     Case FState of
 
@@ -2284,15 +2292,17 @@ Begin
      End;
 
 
-     If DynaModel.Exists  Then
+     If DynaModel.Exists  Then   // Checks existence and selects
      Begin
           ComputeIterminal;
           ComputeVterminal;
-          With StorageVars do Begin
+          With StorageVars do
+          Begin
               NumPhases := Fnphases;
               NumConductors := Fnconds;
+              w_grid := twopi * ActiveCircuit.Solution.Frequency ;
           End;
-          DynaModel.FInit(Vterminal, Iterminal, StorageVars);
+          DynaModel.FInit(Vterminal, Iterminal);
      End
 
      Else Begin
@@ -2336,23 +2346,7 @@ Begin
        End;
        End;
 
-{===================Initialize EDF DESS Model================================}
-{============================================================================}
-(*
-     DESSModel := TDESS.Create;
-     DESSModel.Edit('DESSModel_Test.TXT');// Model Parameters from a file
-*)
 
-
-
-
-          (*
-              // Init User-written models
-             //Ncond:Integer; V, I:pComplexArray; const X,Pshaft,Theta,Speed,dt,time:Double
-             With ActiveCircuit.Solution Do If VoltageModel=3 Then Begin
-               If UserModel.Exists Then UserModel.FInit( Vterminal, Iterminal);
-             End;
-          *)
 
 End;
 
@@ -2369,7 +2363,9 @@ Begin
 
    ComputeIterminal;
 
-    If Dynamodel.Exists    Then DynaModel.Integrate
+    If Dynamodel.Exists  Then   // Checks for existence and Selects
+
+         DynaModel.Integrate
 
     Else
 
@@ -2399,12 +2395,8 @@ Begin
         IF DebugTrace Then
           Begin
              Append(TraceFile);
-             Write(TraceFile,Format('t=%-.5g ',[Dynavars.t]));
+             Write(TraceFile,Format('t=%-.5g ', [Dynavars.t]));
              Write(TraceFile,Format(' Flag=%d ',[Dynavars.Iterationflag]));
-(* ****
-             Write(TraceFile,Format(' P=%-.5g Q= %-.5g',[TracePower.Re, TracePower.im]));
-**** *)
-
              Writeln(TraceFile);
              CloseFile(TraceFile);
          End;
@@ -2456,7 +2448,7 @@ Begin
        7: Result := kWhStored - kWhBeforeUpdate;
      ELSE
         Begin
-             If UserModel.Exists Then
+             If UserModel.Exists Then   // Checks for existence and Selects
              Begin
                   N := UserModel.FNumVars;
                   k := (i - NumStorageVariables);
@@ -2465,7 +2457,7 @@ Begin
                       Exit;
                   End;
              End;
-             If DynaModel.Exists Then
+             If DynaModel.Exists Then  // Checks for existence and Selects
              Begin
                   N := DynaModel.FNumVars;
                   k := (i - NumStorageVariables);
@@ -2494,7 +2486,7 @@ Begin
        5..7:; {Do Nothing; read only}
      ELSE
        Begin
-         If UserModel.Exists Then
+         If UserModel.Exists Then    // Checks for existence and Selects
          Begin
               N := UserModel.FNumVars;
               k := (i-NumStorageVariables) ;
@@ -2504,7 +2496,7 @@ Begin
                   Exit;
               End;
           End;
-         If DynaModel.Exists Then
+         If DynaModel.Exists Then     // Checks for existence and Selects
          Begin
               N := DynaModel.FNumVars;
               k := (i-NumStorageVariables) ;
@@ -2526,11 +2518,11 @@ VAR  i{, N}:Integer;
 Begin
      For i := 1 to NumStorageVariables Do States^[i] := Variable[i];
 
-     If UserModel.Exists Then Begin
+     If UserModel.Exists Then Begin    // Checks for existence and Selects
         {N := UserModel.FNumVars;}
         UserModel.FGetAllVars(@States^[NumStorageVariables+1]);
      End;
-     If DynaModel.Exists Then Begin
+     If DynaModel.Exists Then Begin    // Checks for existence and Selects
         {N := UserModel.FNumVars;}
         DynaModel.FGetAllVars(@States^[NumStorageVariables+1]);
      End;
@@ -2541,6 +2533,8 @@ End;
 FUNCTION TStorageObj.NumVariables: Integer;
 Begin
      Result  := NumStorageVariables;
+
+     // Exists does a check and then does a Select
      If UserModel.Exists    Then Result := Result + UserModel.FNumVars;
      If DynaModel.Exists    Then Result := Result + DynaModel.FNumVars;
 End;
@@ -2560,16 +2554,16 @@ Begin
       If i<1 Then Exit;  // Someone goofed
 
       CASE i of                   
-          1:Result := 'kWh Stored';
-          2:Result := 'Storage State Flag';
-          3:Result := 'kW Discharging';
-          4:Result := 'kW Charging';
-          5:Result := 'kW Losses';
-          6:Result := 'kW Idling Losses';
-          7:Result := 'kWh Change';
+          1:Result := 'kWh';
+          2:Result := 'State';
+          3:Result := 'kWOut';
+          4:Result := 'kWIn';
+          5:Result := 'Losses';
+          6:Result := 'Idling';
+          7:Result := 'kWh Chg';
       ELSE
           Begin
-            If UserModel.Exists Then
+            If UserModel.Exists Then    // Checks for existence and Selects
             Begin
                   pName := @Buff;
                   n := UserModel.FNumVars;
@@ -2581,11 +2575,11 @@ Begin
                        Exit;
                   End;
             End;
-            If DynaModel.Exists Then
+            If DynaModel.Exists Then   // Checks for existence and Selects
             Begin
                   pName := @Buff;
                   n := DynaModel.FNumVars;
-                  i2 := i-NumStorageVariables;
+                  i2 := i-NumStorageVariables; // Relative index
                   If i2 <= n Then
                   Begin
                        DynaModel.FGetVarName(i2, pName, BuffSize);

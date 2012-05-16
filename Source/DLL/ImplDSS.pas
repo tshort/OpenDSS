@@ -39,7 +39,6 @@ type
     function Get_DefaultEditor: WideString; safecall;
     function Get_ActiveClass: IActiveClass; safecall;
     function SetActiveClass(const ClassName: WideString): Integer; safecall;
-    function Get_Plot: IPlot; safecall;
     function Get_Executive: IDSS_Executive; safecall;
     function Get_Events: IDSSEvents; safecall;
   end;
@@ -259,10 +258,7 @@ begin
 
 end;
 
-function TDSS.Get_Plot: IPlot;
-begin
-     Result := FPLot as IPlot;
-end;
+
 
 function TDSS.Get_Executive: IDSS_Executive;
 begin

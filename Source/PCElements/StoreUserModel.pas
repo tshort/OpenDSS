@@ -22,11 +22,11 @@ TYPE
   // Interface for Dynamics-only user-written model
     TStoreDynaModel = Class (TObject)
       private
-         FHandle: Integer;  // Handle to DLL containing user model
+         FHandle : Integer;  // Handle to DLL containing user model
          FID : Integer;    // ID of this instance of the user model
-         Fname: String;    // Name of the DLL file containing user model
+         Fname : String;    // Name of the DLL file containing user model
 
-         FuncError:Boolean;
+         FuncError : Boolean;
 
          {These functions should only be called by the object itself}
          FNew:    Function( Var DynaData:TDynamicsRec; Var CallBacks:TDSSCallBacks): Integer;  Stdcall;// Make a new instance
@@ -41,32 +41,36 @@ TYPE
       Public
 
          FEdit:         Procedure(s:pAnsichar; Maxlen:Cardinal); Stdcall; // send string to user model to handle
-         FInit:         Procedure(V, I:pComplexArray; Var StorageData:TStorageVars);Stdcall;   // For dynamics
+         FInit:         Procedure(V, I:pComplexArray);Stdcall;   // For dynamics
          FCalc:         Procedure(V, I:pComplexArray); stdcall; // returns Currents or sets Pshaft
          FIntegrate:    Procedure; stdcall; // Integrates any state vars
          FUpdateModel:  Procedure; Stdcall; // Called when props of generator updated
 
         {Monitoring functions}
-        FNumVars:     Function:Integer;Stdcall;
-        FGetAllVars:  Procedure(Vars:pDoubleArray);StdCall;  // Get all vars
-        FGetVariable: Function(var I:Integer):Double;StdCall;// Get a particular var
-        FSetVariable: Procedure(var i:Integer; var value:Double); StdCall;
-        FGetVarName:  Procedure(var VarNum:Integer; VarName:pAnsichar; maxlen:Cardinal);StdCall;
+         FNumVars:     Function:Integer;Stdcall;
+         FGetAllVars:  Procedure(Vars:pDoubleArray);StdCall;  // Get all vars
+         FGetVariable: Function(var I:Integer):Double;StdCall;// Get a particular var
+         FSetVariable: Procedure(var i:Integer; var value:Double); StdCall;
+         FGetVarName:  Procedure(var VarNum:Integer; VarName:pAnsichar; maxlen:Cardinal);StdCall;
 
         // this property loads library (if needed), sets the procedure variables, and makes a new instance
         // old reference is freed first
-        property Name:String read Fname write Set_Name;
-        property Edit:String write Set_Edit;
-        property Exists:Boolean read Get_Exists;
+         property Name : String read Fname write Set_Name;
+         property Edit : String write Set_Edit;
+         property Exists : Boolean read Get_Exists;
 
-        Procedure   Select;
-        Procedure   Integrate;
+         Procedure   Select;
+         Procedure   Integrate;
 
-        constructor Create;
-        destructor  Destroy; override;
+         constructor Create;
+         destructor  Destroy; override;
+
       Published
 
     End;
+
+
+
 
   // Interface for general user-written model that includes power flow calcs as well as dynamics
     TStoreUserModel  = class(TObject)
@@ -92,7 +96,7 @@ TYPE
       public
 
         FEdit:         Procedure(s:pAnsichar; Maxlen:Cardinal); Stdcall; // send string to user model to handle
-        FInit:         procedure(V, I:pComplexArray; Var StorageVar:TStorageVars);Stdcall;   // For dynamics
+        FInit:         Procedure(V, I:pComplexArray); Stdcall;   // For dynamics
         FCalc:         Procedure(V, I:pComplexArray); stdcall; // returns Currents or sets Pshaft
         FIntegrate:    Procedure; stdcall; // Integrates any state vars
         FUpdateModel:  Procedure; Stdcall; // Called when props of generator updated
@@ -119,6 +123,7 @@ TYPE
 
         constructor Create;
         destructor  Destroy; override;
+
       published
 
       end;
@@ -250,7 +255,7 @@ begin
         End;
 end;
 
-
+{============================= TSTOREDYNAMODEL ================================================================}
 
 { TStoreDynaModel }
 
@@ -268,10 +273,9 @@ end;
 constructor TStoreDynaModel.Create;
 begin
 
-  FID := 0;
+  FID     := 0;
   Fhandle := 0;
-  FName := '';
-
+  FName   := '';
 
 end;
 

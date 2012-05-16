@@ -32,18 +32,12 @@ INTERFACE
 
 USES
      Command, ControlClass, ControlElem, CktElement, Bus, DSSClass, Arraydef, ucomplex,
-     Capacitor, utilities;
+     Capacitor, utilities, CapControlVars, CapUserControl;
 
 TYPE
 
-  ECapControlType = (
-    CURRENTCONTROL,
-    VOLTAGECONTROL,
-    KVARCONTROL,
-    TIMECONTROL,
-    PFCONTROL,
-    SRPCONTROL
-  );
+
+
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
    TCapControl = class(TControlClass)
@@ -64,50 +58,29 @@ TYPE
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
    TCapControlObj = class(TControlElem)
      private
-            ControlType :ECapControlType;
+            ControlType      : ECapControlType;
 
+            ControlVars      : TCapControlVars;
+            VOverrideBusName : String;
+            CapacitorName    : String;
+            MonitoredElement : TDSSCktElement;
+            ControlledCapacitor : TCapacitorObj;
+            ControlActionHandle : Integer;
+            CondOffset          : Integer; // Offset for monitored terminal
 
-            FCTPhase,
-            FPTPhase  :Integer;   // "ALL" is -1
+            cBuffer : pComplexArray;    // Complexarray buffer
 
-            ON_Value,
-            OFF_Value,
-            PFON_Value,
-            PFOFF_Value,
-            CTRatio,
-            PTRatio,
-            ONDelay,
-            OFFDelay,
-            DeadTime,
-            LastOpenTime   :Double;
+            IsUserModel     :Boolean;
+            UserModel       :TCapUserControl;
 
-            Voverride  :Boolean;
-            VoverrideEvent: Boolean;
-            VoverrideBusSpecified  :Boolean;     // Added 8-11-11
-            VOverrideBusName :String;
-            VOverrideBusIndex :Integer;
+            FUNCTION  Get_Capacitor : TCapacitorObj;
+            FUNCTION  NormalizeToTOD(h : Integer; sec : Double) : Double;
+            procedure Set_PendingChange(const Value : EControlAction);
+            Function  Get_PendingChange : EControlAction;
+            Procedure GetControlVoltage(Var ControlVoltage : Double);
+            Procedure GetControlCurrent(Var ControlCurrent : Double);
+            Procedure GetBusVoltages(pBus : TDSSBus; Buff : pComplexArray);
 
-            Vmax,
-            Vmin       :Double;
-
-            CapacitorName :String;
-            MonitoredElement :TDSSCktElement;
-            ControlledCapacitor :TCapacitorObj;
-            FPendingChange   :EControlAction;
-            ShouldSwitch     :Boolean;  // True: action is pending
-            Armed            :Boolean;  // Control is armed for switching unless reset
-            PresentState     :EControlAction;
-            InitialState     :EControlAction;
-            ControlActionHandle    :Integer;
-            CondOffset             :Integer; // Offset for monitored terminal
-
-            cBuffer :pComplexArray;    // Complexarray buffer
-            FUNCTION Get_Capacitor: TCapacitorObj;
-            FUNCTION NormalizeToTOD(h:Integer; sec:Double) :Double;
-            procedure Set_PendingChange(const Value: EControlAction);
-            Procedure GetControlVoltage(Var ControlVoltage:Double);
-            Procedure GetControlCurrent(Var ControlCurrent:Double);
-            Procedure GetBusVoltages(pBus:TDSSBus; Buff:pComplexArray);
 
      public
 
@@ -130,22 +103,22 @@ TYPE
        PROCEDURE DumpProperties(Var F:TextFile; Complete:Boolean);Override;
 
        Property This_Capacitor:TCapacitorObj Read Get_Capacitor;  // Pointer to controlled Capacitor
-       Property PendingChange:EControlAction Read FPendingChange Write Set_PendingChange;
+       Property PendingChange:EControlAction Read Get_PendingChange Write Set_PendingChange;
 
        // for CIM export, which doesn't yet use the delays, CT, PT, and voltage override
        Property CapControlType:ECapControlType Read ControlType Write ControlType;
-       Property OnValue:Double Read ON_Value;
-       Property OffValue:Double Read OFF_Value;
-       Property PFOnValue:Double Read PFON_Value;
-       Property PFOffValue:Double Read PFOFF_Value;
-       Property PTRatioVal:Double Read PTratio;
-       Property CTRatioVal:Double Read CTratio;
-       Property OnDelayVal:Double Read OnDelay;
-       Property OffDelayVal:Double Read OffDelay;
-       Property VminVal:Double Read Vmin;
-       Property VmaxVal:Double Read Vmax;
-       Property UseVoltageOverride:Boolean Read Voverride;
-       Property DeadTimeVal:Double Read DeadTime;
+       Property OnValue:Double Read ControlVars.ON_Value;
+       Property OffValue:Double Read ControlVars.OFF_Value;
+       Property PFOnValue:Double Read ControlVars.PFON_Value;
+       Property PFOffValue:Double Read ControlVars.PFOFF_Value;
+       Property PTRatioVal:Double Read ControlVars.PTratio;
+       Property CTRatioVal:Double Read ControlVars.CTratio;
+       Property OnDelayVal:Double Read ControlVars.OnDelay;
+       Property OffDelayVal:Double Read ControlVars.OffDelay;
+       Property VminVal:Double Read ControlVars.Vmin;
+       Property VmaxVal:Double Read ControlVars.Vmax;
+       Property UseVoltageOverride:Boolean Read ControlVars.Voverride;
+       Property DeadTimeVal:Double Read ControlVars.DeadTime;
    end;
 
 
@@ -163,12 +136,8 @@ CONST
     AVGPHASES = -1;
     MAXPHASE  = -2;
     MINPHASE  = -3;
-    SRPINHIBITRELEASE = 222; // just some unused number
-    NumPropsThisClass = 18;
+    NumPropsThisClass = 20;
 
-VAR
-    SRPInhibit :Boolean;
-    SRPControlActionHandle:Integer;
 
 {--------------------------------------------------------------------------}
 constructor TCapControl.Create;  // Creates superstructure for all CapControl objects
@@ -219,6 +188,9 @@ Begin
      PropertyName[16] := 'PTPhase';
      PropertyName[17] := 'VBus';
      PropertyName[18] := 'EventLog';
+     PropertyName[19] := 'UserModel';
+     PropertyName[20] := 'UserData';
+
 
      PropertyHelp[1] := 'Full object name of the circuit element, typically a line or transformer, '+
                         'to which the capacitor control''s PT and/or CT are connected.' +
@@ -267,6 +239,8 @@ Begin
      PropertyHelp[17] := 'Name of bus to use for voltage override function. Default is bus at monitored terminal. ' +
                          'Sometimes it is useful to monitor a bus in another location to emulate various DMS control algorithms.';
      PropertyHelp[18] :=  '{Yes/True* | No/False} Default is YES for CapControl. Log control actions to Eventlog.';
+     PropertyHelp[19] :=  'Name of DLL containing user-written CapControl model, overriding the default model.  Set to "none" to negate previous setting. ';
+     PropertyHelp[20] :=  'String (in quotes or parentheses if necessary) that gets passed to the user-written CapControl model Edit function for defining the data required for that model. ';
 
      ActiveProperty  := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -322,33 +296,34 @@ Begin
                     'k': ControlType := KVARCONTROL;
                     't': ControlType := TIMECONTROL;
                     'p': ControlType := PFCONTROL;
-                    's': ControlType := SRPCONTROL; // Special for Will Kook
                ELSE
                    DoSimpleMsg(Format('Unrecognized CapControl Type: "%s" (Capcontrol.%s)', [param, ActiveCapControlObj.name]), 352);
                End;
-            5: PTRatio := Parser.DblValue;
-            6: CTRatio := Parser.DblValue;
-            7: ON_Value := Parser.DblValue;
-            8: OFF_Value := Parser.DblValue;
-            9: ONDelay := Parser.DblValue;
-           10: Voverride := InterpretYesNo(param);
-           11: Vmax      := Parser.DblValue;
-           12: Vmin      := Parser.DblValue;
-           13: OFFDelay  := Parser.DblValue;
-           14: DeadTime  := Parser.DblValue;
-           15: If      CompareTextShortest(param, 'avg') = 0 Then FCTPhase := AVGPHASES
-               Else If CompareTextShortest(param, 'max') = 0 Then FCTPhase := MAXPHASE
-               Else If CompareTextShortest(param, 'min') = 0 Then FCTPhase := MINPHASE
-                                                             Else FCTPhase := max(1, Parser.IntValue);
-           16: If      CompareTextShortest(param, 'avg') = 0 Then FPTPhase := AVGPHASES
-               Else If CompareTextShortest(param, 'max') = 0 Then FPTPhase := MAXPHASE
-               Else If CompareTextShortest(param, 'min') = 0 Then FPTPhase := MINPHASE
-                                                             Else FPTPhase := max(1, Parser.IntValue);
+            5: ControlVars.PTRatio := Parser.DblValue;
+            6: ControlVars.CTRatio := Parser.DblValue;
+            7: ControlVars.ON_Value := Parser.DblValue;
+            8: ControlVars.OFF_Value := Parser.DblValue;
+            9: ControlVars.ONDelay := Parser.DblValue;
+           10: ControlVars.Voverride := InterpretYesNo(param);
+           11: ControlVars.Vmax      := Parser.DblValue;
+           12: ControlVars.Vmin      := Parser.DblValue;
+           13: ControlVars.OFFDelay  := Parser.DblValue;
+           14: ControlVars.DeadTime  := Parser.DblValue;
+           15: If      CompareTextShortest(param, 'avg') = 0 Then ControlVars.FCTPhase := AVGPHASES
+               Else If CompareTextShortest(param, 'max') = 0 Then ControlVars.FCTPhase := MAXPHASE
+               Else If CompareTextShortest(param, 'min') = 0 Then ControlVars.FCTPhase := MINPHASE
+                                                             Else ControlVars.FCTPhase := max(1, Parser.IntValue);
+           16: If      CompareTextShortest(param, 'avg') = 0 Then ControlVars.FPTPhase := AVGPHASES
+               Else If CompareTextShortest(param, 'max') = 0 Then ControlVars.FPTPhase := MAXPHASE
+               Else If CompareTextShortest(param, 'min') = 0 Then ControlVars.FPTPhase := MINPHASE
+                                                             Else ControlVars.FPTPhase := max(1, Parser.IntValue);
            17: Begin
-                 VoverrideBusSpecified := TRUE;
+                 ControlVars.VoverrideBusSpecified := TRUE;
                  VOverrideBusName := Param;
                End;
            18: ShowEventLog := InterpretYesNo(param);
+           19: UserModel.Name := Parser.StrValue;  // Connect to user written model
+           20: UserModel.Edit := Parser.StrValue;  // Send edit string to user model
 
          ELSE
            // Inherited parameters
@@ -358,6 +333,7 @@ Begin
 
          {PF Controller changes}
          If ControlType=PFCONTROL then
+         With ControlVars Do
          Case ParamPointer of
 
             4: Begin
@@ -391,6 +367,13 @@ Begin
                 End;
          End;
 
+         case ParamPointer of
+              19: IsUserModel := UserModel.Exists;
+         end;
+
+         If IsUserModel Then  ControlType := USERCONTROL;
+
+
          ParamName := Parser.NextParam;
          Param := Parser.StrValue;
      End;
@@ -421,24 +404,31 @@ Begin
         MonitoredElement  := OtherCapControl.MonitoredElement;  // Pointer to target circuit element
 
         ElementTerminal   := OtherCapControl.ElementTerminal;
-        PTRatio           := OtherCapControl.PTRatio;
-        CTRatio           := OtherCapControl.CTRatio;
-        ControlType       := OtherCapControl.ControlType;
-        PresentState      := OtherCapControl.PresentState;
-        ShouldSwitch     := OtherCapControl.ShouldSwitch;
-        CondOffset        := OtherCapControl.CondOffset;
+        With ControlVars Do
+        Begin
+              PTRatio           := OtherCapControl.ControlVars.PTRatio;
+              CTRatio           := OtherCapControl.ControlVars.CTRatio;
+              ControlType       := OtherCapControl.ControlType;
+              PresentState      := OtherCapControl.ControlVars.PresentState;
+              ShouldSwitch     := OtherCapControl.ControlVars.ShouldSwitch;
+              CondOffset        := OtherCapControl.CondOffset;
 
-        ON_Value          := OtherCapControl.ON_Value;
-        OFF_Value         := OtherCapControl.OFF_Value;
-        PFON_Value        := OtherCapControl.PFON_Value;
-        PFOFF_Value       := OtherCapControl.PFOFF_Value;
+              ON_Value          := OtherCapControl.ControlVars.ON_Value;
+              OFF_Value         := OtherCapControl.ControlVars.OFF_Value;
+              PFON_Value        := OtherCapControl.ControlVars.PFON_Value;
+              PFOFF_Value       := OtherCapControl.ControlVars.PFOFF_Value;
 
-        FCTPhase          := OtherCapControl.FCTPhase;
-        FPTPhase          := OtherCapControl.FPTPhase;
+              FCTPhase          := OtherCapControl.ControlVars.FCTPhase;
+              FPTPhase          := OtherCapControl.ControlVars.FPTPhase;
 
-        Voverride              := OtherCapControl.Voverride;
-        VoverrideBusSpecified  := OtherCapControl.VoverrideBusSpecified;     // Added 8-11-11
-        VOverrideBusName       := OtherCapControl.VOverrideBusName;
+              Voverride              := OtherCapControl.ControlVars.Voverride;
+              VoverrideBusSpecified  := OtherCapControl.ControlVars.VoverrideBusSpecified;     // Added 8-11-11
+              VOverrideBusName       := OtherCapControl.VOverrideBusName;
+        End;
+
+        UserModel.Name   := OtherCapControl.UserModel.Name;  // Connect to user written models
+        IsUserModel      := OtherCapControl.IsUserModel;
+
 
         ShowEventLog        := OtherCapControl.ShowEventLog;
 
@@ -466,45 +456,54 @@ Begin
 
      NPhases := 3;  // Directly set conds and phases
      Fnconds := 3;
-     Nterms := 1;  // this forces allocation of terminals and conductors
+     Nterms  := 1;  // this forces allocation of terminals and conductors
                          // in base class
+     With ControlVars Do
+     Begin
+         FCTPhase := 1;
+         FPTPhase := 1;
 
-      FCTPhase := 1;
-      FPTPhase := 1;
+         PTRatio      := 60.0;
+         CTRatio      := 60.0;
+         ControlType  := CURRENTCONTROL;
+         ONDelay      := 15.0;
+         OFFDelay     := 15.0;
+         DeadTime     := 300.0;
+         LastOpenTime := -DeadTime;
 
-      PTRatio      := 60.0;
-      CTRatio      := 60.0;
-      ControlType  := CURRENTCONTROL;
-      ONDelay    := 15.0;
-      OFFDelay  := 15.0;
-      DeadTime  := 300.0;
-      LastOpenTime := -DeadTime;
+         ON_Value     := 300.0;
+         OFF_Value    := 200.0;
 
-      ON_Value    := 300.0;
-      OFF_Value   := 200.0;
+         PFON_Value   := 0.95;
+         PFOFF_Value  := 1.05;
 
-      PFON_Value    := 0.95;
-      PFOFF_Value   := 1.05;
+         Voverride      := FALSE;
+         VoverrideEvent := FALSE;
+         VoverrideBusSpecified := FALSE;
+         VOverrideBusName := '';   // This is not in public data Struct at this time
 
-      Voverride  := FALSE;
-      VoverrideEvent := FALSE;
-      VoverrideBusSpecified := FALSE;
-      VOverrideBusName := '';
+         Vmax         := 126;
+         Vmin         := 115;
+         PresentState := CLOSE;
 
-      Vmax       := 126;
-      Vmin       := 115;
+         ShouldSwitch :=  FALSE;
+         Armed        :=  FALSE;
+         PendingChange:= NONE;
+     End;
 
-     ElementName   := '';
+     PublicDataStruct := @ControlVars;   // So User-written models can access
+     PublicDataSize   := Sizeof(TCapControlVars);
+
+     ElementName       := '';
      ControlledElement := nil;
-     ElementTerminal := 1;
-     CapacitorName := '';
-     MonitoredElement := Nil;
+     ElementTerminal   := 1;
+     CapacitorName     := '';
+     MonitoredElement  := Nil;
 
-     PresentState  := CLOSE;
+     IsUserModel := FALSE;
+     UserModel  := TCapUserControl.Create;
 
-     ShouldSwitch :=  FALSE;
-     Armed        :=  FALSE;
-     PendingChange := NONE;
+
      ControlActionHandle := 0;
 
      cBuffer := Nil; // Complex buffer
@@ -517,11 +516,14 @@ Begin
 
 End;
 
+
+
 destructor TCapControlObj.Destroy;
 Begin
      ElementName := '';
      CapacitorName := '';
      if Assigned(cBuffer) then ReallocMem (cBuffer, 0);
+     UserModel.Free;
      Inherited Destroy;
 End;
 
@@ -553,8 +555,8 @@ Begin
                      Then ControlledElement.Closed[0] := FALSE
                      Else ControlledElement.Closed[0] := TRUE;
                  IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
-                     THEN PresentState := CLOSE
-                     ELSE PresentState := OPEN;
+                     THEN ControlVars.PresentState := CLOSE
+                     ELSE ControlVars.PresentState := OPEN;
            End
          ELSE
            Begin
@@ -563,7 +565,7 @@ Begin
                               ' Element must be defined previously.', 361);
            End;
 
-         InitialState := PresentState;
+         ControlVars.InitialState := ControlVars.PresentState;
 
 {Check for existence of monitored element}
 
@@ -587,7 +589,9 @@ Begin
          ELSE DoSimpleMsg('Monitored Element in CapControl.'+Name+ ' does not exist:"'+ElementName+'"', 363);
 
          {Alternative override bus}
-         If VoverrideBusSpecified Then Begin
+         If ControlVars.VoverrideBusSpecified Then
+         With ControlVars Do
+         Begin
               VOverrideBusIndex := ActiveCircuit.BusList.Find(VOverrideBusName);
               If VOverrideBusIndex=0 Then Begin
                   DoSimpleMsg(Format('CapControl.%s: Voltage override Bus "%s" not found. Did you wait until buses were defined? Reverting to default.', [Name, VOverrideBusName]), 10361);
@@ -596,6 +600,8 @@ Begin
 
          End;
 
+         // User model property update, if necessary
+         If Usermodel.Exists  Then UserModel.UpdateModel;  // Checks for existence and Selects
 
 End;
 
@@ -623,8 +629,6 @@ Begin
   //  IF YPrim=nil THEN YPrim := TcMatrix.CreateMatrix(Yorder);
 End;
 
-
-
 {--------------------------------------------------------------------------}
 procedure TCapControlObj.GetBusVoltages(pBus:TDSSBus; Buff: pComplexArray);
 Var
@@ -645,6 +649,7 @@ Var
 
 Begin
 
+     With ControlVars Do
      CASE FCTphase of
        AVGPHASES: Begin
                         ControlCurrent := 0.0;     // Get avg of all phases
@@ -718,41 +723,14 @@ PROCEDURE TCapControlObj.DoPendingAction(Const Code, ProxyHdl:Integer);
 begin
 
          ControlledElement.ActiveTerminalIdx := 1;  // Set active terminal of capacitor to terminal 1
-{***************************** SRP Control Special ****************************}
-         CASE ControlType of
 
-         SRPCONTROL :   // allows one capacitor to switch every 15 min
-                {SRPInhibit is a module variable and if any SRP capcontrol sets it true all other SRP CapControls will simply exit}
-                 If SRPInhibit Then
-                   Begin
-                        If Code=SRPINHIBITRELEASE Then
-                        Begin
-                          SRPInhibit := FALSE;
-                          Exit;  // Without doing anything; just process the inhibit release if sent
-                        End Else
-                        Begin
-                            // If it is a Voverride event just process the pending change
-                            // but leave the inhibit on
-                            // If not, need to remove the Armed switch so capcontrol  can sample and
-                            // send the message again.
-                            If not VoverrideEvent Then
-                            Begin
-                                 ShouldSwitch := FALSE;
-                                 Armed        := FALSE;   // reset control
-                                 Exit;  // don't do anything; just send it back
-                            End;
-                        End;
-                   End
-                 Else
-                   If (Code=Integer(OPEN)) or (Code=Integer(CLOSE)) Then   // skip NONE
-                   Begin
-                        {We'll switch capacitor this time, but then not again until inhibit released}
-                        SRPInhibit := TRUE; // Prevent further switching until inhibit released  in 15 min
-                        With ActiveCircuit Do SRPControlActionHandle := ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + 900.0 , SRPINHIBITRELEASE, 0, Self);
-                   End;
-         END;
-{***************************** SRP Control Special ****************************}
+        {Allow user control to do something}
+         case ControlType of
+            USERCONTROL: If UserModel.Exists Then UserModel.DoPending(Code, ProxyHdl);
+         end;
 
+
+         With ControlVars Do
          CASE PendingChange of
             OPEN: CASE ControlledCapacitor.NumSteps of
                     1: Begin
@@ -789,9 +767,12 @@ begin
             {Do Nothing for NONE if the control has reset}
          END;
 
-         VoverrideEvent := FALSE;
-         ShouldSwitch := FALSE;
-         Armed        := FALSE;   // reset control
+         With ControlVars do
+         Begin
+               VoverrideEvent := FALSE;
+               ShouldSwitch := FALSE;
+               Armed        := FALSE;   // reset control
+         End;
 end;
 
 Procedure TCapControlObj.GetControlVoltage(Var ControlVoltage:Double);
@@ -808,6 +789,7 @@ Var
        End;
 
 begin
+     With ControlVars Do
      CASE FPTphase of
        AVGPHASES: Begin
                       ControlVoltage := 0.0;
@@ -861,10 +843,10 @@ begin
 
      ControlledElement.ActiveTerminalIdx := 1;
      IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
-     THEN PresentState := CLOSE
-     ELSE PresentState := OPEN;
+     THEN ControlVars.PresentState := CLOSE
+     ELSE ControlVars.PresentState := OPEN;
 
-     WITH   MonitoredElement Do
+     WITH   MonitoredElement, ControlVars Do
      Begin
          ShouldSwitch := FALSE;
 
@@ -1001,40 +983,23 @@ begin
 
                  End;
 
-  {***************************** SRP Control Special ****************************}
+              {User Control}
+               USERCONTROL: If UserModel.Exists  Then   // selects the model associated with this control
+                  Begin
+                     // Load up test data into the public data
+                       SampleP := CmulReal(MonitoredElement.Power[ElementTerminal], 0.001);  // kW kvar
 
-              SRPCONTROL: {kvar modified to keep PF around .98 lead}
-                 Begin
-                      //----MonitoredElement.ActiveTerminalIdx := ElementTerminal;
-                      S := MonitoredElement.Power[ElementTerminal];
-                      Q := S.im * 0.001 + 0.20306 * S.re * 0.001;  // kvar for -.98 PF
-                   //   Q := S.im * 0.001 +  0.063341 * S.re * 0.001;  // kvar for -.998 PF
+                       MonitoredElement.GetTermVoltages(ElementTerminal, cBuffer);
+                       GetControlVoltage(SampleV);
 
-                      CASE PresentState of
-                          OPEN:   IF Q > ON_Value
-                                  THEN  Begin
-                                        PendingChange := CLOSE;
-                                        ShouldSwitch := TRUE;
-                                  End
-                                  ELSE // Reset
-                                        PendingChange := NONE;
-                          CLOSE:  IF Q < OFF_Value
-                                  THEN Begin
-                                         PendingChange := OPEN;
-                                         ShouldSwitch := TRUE;
-                                  End
-                                  ELSE IF ControlledCapacitor.AvailableSteps > 0 Then Begin
-                                      IF Q > ON_Value Then Begin
-                                        PendingChange := CLOSE;  // We can go some more
-                                        ShouldSwitch := TRUE;
-                                      End;
-                                  End
-                                  ELSE // Reset
-                                        PendingChange := NONE;
-                      END;
+                       MonitoredElement.GetCurrents(cBuffer);
+                       GetControlCurrent(SampleCurr);
 
-                 End;
-{***************************** SRP Control Special ****************************}
+                       AvailableSteps := ControlledCapacitor.AvailableSteps;
+
+                       UserModel.Sample;   // Sets the switching flags
+
+                  End;
 
 
               TIMECONTROL: {time}
@@ -1131,7 +1096,7 @@ begin
 
          End;
      End;
-     WITH ActiveCircuit Do
+     WITH ActiveCircuit, ControlVars Do
       Begin
            IF   ShouldSwitch and Not Armed THEN
              Begin
@@ -1162,6 +1127,12 @@ begin
 
 end;
 
+
+function TCapControlObj.Get_PendingChange: EControlAction;
+begin
+     Result := ControlVars.FPendingChange;
+end;
+
 FUNCTION TCapControlObj.NormalizeToTOD(h: Integer; sec: Double): Double;
 // Normalize time to a floating point number representing time of day if Hour > 24
 // Resulting time should be 0:00+ to 24:00 inclusive.
@@ -1182,17 +1153,21 @@ Begin
 
 End;
 
+
 Procedure TCapControlObj.Reset;
 begin
       PendingChange := NONE;
       ControlledElement.ActiveTerminalIdx := 1;
-      CASE InitialState of
-            OPEN:   ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
-            CLOSE:  ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
-      END;
-      ShouldSwitch := FALSE;
-      LastOpenTime := -DeadTime;
-      PresentState := InitialState;
+      With ControlVars Do
+      Begin
+            CASE InitialState of
+                  OPEN:   ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
+                  CLOSE:  ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+            END;
+            ShouldSwitch := FALSE;
+            LastOpenTime := -DeadTime;
+            PresentState := InitialState;
+      End;
 end;
 
 procedure TCapControlObj.InitPropertyValues(ArrayOffset: Integer);
@@ -1216,6 +1191,8 @@ begin
      PropertyValue[16] := '1';
      PropertyValue[17] := '';
      PropertyValue[18] := 'YES';
+     PropertyValue[19] := '';
+     PropertyValue[20] := '';
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -1224,13 +1201,12 @@ end;
 
 procedure TCapControlObj.Set_PendingChange(const Value: EControlAction);
 begin
-  FPendingChange := Value;
+  ControlVars.FPendingChange := Value;
   DblTraceParameter := Integer(Value);
 end;
 
-INITIALIZATION
 
-    SRPInhibit := FALSE;  // Inhibit flag for SRP control
-    SRPControlActionHandle := 0;
+
+INITIALIZATION
 
 end.

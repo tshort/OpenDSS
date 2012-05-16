@@ -2566,7 +2566,7 @@ begin
         5:Result := 'dSpeed (Deg/sec)';
         6:Result := 'dTheta (Deg)';
     Else Begin
-          If UserModel.Exists Then
+          If UserModel.Exists Then  // Checks for existence and Selects
             Begin
               pName := @Buff;
               n := UserModel.FNumVars;

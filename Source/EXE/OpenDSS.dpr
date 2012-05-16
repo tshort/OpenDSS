@@ -170,7 +170,8 @@ uses
   DSSGraph in '..\Plot\DSSGraph.pas',
   CapUserControl in '..\Controls\CapUserControl.pas',
   StorageVars in '..\PCElements\StorageVars.pas',
-  GeneratorVars in '..\PCElements\GeneratorVars.pas';
+  GeneratorVars in '..\PCElements\GeneratorVars.pas',
+  CapControlVars in '..\Controls\CapControlVars.pas';
 
 {$R *.RES}
 

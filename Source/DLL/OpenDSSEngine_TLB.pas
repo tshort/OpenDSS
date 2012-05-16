@@ -12,16 +12,16 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 17244 $
-// File generated on 11/28/2011 11:00:30 AM from Type Library described below.
+// File generated on 5/15/2012 11:10:40 PM from Type Library described below.
 
 // ************************************************************************  //
-// Type Lib: C:\OpenDSS\Source\DLL\OpenDSSengine (1)
+// Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
 // LIBID: {8BFDE413-245A-4514-B151-B16DCC243796}
 // LCID: 0
 // Helpfile:
 // HelpString: OpenDSS Engine
 // DepndLst:
-//   (1) v2.0 stdole, (C:\WINDOWS\system32\stdole2.tlb)
+//   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
 // Errors:
 //   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
@@ -96,8 +96,6 @@ const
   CLASS_SwtControls: TGUID = '{7D8F53AE-0D61-4B87-9BEE-12D54052F689}';
   CLASS_CapControls: TGUID = '{7D95304E-B0A8-4531-8D1B-F438287EEA6E}';
   CLASS_RegControls: TGUID = '{D3DBDE53-6397-4C36-8C87-9BEA061FBC78}';
-  IID_IPlot: TGUID = '{D35F8A94-9DED-443C-A7B9-62E9C3D5EB9F}';
-  CLASS_Plot: TGUID = '{749A9035-EC8A-45F5-8BC2-B253EBBB78ED}';
   IID_ITopology: TGUID = '{03FADB98-4F30-416E-ACD2-9BD987A0CBC3}';
   CLASS_Topology: TGUID = '{5B1B5AB3-0595-4E46-B64B-CF8877ED0857}';
   IID_IDSS_Executive: TGUID = '{DD7B80E9-5EFB-4E79-96CA-9C88F5A8A11C}';
@@ -257,8 +255,6 @@ type
   ICapControlsDisp = dispinterface;
   IRegControls = interface;
   IRegControlsDisp = dispinterface;
-  IPlot = interface;
-  IPlotDisp = dispinterface;
   ITopology = interface;
   ITopologyDisp = dispinterface;
   IDSS_Executive = interface;
@@ -296,7 +292,6 @@ type
   SwtControls = ISwtControls;
   CapControls = ICapControls;
   RegControls = IRegControls;
-  Plot = IPlot;
   Topology = ITopology;
   DSS_Executive = IDSS_Executive;
   DSSEvents = IDSSEvents;
@@ -801,7 +796,6 @@ type
     function Get_DefaultEditor: WideString; safecall;
     function Get_ActiveClass: IActiveClass; safecall;
     function SetActiveClass(const ClassName: WideString): Integer; safecall;
-    function Get_Plot: IPlot; safecall;
     function Get_Executive: IDSS_Executive; safecall;
     function Get_Events: IDSSEvents; safecall;
     property NumCircuits: Integer read Get_NumCircuits;
@@ -819,7 +813,6 @@ type
     property AllowForms: WordBool read Get_AllowForms write Set_AllowForms;
     property DefaultEditor: WideString read Get_DefaultEditor;
     property ActiveClass: IActiveClass read Get_ActiveClass;
-    property Plot: IPlot read Get_Plot;
     property Executive: IDSS_Executive read Get_Executive;
     property Events: IDSSEvents read Get_Events;
   end;
@@ -852,7 +845,6 @@ type
     property DefaultEditor: WideString readonly dispid 201;
     property ActiveClass: IActiveClass readonly dispid 202;
     function SetActiveClass(const ClassName: WideString): Integer; dispid 203;
-    property Plot: IPlot readonly dispid 204;
     property Executive: IDSS_Executive readonly dispid 205;
     property Events: IDSSEvents readonly dispid 206;
   end;
@@ -2188,145 +2180,6 @@ type
   end;
 
 // *********************************************************************//
-// Interface: IPlot
-// Flags:     (4416) Dual OleAutomation Dispatchable
-// GUID:      {D35F8A94-9DED-443C-A7B9-62E9C3D5EB9F}
-// *********************************************************************//
-  IPlot = interface(IDispatch)
-    ['{D35F8A94-9DED-443C-A7B9-62E9C3D5EB9F}']
-    function NewGraph: Integer; safecall;
-    procedure NewLine(X1: Double; Y1: Double; X2: Double; Y2: Double; const Name: WideString); safecall;
-    procedure NewCurve(Xarray: OleVariant; Yarray: OleVariant; const Name: WideString); safecall;
-    procedure NewText(X1: Double; Y1: Double; const S: WideString); safecall;
-    procedure NewCircle(Xc: Double; Yc: Double; Radius: Double); safecall;
-    procedure NewMarker(x: Double; y: Double; MarkerCode: Byte; MarkerSize: Byte); safecall;
-    procedure Set_XLabel(const Param1: WideString); safecall;
-    procedure Set_YLabel(const Param1: WideString); safecall;
-    procedure Set_WindowCaption(const Param1: WideString); safecall;
-    procedure Set_PlotCaption(const Param1: WideString); safecall;
-    procedure Set_LineWidth(Param1: Integer); safecall;
-    procedure Set_DataColor(Param1: Integer); safecall;
-    procedure Set_PenStyle(Param1: Integer); safecall;
-    procedure SetFontStyle(Bold: WordBool; Italic: WordBool; Underline: WordBool;
-                           Strikeout: WordBool); safecall;
-    procedure Set_MarkNodes(Param1: WordBool); safecall;
-    procedure Set_NodeMarkerCode(Param1: Integer); safecall;
-    procedure Set_MarkCenter(Param1: WordBool); safecall;
-    procedure Set_CenterMarkerCode(Param1: Integer); safecall;
-    procedure Set_NodeMarkerWidth(Param1: Integer); safecall;
-    procedure Set_MarkCurves(Param1: WordBool); safecall;
-    procedure Set_CurveMarkerCode(Param1: Integer); safecall;
-    procedure MoveToXY(x: Double; y: Double); safecall;
-    procedure DrawToXY(x: Double; y: Double); safecall;
-    procedure DrawRectangle(XLowerLeft: Double; YLowerLeft: Double; XUpperRight: Double;
-                            YUpperRight: Double); safecall;
-    procedure Show; safecall;
-    procedure SetRange(Xlow: Double; Xhigh: Double; Ylow: Double; Yhigh: Double); safecall;
-    procedure GetRange(var Xlow: Double; var Xhigh: Double; var Ylow: Double; var Yhigh: Double); safecall;
-    procedure Set_TextSize(Param1: Integer); safecall;
-    procedure Set_TextColor(Param1: Integer); safecall;
-    procedure Set_TextAlign(Param1: Integer); safecall;
-    function AddLabel(x: Double; y: Double; const Txt: WideString): Integer; safecall;
-    procedure LockInLabel(TxtIndex: Integer); safecall;
-    procedure SetLabelBold(LblIndex: Integer); safecall;
-    procedure SetLabelLeft(LblIndex: Integer); safecall;
-    procedure AddCentered15(x: Double; y: Double; const Txt: WideString); safecall;
-    procedure Set_pctRim(Param1: Double); safecall;
-    procedure Set_KeepAspect(Param1: WordBool); safecall;
-    procedure SetForNoScales; safecall;
-    procedure SetForClickOnDiagram; safecall;
-    procedure MarkAtXY(x: Double; y: Double; MarkerCode: Byte; MarkerSize: Byte); safecall;
-    procedure GetWindowParms(var Width: Integer; var LRim: Integer; var RRim: Integer;
-                             var Height: Integer; var TRim: Integer; var Brim: Integer); safecall;
-    procedure GetGraphProperties(var Xmin: Double; var Xmax: Double; var Ymin: Double;
-                                 var Ymax: Double; var ChartColor: Integer;
-                                 var WindowColor: Integer; var Isometric: WordBool;
-                                 var Gridstyle: Integer); safecall;
-    procedure SetGraphProperties(Xmin: Double; Xmax: Double; Ymin: Double; Ymax: Double;
-                                 ChartColor: Integer; WindowColor: Integer; Isometric: WordBool;
-                                 Gridstyle: Integer); safecall;
-    property XLabel: WideString write Set_XLabel;
-    property YLabel: WideString write Set_YLabel;
-    property WindowCaption: WideString write Set_WindowCaption;
-    property PlotCaption: WideString write Set_PlotCaption;
-    property LineWidth: Integer write Set_LineWidth;
-    property DataColor: Integer write Set_DataColor;
-    property PenStyle: Integer write Set_PenStyle;
-    property MarkNodes: WordBool write Set_MarkNodes;
-    property NodeMarkerCode: Integer write Set_NodeMarkerCode;
-    property MarkCenter: WordBool write Set_MarkCenter;
-    property CenterMarkerCode: Integer write Set_CenterMarkerCode;
-    property NodeMarkerWidth: Integer write Set_NodeMarkerWidth;
-    property MarkCurves: WordBool write Set_MarkCurves;
-    property CurveMarkerCode: Integer write Set_CurveMarkerCode;
-    property TextSize: Integer write Set_TextSize;
-    property TextColor: Integer write Set_TextColor;
-    property TextAlign: Integer write Set_TextAlign;
-    property pctRim: Double write Set_pctRim;
-    property KeepAspect: WordBool write Set_KeepAspect;
-  end;
-
-// *********************************************************************//
-// DispIntf:  IPlotDisp
-// Flags:     (4416) Dual OleAutomation Dispatchable
-// GUID:      {D35F8A94-9DED-443C-A7B9-62E9C3D5EB9F}
-// *********************************************************************//
-  IPlotDisp = dispinterface
-    ['{D35F8A94-9DED-443C-A7B9-62E9C3D5EB9F}']
-    function NewGraph: Integer; dispid 201;
-    procedure NewLine(X1: Double; Y1: Double; X2: Double; Y2: Double; const Name: WideString); dispid 202;
-    procedure NewCurve(Xarray: OleVariant; Yarray: OleVariant; const Name: WideString); dispid 203;
-    procedure NewText(X1: Double; Y1: Double; const S: WideString); dispid 204;
-    procedure NewCircle(Xc: Double; Yc: Double; Radius: Double); dispid 205;
-    procedure NewMarker(x: Double; y: Double; MarkerCode: Byte; MarkerSize: Byte); dispid 206;
-    property XLabel: WideString writeonly dispid 207;
-    property YLabel: WideString writeonly dispid 208;
-    property WindowCaption: WideString writeonly dispid 209;
-    property PlotCaption: WideString writeonly dispid 210;
-    property LineWidth: Integer writeonly dispid 211;
-    property DataColor: Integer writeonly dispid 212;
-    property PenStyle: Integer writeonly dispid 213;
-    procedure SetFontStyle(Bold: WordBool; Italic: WordBool; Underline: WordBool;
-                           Strikeout: WordBool); dispid 214;
-    property MarkNodes: WordBool writeonly dispid 215;
-    property NodeMarkerCode: Integer writeonly dispid 216;
-    property MarkCenter: WordBool writeonly dispid 217;
-    property CenterMarkerCode: Integer writeonly dispid 218;
-    property NodeMarkerWidth: Integer writeonly dispid 219;
-    property MarkCurves: WordBool writeonly dispid 220;
-    property CurveMarkerCode: Integer writeonly dispid 221;
-    procedure MoveToXY(x: Double; y: Double); dispid 222;
-    procedure DrawToXY(x: Double; y: Double); dispid 223;
-    procedure DrawRectangle(XLowerLeft: Double; YLowerLeft: Double; XUpperRight: Double;
-                            YUpperRight: Double); dispid 224;
-    procedure Show; dispid 225;
-    procedure SetRange(Xlow: Double; Xhigh: Double; Ylow: Double; Yhigh: Double); dispid 226;
-    procedure GetRange(var Xlow: Double; var Xhigh: Double; var Ylow: Double; var Yhigh: Double); dispid 227;
-    property TextSize: Integer writeonly dispid 228;
-    property TextColor: Integer writeonly dispid 229;
-    property TextAlign: Integer writeonly dispid 230;
-    function AddLabel(x: Double; y: Double; const Txt: WideString): Integer; dispid 231;
-    procedure LockInLabel(TxtIndex: Integer); dispid 232;
-    procedure SetLabelBold(LblIndex: Integer); dispid 233;
-    procedure SetLabelLeft(LblIndex: Integer); dispid 234;
-    procedure AddCentered15(x: Double; y: Double; const Txt: WideString); dispid 235;
-    property pctRim: Double writeonly dispid 236;
-    property KeepAspect: WordBool writeonly dispid 237;
-    procedure SetForNoScales; dispid 238;
-    procedure SetForClickOnDiagram; dispid 239;
-    procedure MarkAtXY(x: Double; y: Double; MarkerCode: Byte; MarkerSize: Byte); dispid 240;
-    procedure GetWindowParms(var Width: Integer; var LRim: Integer; var RRim: Integer;
-                             var Height: Integer; var TRim: Integer; var Brim: Integer); dispid 241;
-    procedure GetGraphProperties(var Xmin: Double; var Xmax: Double; var Ymin: Double;
-                                 var Ymax: Double; var ChartColor: Integer;
-                                 var WindowColor: Integer; var Isometric: WordBool;
-                                 var Gridstyle: Integer); dispid 242;
-    procedure SetGraphProperties(Xmin: Double; Xmax: Double; Ymin: Double; Ymax: Double;
-                                 ChartColor: Integer; WindowColor: Integer; Isometric: WordBool;
-                                 Gridstyle: Integer); dispid 243;
-  end;
-
-// *********************************************************************//
 // Interface: ITopology
 // Flags:     (4416) Dual OleAutomation Dispatchable
 // GUID:      {03FADB98-4F30-416E-ACD2-9BD987A0CBC3}
@@ -2828,18 +2681,6 @@ type
   end;
 
 // *********************************************************************//
-// The Class CoPlot provides a Create and CreateRemote method to
-// create instances of the default interface IPlot exposed by
-// the CoClass Plot. The functions are intended to be used by
-// clients wishing to automate the CoClass objects exposed by the
-// server of this typelibrary.
-// *********************************************************************//
-  CoPlot = class
-    class function Create: IPlot;
-    class function CreateRemote(const MachineName: string): IPlot;
-  end;
-
-// *********************************************************************//
 // The Class CoTopology provides a Create and CreateRemote method to
 // create instances of the default interface ITopology exposed by
 // the CoClass Topology. The functions are intended to be used by
@@ -3119,16 +2960,6 @@ end;
 class function CoRegControls.CreateRemote(const MachineName: string): IRegControls;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_RegControls) as IRegControls;
-end;
-
-class function CoPlot.Create: IPlot;
-begin
-  Result := CreateComObject(CLASS_Plot) as IPlot;
-end;
-
-class function CoPlot.CreateRemote(const MachineName: string): IPlot;
-begin
-  Result := CreateRemoteComObject(MachineName, CLASS_Plot) as IPlot;
 end;
 
 class function CoTopology.Create: ITopology;

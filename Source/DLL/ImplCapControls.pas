@@ -49,7 +49,7 @@ type
 
 implementation
 
-uses ComServ, DSSGlobals, Executive, ControlElem, CapControl, Variants, SysUtils, PointerList;
+uses ComServ, DSSGlobals, Executive, ControlElem, CapControl, CapControlVars, Variants, SysUtils, PointerList;
 
 function ActiveCapControl: TCapControlObj;
 begin
@@ -169,7 +169,7 @@ begin
       KVARCONTROL: Result := dssCapControlKvar;
       TIMECONTROL: Result := dssCapControlTime;
       PFCONTROL: Result := dssCapControlPF;
-      SRPCONTROL: Result := dssCapControlPF;
+      USERCONTROL: Result := dssCapControlPF;
     end;
   end;
 end;

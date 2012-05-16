@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 5/1/2012 5:41:16 PM (- $Rev: 12980 $, 104414901).
+// File generated on 5/15/2012 11:11:16 PM (- $Rev: 12980 $, 480860430).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -638,8 +638,6 @@ library OpenDSSengine
     HRESULT _stdcall ActiveClass([out, retval] IActiveClass** Value);
     [id(0x000000CB), helpstring("Sets the Active DSS Class for use with ActiveClass interface. Same as SetActiveClass in Circuit interface.\0e bus.\0ments.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall SetActiveClass([in] BSTR ClassName, [out, retval] long* Value);
-    [propget, id(0x000000CC), helpstring("Interface to DSSGraph plotting routines.\0tiveClass interface. Same as SetActiveClass in Circuit interface.\0e bus.\0ments.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall Plot([out, retval]  IDispatch** Value);
     [propget, id(0x000000CD), helpstring("Interface to DSS Executive commands and options\0ss interface. Same as SetActiveClass in Circuit interface.\0e bus.\0ments.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Executive([out, retval] IDSS_Executive** Value);
     [propget, id(0x000000CE), helpstring("Interface to the DSS Events")]

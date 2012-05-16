@@ -23,7 +23,7 @@ implementation
 Uses SysUtils, Utilities, Circuit, DSSClassDefs, DSSGlobals, CktElement,
      PDElement, PCElement, Generator, Load, RegControl,
      Vsource, Line, Transformer, Ucomplex, UcMatrix, LineCode,
-     Fuse, Capacitor, CapControl, Reactor, Feeder, ConductorData, LineUnits,
+     Fuse, Capacitor, CapControl, CapControlvars,  Reactor, Feeder, ConductorData, LineUnits,
      LineGeometry, NamedObject, StrUtils, Math, XfmrCode, HashList, WireData,
      LineSpacing, CableData, CNData, TSData;
 
@@ -1272,9 +1272,10 @@ Begin
         case CapControlType of
           CURRENTCONTROL: RegulatingControlEnum (F, 'currentFlow');
           VOLTAGECONTROL: RegulatingControlEnum (F, 'voltage');
-          KVARCONTROL: RegulatingControlEnum (F, 'reactivePower');
-          TIMECONTROL: RegulatingControlEnum (F, 'timeScheduled');
-          PFCONTROL, SRPCONTROL: RegulatingControlEnum (F, 'powerFactor');
+          KVARCONTROL:    RegulatingControlEnum (F, 'reactivePower');
+          TIMECONTROL:    RegulatingControlEnum (F, 'timeScheduled');
+          PFCONTROL :     RegulatingControlEnum (F, 'powerFactor');
+          USERCONTROL :   RegulatingControlEnum (F, 'userDefined');
         end;
         BooleanNode (F, 'RegulatingControl.discrete', true);
         DoubleNode (F, 'RegulatingControl.targetValue', v1);
