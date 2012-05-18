@@ -188,12 +188,12 @@ Begin
  //                        'Otherwise, angle between phases rotates with harmonic.';
  //    PropertyHelp[11] := '{pos | neg | zero*} Set the phase angles for the specified symmetrical component sequence for non-harmonic solution modes. '+
  //                        'Default is ZERO sequence. ';
-     PropertyHelp[10] := 'Northward Electric field. If specified, Voltage and Angle are computed from EN, EE, lat and lon values.';
-     PropertyHelp[11] := 'Eastward Electric field.  If specified, Voltage and Angle are computed from EN, EE, lat and lon values.';
-     PropertyHelp[12] := 'Latitude of Bus1';
-     PropertyHelp[13] := 'Longitude of Bus1';
-     PropertyHelp[14] := 'Latitude of Bus2';
-     PropertyHelp[15] := 'Longitude of Bus2';
+     PropertyHelp[10] := 'Northward Electric field (V/km). If specified, Voltage and Angle are computed from EN, EE, lat and lon values.';
+     PropertyHelp[11] := 'Eastward Electric field (V/km).  If specified, Voltage and Angle are computed from EN, EE, lat and lon values.';
+     PropertyHelp[12] := 'Latitude of Bus1 (degrees)';
+     PropertyHelp[13] := 'Longitude of Bus1 (degrees)';
+     PropertyHelp[14] := 'Latitude of Bus2 (degrees)';
+     PropertyHelp[15] := 'Longitude of Bus2 (degrees)';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
