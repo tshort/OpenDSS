@@ -2315,7 +2315,7 @@ Var
    i, Nread, RecordSize, RecordBytes: Cardinal;
    sngBuffer: Array [1 .. 100] of single;
    StrBuffer: TMonitorStrBuffer;
-   pStrBuffer: Pchar;
+   pStrBuffer: PAnsichar;
    time: Double;
    FirstRecord, Hours: Boolean;
    Time1: Double;
