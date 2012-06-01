@@ -2946,6 +2946,8 @@ begin
 
      OverCount  := 0;
      UnderCount := 0;
+     MinBus := 0;
+     MaxBus := 0;
 
      With ActiveCircuit Do Begin
        OverVmax   := NormalMinVolts;

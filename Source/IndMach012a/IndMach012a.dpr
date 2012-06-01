@@ -23,7 +23,10 @@ uses
   IndMach012Model in 'IndMach012Model.pas',
   RPN in '..\Parser\RPN.pas',
   Ucomplex in '..\Shared\Ucomplex.pas',
-  ParserDel in 'ParserDel.pas';     // Special version of ParserDel
+  ParserDel in 'ParserDel.pas',
+  GeneratorVars in '..\PCElements\GeneratorVars.pas';
+
+// Special version of ParserDel
 
 Exports
 

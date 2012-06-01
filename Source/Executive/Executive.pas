@@ -123,8 +123,8 @@ Begin
      ReadDSS_Registry;
 
      {Override Locale defaults so that CSV files get written properly}
-     DecimalSeparator  := '.';
-     ThousandSeparator := ',';
+     FormatSettings.DecimalSeparator  := '.';
+     FormatSettings.ThousandSeparator := ',';
 
 End;
 

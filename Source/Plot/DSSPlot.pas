@@ -1863,6 +1863,8 @@ begin
    MakeDiffCurve;
    DiffColor := NextColor;
    FirstYear := TRUE;
+   X1 := 0.0;
+   Y1 := 0.0;
 
    For CaseYear := 0 to 20 Do
    Begin

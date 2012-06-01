@@ -5,7 +5,7 @@ unit MainUnit;
 {Dynamics algorithm revised 7-18-04 to go to Thevinen equivalent}
 
 interface
-Uses Ucomplex, Arraydef, Dynamics, IndMach012Model;
+Uses Ucomplex, Arraydef, Dynamics, IndMach012Model, GeneratorVars;
 
 
   {Imports Generator Variables Structures and DSS structures from Dynamics}

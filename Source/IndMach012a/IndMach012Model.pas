@@ -2,7 +2,7 @@ unit IndMach012Model;
 
 interface
 
-Uses Dynamics, ucomplex, ParserDel, Command;
+Uses Dynamics, ucomplex, ParserDel, Command, GeneratorVars;
 
  Const
       NumProperties = 9;

@@ -137,11 +137,14 @@ USES Command, ArrayDef, ParserDel, SysUtils, DSSClassDefs, DSSGlobals,
      Circuit, Monitor, {ShowResults, ExportResults,}
      DSSClass, DSSObject, Utilities, Solution,
      EnergyMeter, Generator, LoadShape, Load, PCElement,   CktElement,
-     uComplex,  mathutil,  Bus,  SolutionAlgs, 
-     DSSForms,  ExecCommands, Executive, DssPlot, Dynamics,
+     uComplex,  mathutil,  Bus,  SolutionAlgs,
+     DSSForms,  ExecCommands, Executive, Dynamics,
+{$IFNDEF DLL_ENGINE}
+     DssPlot,
+{$ENDIF}
      Capacitor, Reactor, Line, Lineunits, Math,
      Classes,  CktElementClass, Sensor,  { ExportCIMXML,} NamedObject,
-     PerlRegEx, PstCalc;
+     RegularExpressionsCore, PstCalc;
 
 Var
    SaveCommands, DistributeCommands,  DI_PlotCommands,
@@ -2904,11 +2907,11 @@ Var ParamName, Param:String;
     PeakDay:Boolean;
 
 Begin
-
+{$IFNDEF DLL_ENGINE}
      IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
 
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
-     
+
      {Defaults}
      NumRegs:=1;
      SetLength(IRegisters, NumRegs);
@@ -2948,7 +2951,7 @@ Begin
      DSSPlotObj.DoDI_Plot(CaseName, CaseYear, iRegisters, PeakDay, MeterName);
 
      iRegisters := Nil;
-
+{$ENDIF}
      Result := 0;
 
 End;
@@ -2963,11 +2966,9 @@ Var ParamName, Param:String;
     CaseName2, WhichFile:String;
 
 Begin
-
+{$IFNDEF DLL_ENGINE}
      IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
-
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
-
      CaseName1 := 'base';
      CaseName2 := '';
      Reg := 9;    // Overload EEN
@@ -3005,7 +3006,7 @@ Begin
      End;
 
      DSSPlotObj.DoCompareCases(CaseName1, CaseName2, WhichFile,  Reg);
-
+{$ENDIF}
      Result := 0;
 
 End;
@@ -3022,7 +3023,7 @@ Var ParamName, Param:String;
     WhichFile:String;
 
 Begin
-
+{$IFNDEF DLL_ENGINE}
      IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
 
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
@@ -3080,6 +3081,7 @@ Begin
 
      iRegisters := Nil;
      CaseNames.Free;
+{$ENDIF}
      Result := 0;
 End;
 
@@ -3096,7 +3098,7 @@ Var  DevIndex    :integer;
 
 Begin
      Result := 0;
-
+{$IFNDEF DLL_ENGINE}
      // Abort if no circuit or solution
      If not assigned(ActiveCircuit) Then
      Begin
@@ -3155,7 +3157,7 @@ Begin
      End Else Begin
         DoSimpleMsg('Requested Circuit Element: "' + ElemName + '" Not Found.',282 ); // Did not find it ..
      End;
-
+{$ENDIF}
 End;
 
 FUNCTION DoCloseDICmd:Integer;
@@ -3310,6 +3312,7 @@ Var
 
 Begin
      Result := 0;
+{$IFNDEF DLL_ENGINE}
      ParamPointer := 0;
 
      ParamName := Parser.NextParam;
@@ -3348,7 +3351,7 @@ Begin
      End Else
         Dosimplemsg('Bus not found.', 28708);
 
-
+{$ENDIF}
 End;
 
 FUNCTION DoSetLoadAndGenKVCmd:Integer;

@@ -17,9 +17,7 @@
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
 			<Borland.ProjectType/>
 			<BorlandProject>
-				<BorlandProject>
-					<Default.Personality/>
-				</BorlandProject>
+				<Default.Personality/>
 			</BorlandProject>
 		</ProjectExtensions>
 		<Target Name="OpenDSSengine">

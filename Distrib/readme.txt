@@ -1,21 +1,58 @@
 The Open Distribution System Simulator, OpenDSS
 
-Copyright (c) 2008-2011, Electric Power Research Institute, Inc.
+Copyright (c) 2008-2012, Electric Power Research Institute, Inc.
 All rights reserved.
 
-Version 7.4.2
+Version 7.5.0
 
-Third-party Components
-======================
-
-DSSGraph.DLL uses a commercial product "SDL Delphi Component Suite", 
-available from www.sdlsuite.com
-
-KLUSolve.DLL is open source software, available from
-www.sourceforge.net/projects/klusolve
-
-Introduction
+Installation
 ============
+
+OpenDSS currently runs on 32-bit or 64-bit Windows.  To install, unzip the 
+contents of this file into a directory of your choice, such as c:\opendss.  
+Files that are specific to the 64-bit version will be written to an x64 
+subdirectory, such as c:\opendss\x64.  The EXE and DLL files should not be 
+moved after installation, but may be updated in place with newer versions.  
+
+The standalone executable may be started in two ways:
+
+1 - invoke "OpenDSS" from a command prompt, or
+2 - double-click on "OpenDSS.exe" from Windows Explorer
+
+If you have 64-bit Windows, you may run either the 32-bit or 64-bit 
+version of OpenDSS.EXE 
+
+See the manual, OpenDSSManual.PDF, for an overview of the program. 
+The most up-to-date reference information will always be found through the 
+software's "Help / DSS Help" menu command.
+
+COM Automation
+==============
+
+The COM Server in OpenDSSEngine.DLL may be automated.  You will need to 
+register the OpenDSSEngine.DLL if you intend to drive the DSS from another 
+program such as Matlab, Excel VBA, etc.  You do this by starting a Command 
+Prompt window with adminstrative privileges.  For example, on Windows 7: 
+
+1 - Find "Command Prompt" under "All Programs / Accessories" from the 
+Start Menu.  
+
+2 - Right-click on "Command Prompt" and choose "Run as Administrator".  
+
+3 - Change directories to where OpenDSSEngine.DLL was installed. 
+
+4 - Issue the command "RegisterDSSEngine"
+
+On 64-bit Windows, you may wish to register both 32-bit and 64-bit 
+versions of the DLL.  Even though the file names and registration commands 
+match, they are in separate locations and Windows will activate the 
+correct version required by the calling program.  For example, 64-bit 
+Matlab will call the 64-bit OpenDSSEngine.DLL and 32-bit Microsoft Excel 
+will call the 32-bit version.  (Note: The 64-bit version of Excel is 
+rarely installed.) 
+
+Background
+==========
 
 The OpenDSS is a simulator specifically designed to represent electric 
 power distribution circuits.  OpenDSS is designed to support most types of 
@@ -55,42 +92,23 @@ modernization efforts.
 efforts currently underway in the electric utility industry, at 
 http://cimug.ucaiug.org and http://www.multispeak.org.  
 
-OpenDSS runs on 32-bit Windows, and the programming language is Delphi 
-(http://www.codegear.com).  The present version of OpenDSS is compiled with
-Delphi 2010. There is also a Free Pascal version of the program.
-
-Some of the supporting modules may require a C++ compiler to build from 
-source.  
-
-Installation
-============
-
-Unzip the contents of this file into a directory of your choice, such as 
-c:\opendss. The standalone executable may be started in two ways:
-
-1 - invoke "OpenDSS" from a command prompt, or
-2 - double-click on "OpenDSS.exe" from Windows Explorer
-
-See the manual, OpenDSSManual.PDF, for an overview of the program. 
-The most up-to-date reference information will always be found through the 
-software's "Help / DSS Help" menu command.
-
-The DLL version in OpenDSSEngine.DLL may be automated.  You will need to 
-register the OpenDSSEngine.DLL if you intend to drive the DSS from another 
-program such as Matlab, VBA, etc.  You do this by starting a DOS window 
-(Start Run CMD ...) 
-
-Then change directories to whereever you put these files and type: 
-
-regsvr32 opendssengine.dll
-
 Source Code
 ===========
 
-OpenDSS source code is available from the following SVN repository:
+The programming language for OpenDSS is Delphi 
+(http://www.embarcadero.com), currently version Delphi XE.  There is also 
+a Free Pascal version of the program.  Some of the supporting modules may 
+require a C++ compiler to build from source.  OpenDSS source code is 
+available from the following SVN repository: 
 
 https://electricdss.svn.sourceforge.net/svnroot/electricdss
 
+
+Third-party Components
+======================
+
+KLUSolve.DLL is open source software, available from
+www.sourceforge.net/projects/klusolve
 
 Other convenient Sourceforge.net Links
 ======================================
@@ -138,7 +156,6 @@ http://electricdss.svn.sourceforge.net/viewvc/electricdss/Distrib/
 Examples
 
 http://electricdss.svn.sourceforge.net/viewvc/electricdss/Examples/
-
 
 License
 =======

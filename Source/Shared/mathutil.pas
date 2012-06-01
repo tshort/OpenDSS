@@ -24,7 +24,7 @@ Uses Arraydef, uComplex;
          Function  QuasiLogNormal(Mean:Double):Double;
          Procedure RCDMeanAndStdDev(pData:Pointer; Ndata:Integer; Var Mean, StdDev:Double);
          Procedure CurveMeanAndStdDev(pY:pDoubleArray; pX:pDoubleArray; N:Integer; Var Mean, StdDev:Double);
-         function  RCDSum( Data:Pointer; Count:Integer): Extended; register;
+//         function  RCDSum( Data:Pointer; Count:Integer): Extended; register;
          Procedure SymComp2Phase( Vph, V012:pComplexArray);
          Function  TerminalPowerIn(V,I:pComplexArray; Nphases:Integer):Complex;
          Function  PctNemaUnbalance(Vph:pComplexArray):Double;
@@ -290,18 +290,19 @@ End;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function RCDSUM( Data:Pointer; Count:Integer): Extended; register;
 
+{$IFDEF CPUX64}
+
+begin
+  Result := 0.0;
+end;
+
+{$ELSE ! CPUX86}
+
 // Sums an array of doubles quickly
 
 { With register convention first 3 parameters are passed EAX, EDX, ECX and
   remainder on stack}
 
-{var
-  I: Integer;
-begin
-  Result := 0.0;
-  for I := Low(Data) to High(Data) do
-    Result := Result + Data[I]
-end; }
 asm  // IN: EAX = ptr to Data, EDX = High(Data) = Count - 1
      // Uses 4 accumulators to minimize read-after-write delays and loop overhead
      // 5 clocks per loop, 4 items per loop = 1.2 clocks per item
@@ -335,6 +336,7 @@ asm  // IN: EAX = ptr to Data, EDX = High(Data) = Count - 1
        FADD                               // ST(1) := ST + ST(1); Pop ST
        FWAIT
 end;
+{$ENDIF}
 
 Procedure RCDMeanAndStdDev(pData:Pointer; Ndata:Integer; Var Mean, StdDev:Double);
 TYPE
@@ -355,7 +357,13 @@ BEGIN
     StdDev := Data^[1];
     Exit;
   end;
+{$IFDEF CPUX64}
+  Mean := 0.0;
+  for i := 1 to NData do Mean := Mean + Data^[i];
+  Mean := Mean / Ndata;
+{$ELSE ! CPUX86}
   Mean := RCDSum(Data, (Ndata)) / Ndata;
+{$ENDIF}
   S := 0;               // sum differences from the mean, for greater accuracy
   for i := 1 to Ndata do
     S := S + Sqr(Mean - Data^[i]);

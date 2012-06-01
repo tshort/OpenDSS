@@ -5,5 +5,8 @@
     <Transaction>2009/12/04 22:19:10.406.pas,C:\OpenDSS\Source\Parser\ParserDel.pas=</Transaction>
     <Transaction>2011/09/26 17:18:11.032.pas,C:\OpenDSS\Source\Parser\ParserDel.pas=</Transaction>
     <Transaction>2011/09/29 13:13:48.566.dproj,C:\OpenDSS\Source\IndMach012a\IndMach012.dproj=C:\OpenDSS\Source\IndMach012a\IndMach012a.dproj</Transaction>
+    <Transaction>2012/06/01 09:25:25.000.013,=C:\OpenDSS\Source\Common\DSSCallBackStructDef.pas</Transaction>
+    <Transaction>2012/06/01 09:29:13.000.640,C:\OpenDSS\Source\Common\DSSCallBackStructDef.pas=</Transaction>
+    <Transaction>2012/06/01 09:31:58.000.593,=C:\OpenDSS\Source\PCElements\GeneratorVars.pas</Transaction>
   </Transactions>
 </BorlandProject>
