@@ -1032,11 +1032,11 @@ Begin
            End;
            Writeln(F,'"');
 
-         Write(F,'~ ',PropertyName^[14],'=');
+         Write(F,'~ ',PropertyName^[15],'=');
          If IsSwitch Then Writeln(F, 'true') else writeln(F, 'false');
 
          {Dump the rest by default}
-         For i := 15 to NumProperties Do
+         For i := 16 to NumProperties Do
          Begin
             Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
          End;
