@@ -3,16 +3,18 @@ The Open Distribution System Simulator, OpenDSS
 Copyright (c) 2008-2012, Electric Power Research Institute, Inc.
 All rights reserved.
 
-Version 7.5.0
+Version 7.6.0
 
 Installation
 ============
 
 OpenDSS currently runs on 32-bit or 64-bit Windows.  To install, unzip the 
 contents of this file into a directory of your choice, such as c:\opendss.  
-Files that are specific to the 64-bit version will be written to an x64 
-subdirectory, such as c:\opendss\x64.  The EXE and DLL files should not be 
-moved after installation, but may be updated in place with newer versions.  
+Files that are specific to the 32-bit version will be written to an x86 
+subdirectory, such as c:\opendss\x86.  Files that are specific to the 
+64-bit version will be written to an x64 subdirectory, such as 
+c:\opendss\x64.  The EXE and DLL files should not be moved after 
+installation, but may be updated in place with newer versions.  
 
 The standalone executable may be started in two ways:
 
