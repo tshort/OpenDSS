@@ -497,7 +497,7 @@ Begin
             MajorVer := (FI.dwFileVersionMS and $FFFF0000) shr 16;
             BuildNo :=  FI.dwFileVersionLS and $FFFF;
             RelNo := (FI.dwFileVersionLS and $FFFF0000) shr 16;
-            Result := IntToStr(MajorVer)+'.'+IntToStr(MinorVer)+ '.'+IntToStr(RelNo)+ ' Build '+IntToStr(BuildNo);
+            Result := IntToStr(MajorVer)+'.'+IntToStr(MinorVer)+ '.'+IntToStr(RelNo) + '.'  +IntToStr(BuildNo);
 
             End;
       finally

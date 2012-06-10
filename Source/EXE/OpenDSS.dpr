@@ -34,6 +34,8 @@ program OpenDSS;
 
 
 
+{$R *.dres}
+
 uses
   Forms,
   About in '..\Forms\About.pas' {AboutBox},

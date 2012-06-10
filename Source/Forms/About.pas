@@ -39,7 +39,7 @@ begin
      Version.Caption := VersionString;
 
      LicenseText.Lines.Clear();
-     LicenseText.Lines.Add('Copyright (c) 2008-2009, Electric Power Research Institute, Inc.');
+     LicenseText.Lines.Add('Copyright (c) 2008-2012, Electric Power Research Institute, Inc.');
      LicenseText.Lines.Add('All rights reserved.');
      LicenseText.Lines.Add('');
      LicenseText.Lines.Add('Redistribution and use in source and binary forms, with or without');
