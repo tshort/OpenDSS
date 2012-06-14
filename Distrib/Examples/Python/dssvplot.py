@@ -124,7 +124,7 @@ class DSS:
         ax.set_ylabel('Voltage (120V base)')
         ax.set_title('Primary Voltages by phase')
         for o in fig.findobj(text.Text):
-		    o.set_fontsize(18)
+            o.set_fontsize(18)
 
 # set the limits (x and y) of the plot to contain all of the points
         xlim(x[x > 0].min(), x.max())
@@ -162,8 +162,8 @@ class DSS:
         yticks([])
 
 # set the limits of the map plot
-        xlim(x1[x1 > 0].min(), x1.max())
-        ylim(y1[y1 > 0].min(), y1.max())
+        xlim(x1.min(), x1.max())
+        ylim(y1.min(), y1.max())
 
 # take the from x and y coordinates and the to x and y coordinates
 # and put them together (zip) as a python sequence object
@@ -271,7 +271,7 @@ class Branch:
             xto - array (n) - to-bus x location
             yto - array (n) - to-bus y location
         """
-	n = circuit.NumCktElements
+        n = circuit.NumCktElements
         name = array("                      ").repeat(n)
         busname = array("                      ").repeat(n)
         busnameto = array("                      ").repeat(n)
@@ -287,7 +287,7 @@ class Branch:
         Vto = zeros((n,3), dtype=complex)
         i = 0
         for j in range(0,n):
-	    el = circuit.CktElements(j)
+            el = circuit.CktElements(j)
             if not re.search("^Line", el.Name):
                 continue  # only pick lines...
             name[i] = el.Name
@@ -304,26 +304,26 @@ class Branch:
             if nodes.size > 3: nodes = nodes[0:3]
             cidx = 2 * array(range(0, min(v.size / 2, 3)))
                       
-	    bus1 = circuit.Buses(re.sub(r"\..*","", el.BusNames[0]))
+            bus1 = circuit.Buses(re.sub(r"\..*","", el.BusNames[0]))
 
             if bus1.x == 0 or bus1.y == 0: 
-		continue # skip lines without proper bus coordinates
+                continue # skip lines without proper bus coordinates
 
-	    busname[i] = bus1.Name
+            busname[i] = bus1.Name
 
-	    Vto[i, nodes-1] = v[cidx] + 1j * v[cidx + 1]  
+            Vto[i, nodes-1] = v[cidx] + 1j * v[cidx + 1]  
             x[i] = bus1.x
             y[i] = bus1.y
             v = array(bus1.Voltages)
             V[i, nodes-1] = v[cidx] + 1j * v[cidx + 1]
             current = array(el.Currents)
             I[i, nodes-1] = current[cidx] + 1j * current[cidx + 1]
-	    i = i + 1
+            i = i + 1
         self.name = name[0:i]
         self.busname = busname[0:i]
         self.busnameto = busnameto[0:i]
         self.nphases = nphases[0:i]
-	self.kvbase = kvbase[0:i]
+        self.kvbase = kvbase[0:i]
         self.x = x[0:i]
         self.y = y[0:i]
         self.xto = xto[0:i]
@@ -337,7 +337,7 @@ class Branch:
 
 
 if __name__ == '__main__':
-    d = DSS(r"C:\OpenDSS/Examples/IEEE123Bus/IEEE123Master.dss")
+    d = DSS(r"C:\Users/prdu001/OpenDSS/Examples/IEEE123Bus/IEEE123Master.dss")
     d.plots()
 
     

@@ -1,0 +1,35 @@
+OpenDSS users:
+
+DSSVPlot.py is a circuit viewer for openDSS in python. It may be useful for viewing DSS results. 
+
+It runs a case in OpenDSS via COM and shows a circuit map and a voltage profile plot. You can click on the map, and it shows where that is on the voltage profile plot and vice versa. When you click on either, it also shows a summary of the branch current and voltages and other stuff. You can also zoom and pan the map and export to various file formats. It's pretty slick given that it's less than 250 lines of code. 
+
+Since it's just a python script, it's pretty easy to customize for other uses. For example, you could plot unbalance or harmonic flows instead of a voltage profile. The easiest customization is probably changing the branch information it displays when you click on either graph. 
+
+One motivation for this is that it'd be neat to incorporate something like this in a GIS interface, with the mapping being done by the GIS. Python is a good language for this.
+
+To run it, you need python with numpy, pylab, matplotlib, and win32com. There is a lot of documentation on these packages on the internet. 
+
+I used a python packaged with scientific and plotting extensions (pythonxy) plus win32com extensions found here:
+
+http://www.pythonxy.com/dl.php?file=windows/Python(x,y)-LE-2.1.4.exe
+http://sourceforge.net/project/showfiles.php?group_id=78018      
+   - python win32com: more info: http://python.net/crew/mhammond/win32/Downloads.html
+
+To run it, you can just edit the file, change the name of the DSS file, and double-click on the DSSVPlot.py file.
+
+Here are a few issues:
+
+* The DSS only has coordinates for bus nodes, so compared to other programs which store paths between nodes, the maps are a bit cruder.
+
+* Only lines are plotted, so a few things get left out, leaving a few gaps in the graph. There could be some gaps for other reasons, too. If either of the buses has zero for x or y, it doesn't get plotted.
+
+* For phasing of branches, the to-node bus is used. It may not always be accurate.
+
+* A few of the buses get stuck with zero distance, so something's getting missed there.
+
+If there's anyone else who might be interested in python interfacing to OpenDSS, please pass it along.
+
+Original Author: Tom Short
+Revision: Wes Sunderman
+
