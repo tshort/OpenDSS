@@ -1,8 +1,0 @@
-Show Currents residual=yes Elements
-plot circuit Losses Max=20 dots=y labels=n subs=y C1=$00FF0000
-
-reconductor  465234oh  465226oh  linecode=oh_750_aac
-reconductor  463235oh  464424oh linecode=oh_750_aac
-
-Energymeter.totalized.action=z    ! Dump meter zone
-
