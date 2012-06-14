@@ -1,0 +1,50 @@
+
+CIRCUIT ELEMENT CURRENTS
+
+(Currents into element from indicated bus)
+
+Power Delivery Elements
+
+  Bus     Phase    Magnitude, A     Angle
+
+ELEMENT = "Vsource.source"
+sourcebus     1           5.0601 /_  161.3
+sourcebus     2           5.0601 /_   41.3
+sourcebus     3           5.0601 /_  -78.7
+
+ELEMENT = "Transformer.tr1"
+sourcebus     1           5.0601 /_  -18.7
+sourcebus     2           5.0601 /_ -138.7
+sourcebus     3           5.0601 /_  101.3
+sourcebus     0                0 /_    0.0
+sourcebus Resid      1.2711E-013 /_  -63.4
+------------
+sub_bus       1           46.661 /_  131.3
+sub_bus       2           46.661 /_   11.3
+sub_bus       3           46.661 /_ -108.7
+sub_bus       0      9.1573E-009 /_  -49.3
+sub_bus   Resid      2.7807E-012 /_  -49.1
+
+ELEMENT = "Line.line1"
+sub_bus       1           46.661 /_  -48.7
+sub_bus       2           46.661 /_ -168.7
+sub_bus       3           46.661 /_   71.3
+sub_bus   Resid      9.1583E-009 /_  130.8
+------------
+loadbus       1           46.677 /_  131.3
+loadbus       2           46.677 /_   11.3
+loadbus       3           46.677 /_ -108.7
+loadbus   Resid       9.163E-009 /_  -49.2
+
+= = = = = = = = = = = = = = = = = = =  = = = = = = = = = = =  = =
+
+Power Conversion Elements
+
+  Bus     Phase    Magnitude, A     Angle
+
+ELEMENT = "Load.load1"
+loadbus       1           46.677 /_  -48.7
+loadbus       2           46.677 /_ -168.7
+loadbus       3           46.677 /_   71.3
+loadbus       0       9.161E-009 /_  130.8
+

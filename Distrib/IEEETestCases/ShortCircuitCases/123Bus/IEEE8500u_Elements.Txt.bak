@@ -1,0 +1,12 @@
+regcontrol.feeder_rega.maxtapchange=1  Delay=30 
+regcontrol.feeder_regb.maxtapchange=1  Delay=30 
+regcontrol.feeder_regc.maxtapchange=1  Delay=30 
+regcontrol.vreg2_a.maxtapchange=1  Delay=45 
+regcontrol.vreg2_b.maxtapchange=1  Delay=45 
+regcontrol.vreg2_c.maxtapchange=1  Delay=45 
+regcontrol.vreg3_a.maxtapchange=1  Delay=60 
+regcontrol.vreg3_b.maxtapchange=1  Delay=60 
+regcontrol.vreg3_c.maxtapchange=1  Delay=60 
+regcontrol.vreg4_a.maxtapchange=1  Delay=45 
+regcontrol.vreg4_b.maxtapchange=1  Delay=45 
+regcontrol.vreg4_c.maxtapchange=1  Delay=45 

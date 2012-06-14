@@ -1,0 +1,12 @@
+New Loadshape.Ramp 300  interval=(1 3600 /)  mult=(file=solarramp.csv)
+
+New generator.solar bus1=450  kw=2000  kV=4.16  pf=1  duty=ramp  model=1
+
+
+New monitor.M1  line.l99 1
+set mode=duty
+set stepsize=1s number=300
+
+solve                      ! Solves 300 steps each invocation
+
+Plot monitor object= m1 channels=(1, 3, 5)  bases=[2400 2400 2400]

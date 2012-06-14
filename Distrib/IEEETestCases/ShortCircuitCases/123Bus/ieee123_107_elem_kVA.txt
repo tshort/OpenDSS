@@ -1,0 +1,55 @@
+
+  Bus   (node ref)  Node       V (kV)    Angle    p.u.   Base kV
+
+107 ....  2     2.4648 /_ -122.3    1.0263     4.160
+
+CIRCUIT ELEMENT CURRENTS
+
+(Currents into element from indicated bus)
+
+Power Delivery Elements
+
+  Bus         Phase    Magnitude, A     Angle
+
+ELEMENT = "Line.l106"
+106          2           18.141 /_ -148.9
+------------
+107          2           18.142 /_   31.1
+
+
+= = = = = = = = = = = = = = = = = = =  = = = = = = = = = = =  = =
+
+Power Conversion Elements
+
+  Bus         Phase    Magnitude, A     Angle
+
+ELEMENT = "Load.s107b"
+107          2           18.143 /_ -148.9
+107          0           18.143 /_   31.1
+
+
+
+CIRCUIT ELEMENT POWER FLOW
+
+(Power Flow into element from indicated Bus)
+
+  Bus       Phase     kW     +j   kvar           kVA           PF
+
+ELEMENT = "Line.l106"        
+107             2    -39.996 +j    -19.998        44.717      0.8944
+ TERMINAL TOTAL      -39.996 +j    -19.998        44.717      0.8944
+ELEMENT = "Line.l106"        
+106             2     40.045 +j     20.044        44.781      0.8942
+ TERMINAL TOTAL       40.045 +j     20.044        44.781      0.8942
+
+= = = = = = = = = = = = = = = = = = =  = = = = = = = = = = =  = =
+
+Power Conversion Elements
+
+  Bus         Phase     kW   +j  kvar         kVA         PF
+
+ELEMENT = "Load.s107b"       
+107             2     39.998 +j     19.999        44.719      0.8944
+107             0          0 +j          0             0      1.0000
+ TERMINAL TOTAL       39.998 +j     19.999        44.719      0.8944
+

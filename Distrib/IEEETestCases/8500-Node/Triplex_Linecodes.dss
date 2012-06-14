@@ -1,0 +1,17 @@
+! Linecodes for secondary Triplex 
+! These linecodes are defined as a 2-phase line. The neutral conductor
+! is assumed grounded at both ends and reduced out by Kron reduction
+
+New Linecode.750_Triplex  nphases=2 units=kft    ! ohms per 1000 ft
+~ rmatrix=[  0.04974733   0.02342157 |  0.02342157   0.04974733 ]
+~ xmatrix=[  0.02782436   0.00669472 |  0.00669472   0.02782436 ]
+~ cmatrix=[  3.00000000  -2.40000000 | -2.40000000   3.00000000 ]
+~ NormAmps=580 {580 1.25 *}  
+
+
+New Linecode.4/0Triplex nphases=2 units=kft      !ohms per 1000 ft
+~ rmatrix=[  0.40995115   0.11809509 |  0.11809509   0.40995115 ]
+~ xmatrix=[  0.16681819   0.12759250 |  0.12759250   0.16681819 ]
+~ cmatrix=[  3.00000000  -2.40000000 | -2.40000000   3.00000000 ]
+~ Normamps=156  {156 1.25 *}
+

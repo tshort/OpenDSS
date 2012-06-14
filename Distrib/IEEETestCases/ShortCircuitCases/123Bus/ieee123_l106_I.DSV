@@ -1,0 +1,49 @@
+NoScales,
+Caption, "Line.L106 Currents"
+ChartCaption, "Line.L106 Currents"
+Rect, 100, 10, 200, 30
+Label, 150, 15, 0, "Line.L106", 0
+BoldLabel, 1
+Width, 7
+DataColor, 8421504
+Move, 0, 0
+Draw, 300, 0
+DataColor, 0
+Width, 3
+FStyle, 0
+Move, 0, 20
+Draw, 100, 20
+Center,  15, 22, 10, "18.1142"
+Center,  60, 22, 10, " /_  -148.88"
+Center,  90, 22, 10, " ->"
+Width, 1
+FStyle, 0
+Move, 0, -10
+Draw, 100, -10
+Center,  15, -8, 10, "18.1142"
+Center,  60, -8, 10, " /_    31.12"
+Center,  90, -8, 10, " ->"
+Width, 7
+Move, -5, 5
+Draw, -5, 25
+Center,  25, 30, 10, "106.2"
+Width, 3
+FStyle, 0
+Move, 300, 20
+Draw, 200, 20
+Center,  210, 22, 10, "<- "
+Center,  240, 22, 10, "18.1147"
+Center,  280, 22, 10, " /_    31.12"
+Width, 1
+FStyle, 0
+Move, 300, -10
+Draw, 200, -10
+Center,  210, -8, 10, "<- "
+Center,  240, -8, 10, "18.1147"
+Center,  280, -8, 10, " /_  -148.88"
+Width, 7
+Move, 305, 5
+Draw, 305, 25
+Center,  275, 30, 10, "107.2"
+Caption, " Currents"
+PctRim, 5

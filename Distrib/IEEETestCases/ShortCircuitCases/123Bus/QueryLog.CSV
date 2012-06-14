@@ -1,0 +1,5 @@
+Time(h), Property, Result
+0, load.s100c.allocationfactor, 0.5
+1, load.s100c.allocationfactor, 0.5
+2, load.s100c.allocationfactor, 0.5
+3, load.s100c.allocationfactor, 0.5

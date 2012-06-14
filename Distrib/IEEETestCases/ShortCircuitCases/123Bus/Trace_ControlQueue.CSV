@@ -1,0 +1,76 @@
+"Hour", "sec", "Control Iteration", "Element", "Action Code", "Trace Parameter", "Description"
+0, 0, 1, creg1a, 0, 0.044, Handle 1 Pushed onto Stack
+0, 0, 1, creg2a, 0, 0.031, Handle 2 Pushed onto Stack
+0, 0, 1, creg3a, 0, 0.05, Handle 3 Pushed onto Stack
+0, 0, 1, creg3c, 0, 0.038, Handle 4 Pushed onto Stack
+0, 0, 1, creg4a, 0, 0.094, Handle 5 Pushed onto Stack
+0, 0, 1, creg4b, 0, 0.063, Handle 6 Pushed onto Stack
+0, 0, 1, creg4c, 0, 0.075, Handle 7 Pushed onto Stack
+0, 0, 1, creg1a, 0, 0.044, Handle 1 deleted from Queue by Pop function
+0, 0, 1, creg1a, 0, 0.044, Pop Handle 1 Do Nearest Action
+0, 0, 2, creg1a, 0, 0.038, Handle 8 Pushed onto Stack
+0, 0, 2, creg1a, 0, 0.038, Handle 8 deleted from Queue by Pop function
+0, 0, 2, creg1a, 0, 0.038, Pop Handle 8 Do Nearest Action
+0, 0, 3, creg1a, 0, 0.031, Handle 9 Pushed onto Stack
+0, 0, 3, creg1a, 0, 0.031, Handle 9 deleted from Queue by Pop function
+0, 0, 3, creg1a, 0, 0.031, Pop Handle 9 Do Nearest Action
+0, 0, 4, creg1a, 0, 0.025, Handle 10 Pushed onto Stack
+0, 0, 4, creg1a, 0, 0.025, Handle 10 deleted from Queue by Pop function
+0, 0, 4, creg1a, 0, 0.025, Pop Handle 10 Do Nearest Action
+0, 0, 5, creg1a, 0, 0.019, Handle 11 Pushed onto Stack
+0, 0, 5, creg1a, 0, 0.019, Handle 11 deleted from Queue by Pop function
+0, 0, 5, creg1a, 0, 0.019, Pop Handle 11 Do Nearest Action
+0, 0, 6, creg1a, 0, 0.013, Handle 12 Pushed onto Stack
+0, 0, 6, creg1a, 0, 0.013, Handle 12 deleted from Queue by Pop function
+0, 0, 6, creg1a, 0, 0.013, Pop Handle 12 Do Nearest Action
+0, 0, 7, creg4c, 0, 0.038, Handle 7 deleted from Queue by Pop function
+0, 0, 7, creg4c, 0, 0.038, Pop Handle 7 Do Nearest Action
+0, 0, 7, creg4b, 0, 0.019, Handle 6 deleted from Queue by Pop function
+0, 0, 7, creg4b, 0, 0.019, Pop Handle 6 Do Nearest Action
+0, 0, 7, creg4a, 0, 0.056, Handle 5 deleted from Queue by Pop function
+0, 0, 7, creg4a, 0, 0.056, Pop Handle 5 Do Nearest Action
+0, 0, 7, creg3c, 0, 0, Handle 4 deleted from Queue by Pop function
+0, 0, 7, creg3c, 0, 0, Pop Handle 4 Do Nearest Action
+0, 0, 7, creg3a, 0, 0.013, Handle 3 deleted from Queue by Pop function
+0, 0, 7, creg3a, 0, 0.013, Pop Handle 3 Do Nearest Action
+0, 0, 7, creg2a, 0, 0, Handle 2 deleted from Queue by Pop function
+0, 0, 7, creg2a, 0, 0, Pop Handle 2 Do Nearest Action
+0, 0, 8, creg3a, 0, 0.0063, Handle 13 Pushed onto Stack
+0, 0, 8, creg4a, 0, 0.05, Handle 14 Pushed onto Stack
+0, 0, 8, creg4b, 0, 0.013, Handle 15 Pushed onto Stack
+0, 0, 8, creg4c, 0, 0.031, Handle 16 Pushed onto Stack
+0, 0, 8, creg4c, 0, 0.031, Handle 16 deleted from Queue by Pop function
+0, 0, 8, creg4c, 0, 0.031, Pop Handle 16 Do Nearest Action
+0, 0, 8, creg4b, 0, 0.013, Handle 15 deleted from Queue by Pop function
+0, 0, 8, creg4b, 0, 0.013, Pop Handle 15 Do Nearest Action
+0, 0, 8, creg4a, 0, 0.05, Handle 14 deleted from Queue by Pop function
+0, 0, 8, creg4a, 0, 0.05, Pop Handle 14 Do Nearest Action
+0, 0, 8, creg3a, 0, 0.0063, Handle 13 deleted from Queue by Pop function
+0, 0, 8, creg3a, 0, 0.0063, Pop Handle 13 Do Nearest Action
+0, 0, 9, creg4a, 0, 0.044, Handle 17 Pushed onto Stack
+0, 0, 9, creg4c, 0, 0.025, Handle 18 Pushed onto Stack
+0, 0, 9, creg4c, 0, 0.025, Handle 18 deleted from Queue by Pop function
+0, 0, 9, creg4c, 0, 0.025, Pop Handle 18 Do Nearest Action
+0, 0, 9, creg4a, 0, 0.044, Handle 17 deleted from Queue by Pop function
+0, 0, 9, creg4a, 0, 0.044, Pop Handle 17 Do Nearest Action
+0, 0, 10, creg4a, 0, 0.038, Handle 19 Pushed onto Stack
+0, 0, 10, creg4c, 0, 0.013, Handle 20 Pushed onto Stack
+0, 0, 10, creg4c, 0, 0.013, Handle 20 deleted from Queue by Pop function
+0, 0, 10, creg4c, 0, 0.013, Pop Handle 20 Do Nearest Action
+0, 0, 10, creg4a, 0, 0.038, Handle 19 deleted from Queue by Pop function
+0, 0, 10, creg4a, 0, 0.038, Pop Handle 19 Do Nearest Action
+0, 0, 11, creg4a, 0, 0.031, Handle 21 Pushed onto Stack
+0, 0, 11, creg4c, 0, 0.0063, Handle 22 Pushed onto Stack
+0, 0, 11, creg4c, 0, 0.0063, Handle 22 deleted from Queue by Pop function
+0, 0, 11, creg4c, 0, 0.0063, Pop Handle 22 Do Nearest Action
+0, 0, 11, creg4a, 0, 0.031, Handle 21 deleted from Queue by Pop function
+0, 0, 11, creg4a, 0, 0.031, Pop Handle 21 Do Nearest Action
+0, 0, 12, creg4a, 0, 0.025, Handle 23 Pushed onto Stack
+0, 0, 12, creg4a, 0, 0.025, Handle 23 deleted from Queue by Pop function
+0, 0, 12, creg4a, 0, 0.025, Pop Handle 23 Do Nearest Action
+0, 0, 13, creg4a, 0, 0.019, Handle 24 Pushed onto Stack
+0, 0, 13, creg4a, 0, 0.019, Handle 24 deleted from Queue by Pop function
+0, 0, 13, creg4a, 0, 0.019, Pop Handle 24 Do Nearest Action
+0, 0, 14, creg4a, 0, 0.013, Handle 25 Pushed onto Stack
+0, 0, 14, creg4a, 0, 0.013, Handle 25 deleted from Queue by Pop function
+0, 0, 14, creg4a, 0, 0.013, Pop Handle 25 Do Nearest Action

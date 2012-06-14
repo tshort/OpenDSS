@@ -1,0 +1,64 @@
+
+
+Compile (C:\opendss\IEEETestCases\123Bus\IEEE123Master.dss)
+
+RegControl.creg1a.maxtapchange=1  Delay=15  !Allow only one tap change per solution. This one moves first
+RegControl.creg2a.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+RegControl.creg3a.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+RegControl.creg4a.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+RegControl.creg3c.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+RegControl.creg4b.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+RegControl.creg4c.maxtapchange=1  Delay=30  !Allow only one tap change per solution
+Set MaxControlIter=30
+solve
+Buscoords Buscoords.dat   ! load in bus coordinates
+
+
+!  Storage Demo -----------------------------------------------------------
+
+New loadshape.StoreDaily npts=96 interval=0.25 csvfile=StoreDispatchShape.CSV
+
+New Storage.N98 Phases=1 Bus1=98  kV=2.4 kWRated=25  kWhRated=75  kWhStored=(75 0.20 *)
+~ State=IDLING
+~ Daily=StoreDaily
+~ %discharge=100
+~ %charge=50
+~ chargetrigger=  -0.5
+~ dischargetrigger=0.5
+
+New monitor.M1    Storage.N98 1   mode=1   ppolar=No  //powers
+New monitor.M1V  Storage.N98 1   mode=3    //variables
+
+Set mode=daily number=96 stepsize=15m
+Solve    ! Solve one day
+Solve    ! Solve another day
+Solve    ! Solve a 3rd Day
+
+show monitor m1
+Show monitor m1V
+
+plot monitor object=m1  channels=[1]   bases=[25]   // power plot  25 kW base
+plot monitor object=m1V channels=[1]
+
+
+
+
+
+
+
+
+
+New Storage.N98 Bus1=98  kV=4.16 kWRated=75  kWhRated=150 kWhStored=150 State=IDLING
+Storage.n98.state=Dischar %discharge=25
+Storage.n98.state=charging kwhstored=100 %charge=50
+
+
+Storage.n98.state=Dischar %discharge=25
+Storage.n98.state=charging %charge=50
+
+solve
+
+
+
+FormEdit "storage.n98"
+Visualize powers storage.n98

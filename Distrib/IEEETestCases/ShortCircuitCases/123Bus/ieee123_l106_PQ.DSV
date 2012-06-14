@@ -1,0 +1,37 @@
+NoScales,
+Caption, "Line.L106 Powers"
+ChartCaption, "Line.L106 Powers"
+Rect, 100, 10, 200, 30
+Label, 150, 15, 0, "Line.L106", 0
+BoldLabel, 1
+Width, 7
+DataColor, 8421504
+Move, 0, 0
+Draw, 300, 0
+DataColor, 0
+Width, 3
+FStyle, 0
+Move, 0, 20
+Draw, 100, 20
+Center,  15, 22, 10, "40.0439 + j"
+Center,  60, 22, 10, "20.0433 kVA"
+Center,  90, 22, 10, " ->"
+Width, 1
+Width, 7
+Move, -5, 5
+Draw, -5, 25
+Center,  25, 30, 10, "106.2"
+Width, 3
+FStyle, 0
+Move, 300, 20
+Draw, 200, 20
+Center,  210, 22, 10, "<- "
+Center,  240, 22, 10, "-39.9964 + j"
+Center,  280, 22, 10, "-19.9982 kVA"
+Width, 1
+Width, 7
+Move, 305, 5
+Draw, 305, 25
+Center,  275, 30, 10, "107.2"
+Caption, " Powers"
+PctRim, 5

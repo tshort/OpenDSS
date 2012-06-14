@@ -1,0 +1,97 @@
+
+CIRCUIT ELEMENT POWER FLOW
+
+(Power Flow into element from indicated Bus)
+
+Power Delivery Elements
+
+  Bus     Phase     kW     +j   kvar         kVA         PF
+
+ELEMENT = "Vsource.source"
+sourcebus     1     -2450.7 +j  -1681.9     2972.3       0.8245
+sourcebus     2     -2755.6 +j  -2462.3     3695.4       0.7457
+sourcebus     3     -2042.2 +j  -1619.9     2606.7       0.7835
+   TERMINAL TOTAL . -7248.5 +j  -5764.0     9260.9       0.7827
+
+ELEMENT = "Line.line1"
+sourcebus     1      2450.7 +j   1681.9     2972.3       0.8245
+sourcebus     2      2755.6 +j   2462.3     3695.4       0.7457
+sourcebus     3      2042.2 +j   1619.9     2606.7       0.7835
+   TERMINAL TOTAL .  7248.5 +j   5764.0     9260.9       0.7827
+loadbus       1     -2395.0 +j  -1605.0     2883.1       0.8307
+loadbus       2     -2677.2 +j  -2294.4     3525.8       0.7593
+loadbus       3     -2024.7 +j  -1550.0     2549.9       0.7940
+   TERMINAL TOTAL . -7096.9 +j  -5449.4     8947.8       0.7931
+
+ELEMENT = "Line.line2"
+loadbus       1      1728.4 +j   1105.0     2051.4       0.8425
+loadbus       2      2010.6 +j   1794.4     2694.8       0.7461
+loadbus       3      1358.0 +j   1050.0     1716.6       0.7911
+   TERMINAL TOTAL .  5096.9 +j   3949.4     6448.0       0.7905
+loadbus2      1     -1698.5 +j  -1069.6     2007.2       0.8462
+loadbus2      2     -1963.7 +j  -1692.5     2592.4       0.7575
+loadbus2      3     -1353.6 +j  -1019.0     1694.2       0.7989
+   TERMINAL TOTAL . -5015.7 +j  -3781.1     6281.3       0.7985
+
+ELEMENT = "Line.line3"
+loadbus2      1       669.1 +j    518.1      846.2       0.7907
+loadbus2      2       656.2 +j    487.3      817.3       0.8028
+loadbus2      3       686.9 +j    519.0      860.9       0.7979
+   TERMINAL TOTAL .  2012.2 +j   1524.3     2524.4       0.7971
+loadbus3      1      -665.0 +j   -510.0      838.1       0.7935
+loadbus3      2      -652.1 +j   -479.1      809.2       0.8059
+loadbus3      3      -682.8 +j   -510.8      852.8       0.8007
+   TERMINAL TOTAL . -2000.0 +j  -1500.0     2500.0       0.8000
+
+ELEMENT = "Line.line4"
+loadbus2      2       502.4 +j    379.7      629.7       0.7978
+   TERMINAL TOTAL .   502.4 +j    379.7      629.7       0.7978
+loadbus4      1      -500.0 +j   -375.0      625.0       0.8000
+   TERMINAL TOTAL .  -500.0 +j   -375.0      625.0       0.8000
+
+ELEMENT = "Line.line5"
+loadbus2      1       362.7 +j     51.5      366.4       0.9901
+loadbus2      2       138.5 +j    325.5      353.8       0.3915
+   TERMINAL TOTAL .   501.2 +j    377.1      627.2       0.7991
+loadbus5      1      -362.1 +j    -50.5      365.6       0.9904
+loadbus5      2      -137.9 +j   -324.5      352.6       0.3910
+   TERMINAL TOTAL .  -500.0 +j   -375.0      625.0       0.8000
+
+= = = = = = = = = = = = = = = = = = =  = = = = = = = = = = =  = =
+
+Power Conversion Elements
+
+  Bus     Phase     kW   +j  kvar         kVA         PF
+
+ELEMENT = "Load.load1"
+loadbus       1     666.7 +j  500.0      833.3       0.8000
+loadbus       2     666.7 +j  500.0      833.3       0.8000
+loadbus       3     666.7 +j  500.0      833.3       0.8000
+loadbus       0       0.0 +j    0.0        0.0       1.0000
+   TERMINAL TOTAL .2000.0 +j 1500.0     2500.0       0.8000
+
+ELEMENT = "Load.load2"
+loadbus2      1     666.7 +j  500.0      833.3       0.8000
+loadbus2      2     666.7 +j  500.0      833.3       0.8000
+loadbus2      3     666.7 +j  500.0      833.3       0.8000
+loadbus2      0       0.0 +j    0.0        0.0       1.0000
+   TERMINAL TOTAL .2000.0 +j 1500.0     2500.0       0.8000
+
+ELEMENT = "Load.load3"
+loadbus3      1     665.0 +j  510.0      838.1       0.7935
+loadbus3      2     652.1 +j  479.1      809.2       0.8059
+loadbus3      3     682.8 +j  510.8      852.8       0.8007
+   TERMINAL TOTAL .2000.0 +j 1500.0     2500.0       0.8000
+
+ELEMENT = "Load.load4"
+loadbus4      1     500.0 +j  375.0      625.0       0.8000
+loadbus4      0       0.0 +j    0.0        0.0       1.0000
+   TERMINAL TOTAL . 500.0 +j  375.0      625.0       0.8000
+
+ELEMENT = "Load.load5"
+loadbus5      1     362.1 +j   50.5      365.6       0.9904
+loadbus5      2     137.9 +j  324.5      352.6       0.3910
+   TERMINAL TOTAL . 500.0 +j  375.0      625.0       0.8000
+
+
+Total Circuit Losses =  248.6 +j  514.1

@@ -1,0 +1,28 @@
+Set Genkw=100
+set mode=autoadd
+solve
+Set nodewidth=7
+plot Auto 3  dots=y labels=n subs=n C1=16711680 C2=8421376 C3=255 R3=0.95 R2=0.9
+
+solve
+solve
+solve
+solve
+plot General 3 max= 0  dots=n labels=n object=(C:\opendss\IEEETestCases\123Bus\ieee123_AutoAddLog.CSV) C1=$00FF0000 C2=$000000FF
+
+
+set markercode=16
+Set nodewidth=1
+
+plot circuit Power Max=2000 dots=y labels=n subs=n C1=$00FF0000 
+
+set nodewidth=3 markercode=24
+plot circuit Power Max=2000 dots=y labels=n subs=n C1=$00FF00FF 
+
+Set nodewidth=1 daisysize=2
+plot daisy Power max=2000 y n C1=$00FF0000  !!!! This one does generators by default
+plot daisy Power max=2000 y n C1=$00FF0000 buslist=(file=daisybuslist.txt)
+
+! Add Some Markers on the plot
+Addmarker bus=105 color=$FF code=42 size=7
+Addmarker bus=101 color=$FF code=9 size=7

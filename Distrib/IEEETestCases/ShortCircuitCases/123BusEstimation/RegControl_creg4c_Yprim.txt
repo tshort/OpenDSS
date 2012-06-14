@@ -1,0 +1,3 @@
+Yprim of active circuit element: RegControl.creg4c
+
+Yprim matrix is Nil

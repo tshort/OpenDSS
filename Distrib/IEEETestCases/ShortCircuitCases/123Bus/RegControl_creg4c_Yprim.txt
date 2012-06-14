@@ -1,0 +1,5 @@
+Yprim of active circuit element: RegControl.creg4c
+
+
+G matrix (conductance), S
+

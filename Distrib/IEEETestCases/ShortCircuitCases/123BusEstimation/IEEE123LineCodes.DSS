@@ -1,0 +1,194 @@
+! Line Codes calculated from 'dsscodes.txt'
+! Frequency Base = 60
+! Soil Resistivity = 250
+! Sequence Impedances = N
+! Retain Neutral = N
+! Wires
+!               #10 CU    0.102000    0.039720    1.117992
+!               #12 CU    0.081000    0.031440    1.775568
+!               #14 CU    0.064000    0.024960    2.816667
+!                #2 AA    0.292000    0.105960    0.291667
+!              #2 ACSR    0.316000    0.050160    0.320076
+!              #4 ACSR    0.257000    0.054240    0.482955
+!               1/0 AA    0.368000    0.133200    0.184205
+!             1/0 ACSR    0.398000    0.053520    0.212121
+!               1/0 CU    0.368000    0.133560    0.114962
+!              1000 AA    1.150000    0.441600    0.019886
+!               2/0 AA    0.414000    0.150000    0.145644
+!               250 AA    0.573000    0.217200    0.077898
+!           336.4 ACSR    0.721000    0.292800    0.057955
+!             4/0 ACSR    0.563000    0.097680    0.112121
+!             5-MIL TS    0.880000    0.440000    0.584300
+!               500 AA    0.813000    0.312000    0.039015
+!           556.5 ACSR    0.927000    0.373200    0.035227
+! Spacings
+!                  500  3 phases, neutral: Y
+! H:    28.0000   28.0000   28.0000   24.0000
+! X:    -4.0000   -1.0000    3.0000    0.0000
+!                  505  2 phases, neutral: Y
+! H:    28.0000   28.0000    0.0000   24.0000
+! X:    -4.0000    3.0000    0.0000    0.0000
+!                  510  1 phases, neutral: Y
+! H:    29.0000    0.0000    0.0000   24.0000
+! X:    -0.5000    0.0000    0.0000    0.0000
+!                  515  3 phases, neutral: N
+! H:    -4.0000   -4.0000   -4.0000    0.0000
+! X:    -0.5000    0.0000    0.5000    0.0000
+!                  520  1 phases, neutral: N
+! H:    -4.0000    0.0000    0.0000   -4.0000
+! X:     0.0000    0.0000    0.0000    0.0833
+! Cables
+!               1/0 TS                1/0 AA              5-MIL TS    0.820000    0.880000  220.0   0    2.30
+!      1/0(19X) 1/3 CN                1/0 AA                #14 CU    0.850000    0.930000  220.0   6    2.30
+!     1000(61X) 1/3 CN               1000 AA                #10 CU    1.640000    1.770000  220.0  20    2.30
+!         2(7X) 1/3 CN                 #2 AA                #14 CU    0.780000    0.850000  220.0   6    2.30
+!      2/0(19X) 1/3 CN                2/0 AA                #14 CU    0.900000    0.970000  220.0   7    2.30
+!      250(37X) 1/3 CN                250 AA                #14 CU    1.060000    1.160000  220.0  13    2.30
+!      500(37X) 1/3 CN                500 AA                #12 CU    1.290000    1.390000  220.0  16    2.30
+! Overhead Line Codes
+!                    1 Spacing: 500  Sequence: ABC  Phase: 336.4 ACSR  Neutral: 4/0 ACSR
+!                   10 Spacing: 510  Sequence:   B  Phase: 1/0 ACSR  Neutral: 1/0 ACSR
+!                   11 Spacing: 510  Sequence:   C  Phase: 1/0 ACSR  Neutral: 1/0 ACSR
+!                    2 Spacing: 500  Sequence: CAB  Phase: 336.4 ACSR  Neutral: 4/0 ACSR
+!                    3 Spacing: 500  Sequence: BCA  Phase: 336.4 ACSR  Neutral: 4/0 ACSR
+!                  300 Spacing: 500  Sequence: BAC  Phase: 1/0 ACSR  Neutral: 1/0 ACSR
+!                  301 Spacing: 500  Sequence: BAC  Phase: #2 ACSR  Neutral: #2 ACSR
+!                  302 Spacing: 510  Sequence:   A  Phase: #4 ACSR  Neutral: #4 ACSR
+!                  303 Spacing: 510  Sequence:   B  Phase: #4 ACSR  Neutral: #4 ACSR
+!                  304 Spacing: 510  Sequence:   B  Phase: #2 ACSR  Neutral: #2 ACSR
+!                    4 Spacing: 500  Sequence: CBA  Phase: 336.4 ACSR  Neutral: 4/0 ACSR
+!                  400 Spacing: 500  Sequence: ABC  Phase: 336.4 ACSR  Neutral: 4/0 ACSR
+!                    5 Spacing: 500  Sequence: BAC  Phase: 336.4 ACSR  Neutral: 4/0 ACSR
+!                    6 Spacing: 500  Sequence: ACB  Phase: 336.4 ACSR  Neutral: 4/0 ACSR
+!                  601 Spacing: 500  Sequence: BAC  Phase: 556.5 ACSR  Neutral: 4/0 ACSR
+!                  602 Spacing: 500  Sequence: CAB  Phase: 4/0 ACSR  Neutral: 4/0 ACSR
+!                  603 Spacing: 505  Sequence:  CB  Phase: 1/0 ACSR  Neutral: 1/0 ACSR
+!                  604 Spacing: 505  Sequence:  AC  Phase: 1/0 ACSR  Neutral: 1/0 ACSR
+!                  605 Spacing: 510  Sequence:   C  Phase: 1/0 ACSR  Neutral: 1/0 ACSR
+!                    7 Spacing: 505  Sequence:  AC  Phase: 336.4 ACSR  Neutral: 4/0 ACSR
+!                    8 Spacing: 505  Sequence:  AB  Phase: 336.4 ACSR  Neutral: 4/0 ACSR
+!                    9 Spacing: 510  Sequence:   A  Phase: 1/0 ACSR  Neutral: 1/0 ACSR
+! Underground Line Codes
+!                   12 Spacing: 515  Sequence: ABC  Cable: 1/0(19X) 1/3 CN  Neutral: 
+!                  606 Spacing: 515  Sequence: ABC  Cable: 250(37X) 1/3 CN  Neutral: 
+!                  607 Spacing: 520  Sequence:   A  Cable: 1/0 TS  Neutral: 1/0 CU
+!                  721 Spacing: 515  Sequence: ABC  Cable: 1000(61X) 1/3 CN  Neutral: 
+!                  722 Spacing: 515  Sequence: ABC  Cable: 500(37X) 1/3 CN  Neutral: 
+!                  723 Spacing: 515  Sequence: ABC  Cable: 2/0(19X) 1/3 CN  Neutral: 
+!                  724 Spacing: 515  Sequence: ABC  Cable: 2(7X) 1/3 CN  Neutral: 
+New linecode.1 nphases=3 BaseFreq=60
+~ rmatrix = (0.088205 | 0.0312137 0.0901946 | 0.0306264 0.0316143 0.0889665 )
+~ xmatrix = (0.20744 | 0.0935314 0.200783 | 0.0760312 0.0855879 0.204877 )
+~ cmatrix = (2.90301 | -0.679335 3.15896 | -0.22313 -0.481416 2.8965 )
+New linecode.10 nphases=1 BaseFreq=60
+~ rmatrix = (0.254428 )
+~ xmatrix = (0.259546 )
+~ cmatrix = (2.50575 )
+New linecode.11 nphases=1 BaseFreq=60
+~ rmatrix = (0.254428 )
+~ xmatrix = (0.259546 )
+~ cmatrix = (2.50575 )
+New linecode.2 nphases=3 BaseFreq=60
+~ rmatrix = (0.0901946 | 0.0316143 0.0889665 | 0.0312137 0.0306264 0.088205 )
+~ xmatrix = (0.200783 | 0.0855879 0.204877 | 0.0935314 0.0760312 0.20744 )
+~ cmatrix = (3.15896 | -0.481416 2.8965 | -0.679335 -0.22313 2.90301 )
+New linecode.3 nphases=3 BaseFreq=60
+~ rmatrix = (0.0889665 | 0.0306264 0.088205 | 0.0316143 0.0312137 0.0901946 )
+~ xmatrix = (0.204877 | 0.0760312 0.20744 | 0.0855879 0.0935314 0.200783 )
+~ cmatrix = (2.8965 | -0.22313 2.90301 | -0.481416 -0.679335 3.15896 )
+New linecode.300 nphases=3 BaseFreq=60
+~ rmatrix = (0.256242 | 0.0426456 0.253371 | 0.0432214 0.0417943 0.254472 )
+~ xmatrix = (0.25633 | 0.109201 0.261431 | 0.101568 0.0912376 0.259467 )
+~ cmatrix = (2.80971 | -0.571379 2.61122 | -0.413221 -0.204788 2.60753 )
+New linecode.301 nphases=3 BaseFreq=60
+~ rmatrix = (0.369331 | 0.0476232 0.36615 | 0.0482601 0.0466787 0.367372 )
+~ xmatrix = (0.272376 | 0.123077 0.276153 | 0.115709 0.10472 0.274697 )
+~ cmatrix = (2.69087 | -0.539947 2.51122 | -0.394607 -0.200873 2.50731 )
+New linecode.302 nphases=1 BaseFreq=60
+~ rmatrix = (0.530075 )
+~ xmatrix = (0.287505 )
+~ cmatrix = (2.3302 )
+New linecode.303 nphases=1 BaseFreq=60
+~ rmatrix = (0.530075 )
+~ xmatrix = (0.287505 )
+~ cmatrix = (2.3302 )
+New linecode.304 nphases=1 BaseFreq=60
+~ rmatrix = (0.367322 )
+~ xmatrix = (0.274756 )
+~ cmatrix = (2.40965 )
+New linecode.4 nphases=3 BaseFreq=60
+~ rmatrix = (0.0889665 | 0.0316143 0.0901946 | 0.0306264 0.0312137 0.088205 )
+~ xmatrix = (0.204877 | 0.0855879 0.200783 | 0.0760312 0.0935314 0.20744 )
+~ cmatrix = (2.8965 | -0.481416 3.15896 | -0.22313 -0.679335 2.90301 )
+New linecode.400 nphases=3 BaseFreq=60
+~ rmatrix = (0.088205 | 0.0312137 0.0901946 | 0.0306264 0.0316143 0.0889665 )
+~ xmatrix = (0.20744 | 0.0935314 0.200783 | 0.0760312 0.0855879 0.204877 )
+~ cmatrix = (2.90301 | -0.679335 3.15896 | -0.22313 -0.481416 2.8965 )
+New linecode.5 nphases=3 BaseFreq=60
+~ rmatrix = (0.0901946 | 0.0312137 0.088205 | 0.0316143 0.0306264 0.0889665 )
+~ xmatrix = (0.200783 | 0.0935314 0.20744 | 0.0855879 0.0760312 0.204877 )
+~ cmatrix = (3.15896 | -0.679335 2.90301 | -0.481416 -0.22313 2.8965 )
+New linecode.6 nphases=3 BaseFreq=60
+~ rmatrix = (0.088205 | 0.0306264 0.0889665 | 0.0312137 0.0316143 0.0901946 )
+~ xmatrix = (0.20744 | 0.0760312 0.204877 | 0.0935314 0.0855879 0.200783 )
+~ cmatrix = (2.90301 | -0.22313 2.8965 | -0.679335 -0.481416 3.15896 )
+New linecode.601 nphases=3 BaseFreq=60
+~ rmatrix = (0.0674673 | 0.0312137 0.0654777 | 0.0316143 0.0306264 0.0662392 )
+~ xmatrix = (0.195204 | 0.0935314 0.201861 | 0.0855879 0.0760312 0.199298 )
+~ cmatrix = (3.32591 | -0.743055 3.04217 | -0.525237 -0.238111 3.03116 )
+New linecode.602 nphases=3 BaseFreq=60
+~ rmatrix = (0.144361 | 0.0316143 0.143133 | 0.0312137 0.0306264 0.142372 )
+~ xmatrix = (0.226028 | 0.0855879 0.230122 | 0.0935314 0.0760312 0.232686 )
+~ cmatrix = (3.01091 | -0.443561 2.77543 | -0.624494 -0.209615 2.77847 )
+New linecode.603 nphases=2 BaseFreq=60
+~ rmatrix = (0.254472 | 0.0417943 0.253371 )
+~ xmatrix = (0.259467 | 0.0912376 0.261431 )
+~ cmatrix = (2.54676 | -0.28882 2.49502 )
+New linecode.604 nphases=2 BaseFreq=60
+~ rmatrix = (0.253371 | 0.0417943 0.254472 )
+~ xmatrix = (0.261431 | 0.0912376 0.259467 )
+~ cmatrix = (2.49502 | -0.28882 2.54676 )
+New linecode.605 nphases=1 BaseFreq=60
+~ rmatrix = (0.254428 )
+~ xmatrix = (0.259546 )
+~ cmatrix = (2.50575 )
+New linecode.7 nphases=2 BaseFreq=60
+~ rmatrix = (0.088205 | 0.0306264 0.0889665 )
+~ xmatrix = (0.20744 | 0.0760312 0.204877 )
+~ cmatrix = (2.75692 | -0.326659 2.82313 )
+New linecode.8 nphases=2 BaseFreq=60
+~ rmatrix = (0.088205 | 0.0306264 0.0889665 )
+~ xmatrix = (0.20744 | 0.0760312 0.204877 )
+~ cmatrix = (2.75692 | -0.326659 2.82313 )
+New linecode.9 nphases=1 BaseFreq=60
+~ rmatrix = (0.254428 )
+~ xmatrix = (0.259546 )
+~ cmatrix = (2.50575 )
+New linecode.12 nphases=3 BaseFreq=60
+~ rmatrix = (0.291814 | 0.101656 0.294012 | 0.096494 0.101656 0.291814 )
+~ xmatrix = (0.141848 | 0.0517936 0.13483 | 0.0401881 0.0517936 0.141848 )
+~ cmatrix = (53.4924 | 0 53.4924 | 0 0 53.4924 )
+New linecode.606 nphases=3 BaseFreq=60
+~ rmatrix = (0.152193 | 0.0611362 0.15035 | 0.0546992 0.0611362 0.152193 )
+~ xmatrix = (0.0825685 | 0.00548281 0.0745027 | -0.00339824 0.00548281 0.0825685 )
+~ cmatrix = (72.7203 | 0 72.7203 | 0 0 72.7203 )
+New linecode.607 nphases=1 BaseFreq=60
+~ rmatrix = (0.255799 )
+~ xmatrix = (0.092284 )
+~ cmatrix = (50.7067 )
+New linecode.721 nphases=3 BaseFreq=60
+~ rmatrix = (0.0554906 | 0.0127467 0.0501597 | 0.00640446 0.0127467 0.0554906 )
+~ xmatrix = (0.0372331 | -0.00704588 0.0358645 | -0.00796424 -0.00704588 0.0372331 )
+~ cmatrix = (124.851 | 0 124.851 | 0 0 124.851 )
+New linecode.722 nphases=3 BaseFreq=60
+~ rmatrix = (0.0902251 | 0.0309584 0.0851482 | 0.0234946 0.0309584 0.0902251 )
+~ xmatrix = (0.055991 | -0.00646552 0.0504025 | -0.0117669 -0.00646552 0.055991 )
+~ cmatrix = (93.4896 | 0 93.4896 | 0 0 93.4896 )
+New linecode.723 nphases=3 BaseFreq=60
+~ rmatrix = (0.247572 | 0.0947678 0.249104 | 0.0893782 0.0947678 0.247572 )
+~ xmatrix = (0.126339 | 0.0390337 0.118816 | 0.0279344 0.0390337 0.126339 )
+~ cmatrix = (58.108 | 0 58.108 | 0 0 58.108 )
+New linecode.724 nphases=3 BaseFreq=60
+~ rmatrix = (0.399883 | 0.101765 0.402011 | 0.0965199 0.101765 0.399883 )
+~ xmatrix = (0.146325 | 0.0510963 0.139305 | 0.0395402 0.0510963 0.146325 )
+~ cmatrix = (46.9685 | 0 46.9685 | 0 0 46.9685 )

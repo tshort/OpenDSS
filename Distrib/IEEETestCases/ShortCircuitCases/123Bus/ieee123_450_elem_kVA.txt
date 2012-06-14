@@ -1,0 +1,71 @@
+
+  Bus   (node ref)  Node       V (kV)    Angle    p.u.   Base kV
+
+450 ........  1     2.4859 /_   -1.0     1.035     4.160
+   -          2     2.5023 /_ -119.6    1.0418     4.160
+   -          3     2.4842 /_  120.1    1.0343     4.160
+
+CIRCUIT ELEMENT CURRENTS
+
+(Currents into element from indicated bus)
+
+Power Delivery Elements
+
+  Bus         Phase    Magnitude, A     Angle
+
+ELEMENT = "Line.l99"
+100              1           170.98 /_  179.0
+100              2           169.86 /_   60.4
+100              3            171.1 /_  -59.9
+100          Resid           2.7401 /_  -65.8
+------------
+450              1           170.98 /_   -1.0
+450              2           169.86 /_ -119.6
+450              3            171.1 /_  120.1
+450          Resid           2.7399 /_  114.2
+
+
+= = = = = = = = = = = = = = = = = = =  = = = = = = = = = = =  = =
+
+Power Conversion Elements
+
+  Bus         Phase    Magnitude, A     Angle
+
+ELEMENT = "Generator.2mwgen"
+450              1           170.98 /_  179.0
+450              2           169.86 /_   60.4
+450              3            171.1 /_  -59.9
+450              0           2.7402 /_  -65.8
+
+
+
+CIRCUIT ELEMENT POWER FLOW
+
+(Power Flow into element from indicated Bus)
+
+  Bus       Phase     kW     +j   kvar           kVA           PF
+
+ELEMENT = "Line.l99"         
+450             1     425.04 +j -4.2596E-005        425.04     -1.0000
+450             2     425.04 +j -3.5022E-005        425.04     -1.0000
+450             3     425.04 +j -3.7843E-005        425.04     -1.0000
+ TERMINAL TOTAL       1275.1 +j -0.00011546        1275.1     -1.0000
+ELEMENT = "Line.l99"         
+100             1     -423.8 +j     2.9373        423.81     -1.0000
+100             2    -423.29 +j     2.7796         423.3     -1.0000
+100             3    -423.98 +j     2.5538        423.99     -1.0000
+ TERMINAL TOTAL      -1271.1 +j     8.2707        1271.1     -1.0000
+
+= = = = = = = = = = = = = = = = = = =  = = = = = = = = = = =  = =
+
+Power Conversion Elements
+
+  Bus         Phase     kW   +j  kvar         kVA         PF
+
+ELEMENT = "Generator.2mwgen" 
+450             1    -425.04 +j  0.0012868        425.04     -1.0000
+450             2    -425.04 +j  0.0017211        425.04     -1.0000
+450             3    -425.04 +j  0.0010987        425.04     -1.0000
+450             0          0 +j          0             0      1.0000
+ TERMINAL TOTAL      -1275.1 +j  0.0041066        1275.1     -1.0000
+

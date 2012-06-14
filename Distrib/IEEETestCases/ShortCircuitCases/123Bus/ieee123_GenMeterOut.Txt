@@ -1,0 +1,6 @@
+
+GENERATOR ENERGY METER VALUES
+
+Generator          kWh        kvarh      Max kW     Max kVA    Hours      $          
+
+g1              138739          0       1000       1000        168    3468479 

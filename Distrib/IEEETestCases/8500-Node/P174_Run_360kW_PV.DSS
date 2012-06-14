@@ -1,0 +1,45 @@
+// Script for EPRI Report 1020157
+// This script corresponds to the simulation in Figure 7-7
+
+Compile (Master-unbal.dss)     ! unbalanced load master
+
+New Energymeter.m1 Line.ln5815900-1 1
+
+Set Maxiterations=20     ! Sometimes the solution takes more than the default 15 iterations
+
+Solve
+
+// Drop the load to 40%
+set loadmult=0.4 maxcontrol=30
+solve
+
+// put 360 kW generator at m1026866
+new generator.G1 Bus1=m1026866  kV=12.47 kW=360 pf=1.0
+solve
+
+// Solar PV loadshape
+New Loadshape.PVCurve interval=(1.0 3600 /) npts=3000 mult=(File="Normalized-1s-2900-pts.CSV")
+generator.g1.duty=PVcurve   ! assign curve to generator
+New Monitor.G1  Generator.G1 1   ! monitor generator output
+
+solve
+
+// restrict maxtapchange to 1 tap to better model regulator behavior
+regcontrol.feeder_rega.maxtapchange=1  Delay=30 
+regcontrol.feeder_regb.maxtapchange=1  Delay=30 
+regcontrol.feeder_regc.maxtapchange=1  Delay=30 
+regcontrol.vreg2_a.maxtapchange=1  Delay=60 
+regcontrol.vreg2_b.maxtapchange=1  Delay=60 
+regcontrol.vreg2_c.maxtapchange=1  Delay=60 
+regcontrol.vreg3_a.maxtapchange=1  Delay=45 
+regcontrol.vreg3_b.maxtapchange=1  Delay=45 
+regcontrol.vreg3_c.maxtapchange=1  Delay=45 
+regcontrol.vreg4_a.maxtapchange=1  Delay=45 
+regcontrol.vreg4_b.maxtapchange=1  Delay=45 
+regcontrol.vreg4_c.maxtapchange=1  Delay=45 
+
+// solve 2900 points
+solve mode=duty number=2900 stepsize=1
+
+plot monitor object=g1 channels=[1 3 5] bases=[7200 7200 7200]
+

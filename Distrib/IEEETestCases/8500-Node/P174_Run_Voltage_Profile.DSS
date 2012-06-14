@@ -1,0 +1,19 @@
+// Script for EPRI Report 1020157
+// This script will produce voltage profiles
+
+Compile (Master-unbal.dss)     ! unbalanced load master
+
+New Energymeter.m1 Line.ln5815900-1 1
+
+Set Maxiterations=20     ! Sometimes the solution takes more than the default 15 iterations
+
+Solve
+
+Plot Profile phases=primary
+
+// Drop the load to 40%
+set loadmult=0.4 maxcontrol=30
+solve
+
+Plot Profile phases=primary
+
