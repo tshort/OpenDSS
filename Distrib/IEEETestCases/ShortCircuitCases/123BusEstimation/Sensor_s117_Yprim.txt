@@ -1,3 +1,0 @@
-Yprim of active circuit element: Sensor.s117
-
-Yprim matrix is Nil

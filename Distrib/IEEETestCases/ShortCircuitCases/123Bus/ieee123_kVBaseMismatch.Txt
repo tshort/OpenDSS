@@ -1,6 +1,0 @@
-
-!!!  LOAD VOLTAGE BASE MISMATCHES
-
-!!!!! Voltage Base Mismatch, Load.s100c.kV=12, Bus 100.3 LN kvBase = 2.40178
-!setkvbase 100 kVLN=12
-!Load.s100c.kV=2.40178
