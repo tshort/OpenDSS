@@ -35,6 +35,7 @@ if DSSStartOK
     disp(DSSText.Result)
     DSSSolution.DoControlActions;
     DSSCircuit.CtrlQueue.Show;
+
     DSSText.Command='Buscoords Buscoords.dat   ! load in bus coordinates';
 else
     a = 'DSS Did Not Start'

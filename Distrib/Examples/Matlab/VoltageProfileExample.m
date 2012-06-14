@@ -1,6 +1,8 @@
 % Example of using Matlab to plot the voltage profile throughout the feeder
 
+% execute DSSStartup.m
 [DSSStartOK, DSSObj, DSSText] = DSSStartup;
+
 if DSSStartOK
     DSSText.command='Compile (C:\opendss\IEEETestCases\123Bus\IEEE123Master.dss)';
     % Set up the interface variables
@@ -32,19 +34,11 @@ if DSSStartOK
     % we want to
     DSSText.Command='Buscoords Buscoords.dat   ! load in bus coordinates';
     
+
+   
+
     % Get bus voltage magnitudes in pu and distances from energy meter and
     % plot in a scatter plot
-    
-    DSSText.Command='set casename=ExampleCase';
-    DSSText.Command='set mode=yearly number= 24';
-    DSSText.Command='Set overloadreport=true  ! TURN OVERLOAD REPORT ON';
-    DSSText.Command='Set voltexcept=true      ! voltage exception report';
-    DSSText.Command='set demand=true          ! demand interval ON';
-    DSSText.Command='set DIVerbose=true       ! verbose mode is ON';
-    DSSText.Command='set year=1';
-    DSSText.Command='solve';
-    DSSText.Command='closedi';
-
     
     % Get Voltage and Distances Array
     V1 = DSSCircuit.AllNodeVmagPUByPhase(1);
