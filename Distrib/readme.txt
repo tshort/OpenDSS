@@ -5,6 +5,16 @@ All rights reserved.
 
 Version 7.6.0
 
+The 7.6 version is the first to be delivered in both 32-bit (X86) and 64-bit (X64) 
+versions.  Select the appropriate download(s) for your applications.
+
+Note that the 32-bit versions will run on 64-bit platforms such as Windows 7.
+You do not necessarily have to run the 64-bit version on Windows 7. However, 
+if you are wanting to run the OpenDSS COM server from 64-bit MATLAB, for example, 
+you will need to install the 64-bit version. You can have both the 32-bit
+and 64-bit versions installed on Windows 7. 
+
+
 Installation
 ============
 
@@ -145,19 +155,19 @@ http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=Main_Page
 
 IEEE Test Cases
 
-http://electricdss.svn.sourceforge.net/viewvc/electricdss/IEEETestCases/
+http://electricdss.svn.sourceforge.net/viewvc/electricdss/trunk/distrib/IEEETestCases/
 
 Source Code
 
-http://electricdss.svn.sourceforge.net/viewvc/electricdss/Source/
+http://electricdss.svn.sourceforge.net/viewvc/electricdss/trunk/Source/
 
 Top level of Distribution area (Releases)
 
-http://electricdss.svn.sourceforge.net/viewvc/electricdss/Distrib/
+http://electricdss.svn.sourceforge.net/viewvc/electricdss/trunk/Distrib/
 
 Examples
 
-http://electricdss.svn.sourceforge.net/viewvc/electricdss/Examples/
+http://electricdss.svn.sourceforge.net/viewvc/electricdss/trunk/distrib/Examples/
 
 License
 =======
