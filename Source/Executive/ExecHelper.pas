@@ -309,9 +309,13 @@ FUNCTION DoRedirect(IsCompile:Boolean):Integer;
 VAR
     Fin:TextFile;
     ParamName,  InputLine, CurrDir, SaveDir:String;
+    InBlockComment : Boolean;
 
 Begin
     Result := 0;
+    InBlockComment := FALSE;  // Discareded off stack upon return
+    // Therefore extent of block comment does not extend beyond a file
+    // Going back up the redirect stack
 
     // Get next parm and try to interpret as a file name
     ParamName := Parser.NextParam;
@@ -328,8 +332,10 @@ Begin
           If IsCompile Then LastFileCompiled := ReDirFile;
 
       EXCEPT
+
          // Couldn't find file  Try appending a '.dss' to the file name
          // If it doesn't already have an extension
+
          IF   Pos('.', ReDirFile)=0
          THEN Begin
             ReDirFile := ReDirFile + '.dss';
@@ -365,8 +371,23 @@ Begin
              WHILE Not ( (EOF(Fin)) or (Redirect_Abort) ) DO
                Begin
                   Readln(Fin, InputLine);
-                  If Not SolutionAbort Then ProcessCommand(InputLine)
-                  Else Redirect_Abort := True;  // Abort file if solution was aborted
+                  if Length(InputLine) > 0 then
+                  BEGIN
+                      if Not InBlockComment then     // look for '/*'  at baginning of line
+                        case InputLine[1] of
+                           '/': if (Length(InputLine) > 1) and (InputLine[2]='*')then
+                                InBlockComment := TRUE;
+                        end;
+
+                      If Not InBlockComment Then   // process the command line
+                        If Not SolutionAbort Then ProcessCommand(InputLine)
+                                             Else Redirect_Abort := True;  // Abort file if solution was aborted
+
+                      // in block comment ... look for */   and cancel block comment (whole line)
+                      if InBlockComment then
+                        if Pos('*/', Inputline)>0 then
+                                InBlockComment := FALSE;
+                  END;
                End;
 
              IF ActiveCircuit <> Nil THEN ActiveCircuit.CurrentDirectory := CurrDir +'\';

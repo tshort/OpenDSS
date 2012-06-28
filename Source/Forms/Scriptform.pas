@@ -121,15 +121,42 @@ end;
 
 function TMainEditForm.BuildCommandList: Boolean;
 var
-  i: Integer;
-  str: string;
+  i : Integer;
+  str : string;
+  InBlockComment : Boolean;
 begin
   result := False;
+  InBlockComment := False;
   cmdList.Clear;
 
+  {  6-28-2012
+     Block Comment  Handling added
+     /*       (beginning of line
+     ...
+        */    (anywhere)
+  }
+
   for i := line1 to line2 do begin
-    str := Trim (Editor.Lines.Strings[i]);
-    if Length(str) > 0 then cmdList.Add (str)
+      str := Trim (Editor.Lines.Strings[i]);
+
+      if Length(str) > 0 then
+      Begin
+         if Not InBlockComment then     // look for '/*'  at baginning of line
+            case str[1] of
+               '/': if (Length(str) > 1) and (str[2]='*')then
+                    InBlockComment := TRUE;
+            end;
+            If Not InBlockComment Then cmdList.Add (str);
+        // in block comment ... look for */   and cancel block comment (whole line)
+        if InBlockComment then
+          if Pos('*/', str)>0 then  InBlockComment := FALSE;
+      End;
+
+      {
+        NOTE:  InBlockComment resets to FALSE upon leaving this routine
+        So if you fail to select a line containing the end of the block comment,
+        the next selection will not be blocked.
+      }
   end;
   if cmdList.Count > 0 then result := True;
 end;
