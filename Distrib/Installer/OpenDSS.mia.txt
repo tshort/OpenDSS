@@ -20,11 +20,11 @@ end
 [DEFINE REGION: Install Application Pre-Requisites]
 Comment: Install setup pre-requisites
 if Variable PREREQ not Equals FALSE
-  Display Dialog: prereq, wait for dialog to return (modal)
+  Comment: Display Dialog: prereq, wait for dialog to return (modal)
   if Variable WIZARD Equals CANCEL
     Terminate Installation
   end
-  Display Dialog: progressprereq, use as progress dialog (non-modal)
+  Comment: Display Dialog: progressprereq, use as progress dialog (non-modal)
   [compiler if Variable BUILDMODE not Equals PATCH]
   if Variable NEEDSUPGRADE Equals TRUE
     Set Variable REMOVEOLD to 
@@ -60,7 +60,7 @@ Define Component: Examples
 Define Component: TrainingSlides
  
 Comment: Initialize Setup Globals
-Get System Setting Windows NT Kernel (NT4, 2000, XP, 2003, Vista, 2008) into ISNT
+Get System Setting Windows NT Kernel (NT4, 2000, XP, 2003, Vista, 2008, 7, 2008 R2, 8, Server 8) into ISNT
 Get Folder Location System->Program Files Directory into PROGRAMFILES
 Get Common Folder Location System->Program Files Directory into COMMONFILES
 Get Common Folder Location Start Menu->Programs Group into SHORTCUTFILESALL
@@ -110,44 +110,10 @@ else
     GoTo Label: Main Install
   end
 end
-label: User Registration
-Display Dialog: registration, wait for dialog to return (modal)
+label: Custom Setup
+Display Dialog: componentstree, wait for dialog to return (modal)
 if Variable WIZARD Equals BACK
   GoTo Label: ReadMe Information
-else
-  if Variable WIZARD Equals CANCEL
-    GoTo Label: Main Install
-  end
-end
-label: Setup Type
-Display Dialog: setuptype, wait for dialog to return (modal)
-if Variable WIZARD Equals BACK
-  GoTo Label: User Registration
-else
-  if Variable WIZARD Equals CANCEL
-    GoTo Label: Main Install
-  end
-end
-Comment: TO-DO: Customize your minimum setup here
-if Variable MINIMUM Equals TRUE
-  Deselect Component: Win32
-  Deselect Component: Win64
-  Deselect Component: Documents
-  Deselect Component: Examples
-  Deselect Component: TrainingSlides
-else
-  if Variable COMPLETE Equals TRUE
-    Select Component: Win32
-    Select Component: Win64
-    Select Component: Documents
-    Select Component: Examples
-    Select Component: TrainingSlides
-  end
-end
-label: Custom Setup
-Display Dialog: componentstree (if variable PERSONALIZED is TRUE), wait for dialog to return (modal)
-if Variable WIZARD Equals BACK
-  GoTo Label: Setup Type
 else
   if Variable WIZARD Equals CANCEL
     GoTo Label: Main Install
@@ -229,8 +195,8 @@ else
   [DEFINE WEB MEDIA Win32]
   Get Component Win32 Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
+    Install Files C:\OpenDSS\Distrib\x86\OpenDSS.ini to $TARGETDIR$\x86
     Create Shortcut $SHORTCUTFOLDER$\OpenDSS (32-bit) to $TARGETDIR$\x86\OpenDSS.exe
-    Install Files C:\OpenDSS\Distrib\x86\RegisterDSSEngine.bat to $TARGETDIR$\x86
     Install Files C:\OpenDSS\Distrib\x86\DSSView.exe to $TARGETDIR$\x86
     Install Files C:\OpenDSS\Distrib\x86\IndMach012a.dll to $TARGETDIR$\x86
     Install Files C:\OpenDSS\Distrib\x86\KLUSolve.dll to $TARGETDIR$\x86
@@ -240,8 +206,8 @@ else
   [DEFINE WEB MEDIA Win64]
   Get Component Win64 Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
+    Install Files C:\OpenDSS\Distrib\x64\OpenDSS.ini to $TARGETDIR$\x64
     Create Shortcut $SHORTCUTFOLDER$\OpenDSS (64-bit) to $TARGETDIR$\x64\OpenDSS.exe
-    Install Files C:\OpenDSS\Distrib\x64\RegisterDSSEngine.bat to $TARGETDIR$\x64
     Install Files C:\OpenDSS\Distrib\x64\IndMach012a.dll to $TARGETDIR$\x64
     Install Files C:\OpenDSS\Distrib\x64\DSSView.exe to $TARGETDIR$\x64
     Install Files C:\OpenDSS\Distrib\x64\KLUSolve.dll to $TARGETDIR$\x64
@@ -251,6 +217,7 @@ else
   [DEFINE WEB MEDIA Documents]
   Get Component Documents Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
+    Create Shortcut $SHORTCUTFOLDER$\OpenDSS Manual to $TARGETDIR$\Doc\OpenDSSManual.pdf
     Install Files C:\OpenDSS\Distrib\Doc\*.pdf to $TARGETDIR$\Doc, include subfolders
   end
   [DEFINE WEB MEDIA Examples]
@@ -263,6 +230,7 @@ else
   [DEFINE WEB MEDIA TrainingSlides]
   Get Component TrainingSlides Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
+    Create Shortcut $SHORTCUTFOLDER$\Training Slides to $TARGETDIR$\Training\AtlantaWorkshop.pdf
     Install Files C:\OpenDSS\Distrib\Training\*.pdf to $TARGETDIR$\Training, include subfolders
   end
   Comment: TO-DO: Insert any additional install commands here
@@ -294,7 +262,12 @@ if Variable SILENT Equals FALSE
   if Variable RUNAPP Equals TRUE
     if Variable REMOVE Equals FALSE
       if Variable SUCCESS Equals COMPLETE
-        Comment: TO-DO: Insert command that starts your application here
+        Get Component Win64 Selection State into Variable SELECTED
+        if Variable SELECTED Equals TRUE
+          Run Program $TARGETDIR$\x64\OpenDSS.exe 
+        else
+          Run Program $TARGETDIR$\x86\OpenDSS.exe 
+        end
       end
     end
   end

@@ -9,20 +9,12 @@ licensecheck.dfm
 licensecheck.dfm.miaf
 maintenance.dfm
 maintenance.dfm.miaf
-prereq.dfm
-prereq.dfm.miaf
 progress.dfm
 progress.dfm.miaf
 progressprereq.dfm
 progressprereq.dfm.miaf
 readme.dfm
 readme.dfm.miaf
-registration.dfm
-registration.dfm.miaf
-registrationwithserial.dfm
-registrationwithserial.dfm.miaf
-setuptype.dfm
-setuptype.dfm.miaf
 startinstallation.dfm
 startinstallation.dfm.miaf
 startmenu.dfm
@@ -35,33 +27,6 @@ $
 license.rtf
 readme.rtf
 $
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -354,14 +319,14 @@ OpenDSS
 OpenDSS Installation
 Electric Power Research Institute
 All rights reserved
-{E50407BF-83A0-4548-895F-D3F8048D4438}
+{CCFE1708-BF40-4F21-8EEB-72BF2CF53D25}
 Electric Power Research Institute
 Electric Power Research Institute
 http://sourceforge.net/projects/electricdss/
 http://sourceforge.net/projects/electricdss/
 All rights reserved
 FALSE
-
+OpenDSSInstaller
 TRUE
 FALSE
 

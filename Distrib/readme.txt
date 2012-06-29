@@ -5,63 +5,44 @@ All rights reserved.
 
 Version 7.6.0
 
-The 7.6 version is the first to be delivered in both 32-bit (X86) and 64-bit (X64) 
-versions.  Select the appropriate download(s) for your applications.
+The 7.6 version is the first to be delivered in both 32-bit (X86) and 
+64-bit (X64) versions.  The OpenDSSInstaller download includes both, along 
+with optional documentation and examples.  
 
-Note that the 32-bit versions will run on 64-bit platforms such as Windows 7.
-You do not necessarily have to run the 64-bit version on Windows 7. However, 
-if you are wanting to run the OpenDSS COM server from 64-bit MATLAB, for example, 
-you will need to install the 64-bit version. You can have both the 32-bit
-and 64-bit versions installed on Windows 7. 
-
+If you have 64-bit Windows, you may install both the 64-bit and 32-bit 
+versions.  The 32-bit version is required if you plan to automate OpenDSS 
+from Excel or any other 32-bit program.  The 64-bit version is required to 
+automate OpenDSS from MatLab on a 64-bit system.  
 
 Installation
 ============
 
-OpenDSS currently runs on 32-bit or 64-bit Windows.  To install, unzip the 
-contents of this file into a directory of your choice, such as c:\opendss.  
-Files that are specific to the 32-bit version will be written to an x86 
-subdirectory, such as c:\opendss\x86.  Files that are specific to the 
-64-bit version will be written to an x64 subdirectory, such as 
+The installer will give you a choice to install the executables and 
+optional files under a target directory of your choice, such as 
+c:\opendss.  Files that are specific to the 32-bit version will be written 
+to an x86 subdirectory, such as c:\opendss\x86.  Files that are specific 
+to the 64-bit version will be written to an x64 subdirectory, such as 
 c:\opendss\x64.  The EXE and DLL files should not be moved after 
-installation, but may be updated in place with newer versions.  
+installation, but may be updated in place with newer versions.
+  
+On a 64-bit system, you may install and use both the 32-bit and 64-bit 
+versions with no conflict between them.  
 
-The standalone executable may be started in two ways:
-
-1 - invoke "OpenDSS" from a command prompt, or
-2 - double-click on "OpenDSS.exe" from Windows Explorer
-
-If you have 64-bit Windows, you may run either the 32-bit or 64-bit 
-version of OpenDSS.EXE 
-
-See the manual, OpenDSSManual.PDF, for an overview of the program. 
+Short-cuts to the program and manual are created under Start Menu/OpenDSS.
+Please see the manual, OpenDSSManual.PDF, for an overview of the program. 
 The most up-to-date reference information will always be found through the 
 software's "Help / DSS Help" menu command.
 
 COM Automation
 ==============
 
-The COM Server in OpenDSSEngine.DLL may be automated.  You will need to 
-register the OpenDSSEngine.DLL if you intend to drive the DSS from another 
-program such as Matlab, Excel VBA, etc.  You do this by starting a Command 
-Prompt window with adminstrative privileges.  For example, on Windows 7: 
-
-1 - Find "Command Prompt" under "All Programs / Accessories" from the 
-Start Menu.  
-
-2 - Right-click on "Command Prompt" and choose "Run as Administrator".  
-
-3 - Change directories to where OpenDSSEngine.DLL was installed. 
-
-4 - Issue the command "RegisterDSSEngine"
-
-On 64-bit Windows, you may wish to register both 32-bit and 64-bit 
-versions of the DLL.  Even though the file names and registration commands 
-match, they are in separate locations and Windows will activate the 
-correct version required by the calling program.  For example, 64-bit 
-Matlab will call the 64-bit OpenDSSEngine.DLL and 32-bit Microsoft Excel 
-will call the 32-bit version.  (Note: The 64-bit version of Excel is 
-rarely installed.) 
+The COM Server in OpenDSSEngine.DLL may be automated.  The installer will 
+register either or both versions, depending on your selection.  Even 
+though the file names and registration commands match, they are in 
+separate locations and Windows will activate the correct version required 
+by the calling program.  For example, 64-bit MatLab will call the 64-bit 
+OpenDSSEngine.DLL and 32-bit Microsoft Excel will call the 32-bit version.  
+(Note: The 64-bit version of Excel is rarely installed.) 
 
 Background
 ==========
