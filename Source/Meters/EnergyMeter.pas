@@ -1559,7 +1559,6 @@ Var
   PC            :TPCElement;
   pLoad         :TLoadObj;
   IsFeederEnd   :Boolean;
-  S             :String;
   adjLst        :TList;
 
 Begin

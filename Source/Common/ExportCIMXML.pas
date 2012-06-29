@@ -1040,7 +1040,6 @@ Var
   tmpGUID: TGuid;
 
   // for phase modeling
-  phs: String;
   pBusLoad: TBusLoad;
   pBusCap: TBusCap;
 Begin

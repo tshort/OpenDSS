@@ -1578,8 +1578,8 @@ Var
    Param, CaseName: String;
    Names: TStringList;
    Registers1, Registers2: Array [0 .. NumEMRegisters] of Double;
-   NValues, i, iPass, iCase, CaseYear, PrevCaseYear, ActiveColorStartThisCase,
-     DiffColor: TColor;
+   i, iPass, iCase, CaseYear, PrevCaseYear, ActiveColorStartThisCase,
+   DiffColor: TColor;
 
    { Arrays to hold the two curves for diff curve }
    X, Y: Array [1 .. 2, 0 .. 20] of Double;
@@ -2527,7 +2527,7 @@ Var
    MyColor: TColor;
    LineType: TPenStyle;
    DSSGraphProps: TDSSGraphProperties;
-   RangeLoX, RangeHiX, RangeLoY, RangeHiY: Double;
+   RangeLoY, RangeHiY: Double;
 
 begin
 
@@ -3379,8 +3379,6 @@ begin
          ShowGraph;
 
       End;
-
-      Set_Properties(ActiveGraphProps);
 
       If CBufferAllocated Then
          Reallocmem(cBuffer, 0);

@@ -2916,8 +2916,9 @@ Begin
 End;
 
 FUNCTION DoDI_PlotCmd:Integer;
-
-Var ParamName, Param:String;
+{$IFNDEF DLL_ENGINE}
+Var
+    ParamName, Param:String;
     ParamPointer, i:Integer;
     CaseName:String;
     MeterName:String;
@@ -2926,7 +2927,7 @@ Var ParamName, Param:String;
     iRegisters:Array of Integer;
     NumRegs:Integer;
     PeakDay:Boolean;
-
+{$ENDIF}
 Begin
 {$IFNDEF DLL_ENGINE}
      IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
@@ -2978,14 +2979,15 @@ Begin
 End;
 
 FUNCTION DoCompareCasesCmd:Integer;
-
-Var ParamName, Param:String;
+{$IFNDEF DLL_ENGINE}
+Var
+    ParamName, Param:String;
     ParamPointer:Integer;
     UnKnown:Boolean;
     Reg:Integer;
     CaseName1,
     CaseName2, WhichFile:String;
-
+{$ENDIF}
 Begin
 {$IFNDEF DLL_ENGINE}
      IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
@@ -3033,8 +3035,9 @@ Begin
 End;
 
 FUNCTION DoYearlyCurvesCmd:Integer;
-
-Var ParamName, Param:String;
+{$IFNDEF DLL_ENGINE}
+Var
+    ParamName, Param:String;
     ParamPointer, i:Integer;
     UnKnown:Boolean;
     CaseNames:TStringList;
@@ -3042,7 +3045,7 @@ Var ParamName, Param:String;
     iRegisters:Array of Integer;
     Nregs:Integer;
     WhichFile:String;
-
+{$ENDIF}
 Begin
 {$IFNDEF DLL_ENGINE}
      IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
@@ -3107,16 +3110,17 @@ Begin
 End;
 
 FUNCTION DoVisualizeCmd:Integer;
-
-Var  DevIndex    :integer;
-     Param       :String;
-     ParamName   :String;
-     ParamPointer:Integer;
-     Unknown     :Boolean;
-     Quantity    :Integer;
-     ElemName    :String;
-     pElem       :TDSSObject;
-
+{$IFNDEF DLL_ENGINE}
+Var
+    DevIndex    :integer;
+    Param       :String;
+    ParamName   :String;
+    ParamPointer:Integer;
+    Unknown     :Boolean;
+    Quantity    :Integer;
+    ElemName    :String;
+    pElem       :TDSSObject;
+{$ENDIF}
 Begin
      Result := 0;
 {$IFNDEF DLL_ENGINE}
@@ -3322,15 +3326,15 @@ Begin
 End;
 
 FUNCTION DoAddMarkerCmd:Integer;
+{$IFNDEF DLL_ENGINE}
 Var
    ParamPointer :Integer;
    ParamName,
    Param:String;
-
    BusName:String;
    BusIdx :Integer;
    Bus :TDSSBus;
-
+{$ENDIF}
 Begin
      Result := 0;
 {$IFNDEF DLL_ENGINE}
