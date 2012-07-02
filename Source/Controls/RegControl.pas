@@ -396,7 +396,7 @@ Begin
             5: RemotePTRatio := PTRatio;  // re-initialise RemotePTRatio whenever PTRatio is set
             17: IF DebugTrace THEN
                  Begin
-                   AssignFile(TraceFile,  DSSDataDirectory +'REG_'+Name+'.CSV' );
+                   AssignFile(TraceFile, GetOutputDirectory +'REG_'+Name+'.CSV' );
                    ReWrite(TraceFile);
                    Writeln(TraceFile, 'Hour, Sec, ControlIteration, Iterations, LoadMultiplier, Present Tap, Pending Change, Actual Change, Increment, Min Tap, Max Tap');
                    CloseFile(Tracefile);

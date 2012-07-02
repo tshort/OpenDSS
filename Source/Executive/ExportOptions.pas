@@ -225,7 +225,7 @@ Begin
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
        END;
-       FileName := DSSDataDirectory + CircuitName_ + FileName;  // Explicitly define directory
+       FileName := GetOutputDirectory + CircuitName_ + FileName;  // Explicitly define directory
    End;
 
    CASE ParamPointer OF

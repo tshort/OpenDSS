@@ -407,7 +407,7 @@ Var
 begin
     CurrDir := ExtractFileDir(Caption);
     SetCurrentDir(CurrDir);
-    SetDataPath(CurrDir);  // change dssdatadirectory
+    SetDataPath(CurrDir);  // change datadirectory
     If Not IsDLL Then ControlPanel.UpdateStatus;
 end;
 

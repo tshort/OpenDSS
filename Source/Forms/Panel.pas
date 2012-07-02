@@ -408,7 +408,8 @@ uses Executive, DSSClassDefs, DSSGlobals,
   ClipBrd,  Utilities, contnrs, MessageForm,
   DlgPlotOptions,  DSSPlot, FrmCSVchannelSelect,
   DlgComboBox,dlgNumber, ExecOptions, ExecCommands, ExecHelper, Dynamics, DSSClass, ListForm,
-  Lineunits, Monitor, FrmDoDSSCommand, Frm_RPNcalc, DSSForms, showOptions, ShellAPI;
+  Lineunits, Monitor, FrmDoDSSCommand, Frm_RPNcalc, DSSForms, showOptions, ShellAPI,
+  IniRegSave;
 
 {$R *.DFM}
 
@@ -449,19 +450,13 @@ Begin
      End;
 End;
 
-Function  WritePanelRecord(var F:TextFile; ActiveScriptForm:TMainEditForm):Boolean;
-
+Function  WritePanelRecord(idx:Integer; ActiveScriptForm:TMainEditForm):Boolean;
 Begin
-     Write(F, '[Panel] ');
-     Result := FALSE;
-
-     If ActiveScriptForm.HasFileName Then
-     Begin
-       Write(F, '"', ActiveScriptForm.Caption, '"');  // Add file name to end of line
-       Result := TRUE;
-     End;
-
-     Writeln(F);
+  Result := FALSE;
+  If ActiveScriptForm.HasFileName Then Begin
+    DSS_Registry.WriteString(Format ('File%d', [idx]), ActiveScriptForm.Caption);
+    Result := TRUE;
+  End;
 End;
 
 Function BoolToInt(test:Boolean):Integer;
@@ -469,74 +464,47 @@ Begin
     If test then result := -1 else result := 0;
 End;
 
-Procedure WriteWindowRecord(var F:TextFile; ActiveScriptForm:TMainEditForm);
-
-Var i, imax:Integer;
-    IsFileWindow:Boolean;
-
+Procedure WriteWindowRecord(idx:Integer; ActiveScriptForm:TMainEditForm);
+Var
+  i, imax:Integer;
+  IsFileWindow:Boolean;
 Begin
-    IsFileWindow := WritePanelRecord(F, ActiveScriptForm);
-    With ActiveScriptForm Do Begin
-      Writeln(F,'{Window}', Format(' %d, %d, %d, %d, %d, %d',[Top, Left, Height, Width, WinStateToInt(WindowState), BoolToInt(Active)]));
-      If Not IsFileWindow Then Begin   // just a general unsaved script window
-        imax := Editor.Lines.Count - 1;
-        For i := 0 to imax Do  Writeln(F, Editor.Lines.Strings[i]);
-      End
-      Else Begin  // Check for changes to Editor
-         If HasBeenModified Then DoSavePrompt(ActiveScriptForm);
-      End;
+  IsFileWindow := WritePanelRecord(idx, ActiveScriptForm);
+  With ActiveScriptForm Do Begin
+    DSS_Registry.WriteString(Format('Window%d', [idx]),
+      Format(' %d, %d, %d, %d, %d, %d',
+      [Top, Left, Height, Width, WinStateToInt(WindowState), BoolToInt(Active)]));
+    If Not IsFileWindow Then Begin   // just a general unsaved script window
+      imax := Editor.Lines.Count - 1;
+      DSS_Registry.WriteInteger(Format('LineCount%d', [idx]), Editor.Lines.Count);
+      For i := 0 to imax Do
+        DSS_Registry.WriteString(Format('Lines%d_%d', [idx, i]), Editor.Lines.Strings[i]);
+    End Else Begin  // Check for changes to Editor
+      If HasBeenModified Then DoSavePrompt(ActiveScriptForm);
     End;
+  End;
 End;
 
 procedure TControlPanel.FormClose(Sender: TObject;
   var Action: TCloseAction);
-
-  {Write present contents of the history box to a file}
-
+  {Write present contents of the history box to registry}
 Var
-  F       :Textfile;
-  FName   :String;
   j :Integer;
-
-
 begin
-  {Name of DSSPanel.INI in startup directory}
-  Fname := {ExtractFilePath(Application.ExeName)} DSSDirectory + DSS_IniFileName;
+  // Main control panel
+  DSS_Registry.Section := 'Panels';
+  DSS_Registry.ClearSection;
+  DSS_Registry.WriteString('MainWindow', Format(' %d, %d, %d, %d, %d',
+    [Top, Left, Height, Width, WinStateToInt(WindowState)]));
+  DSS_Registry.WriteInteger('ScriptCount', ScriptWindowList.Count);
 
-  Try
-      Assignfile(F, Fname);
-      Rewrite(F);
-  Except
-  {OK if file cannot be opened - just won't have any persistence}
-      Exit;
+  ActiveScriptForm := MainEditForm;
+  WriteWindowRecord(0, ActiveScriptForm);
+
+  For j := 1 to ScriptWindowList.Count Do  Begin
+    ActiveScriptForm := TMainEditForm(ScriptWindowList.Items[j-1]);
+    WriteWindowRecord(j, ActiveScriptForm);
   End;
-
-  Try
-    { don't write these variables any more. Now put in the Registry}
-    (********************************************************
-            Writeln(F,'[Editor]');
-            Writeln(F, DefaultEditor);
-
-            Writeln(F,'[BaseFrequency]');
-            Writeln(F, Format('%d',[Round(DefaultBaseFreq)]));
-
-            Writeln(F,'[LastFile]');
-            Writeln(F, LastFileCompiled);
-
-    *******************************************************)
-
-
-    // Main control panel
-    Writeln(F,'[Main]');
-    Writeln(F,'{Window}', Format(' %d, %d, %d, %d, %d',[Top, Left, Height, Width, WinStateToInt(WindowState)]));
-
-    ActiveScriptForm := MainEditForm;
-    WriteWindowRecord(F, ActiveScriptForm);
-
-    For j := 1 to ScriptWindowList.Count Do  Begin
-      ActiveScriptForm := TMainEditForm(ScriptWindowList.Items[j-1]);
-      WriteWindowRecord(F, ActiveScriptForm);
-    End;
 
     {Save Summary Form and Result form location & Size}
  //     Writeln(F,'[Summary]');
@@ -545,14 +513,12 @@ begin
  //      With ResultForm Do Writeln(F,'{Window}', Format(' %d, %d, %d, %d, %d',[Top, Left, Height, Width, WinStateToInt(WindowState)]));
 
 
-    {Write compile file combo}
-    Writeln(F,'[Compiled]');
-    For j := 0 to CompileCombo.Items.Count-1 Do  Writeln(F, CompileCombo.Items[j]);
-
-  Finally
-      {Make sure we get it closed if there was an error writing}
-      CloseFile(F);
-  End;
+  {Write compile file combo}
+  DSS_Registry.Section := 'Compiled';
+  DSS_Registry.ClearSection;
+  DSS_Registry.WriteInteger('Count', CompileCombo.Items.Count);
+  For j := 0 to CompileCombo.Items.Count-1 Do
+    DSS_Registry.WriteString (Format ('Item%d', [j]), CompileCombo.Items[j]);
 end;
 
 procedure TControlPanel.DSSHelp1Click(Sender: TObject);
@@ -769,47 +735,44 @@ begin
 end;
 
 Procedure ProcessWindowState(ActiveForm:TForm; Const TextLine:String;var FormOnTop:TForm);
-Begin   // Set the size and position of the present window
-        Auxparser.CmdString := TextLine;
-        AuxParser.NextParam;    // get rid of {Window}
-        AuxParser.NextParam;
-        ActiveForm.Top := AuxParser.IntValue;
-        AuxParser.NextParam;
-        ActiveForm.Left  := AuxParser.IntValue;
-        AuxParser.NextParam;
-        ActiveForm.Height  := AuxParser.IntValue;
-        AuxParser.NextParam;
-        ActiveForm.Width := AuxParser.IntValue;
-        AuxParser.NextParam;
-        ActiveForm.WindowState := IntToWinState(AuxParser.IntValue);
-        AuxParser.NextParam;
-        If AuxParser.IntValue<>0 Then FormOnTop := ActiveForm;
+// Set the size and position of the present window
+// no more leading tokens when using the registry
+Begin
+  Auxparser.CmdString := TextLine;
+  AuxParser.NextParam;
+  ActiveForm.Top := AuxParser.IntValue;
+  AuxParser.NextParam;
+  ActiveForm.Left  := AuxParser.IntValue;
+  AuxParser.NextParam;
+  ActiveForm.Height  := AuxParser.IntValue;
+  AuxParser.NextParam;
+  ActiveForm.Width := AuxParser.IntValue;
+  AuxParser.NextParam;
+  ActiveForm.WindowState := IntToWinState(AuxParser.IntValue);
+  AuxParser.NextParam;
+  If AuxParser.IntValue<>0 Then FormOnTop := ActiveForm;
 End;
-
 
 procedure TControlPanel.InitializeForm;
 {Reinitialize contents of script forms box from last usage.}
 
 Var
-  F        :Textfile;
-  FName,
-  Param    :String;
-  CmdLineFileName,
+  CmdLineFileName: String;
   TextLine :String;
+  FileName :String;
 
   ActiveForm,
   FormOnTop: TForm;
 
   CmdLineFileFound,
-  InCompiled,
   WindowExistsAlready :Boolean;
 
   i,j:Integer;
   TestForm:TMainEditForm;
+  nScripts, nLines, nCompiled: Integer;
 
 begin
-
-  If Not Assigned (MainEditForm) Then Begin MainEditForm := TMainEditForm.Create(NIl);  End;
+  If Not Assigned (MainEditForm) Then MainEditForm := TMainEditForm.Create(Nil);
   MainEditForm.isMainWindow := TRUE;
   If Not Assigned (MessageForm1) Then MessageForm1 := TMessageForm1.Create(Nil);
 
@@ -833,191 +796,112 @@ begin
 
   PlotOptionString := ' max=2000 n n';
 
-  InCompiled := FALSE;
   CompileCombo.Clear;
 
-    {Name of DSSPanel.INI in startup directory}
-    Fname := {ExtractFilePath(Application.ExeName)} DSSDirectory + DSS_IniFileName;
+  // Main Form
+  DSS_Registry.Section := 'Panels';
+  TextLine := DSS_Registry.ReadString('MainWindow', '100, 100, 600, 800, 0');
+  nScripts := DSS_Registry.ReadInteger('ScriptCount', 0);
+  ProcessWindowState (Self, TextLine, FormOnTop);
+  {Make sure the Main Form is on screen}
+  If (Self.Left > Screen.Width) or (Self.Left < 0) then Self.Left := 0;
 
-    Try
-      Assignfile(F, Fname);
-      Reset(F);
-    Except
-      {OK if not found - just go on.}
-      Exit
-    End;
-
-    Try
-     {Read Options}
-
-     
-      Readln(F, Textline);
-
-      {------------------------------------------------------------------------------------------}
-
-         {Editor, BaseFrequency, and LastFile Variables are now in the Registry; This is maintained
-         for legacy ini files.}
-          If CompareText(TextLine, '[Editor]')=0 Then Begin
-              While Not Eof(F) Do Begin
-                  Readln(F, TextLine);
-                  If Length(TextLine)>0 Then
-                  If TextLine[1]='[' Then Break;
-                  DefaultEditor := TextLine;
-              End;
-          End;
-
-          If CompareText(TextLine, '[BaseFrequency]')=0 Then Begin
-              While Not Eof(F) Do Begin
-                  Readln(F, TextLine);
-                  If Length(TextLine)>0 Then
-                  If TextLine[1]='[' Then Break;
-                  DefaultBaseFreq := StrToInt(TextLine); // int converts to double
-              End;
-          End;
-
-          If CompareText(TextLine, '[LastFile]')=0 Then Begin
-              While Not Eof(F) Do Begin
-                  Readln(F, TextLine);
-                  If Length(TextLine)>0 Then
-                  If TextLine[1]='[' Then Break;
-                  LastFileCompiled := TextLine;
-              End;
-          End;
-
-      {------------------------------------------------------------------------------------------}
-          
-      // Main Form
-      If CompareText(TextLine, '[Main]')=0 Then Begin
-          While Not Eof(F) Do Begin
-              Readln(F, TextLine);
-              If Length(TextLine)>0 Then
-              Begin
-                 If TextLine[1]='{' Then Begin
-                    ProcessWindowState( Self, TextLine, FormOnTop);
-                    {Make sure this form is on screen}
-                    If (Self.Left > Screen.Width) or (Self.Left < 0)  then  Self.Left := 0;
-                 End
-                 Else If TextLine[1]='[' Then Break;
-              End;
-          End;
+  // Now process script forms and other child forms
+  EditFormCount := 1; // main script window
+  for i := 0 to nScripts do begin
+    nLines := DSS_Registry.ReadInteger(Format('LineCount%d',[i]), 0);
+    if i > 0 then begin // need to make a new edit form
+      Inc(EditFormCount);
+      if nLines < 1 then begin
+        FileName := DSS_Registry.ReadString(Format('File%d',[i]), '');
+        ActiveScriptForm := MakeANewEditForm(FileName);
+      end else begin
+        ActiveScriptForm := MakeANewEditForm('Script window '+InttoStr(EditFormCount))
+      end;
+    end;
+    ActiveForm := ActiveScriptForm;
+    TextLine := DSS_Registry.ReadString(Format('Window%d',[i]), '0, 0, 443, 788, 0, -1');
+    ProcessWindowState(ActiveForm, TextLine, FormOnTop);
+    ActiveScriptForm.Editor.Lines.BeginUpdate;
+    if (nLines < 1) and FileExists(FileName) then begin // try loading a file
+      Try
+        ActiveScriptForm.Editor.Lines.LoadFromFile (FileName);
+        ActiveScriptForm.HasFileName := TRUE;
+      Except  // ignore error -- likely file got moved
       End;
-
-
-      // Now process script forms and other forms
-      EditFormCount := 1;
-      ActiveScriptForm.Editor.Lines.BeginUpdate;
-      ActiveForm := ActiveScriptForm;
-      While Not Eof(F) Do
-      Begin
-        Readln(F, TextLine);
-        If Length(TextLine)>0 Then Begin
-        {Interpret embedded commands}
-            Case TextLine[1] of
-            '{': ProcessWindowState(ActiveForm, TextLine, FormOnTop);
-
-
-            '[':Begin    // Open a new window
-                  Auxparser.CmdString := TextLine;
-                  AuxParser.NextParam;    // get rid of {Window}
-                  Param := AuxParser.StrValue;
-                  InCompiled := FALSE;
-                  Case Param[1] of
-                    'P'{anel}: Begin
-                                Inc(EditFormCount);
-                                ActiveScriptForm.Editor.Lines.EndUpdate;
-
-                                AuxParser.NextParam;
-                                Param := AuxParser.StrValue;
-                                If Length(Param)=0 Then
-                                  ActiveScriptForm := MakeANewEditForm('Script window '+InttoStr(EditFormCount))
-                                Else Begin
-                                  ActiveScriptForm := MakeANewEditForm(Param);  // Load from file
-                                  Try
-                                     ActiveScriptForm.Editor.Lines.LoadFromFile (Param);
-                                     ActiveScriptForm.HasBeenModified := FALSE;
-                                     ActiveScriptForm.HasFileName := TRUE;
-                                  Except  // ignore error -- likely file got moved
-                                  End;
-                                End;
-                                ActiveScriptForm.Editor.Lines.BeginUpdate;
-                                ActiveForm := ActiveScriptForm;
-                               End;
-
-                    'S'{ummary}: ActiveForm := SummaryForm;
-                    'R'{esult}:  ActiveForm := ResultForm;
-                    'C'{ompiled}: InCompiled := True;
-                  End; {Case}
-                End;
-            ELSE
-               If InCompiled Then Begin
-                 If FileExists(TextLine) Then CompileCombo.Items.Add(TextLine);    // Purge old files as we load it
-               End Else Begin
-                 ActiveScriptForm.Editor.Lines.Add(TextLine);
-               End;
-            End;  {CASE}
-        End
-        Else {IF} ActiveScriptForm.Editor.Lines.Add(TextLine);
-
-      End; {WHILE}
-
-    Finally
-        {Make sure we get the file closed if there was an error reading}
-      CloseFile(F);
-    End;
-
-    If Length(LastFileCompiled)>0 Then AddCompiledFile(LastFileCompiled); // Make this first or selected
-
+    end else begin // read collection of saved lines into the script window
+      for j := 0 to nLines-1 do begin
+        TextLine := DSS_Registry.ReadString(Format('Lines%d_%d',[i, j]), '');
+        ActiveScriptForm.Editor.Lines.Add (TextLine);
+      end;
+    end;
+    ActiveScriptForm.HasBeenModified := FALSE; // should not be yellow after restoration
     ActiveScriptForm.Editor.Lines.EndUpdate;
-    ActiveScriptForm := FormOnTop as TMainEditForm;
+  end;
 
-    // Check for a file (ONE ONLY) name on the cmdline.
-    // If a file is found, make a new script window, make active, select all and execute
-    i := 1;
-    WindowExistsAlready := FALSE;
-    CmdLineFileFound := FALSE;
-    Repeat
-      CmdLineFileName := ParamStr(i);
-      If Length(CmdLineFileName)>0 Then
+  // compiled combo box section
+  DSS_Registry.Section := 'Compiled';
+  nCompiled := DSS_Registry.ReadInteger('Count', 0);
+  ActiveScriptForm.Editor.Lines.BeginUpdate;
+  for i:=0 to nCompiled-1 do begin
+    TextLine := DSS_Registry.ReadString(Format('Compiled_%d',[i]), '');
+    If FileExists(TextLine) Then begin
+      CompileCombo.Items.Add(TextLine);
+    End Else Begin
+      if Length (TextLine) > 0 then ActiveScriptForm.Editor.Lines.Add(TextLine);
+    End;
+  end;
+  If Length(LastFileCompiled)>0 Then AddCompiledFile(LastFileCompiled); // Make this first or selected
+  ActiveScriptForm.Editor.Lines.EndUpdate;
+
+  ActiveScriptForm := FormOnTop as TMainEditForm;
+
+  // Check for a file (ONE ONLY) name on the cmdline.
+  // If a file is found, make a new script window, make active, select all and execute
+  i := 1;
+  WindowExistsAlready := FALSE;
+  CmdLineFileFound := FALSE;
+  Repeat
+    CmdLineFileName := ParamStr(i);
+    If Length(CmdLineFileName)>0 Then
       If (CmdLineFileName[1]<>'/') and  (CmdLineFileName[1]<>'-') Then   // not a switch
-      If FileExists(CmdLineFileName) Then Begin
+        If FileExists(CmdLineFileName) Then Begin
        // Check if it already exists
-       For j := 0 to ScriptWindowList.Count-1 Do Begin
-           TestForm := TMainEditForm(ScriptWindowList.Items[j]);
-           If CompareText(TestForm.Caption, CmdLineFileName)=0 Then Begin
-               ActiveScriptForm := TestForm;
-               WindowExistsAlready := TRUE;
-               CmdLineFileFound := TRUE;
-               Break;
-           End;
-       End;
-       If Not WindowExistsAlready Then Begin   // Make a new one
-         ActiveScriptForm := MakeANewEditForm(CmdLineFileName);  // Load from file
-         ActiveScriptForm.Editor.Lines.LoadFromFile (CmdLineFileName);
-         ActiveScriptForm.HasBeenModified := FALSE;
-         ActiveScriptForm.HasFileName := TRUE;
-         CmdLineFileFound := TRUE;
-       End;
-       Break;
-
+          For j := 0 to ScriptWindowList.Count-1 Do Begin
+            TestForm := TMainEditForm(ScriptWindowList.Items[j]);
+            If CompareText(TestForm.Caption, CmdLineFileName)=0 Then Begin
+              ActiveScriptForm := TestForm;
+              WindowExistsAlready := TRUE;
+              CmdLineFileFound := TRUE;
+              Break;
+            End;
+          End;
+          If Not WindowExistsAlready Then Begin   // Make a new one
+            ActiveScriptForm := MakeANewEditForm(CmdLineFileName);  // Load from file
+            ActiveScriptForm.Editor.Lines.LoadFromFile (CmdLineFileName);
+            ActiveScriptForm.HasBeenModified := FALSE;
+            ActiveScriptForm.HasFileName := TRUE;
+            CmdLineFileFound := TRUE;
+          End;
+          Break;
       End;
-      i := i +1;
-    Until Length(CmdLineFileName)=0;
+    i := i +1;
+  Until Length(CmdLineFileName)=0;
 
-    MainEditForm.HasBeenModified := FALSE; // so it doesn't show yellow
-    ActiveScriptForm.UpdateSummaryForm;
-    ActiveScriptForm.show;
+  MainEditForm.HasBeenModified := FALSE; // so it doesn't show yellow
+  ActiveScriptForm.UpdateSummaryForm;
+  ActiveScriptForm.show;
 
 // If a command line file name give, attempt to execute the script
-    If CmdLineFileFound Then Begin
-         ActiveScriptForm.Editor.SelectAll;
-         ToolButton2Click(nil);   // Execute all the commands in the window
-    End;
+  If CmdLineFileFound Then Begin
+    ActiveScriptForm.Editor.SelectAll;
+    ToolButton2Click(nil);   // Execute all the commands in the window
+  End;
 
-    {Tile;}
-    UpdateStatus;
-    Recordcommands := False;
-    UpdateClassBox;
-
+  {Tile;}
+  UpdateStatus;
+  Recordcommands := False;
+  UpdateClassBox;
 end;
 
 procedure TControlPanel.NewScriptWindow1Click(Sender: TObject);
@@ -1068,7 +952,7 @@ begin
      End;
 
      DemandInterval1.Checked   := EnergyMeterclass.SaveDemandInterval ;
-     Caption := ProgramName + ' Data Directory: ' + DSSDataDirectory;
+     Caption := ProgramName + ' Data Directory: ' + DataDirectory; // NOTE: not necessarily same as output directory
      If ActiveCircuit <> Nil then
      With ActiveCircuit Do
      Begin
@@ -1600,7 +1484,7 @@ begin
       Begin
            Title := 'Select any File in the Desired directory:';
            Filter := 'any File|*.*';
-           FileName := DSSDataDirectory+'*.*';
+           FileName := DataDirectory+'*.*';
            If Execute Then  ActiveScriptForm.ExecuteDSSCommand('set Datapath=('+ ExtractFilePath(FileName)+')');
 
       End;
@@ -2143,7 +2027,7 @@ begin
                AddCompiledFile(FileName);  // Stick it in combobox
                CurrDir := ExtractFileDir(FileName);
                SetCurrentDir(CurrDir);
-               SetDataPath(CurrDir);  // change dssdatadirectory
+               SetDataPath(CurrDir);  // change datadirectory
                UpdateStatus;
            Except
                On E:Exception Do DoSimpleMsg('Error: ' + E.Message, 218);
@@ -2568,7 +2452,7 @@ begin
          ActiveScriptForm.HasFileName := TRUE;
          CurrDir := ExtractFileDir(CompileCombo.text);
          SetCurrentDir(CurrDir);
-         SetDataPath(CurrDir);  // change dssdatadirectory
+         SetDataPath(CurrDir);  // change datadirectory
          UpdateStatus;
      Except
          On E:Exception Do DoSimpleMsg('Error Loading File: ' + E.Message, 218);

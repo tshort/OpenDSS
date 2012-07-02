@@ -378,7 +378,7 @@ Begin
         TRY
            If FileExists(ActiveFileName) Then
            Begin
-               DSSViewFile := EncloseQuotes(StartupDirectory + 'DSSView.exe');
+               DSSViewFile := EncloseQuotes(DSSDirectory + 'DSSView.exe');
                retval := ShellExecute (0, 'open',
                                       PChar(DSSViewFile),
                                       PChar(EncloseQuotes(ActiveFileName)),

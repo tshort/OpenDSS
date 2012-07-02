@@ -1247,7 +1247,7 @@ Var
 
 begin
      // Create a unique file name
-     TrialFileName := DSSDataDirectory + 'TOP_Mon_'+ObjName;
+     TrialFileName := GetOutputDirectory + 'TOP_Mon_'+ObjName;
      FileNumber := '';
      i := 0;
      While FileExists(TrialFileName + FileNumber + '.STO') Do Begin
@@ -1411,7 +1411,7 @@ end;
 
 function TMonitorObj.Get_FileName: String;
 begin
-        Result := DSSDataDirectory +  CircuitName_ + 'Mon_' + Name + '.csv'
+  Result := GetOutputDirectory +  CircuitName_ + 'Mon_' + Name + '.csv'
 end;
 
 initialization

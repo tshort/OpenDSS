@@ -106,7 +106,6 @@ VAR
 
    DLLFirstTime   :Boolean=TRUE;
    DLLDebugFile   :TextFile;
-   DSS_IniFileName:String;
    ProgramName    :String;
    DSS_Registry   :TIniRegSave; // Registry   (See Executive)
    
@@ -169,7 +168,8 @@ VAR
    DSSFileName      :String;     // Name of current exe or DLL
    DSSDirectory     :String;     // where the current exe resides
    StartupDirectory :String;     // Where we started
-   DSSDataDirectory :String;
+   DataDirectory    :String;     // used to be DSSDataDirectory
+   OutputDirectory  :String;     // output files go here, same as DataDirectory if writable
    CircuitName_     :String;     // Name of Circuit with a "_" appended
 
    DefaultBaseFreq  :Double;
@@ -227,6 +227,8 @@ PROCEDURE WriteDSS_Registry;
 
 FUNCTION IsDSSDLL(Fname:String):Boolean;
 
+Function GetOutputDirectory:String;
+
 
 implementation
 
@@ -237,6 +239,7 @@ USES  {Forms,   Controls,}
      Windows,
      DSSForms,
      Solution,
+     SHFolder,
      Executive;
      {Intrinsic Ckt Elements}
 
@@ -252,6 +255,28 @@ VAR
    LastUserDLLHandle: THandle;
    DSSRegisterProc:TDSSRegister;   // of last library loaded
 
+FUNCTION GetDefaultDataDirectory: String;
+Var
+  ThePath:Array[0..MAX_PATH] of char;
+Begin
+  FillChar(ThePath, SizeOF(ThePath), #0);
+  SHGetFolderPath (0, CSIDL_PERSONAL, 0, 0, ThePath);
+  Result := ThePath;
+End;
+
+FUNCTION GetDefaultScratchDirectory: String;
+Var
+  ThePath:Array[0..MAX_PATH] of char;
+Begin
+  FillChar(ThePath, SizeOF(ThePath), #0);
+  SHGetFolderPath (0, CSIDL_LOCAL_APPDATA, 0, 0, ThePath);
+  Result := ThePath;
+End;
+
+function GetOutputDirectory:String;
+begin
+  Result := OutputDirectory;
+end;
 
 {--------------------------------------------------------------}
 FUNCTION IsDSSDLL(Fname:String):Boolean;
@@ -512,7 +537,7 @@ PROCEDURE WriteDLLDebugFile(Const S:String);
 
 Begin
 
-        AssignFile(DLLDebugFile, DSSDataDirectory + 'DSSDLLDebug.TXT');
+        AssignFile(DLLDebugFile, OutputDirectory + 'DSSDLLDebug.TXT');
         If DLLFirstTime then Begin
            Rewrite(DLLDebugFile);
            DLLFirstTime := False;
@@ -523,45 +548,66 @@ Begin
 
 End;
 
+function IsDirectoryWritable(const Dir: String): Boolean;
+var
+  TempFile: array[0..MAX_PATH] of Char;
+begin
+  if GetTempFileName(PChar(Dir), 'DA', 0, TempFile) <> 0 then
+    Result := Windows.DeleteFile(TempFile)
+  else
+    Result := False;
+end;
+
 PROCEDURE SetDataPath(const PathName:String);
-
+var
+  ScratchPath: String;
 // Pathname may be null
-
 BEGIN
-    if (Length(PathName) > 0) and not DirectoryExists(PathName) then Begin
-
-    // Try to create the directory
-      if not CreateDir(PathName) then Begin
-        DosimpleMsg('Cannot create ' + PathName + ' directory.', 907);
-        Exit;
-      End;
-
+  if (Length(PathName) > 0) and not DirectoryExists(PathName) then Begin
+  // Try to create the directory
+    if not CreateDir(PathName) then Begin
+      DosimpleMsg('Cannot create ' + PathName + ' directory.', 907);
+      Exit;
     End;
+  End;
 
-    DSSDataDirectory := PathName;
+  DataDirectory := PathName;
 
-    // Put a \ on the end if not supplied. Allow a null specification.
-    If Length(DssDataDirectory) > 0 Then Begin
-      ChDir(DSSDataDirectory);   // Change to specified directory
-      If DSSDataDirectory[Length(DssDataDirectory)] <> '\' Then DSSDataDirectory := DSSDataDirectory + '\';
-    End;
+  // Put a \ on the end if not supplied. Allow a null specification.
+  If Length(DataDirectory) > 0 Then Begin
+    ChDir(DataDirectory);   // Change to specified directory
+    If DataDirectory[Length(DataDirectory)] <> '\' Then DataDirectory := DataDirectory + '\';
+  End;
+
+  // see if DataDirectory is writable. If not, set OutputDirectory to the user's appdata
+  if IsDirectoryWritable(DataDirectory) then begin
+    OutputDirectory := DataDirectory;
+  end else begin
+    ScratchPath := GetDefaultScratchDirectory + '\' + ProgramName + '\';
+    if not DirectoryExists(ScratchPath) then CreateDir(ScratchPath);
+    OutputDirectory := ScratchPath;
+  end;
 END;
 
 PROCEDURE ReadDSS_Registry;
 Begin
-      DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
-      DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '8' ));
-      DefaultBaseFreq  := StrToInt(DSS_Registry.ReadString('BaseFrequency', '60' ));
-      LastFileCompiled := DSS_Registry.ReadString('LastFile', '' );
+  DSS_Registry.Section := 'MainSect';
+  DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
+  DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '8' ));
+  DefaultBaseFreq  := StrToInt(DSS_Registry.ReadString('BaseFrequency', '60' ));
+  LastFileCompiled := DSS_Registry.ReadString('LastFile', '' );
+  SetDataPath (DSS_Registry.ReadString('DataPath', DataDirectory));
 End;
 
 
 PROCEDURE WriteDSS_Registry;
 Begin
-     DSS_Registry.WriteString('Editor',        DefaultEditor);
-     DSS_Registry.WriteString('ScriptFontSize', Format('%d',[DefaultFontSize]));
-     DSS_Registry.WriteString('BaseFrequency', Format('%d',[Round(DefaultBaseFreq)]));
-     DSS_Registry.WriteString('LastFile',      LastFileCompiled);
+  DSS_Registry.Section := 'MainSect';
+  DSS_Registry.WriteString('Editor',        DefaultEditor);
+  DSS_Registry.WriteString('ScriptFontSize', Format('%d',[DefaultFontSize]));
+  DSS_Registry.WriteString('BaseFrequency', Format('%d',[Round(DefaultBaseFreq)]));
+  DSS_Registry.WriteString('LastFile',      LastFileCompiled);
+  DSS_Registry.WriteString('DataPath', DataDirectory);
 End;
 
 PROCEDURE ResetQueryLogFile;
@@ -577,7 +623,7 @@ PROCEDURE WriteQueryLogfile(Const Prop, S:String);
 Begin
 
   TRY
-        QueryLogFileName :=  DSSDataDirectory + 'QueryLog.CSV';
+        QueryLogFileName :=  OutputDirectory + 'QueryLog.CSV';
         AssignFile(QueryLogFile, QueryLogFileName);
         If QueryFirstTime then
         Begin
@@ -594,8 +640,6 @@ Begin
   END;
 
 End;
-
-
 
 initialization
 
@@ -631,15 +675,20 @@ initialization
 
    {Initialize filenames and directories}
 
+   ProgramName      := 'OpenDSS';
    DSSFileName      := GetDSSExeFile;
    DSSDirectory     := ExtractFilePath(DSSFileName);
-   VersionString    := 'Version ' + GetDSSVersion;  ;
+   // want to know if this was built for 64-bit, not whether running on 64 bits
+   // (i.e. we could have a 32-bit build running on 64 bits; not interested in that
+{$IFDEF CPUX64}
+   VersionString    := 'Version ' + GetDSSVersion + ' (64-bit build)';
+{$ELSE ! CPUX86}
+   VersionString    := 'Version ' + GetDSSVersion + ' (32-bit build)';
+{$ENDIF}
    StartupDirectory := GetCurrentDir+'\';
-   DSSDataDirectory := StartupDirectory;
+   SetDataPath (GetDefaultDataDirectory + '\' + ProgramName + '\');
 
-   ProgramName      := 'OpenDSS';
-   DSS_IniFileName  := 'OpenDSSPanel.ini';
-   DSS_Registry     := TIniRegSave.Create('\Software\OpenDSS');
+   DSS_Registry     := TIniRegSave.Create('\Software\' + ProgramName);
 
    AuxParser       := TParser.Create;
    DefaultEditor   := 'NotePad';

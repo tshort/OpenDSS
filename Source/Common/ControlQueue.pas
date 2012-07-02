@@ -312,7 +312,7 @@ begin
 
      If DebugTrace
      THEN Begin
-          AssignFile(TraceFile, DSSDataDirectory + 'Trace_ControlQueue.CSV');
+          AssignFile(TraceFile, GetOutputDirectory + 'Trace_ControlQueue.CSV');
           ReWrite(TraceFile);
           Writeln(TraceFile, '"Hour", "sec", "Control Iteration", "Element", "Action Code", "Trace Parameter", "Description"');
           CloseFile(Tracefile);

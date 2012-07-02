@@ -772,7 +772,7 @@ Var
    ObjList:TPointerList;
 
 Begin
-     TOPTransferFile.FileName := DSSDataDirectory + 'TOP_TShape.STO';
+     TOPTransferFile.FileName := GetOutputDirectory + 'TOP_TShape.STO';
      TRY
          TOPTransferFile.Open;
      EXCEPT

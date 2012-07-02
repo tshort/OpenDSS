@@ -214,7 +214,7 @@ end;
 
 function TDSS.Get_DataPath: WideString;
 begin
-     Result := DSSDataDirectory;
+     Result := DataDirectory;
 end;
 
 procedure TDSS.Set_DataPath(const Value: WideString);

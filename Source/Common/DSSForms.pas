@@ -49,7 +49,7 @@ Uses      ExecCommands, ExecOptions,
           MessageForm,
           ComCtrls,
           TViewer,
-          Sysutils, Registry, FrmCSVchannelSelect;
+          Sysutils, FrmCSVchannelSelect;
 
 
 Procedure InitProgressForm;
@@ -118,9 +118,6 @@ FUNCTION GetDSSExeFile: String;
 Var
    TheFileName:Array[0..MAX_PATH] of char;
 
-  // Registry: TRegistry;
-  // ClassID:String;
-
 Begin
 
     FillChar(TheFileName, SizeOF(TheFileName), #0);  // Fill it with nulls
@@ -128,27 +125,6 @@ Begin
     Result := TheFileName;
 
     If IsLibrary then IsDLL := TRUE;
-
-(*  OLD WAY
-
-    Result := Application.ExeName;
-    If CompareText(ExtractFileName(Result), 'dss.exe') <> 0  Then Begin
-        // Find the DLL   file instead
-        Registry:=TRegistry.Create;
-        Registry.RootKey:=HKEY_CLASSES_ROOT;
-        {False because we do not want to create it if it doesn’t exist}
-        Registry.OpenKey('\DSSLIB.DSS\CLSID',False);
-        ClassID :=Registry.ReadString('');
-        Registry.CloseKey;
-
-        Registry.RootKey:=HKEY_LOCAL_MACHINE;
-        Registry.OpenKey('\SOFTWARE\Classes\CLSID\'+ClassID +'\InprocServer32', False);
-        Result :=Registry.ReadString('');
-        Registry.CloseKey;
-        Registry.Free;
-        IsDLL := TRUE;
-    End;
- *)
 End;
 
 

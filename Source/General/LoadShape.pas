@@ -930,7 +930,7 @@ Var
    ObjList:TPointerList;
 
 begin
-     TOPTransferFile.FileName := DSSDataDirectory + 'TOP_LoadShape.STO';
+     TOPTransferFile.FileName := GetOutputDirectory + 'TOP_LoadShape.STO';
      TRY
          TOPTransferFile.Open;
      EXCEPT

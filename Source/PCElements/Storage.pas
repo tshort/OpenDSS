@@ -730,7 +730,7 @@ Begin
 
                 propDEBUGTRACE: IF DebugTrace
                   THEN Begin   // Init trace file
-                         AssignFile(TraceFile, DSSDataDirectory + 'STOR_'+Name+'.CSV');
+                         AssignFile(TraceFile, GetOutputDirectory + 'STOR_'+Name+'.CSV');
                          ReWrite(TraceFile);
                          Write(TraceFile, 't, Iteration, LoadMultiplier, Mode, LoadModel, StorageModel,  Qnominalperphase, Pnominalperphase, CurrentType');
                          For i := 1 to nphases Do Write(Tracefile,  ', |Iinj'+IntToStr(i)+'|');

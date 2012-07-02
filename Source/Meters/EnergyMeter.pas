@@ -1066,7 +1066,7 @@ Begin
 
   Try
        CSVName := 'MTR_' + Name + '.CSV';
-       AssignFile(F, DSSDataDirectory + CSVName);
+       AssignFile(F, GetOutputDirectory + CSVName);
        Rewrite(F);
        GlobalResult := CSVName;
   Except
@@ -1762,7 +1762,7 @@ Begin
      TRY
 
        CSVName := 'Zone_' + Name + '.CSV';
-       AssignFile(F, DSSDataDirectory + CSVName);
+       AssignFile(F, GetOutputDirectory + CSVName);
        Rewrite(F);
 
        GlobalResult := CSVName;
@@ -2788,7 +2788,7 @@ begin
        If  energyMeterClass.SaveDemandInterval Then
           Folder := energyMeterClass.DI_DIR + '\'
        Else
-          Folder := DSSDataDirectory;
+          Folder := GetOutputDirectory;
        AssignFile(F, Folder + CSVName);
        Rewrite(F);
        GlobalResult := CSVName;

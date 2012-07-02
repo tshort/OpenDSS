@@ -273,7 +273,11 @@ Begin
      OptionHelp[55] := 'Max control iterations per solution.  Default is 10.';
      OptionHelp[56] := 'Set Active Bus by name.  Can also be done with Select and SetkVBase commands and the "Set Terminal="  option. ' +
                         'The bus connected to the active terminal becomes the active bus. See Zsc and Zsc012 commands.';
-     OptionHelp[57] := 'Set the data path for files written or read by the DSS.  Defaults to the startup path. May be Null.  Executes a CHDIR to this path if non-null. Does not require a circuit defined.';
+     OptionHelp[57] := 'Set the data path for files written or read by the DSS.' +CRLF+
+                        'Defaults to the user documents folder.' +CRLF+
+                        'If the DataPath is not writable, output files will be written to the user application data folder.' +CRLF+
+                        'May be Null.  Executes a CHDIR to this path if non-null.'+CRLF+
+                        'Does not require a circuit defined.';
      OptionHelp[58] := 'Array of bus names to keep when performing circuit reductions. You can specify a text file holding the names, one to a line, ' +
                         'by using the syntax (file=filename) instead of the actual array elements. '  +
                         'Command is cumulative (reset keeplist first). ' +
@@ -545,7 +549,7 @@ End;
 //----------------------------------------------------------------------------
 FUNCTION DoGetCmd:Integer;
 
-// Get DSS Options Reguaeste and put it in Global Result string
+// Get DSS Options Reguest and put it in Global Result string
 // may be retrieved by Result property of the DSSText interface
 
 VAR
@@ -645,7 +649,7 @@ Begin
                      End;
            55: AppendGlobalResult(IntToStr(ActiveCircuit.solution.MaxControlIterations));
            56: AppendGlobalResult(ActiveCircuit.BusList.Get(ActiveCircuit.ActiveBusIndex));
-           57: AppendGlobalResult(DSSDataDirectory);
+           57: AppendGlobalResult(DataDirectory); // NOTE - not necessarily output directory
            58: With ActiveCircuit Do For i := 1 to NumBuses Do If Buses^[i].Keep Then AppendGlobalResult(BusList.Get(i));
            59: AppendGlobalResult(ActiveCircuit.ReductionStrategyString );
            60: If EnergyMeterClass.SaveDemandInterval Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');

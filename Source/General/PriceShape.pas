@@ -773,7 +773,7 @@ Var
    ObjList:TPointerList;
 
 Begin
-     TOPTransferFile.FileName := DSSDataDirectory + 'TOP_PriceShape.STO';
+     TOPTransferFile.FileName := GetOutputDirectory + 'TOP_PriceShape.STO';
      TRY
          TOPTransferFile.Open;
      EXCEPT

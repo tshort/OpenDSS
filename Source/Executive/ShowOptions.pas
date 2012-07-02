@@ -183,10 +183,10 @@ Begin
 
    CASE ParamPointer OF
      1:  Begin {Autoadded}
-           FireOffEditor(DSSDataDirectory + CircuitName_ + 'AutoAddedGenerators.Txt');
-           FireOffEditor(DSSDataDirectory + CircuitName_ + 'AutoAddedCapacitors.Txt');
+           FireOffEditor(GetOutputDirectory + CircuitName_ + 'AutoAddedGenerators.Txt');
+           FireOffEditor(GetOutputDirectory + CircuitName_ + 'AutoAddedCapacitors.Txt');
          End;
-     2: ShowBuses(DSSDataDirectory + CircuitName_ + 'Buses.Txt');
+     2: ShowBuses(GetOutputDirectory + CircuitName_ + 'Buses.Txt');
      3: Begin
            ShowOptionCode := 0;
            ShowResid := FALSE;
@@ -209,18 +209,18 @@ Begin
              0:  Filname := 'Curr_Seq';
              1:  Filname := 'Curr_Elem';
            END;
-           ShowCurrents(DSSDataDirectory + CircuitName_ + FilName + '.Txt', ShowResid, ShowOptionCode);
+           ShowCurrents(GetOutputDirectory + CircuitName_ + FilName + '.Txt', ShowResid, ShowOptionCode);
           End;
-     4: ActiveCircuit.Solution.WriteConvergenceReport(DSSDataDirectory + CircuitName_ + 'Convergence.TXT');
+     4: ActiveCircuit.Solution.WriteConvergenceReport(GetOutputDirectory + CircuitName_ + 'Convergence.TXT');
      5 : Begin
              ParamName := Parser.NextParam;   // Look for another param
              Param := LowerCase(Parser.StrValue);
-             ShowElements(DSSDataDirectory + CircuitName_ + 'Elements.Txt', Param);
+             ShowElements(GetOutputDirectory + CircuitName_ + 'Elements.Txt', Param);
            End;
-     6: ShowFaultStudy(DSSDataDirectory + CircuitName_ + 'FaultStudy.Txt');
-     7: ShowIsolated(DSSDataDirectory + CircuitName_ + 'Isolated.Txt');
-     8: ShowGenMeters(DSSDataDirectory + CircuitName_ + 'GenMeterOut.Txt');
-     9: ShowMeters(DSSDataDirectory + CircuitName_ + 'EMout.Txt');
+     6: ShowFaultStudy(GetOutputDirectory + CircuitName_ + 'FaultStudy.Txt');
+     7: ShowIsolated(GetOutputDirectory + CircuitName_ + 'Isolated.Txt');
+     8: ShowGenMeters(GetOutputDirectory + CircuitName_ + 'GenMeterOut.Txt');
+     9: ShowMeters(GetOutputDirectory + CircuitName_ + 'EMout.Txt');
      10:  Begin     // Show Monitor
              ParamName := Parser.NextParam;
              Param := Parser.StrValue;
@@ -253,7 +253,7 @@ Begin
             If MVAOpt=1 Then FilName := FilName + '_MVA'
             Else FilName := FilName + '_kVA';
 
-            ShowPowers(DSSDataDirectory + CircuitName_ + filname + '.txt', MVAOpt, ShowOptionCode);
+            ShowPowers(GetOutputDirectory + CircuitName_ + filname + '.txt', MVAOpt, ShowOptionCode);
           End;
      13:Begin
             LLOpt := FALSE;      // Line-Line voltage option
@@ -278,23 +278,23 @@ Begin
                Else
                   FilName := FilName + '_seq';
                End;
-            ShowVoltages(DSSDataDirectory + CircuitName_ + FilName + '.Txt', LLopt, ShowOptionCode);
+            ShowVoltages(GetOutputDirectory + CircuitName_ + FilName + '.Txt', LLopt, ShowOptionCode);
         End;
-     14: ShowMeterZone(DSSDataDirectory + CircuitName_ + 'ZoneOut.Txt');
-     15: ShowRegulatorTaps(DSSDataDirectory + CircuitName_ + 'RegTaps.Txt');
-     16: ShowOverloads(DSSDataDirectory + CircuitName_ + 'Overload.Txt');
+     14: ShowMeterZone(GetOutputDirectory + CircuitName_ + 'ZoneOut.Txt');
+     15: ShowRegulatorTaps(GetOutputDirectory + CircuitName_ + 'RegTaps.Txt');
+     16: ShowOverloads(GetOutputDirectory + CircuitName_ + 'Overload.Txt');
      17: Begin
              ParamName := Parser.NextParam;
              Param := Parser.StrValue;
              IF Length(Param)>0
-             THEN ShowUnserved(DSSDataDirectory + CircuitName_ + 'Unserved.Txt', TRUE)
-             ELSE ShowUnserved(DSSDataDirectory + CircuitName_ + 'Unserved.Txt', FALSE);
+             THEN ShowUnserved(GetOutputDirectory + CircuitName_ + 'Unserved.Txt', TRUE)
+             ELSE ShowUnserved(GetOutputDirectory + CircuitName_ + 'Unserved.Txt', FALSE);
           End;
      18: ShowMessageForm(EventStrings);
-     19: ShowVariables(DSSDataDirectory + CircuitName_ + 'Variables.Txt');
-     20: ShowRatings(DSSDataDirectory + CircuitName_ + 'RatingsOut.Txt');
-     21: ShowLoops(DSSDataDirectory + CircuitName_ + 'Loops.Txt');
-     22: ShowLosses(DSSDataDirectory + CircuitName_ + 'Losses.Txt');
+     19: ShowVariables(GetOutputDirectory + CircuitName_ + 'Variables.Txt');
+     20: ShowRatings(GetOutputDirectory + CircuitName_ + 'RatingsOut.Txt');
+     21: ShowLoops(GetOutputDirectory + CircuitName_ + 'Loops.Txt');
+     22: ShowLosses(GetOutputDirectory + CircuitName_ + 'Losses.Txt');
      23: Begin  // Show Bus Power Report
             ShowOptionCode := 0;
             MVAOpt := 0;
@@ -317,7 +317,7 @@ Begin
             If MVAOpt=1 Then FilName := FilName + '_MVA'
             Else FilName := FilName + '_kVA';
 
-            ShowBusPowers(DSSDataDirectory + CircuitName_ + FilName + '.txt', BusName, MVAOpt, ShowOptionCode);
+            ShowBusPowers(GetOutputDirectory + CircuitName_ + FilName + '.txt', BusName, MVAOpt, ShowOptionCode);
           End;
       24: Begin {ShowLineConstants  Show Lineconstants 60 mi}
              Freq := DefaultBaseFreq;  // Default
@@ -329,22 +329,22 @@ Begin
              If Length(Parser.strvalue)>0 Then Units := GetUnitsCode(Parser.strvalue);
              ParamName := parser.nextparam;
              If Length(Parser.strvalue)>0 Then Rho_line := Parser.dblValue;
-             ShowLineConstants(DSSDataDirectory + CircuitName_ + 'LineConstants.txt', freq, units, Rho_line);
+             ShowLineConstants(GetOutputDirectory + CircuitName_ + 'LineConstants.txt', freq, units, Rho_line);
           End;
 
       25: If ActiveCircuit<>nil then Begin  {Yprim}
              With ActiveCircuit.ActiveCktElement Do
-             ShowYprim(DSSDataDirectory + ParentClass.name + '_' + name + '_Yprim.txt' );
+             ShowYprim(GetOutputDirectory + ParentClass.name + '_' + name + '_Yprim.txt' );
           End;
 
       26: Begin   {Y}
-             ShowY(DSSDataDirectory + CircuitName_  + 'SystemY.txt' );
+             ShowY(GetOutputDirectory + CircuitName_  + 'SystemY.txt' );
           end;
-      27: If ActiveCircuit <> Nil then  ActiveCircuit.ControlQueue.ShowQueue(DSSDataDirectory + CircuitName_  + 'ControlQueue.csv');
-      28: ShowTopology(DSSDataDirectory + CircuitName_);
-      29: ShowNodeCurrentSum(DSSDataDirectory + CircuitName_ + 'NodeMismatch.Txt');
-      30: ShowkVBaseMismatch(DSSDataDirectory + CircuitName_ + 'kVBaseMismatch.Txt');
-      31: ShowDeltaV(DSSDataDirectory + CircuitName_ + 'DeltaV.Txt');
+      27: If ActiveCircuit <> Nil then  ActiveCircuit.ControlQueue.ShowQueue(GetOutputDirectory + CircuitName_  + 'ControlQueue.csv');
+      28: ShowTopology(GetOutputDirectory + CircuitName_);
+      29: ShowNodeCurrentSum(GetOutputDirectory + CircuitName_ + 'NodeMismatch.Txt');
+      30: ShowkVBaseMismatch(GetOutputDirectory + CircuitName_ + 'kVBaseMismatch.Txt');
+      31: ShowDeltaV(GetOutputDirectory + CircuitName_ + 'DeltaV.Txt');
       32: FireOffEditor(QueryLogFileName);
    ELSE
    End;

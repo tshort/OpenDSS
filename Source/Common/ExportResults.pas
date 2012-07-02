@@ -1163,7 +1163,7 @@ Begin
         IF pElem.Enabled THEN
         BEGIN
           TRY
-            FileNm := DSSDataDirectory + 'EXP_MTR_'+Uppercase(pElem.Name)+'.CSV';
+            FileNm := GetOutputDirectory + 'EXP_MTR_'+Uppercase(pElem.Name)+'.CSV';
 
             IF Not FileExists(FileNm)
             THEN Begin
@@ -1308,7 +1308,7 @@ Begin
         IF pElem.Enabled THEN
         BEGIN
           TRY
-            FileNm := DSSDataDirectory + 'EXP_GEN_' + Uppercase(pElem.Name) + '.CSV';
+            FileNm := GetOutputDirectory + 'EXP_GEN_' + Uppercase(pElem.Name) + '.CSV';
 
             IF Not FileExists(FileNm)
             THEN Begin

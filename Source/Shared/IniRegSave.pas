@@ -38,6 +38,8 @@ type
 
     Property Section:String Read FSection Write Set_FSection;
 
+    Procedure ClearSection;
+
     Procedure WriteBool(const key:string; value:Boolean);
     Procedure WriteInteger(const key:string; value:Integer);
     Procedure WriteString(const key:string; value:String);
@@ -102,6 +104,11 @@ end;
 procedure TIniRegSave.WriteString(const key: string; value: String);
 begin
     FiniFile.WriteString (FSection, key, value);
+end;
+
+procedure TIniRegSave.ClearSection;
+begin
+  FiniFile.EraseSection(FSection);
 end;
 
 end.

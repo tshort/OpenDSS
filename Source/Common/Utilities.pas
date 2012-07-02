@@ -1284,7 +1284,7 @@ Var
 Begin
 
   TRY
-      FileName := DSSDataDirectory +  'DSSCommandsDump.Txt';
+      FileName := GetOutputDirectory +  'DSSCommandsDump.Txt';
       AssignFile(F, FileName);
       Rewrite(F);
   EXCEPT
@@ -1373,7 +1373,7 @@ VAR
 Begin
      Result := TRUE;
      TRY
-         Assignfile(F,DSSDataDirectory + CircuitName_ + 'SavedVoltages.dbl');
+         Assignfile(F,GetOutputDirectory + CircuitName_ + 'SavedVoltages.dbl');
          Rewrite(F);
 
      EXCEPT
@@ -1416,7 +1416,7 @@ Begin
 
      Result := TRUE;
      TRY
-         Assignfile(F, DSSDataDirectory + CircuitName_ + 'SavedVoltages.dbl');
+         Assignfile(F, GetOutputDirectory + CircuitName_ + 'SavedVoltages.dbl');
          Reset(F);
 
      EXCEPT
@@ -2567,7 +2567,7 @@ Begin
    End;
 
 try
-   FileName := DSSDatadirectory + CircuitName_ + ScriptFileName;
+   FileName := GetOutputDirectory + CircuitName_ + ScriptFileName;
    GlobalResult := FileName;
 
    Assignfile(Fout, fileName);

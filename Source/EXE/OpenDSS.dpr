@@ -185,8 +185,6 @@ begin
   {Create default loadshapes, Growthshapes, etc.}
   DSSExecutive.CreateDefaultDSSItems;
 
-  DSS_IniFileName := 'OpenDSS.ini';
-
   {Instantiate basic forms}
   Application.CreateForm(TControlPanel, ControlPanel);
   Application.CreateForm(TMessageForm1, MessageForm1);

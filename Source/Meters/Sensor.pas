@@ -792,7 +792,7 @@ end;
 { - function is not actually used
 function TSensorObj.Get_FileName: String;
 begin
-        Result := DSSDataDirectory +  CircuitName_ + 'Sensor_' + Name + '.csv'
+        Result := GetOutputDirectory +  CircuitName_ + 'Sensor_' + Name + '.csv'
 end;
 }
 

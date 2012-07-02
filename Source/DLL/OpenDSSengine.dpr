@@ -213,8 +213,6 @@ begin
 {Library initialization code}
 
 
-  DSS_IniFileName:= 'OpenDSSEngine.ini';
-  
 {Intialize the internal interfaces so they're ready to go}
   InitializeInterfaces;
 

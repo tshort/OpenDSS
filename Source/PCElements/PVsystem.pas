@@ -657,7 +657,7 @@ Begin
                 propP_T_Curve    : Power_TempCurveObj := XYCurveClass.Find(Power_TempCurve);
 
                 propDEBUGTRACE: IF DebugTrace THEN Begin   // Init trace file
-                       AssignFile(TraceFile, DSSDataDirectory + 'STOR_'+Name+'.CSV');
+                       AssignFile(TraceFile, GetOutputDirectory + 'STOR_'+Name+'.CSV');
                        ReWrite(TraceFile);
                        Write(TraceFile, 't, Iteration, LoadMultiplier, Mode, LoadModel, PVSystemModel,  Qnominalperphase, Pnominalperphase, CurrentType');
                        For i := 1 to nphases Do Write(Tracefile,  ', |Iinj'+IntToStr(i)+'|');

@@ -649,7 +649,7 @@ Begin
 
             22: IF DebugTrace
                 THEN Begin
-                   AssignFile(TraceFile, DSSDataDirectory + 'GEN_'+Name+'.CSV');
+                   AssignFile(TraceFile, GetOutputDirectory + 'GEN_'+Name+'.CSV');
                    ReWrite(TraceFile);
                    Write(TraceFile, 't, Iteration, LoadMultiplier, Mode, LoadModel, GenModel, dQdV, Avg_Vpu, Vdiff, MQnominalperphase, MPnominalperphase, CurrentType');
                    For i := 1 to nphases Do Write(Tracefile,  ', |Iinj'+IntToStr(i)+'|');

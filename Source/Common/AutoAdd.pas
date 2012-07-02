@@ -251,7 +251,7 @@ Var
 Begin
 
      TRY
-         FName := DSSDataDirectory + CircuitName_ + 'AutoAdded' + WhichFile + '.txt' ;
+         FName := GetOutputDirectory + CircuitName_ + 'AutoAdded' + WhichFile + '.txt' ;
          AssignFile(F, Fname);
 
          IF FileExists(FName) THEN
@@ -392,7 +392,7 @@ Begin
 
     {Start up Log File}
 
-    AssignFile(FLog, DSSDataDirectory + CircuitName_ + 'AutoAddLog.CSV');
+    AssignFile(FLog, GetOutputDirectory + CircuitName_ + 'AutoAddLog.CSV');
     Rewrite(FLog);
     Writeln(Flog, '"Bus", "Base kV", "kW Losses", "% Improvement", "kW UE", "% Improvement", "Weighted Total", "Iterations"');
     CloseFile(FLog); // Close it now after clearing it out

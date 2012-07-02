@@ -141,7 +141,7 @@
 						<VersionInfo Name="MajorVer">2</VersionInfo>
 						<VersionInfo Name="MinorVer">0</VersionInfo>
 						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">39</VersionInfo>
+						<VersionInfo Name="Build">41</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -153,7 +153,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">EPRI Solutions, Inc</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">Induction Machine Model</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">2.0.0.39</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">2.0.0.41</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
 						<VersionInfoKeys Name="LegalCopyright"/>
 						<VersionInfoKeys Name="LegalTrademarks"/>

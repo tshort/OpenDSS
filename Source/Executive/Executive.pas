@@ -232,7 +232,7 @@ procedure TExecutive.Set_RecorderOn(const Value: Boolean);
 begin
   If Value Then Begin
     If Not FRecorderOn Then Begin
-      FRecorderFile := DSSDataDirectory + 'DSSRecorder.DSS' ;
+      FRecorderFile := GetOutputDirectory + 'DSSRecorder.DSS' ;
       AssignFile(RecorderFile, FRecorderFile);
     End;
     ReWrite(RecorderFile);

@@ -363,7 +363,7 @@ Begin
              // loads in more files
              CurrDir := ExtractFileDir(ReDirFile);
              SetCurrentDir(CurrDir);
-             If  IsCompile Then   SetDataPath(CurrDir);  // change dssdatadirectory
+             If  IsCompile Then   SetDataPath(CurrDir);  // change datadirectory
 
              Redirect_Abort := False;
              In_Redirect    := True;
@@ -402,7 +402,7 @@ Begin
         CloseFile(Fin);
         In_Redirect := False;
         If  IsCompile Then   Begin
-          SetDataPath(CurrDir); // change dssdatadirectory
+          SetDataPath(CurrDir); // change datadirectory
           LastCommandWasCompile := True;
         End
         Else SetCurrentDir(SaveDir);    // set back to where we were for redirect, but not compile
@@ -815,7 +815,7 @@ Begin
     {dump bus names hash list}
     if CompareText(Param, 'buslist')=0 then
     If Not NoFormsAllowed Then Begin
-        FileName := DSSDataDirectory +  'Bus_Hash_List.Txt';
+        FileName := GetOutputDirectory +  'Bus_Hash_List.Txt';
         ActiveCircuit.BusList.DumpToFile(FileName);
         FireOffEditor(FileName);
         Exit;
@@ -824,7 +824,7 @@ Begin
     {dump device names hash list}
     if CompareText(Param, 'devicelist')=0 then
     If Not NoFormsAllowed Then Begin
-        FileName := DSSDataDirectory +  'Device_Hash_List.Txt';
+        FileName := GetOutputDirectory +  'Device_Hash_List.Txt';
         ActiveCircuit.DeviceList.DumpToFile(FileName);
         FireOffEditor(FileName);
         Exit;
@@ -832,7 +832,7 @@ Begin
 
     IF CompareText(Copy(lowercase(Param),1,5), 'alloc')=0 THEN
     Begin
-        FileName :=DSSDataDirectory + 'AllocationFactors.Txt';
+        FileName :=GetOutputDirectory + 'AllocationFactors.Txt';
         DumpAllocationFactors(FileName);
         FireOffEditor(FileName);
         Exit;
@@ -872,12 +872,12 @@ Begin
  End;
 
   TRY
-      AssignFile(F, DSSDataDirectory + CircuitName_ + 'PropertyDump.Txt');
+      AssignFile(F, GetOutputDirectory + CircuitName_ + 'PropertyDump.Txt');
       Rewrite(F);
   EXCEPT
       On E:Exception DO
       Begin
-        DoErrorMsg('DoPropertyDump - opening '+ DSSDataDirectory +' DSS_PropertyDump.txt for writing in '+Getcurrentdir, E.Message, 'Disk protected or other file error', 255);
+        DoErrorMsg('DoPropertyDump - opening '+ GetOutputDirectory +' DSS_PropertyDump.txt for writing in '+Getcurrentdir, E.Message, 'Disk protected or other file error', 255);
         Exit;
       End;
   End;
@@ -942,7 +942,7 @@ Begin
          CloseFile(F);
   END;  {TRY}
 
-  FireOffEditor(DSSDataDirectory + CircuitName_ + 'PropertyDump.Txt');
+  FireOffEditor(GetOutputDirectory + CircuitName_ + 'PropertyDump.Txt');
 
 End;
 
