@@ -3,7 +3,7 @@ The Open Distribution System Simulator, OpenDSS
 Copyright (c) 2008-2012, Electric Power Research Institute, Inc.
 All rights reserved.
 
-Version 7.6.0
+Version 7.6.1
 
 The 7.6 version is the first to be delivered in both 32-bit (X86) and 
 64-bit (X64) versions.  The OpenDSSInstaller download includes both, along 

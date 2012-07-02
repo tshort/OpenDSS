@@ -709,6 +709,7 @@ Procedure TEnergyMeter.ResetAll;  // Force all EnergyMeters in the circuit to re
 
 VAR
    mtr:TEnergyMeterObj;
+   CasePath:String;
 
 Begin
 
@@ -716,16 +717,17 @@ Begin
 
       If FSaveDemandInterval Then   Begin
 
+          CasePath := OutputDirectory + ActiveCircuit.CaseName;
           {Make directories to save data}
 
-            If not DirectoryExists(ActiveCircuit.CaseName) Then Begin
+            If not DirectoryExists(CasePath) Then Begin
               Try
-                 mkDir(ActiveCircuit.CaseName);
+                 mkDir(CasePath);
               Except
-                 On E:Exception Do DoSimpleMsg('Error making  Directory: "'+ActiveCircuit.CaseName+'". ' + E.Message, 522);
+                 On E:Exception Do DoSimpleMsg('Error making  Directory: "'+CasePath+'". ' + E.Message, 522);
               End;
             End;
-            DI_Dir  := ActiveCircuit.CaseName+'\DI_yr_' + Trim( IntToStr(ActiveCircuit.Solution.Year));
+            DI_Dir  := CasePath+'\DI_yr_' + Trim( IntToStr(ActiveCircuit.Solution.Year));
             If not DirectoryExists(DI_Dir) Then Begin
               Try
                  mkDir(DI_Dir);
