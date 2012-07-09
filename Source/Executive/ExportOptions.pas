@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 34;
+        NumExportOptions = 35;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -58,6 +58,7 @@ Begin
       ExportOption[32] := 'Profile';
       ExportOption[33] := 'EventLog';
       ExportOption[34] := 'AllocationFactors';
+      ExportOption[35] := 'VoltagesElements';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -96,6 +97,7 @@ Begin
                         'Example:  Export Profile Phases=All [optional file name]';
       ExportHelp[33] := '(Default file = EXP_EVTLOG.CSV) All entries in the present event log.';
       ExportHelp[34] := 'Exports load allocation factors. File name is assigned.';
+      ExportHelp[35] := '(Default file = EXP_VOLTAGES_ELEM.CSV) Voltages to ground by circuit element.';
 
 End;
 
@@ -123,7 +125,7 @@ Begin
 
    {Check commands requiring a solution and abort if no solution or circuit}
    CASE ParamPointer of
-         1..24,28..32:
+         1..24,28..32,35:
          Begin
              If not assigned(ActiveCircuit) Then
              Begin
@@ -222,6 +224,7 @@ Begin
          32: FileName := 'EXP_Profile.CSV';
          33: FileName := 'EXP_EVTLOG.CSV';
          34: FileName := 'AllocationFactors.Txt';
+         35: FileName := 'EXP_VOLTAGES_ELEM.CSV';
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
        END;
@@ -268,6 +271,7 @@ Begin
      32: ExportProfile(FileName, PhasesToPlot);
      33: ExportEventLog(FileName);
      34: DumpAllocationFactors(FileName);
+     35: ExportVoltagesElements(FileName);
    ELSE
          ExportVoltages(FileName);    // default
    END;
