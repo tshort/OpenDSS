@@ -38,6 +38,8 @@ Procedure ExportCounts(FileNm:String);
 Procedure ExportSummary(FileNm:String);
 Procedure ExportProfile(FileNm:String; PhasesToPlot:Integer);
 Procedure ExportEventLog(FileNm:String);
+Procedure ExportVoltagesElements(FileNm:String);
+
 
 
 IMPLEMENTATION
@@ -46,6 +48,62 @@ Uses uComplex,  Arraydef, sysutils,   Circuit, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution, CktElement, Utilities, Bus, MathUtil, DSSClass,
      PDElement, PCElement, Generator, EnergyMeter, Sensor, Load, RegControl,
      ParserDel, Math, Ymatrix, LineGeometry, WireData, LineCode, XfmrCode, NamedObject;
+
+Procedure WriteElementVoltagesExportFile(Var F:TextFile; pElem:TDSSCktElement;MaxNumNodes:Integer);
+
+Var
+     NCond, Nterm, i,j,k,m, jj, nref, bref:Integer;
+     Busname:String;
+     Volts:Complex;
+     Vpu, Vmag:Double;
+     NodeIdx   :Integer;
+     presentBus : TDSSBus;
+     allbuses  : pTBusArray;
+
+
+Begin
+  NCond := pElem.NConds;
+  Nterm := pElem.Nterms;
+  k:=0;
+  BusName := (StripExtension(pElem.FirstBus));
+  Write(F, Format('%s.%s',[pElem.DSSClassName, pElem.Name]));
+
+
+  Write(F, Format(',%d',[NTerm]));
+
+  FOR j := 1 to NTerm Do Begin
+    Write(F, Format(',%d,',[j]));
+    Write(F, Format('%d,%d,',[NCond,pElem.NPhases]));
+
+    Write(F,Format('%s,',[UpperCase(BusName)]));
+        For i := 1 to NCond Do Begin
+       Inc(k);
+       nref := pElem.NodeRef^[k];
+       Volts := ActiveCircuit.Solution.NodeV^[nref];
+       Vmag := Cabs(Volts)*0.001;
+       With ActiveCircuit Do Begin
+         IF nref=0 Then Vpu := 0.0
+                   Else Begin
+                     bref := MapNodeToBus^[nref].BusRef;
+                     If Buses^[bref].kvbase <> 0.0
+                              Then Vpu := Vmag / Buses^[bref].kVBase
+                              Else Vpu := 0.0;
+                   End;
+
+        if(i = 1) Then Write (F, Format('%6.3f',[Buses^[bref].kvBase*sqrt(3)]));
+       End;
+       With ActiveCircuit Do Begin
+           Write(F,Format(', %d, %10.6g, %6.3f, %9.5g',[k, Vmag, cdang(Volts), Vpu]));
+         {Zero Fill row}
+
+         END; //end with ActiveCircuit
+       End; //end numconductors
+       For m :=  (i) to (MaxNumNodes) DO Write(F, ', 0, 0, 0, 0');
+
+    BusName := StripExtension(pElem.Nextbus);
+  End; // end for numterminals
+//    Writeln(F);
+End; //end procedure
 
 
 
@@ -157,13 +215,13 @@ Var
    NodeIdx   :Integer;
    Vmag,
    Vpu       : Double;
-   
+
 
 Begin
 
   {Find max nodes at a bus}
   MaxNumNodes := 0;
-  With ActiveCircuit Do 
+  With ActiveCircuit Do
   For i := 1 to NumBuses Do
      MaxNumNodes := max(MaxNumNodes, Buses^[i].NumNodesThisBus);
 
@@ -227,7 +285,7 @@ VAR
 Begin
   NCond := pelem.NConds;
   IF (pelem.Nphases >= 3) THEN BEGIN
-  
+
       For i := 1 to 3 Do
       Begin
          k := (j-1)*Ncond + i;
@@ -2211,4 +2269,109 @@ Begin
      GlobalResult := FileNm;
 End;
 
+//-------------------------------------------------------------------
+Procedure ExportVoltagesElements(FileNm:String);
+
+// Export element voltages, by terminal and node/bus
+
+Var
+   MaxNumNodes  :Integer ;
+   MaxNumTerminals : Integer;
+   MaxConductors: Integer;
+   F         :TextFile;
+   i, j, jj  :Integer;
+   BusName   :String;
+   Volts     :Complex;
+   nref      :Integer;
+   NodeIdx   :Integer;
+   Vmag,
+   Vpu       : Double;
+   pElem     :TDSSCktElement;
+
+Begin
+
+     MaxConductors := 1;
+     MaxNumTerminals := 2;
+     pElem := ActiveCircuit.CktElements.First;
+     While pElem<>nil Do Begin
+        If pElem.NTerms > MaxNumTerminals Then MaxNumTerminals := pElem.NTerms;
+        pElem := ActiveCircuit.CktElements.Next;
+     End;
+
+
+    MaxNumNodes := 0;
+    With ActiveCircuit Do
+    For j := 1 to NumBuses Do
+       MaxNumNodes := max(MaxNumNodes, Buses^[j].NumNodesThisBus);
+
+    Try
+       Assignfile(F, FileNm);
+       ReWrite(F);
+
+
+       Write(F, 'Element,NumTerminals');
+
+       //Write out the header
+       for i := 1 to MaxNumTerminals do
+        begin
+          Write(F,Format(', Terminal%d',[i]));
+          Write(F,',NumConductors,NPhases,');
+          Write(F,'Bus, BasekV');
+          For j := 1 to MaxNumNodes Do Write(F,Format(', Node%d_%d, Magnitude%d_%d, Angle%d_%d, pu%d_%d',[i, j, i, j, i, j, i, j]));
+        end;
+
+       Writeln(F);
+
+       //Go through all the sources
+       WITH ActiveCircuit DO BEGIN
+         pElem := sources.First;
+
+         WHILE pElem<>nil DO Begin
+         IF pElem.Enabled THEN begin
+               WriteElementVoltagesExportFile(F, pElem, MaxNumNodes);
+               Writeln(F);
+               end;
+          pElem := ActiveCircuit.sources.Next;
+         End;
+
+
+       //Go through all the PDElements
+     pElem := ActiveCircuit.PDElements.First;
+
+     WHILE pElem<>nil DO Begin
+       IF pElem.Enabled THEN begin
+               WriteElementVoltagesExportFile(F, pElem, MaxNumNodes);
+               Writeln(F);
+               end;
+        pElem := ActiveCircuit.PDElements.Next;
+     End;
+
+
+
+     //Go through all the PCElements
+     pElem := ActiveCircuit.PCElements.First;
+
+     WHILE pElem<>nil DO Begin
+       IF pElem.Enabled THEN begin
+               WriteElementVoltagesExportFile(F, pElem, MaxNumNodes);
+               Writeln(F);
+               end;
+
+        pElem := ActiveCircuit.PCElements.Next;
+     End;
+   End;
+      GlobalResult := FileNm;
+
+    FINALLY
+
+       CloseFile(F);
+
+    End;
+
+End;
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+
 end.
+
+
