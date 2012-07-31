@@ -844,7 +844,7 @@ begin
   nCompiled := DSS_Registry.ReadInteger('Count', 0);
   ActiveScriptForm.Editor.Lines.BeginUpdate;
   for i:=0 to nCompiled-1 do begin
-    TextLine := DSS_Registry.ReadString(Format('Compiled_%d',[i]), '');
+    TextLine := DSS_Registry.ReadString(Format('Item%d',[i]), '');
     If FileExists(TextLine) Then begin
       CompileCombo.Items.Add(TextLine);
     End Else Begin
