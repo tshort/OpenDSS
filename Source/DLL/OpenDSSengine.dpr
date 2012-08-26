@@ -189,7 +189,8 @@ uses
   GeneratorVars in '..\PCElements\GeneratorVars.pas',
   StorageVars in '..\PCElements\StorageVars.pas',
   CapControlVars in '..\Controls\CapControlVars.pas',
-  CapUserControl in '..\Controls\CapUserControl.pas';
+  CapUserControl in '..\Controls\CapUserControl.pas',
+  InvControl in '..\Controls\InvControl.pas';
 
 exports
   DllGetClassObject,

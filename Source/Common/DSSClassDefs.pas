@@ -110,6 +110,7 @@ USES
      SwtControl,
      PVSystem,
      VVControl,
+     InvControl,
      GICLine,
      GICTransformer
 ;
@@ -183,8 +184,12 @@ Begin
      DSSClasses.New := TSwtControl.Create;
      PVSystemClass  := TPVSystem.Create;
      DSSClasses.New := PVSystemClass;
-     VVControlClass := TVVControl.Create;
      DSSClasses.New := VVControlClass;
+     VVControlClass := TVVControl.Create;
+//     DSSClasses.New := InvControlClass;
+
+     InvControlClass := TInvControl.Create;
+
      DSSClasses.New := TGICLine.Create;
      DSSClasses.New := TGICTransformer.Create;
 

@@ -139,7 +139,7 @@
 						<VersionInfo Name="MajorVer">7</VersionInfo>
 						<VersionInfo Name="MinorVer">5</VersionInfo>
 						<VersionInfo Name="Release">1</VersionInfo>
-						<VersionInfo Name="Build">24</VersionInfo>
+						<VersionInfo Name="Build">37</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -151,7 +151,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">EPRI</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">DSS Engine</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">7.5.1.24</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">7.5.1.37</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName">OpenDSSEngine</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 2008-2012  EPRI. All Rights Reserved.</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
@@ -432,6 +432,7 @@
 			<DCCReference Include="..\PCElements\StorageVars.pas"/>
 			<DCCReference Include="..\Controls\CapControlVars.pas"/>
 			<DCCReference Include="..\Controls\CapUserControl.pas"/>
+			<DCCReference Include="..\Controls\InvControl.pas"/>
 			<RidlCompile Include="OpenDSSengine.ridl"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
