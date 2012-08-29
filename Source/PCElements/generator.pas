@@ -69,10 +69,11 @@ unit generator;
   Generator models are:
   1. Constant P, Q  (* dispatch curve, if appropriate).
   2. Constant Z  (For simple solution)
-  3. Constant P, |V|  like a standard power flow  [not implemented]
+  3. Constant P, |V|  like a standard power flow
   4. Constant P, Fixed Q  (vars)
   5. Constant P, Fixed Q  (reactance)
   6. User model
+  7. Approximate Inverter model
 
   Most of the time you will use #1 for planning studies.
 

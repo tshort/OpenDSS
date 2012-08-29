@@ -359,6 +359,7 @@
 			<DCCReference Include="..\PCElements\StorageVars.pas"/>
 			<DCCReference Include="..\PCElements\GeneratorVars.pas"/>
 			<DCCReference Include="..\Controls\CapControlVars.pas"/>
+			<DCCReference Include="..\Controls\InvControl.pas"/>
 			<RcItem Include="OpenDSS3.ico">
 				<ResourceType>ICON</ResourceType>
 				<ResourceId>Icon_1</ResourceId>

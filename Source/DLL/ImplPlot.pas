@@ -75,7 +75,7 @@ VAR
    FCenterMarkerCode :Integer;
    FNodeMarkerCode   :Integer;
    FNodeMarkerWidth  :Integer;
-   FDoCurveMarkers     :Boolean;
+   FDoCurveMarkers   :Boolean;
    FCurveMarker      :Integer;
    FCurveName        :String;
    FTextSize         :Integer;

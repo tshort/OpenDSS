@@ -171,7 +171,8 @@ uses
   CapUserControl in '..\Controls\CapUserControl.pas',
   StorageVars in '..\PCElements\StorageVars.pas',
   GeneratorVars in '..\PCElements\GeneratorVars.pas',
-  CapControlVars in '..\Controls\CapControlVars.pas';
+  CapControlVars in '..\Controls\CapControlVars.pas',
+  InvControl in '..\Controls\InvControl.pas';
 
 {$R *.RES}
 

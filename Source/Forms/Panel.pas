@@ -658,20 +658,31 @@ end;
 procedure TControlPanel.ScriptEditorHelp1Click(Sender: TObject);
 begin
  With ActiveScriptForm Do Begin
-  Editor.Lines.Add ('This is a multi-line command editor with cut, copy, and paste features');
+  Editor.Lines.Add ('/**** Begin Block Comment ****');
+  Editor.Lines.Add ('This is a Windows Richedit form with typical formatting and cut, copy, and paste features');
   Editor.Lines.Add ('');
-  Editor.Lines.Add ('Press Enter to execute either the selection, or the current line');
-  Editor.Lines.Add ('Press Ctrl-Enter to insert a new line without executing it');
+  Editor.Lines.Add ('You may edit text as you would for many standard text editors.');
+  Editor.Lines.Add ('You may execute one or more lines of script by selecting all or part');
+  Editor.Lines.Add ('of a line or simply positioning the cursor in a line.');
   Editor.Lines.Add ('');
-  Editor.Lines.Add ('With no selection:');
+  Editor.Lines.Add ('Right-click to see your options.');
+  Editor.Lines.Add ('');
+  Editor.Lines.Add ('You may open files by selecting all or part of the filename in the script.');
+  Editor.Lines.Add ('');
+  Editor.Lines.Add ('With no selection (cursor in a line):');
   Editor.Lines.Add ('==============');
-  Editor.Lines.Add ('Press Enter to execute the current line');
-  Editor.Lines.Add ('Right-click on a previous line to execute it');
+  Editor.Lines.Add ('  Right-click and selected Do Selected to execute the whole line.');
+  Editor.Lines.Add ('  Whole lines are sent to the OpenDSS command interpreter.');
+  Editor.Lines.Add ('  File names without blanks are automatically selected.');
+  Editor.Lines.Add ('  If the file name contains blanks, select the entire name manually.');
   Editor.Lines.Add ('');
   Editor.Lines.Add ('With a selection:');
   Editor.Lines.Add ('=============');
-  Editor.Lines.Add ('Press Enter to execute all selected lines');
-  Editor.Lines.Add ('Right-click to execute all selected lines');
+  Editor.Lines.Add ('  Right-click to execute all selected lines.');
+  Editor.Lines.Add ('  Lines partially selected are sent as whole lines.');
+  Editor.Lines.Add ('');
+  Editor.Lines.Add ('**** End Block Comment ****/');
+
  End;
 end;
 
@@ -2039,7 +2050,7 @@ end;
 
 procedure TControlPanel.OpenDSSWiki1Click(Sender: TObject);
 begin
-      shellexecute(handle,'open','http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=Main_Page',nil,nil,1);
+      shellexecute(handle,'open','http://smartgrid.epri.com/SimulationTool.aspx',nil,nil,1);
 end;
 
 procedure TControlPanel.Save2Click(Sender: TObject);
