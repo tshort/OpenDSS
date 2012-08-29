@@ -184,11 +184,13 @@ Begin
      DSSClasses.New := TSwtControl.Create;
      PVSystemClass  := TPVSystem.Create;
      DSSClasses.New := PVSystemClass;
-     DSSClasses.New := VVControlClass;
+
      VVControlClass := TVVControl.Create;
-//     DSSClasses.New := InvControlClass;
+     DSSClasses.New := VVControlClass;
+
 
      InvControlClass := TInvControl.Create;
+     DSSClasses.New := InvControlClass;
 
      DSSClasses.New := TGICLine.Create;
      DSSClasses.New := TGICTransformer.Create;
