@@ -31,7 +31,7 @@ Export voltages
 
 Plot Circuit Power Max=2000 dots=n labels=n  C1=Blue  ! $00FF0000
 
-Plot Circuit voltage Max=0 n n  C1=Blue C2=$FF00FF
+Plot Circuit voltage Max=0 dots=y n  C1=Blue C2=$FF00FF
 
 plot circuit Losses Max=20 dots=n labels=n subs=y C1=Blue
 

@@ -200,6 +200,7 @@ New Capacitor.C88a      Bus1=88.1    Phases=1     kVAR=50      kV=2.402
 New Capacitor.C90b      Bus1=90.2    Phases=1     kVAR=50      kV=2.402
 New Capacitor.C92c      Bus1=92.3    Phases=1     kVAR=50      kV=2.402
 
+
 !REGULATORS - REDIRECT TO DEFINITIONS FILE
 ! This file contains definitions for the remainder of regulators on the feeder:
 

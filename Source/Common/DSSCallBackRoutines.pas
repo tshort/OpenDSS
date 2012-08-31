@@ -387,6 +387,11 @@ Begin
      Result := ActiveCircuit.ControlQueue.Push(Hour, Sec, Code, ProxyHdl, Owner);
 End;
 
+Procedure GetResultStrCallBack(S:pAnsiChar; Maxlen:Cardinal); StdCall;
+Begin
+     StrlCopy(S, pAnsiChar(AnsiString( GlobalResult )), Maxlen) ;
+End;
+
 {====================================================================================================================}
 
 Initialization
@@ -429,6 +434,7 @@ Initialization
          GetActiveElementName     := GetActiveElementNameCallBack;
          GetActiveElementPtr      := GetActiveElementPtrCallBack;
          ControlQueuePush         := ControlQueuePushCallBack;
+         GetResultStr             := GetResultStrCallBack;
   End;
 
   CallBackParser  := TParser.Create;

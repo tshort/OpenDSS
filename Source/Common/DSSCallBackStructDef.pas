@@ -50,5 +50,8 @@ TYPE
         GetActiveElementName:     Function(FullName : pAnsiChar; MaxNameLen : Cardinal) : Integer; StdCall;
         GetActiveElementPtr:      Function() : Pointer; StdCall;  // Returns pointer to active circuit element
         ControlQueuePush:         Function(Const Hour:Integer; Const Sec:Double; Const Code, ProxyHdl:Integer; Owner:Pointer):Integer; StdCall;
+        GetResultStr:             Procedure(S : pAnsiChar; Maxlen : Cardinal); StdCall;
 
    End;
+
+
