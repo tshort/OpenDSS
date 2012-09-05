@@ -960,7 +960,7 @@ Begin
      Parser.ParseAsVector(2, @TimeArray);
      WITH ActiveCircuit.Solution DO
      Begin
-        intHour := Round(TimeArray[1]);
+        DynaVars.intHour := Round(TimeArray[1]);
         DynaVars.t := TimeArray[2];
         Update_dblHour;
      End;
@@ -1374,7 +1374,7 @@ Begin
     CASE UpCase(Param[1]) of
 
        'Y'{Year}:  Year := Year + 1;
-       'H'{Hour}:  Inc(intHour);
+       'H'{Hour}:  Inc(DynaVars.intHour);
        'T'{Time}:  Increment_time;
     ELSE
 
@@ -2847,7 +2847,7 @@ Begin
      If ActiveCircuit <> Nil Then Begin
 
          S := S + Format('Year = %d ',[ActiveCircuit.Solution.Year]) + CRLF;
-         S := S + Format('Hour = %d ',[ActiveCircuit.Solution.intHour]) + CRLF;
+         S := S + Format('Hour = %d ',[ActiveCircuit.Solution.DynaVars.intHour]) + CRLF;
          S := S + 'Max pu. voltage = '+Format('%-.5g ',[GetMaxPUVoltage]) + CRLF;
          S := S + 'Min pu. voltage = '+Format('%-.5g ',[GetMinPUVoltage(TRUE)]) + CRLF;
          cPower :=  CmulReal(GetTotalPowerFromSources, 0.000001);  // MVA

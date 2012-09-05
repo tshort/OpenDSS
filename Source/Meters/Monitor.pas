@@ -878,7 +878,7 @@ Begin
 
    inc(SampleCount);
 
-   Hour := ActiveCircuit.Solution.intHour;
+   Hour := ActiveCircuit.Solution.DynaVars.intHour;
    Sec :=  ActiveCircuit.Solution.Dynavars.t;
 
    Offset := (MeteredTerminal-1)  * MeteredElement.NConds;

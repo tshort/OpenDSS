@@ -341,7 +341,7 @@ Function GetTimeHrCallBack:Double; StdCall;
 Begin
        Result := 0.0;
        If Assigned(ActiveCircuit) Then Begin
-          Result := ActiveCircuit.Solution.dblHour;
+          Result := ActiveCircuit.Solution.DynaVars.dblHour;
        End;
 End;
 

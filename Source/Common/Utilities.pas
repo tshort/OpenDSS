@@ -1528,7 +1528,7 @@ FUNCTION PresentTimeInSec:Double;
 
 Begin
     With ActiveCircuit.Solution Do
-       Result := Dynavars.t + intHour*3600.0;
+       Result := Dynavars.t + DynaVars.intHour*3600.0;
 End;
 
 
@@ -1717,7 +1717,7 @@ Begin
     {****  WriteDLLDebugFile(Format('LogThisEvent: EventStrings= %p', [@EventStrings])); }
     With ActiveCircuit.Solution do
     EventStrings.Add(Format('Hour=%d, Sec=%-.8g, Iteration=%d, ControlIter=%d, Event=%s',
-          [intHour, Dynavars.t, iteration, ControlIteration, EventName ]));
+          [DynaVars.intHour, Dynavars.t, iteration, ControlIteration, EventName ]));
 
      //     'Time=' + TimeToStr(Time)+': '+EventName);
  {****  ShowMessageForm(EventStrings); }
@@ -1731,7 +1731,7 @@ Begin
   {****  WriteDLLDebugFile(Format('LogThisEvent: EventStrings= %p', [@EventStrings])); }
           With  ActiveCircuit.Solution  Do
           S :=  Format('Hour=%d, Sec=%-.5g, ControlIter=%d, Element=%s, Action=%s',
-          [intHour, Dynavars.t, ControlIteration, OpDev, Uppercase(action) ]);
+          [DynaVars.intHour, Dynavars.t, ControlIteration, OpDev, Uppercase(action) ]);
           EventStrings.Add(S);
   {****  ShowMessageForm(EventStrings); }
 End;

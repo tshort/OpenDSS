@@ -738,7 +738,7 @@ begin
                           ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
                           If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Opened**');
                           PresentState := OPEN;
-                          With ActiveCircuit.Solution Do LastOpenTime := DynaVars.t + 3600.0*intHour;
+                          With ActiveCircuit.Solution Do LastOpenTime := DynaVars.t + 3600.0*DynaVars.intHour;
                         End;
                        End;
                     ELSE
@@ -1006,7 +1006,7 @@ begin
               {7-8-10  NormalizeToTOD Algorithm modified to close logic hole between 11 PM and midnight}
                  Begin
                     WITH ActiveCircuit.Solution Do Begin
-                         NormalizedTime := NormalizeToTOD(intHour, DynaVars.t);
+                         NormalizedTime := NormalizeToTOD(DynaVars.intHour, DynaVars.t);
                     End;
                     { 1/28/09 Code modified to accommodate OFF_Value < ON_Value }
                     CASE PresentState OF
@@ -1101,12 +1101,12 @@ begin
            IF   ShouldSwitch and Not Armed THEN
              Begin
               If PendingChange = CLOSE Then Begin
-                 If (Solution.DynaVars.t + Solution.intHour*3600.0 - LastOpenTime)<DeadTime Then // delay the close operation
+                 If (Solution.DynaVars.t + Solution.DynaVars.intHour*3600.0 - LastOpenTime)<DeadTime Then // delay the close operation
                       {2-6-09 Added ONDelay to Deadtime so that all caps do not close back in at same time}
-                      TimeDelay := Max(ONDelay , (Deadtime + ONDelay) - (Solution.DynaVars.t + Solution.intHour*3600.0-LastOpenTime))
+                      TimeDelay := Max(ONDelay , (Deadtime + ONDelay) - (Solution.DynaVars.t + Solution.DynaVars.intHour*3600.0-LastOpenTime))
                  Else  TimeDelay := ONDelay;
               End Else TimeDelay := OFFDelay;
-              ControlActionHandle := ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + TimeDelay , PendingChange, 0, Self);
+              ControlActionHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TimeDelay , PendingChange, 0, Self);
               Armed := TRUE;
               If ShowEventLog Then AppendtoEventLog('Capacitor.' + ControlledElement.Name, Format('**Armed**, Delay= %.5g sec', [TimeDelay]));
              End;

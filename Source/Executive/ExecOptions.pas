@@ -407,7 +407,7 @@ Begin
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Set Command ', 130);
             1,12: SetObjectClass(Param);
             2,13: SetObject(Param);
-            3: ActiveCircuit.solution.intHour := Parser.IntValue;
+            3: ActiveCircuit.solution.DynaVars.intHour := Parser.IntValue;
             4: ActiveCircuit.solution.DynaVars.t    := Parser.DblValue;
             5: WITH ActiveCircuit Do Begin
                   Solution.Year := Parser.IntValue;
@@ -577,7 +577,7 @@ Begin
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Get Command ', 133);
             1,12: AppendGlobalResult(ActiveCircuit.ActiveCktElement.DSSClassName );
             2,13: AppendGlobalResult(ActiveCircuit.ActiveCktElement.Name);
-            3: AppendGlobalResult(IntToStr(ActiveCircuit.solution.intHour));
+            3: AppendGlobalResult(IntToStr(ActiveCircuit.solution.DynaVars.intHour));
             4: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.solution.DynaVars.t]));
             5: AppendGlobalResult(IntToStr(ActiveCircuit.solution.Year));
             6: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.solution.Frequency]));
@@ -585,7 +585,7 @@ Begin
             8: AppendGlobalResult(GetSolutionModeID);
             9: AppendGlobalResult(GetRandomModeID);
            10: AppendGlobalResult(IntToStr(ActiveCircuit.solution.NumberOfTimes));
-           11: AppendGlobalResult(Format('[ %d, %-g ]', [IntToStr(ActiveCircuit.solution.intHour), ActiveCircuit.solution.DynaVars.t]));
+           11: AppendGlobalResult(Format('[ %d, %-g ]', [IntToStr(ActiveCircuit.solution.DynaVars.intHour), ActiveCircuit.solution.DynaVars.t]));
            14: AppendGlobalResult(ActiveCircuit.name);
            15: AppendGlobalResult(DefaultEditor);
            16: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.solution.ConvergenceTolerance]));

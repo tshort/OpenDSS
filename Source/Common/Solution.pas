@@ -121,8 +121,6 @@ TYPE
        Harmonic   :Double;
        HarmonicList  :pDoubleArray;
        HarmonicListSize :Integer;
-       intHour :Integer;
-       dblHour :Double;
        hYsystem :LongWord;   {Handle for main (system) Y matrix}
        hYseries :LongWord;   {Handle for series Y matrix}
        hY :LongWord;         {either hYsystem or hYseries}
@@ -292,9 +290,9 @@ Begin
     Name := LowerCase(SolutionName);
 
     FYear    := 0;
-    intHour     := 0;
+    DynaVars.intHour     := 0;
     DynaVars.t        := 0.0;
-    dblHour  := 0.0;
+    DynaVars.dblHour  := 0.0;
     DynaVars.tstart   := 0.0;
     DynaVars.tstop    := 0.0;
     //duration := 0.0;
@@ -1102,7 +1100,7 @@ Begin
      Writeln(F, 'Set Mode=', GetSolutionModeID);
      Writeln(F, 'Set ControlMode=', GetControlModeID);
      Writeln(F, 'Set Random=', GetRandomModeID);
-     Writeln(F, 'Set hour=',   intHour:0);
+     Writeln(F, 'Set hour=',   DynaVars.intHour:0);
      Writeln(F, 'Set sec=',    Format('%-g', [DynaVars.t]));
      Writeln(F, 'Set year=',   Year:0);
      Writeln(F, 'Set frequency=',   Format('%-g',[Frequency]));
@@ -1278,12 +1276,12 @@ Begin
                End;
             EVENTDRIVEN:
                Begin
-                 IF NOT ControlQueue.DoNearestActions(intHour, DynaVars.t)
+                 IF NOT ControlQueue.DoNearestActions(DynaVars.intHour, DynaVars.t)
                  THEN ControlActionsDone := TRUE;// Advances time
                End;
             TIMEDRIVEN:
                Begin
-                 IF NOT ControlQueue.DoActions (intHour, DynaVars.t)
+                 IF NOT ControlQueue.DoActions (DynaVars.intHour, DynaVars.t)
                  THEN ControlActionsDone := TRUE;
                End;
 
@@ -1344,7 +1342,7 @@ PROCEDURE TSolutionObj.Set_Mode(const Value: Integer);
 
 begin
 
-   intHour       := 0;
+   DynaVars.intHour       := 0;
    DynaVars.t    := 0.0;
    Update_dblHour;
    ActiveCircuit.TrapezoidalIntegration := FALSE;
@@ -1407,7 +1405,7 @@ begin
                            ActiveCircuit.TrapezoidalIntegration := TRUE;
                       End;
        LOADDURATION2: Begin
-                           intHour := 1;
+                           DynaVars.intHour := 1;
                            ActiveCircuit.TrapezoidalIntegration := TRUE;
                       End;
        AUTOADDFLAG :  Begin
@@ -1602,7 +1600,7 @@ procedure TSolutionObj.Set_Year(const Value: Integer);
 begin
       If DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
       FYear := Value;
-      intHour := 0;  {Change year, start over}
+      DynaVars.intHour := 0;  {Change year, start over}
       Dynavars.t := 0.0;
       Update_dblHour;
       EnergyMeterClass.ResetAll;  // force any previous year data to complete
@@ -1688,7 +1686,7 @@ END;
 
 procedure TSolutionObj.Update_dblHour;
 begin
-     dblHour := intHour + dynavars.t/3600.0;
+     DynaVars.dblHour := DynaVars.intHour + dynavars.t/3600.0;
 end;
 
 procedure TSolutionObj.UpdateVBus;

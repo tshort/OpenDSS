@@ -923,17 +923,17 @@ Begin
          DAILYMODE:   Begin
                             Factor := GrowthFactor(Year);
                             IF not ExemptFromLDCurve Then Factor := Factor * ActiveCircuit.LoadMultiplier;
-                            CalcDailyMult(dblHour);
+                            CalcDailyMult(DynaVars.dblHour);
                       End;
          YEARLYMODE:  Begin
                            Factor := ActiveCircuit.LoadMultiplier * GrowthFactor(Year);
-                           CalcYearlyMult(dblHour);
-                           If FLoadModel=4 Then CalcCVRMult(dblHour);
+                           CalcYearlyMult(DynaVars.dblHour);
+                           If FLoadModel=4 Then CalcCVRMult(DynaVars.dblHour);
                       End;
          DUTYCYCLE:   Begin
                            Factor := GrowthFactor(Year);
                            IF Not ExemptFromLDCurve Then Factor := Factor * ActiveCircuit.LoadMultiplier;
-                           CalcDutyMult(dblHour);
+                           CalcDutyMult(DynaVars.dblHour);
                       End;
          GENERALTIME,
          DYNAMICMODE: Begin
@@ -941,9 +941,9 @@ Begin
                            IF Not ExemptFromLDCurve Then Factor := Factor * ActiveCircuit.LoadMultiplier;
                            // This mode allows use of one class of load shape
                            case ActiveCircuit.ActiveLoadShapeClass of
-                                USEDAILY:  CalcDailyMult(dblHour);
-                                USEYEARLY: CalcYearlyMult(dblHour);
-                                USEDUTY:   CalcDutyMult(dblHour);
+                                USEDAILY:  CalcDailyMult(DynaVars.dblHour);
+                                USEYEARLY: CalcYearlyMult(DynaVars.dblHour);
+                                USEDUTY:   CalcDutyMult(DynaVars.dblHour);
                            else
                                 ShapeFactor := cONE     // default to 1 + j1 if not known
                            end;
@@ -958,10 +958,10 @@ Begin
          MONTECARLO3,
          LOADDURATION1,
          LOADDURATION2:Begin
-                             Factor :=  GrowthFactor(Year); CalcDailyMult(dblHour);
+                             Factor :=  GrowthFactor(Year); CalcDailyMult(DynaVars.dblHour);
                              IF not  ExemptFromLDCurve Then  Factor := Factor * ActiveCircuit.LoadMultiplier;
                        End;
-         PEAKDAY:      Begin Factor := GrowthFactor(Year);  CalcDailyMult(dblHour); End;
+         PEAKDAY:      Begin Factor := GrowthFactor(Year);  CalcDailyMult(DynaVars.dblHour); End;
          AUTOADDFLAG:  Factor := GrowthFactor(Year);  // Loadmult = 1.0 by default
        ELSE
          Factor := GrowthFactor(Year)    // defaults to Base kW * growth

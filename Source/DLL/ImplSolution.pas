@@ -105,7 +105,7 @@ end;
 
 function TSolution.Get_Hour: Integer;
 begin
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.intHour
+     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.DynaVars.intHour
      Else Result := 0;
 end;
 
@@ -178,7 +178,7 @@ end;
 procedure TSolution.Set_Hour(Value: Integer);
 begin
      If ActiveCircuit <> Nil Then With  ActiveCircuit.Solution Do Begin
-        intHour  := Value;
+        DynaVars.intHour  := Value;
         Update_dblHour;
      End;
 end;
@@ -426,16 +426,16 @@ end;
 function TSolution.Get_dblHour: Double;
 begin
      If ActiveCircuit <> Nil Then  Begin
-        Result := ActiveCircuit.Solution.dblHour;
+        Result := ActiveCircuit.Solution.DynaVars.dblHour;
      End;
 end;
 
 procedure TSolution.Set_dblHour(Value: Double);
 begin
   If ActiveCircuit <> Nil Then With ActiveCircuit.Solution Do Begin
-      intHour := Trunc(Value);
-      dblHour := Value;
-      Dynavars.t := (Value - intHour) * 3600.0;
+      DynaVars.intHour := Trunc(Value);
+      DynaVars.dblHour := Value;
+      Dynavars.t := (Value - DynaVars.intHour) * 3600.0;
   End;
 end;
 

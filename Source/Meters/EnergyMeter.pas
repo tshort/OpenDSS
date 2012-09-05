@@ -777,7 +777,7 @@ Begin
       SystemMeter.TakeSample;
 
       If FSaveDemandInterval Then Begin  {Write Totals Demand interval file}
-        With ActiveCircuit.Solution  Do Write(FDI_Totals, Format('%-.6g ',[dblHour]));
+        With ActiveCircuit.Solution  Do Write(FDI_Totals, Format('%-.6g ',[DynaVars.dblHour]));
         For i := 1 to NumEMRegisters Do Write(FDI_Totals, Format(', %-.6g',[DI_RegisterTotals[i]]));
         Writeln(FDI_Totals);
         ClearDI_Totals;
@@ -2457,7 +2457,7 @@ Var i,j:Integer;
 
 begin
       If EnergyMeterClass.DI_Verbose and This_Meter_DIFileIsOpen Then Begin
-          With ActiveCircuit.Solution Do Write(DI_File, Format('%-.6g',[dblHour]));
+          With ActiveCircuit.Solution Do Write(DI_File, Format('%-.6g',[DynaVars.dblHour]));
           For i := 1 to NumEMRegisters Do Write(DI_File, Format(', %-.6g',[Derivatives[i]]));
           Writeln(DI_File);
       End;
@@ -2468,7 +2468,7 @@ begin
 
       {Phase Voltage Report, if requested}
       If VPhaseReportFileIsOpen Then Begin
-          With ActiveCircuit.Solution Do Write(VPhase_File, Format('%-.6g',[dblHour]));
+          With ActiveCircuit.Solution Do Write(VPhase_File, Format('%-.6g',[DynaVars.dblHour]));
           For i := 1 to MaxVBaseCount Do
           If VBaseList^[i] > 0.0 then  Begin
               For j := 1 to 3 Do Write(VPhase_File, Format( ', %-.6g', [0.001 * VPhaseMax^[jiIndex(j, i)]]));
@@ -2640,7 +2640,7 @@ begin
              PDelem.ComputeIterminal;
              Cmax := PDelem.MaxTerminalOneImag; // For now, check only terminal 1 for overloads
              IF (Cmax > PDElem.NormAmps) OR (Cmax > pdelem.EmergAmps) THEN Begin
-                 With ActiveCircuit.Solution Do Write(FOverLoadFile, Format('%-.6g,',[dblHour]));
+                 With ActiveCircuit.Solution Do Write(FOverLoadFile, Format('%-.6g,',[DynaVars.dblHour]));
                  Write(FOverLoadFile, Format(' %s, %-.4g, %-.4g,',[FullName(PDelem), PDElem.NormAmps, pdelem.EmergAmps ]));
                  IF PDElem.Normamps > 0.0  THEN Write(FOverLoadFile, Format(' %-.7g,',[Cmax/PDElem.Normamps*100.0]))
                                            ELSE Write(FOverLoadFile,' 0.0,');
@@ -2859,7 +2859,7 @@ end;
 
 procedure TSystemMeter.WriteDemandIntervalData;
 begin
-   With ActiveCircuit.Solution Do Write(SystemDIFile, Format('%-.6g',[dblHour]));
+   With ActiveCircuit.Solution Do Write(SystemDIFile, Format('%-.6g',[DynaVars.dblHour]));
    Write(SystemDIFile, Format(', %-g', [cPower.re]));
    Write(SystemDIFile, Format(', %-g', [cPower.im]));
    Write(SystemDIFile, Format(', %-g',[peakkW]));
@@ -2985,7 +2985,7 @@ begin
                End;
            End;
        End; {For i}
-       With Solution Do Write(FVoltageFile, Format('%-.6g,',[dblHour]));
+       With Solution Do Write(FVoltageFile, Format('%-.6g,',[DynaVars.dblHour]));
 
        Writeln(FVoltageFile, Format(' %d, %-.6g, %d, %-.6g, %s, %s', [UnderCount, UnderVmin, OverCount, OverVmax, BusList.Get(minbus), Buslist.Get(maxbus) ]))
     End;

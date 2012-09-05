@@ -801,7 +801,7 @@ begin
                               TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding]);
                               If (DebugTrace) Then RegWriteTraceRecord(TapChangeToMake);
                               PresentTap[TapWinding] := PresentTap[TapWinding] + TapChangeToMake;
-                              IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(intHour, Dynavars.t + TapDelay, 0, 0, Self)
+                              IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(DynaVars.intHour, Dynavars.t + TapDelay, 0, 0, Self)
                               ELSE Armed := FALSE;
                           End;
 
@@ -813,7 +813,7 @@ begin
                               If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d tap to %-.6g.',[Lastchange,PresentTap[TapWinding]]));
                               If (DebugTrace) Then RegWriteDebugRecord(Format('--- Regulator.%s Changed %d tap to %-.6g.',[ControlledElement.Name, Lastchange,PresentTap[TapWinding]]));
 
-                              IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(intHour, DynaVars.t + TapDelay, 0, 0, Self)
+                              IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(DynaVars.intHour, DynaVars.t + TapDelay, 0, 0, Self)
                               ELSE Armed := FALSE;
                           End;
 
@@ -876,7 +876,7 @@ begin
                         If (DebugTrace) Then RegWriteDebugRecord(Format('Pushing Reverse Action, FwdPower=%.8g',[FwdPower]));
                         ReversePending := TRUE;
                         WITH ActiveCircuit Do
-                             ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + RevDelay, ACTION_REVERSE, 0, Self);
+                             ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + RevDelay, ACTION_REVERSE, 0, Self);
                     End
                     Else ReversePending := FALSE; // Reset it if power goes back
                   End;
@@ -891,7 +891,7 @@ begin
                         If (DebugTrace) Then RegWriteDebugRecord(Format('Pushing Reverse Action to switch back, FwdPower=%.8g',[FwdPower]));
                         ReversePending := TRUE;
                         WITH ActiveCircuit Do
-                             ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + RevDelay, ACTION_REVERSE, 0, Self);
+                             ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + RevDelay, ACTION_REVERSE, 0, Self);
                     End
                     Else ReversePending := FALSE; // Reset it if power went back to reverse
                   End;
@@ -911,7 +911,7 @@ begin
                                  With ActiveCircuit Do Begin
                                       If (DebugTrace) Then
                                           RegWriteDebugRecord(Format('*** %.6g s: Pushing TapChange = %.8g, delay= %.8g',[Solution.DynaVars.t, PendingTapChange, TapDelay]));
-                                      ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + TapDelay, ACTION_TAPCHANGE, 0, Self);
+                                      ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TapDelay, ACTION_TAPCHANGE, 0, Self);
                                       Armed := TRUE;
                                  End;
                               End;
@@ -1003,7 +1003,7 @@ begin
                        Begin
                          IF   PresentTap[TapWinding] < MaxTap[TapWinding]  THEN
                          WITH ActiveCircuit Do Begin
-                               ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self);
+                               ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self);
                                Armed := TRUE;  // Armed to change taps
                          End;
                        End
@@ -1011,7 +1011,7 @@ begin
                        Begin
                          IF   PresentTap[TapWinding] > MinTap[TapWinding]  THEN
                          WITH ActiveCircuit Do Begin
-                               ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self);
+                               ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self);
                                Armed := TRUE;  // Armed to change taps
                          End;
                        End;
@@ -1083,7 +1083,7 @@ Begin
                Append(TraceFile);
                WITH TTransfObj(ControlledElement) Do
                Writeln(TraceFile,
-                        ActiveCircuit.Solution.intHour:0, Separator,
+                        ActiveCircuit.Solution.DynaVars.intHour:0, Separator,
                         ActiveCircuit.Solution.DynaVars.t:0:3, Separator,
                         ActiveCircuit.Solution.ControlIteration:0, Separator,
                         ActiveCircuit.Solution.Iteration:0, Separator,

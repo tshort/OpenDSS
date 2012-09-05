@@ -357,7 +357,7 @@ Begin
         THEN Begin
              Append(TraceFile);
              Writeln(TraceFile, Format('%d, %.6g, %d, %s, %d, %-.g, %s', [
-                      ActiveCircuit.Solution.intHour,
+                      ActiveCircuit.Solution.DynaVars.intHour,
                       ActiveCircuit.Solution.DynaVars.t,
                       ActiveCircuit.Solution.ControlIteration,
                       ElementName,

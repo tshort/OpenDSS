@@ -2,12 +2,12 @@ object MainEditForm: TMainEditForm
   Left = 266
   Top = 205
   Caption = 'Main Script Window'
-  ClientHeight = 460
-  ClientWidth = 720
+  ClientHeight = 374
+  ClientWidth = 585
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -14
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   FormStyle = fsMDIChild
@@ -18,21 +18,17 @@ object MainEditForm: TMainEditForm
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 13
   object Editor: TRichEdit
     Left = 0
     Top = 27
-    Width = 720
-    Height = 433
-    Margins.Left = 4
-    Margins.Top = 4
-    Margins.Right = 4
-    Margins.Bottom = 4
+    Width = 585
+    Height = 347
     Align = alClient
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -15
+    Font.Height = -12
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     Lines.Strings = (
@@ -49,10 +45,11 @@ object MainEditForm: TMainEditForm
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 720
+    Width = 585
     Height = 27
     Caption = 'ToolBar1'
     TabOrder = 1
+    ExplicitWidth = 720
     object FontBtn: TButton
       Left = 0
       Top = 0

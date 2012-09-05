@@ -44,6 +44,8 @@ TYPE
        tstop:Double;
        IterationFlag:Integer;  {0=New Time Step; 1= Same Time Step as last iteration}
        SolutionMode :Integer;   //  PEAKSNAP, DAILYMODE, YEARLYMODE, MONTECARLO, etc.  (see DSSGlobals)
+       intHour :Integer;  // time, in hours as an integer
+       dblHour :Double;   // time, in hours as a floating point number including fractional part
 
    End;
 

@@ -122,7 +122,7 @@ TYPE
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
    TGeneratorObj = class(TPCElement)
       Private
-        Zthev           :Complex;
+// Moved to GeneratorVars        Zthev           :Complex;
         Yeq             :Complex;   // at nominal
         Yeq95           :Complex;   // at 95%
         Yeq105          :Complex;   // at 105%
@@ -155,7 +155,7 @@ TYPE
         Reg_MaxkW       :Integer;
         Reg_Price       :Integer;
         ShapeFactor     :Complex;
-        Thetaharm       :Double;  {Thevinen equivalent voltage mag and angle reference for Harmonic model}
+// moved to GeneratorVars        Thetaharm       :Double;  {Thevinen equivalent voltage angle reference for Harmonic model}
         Tracefile       : TextFile;
         UserModel, ShaftModel : TGenUserModel;   {User-Written Models}
         V_Avg           :Double;
@@ -170,8 +170,8 @@ TYPE
         Vmaxpu          :Double;
         Vminpu          :Double;
         Vthev           :Complex;  {Thevinen equivalent voltage (complex) for dynamic model}
-        Vthevharm       :Double;  {Thevinen equivalent voltage mag and angle reference for Harmonic model}
-        VthevMag        :Double;    {Thevinen equivalent voltage for dynamic model}
+// moved to GeneratorVars        Vthevharm       :Double;  {Thevinen equivalent voltage mag reference for Harmonic model}
+// moved to GeneratorVars        VthevMag        :Double;    {Thevinen equivalent voltage for dynamic model}
         YPrimOpenCond   :TCmatrix;  // To handle cases where one conductor of load is open ; We revert to admittance for inj currents
         YQFixed         :Double;  // Fixed value of y for type 7 load
         ShapeIsActual   :Boolean;
@@ -236,7 +236,7 @@ TYPE
         kWBase          :Double;
         PFNominal       :Double;
         Vpu             :Double;       // per unit Target voltage for generator with voltage control
-        VTarget         :Double;  // Target voltage for generator with voltage control
+// moved to GeneratorVars        VTarget         :Double;  // Target voltage for generator with voltage control
         YearlyShape     :String;  // ='fixed' means no variation  on all the time
         YearlyShapeObj  :TLoadShapeObj;  // Shape for this Generator
 
@@ -721,7 +721,7 @@ Begin
        GenClass       := OtherGenerator.GenClass;
        GenModel       := OtherGenerator.GenModel;
        IsFixed        := OtherGenerator.IsFixed;
-       VTarget        := OtherGenerator.VTarget;
+       GenVars.VTarget        := OtherGenerator.Genvars.VTarget;
        Vpu            := OtherGenerator.Vpu;
        kvarMax        := OtherGenerator.kvarMax;
        kvarMin        := OtherGenerator.kvarMin;
@@ -852,7 +852,7 @@ Begin
 
      GenVars.kVGeneratorBase  := 12.47;
      Vpu              := 1.0;
-     VTarget          := 1000.0 * Vpu * GenVars.kVGeneratorBase / SQRT3;  {Line-to-Neutral target}
+     GenVars.VTarget  := 1000.0 * Vpu * GenVars.kVGeneratorBase / SQRT3;  {Line-to-Neutral target}
      VBase            := 7200.0;
      Vminpu           := 0.90;
      Vmaxpu           := 1.10;
@@ -1023,17 +1023,17 @@ Begin
                     SNAPSHOT:     Factor := ActiveCircuit.GenMultiplier * 1.0;
                     DAILYMODE:    Begin
                                        Factor := ActiveCircuit.GenMultiplier  ;
-                                       CalcDailyMult(dblHour) // Daily dispatch curve
+                                       CalcDailyMult(DynaVars.dblHour) // Daily dispatch curve
                                   End;
-                    YEARLYMODE:   Begin Factor := ActiveCircuit.GenMultiplier; CalcYearlyMult(dblHour);  End;
-                    DUTYCYCLE:    Begin Factor := ActiveCircuit.GenMultiplier; CalcDutyMult(dblHour) ; End;
+                    YEARLYMODE:   Begin Factor := ActiveCircuit.GenMultiplier; CalcYearlyMult(DynaVars.dblHour);  End;
+                    DUTYCYCLE:    Begin Factor := ActiveCircuit.GenMultiplier; CalcDutyMult(DynaVars.dblHour) ; End;
                     GENERALTIME:  Begin   // General sequential time simulation
                                        Factor := ActiveCircuit.GenMultiplier;
                                        // This mode allows use of one class of load shape
                                        case ActiveCircuit.ActiveLoadShapeClass of
-                                            USEDAILY:  CalcDailyMult(dblHour);
-                                            USEYEARLY: CalcYearlyMult(dblHour);
-                                            USEDUTY:   CalcDutyMult(dblHour);
+                                            USEDAILY:  CalcDailyMult(DynaVars.dblHour);
+                                            USEYEARLY: CalcYearlyMult(DynaVars.dblHour);
+                                            USEDUTY:   CalcDutyMult(DynaVars.dblHour);
                                        else
                                             ShapeFactor := cONE     // default to 1 + j1 if not known
                                        end;
@@ -1045,8 +1045,8 @@ Begin
                     MONTECARLO2,
                     MONTECARLO3,
                     LOADDURATION1,
-                    LOADDURATION2:Begin Factor := ActiveCircuit.GenMultiplier; CalcDailyMult(dblHour); End;
-                    PEAKDAY:      Begin Factor := ActiveCircuit.GenMultiplier; CalcDailyMult(dblHour); End;
+                    LOADDURATION2:Begin Factor := ActiveCircuit.GenMultiplier; CalcDailyMult(DynaVars.dblHour); End;
+                    PEAKDAY:      Begin Factor := ActiveCircuit.GenMultiplier; CalcDailyMult(DynaVars.dblHour); End;
                     AUTOADDFLAG:  Factor := 1.0;
                 ELSE
                     Factor := 1.0
@@ -1145,9 +1145,9 @@ Begin
 
 
     YQFixed := -varBase / Sqr(VBase);   //10-17-02  Fixed negative sign
-    Vtarget := Vpu * 1000.0 * GenVars.kVGeneratorBase;
+    GenVars.Vtarget := Vpu * 1000.0 * GenVars.kVGeneratorBase;
 
-    If Fnphases>1 then VTarget := VTarget / SQRT3;
+    If Fnphases>1 then GenVars.VTarget := GenVars.VTarget / SQRT3;
 
     // Initialize to Zero - defaults to PQ generator
     // Solution object will reset after circuit modifications
@@ -1346,14 +1346,14 @@ Begin
                     GenModel:0,', ',
                     DQDV:8:0,', ',
                    (V_Avg*0.001732/GenVars.kVgeneratorbase):8:3,', ',
-                   (Vtarget- V_Avg):9:1,', ',
+                   (GenVars.Vtarget- V_Avg):9:1,', ',
                    (Genvars.Qnominalperphase*3.0/1.0e6):8:2,', ',
                    (Genvars.Pnominalperphase*3.0/1.0e6):8:2,', ',
                    s,', ');
            For i := 1 to nphases Do Write(TraceFile,(Cabs(InjCurrent^[i])):8:1 ,', ');
            For i := 1 to nphases Do Write(TraceFile,(Cabs(ITerminal^[i])):8:1 ,', ');
            For i := 1 to nphases Do Write(TraceFile,(Cabs(Vterminal^[i])):8:1 ,', ');
-           Write(TraceFile,VThevMag:8:1 ,', ', Genvars.Theta*180.0/PI);
+           Write(TraceFile,GenVars.VThevMag:8:1 ,', ', Genvars.Theta*180.0/PI);
            Writeln(TRacefile);
            CloseFile(TraceFile);
       End;
@@ -1508,7 +1508,7 @@ Begin
 
    // 12-9-99 added empirical 0.7 factor to improve iteration
    // 12-17-99 changed to 0.1 because first guess was consistently too high
-   DQ :=  PVFactor * DQDV * (Vtarget - V_Avg);   // Vtarget is L-N
+   DQ :=  PVFactor * DQDV * (GenVars.Vtarget - V_Avg);   // Vtarget is L-N
    If (Abs(DQ) > DeltaQMax)
    Then IF (DQ < 0.0) Then DQ := -DeltaQMax Else DQ := DeltaQMax;
    With Genvars Do Qnominalperphase := Qnominalperphase + DQ;
@@ -1820,8 +1820,8 @@ Begin
    WITH ActiveCircuit.Solution Do
      Begin
         GenHarmonic := Frequency/GenFundamental;
-        E := CmulReal(SpectrumObj.GetMult(GenHarmonic), VThevHarm); // Get base harmonic magnitude
-        RotatePhasorRad(E, GenHarmonic, ThetaHarm);  // Time shift by fundamental frequency phase shift
+        E := CmulReal(SpectrumObj.GetMult(GenHarmonic), GenVars.VThevHarm); // Get base harmonic magnitude
+        RotatePhasorRad(E, GenHarmonic, GenVars.ThetaHarm);  // Time shift by fundamental frequency phase shift
         FOR i := 1 to Fnphases DO Begin
            cBuffer[i] := E;
            If i < Fnphases Then RotatePhasorDeg(E, GenHarmonic, -120.0);  // Assume 3-phase generator
@@ -2735,15 +2735,15 @@ end;
 
 procedure TGeneratorObj.CalcVthev_Dyn;
 begin
-   If GenSwitchOpen Then VThevMag := 0.0;
-   Vthev := pclx(VthevMag, Genvars.Theta);
+   If GenSwitchOpen Then GenVars.VThevMag := 0.0;
+   Vthev := pclx(GenVars.VthevMag, Genvars.Theta);
 end;
 
 procedure TGeneratorObj.CalcVthev_Dyn_Mod7(const V: Complex);
 {Adjust VThev to be in phase with V}
 begin
-   If GenSwitchOpen Then VThevMag := 0.0;
-   Vthev := pclx(VthevMag, cAng(V));
+   If GenSwitchOpen Then GenVars.VThevMag := 0.0;
+   Vthev := pclx(GenVars.VthevMag, cAng(V));
 end;
 
 initialization

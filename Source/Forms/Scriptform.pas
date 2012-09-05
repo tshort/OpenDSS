@@ -272,7 +272,7 @@ begin
              Begin
                TRY
                  Add(Format('Year = %d ',[ActiveCircuit.Solution.Year]));
-                 Add(Format('Hour = %d ',[ActiveCircuit.Solution.intHour]));
+                 Add(Format('Hour = %d ',[ActiveCircuit.Solution.DynaVars.intHour]));
                  Add('Max pu. voltage = '+Format('%-.5g ',[GetMaxPUVoltage]));
                  Add('Min pu. voltage = '+Format('%-.5g ',[GetMinPUVoltage(TRUE)]));
                  cPower :=  CmulReal(GetTotalPowerFromSources, 0.000001);  // MVA

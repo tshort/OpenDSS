@@ -635,7 +635,7 @@ Begin
         end
         Else Append( QueryLogFile);
 
-        Writeln(QueryLogFile,Format('%.10g, %s, %s',[ActiveCircuit.Solution.dblHour, Prop, S]));
+        Writeln(QueryLogFile,Format('%.10g, %s, %s',[ActiveCircuit.Solution.DynaVars.dblHour, Prop, S]));
         CloseFile(QueryLogFile);
   EXCEPT
         On E:Exception Do DoSimpleMsg('Error writing Query Log file: ' + E.Message, 908);

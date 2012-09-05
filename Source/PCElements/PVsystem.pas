@@ -1146,8 +1146,8 @@ Begin
              With Solution Do
               CASE Mode OF
                   SNAPSHOT:    ; {Just solve for the present kW, kvar}  // Don't check for state change
-                  DAILYMODE:  Begin  CalcDailyMult(dblHour);  CalcDailyTemperature(dblHour); End;
-                  YEARLYMODE: Begin  CalcYearlyMult(dblHour); CalcYearlyTemperature(dblHour); End;
+                  DAILYMODE:  Begin  CalcDailyMult(DynaVars.dblHour);  CalcDailyTemperature(DynaVars.dblHour); End;
+                  YEARLYMODE: Begin  CalcYearlyMult(DynaVars.dblHour); CalcYearlyTemperature(DynaVars.dblHour); End;
                (*
                   MONTECARLO1,
                   MONTEFAULT,
@@ -1159,10 +1159,10 @@ Begin
                   MONTECARLO2,
                   MONTECARLO3,
                   LOADDURATION1,
-                  LOADDURATION2: Begin CalcDailyMult(dblHour); CalcDailyTemperature(dblHour); End;
-                  PEAKDAY:       Begin CalcDailyMult(dblHour); CalcDailyTemperature(dblHour); End;
+                  LOADDURATION2: Begin CalcDailyMult(DynaVars.dblHour); CalcDailyTemperature(DynaVars.dblHour); End;
+                  PEAKDAY:       Begin CalcDailyMult(DynaVars.dblHour); CalcDailyTemperature(DynaVars.dblHour); End;
 
-                  DUTYCYCLE:     Begin CalcDutyMult(dblHour) ; CalcDutyTemperature(dblHour) ;  End;
+                  DUTYCYCLE:     Begin CalcDutyMult(DynaVars.dblHour) ; CalcDutyTemperature(DynaVars.dblHour) ;  End;
                   {AUTOADDFLAG:  ; }
               END;
 

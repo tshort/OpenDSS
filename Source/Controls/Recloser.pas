@@ -755,8 +755,8 @@ begin
                   IF Not ArmedForOpen
                   THEN WITH ActiveCircuit Do   // Then arm for an open operation
                   Begin
-                         ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + TripTime + Delaytime, OPEN, 0, Self);
-                         IF OperationCount <= NumReclose THEN ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + TripTime + DelayTime + RecloseIntervals^[OperationCount], CLOSE, 0, Self);
+                         ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Delaytime, OPEN, 0, Self);
+                         IF OperationCount <= NumReclose THEN ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + DelayTime + RecloseIntervals^[OperationCount], CLOSE, 0, Self);
                          ArmedForOpen := TRUE;
                          ArmedForClose := TRUE;
                   End;
@@ -765,7 +765,7 @@ begin
                    IF ArmedForOpen
                    THEN  WITH ActiveCircuit Do    // If current dropped below pickup, disarm trip and set for reset
                    Begin
-                        ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self);
+                        ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self);
                         ArmedForOpen := FALSE;
                         ArmedForClose := FALSE;
                         GroundTarget := FALSE;

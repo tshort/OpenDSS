@@ -541,7 +541,7 @@ begin
                   IF Not ReadyToBlow[i]  THEN
                   WITH ActiveCircuit Do
                    Begin  // Then arm for an open operation
-                         hAction[i] := ControlQueue.Push(Solution.intHour, Solution.DynaVars.t + TripTime + Delaytime,i, 0, Self);
+                         hAction[i] := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Delaytime,i, 0, Self);
                          ReadyToBlow[i] := TRUE;
                    End; {With}
                 End

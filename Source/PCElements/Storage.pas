@@ -1248,8 +1248,8 @@ Begin
            With Solution Do
             CASE Mode OF
                 SNAPSHOT:    ; {Just solve for the present kW, kvar}  // Don't check for state change
-                DAILYMODE:    CalcDailyMult(dblHour); // Daily dispatch curve
-                YEARLYMODE:   CalcYearlyMult(dblHour);
+                DAILYMODE:    CalcDailyMult(DynaVars.dblHour); // Daily dispatch curve
+                YEARLYMODE:   CalcYearlyMult(DynaVars.dblHour);
              (*
                 MONTECARLO1,
                 MONTEFAULT,
@@ -1260,10 +1260,10 @@ Begin
                 MONTECARLO2,
                 MONTECARLO3,
                 LOADDURATION1,
-                LOADDURATION2: CalcDailyMult(dblHour);
-                PEAKDAY:       CalcDailyMult(dblHour);
+                LOADDURATION2: CalcDailyMult(DynaVars.dblHour);
+                PEAKDAY:       CalcDailyMult(DynaVars.dblHour);
 
-                DUTYCYCLE:     CalcDutyMult(dblHour) ;
+                DUTYCYCLE:     CalcDutyMult(DynaVars.dblHour) ;
                 {AUTOADDFLAG:  ; }
             End;
 
@@ -1521,7 +1521,7 @@ Begin
                                If Not (Fstate = STORE_CHARGING) Then
                                  If ChargeTime > 0.0 Then
                                        WITH ActiveCircuit.Solution Do Begin
-                                           If abs(NormalizeToTOD(intHour, DynaVARs.t) - ChargeTime) < DynaVARs.h/3600.0 Then Fstate := STORE_CHARGING;
+                                           If abs(NormalizeToTOD(DynaVars.intHour, DynaVARs.t) - ChargeTime) < DynaVARs.h/3600.0 Then Fstate := STORE_CHARGING;
                                        End;
                            End;
          END;
@@ -1607,7 +1607,7 @@ Begin
       Begin
            Append(TraceFile);
            Write(TraceFile,Format('%-.g, %d, %-.g, ',
-                    [ActiveCircuit.Solution.dblHour,
+                    [ActiveCircuit.Solution.DynaVars.dblHour,
                     ActiveCircuit.Solution.Iteration,
                     ActiveCircuit.LoadMultiplier]),
                     GetSolutionModeID,', ',

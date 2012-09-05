@@ -1016,7 +1016,7 @@ Begin
                If Not (FleetState=STORE_DISCHARGING) Then
                Begin
                     ChargingAllowed := TRUE;
-                    TDiff := NormalizeToTOD(intHour, DynaVars.t) - DisChargeTriggerTime;
+                    TDiff := NormalizeToTOD(DynaVars.intHour, DynaVars.t) - DisChargeTriggerTime;
                     If abs(TDiff) < DynaVars.h/7200.0 Then
                     Begin
                         {Time is within 1 time step of the trigger time}
@@ -1031,7 +1031,7 @@ Begin
                End
 
                Else Begin    // fleet is already discharging
-                    TDiff := NormalizeToTOD(intHour, DynaVars.t) - DisChargeTriggerTime;
+                    TDiff := NormalizeToTOD(DynaVars.intHour, DynaVars.t) - DisChargeTriggerTime;
                     If TDiff < UpRampTime Then Begin
 
                           pctDischargeRate :=  min(pctkWRate, max(pctKWRate * Tdiff/UpRampTime, 0.0));
@@ -1084,7 +1084,7 @@ Begin
                WITH ActiveCircuit.Solution Do
                Begin
                  // turn on if time within 1/2 time step
-                 If abs(NormalizeToTOD(intHour, DynaVars.t) - DisChargeTriggerTime) < DynaVars.h/7200.0 Then
+                 If abs(NormalizeToTOD(DynaVars.intHour, DynaVars.t) - DisChargeTriggerTime) < DynaVars.h/7200.0 Then
                  Begin
                      If Not (FleetState=STORE_DISCHARGING) Then
                      Begin
@@ -1104,7 +1104,7 @@ Begin
           2:Begin
             If ChargeTriggerTime > 0.0 Then
                WITH ActiveCircuit.Solution Do Begin
-               If abs(NormalizeToTOD(intHour, DynaVars.t) - ChargeTriggerTime) < DynaVars.h/7200.0 Then
+               If abs(NormalizeToTOD(DynaVars.intHour, DynaVars.t) - ChargeTriggerTime) < DynaVars.h/7200.0 Then
                If Not (FleetState=STORE_CHARGING) Then
                Begin
                     {Time is within 1 time step of the trigger time}
@@ -1116,7 +1116,7 @@ Begin
                     // Push message onto control queue to release inhibit at a later time
                     With ActiveCircuit  Do  Begin
                           Solution.LoadsNeedUpdating := TRUE; // Force recalc of power parms
-                          ControlQueue.Push(intHour+InhibitHrs, Dynavars.t, RELEASE_INHIBIT, 0, Self);
+                          ControlQueue.Push(DynaVars.intHour+InhibitHrs, Dynavars.t, RELEASE_INHIBIT, 0, Self);
                     End;
                End;
                End;
@@ -1153,7 +1153,7 @@ begin
       With ActiveCircuit, ActiveCircuit.Solution Do
       Begin
             LoadsNeedUpdating := TRUE; // Force recalc of power parms
-            ControlQueue.Push(intHour, DynaVars.t, Code, 0, Self);
+            ControlQueue.Push(DynaVars.intHour, DynaVars.t, Code, 0, Self);
       End;
 
 end;
@@ -1407,11 +1407,11 @@ Begin
 
      With ActiveCircuit.Solution Do
         CASE Mode OF
-            DAILYMODE:     CalcDailyMult(dblHour); // Daily dispatch curve
-            YEARLYMODE:    CalcYearlyMult(dblHour);
-            LOADDURATION2: CalcDailyMult(dblHour);
-            PEAKDAY:       CalcDailyMult(dblHour);
-            DUTYCYCLE:     CalcDutyMult(dblHour) ;
+            DAILYMODE:     CalcDailyMult(DynaVars.dblHour); // Daily dispatch curve
+            YEARLYMODE:    CalcYearlyMult(DynaVars.dblHour);
+            LOADDURATION2: CalcDailyMult(DynaVars.dblHour);
+            PEAKDAY:       CalcDailyMult(DynaVars.dblHour);
+            DUTYCYCLE:     CalcDutyMult(DynaVars.dblHour) ;
         End;
 
     If LoadShapeMult.re < 0.0 Then

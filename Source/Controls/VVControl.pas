@@ -715,7 +715,7 @@ BEGIN
       Set_PendingChange(CHANGEVARLEVEL);
       // ActiveCircuit.Solution.LoadsNeedUpdating := TRUE; // Force recalc of power parms
       ControlActionHandle := ActiveCircuit.ControlQueue.Push
-        (ActiveCircuit.Solution.intHour,
+        (ActiveCircuit.Solution.DynaVars.intHour,
         ActiveCircuit.Solution.DynaVars.t + TimeDelay, PendingChange, 0, Self);
       AppendtoEventLog('VoltVarControl.' + Self.Name, Format
           ('**Ready to change var output**, Vavgpu= %.5g sec,', [Vavgpu]));
