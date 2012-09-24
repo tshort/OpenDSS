@@ -49,7 +49,7 @@ CONST
       VV_CONTROL       = 25 * 8;
       GIC_Line         = 26 * 8;
       GIC_Transformer  = 27 * 8;
-
+      INV_CONTROL      = 28 * 8;
 
 VAR
    NumIntrinsicClasses,
