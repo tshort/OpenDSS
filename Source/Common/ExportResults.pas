@@ -116,7 +116,7 @@ Var
    F :TextFile;
    i, j :Integer;
    nref :Integer;
-   Vph, V012 : Array[1..3] of Complex;
+   Vph, VphLL, V012 : Array[1..3] of Complex;
 
    V0, V1, V2,
    Vpu, V2V1 ,V0V1  : Double;
@@ -156,13 +156,18 @@ Begin
                Vph[j] := NodeV^[GetRef(FindIdx(j))];
              END;
 
+             {Compute LL voltages for Nema unbalance calc}
+             VphLL[1] := Csub(Vph[1], Vph[2]);
+             VphLL[2] := Csub(Vph[2], Vph[3]);
+             VphLL[3] := Csub(Vph[3], Vph[1]);
+
              Phase2SymComp(@Vph, @V012);
 
              V0 := Cabs(V012[1]);
              V1 := Cabs(V012[2]);
              V2 := Cabs(V012[3]);
 
-             V_NEMA := PctNemaUnbalance(@Vph);
+             V_NEMA := PctNemaUnbalance(@VphLL);
          END;
 
          IF   Buses^[i].kvbase <> 0.0
