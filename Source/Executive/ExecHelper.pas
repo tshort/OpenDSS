@@ -139,9 +139,7 @@ USES Command, ArrayDef, ParserDel, SysUtils, DSSClassDefs, DSSGlobals,
      EnergyMeter, Generator, LoadShape, Load, PCElement,   CktElement,
      uComplex,  mathutil,  Bus,  SolutionAlgs,
      DSSForms,  ExecCommands, Executive, Dynamics,
-{$IFNDEF DLL_ENGINE}
      DssPlot,
-{$ENDIF}
      Capacitor, Reactor, Line, Lineunits, Math,
      Classes,  CktElementClass, Sensor,  { ExportCIMXML,} NamedObject,
      RegularExpressionsCore, PstCalc;
@@ -3110,7 +3108,6 @@ Begin
 End;
 
 FUNCTION DoVisualizeCmd:Integer;
-{$IFNDEF DLL_ENGINE}
 Var
     DevIndex    :integer;
     Param       :String;
@@ -3120,10 +3117,8 @@ Var
     Quantity    :Integer;
     ElemName    :String;
     pElem       :TDSSObject;
-{$ENDIF}
 Begin
      Result := 0;
-{$IFNDEF DLL_ENGINE}
      // Abort if no circuit or solution
      If not assigned(ActiveCircuit) Then
      Begin
@@ -3182,7 +3177,6 @@ Begin
      End Else Begin
         DoSimpleMsg('Requested Circuit Element: "' + ElemName + '" Not Found.',282 ); // Did not find it ..
      End;
-{$ENDIF}
 End;
 
 FUNCTION DoCloseDICmd:Integer;
@@ -3326,7 +3320,6 @@ Begin
 End;
 
 FUNCTION DoAddMarkerCmd:Integer;
-{$IFNDEF DLL_ENGINE}
 Var
    ParamPointer :Integer;
    ParamName,
@@ -3334,10 +3327,8 @@ Var
    BusName:String;
    BusIdx :Integer;
    Bus :TDSSBus;
-{$ENDIF}
 Begin
      Result := 0;
-{$IFNDEF DLL_ENGINE}
      ParamPointer := 0;
 
      ParamName := Parser.NextParam;
@@ -3367,7 +3358,7 @@ Begin
           Bus := ActiveCircuit.Buses^[BusIdx];
           if Bus.CoordDefined
           then Begin
-               DoSimpleMsg('Sorry. Command not implemented in this version.', 28709);
+               DoSimpleMsg('Sorry. This Command disabled in this version.', 28709);
               // AddNewMarker(Bus.x, Bus.y, AddMarkerColor, AddMarkerCode, AddMarkerSize);
               // ShowGraph;
           End
@@ -3376,7 +3367,6 @@ Begin
      End Else
         Dosimplemsg('Bus not found.', 28708);
 
-{$ENDIF}
 End;
 
 FUNCTION DoSetLoadAndGenKVCmd:Integer;

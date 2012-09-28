@@ -90,12 +90,13 @@
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+			<VerInfo_Build>5</VerInfo_Build>
 			<VerInfo_Release>1</VerInfo_Release>
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
 			<VerInfo_MinorVer>6</VerInfo_MinorVer>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<DCC_ExeOutput>..\x64</DCC_ExeOutput>
-			<VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.1.0;InternalName=;LegalCopyright=Copyright (C) 2008-2012 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.1.5;InternalName=;LegalCopyright=Copyright (C) 2008-2012 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
 			<VerInfo_Release>1</VerInfo_Release>
@@ -152,7 +153,7 @@
 						<VersionInfo Name="MajorVer">7</VersionInfo>
 						<VersionInfo Name="MinorVer">5</VersionInfo>
 						<VersionInfo Name="Release">1</VersionInfo>
-						<VersionInfo Name="Build">55</VersionInfo>
+						<VersionInfo Name="Build">63</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -164,7 +165,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">EPRI</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">Distribution System Simulator</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">7.5.1.55</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">7.5.1.63</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName">OpenDSS</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 2008-2012  EPRI, All Rights Reserved.</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>

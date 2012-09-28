@@ -121,10 +121,12 @@ Procedure TPCElement.GetTerminalCurrents(Curr:pComplexArray);
 Var i:Integer;
 Begin
 
-    If ITerminalUpdated Then Begin   // Just copy iTerminal unless iTerminal=Curr
-       If Curr<>ITerminal Then
+    If ITerminalUpdated Then
+    Begin   // Just copy iTerminal unless iTerminal=Curr
+       If Curr <> ITerminal Then
          For i := 1 to Yorder Do Curr^[i] := ITerminal^[i];
-    End Else Begin
+    End
+    Else Begin
         YPrim.MVmult(Curr, VTerminal);
         For i := 1 to Yorder Do CAccum(Curr^[i], CNegate(Injcurrent^[i]));
         IterminalUpdated := TRUE;

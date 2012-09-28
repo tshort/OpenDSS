@@ -90,7 +90,8 @@ VAR
 Begin
   TRY
 
-   If Enabled Then Begin
+   If Enabled Then
+   Begin
    
      WITH ActiveCircuit.Solution DO
      FOR i := 1 TO Yorder DO Vterminal^[i] := NodeV^[NodeRef^[i]];
@@ -101,7 +102,7 @@ Begin
 
   EXCEPT
     On E: Exception Do DoErrorMsg(('Trying to Get Currents for Element: ' + Name + '.'), E.Message,
-        'Has circuit been solved?', 660);
+        'Has the circuit been solved?', 660);
   End;
 
 End;

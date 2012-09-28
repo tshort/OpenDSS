@@ -54,64 +54,64 @@ TYPE
    TRegControlObj = class(TControlElem)
      private
 
-            Vreg,
-            Bandwidth,
-            PTRatio,
-            RemotePTRatio,
-            CTRating,
-            R,
-            X           :Double;
+        Vreg,
+        Bandwidth,
+        PTRatio,
+        RemotePTRatio,
+        CTRating,
+        R,
+        X           :Double;
 
-            {Reverse Power Variables}
-            revVreg,
-            revBandwidth,
-            RevPowerThreshold,   // W
-            kWRevPowerThreshold,
-            revDelay,
-            revR,
-            revX         :Double;
+        {Reverse Power Variables}
+        revVreg,
+        revBandwidth,
+        RevPowerThreshold,   // W
+        kWRevPowerThreshold,
+        revDelay,
+        revR,
+        revX         :Double;
 
-            IsReversible   :Boolean;
-            InReverseMode  :Boolean;
-            ReversePending :Boolean;
-            ReverseNeutral :Boolean;
+        IsReversible   :Boolean;
+        InReverseMode  :Boolean;
+        ReversePending :Boolean;
+        ReverseNeutral :Boolean;
 
-            LDCActive         :Boolean;
-            UsingRegulatedBus :Boolean;
-            RegulatedBus      :String;
+        LDCActive         :Boolean;
+        UsingRegulatedBus :Boolean;
+        RegulatedBus      :String;
 
-            FPendingTapChange,   // amount of tap change pending
-            TapDelay     :Double;   // delay between taps
+        FPendingTapChange,   // amount of tap change pending
+        TapDelay     :Double;   // delay between taps
 
-            DebugTrace   :Boolean;
-            Armed        :Boolean;
-            Tracefile    :TextFile;
+        DebugTrace   :Boolean;
+        Armed        :Boolean;
+        Tracefile    :TextFile;
 
-            TapLimitPerChange :Integer;
-            TapWinding        :Integer;  // Added 7-19-07
-            FInversetime      :Boolean;
-            Vlimit            :Double;
-            VLimitActive      :Boolean;
+        TapLimitPerChange :Integer;
+        TapWinding        :Integer;  // Added 7-19-07
+        FInversetime      :Boolean;
+        Vlimit            :Double;
+        VLimitActive      :Boolean;
 
-            FPTphase          :Integer;
-            ControlledPhase   :Integer;
+        FPTphase          :Integer;
+        ControlledPhase   :Integer;
 
-            VBuffer, CBuffer  :pComplexArray;
+        VBuffer, CBuffer  :pComplexArray;
 
-            FUNCTION Get_Transformer  :TTransfObj;
-            FUNCTION Get_Winding      :Integer;
-            // CIM accessors
-            Function Get_MinTap       :Double;
-            Function Get_MaxTap       :Double;
-            Function Get_TapIncrement :Double;
-            Function Get_NumTaps      :Integer;
+        FUNCTION Get_Transformer  :TTransfObj;
+        FUNCTION Get_Winding      :Integer;
+        // CIM accessors
+        Function Get_MinTap       :Double;
+        Function Get_MaxTap       :Double;
+        Function Get_TapIncrement :Double;
+        Function Get_NumTaps      :Integer;
 
-            PROCEDURE RegWriteTraceRecord(TapChangeMade:Double);
-            PROCEDURE RegWriteDebugRecord(S:String);
-            procedure set_PendingTapChange(const Value: Double);
-            FUNCTION AtLeastOneTap(Const ProposedChange:Double; Increment:Double):Double;
-            Function ComputeTimeDelay(Vavg:Double):Double;
-            Function GetControlVoltage(VBuffer:pComplexArray; Nphs:Integer; PTRatio:Double ):Complex;
+        PROCEDURE RegWriteTraceRecord(TapChangeMade:Double);
+        PROCEDURE RegWriteDebugRecord(S:String);
+        procedure set_PendingTapChange(const Value: Double);
+        FUNCTION AtLeastOneTap(Const ProposedChange:Double; Increment:Double):Double;
+        Function ComputeTimeDelay(Vavg:Double):Double;
+        Function GetControlVoltage(VBuffer:pComplexArray; Nphs:Integer; PTRatio:Double ):Complex;
 
      public
 
