@@ -2815,7 +2815,7 @@ Begin
               Writeln(F);
             End;
 
-            w := freq * twopi /1.e3;
+            w := freq * twopi /1.0E3;
             Writeln(F);
             Writeln(F, 'L MATRIX, mH per ', LineUnitsStr(Units));
             For i := 1 to Z.order Do Begin
@@ -2825,7 +2825,7 @@ Begin
               Writeln(F);
             End;
 
-            w := freq * twopi /1.e9;
+            w := freq * twopi /1.0E9;
             Writeln(F);
             Writeln(F, 'C MATRIX, nF per ', LineUnitsStr(Units));
             For i := 1 to Yc.order Do Begin
@@ -2858,7 +2858,7 @@ Begin
             End;
             Writeln(F2, ']');
 
-            w := freq * twopi /1.e9;
+            w := freq * twopi /1.0E9;
             Write(F2, '~ Cmatrix=[');
             For i := 1 to Yc.order Do Begin
               For j := 1 to i Do Write(F2, Format('%.6g  ', [YC.GetElement(i,j).im/w] ));
@@ -2900,7 +2900,7 @@ Begin
                For j := 1 to 3 Do Caccum(YCM, Z.GetElement(i,j));
                XCM := Cinv(YCM).im;
 
-               w := freq * twopi /1.e9;
+               w := freq * twopi /1.0E9;
                {Capacitance}
                For i := 1 to 3 Do   CS := CS + YC.GetElement(i, i).im;
                For i := 1 to 3 Do

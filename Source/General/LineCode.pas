@@ -278,7 +278,7 @@ begin
         Result := '[';
          FOR i := 1 to FNPhases DO Begin
            FOR j := 1 to FNphases DO Begin
-               Result := Result + Format('%12.8f ',[Yc.GetElement(i,j).im/TwoPi/BaseFrequency * 1.e9]);
+               Result := Result + Format('%12.8f ',[Yc.GetElement(i,j).im/TwoPi/BaseFrequency * 1.0E9]);
            End;
            If i< FNphases then Result := Result + '|';
          End;
@@ -668,7 +668,7 @@ Begin
         Write(F,'~ ',PropertyName^[11],'=','"');
            FOR i := 1 to FNPhases DO Begin
              FOR j := 1 to FNphases DO Begin
-                 Write(F, (Yc.GetElement(i,j).im/TwoPi/BaseFrequency * 1.e9):0:8,' ');
+                 Write(F, (Yc.GetElement(i,j).im/TwoPi/BaseFrequency * 1.0E9):0:8,' ');
              End;
              Write(F,'|');
            End;

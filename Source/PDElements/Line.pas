@@ -1026,7 +1026,7 @@ Begin
         Write(F,'~ ',PropertyName^[14],'=','"');
            FOR i := 1 to Fnphases DO Begin
              FOR j := 1 to Fnphases DO Begin
-                 Write(F, (Yc.GetElement(i,j).im/TwoPi/BaseFrequency * 1.e9):0:2,' ');
+                 Write(F, (Yc.GetElement(i,j).im/TwoPi/BaseFrequency * 1.0E9):0:2,' ');
              End;
              Write(F,'|');
            End;

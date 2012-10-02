@@ -1346,7 +1346,7 @@ Begin
      Count := 1;
      TestkV := ActiveCircuit.LegalVoltageBases^[1];
      Result := TestkV;
-     MinDiff := 1.e50;  // Big whompin number
+     MinDiff := 1.0E50;  // Big whompin number
 
      While TestkV <> 0.0 Do
        Begin

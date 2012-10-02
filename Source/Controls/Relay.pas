@@ -1213,7 +1213,7 @@ begin
    {**** Fix so that fastest trip time applies ****}
      MonitoredElement.GetTermVoltages(MonitoredElementTerminal, cBuffer);
 
-     Vmin := 1.e50;
+     Vmin := 1.0E50;
      Vmax := 0.0;
      FOR i := 1 to MonitoredElement.NPhases Do
        Begin
