@@ -105,6 +105,7 @@ TYPE
         Function Get_MaxTap       :Double;
         Function Get_TapIncrement :Double;
         Function Get_NumTaps      :Integer;
+        Function Get_TapNum       :Integer;
 
         PROCEDURE RegWriteTraceRecord(TapChangeMade:Double);
         PROCEDURE RegWriteDebugRecord(S:String);
@@ -112,6 +113,7 @@ TYPE
         FUNCTION AtLeastOneTap(Const ProposedChange:Double; Increment:Double):Double;
         Function ComputeTimeDelay(Vavg:Double):Double;
         Function GetControlVoltage(VBuffer:pComplexArray; Nphs:Integer; PTRatio:Double ):Complex;
+        Procedure Set_TapNum(const Value: Integer);
 
      public
 
@@ -161,7 +163,7 @@ TYPE
        Property NumTaps: Integer Read Get_NumTaps;
        Property MaxTapChange: Integer Read TapLimitPerChange;
        Property IsInverseTime: Boolean Read FInverseTime;
-
+       Property TapNum: Integer Read Get_TapNum Write Set_TapNum;
    end;
 
 
@@ -183,7 +185,7 @@ CONST
     ACTION_TAPCHANGE = 0;
     ACTION_REVERSE   = 1;
 
-    NumPropsThisClass = 27;
+    NumPropsThisClass = 28;
 
 Var
     LastChange:Integer;
@@ -247,6 +249,7 @@ Begin
      PropertyName[25] := 'revNeutral';
      PropertyName[26] := 'EventLog';
      PropertyName[27] := 'RemotePTRatio';
+     PropertyName[28] := 'TapNum';
 
      PropertyHelp[1] := 'Name of Transformer element to which the RegControl is connected. '+
                         'Do not specify the full object name; "Transformer" is assumed for '  +
@@ -300,7 +303,8 @@ Begin
      PropertyHelp[26] := '{Yes/True* | No/False} Default is YES for regulator control. Log control actions to Eventlog.';
      PropertyHelp[27] := 'When regulating a bus (the Bus= property is set), the PT ratio required to convert actual voltage at the remote bus to control voltage. ' +
                          'Is initialized to PTratio property. Set this property after setting PTratio.';
-
+     PropertyHelp[28] := 'A whole number indicating the tap position that the controlled transformer winding tap position is currently at, or is being set to.  If being set, and the value is outside the range of the transformer min or max tap,'+
+                         ' then set to the min or max tap position as appropriate. Default is 0';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -382,7 +386,7 @@ Begin
             25: ReverseNeutral := InterpretYesNo(Param);
             26: ShowEventLog := InterpretYesNo(param);
             27: RemotePTRatio := Parser.DblValue;
-
+            28: TapNum := Parser.IntValue;
          ELSE
            // Inherited parameters
            ClassEdit( ActiveRegControlObj, ParamPointer - NumPropsthisClass)
@@ -402,7 +406,6 @@ Begin
                    CloseFile(Tracefile);
                  End;
             23:  RevPowerThreshold := kWRevPowerThreshold * 1000.0;
-
          END;
 
          ParamName := Parser.NextParam;
@@ -460,7 +463,7 @@ Begin
     //    DebugTrace     := OtherRegControl.DebugTrace;  Always default to NO
 
         FPTphase     := OtherRegControl.FPTphase;
-
+        TapNum    := OtherRegControl.TapNum;
         For i := 1 to ParentClass.NumProperties Do PropertyValue[i] := OtherRegControl.PropertyValue[i];
 
    End
@@ -1033,6 +1036,23 @@ begin
      Result := TapWinding;
 end;
 
+FUNCTION TRegControlObj.Get_TapNum: Integer;
+VAR
+  ctrldTransformer:   TTransfObj;
+  ictrldWinding: Integer;
+  begin
+  if ControlledElement <> nil then
+    begin
+
+      ctrldTransformer := Get_Transformer;
+      ictrldWinding := Get_Winding;
+      Result := Trunc((ctrldTransformer.PresentTap[ictrldWinding] - 1.0) / ctrldTransformer.TapIncrement[ictrldWinding]);
+
+    end
+    else
+      Result := 0;
+  end;
+
 Function TRegControlObj.Get_MinTap :Double;
 begin
   Result := Get_Transformer.Mintap[TapWinding];
@@ -1150,6 +1170,23 @@ begin
   dblTraceParameter := Value;
 end;
 
+procedure TRegControlObj.Set_TapNum(const Value: Integer);
+  VAR
+    ctrldTransformer: TTransfObj;
+    ictrldWinding: Integer;
+
+begin
+  if ControlledElement <> nil then
+    begin
+    ctrldTransformer := TTransfObj(ControlledElement);
+    ictrldWinding := Get_Winding;
+    ctrldTransformer.PresentTap[ictrldWinding] := Value*1.0*ctrldTransformer.TapIncrement[ictrldWinding]+1.0;
+    // WGS:  Might want to optionally check that the integer Value is not higher than
+    // the total number of taps on the 'raise' side of the neutral tap, and check
+    // that the Value is not lower than the total number of taps on the 'lower' side
+    // of the neutral tap.
+    end;
+end;
 
 
 procedure TRegControlObj.MakePosSequence;
