@@ -34,6 +34,7 @@ type
     function Get_Transformer: WideString; safecall;
     function Get_VoltageLimit: Double; safecall;
     function Get_Winding: Integer; safecall;
+    function Get_TapNumber: Integer; safecall;
     procedure Set_CTPrimary(Value: Double); safecall;
     procedure Set_Delay(Value: Double); safecall;
     procedure Set_ForwardBand(Value: Double); safecall;
@@ -55,6 +56,8 @@ type
     procedure Set_Transformer(const Value: WideString); safecall;
     procedure Set_VoltageLimit(Value: Double); safecall;
     procedure Set_Winding(Value: Integer); safecall;
+    procedure Set_TapNumber(Value: Integer); safecall;
+
     function Get_Count: Integer; safecall;
 
   end;
@@ -335,6 +338,16 @@ begin
   if elem <> nil then Result := elem.ElementTerminal;  // monitored winding
 end;
 
+function TRegControls.Get_TapNumber: Integer;
+var
+  elem: TRegControlObj;
+begin
+  Result := 0;
+  elem := ActiveRegControl;
+  if elem <> nil then Result := elem.TapNum;  // tap number on the controlled-winding of the transformer controlled by this regcontrol
+end;
+
+
 procedure TRegControls.Set_CTPrimary(Value: Double);
 begin
   Set_Parameter ('CTprim', FloatToStr (Value));
@@ -469,6 +482,11 @@ end;
 procedure TRegControls.Set_Winding(Value: Integer);
 begin
   Set_Parameter ('Winding', IntToStr (Value));
+end;
+
+procedure TRegControls.Set_TapNumber(Value: Integer);
+begin
+  Set_Parameter ('TapNum', IntToStr (Value));
 end;
 
 function TRegControls.Get_Count: Integer;
