@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 5/15/2012 11:11:16 PM (- $Rev: 12980 $, 480860430).
+// File generated on 10/2/2012 8:56:49 PM (- $Rev: 12980 $, 104283392).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -1779,6 +1779,10 @@ library OpenDSSengine
     HRESULT _stdcall ReverseVreg([in] double Value);
     [propget, id(0x000000E1), helpstring("Number of RegControl objects in Active Circuit\0econdary base.\0\0isables this function.\0he default for a faster soluiton.\0\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000E2)]
+    HRESULT _stdcall TapNumber([out, retval] long* Value);
+    [propput, id(0x000000E2), helpstring("Integer number of the tap that the controlled transformer winding is currentliy on.")]
+    HRESULT _stdcall TapNumber([in] long Value);
   };
 
   [

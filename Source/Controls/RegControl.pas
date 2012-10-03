@@ -303,7 +303,7 @@ Begin
      PropertyHelp[26] := '{Yes/True* | No/False} Default is YES for regulator control. Log control actions to Eventlog.';
      PropertyHelp[27] := 'When regulating a bus (the Bus= property is set), the PT ratio required to convert actual voltage at the remote bus to control voltage. ' +
                          'Is initialized to PTratio property. Set this property after setting PTratio.';
-     PropertyHelp[28] := 'A whole number indicating the tap position that the controlled transformer winding tap position is currently at, or is being set to.  If being set, and the value is outside the range of the transformer min or max tap,'+
+     PropertyHelp[28] := 'An integer number indicating the tap position that the controlled transformer winding tap position is currently at, or is being set to.  If being set, and the value is outside the range of the transformer min or max tap,'+
                          ' then set to the min or max tap position as appropriate. Default is 0';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -1040,18 +1040,20 @@ FUNCTION TRegControlObj.Get_TapNum: Integer;
 VAR
   ctrldTransformer:   TTransfObj;
   ictrldWinding: Integer;
+
+begin
+if ControlledElement <> nil then
   begin
-  if ControlledElement <> nil then
-    begin
 
-      ctrldTransformer := Get_Transformer;
-      ictrldWinding := Get_Winding;
-      Result := Trunc((ctrldTransformer.PresentTap[ictrldWinding] - 1.0) / ctrldTransformer.TapIncrement[ictrldWinding]);
+    ctrldTransformer := Get_Transformer;
+    ictrldWinding := TRWinding;
+    With ctrldTransformer Do
+    Result := Trunc((PresentTap[ictrldWinding] - 1.0) / TapIncrement[ictrldWinding]);
 
-    end
-    else
-      Result := 0;
-  end;
+  end
+  else
+    Result := 0;
+end;
 
 Function TRegControlObj.Get_MinTap :Double;
 begin
@@ -1159,6 +1161,7 @@ begin
      PropertyValue[25] := 'No';
      PropertyValue[26] := 'YES';
      PropertyValue[27] := '60';
+     PropertyValue[28] := '0';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -1179,12 +1182,13 @@ begin
   if ControlledElement <> nil then
     begin
     ctrldTransformer := TTransfObj(ControlledElement);
-    ictrldWinding := Get_Winding;
-    ctrldTransformer.PresentTap[ictrldWinding] := Value*1.0*ctrldTransformer.TapIncrement[ictrldWinding]+1.0;
-    // WGS:  Might want to optionally check that the integer Value is not higher than
-    // the total number of taps on the 'raise' side of the neutral tap, and check
-    // that the Value is not lower than the total number of taps on the 'lower' side
-    // of the neutral tap.
+    ictrldWinding := TRWinding;
+    With ctrldTransformer Do
+     PresentTap[ictrldWinding] := Value * TapIncrement[ictrldWinding] + 1.0;
+
+// Tap range checking is done in PresentTap
+// You can attempt to set the tap at an illegal value but it won't do anything
+
     end;
 end;
 

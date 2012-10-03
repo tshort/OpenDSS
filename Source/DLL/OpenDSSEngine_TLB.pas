@@ -11,8 +11,8 @@ unit OpenDSSengine_TLB;
 // manual modifications will be lost.
 // ************************************************************************ //
 
-// $Rev: 17244 $
-// File generated on 5/15/2012 11:10:40 PM from Type Library described below.
+// $Rev: 45604 $
+// File generated on 10/2/2012 8:56:37 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -23,6 +23,7 @@ unit OpenDSSengine_TLB;
 // DepndLst:
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
+// SYS_KIND: SYS_WIN32
 // Errors:
 //   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
@@ -31,9 +32,10 @@ unit OpenDSSengine_TLB;
 {$WRITEABLECONST ON}
 {$VARPROPSETTER ON}
 {$ALIGN 4}
+
 interface
 
-uses Windows, ActiveX, Classes, Graphics, OleServer, StdVCL, Variants;
+uses Winapi.Windows, System.Classes, System.Variants, System.Win.StdVCL, Vcl.Graphics, Vcl.OleServer, Winapi.ActiveX;
 
 
 // *********************************************************************//
@@ -2118,6 +2120,8 @@ type
     function Get_ReverseVreg: Double; safecall;
     procedure Set_ReverseVreg(Value: Double); safecall;
     function Get_Count: Integer; safecall;
+    function Get_TapNumber: Integer; safecall;
+    procedure Set_TapNumber(Value: Integer); safecall;
     property AllNames: OleVariant read Get_AllNames;
     property Name: WideString read Get_Name write Set_Name;
     property First: Integer read Get_First;
@@ -2143,6 +2147,7 @@ type
     property ReverseBand: Double read Get_ReverseBand write Set_ReverseBand;
     property ReverseVreg: Double read Get_ReverseVreg write Set_ReverseVreg;
     property Count: Integer read Get_Count;
+    property TapNumber: Integer read Get_TapNumber write Set_TapNumber;
   end;
 
 // *********************************************************************//
@@ -2177,6 +2182,7 @@ type
     property ReverseBand: Double dispid 223;
     property ReverseVreg: Double dispid 224;
     property Count: Integer readonly dispid 225;
+    property TapNumber: Integer dispid 226;
   end;
 
 // *********************************************************************//
@@ -2317,9 +2323,9 @@ type
 // *********************************************************************//
   IDSSEventsEvents = dispinterface
     ['{AE501F77-F7F0-4201-A9AD-6AB385262203}']
-    procedure InitControls; dispid 201;
-    procedure StepControls; dispid 202;
-    procedure CheckControls; dispid 203;
+    function InitControls: HResult; dispid 201;
+    function StepControls: HResult; dispid 202;
+    function CheckControls: HResult; dispid 203;
   end;
 
 // *********************************************************************//
@@ -2730,7 +2736,7 @@ type
 
 implementation
 
-uses ComObj;
+uses System.Win.ComObj;
 
 class function CoText.Create: IText;
 begin
