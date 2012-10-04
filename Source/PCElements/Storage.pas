@@ -2217,7 +2217,8 @@ Begin
        Begin
             idx := PropertyIdxMap[i] ;
             Case idx of
-                propUSERDATA: Writeln(F,'~ ',PropertyName^[i],'=(',PropertyValue[idx],')')
+                propUSERDATA: Writeln(F,'~ ',PropertyName^[i],'=(',PropertyValue[idx],')');
+                propDynaData: Writeln(F,'~ ',PropertyName^[i],'=(',PropertyValue[idx],')');
             Else
                 Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[idx]);
             End;

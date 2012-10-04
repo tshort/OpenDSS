@@ -132,6 +132,7 @@ TYPE
        PROCEDURE GetInjCurrents(Curr: pComplexArray); Override;   // Returns Injextion currents
 
        PROCEDURE MakePosSequence; Override;  // Make a positive Sequence Model
+       FUNCTION  GetPropertyValue(Index:Integer):String;Override;
        PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
        PROCEDURE DumpProperties(Var F:TextFile; Complete:Boolean);Override;
 
@@ -687,6 +688,17 @@ Begin
      FOR i := 1 to Fnconds Do Curr^[i] := cZero;
 End;
 
+{--------------------------------------------------------------------}
+
+function TRegControlObj.GetPropertyValue(Index: Integer): String;
+begin
+       case Index of
+           28: Result := Format('%d', [Tapnum]);
+       else
+           Result := Inherited GetPropertyValue(index);
+       end;
+end;
+
 {--------------------------------------------------------------------------}
 PROCEDURE TRegControlObj.DumpProperties(Var F:TextFile; Complete:Boolean);
 
@@ -701,6 +713,8 @@ Begin
      Begin
         Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
      End;
+
+     // Note: The PropertyValue access function calls GetPropertyValue routine.
 
     If Complete THEN
     Begin
@@ -1181,10 +1195,10 @@ procedure TRegControlObj.Set_TapNum(const Value: Integer);
 begin
   if ControlledElement <> nil then
     begin
-    ctrldTransformer := TTransfObj(ControlledElement);
-    ictrldWinding := TRWinding;
-    With ctrldTransformer Do
-     PresentTap[ictrldWinding] := Value * TapIncrement[ictrldWinding] + 1.0;
+      ctrldTransformer := TTransfObj(ControlledElement);
+      ictrldWinding := TRWinding;
+      With ctrldTransformer Do
+       PresentTap[ictrldWinding] := Value * TapIncrement[ictrldWinding] + 1.0;
 
 // Tap range checking is done in PresentTap
 // You can attempt to set the tap at an illegal value but it won't do anything

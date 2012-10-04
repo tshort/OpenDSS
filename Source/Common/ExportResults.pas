@@ -52,14 +52,10 @@ Uses uComplex,  Arraydef, sysutils,   Circuit, DSSClassDefs, DSSGlobals,
 Procedure WriteElementVoltagesExportFile(Var F:TextFile; pElem:TDSSCktElement;MaxNumNodes:Integer);
 
 Var
-     NCond, Nterm, i,j,k,m, jj, nref, bref:Integer;
+     NCond, Nterm, i,j,k,m,  nref, bref:Integer;
      Busname:String;
      Volts:Complex;
      Vpu, Vmag:Double;
-     NodeIdx   :Integer;
-     presentBus : TDSSBus;
-     allbuses  : pTBusArray;
-
 
 Begin
   NCond := pElem.NConds;
@@ -76,33 +72,31 @@ Begin
     Write(F, Format('%d,%d,',[NCond,pElem.NPhases]));
 
     Write(F,Format('%s,',[UpperCase(BusName)]));
-        For i := 1 to NCond Do Begin
+    For i := 1 to NCond Do Begin
        Inc(k);
        nref := pElem.NodeRef^[k];
        Volts := ActiveCircuit.Solution.NodeV^[nref];
        Vmag := Cabs(Volts)*0.001;
-       With ActiveCircuit Do Begin
-         IF nref=0 Then Vpu := 0.0
-                   Else Begin
-                     bref := MapNodeToBus^[nref].BusRef;
-                     If Buses^[bref].kvbase <> 0.0
-                              Then Vpu := Vmag / Buses^[bref].kVBase
-                              Else Vpu := 0.0;
-                   End;
+       IF nref=0 Then Vpu := 0.0
+       else With ActiveCircuit Do Begin
+           bref := MapNodeToBus^[nref].BusRef;
+           If Buses^[bref].kvbase <> 0.0
+           Then Vpu := Vmag / Buses^[bref].kVBase
+           Else Vpu := 0.0;
 
-        if(i = 1) Then Write (F, Format('%6.3f',[Buses^[bref].kvBase*sqrt(3)]));
+           if (i = 1) Then Write (F, Format('%6.3f',[Buses^[bref].kvBase*sqrt(3)]));
        End;
        With ActiveCircuit Do Begin
            Write(F,Format(', %d, %10.6g, %6.3f, %9.5g',[k, Vmag, cdang(Volts), Vpu]));
-         {Zero Fill row}
+       END; //end with ActiveCircuit
 
-         END; //end with ActiveCircuit
-       End; //end numconductors
-       For m :=  (i) to (MaxNumNodes) DO Write(F, ', 0, 0, 0, 0');
+    End; //end numconductors
+
+   {Zero Fill row}
+    For m :=  (NCond + 1) to (MaxNumNodes) DO Write(F, ', 0, 0, 0, 0');
 
     BusName := StripExtension(pElem.Nextbus);
   End; // end for numterminals
-//    Writeln(F);
 End; //end procedure
 
 
@@ -2282,37 +2276,30 @@ Procedure ExportVoltagesElements(FileNm:String);
 Var
    MaxNumNodes  :Integer ;
    MaxNumTerminals : Integer;
-   MaxConductors: Integer;
    F         :TextFile;
-   i, j, jj  :Integer;
-   BusName   :String;
-   Volts     :Complex;
-   nref      :Integer;
-   NodeIdx   :Integer;
-   Vmag,
-   Vpu       : Double;
+   i, j      :Integer;
    pElem     :TDSSCktElement;
 
 Begin
 
-     MaxConductors := 1;
      MaxNumTerminals := 2;
+     MaxNumNodes := 0;
      pElem := ActiveCircuit.CktElements.First;
      While pElem<>nil Do Begin
-        If pElem.NTerms > MaxNumTerminals Then MaxNumTerminals := pElem.NTerms;
+        MaxNumTerminals := max(MaxNumTerminals, pElem.NTerms );
+        MaxNumNodes := max(MaxNumNodes, pElem.NConds );
         pElem := ActiveCircuit.CktElements.Next;
      End;
-
-
+{
     MaxNumNodes := 0;
     With ActiveCircuit Do
     For j := 1 to NumBuses Do
        MaxNumNodes := max(MaxNumNodes, Buses^[j].NumNodesThisBus);
+}
 
     Try
        Assignfile(F, FileNm);
        ReWrite(F);
-
 
        Write(F, 'Element,NumTerminals');
 
@@ -2344,11 +2331,12 @@ Begin
      pElem := ActiveCircuit.PDElements.First;
 
      WHILE pElem<>nil DO Begin
-       IF pElem.Enabled THEN begin
-               WriteElementVoltagesExportFile(F, pElem, MaxNumNodes);
-               Writeln(F);
-               end;
-        pElem := ActiveCircuit.PDElements.Next;
+       IF pElem.Enabled THEN
+       begin
+         WriteElementVoltagesExportFile(F, pElem, MaxNumNodes);
+         Writeln(F);
+       end;
+       pElem := ActiveCircuit.PDElements.Next;
      End;
 
 
@@ -2357,21 +2345,22 @@ Begin
      pElem := ActiveCircuit.PCElements.First;
 
      WHILE pElem<>nil DO Begin
-       IF pElem.Enabled THEN begin
-               WriteElementVoltagesExportFile(F, pElem, MaxNumNodes);
-               Writeln(F);
-               end;
-
-        pElem := ActiveCircuit.PCElements.Next;
+       IF pElem.Enabled THEN
+       begin
+         WriteElementVoltagesExportFile(F, pElem, MaxNumNodes);
+         Writeln(F);
+       end;
+       pElem := ActiveCircuit.PCElements.Next;
      End;
    End;
+
       GlobalResult := FileNm;
 
-    FINALLY
+   FINALLY
 
        CloseFile(F);
 
-    End;
+   End;
 
 End;
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
