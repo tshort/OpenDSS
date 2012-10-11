@@ -78,7 +78,7 @@ TYPE
         PFSpecified             :Boolean;
         kvarSpecified           :Boolean;
 
-        kVArating       :Double;
+        FkVArating       :Double;
         kVPVSystemBase  :Double;
         kvar_out        :Double;
         kW_out          :Double;
@@ -87,6 +87,7 @@ TYPE
         kvarRequested   :Double;
         FTemperature    :Double;
         FPmpp           :Double;
+        FpuPmpp        :Double;
 
         EffFactor       :Double;
         TempFactor      :Double;
@@ -172,6 +173,9 @@ TYPE
         PROCEDURE Set_PowerFactor(const Value: Double);
         PROCEDURE Set_PresentIrradiance(const Value: Double);
 
+        procedure Set_kVARating(const Value: Double);
+    procedure Set_puPmpp(const Value: Double);
+
       Protected
         PROCEDURE Set_ConductorClosed(Index:Integer; Value:Boolean); Override;
         PROCEDURE GetTerminalCurrents(Curr:pComplexArray); Override ;
@@ -243,6 +247,9 @@ TYPE
        Property Presentkvar  :Double  Read Get_Presentkvar Write Set_Presentkvar;
        Property PresentkV    :Double  Read Get_PresentkV   Write Set_PresentkV;
        Property PowerFactor  :Double  Read PFnominal       Write Set_PowerFactor;
+       Property kVARating    :Double  Read FkVARating      Write Set_kVARating;
+       property Pmpp         :Double  read FPmpp;
+       property puPmpp       :Double  read FpuPmpp         Write Set_puPmpp;
 
    End;
 
@@ -294,8 +301,9 @@ Const
   propUSERMODEL  = 27;
   propUSERDATA   = 28;
   propDEBUGTRACE = 29;
+  proppctPmpp    = 30;
 
-  NumPropsThisClass = 29; // Make this agree with the last property constant
+  NumPropsThisClass = 30; // Make this agree with the last property constant
 
 VAR
 
@@ -365,6 +373,8 @@ Begin
      AddProperty('Pmpp',      propPmpp,
                               'Get/set the rated max power of the PV array for 1.0 kW/sq-m irradiance and a user-selected array temperature. ' +
                               'The P-TCurve should be defined relative to the selected array temperature.' );
+     AddProperty('pctPmpp',   proppctPmpp,
+                              'Upper limit on active power as a percentage of Pmpp.');
      AddProperty('Temperature', propTemp,
                               'Get/set the present Temperature. Used as fixed value corresponding to PTCurve property. '+
                               'A multiplier is obtained from the Pmpp-Temp curve and applied to the nominal Pmpp from the irradiance ' +
@@ -630,11 +640,11 @@ Begin
                propCutout       : FpctCutOut   := Parser.DblValue ;
                propVMINPU       : VMinPu       := Parser.DblValue;
                propVMAXPU       : VMaxPu       := Parser.DblValue;
-               propKVA          : kVArating    := Parser.DblValue;
+               propKVA          : FkVArating    := Parser.DblValue;
                propUSERMODEL    : UserModel.Name := Parser.StrValue;  // Connect to user written models
                propUSERDATA     : UserModel.Edit := Parser.StrValue;  // Send edit string to user model
                propDEBUGTRACE   : DebugTrace   := InterpretYesNo(Param);
-
+               proppctPmpp      : Fpmpp        := Parser.DblValue;
 
              ELSE
                // Inherited parameters
@@ -741,7 +751,7 @@ Begin
          FpctCutout         := OtherPVsystemObj.FpctCutout;
          FIrradiance        := OtherPVsystemObj.FIrradiance;
 
-         kVArating          := OtherPVsystemObj.kVArating;
+         FkVArating          := OtherPVsystemObj.FkVArating;
 
          pctR               := OtherPVsystemObj.pctR;
          pctX               := OtherPVsystemObj.pctX;
@@ -875,8 +885,9 @@ Begin
      kW_out       := 500.0;
      kvar_out     := 0.0;
      PFnominal    := 1.0;
-     kVArating    := 500.0;
+     FkVArating   := 500.0;
      FPmpp        := 500.0;
+     FpuPmpp     := 100.0;    // full on
 
      pctR         := 0.0;;
      pctX         := 50.0;
@@ -939,11 +950,12 @@ Begin
 
      PropertyValue[propVMINPU]    := '0.90';
      PropertyValue[propVMAXPU]    := '1.10';
-     PropertyValue[propKVA]       := Format('%-g', [kVARating]);
+     PropertyValue[propKVA]       := Format('%-g', [FkVArating]);
 
      PropertyValue[propUSERMODEL] := '';  // Usermodel
      PropertyValue[propUSERDATA]  := '';  // Userdata
      PropertyValue[propDEBUGTRACE]:= 'NO';
+     PropertyValue[proppctPmpp]   := '100';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -982,10 +994,11 @@ Begin
           propCutOut     : Result := Format('%.6g', [FpctCutOut]);
           propVMINPU     : Result := Format('%.6g', [VMinPu]);
           propVMAXPU     : Result := Format('%.6g', [VMaxPu]);
-          propKVA        : Result := Format('%.6g', [kVArating]);
+          propKVA        : Result := Format('%.6g', [FkVArating]);
 
           propUSERMODEL  : Result := UserModel.Name;
           propUSERDATA   : Result := '(' + inherited GetPropertyValue(index) + ')';
+          proppctPmpp    : Result := Format('%.6g', [FpuPmpp]);
           {propDEBUGTRACE = 33;}
       ELSE  // take the generic handler
            Result := Inherited GetPropertyValue(index);
@@ -1089,11 +1102,11 @@ Begin
     varBase := 1000.0 * kvar_out / Fnphases;
 
     // values in ohms for thevenin equivalents
-    RThev := pctR * 0.01 * SQR(PresentkV)/kVARating * 1000.0;
-    XThev := pctX * 0.01 * SQR(PresentkV)/kVARating * 1000.0;
+    RThev := pctR * 0.01 * SQR(PresentkV)/FkVArating * 1000.0;
+    XThev := pctX * 0.01 * SQR(PresentkV)/FkVArating * 1000.0;
 
-    CutInkW := FpctCutin * kVARating / 100.0;
-    CutOutkW := FpctCutOut * kVARating / 100.0;
+    CutInkW := FpctCutin * FkVArating / 100.0;
+    CutOutkW := FpctCutOut * FkVArating / 100.0;
 
     SetNominalPVSystemOuput;
 
@@ -1305,8 +1318,8 @@ Begin
     If InverterON
     Then Begin
         If Assigned(InverterCurveObj)
-        Then EffFactor := InverterCurveObj.GetYValue(PanelkW/kVArating);  // pu eff vs pu power
-        kW_Out := PanelkW * EffFactor;
+        Then EffFactor := InverterCurveObj.GetYValue(PanelkW/FkVArating);  // pu eff vs pu power
+        kW_Out := PanelkW * EffFactor * FpuPmpp;
     End
     ELSE Begin
         kW_Out := 0.0;
@@ -1327,14 +1340,14 @@ Begin
 
     // Limit kvar so that kVA of inverter is not exceeded
      kVA_Gen := Sqrt(Sqr(kW_out) + Sqr(kvar_out));
-     If kVA_Gen > kVArating
+     If kVA_Gen > FkVArating
      Then Begin
-         If kW_out > kVArating
+         If kW_out > FkVArating
          Then Begin
-              kW_out   := kVARating;
+              kW_out   := FkVArating;
               kvar_out := 0.0;
          End
-         ELSE kvar_Out :=  Sqrt(SQR(kVARating) - SQR(kW_Out)) * sign(kvar_Out);
+         ELSE kvar_Out :=  Sqrt(SQR(FkVArating) - SQR(kW_Out)) * sign(kvar_Out);
      End;
 
 end;
@@ -2178,7 +2191,7 @@ Begin
   S := S + Format(' kV=%-.5g',[V]);
 
   If (Fnphases>1)
-  Then S := S + Format(' kva=%-.5g  PF=%-.5g',[kVArating/Fnphases, PFnominal]);
+  Then S := S + Format(' kva=%-.5g  PF=%-.5g',[FkVArating/Fnphases, PFnominal]);
 
   Parser.CmdString := S;
   Edit;
@@ -2199,6 +2212,13 @@ Begin
    Else PVsystemObjSwitchOpen := TRUE;
 
 End;
+
+
+procedure TPVsystemObj.Set_kVARating(const Value: Double);
+begin
+  FkVARating := Value;
+  PropertyValue[propKVA]       := Format('%-g', [FkVArating]);
+end;
 
 // ===========================================================================================
 PROCEDURE TPVsystemObj.Set_PowerFactor(const Value: Double);
@@ -2234,7 +2254,12 @@ Begin
 End;
 
 
-// ===========================================================================================
+/procedure TPVsystemObj.Set_puPmpp(const Value: Double);
+begin
+     FpuPmpp := Value;
+end;
+
+/ ===========================================================================================
 PROCEDURE TPVsystemObj.SetDragHandRegister(Reg: Integer; const Value: Double);
 Begin
     If  (Value > Registers[reg])
@@ -2243,6 +2268,8 @@ End;
 
 
 // ===========================================================================================
+
+
 
 initialization
 
