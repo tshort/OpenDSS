@@ -2254,12 +2254,12 @@ Begin
 End;
 
 
-/procedure TPVsystemObj.Set_puPmpp(const Value: Double);
+procedure TPVsystemObj.Set_puPmpp(const Value: Double);
 begin
      FpuPmpp := Value;
 end;
 
-/ ===========================================================================================
+//==========================================================================================
 PROCEDURE TPVsystemObj.SetDragHandRegister(Reg: Integer; const Value: Double);
 Begin
     If  (Value > Registers[reg])
