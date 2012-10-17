@@ -45,6 +45,16 @@ VAR ProgressCount:Integer;
 
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+PROCEDURE EndOfTimeStepCleanup;
+{
+   Put stuff in this procedure that needs to happen at the end of the time step
+   in main solution loops (see below)
+}
+Begin
+    StorageClass.UpdateAll;
+End;
+
+//= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 PROCEDURE Show10PctProgress(i, N:Integer);
 
 Begin
@@ -84,7 +94,9 @@ Begin
           SolveSnap;
           MonitorClass.SampleAll;  // Make all monitors take a sample
           EnergyMeterClass.SampleAll; // Make all Energy Meters take a sample
-          StorageClass.UpdateAll;
+
+          EndOfTimeStepCleanup;
+
           If (N mod Twopct)=0 Then ShowPctProgress((N*100) div NumberofTimes);
       End;
   Finally
@@ -129,7 +141,9 @@ Begin
             SolveSnap;
             MonitorClass.SampleAll;  // Make all monitors take a sample
             EnergyMeterClass.SampleAll; // Make all Energy Meters take a sample
-            StorageClass.UpdateAll;
+
+            EndOfTimeStepCleanup;
+
         End;
 
     Finally
@@ -176,7 +190,9 @@ Begin
             SolveSnap;
             MonitorClass.SampleAll;  // Make all monitors take a sample
             EnergyMeterClass.SampleAll; // Make all Energy Meters take a sample
-            StorageClass.UpdateAll;
+
+            EndOfTimeStepCleanup;
+
         End;
       Finally
         MonitorClass.SaveAll;
@@ -213,7 +229,9 @@ Begin
             // Assume pricesignal stays constant for dutycycle calcs
             SolveSnap;
             MonitorClass.SampleAll;  // Make all monitors take a sample
-            StorageClass.UpdateAll;
+
+            EndOfTimeStepCleanup;
+
 
             If (N mod Twopct)=0 Then ShowPctProgress((N*100) div NumberofTimes);
         End;
@@ -246,7 +264,9 @@ Begin
 
                 SolveSnap;
                 MonitorClass.SampleAll;  // Make all monitors take a sample
-                StorageClass.UpdateAll;
+
+                EndOfTimeStepCleanup;
+
                 Increment_time;
           End;
     End;
@@ -301,7 +321,9 @@ Begin
           IntegratePCStates;
           SolveSnap;
           MonitorClass.SampleAll;  // Make all monitors take a sample
-          StorageClass.UpdateAll;
+
+          EndOfTimeStepCleanup;
+
         End;
       Finally
         MonitorClass.SaveAll;
@@ -399,7 +421,9 @@ Begin
 
             MonitorClass.SampleAll;  // Make all monitors take a sample
             EnergyMeterClass.SampleAll;  // Make all meters take a sample
-            StorageClass.UpdateAll;
+
+            EndOfTimeStepCleanup;
+
           End;
 
           Show10PctProgress(N, NumberOfTimes);
@@ -537,7 +561,9 @@ Begin
 
               MonitorClass.SampleAll;     // Make all monitors take a sample
               EnergyMeterClass.SampleAll;  // Make all meters take a sample
-              StorageClass.UpdateAll;
+
+              EndOfTimeStepCleanup;
+
 
            End;
            ShowPctProgress((i * 100) div NDaily);
@@ -612,7 +638,8 @@ Begin
 
         MonitorClass.SampleAll;  // Make all monitors take a sample
         EnergyMeterClass.SampleAll;  // Make all meters take a sample
-        StorageClass.UpdateAll;
+
+        EndOfTimeStepCleanup;
 
       End;
     Finally
