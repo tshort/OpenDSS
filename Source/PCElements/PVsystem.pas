@@ -87,7 +87,7 @@ TYPE
         kvarRequested   :Double;
         FTemperature    :Double;
         FPmpp           :Double;
-        FpuPmpp        :Double;
+        FpuPmpp         :Double;
 
         EffFactor       :Double;
         TempFactor      :Double;
@@ -644,7 +644,7 @@ Begin
                propUSERMODEL    : UserModel.Name := Parser.StrValue;  // Connect to user written models
                propUSERDATA     : UserModel.Edit := Parser.StrValue;  // Send edit string to user model
                propDEBUGTRACE   : DebugTrace   := InterpretYesNo(Param);
-               proppctPmpp      : Fpmpp        := Parser.DblValue;
+               proppctPmpp      : FpuPmpp        := Parser.DblValue / 100.0;  // convert to pu
 
              ELSE
                // Inherited parameters
@@ -887,7 +887,7 @@ Begin
      PFnominal    := 1.0;
      FkVArating   := 500.0;
      FPmpp        := 500.0;
-     FpuPmpp     := 100.0;    // full on
+     FpuPmpp     := 1.0;    // full on
 
      pctR         := 0.0;;
      pctX         := 50.0;
@@ -998,7 +998,8 @@ Begin
 
           propUSERMODEL  : Result := UserModel.Name;
           propUSERDATA   : Result := '(' + inherited GetPropertyValue(index) + ')';
-          proppctPmpp    : Result := Format('%.6g', [FpuPmpp]);
+          proppctPmpp    : Result := Format('%.6g', [FpuPmpp * 100.0]);
+
           {propDEBUGTRACE = 33;}
       ELSE  // take the generic handler
            Result := Inherited GetPropertyValue(index);
@@ -2253,13 +2254,13 @@ Begin
      kvarRequested := Value;
 End;
 
-
+{ ===========================================================================================  }
 procedure TPVsystemObj.Set_puPmpp(const Value: Double);
 begin
      FpuPmpp := Value;
 end;
 
-//==========================================================================================
+{ ===========================================================================================  }
 PROCEDURE TPVsystemObj.SetDragHandRegister(Reg: Integer; const Value: Double);
 Begin
     If  (Value > Registers[reg])
@@ -2268,8 +2269,6 @@ End;
 
 
 // ===========================================================================================
-
-
 
 initialization
 
