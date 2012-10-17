@@ -111,7 +111,6 @@ TYPE
           Transformers,
           CapControls,
           RegControls,
-          InvControls,
           Lines,
           Loads,
           ShuntCapacitors,
