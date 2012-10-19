@@ -800,11 +800,12 @@ procedure TDSSPlot.Execute;
 
 Var
    Aspect, XRange: Double;
-   S: String;
-   DSSGraphProps: TDSSGraphProperties;
+   S:              String;
+   DSSGraphProps:  TDSSGraphProperties;
    //Width, LRim, RRim, Height, Trim, Brim: Integer;
    RangeLoX, RangeHiX, RangeLoY, RangeHiY: Double;
-   Fname:String;
+   Fname:  String;
+   i:      Integer;
 
 Begin
 
@@ -821,7 +822,10 @@ Begin
  //  End;
 
    Case PlotType of
-      ptmonitorplot: If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'Monitor.DSV') > 0 Then
+      ptmonitorplot: Begin
+         Fname := GetOutputDirectory + CircuitName_ + 'MONITOR-' + UpperCase(ObjectName);
+         for i := 0 to High(Channels) do  Fname := Fname + Format('-ch%d', [Channels[i]]);
+         If MakeNewGraph( Fname + '.DSV') > 0 Then
          Begin
             DoMonitorPlot;
             Exit;
@@ -830,6 +834,7 @@ Begin
             DoSimpleMsg('Make New Plot failed for Monitor Plot.', 8734);
             Exit;
          End;
+       End;   {Monitor Plot}
       ptLoadShape: If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'Loadshape.DSV') > 0 Then
          Begin
             DoLoadShapePlot(ObjectName);
