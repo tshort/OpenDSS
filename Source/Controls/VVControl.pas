@@ -918,12 +918,12 @@ Begin
     Exit;
   End;
 
-  Result := '[{' + Format('%-.3g,', [Fvvc_curve.XValue(1)]) + Format
-    ('%-.3g', [Fvvc_curve.YValue(1)]) + '},';
+  Result := '[{' + Format('%-.3g,', [Fvvc_curve.XValue_pt[1]]) + Format
+    ('%-.3g', [Fvvc_curve.YValue_pt[1]]) + '},';
   For i := 2 to Fvvc_curve_size Do
   Begin
-    Result := Result + Format('{ %-.3g,', [Fvvc_curve.XValue(i)]) + Format
-      ('%-.3g', [Fvvc_curve.YValue(i)]) + '},';
+    Result := Result + Format('{ %-.3g,', [Fvvc_curve.XValue_pt[i]]) + Format
+      ('%-.3g', [Fvvc_curve.YValue_pt[i]]) + '},';
   End;
   Result := Result + ']'; // terminate the array
 End;
