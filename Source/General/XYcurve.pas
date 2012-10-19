@@ -87,6 +87,10 @@ TYPE
         FUNCTION  InterpolatePoints(i,j:Integer; X:double; Xarray, Yarray:pDoubleArray):Double;
        // PROCEDURE SaveToDblFile;
        // PROCEDURE SaveToSngFile;
+        FUNCTION  Get_YValue(i:Integer):Double;  // get Y Value by index
+        FUNCTION  Get_XValue(i:Integer):Double;  // get X Value corresponding to point index
+        PROCEDURE Set_XValue(Index:Integer; Value: Double);
+        PROCEDURE Set_YValue(Index:Integer; Value: Double);
 
       public
 
@@ -96,14 +100,14 @@ TYPE
 
         FUNCTION  GetYValue(X:double):Double;  // Get Y value at specified X Value
         FUNCTION  GetXValue(Y:double):Double;  // Get X value at specified Y Value
-        FUNCTION  YValue(i:Integer):Double;  // get Y Value by index
-        FUNCTION  XValue(i:Integer):Double;  // get X Value corresponding to point index
 
         FUNCTION  GetPropertyValue(Index:Integer):String;Override;
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
         PROCEDURE DumpProperties(Var F:TextFile; Complete:Boolean);Override;
 
         Property NumPoints :Integer      Read FNumPoints   Write Set_NumPoints;
+        Property XValue_pt[Index:Integer]:Double  Read Get_XValue Write Set_XValue;
+        Property YValue_pt[Index:Integer]:Double  Read Get_YValue Write Set_YValue;
 
    End;
 
@@ -589,7 +593,7 @@ End;
 
 
 
-FUNCTION TXYcurveObj.YValue(i:Integer) :Double;
+FUNCTION TXYcurveObj.Get_YValue(i:Integer) :Double;
 Begin
 
      If (i <= FNumPoints) and (i > 0) Then Begin
@@ -600,7 +604,7 @@ Begin
 
 End;
 
-FUNCTION TXYcurveObj.XValue(i:Integer) :Double;
+FUNCTION TXYcurveObj.Get_XValue(i:Integer) :Double;
 Begin
 
      If (i <= FNumPoints) and (i > 0) Then Begin
@@ -796,6 +800,18 @@ Begin
 End;
 
 ****************************************************)
+PROCEDURE TXYCurveObj.Set_XValue(Index:Integer; Value: Double);
+Begin
+    XValues^[Index] := Value;
+End;
+
+PROCEDURE TXYCurveObj.Set_YValue(Index:Integer; Value: Double);
+Begin
+    YValues^[Index] := Value;
+End;
+
+
+
 
 
 PROCEDURE TXYcurveObj.Set_NumPoints(const Value: Integer);
