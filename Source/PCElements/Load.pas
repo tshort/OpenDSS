@@ -945,7 +945,7 @@ Begin
                                 USEYEARLY: CalcYearlyMult(DynaVars.dblHour);
                                 USEDUTY:   CalcDutyMult(DynaVars.dblHour);
                            else
-                                ShapeFactor := cONE     // default to 1 + j1 if not known
+                                ShapeFactor := CDOUBLEONE     // default to 1 + j1 if not known
                            end;
                       End;
          MONTECARLO1: Begin
