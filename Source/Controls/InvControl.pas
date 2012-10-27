@@ -690,10 +690,11 @@ PROCEDURE TInvControlObj.DoPendingAction;
 
 VAR
 
-  i,j                                       :Integer;
+  i                                         :Integer;
   Pdesiredpu, QDesiredpu, PNeeded, QNeeded,
   PMonitoredElement,QMonitoredElement       :Double;
-  voltagechangesolution,DeltaQ,DeltaV       :Double;
+  voltagechangesolution,DeltaQ,DeltaV,
+  basekV                                    :Double;
   SMonitoredElement                         :Complex;
 
  // local pointer to current PVSystem element
@@ -790,17 +791,21 @@ BEGIN
     begin
         PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
 
-        ControlledElement[i].ComputeVTerminal;
-        for j := 1 to ControlledElement[i].Yorder do
-          cBuffer[i,j] := ControlledElement[i].Vterminal^[j];
-
-        if(FPresentVpu[i] > FDbVMax) then deltaV := FPresentVpu[i] - FDbVMax
-        else deltaV := FPresentVpu[i] - FDbVMin;
-        if( deltaV < 0) then PVSys.Presentkvar := -100.0*deltaV*FArGraLowV*PVSys.kVARating
-        else PVSys.Presentkvar := -100.0*deltaV*FArGraHiV*PVSys.kVARating;
-
-        AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
-                         Format('**PVSystem dynamic var output level to**, kvar= %.5g', [100.0*deltaV*FArGraHiV*PVSys.kVARating]));
+        BasekV := ActiveCircuit.Buses^[ ControlledElement[i].terminals^[1].busRef].kVBase;
+        deltaV := 0.0;
+        if ((FPresentVpu[i] > FDbVMax) or (FPresentVpu[i] < FDbVMin)) then deltaV := FPresentVpu[i] - FDynReacWindowValue[i]/basekV;
+        if (deltaV <>0) and (FPresentVpu[i] < FDbVMin) then
+          begin
+            PVSys.Presentkvar := -100.0*deltaV*FArGraLowV*PVSys.kVARating;
+            AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
+                         Format('**PVSystem dynamic var output level to**, kvar= %.5g', [-100.0*deltaV*FArGraLowV*PVSys.kVARating]));
+          end
+        else if (deltaV <>0) and (FPresentVpu[i] > FDbVMax) then
+          begin
+            PVSys.Presentkvar := -100.0*deltaV*FArGraHiV*PVSys.kVARating;
+            AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
+                         Format('**PVSystem dynamic var output level to**, kvar= %.5g', [-100.0*deltaV*FArGraHiV*PVSys.kVARating]));
+          end;
 
         ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
         FAvgpVuPrior[i] := FPresentVpu[i];
@@ -811,7 +816,6 @@ BEGIN
 
     else // else set PendingChange to NONE
       Set_PendingChange(NONE,i);
-
 end;
         {Do Nothing}
 end;
@@ -1118,7 +1122,8 @@ begin
                For j := 1 to FVAvgWindowLength Do
                  begin
                     FVAvgWindowSamplesdblHour[i,j] := 0.0;
-                    FVAvgWindowSamples[i,j] := 0.0;
+                    FVAvgWindowSamples[i,j] := -1.0;  //initialize to -1.0;
+                               // indicates that a voltage sample has not been stored in i,j yet
                   end;
                FVAvgWindowValue[i] := 0.0;
                FVAvgWindowPointer[i] := 0;
@@ -1130,7 +1135,8 @@ begin
                For j := 1 to FVAvgWindowLength Do
                  begin
                   FDynReacWindowSamplesdblHour[i,j] := 0.0;
-                  FDynReacWindowSamples[i,j] := 0.0;
+                  FDynReacWindowSamples[i,j] := -1.0; //initialize to -1.0;
+                                // indicates that a voltage sample has not been stored in i,j yet
                   end;
                FDynReacWindowValue[i] := 0.0;
                FDynReacWindowPointer[i] := 0;
@@ -1211,12 +1217,12 @@ Begin
       Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * NCondsPVSys[i]);
       for j := 1 to NCondsPVsys[i] do tempVbuffer[j] := cZERO;
 
-  // set the index value i to the first value that is -1 or the end of the window length
-      if FDynReacWindowPointer[i] = (FDynReacavgwindowLength*2) then FDynReacWindowPointer[i] := 0
+      // set the index value pointer to either the first element (if at end of window),
+      // or move pointer one to the right (increase pointer by 1, numerically)
+      if FDynReacWindowPointer[i] = (FDynReacavgwindowLength) then FDynReacWindowPointer[i] := 1
       else FDynReacWindowPointer[i] := FDynReacWindowPointer[i] + 1;
 
-  // update with the present solution terminal voltage value and dynavars information
-
+      // update with the present solution terminal voltage value and dynavars information
       FDynReacWindowSamplesdblHour[i,FDynReacWindowPointer[i]] := ActiveCircuit.Solution.DynaVars.dblHour;
 
       PVSys.GetTermVoltages(1,tempVbuffer);
@@ -1241,21 +1247,25 @@ Begin
       accumulatedseconds := ActiveCircuit.Solution.DynaVars.h;
       while(accumulatedseconds < windowlengthsec) DO
         Begin
-        if(j = 1) then j:= (FDynReacavgwindowLength*2)
+        if(j = 1) then j:= (FDynReacavgwindowLength)
         else j := j-1;
-        if (j = FDynReacWindowPointer[i]) then Break;
-        if (j = (FDynReacavgwindowLength*2)) then begin
-          if (accumulatedseconds + (FDynReacWindowSamplesdblHour[i,2]*3600.0 - FDynReacWindowSamplesdblHour[i,j]*3600.0)) > windowlengthsec then Break;
+        if (j = FDynReacWindowPointer[i]) then Break; // if we've hit the present solution entry, then stop
+        // if we've hit the window length, then subtract the last entry (entry number 1), from the present entry
+        if (j = (FDynReacavgwindowLength)) then begin
+
+          if (accumulatedseconds + (FDynReacWindowSamplesdblHour[i,1] - FDynReacWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
+          // if a dynreac sample (voltage) is not equal to -1.0, then it is valid
           if (FDynReacWindowSamples[i,j] <> -1.0) then begin
-            accumulatedseconds := accumulatedseconds + (FDynReacWindowSamplesdblHour[i,2]*3600.0 - FDynReacWindowSamplesdblHour[i,j]*3600.0);
+            accumulatedseconds := accumulatedseconds + (FDynReacWindowSamplesdblHour[i,1] - FDynReacWindowSamplesdblHour[i,j])*3600.0;
             voltagesum := voltagesum + FDynReacWindowSamples[i,j];
             k := k + 1;
           end;
         end
+        // normal case
         else begin
-          if (accumulatedseconds + (FDynReacWindowSamplesdblHour[i,j+1]*3600.0 - FDynReacWindowSamplesdblHour[i,j]*3600.0)) > windowlengthsec then Break;
+          if (accumulatedseconds + (FDynReacWindowSamplesdblHour[i,j+1] - FDynReacWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
           if (FDynReacWindowSamples[i,j] <> -1.0) then begin
-            accumulatedseconds := accumulatedseconds + (FDynReacWindowSamplesdblHour[i,j+1]*3600.0 - FDynReacWindowSamplesdblHour[i,j]*3600.0);
+            accumulatedseconds := accumulatedseconds + (FDynReacWindowSamplesdblHour[i,j+1] - FDynReacWindowSamplesdblHour[i,j])*3600.0;
             voltagesum := voltagesum + FDynReacWindowSamples[i,j];
             k := k + 1;
           end;
@@ -1263,10 +1273,10 @@ Begin
 
         end;
         End;
+        // if dlbhour is 0 then we will have k equal to 1 greater than it should be
         if ActiveCircuit.Solution.DynaVars.dblHour = 0.0 then FDynReacWindowValue[i] := voltagesum / ((k-1)*1.0)
+        // normal case, dblhour is greater than 0
         else FDynReacWindowValue[i] := voltagesum / (k*1.0);    // rolling window average value to be used by InvControl if VRef not used
-  //      WriteDLLDebugFile(PVSys.Name+','+Format('%-.5g',[ActiveCircuit.Solution.DynaVars.dblHour])+','+Format('%-.5d',[k])+','+Format('%-.8g',[FVAvgWindowSamples[FDynReacWindowPointer[k]]])+','+Format('%-.8g',[FVAvgWindowValue[i]]));
-
    end;
 
    Reallocmem(tempVbuffer, 0);     // clean up memory at the end
@@ -1284,6 +1294,7 @@ VAR
   timeunitsmult: Double;
   tempVbuffer: pComplexArray;
 
+
 Begin
 
   tempVbuffer := Nil;   // Initialize for Reallocmem
@@ -1291,79 +1302,87 @@ Begin
   For i := 1 to FListSize Do
   Begin
 
-  // *** already have this pointer    PVSys := PVSysClass.Find(FPVSystemNameList.Strings[i-1]);
-      PVSys := TPVsystemObj(FPVSystemPointerList.Get(i));
+      PVSys := ControlledElement[i];
+      PVSys.ActiveTerminalIdx := 1;
 
       Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * NCondsPVSys[i]);
       for j := 1 to NCondsPVsys[i] do tempVbuffer[j] := cZERO;
 
-    // set the index value i to the first value that is -1 or the end of the window length
-      if FVAvgWindowPointer[i] = (FVAvgWindowLength*2) then FVAvgWindowPointer[i] := 1
-      else FVAvgWindowPointer[i] := FVAvgWindowPointer[i] + 1;
 
-    // update with the present solution terminal voltage value and dynavars information
+      // set the index value pointer to either the first element (if at end of window),
+      // or move pointer one to the right (increase pointer by 1, numerically)
+      if FVavgWindowPointer[i] = (FVavgwindowLength) then FVavgWindowPointer[i] := 1
+      else FVavgWindowPointer[i] := FVavgWindowPointer[i] + 1;
 
-      FVAvgWindowSamplesdblHour[i,FVAvgWindowPointer[i]] := ActiveCircuit.Solution.DynaVars.dblHour;
+      // update with the present solution terminal voltage value and dynavars information
+      FVavgWindowSamplesdblHour[i,FVavgWindowPointer[i]] := ActiveCircuit.Solution.DynaVars.dblHour;
 
       PVSys.GetTermVoltages(1,tempVbuffer);
 
       voltagesum := 0;
       for j := 1 to PVSys.NPhases do voltagesum := voltagesum + CAbs(tempVbuffer^[j]);
-      voltagesum := voltagesum/ PVSys.NPhases; // voltage is average of per-phase voltages
+      FVavgWindowSamples[i,FDynReacWindowPointer[i]] := voltagesum / PVSys.NPhases; // voltage is average of per-phase voltages
+      voltagesum := FVavgWindowSamples[i,FVavgWindowPointer[i]]; // voltage is average of per-phase voltages
 
-      FVAvgWindowSamples[i,FVAvgWindowPointer[i]] := voltagesum; // voltage is average of per-phase voltages
+      CASE lowercase(FVavgWindowSamplesIntervalUnit)[1] of
+                    's': timeunitsmult := 1.0;
+                    'm': timeunitsmult := 60.0;
+                    'h': timeunitsmult := 3600.0;
+      ELSE
+                   timeunitsmult := 1.0;
+      END;
 
-      CASE lowercase(FVAvgWindowSamplesIntervalUnit)[1] of
-                      's': timeunitsmult := 1.0;
-                      'm': timeunitsmult := 60.0;
-                      'h': timeunitsmult := 3600.0;
-                 ELSE
-                     timeunitsmult := 1.0;
-                 End;
-
-      windowlengthsec := FVAvgWindowLength*timeunitsmult;
-      j := FVAvgWindowPointer[i];
+      windowlengthsec := FVavgwindowLength*timeunitsmult;
+      j := FVavgWindowPointer[i];
       k := 1; // now used for counting number of samples in window
       //accumulate the voltages until we have hit the voltage averagingwindowlength
       accumulatedseconds := ActiveCircuit.Solution.DynaVars.h;
       while(accumulatedseconds < windowlengthsec) DO
         Begin
-            if(j = 1) then j:= (FVAvgWindowLength*2)
-            else j := j-1;
-            if (j = FVAvgWindowPointer[i]) then Break;
-            if (j = (FVAvgWindowLength*2)) then
-            begin
-              if (accumulatedseconds + (FVAvgWindowSamplesdblHour[i,2]- FVAvgWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
-              if (FVAvgWindowSamples[i,j] <> -1.0) then
-              begin
-                accumulatedseconds := accumulatedseconds + (FVAvgWindowSamplesdblHour[i,2]- FVAvgWindowSamplesdblHour[i,j])*3600.0;
-                voltagesum := voltagesum + FVAvgWindowSamples[i,j];
-                k := k + 1;
-              end;
-            end
-            else begin
-                if (accumulatedseconds + (FVAvgWindowSamplesdblHour[i,j+1] - FVAvgWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
-                if (FVAvgWindowSamples[i,j] <> -1.0) then
-                begin
-                  accumulatedseconds := accumulatedseconds + (FVAvgWindowSamplesdblHour[i,j+1]- FVAvgWindowSamplesdblHour[i,j]) * 3600.0;
-                  voltagesum := voltagesum + FVAvgWindowSamples[i,j];
-                  k := k + 1;
-                end;
-            end;
+        if(j = 1) then j:= (FVavgwindowLength)
+        else j := j-1;
+        if (j = FVavgWindowPointer[i]) then Break; // if we've hit the present solution entry, then stop
+        // if we've hit the window length, then subtract the last entry (entry number 1), from the present entry
+        if (j = (FVavgwindowLength)) then begin
+
+          if (accumulatedseconds + (FVavgWindowSamplesdblHour[i,1] - FVavgWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
+          // if a dynreac sample (voltage) is not equal to -1.0, then it is valid
+          if (FVavgWindowSamples[i,j] <> -1.0) then begin
+            accumulatedseconds := accumulatedseconds + (FVavgWindowSamplesdblHour[i,1] - FVavgWindowSamplesdblHour[i,j])*3600.0;
+            voltagesum := voltagesum + FVavgWindowSamples[i,j];
+            k := k + 1;
+          end;
+        end
+        // normal case
+        else begin
+          if (accumulatedseconds + (FVavgWindowSamplesdblHour[i,j+1] - FVavgWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
+          if (FVavgWindowSamples[i,j] <> -1.0) then begin
+            accumulatedseconds := accumulatedseconds + (FVavgWindowSamplesdblHour[i,j+1] - FVavgWindowSamplesdblHour[i,j])*3600.0;
+            voltagesum := voltagesum + FVavgWindowSamples[i,j];
+            k := k + 1;
+          end;
+
+
+        end;
         End;
-        if ActiveCircuit.Solution.DynaVars.dblHour = 0.0 then FVAvgWindowValue[i] := voltagesum / ((k-1)*1.0)    // rolling window average value to be used by InvControl if VRef not used
-        else FVAvgWindowValue[i] := voltagesum / (k*1.0)  ;
-        //      WriteDLLDebugFile(PVSys.Name+','+Format('%-.5g',[ActiveCircuit.Solution.DynaVars.dblHour])+','+Format('%-.5d',[k])+','+Format('%-.8g',[FVAvgWindowSamples[FVAvgWindowPointer[k]]])+','+Format('%-.8g',[FVAvgWindowValue[i]]));
+        // if dlbhour is 0 then we will have k equal to 1 greater than it should be
+        if ActiveCircuit.Solution.DynaVars.dblHour = 0.0 then FVavgWindowValue[i] := voltagesum / ((k-1)*1.0)
+        // normal case, dblhour is greater than 0
+        else FVavgWindowValue[i] := voltagesum / (k*1.0);    // rolling window average value to be used by InvControl if VRef not used
+   end;
 
-  end;
-
-  Reallocmem(tempVbuffer, 0);   // Clean up memory   at the end
+   Reallocmem(tempVbuffer, 0);     // clean up memory at the end
 
 End;
 
 { -------------------------------------------------------------------------- }
 
 FUNCTION  TInvControlObj.InterpretAvgVWindowLen(const s:string;index:Integer):Integer;
+// From function caller:
+// +index = 0 means we are setting the rolling average window length info for
+//    volt-watt and volt-var modes
+// +index = 1 means we are setting the rolling average window length info for
+//    dynamic reactive current mode
 
 Var
    Code :Integer;
