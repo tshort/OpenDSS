@@ -35,6 +35,8 @@ USES  PVsystemUserModel, DSSClass,  PCClass, PCElement, ucmatrix, ucomplex,
 
 Const  NumPVSystemRegisters = 5;    // Number of energy meter registers
        NumPVSystemVariables = 4;    // No state variables that need integrating.
+       VARMODEPF   = 0;
+       VARMODEKVAR = 1;
 
 TYPE
 
@@ -70,15 +72,16 @@ TYPE
         YEQ95           :Complex;   // at Vmin
         YEQ105          :Complex;   // at VMax
 
-        DebugTrace      :Boolean;
+        DebugTrace              :Boolean;
         PVSystemSolutionCount   :Integer;
         PVSystemFundamental     :Double;  {Thevinen equivalent voltage mag and angle reference for Harmonic model}
         PVsystemObjSwitchOpen   :Boolean;
         FirstSampleAfterReset   :Boolean;
+
         PFSpecified             :Boolean;
         kvarSpecified           :Boolean;
 
-        FkVArating       :Double;
+        FkVArating      :Double;
         kVPVSystemBase  :Double;
         kvar_out        :Double;
         kW_out          :Double;
@@ -102,8 +105,9 @@ TYPE
         pctX            :Double;
 
         OpenPVSystemSolutionCount :Integer;
-        Pnominalperphase :Double;
-        Qnominalperphase :Double;
+
+        Pnominalperphase:Double;
+        Qnominalperphase:Double;
         RandomMult      :Double;
 
         Reg_Hours       :Integer;
@@ -163,10 +167,10 @@ TYPE
         // PROCEDURE SetKWandKvarOut;
         PROCEDURE UpdatePVSystem;    // Update PVSystem elements based on present kW and IntervalHrs variable
 
-        FUNCTION Get_PresentkW:Double;
-        FUNCTION Get_Presentkvar:Double;
-        FUNCTION Get_PresentkV: Double;
-        FUNCTION Get_PresentIrradiance: Double;
+        FUNCTION  Get_PresentkW:Double;
+        FUNCTION  Get_Presentkvar:Double;
+        FUNCTION  Get_PresentkV: Double;
+        FUNCTION  Get_PresentIrradiance: Double;
 
         PROCEDURE Set_PresentkV(const Value: Double);
         PROCEDURE Set_Presentkvar(const Value: Double);
@@ -174,7 +178,10 @@ TYPE
         PROCEDURE Set_PresentIrradiance(const Value: Double);
 
         procedure Set_kVARating(const Value: Double);
-    procedure Set_puPmpp(const Value: Double);
+        procedure Set_puPmpp(const Value: Double);
+        function  Get_Varmode: Integer;
+
+        procedure Set_Varmode(const Value: Integer);
 
       Protected
         PROCEDURE Set_ConductorClosed(Index:Integer; Value:Boolean); Override;
@@ -182,31 +189,31 @@ TYPE
 
       public
 
-        Connection      :Integer;  {0 = line-neutral; 1=Delta}
-        DailyShape      :String;  // Daily (24 HR) PVSystem element irradiance shape
-        DailyShapeObj   :TLoadShapeObj;  // Daily PVSystem element irradianceShape for this load
-        DutyShape       :String;  // Duty cycle irradiance shape for changes typically less than one hour
-        DutyShapeObj    :TLoadShapeObj;  // irradiance Shape for this PVSystem element
-        YearlyShape     :String;  //
-        YearlyShapeObj  :TLoadShapeObj;  // Yearly irradiance Shape for this PVSystem element
+        Connection         :Integer;  {0 = line-neutral; 1=Delta}
+        DailyShape         :String;  // Daily (24 HR) PVSystem element irradiance shape
+        DailyShapeObj      :TLoadShapeObj;  // Daily PVSystem element irradianceShape for this load
+        DutyShape          :String;  // Duty cycle irradiance shape for changes typically less than one hour
+        DutyShapeObj       :TLoadShapeObj;  // irradiance Shape for this PVSystem element
+        YearlyShape        :String;  //
+        YearlyShapeObj     :TLoadShapeObj;  // Yearly irradiance Shape for this PVSystem element
 
-        DailyTShape      :String;
-        DailyTShapeObj   :TTShapeObj;
-        DutyTShape       :String;
-        DutyTShapeObj    :TTShapeObj;
-        YearlyTShape     :String;
-        YearlyTShapeObj  :TTShapeObj;
+        DailyTShape        :String;
+        DailyTShapeObj     :TTShapeObj;
+        DutyTShape         :String;
+        DutyTShapeObj      :TTShapeObj;
+        YearlyTShape       :String;
+        YearlyTShapeObj    :TTShapeObj;
 
         InverterCurve      :String;
         InverterCurveObj   :TXYCurveObj;
         Power_TempCurve    :String;
         Power_TempCurveObj :TXYCurveObj;
 
-        FClass        :Integer;
-        VoltageModel  :Integer;   // Variation with voltage
-        PFnominal     :Double;
+        FClass             :Integer;
+        VoltageModel       :Integer;   // Variation with voltage
+        PFnominal          :Double;
 
-        Registers,  Derivatives         :Array[1..NumPVSystemRegisters] of Double;
+        Registers,  Derivatives  :Array[1..NumPVSystemRegisters] of Double;
 
         constructor Create(ParClass :TDSSClass; const SourceName :String);
         destructor  Destroy; override;
@@ -236,20 +243,21 @@ TYPE
         // Support for Harmonics Mode
         PROCEDURE InitHarmonics; Override;
 
-       PROCEDURE MakePosSequence;Override;  // Make a positive Sequence Model
+        PROCEDURE MakePosSequence;Override;  // Make a positive Sequence Model
 
-       PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
-       PROCEDURE DumpProperties(VAR F:TextFile; Complete:Boolean);Override;
-       FUNCTION  GetPropertyValue(Index:Integer):String;Override;
+        PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
+        PROCEDURE DumpProperties(VAR F:TextFile; Complete:Boolean);Override;
+        FUNCTION  GetPropertyValue(Index:Integer):String;Override;
 
-       Property PresentIrradiance    :Double  Read Get_PresentIrradiance Write Set_PresentIrradiance  ;
-       Property PresentkW    :Double  Read Get_PresentkW   ;
-       Property Presentkvar  :Double  Read Get_Presentkvar Write Set_Presentkvar;
-       Property PresentkV    :Double  Read Get_PresentkV   Write Set_PresentkV;
-       Property PowerFactor  :Double  Read PFnominal       Write Set_PowerFactor;
-       Property kVARating    :Double  Read FkVARating      Write Set_kVARating;
-       property Pmpp         :Double  read FPmpp;
-       property puPmpp       :Double  read FpuPmpp         Write Set_puPmpp;
+        Property PresentIrradiance    :Double  Read Get_PresentIrradiance Write Set_PresentIrradiance  ;
+        Property PresentkW    :Double  Read Get_PresentkW   ;
+        Property Presentkvar  :Double  Read Get_Presentkvar Write Set_Presentkvar;
+        Property PresentkV    :Double  Read Get_PresentkV   Write Set_PresentkV;
+        Property PowerFactor  :Double  Read PFnominal       Write Set_PowerFactor;
+        Property kVARating    :Double  Read FkVARating      Write Set_kVARating;
+        Property Pmpp         :Double  read FPmpp;
+        Property puPmpp       :Double  read FpuPmpp         Write Set_puPmpp;
+        Property Varmode      :Integer read Get_Varmode     Write Set_Varmode;  // 0=constat PF; 1=kvar specified
 
    End;
 
@@ -274,36 +282,36 @@ Const
 }
 // ===========================================================================================
 
-  propKV         =  3;
-  propIrradiance =  4;
-  propPF         =  5;
-  propMODEL      =  6;
-  propYEARLY     =  7;
-  propDAILY      =  8;
-  propDUTY       =  9;
-  propTYEARLY    = 10;
-  propTDAILY     = 11;
-  propTDUTY      = 12;
-  propCONNECTION = 13;
-  propKVAR       = 14;
-  propPCTR       = 15;
-  propPCTX       = 16;
-  propCLASS      = 17;
-  propInvEffCurve= 18;
-  propTemp       = 19;
-  propPmpp       = 20;
-  propP_T_Curve  = 21;
-  propCutin      = 22;
-  propCutout     = 23;
-  propVMINPU     = 24;
-  propVMAXPU     = 25;
-  propKVA        = 26;
-  propUSERMODEL  = 27;
-  propUSERDATA   = 28;
-  propDEBUGTRACE = 29;
-  proppctPmpp    = 30;
+    propKV         =  3;
+    propIrradiance =  4;
+    propPF         =  5;
+    propMODEL      =  6;
+    propYEARLY     =  7;
+    propDAILY      =  8;
+    propDUTY       =  9;
+    propTYEARLY    = 10;
+    propTDAILY     = 11;
+    propTDUTY      = 12;
+    propCONNECTION = 13;
+    propKVAR       = 14;
+    propPCTR       = 15;
+    propPCTX       = 16;
+    propCLASS      = 17;
+    propInvEffCurve= 18;
+    propTemp       = 19;
+    propPmpp       = 20;
+    propP_T_Curve  = 21;
+    propCutin      = 22;
+    propCutout     = 23;
+    propVMINPU     = 24;
+    propVMAXPU     = 25;
+    propKVA        = 26;
+    propUSERMODEL  = 27;
+    propUSERDATA   = 28;
+    propDEBUGTRACE = 29;
+    proppctPmpp    = 30;
 
-  NumPropsThisClass = 30; // Make this agree with the last property constant
+    NumPropsThisClass = 30; // Make this agree with the last property constant
 
 VAR
 
@@ -2087,6 +2095,13 @@ Begin
 End;
 
 
+function TPVsystemObj.Get_Varmode: Integer;
+begin
+      If PFSpecified Then Result := 0 else Result := 1;    // 1 for kvar specified
+end;
+
+
+
 // ============================================================Set_Variable===============================
 PROCEDURE TPVsystemObj.Set_Variable(i: Integer;  Value: Double);
 var N, k:Integer;
@@ -2115,6 +2130,20 @@ Begin
      END;
 
 End;
+
+
+
+procedure TPVsystemObj.Set_Varmode(const Value: Integer);
+begin
+      case Value of
+          1: PFSpecified := FALSE;
+      else
+            PFSpecified := True
+      end;
+
+      kvarSpecified := Not PFSpecified;
+
+end;
 
 // ===========================================================================================
 PROCEDURE TPVsystemObj.GetAllVariables(States: pDoubleArray);
