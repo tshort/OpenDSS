@@ -104,6 +104,7 @@ TYPE
             // following apply to volt-var only
             QDeliver: Array of Array of Double;
             QNew: Array of Double;
+            QOld: Array of Double;
             QHeadRoom: Array of Double;
             FVpuSolution: Array of Array of Double;
             FVpuSolutionIdx: Integer;
@@ -534,6 +535,7 @@ Begin
 
      Finalize(QDeliver);
      Finalize(QNew);
+     Finalize(QOld);
      Finalize(QHeadroom);
      Finalize(FVpuSolution);
 
@@ -714,7 +716,8 @@ BEGIN
       PMonitoredElement := SMonitoredElement.re;
       QMonitoredElement := SMonitoredElement.im;
 
-      if (PendingChange[i] = CHANGEWATTLEVEL) then
+      CASE PendingChange[i] OF
+      CHANGEWATTLEVEL:
       begin
         PNeeded := FkWLimit[i]*1000 - PMonitoredElement;
 
@@ -738,58 +741,59 @@ BEGIN
         Set_PendingChange(NONE,i);
       end; // end if PendingChange = CHANGEWATTLEVEL
 
-      if (PendingChange[i] = CHANGEVARLEVEL) then
+      CHANGEVARLEVEL:
       begin
-          QNeeded := FkvarLimit[i]*1000 - QMonitoredElement;
-
           PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
+
+          PVSys.Varmode := VARMODEKVAR;  // Set var mode to VARMODEKVAR to indicate we might change kvar
           QDesiredpu := 0.0;
-          if (QNeeded <> 0.0) then
-          begin
-              if(FVpuSolutionIdx <> 0) then voltagechangesolution := FVpuSolution[i,FVpuSolutionIdx] - FVpuSolution[i,FVpuSolutionIdx-1]
-              else voltagechangesolution := FVpuSolution[i,1] - FVpuSolution[i,3];
 
-              if (voltagechangesolution > 0) and (FActiveVVCurve = 1) then
-                Qdesiredpu := Fvvc_curve.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
+          if(FVpuSolutionIdx <> 0) then voltagechangesolution := FVpuSolution[i,FVpuSolutionIdx] - FVpuSolution[i,FVpuSolutionIdx-1]
+          else voltagechangesolution := FVpuSolution[i,1] - FVpuSolution[i,3];
 
-              if (voltagechangesolution > 0) and (FActiveVVCurve = 2) then
-                begin
-                    Qdesiredpu := PVSys.Presentkvar / PVSys.kVARating;
-                    FActiveVVCurve := 1;
-                end;
+          if (voltagechangesolution > 0) and (FActiveVVCurve = 1) then
+            Qdesiredpu := Fvvc_curve.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
 
-              if (voltagechangesolution < 0) and (FActiveVVCurve = 2) then
-                Qdesiredpu := Fvvc_curve2.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
+          if (voltagechangesolution > 0) and (FActiveVVCurve = 2) then
+            begin
+                Qdesiredpu := PVSys.Presentkvar / PVSys.kVARating;
+                FActiveVVCurve := 1;
+            end;
 
-              if (voltagechangesolution < 0) and (FActiveVVCurve = 1) then
-                begin
-                    Qdesiredpu := PVSys.Presentkvar / PVSys.kVARating;
-                    FActiveVVCurve := 2;
-                end;
-              if (voltagechangesolution = 0)  then Qdesiredpu := Fvvc_curve.GetYValue(FPresentVpu[i]);;
-              QHeadRoom[i] := SQRT(Sqr(PVSys.kVARating)-Sqr(PMonitoredElement/1000.0));
-              QDeliver[i,2] := QDesiredpu*PVSys.kVARating;
-              DeltaQ := Qdeliver[i,3] - QDeliver[i,2];
-              QNew[i] := QDeliver[i,2] + DeltaQ * FdeltaQ_factor;
+          if (voltagechangesolution < 0) and (FActiveVVCurve = 2) then
+            Qdesiredpu := Fvvc_curve2.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
 
-              If PVSys.Presentkvar <> Qnew[i] Then PVSys.Presentkvar := Qnew[i];
+          if (voltagechangesolution < 0) and (FActiveVVCurve = 1) then
+            begin
+                Qdesiredpu := PVSys.Presentkvar / PVSys.kVARating;
+                FActiveVVCurve := 2;
+            end;
+          if (voltagechangesolution = 0)  then Qdesiredpu := Fvvc_curve.GetYValue(FPresentVpu[i]);;
+          QHeadRoom[i] := SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW/1000.0));
+          QDeliver[i,2] := QDesiredpu*PVSys.kVARating;
 
-              AppendtoEventLog('InvControl.' + Self.Name + PVSys.Name+',',
-                               Format('**Set PVSystem output var level to**, kvar= %.5g', [Qnew[i]]));
-          end; // end if vars needed is not equal to zero
+          DeltaQ := QMonitoredElement/1000.0 - Min(QDeliver[i,2],QHeadRoom[i]);
+          QNew[i] := QOld[i] + DeltaQ * FdeltaQ_factor;
+          QDeliver[i,2] := Min(QDeliver[i,2],QHeadRoom[i]);
+          If PVSys.Presentkvar <> Qnew[i] Then PVSys.Presentkvar := -1.0*Qnew[i];
+//          WriteDLLDebugFile(PVSys.Name);
+          AppendtoEventLog('InvControl.' + Self.Name + PVSys.Name+',',
+                           Format('**Set PVSystem output var level to**, kvar= %.5g', [PVSys.Presentkvar]));
+
 
           ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
+//          WriteDLLDebugFile(ControlledElement[i].Name+','+Format('%-.5g',[ActiveCircuit.Solution.DynaVars.dblHour])+','+Format('%-.7g',[-1.0*PVSys.Presentkvar]));
           FAvgpVuPrior[i] := FPresentVpu[i];
-          QDeliver[i,2]   := QNew[i];
 
           // Force recalc of power parms
           Set_PendingChange(NONE,i);
-
+          QOld[i] := QNew[i];
     end; // end if PendingChange = CHANGEVARLEVEL
 
-    if (PendingChange[i] = CHANGEDYNVARLEVEL) then
+    CHANGEDYNVARLEVEL:
     begin
         PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
+        PVSys.Varmode := VARMODEKVAR;  // Set var mode to VARMODEKVAR to indicate we might change kvar
 
         BasekV := ActiveCircuit.Buses^[ ControlledElement[i].terminals^[1].busRef].kVBase;
         deltaV := 0.0;
@@ -814,8 +818,10 @@ BEGIN
         Set_PendingChange(NONE,i);
     end // end if PendingChange = CHANGEDYNVARLEVEL
 
-    else // else set PendingChange to NONE
+    ELSE //else set PendingChange to NONE
       Set_PendingChange(NONE,i);
+    end;
+
 end;
         {Do Nothing}
 end;
@@ -824,9 +830,11 @@ end;
 PROCEDURE TInvControlObj.Sample;
 
 VAR
-   i,j                  :Integer;
+   i,j                   :Integer;
    basekV,
-   Vpresent             :Double;
+   Vpresent              :Double;
+   presentkvar,presentkW :Double;
+   presentheadroom       :Double;
 
 begin
      // If list is not defined, go make one from all PVSystem in circuit
@@ -885,8 +893,12 @@ begin
 
                 VOLTVAR:
                 begin
+                    presentheadroom := SQRT(Sqr(ControlledElement[i].kVARating)-Sqr(ControlledElement[i].PresentkW));
+
                     if (Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > 0.0001) or
-                      (Abs(Abs(Qdeliver[i,2]) - Abs(QNew[i])) > (0.1*FkVALimit[i])) then
+                      ((Abs(Abs(Controlledelement[i].Presentkvar) - Abs(QDeliver[i,2])) > (0.01*FkVALimit[i])) and
+
+                      (Abs(Abs(Controlledelement[i].Presentkvar) - Abs(presentheadroom)) > (0.01*FkVALimit[i]))) then
                     begin
                       Set_PendingChange(CHANGEVARLEVEL,i);
 
@@ -999,6 +1011,7 @@ begin
 
        SetLength(QDeliver,FListSize+1,3);
        SetLength(QNew,FListSize+1);
+       SetLength(QOld,FListSize+1);
        SetLength(QHeadroom,FListSize+1);
 
        SetLength(FVpuSolution,FListSize+1,4);
@@ -1060,6 +1073,7 @@ begin
          SetLength(FPendingChange,FListSize+1);
          SetLength(QDeliver,FListSize+1,3);
          SetLength(QNew,FListSize+1);
+         SetLength(QOld,FListSize+1);
          SetLength(QHeadroom,FListSize+1);
          SetLength(FVpuSolution,FListSize+1,4);
 
@@ -1112,6 +1126,7 @@ begin
            QDeliver[i,1] := 0.0; //old q deliver
            QDeliver[i,2] := 0.0; //new q deliver
            QNew[i] := 0.0;
+           QOld[i] := 0.0;
            QHeadroom[i]:=0.0;
            for j := 0 to 3 do  FVpuSolution[i,j]:=0.0;
 
