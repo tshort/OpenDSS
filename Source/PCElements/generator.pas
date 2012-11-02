@@ -375,9 +375,10 @@ Begin
                     '4:Const kW, Fixed Q (Q never varies)'+CRLF+
                     '5:Const kW, Fixed Q(as a constant reactance)'+CRLF+
                     '6:Compute load injection from User-written Model.(see usage of Xd, Xdp)'+CRLF+
-                    '7:Constant kW, kvar, but current limited below Vminpu. Approximates a simple inverter.');
+                    '7:Constant kW, kvar, but current-limited below Vminpu. Approximates a simple inverter.');
      AddProperty('Vminpu', 23,   'Default = 0.90.  Minimum per unit voltage for which the Model is assumed to apply. ' +
-                          'Below this value, the load model reverts to a constant impedance model.');
+                          'Below this value, the load model reverts to a constant impedance model. For model 7, the current is ' +
+                          'limited to the value computed for constant power at Vminpu.');
      AddProperty('Vmaxpu', 24, 'Default = 1.10.  Maximum per unit voltage for which the Model is assumed to apply. ' +
                           'Above this value, the load model reverts to a constant impedance model.');
      AddProperty('yearly', 7,  'Dispatch shape to use for yearly simulations.  Must be previously defined '+

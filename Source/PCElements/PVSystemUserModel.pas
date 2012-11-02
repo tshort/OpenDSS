@@ -3,7 +3,7 @@ unit PVSystemUserModel;
 {$M+}
 {
   ----------------------------------------------------------
-  Copyright (c) 2009, Electric Power Research Institute, Inc.
+  Copyright (c) 2009-2012, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -16,22 +16,22 @@ TYPE
 
     TPVsystemUserModel  = class(TObject)
       private
-         FHandle: Integer;  // Handle to DLL containing user model
-         FID : Integer;    // ID of this instance of the user model
-         Fname: String;    // Name of the DLL file containing user model
-         FuncError:Boolean;
+         FHandle:   Integer;  // Handle to DLL containing user model
+         FID :      Integer;    // ID of this instance of the user model
+         Fname:     String;    // Name of the DLL file containing user model
+         FuncError: Boolean;
 
 
          {These functions should only be called by the object itself}
-         FNew:    Function(Var DynaData:TDynamicsRec; Var CallBacks:TDSSCallBacks): Integer;  Stdcall;// Make a new instance
-         FDelete: Procedure(var x:Integer); Stdcall;  // deletes specified instance
-         FSelect: Function (var x:Integer):Integer; Stdcall;    // Select active instance
+         FNew:     Function(Var DynaData:TDynamicsRec; Var CallBacks:TDSSCallBacks): Integer;  Stdcall;// Make a new instance
+         FDelete:  Procedure(var x:Integer); Stdcall;  // deletes specified instance
+         FSelect:  Function (var x:Integer):Integer; Stdcall;    // Select active instance
 
          Procedure Set_Name(const Value:String);
          Function  CheckFuncError(Addr:Pointer; FuncName:String):Pointer;
          procedure Set_Edit(const Value: String);
          function  Get_Exists: Boolean;
-         
+
       protected
 
       public
@@ -44,15 +44,15 @@ TYPE
 
 
         {Save and restore data}
-        FSave:    Procedure; Stdcall;
-        FRestore: Procedure; Stdcall;
+        FSave:         Procedure; Stdcall;
+        FRestore:      Procedure; Stdcall;
 
         {Monitoring functions}
-        FNumVars:     Function:Integer;Stdcall;
-        FGetAllVars:  Procedure(Vars:pDoubleArray);StdCall;  // Get all vars
-        FGetVariable: Function(var I:Integer):Double;StdCall;// Get a particular var
-        FSetVariable: Procedure(var i:Integer; var value:Double); StdCall;
-        FGetVarName:  Procedure(var VarNum:Integer; VarName:pAnsichar; maxlen:Cardinal);StdCall;
+        FNumVars:      Function:Integer;Stdcall;
+        FGetAllVars:   Procedure(Vars:pDoubleArray);StdCall;  // Get all vars
+        FGetVariable:  Function(var I:Integer):Double;StdCall;// Get a particular var
+        FSetVariable:  Procedure(var i:Integer; var value:Double); StdCall;
+        FGetVarName:   Procedure(var VarNum:Integer; VarName:pAnsichar; maxlen:Cardinal);StdCall;
 
         // this property loads library (if needed), sets the procedure variables, and makes a new instance
         // old reference is freed first
