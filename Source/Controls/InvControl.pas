@@ -73,7 +73,7 @@ TYPE
             FListSize:Integer;
             FPVSystemNameList:TStringList;
             FPVSystemPointerList:PointerList.TPointerList;
-            FWeights:pDoubleArray;
+//            FWeights:pDoubleArray;
             Fvvc_curve_size: Integer; // length of the individual curve
             Fvvc_curve: TXYcurveObj;
             Fvvc_curveOffset: Double;
@@ -291,7 +291,7 @@ VAR
    ParamPointer:Integer;
    ParamName:String;
    Param:String;
-   i:Integer;
+
 
 Begin
 
@@ -368,8 +368,6 @@ Begin
           1: Begin // re-alloc based on
                 FPVSystemPointerList.Clear; // clear this for resetting on first sample
                 FListSize := FPVSystemNameList.count;
-                Reallocmem(FWeights, Sizeof(FWeights^[1]) * FListSize);
-                For i := 1 to FListSize Do  FWeights^[i] := 1.0;
             End;
         ELSE
 
@@ -456,34 +454,71 @@ Begin
      Name := LowerCase(InvControlName);
      DSSObjType := ParClass.DSSClassType;
 
-     ElementName   := '';
+     ElementName        := '';
+
+     ControlledElement      := nil;
+     FkWLimit               := nil;
+     FkvarLimit             := nil;
+     FkVALimit              := nil;
+     FVref                  := nil;
+     FPpf                   := nil;
+     Fpresentkvar           := nil;
+     FpresentkW             := nil;
+     NPhasesPVSys           := nil;
+     NCondsPVSys            := nil;
+     FPVSystemNameList      := nil;
+     FPVSystemPointerList   := nil;
+     Fvvc_curve_size        :=0;
+     Fvvc_curve             := nil;
+     Fvvc_curveOffset       := 0.0;
+     Fvvc_curve2            := nil;
+     FActiveVVCurve         := 1;
+     FVoltage_CurveX_ref    := 0;
+     FVAvgWindowLength      := 0;
+     cBuffer                := nil;
+     CondOffset             := nil;
+
+     // following applicable to volt-watt and volt-var
+     FVAvgWindowSamplesdblHour:= nil;
+     FVAvgWindowSamples     :=nil;
+     FVAvgWindowValue       :=nil;
+     FVAvgWindowSamplesIntervalUnit:= 's';
+     FVAvgWindowPointer     := nil;
+
+     // volt-watt, only related variables
+     Fvoltwatt_curve_size   := 0;
+     Fvoltwatt_curve        := nil;
+     FAvgpVuPrior           := nil;
+     FPresentVpu            := nil;
+     FvoltwattDeltaVTolerance := 0.00001;  // per-unit change in voltage tolerance
+                                         // typically between a prior solution and the present solution
+
+     PDeliver               := nil;
+     PNew                   := nil;
+     FPendingChange         := nil;
+
+      // following apply to volt-var only
+     QDeliver              := nil;
+     QNew                  := nil;
+     QOld                  := nil;
+     QHeadRoom             := nil;
+     FVpuSolution          := nil;
+     FVpuSolutionIdx       := 0;
+     FdeltaQ_factor        := 0.4;
+
+     //following for dynamic reactive current mode
+     FDynReacavgwindowLength:= 0;
+     FDynReacWindowSamplesIntervalUnit:= 's';
+     FDynReacWindowSamplesdblHour:= nil;
+     FDynReacWindowSamples := nil;
+     FDynReacWindowValue   := nil;
+     FDynReacWindowPointer := nil;
+
 
      FPVSystemNameList := TSTringList.Create;
-     FWeights   := Nil;
      FPVSystemPointerList := PointerList.TPointerList.Create(20);  // Default size and increment
-     FListSize   := 0;
-     FkWLimit    := Nil;
-     FkVALimit   := Nil;
-     FkvarLimit  := Nil;
      TotalWeight := 1.0;
-     FVAvgWindowSamples := Nil;
-     FVAvgWindowSamplesdblHour := Nil;
-     FVAvgWindowPointer := nil;
 
-     Fvvc_curve_size  := 0; // length of the individual curve
-     Fvvc_curve       := Nil;
-     Fvvc_curve2      := Nil;
-     Fvvc_curveOffset := 0.0;
-     FVoltage_CurveX_ref:= 0;  // valid values are 0: = Vref (rated), 1:= avg
-     FVAvgWindowLength := 0;  // voltage averaging window length for VOLTWATT and VOLTVAR only, in user-specified units of s, m, h (integer)
-     FVAvgWindowValue  := Nil;
-     FVAvgWindowSamplesIntervalUnit := 's';
-
-     Fvoltwatt_curve_size:= 0;
-     Fvoltwatt_curve:= Nil;
-     FVpuSolution := Nil;
-     FVpuSolutionIdx := 0;
-     FActiveVVCurve := 1;
       //following for dynamic reactive current mode
      FDbVMin := 0.95;
      FDbVMax := 1.05;
@@ -491,9 +526,6 @@ Begin
      FArGraHiV:= 0.1;
      FDynReacavgwindowLength:= 0;
      FDynReacWindowSamplesIntervalUnit:= 's';
-     FdeltaQ_factor := 0.4;
-     FvoltwattDeltaVTolerance := 0.00001;  // per-unit change in voltage tolerance
-                                         // typically between a prior solution and the present solution
 
      FPendingChange := Nil;
 
@@ -693,7 +725,7 @@ PROCEDURE TInvControlObj.DoPendingAction;
 VAR
 
   i                                         :Integer;
-  Pdesiredpu, QDesiredpu, PNeeded, QNeeded,
+  Pdesiredpu, QDesiredpu, PNeeded,
   PMonitoredElement,QMonitoredElement       :Double;
   voltagechangesolution,DeltaQ,DeltaV,
   basekV                                    :Double;
@@ -833,7 +865,7 @@ VAR
    i,j                   :Integer;
    basekV,
    Vpresent              :Double;
-   presentkvar,presentkW :Double;
+
    presentheadroom       :Double;
 
 begin
@@ -1049,8 +1081,9 @@ begin
 
          {Allocate uniform weights}
          FListSize := FPVSystemPointerList.ListSize;
-         Reallocmem(FWeights, Sizeof(FWeights[1])*FListSize);
-         For i := 1 to FListSize Do FWeights[i] := 1.0;
+//         FWeights := Nil;
+//         Reallocmem(FWeights, Sizeof(FWeights[1])*FListSize);
+//         For i := 1 to FListSize Do FWeights[i] := 1.0;
 
          SetLength(ControlledElement,FListSize+1);
 
@@ -1096,15 +1129,15 @@ begin
     End;  {Else}
 
        // Add up total weights
-     TotalWeight := 0.0;
-     For i := 1 to FlistSize Do  TotalWeight := TotalWeight + FWeights^[i];
+  //   TotalWeight := 0.0;
+//     For i := 1 to FlistSize Do  TotalWeight := TotalWeight + FWeights^[i];
 
      //Initialize arrays
      For i := 1 to FlistSize Do
      begin
             PVSys := PVSysClass.Find(FPVSystemNameList.Strings[i-1]);
 
-           For j := 0 to 7 Do cBuffer[i,j] := cZERO;
+           For j := 1 to 6 Do cBuffer[i,j] := cZERO;
 
            Set_NTerms(PVSys.NTerms);
 
@@ -1531,6 +1564,9 @@ start:
   output = (Kp*error) + (Ki*integral) + (Kd*derivative)
   previous_error = error
   goto start}
+
+Finalization
+  WriteDLLDebugFile('Wes');
 
 
 end.
