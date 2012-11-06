@@ -694,7 +694,8 @@ Begin
                 propInvEffCurve  : InverterCurveObj   := XYCurveClass.Find(InverterCurve);
                 propP_T_Curve    : Power_TempCurveObj := XYCurveClass.Find(Power_TempCurve);
 
-                propDEBUGTRACE: IF DebugTrace THEN Begin   // Init trace file
+                propDEBUGTRACE: IF DebugTrace THEN
+                Begin   // Init trace file
                        AssignFile(TraceFile, GetOutputDirectory + 'STOR_'+Name+'.CSV');
                        ReWrite(TraceFile);
                        Write(TraceFile, 't, Iteration, LoadMultiplier, Mode, LoadModel, PVSystemModel,  Qnominalperphase, Pnominalperphase, CurrentType');
@@ -773,11 +774,11 @@ Begin
          FClass             := OtherPVsystemObj.FClass;
          VoltageModel       := OtherPVsystemObj.VoltageModel;
 
-         PVSystemVars.FTemperature       := OtherPVsystemObj.PVSystemVars.FTemperature;
-         PVSystemVars.FPmpp              := OtherPVsystemObj.PVSystemVars.FPmpp;
-         FpctCutin          := OtherPVsystemObj.FpctCutin;
-         FpctCutout         := OtherPVsystemObj.FpctCutout;
-         PVSystemVars.FIrradiance        := OtherPVsystemObj.PVSystemVars.FIrradiance;
+         PVSystemVars.FTemperature   := OtherPVsystemObj.PVSystemVars.FTemperature;
+         PVSystemVars.FPmpp          := OtherPVsystemObj.PVSystemVars.FPmpp;
+         FpctCutin                   := OtherPVsystemObj.FpctCutin;
+         FpctCutout                  := OtherPVsystemObj.FpctCutout;
+         PVSystemVars.FIrradiance    := OtherPVsystemObj.PVSystemVars.FIrradiance;
 
          PVSystemVars.FkVArating          := OtherPVsystemObj.PVSystemVars.FkVArating;
 
@@ -1083,7 +1084,7 @@ Begin
      Then Begin
             TShapeValue := DailyTShapeObj.GetTemperature(Hr);
      End
-     ELSE TShapeValue := 1.0;  // Default to no  variation
+     ELSE TShapeValue := PVSystemVars.FTemperature;;  // Default to no  variation
 end;
 
 // ===========================================================================================
@@ -1188,7 +1189,7 @@ PROCEDURE TPVsystemObj.SetNominalPVSystemOuput;
 Begin
 
    ShapeFactor  := CDOUBLEONE;  // init here; changed by curve routine
-   TShapeValue  := 25.0;  // init here; changed by curve routine
+   TShapeValue  := PVSystemVars.FTemperature; // init here; changed by curve routine
 
     // Check to make sure the PVSystem element is ON
    With ActiveCircuit, ActiveCircuit.Solution Do
@@ -2262,7 +2263,7 @@ End;
 procedure TPVsystemObj.Set_Varmode(const Value: Integer);
 begin
       case Value of
-          1: PFSpecified := FALSE;
+          VARMODEKVAR: PFSpecified := FALSE;
       else
             PFSpecified := True
       end;
