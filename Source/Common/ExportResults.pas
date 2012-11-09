@@ -39,6 +39,7 @@ Procedure ExportSummary(FileNm:String);
 Procedure ExportProfile(FileNm:String; PhasesToPlot:Integer);
 Procedure ExportEventLog(FileNm:String);
 Procedure ExportVoltagesElements(FileNm:String);
+Procedure ExportGICMvar(FileNm:String);
 
 
 
@@ -47,7 +48,8 @@ IMPLEMENTATION
 Uses uComplex,  Arraydef, sysutils,   Circuit, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution, CktElement, Utilities, Bus, MathUtil, DSSClass,
      PDElement, PCElement, Generator, EnergyMeter, Sensor, Load, RegControl,
-     ParserDel, Math, Ymatrix, LineGeometry, WireData, LineCode, XfmrCode, NamedObject;
+     ParserDel, Math, Ymatrix, LineGeometry, WireData, LineCode, XfmrCode, NamedObject,
+     GICTransformer;
 
 Procedure WriteElementVoltagesExportFile(Var F:TextFile; pElem:TDSSCktElement;MaxNumNodes:Integer);
 
@@ -2364,6 +2366,38 @@ Begin
 
 End;
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Procedure ExportGICMvar(FileNm:String);
+
+Var
+    F          :TextFile;
+    pElem      :TGICTransformerObj;
+    GICClass   :TGICTransformer;
+
+Begin
+
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+
+     GICClass := TGICTransformer(GetDSSClassPtr('GICTransformer'));
+
+     Writeln(F, 'Bus, Mvar, Idc');
+     pElem := TGICTransformerObj(GICClass.ElementList.First);
+     while PElem <> Nil do
+     Begin
+         pElem.WriteVarOutputRecord(F);
+         pElem := TGICTransformerObj(GICClass.ElementList.Next);
+     End;
+
+     GlobalResult := FileNm;
+
+  Finally
+     CloseFile(F);
+  End;
+
+End;
 
 
 end.

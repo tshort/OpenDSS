@@ -18,7 +18,7 @@ unit GICTransformer;
 
 interface
 USES
-   Command, DSSClass, PDClass, Circuit, PDElement, UcMatrix, ArrayDef;
+   Command, DSSClass, PDClass, Circuit, PDElement, UcMatrix, ArrayDef, XYCurve;
 
 TYPE
 
@@ -42,10 +42,21 @@ TYPE
 
    TGICTransformerObj = class(TPDElement)
       Private
-        G1, G2 :Double;         // single G per phase (line rating)
+        G1, G2:     Double;         // single G per phase (line rating)
 
-        SpecType:Integer;
-      Protected
+        SpecType:   Integer;
+        FMVARating: Double;
+        FVarCurve:     String;
+        FVarCurveObj:  TXYCurveObj;
+        FpctR1,
+        FpctR2:        Double;
+        FZbase1,
+        FZbase2:       Double;
+        FkVSpecified:  Boolean;
+        FpctRSpecified: Boolean;
+        FkV1,
+        FkV2:           Double;
+
       Public
         constructor Create(ParClass:TDSSClass; const FaultName:String);
         destructor Destroy; override;
@@ -59,6 +70,7 @@ TYPE
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
         Procedure DumpProperties(Var F:TextFile; Complete:Boolean);Override;
 
+        Procedure WriteVarOutputRecord(Var F:TextFile); // Add a record to the ouput file based on present GIC
    end;
 
 VAR
@@ -67,7 +79,7 @@ VAR
 implementation
 USES  ParserDel,  MyDSSClassDefs, DSSClassDefs, DSSGlobals, dynamics, Sysutils, Ucomplex, MathUtil, Utilities;
 
-Const NumPropsthisclass = 8;
+Const NumPropsthisclass = 14;
 
       SPEC_GSU  = 1;
       SPEC_AUTO = 2;
@@ -115,6 +127,12 @@ Begin
      PropertyName^[6] := 'Type';
      PropertyName^[7] := 'R1';
      PropertyName^[8] := 'R2';
+     PropertyName^[9] := 'KVLL1';
+     PropertyName^[10] := 'KVLL2';
+     PropertyName^[11] := 'MVA';
+     PropertyName^[12] := 'VarCurve';
+     PropertyName^[13] := '%R1';
+     PropertyName^[14] := '%R2';
 
      // define Property help values
      PropertyHelp[1] := 'Name of High-side(H) bus. Examples:'+CRLF+
@@ -129,9 +147,20 @@ Begin
                         'to X-side bus, node 0, if not specified. (Shunt Wye Connection to ground reference)';
      PropertyHelp[5] := 'Number of Phases. Default is 3.';
      PropertyHelp[6] := 'Type of transformer: {GSU* | Auto | YY}. Default is GSU.';
-     PropertyHelp[7] := 'Resistance, each phase, ohms for H winding, (Series winding, if Auto). Default is 0.0001. ';
+     PropertyHelp[7] := 'Resistance, each phase, ohms for H winding, (Series winding, if Auto). Default is 0.0001. If ';
      PropertyHelp[8] := 'Resistance, each phase, ohms for X winding, (Common winding, if Auto). Default is 0.0001. ';
+     PropertyHelp[9] := 'Optional. kV LL rating for H winding (winding 1). Default is 345. Required only if you are going to export vars for power flow analysis ' +
+                        'or enter winding resistances in percent.';
+     PropertyHelp[10] := 'Optional. kV LL rating for X winding (winding 2). Default is 138. Required only if you are going to export vars for power flow analysis ' +
+                        'or enter winding resistances in percent..';
+     PropertyHelp[11] := 'Optional. MVA Rating assumed Transformer. Default is 100. Used for computing vars due to GIC and winding resistances if kv and MVA ratings are spedified.';
+     PropertyHelp[12] := 'Optional. XYCurve object name. Curve is expected as pu TOTAL vars vs pu GIC amps/phase. Vars are in pu of the MVA property. No Default value. ' +
+                         'Required only if you are going to export vars for power flow analysis.';
 
+     PropertyHelp[13] := 'Optional. Percent Resistance, each phase, for H winding, (Series winding, if Auto). Default is 0.2. ' + CRLF + CRLF +
+                        'Alternative way to enter R1 value. It is the actual resistances in ohmns that matter.';
+     PropertyHelp[14] := 'Optional. Percent Resistance, each phase, for X winding, (Common winding, if Auto). Default is 0.2. ' + CRLF + CRLF +
+                        'Alternative way to enter R2 value. It is the actual resistances in ohms that matter.';
 
 
      ActiveProperty := NumPropsThisClass;
@@ -264,6 +293,12 @@ BEGIN
                  G2 := Parser.Dblvalue;
                  IF G2<>0.0 THEN G2 := 1.0/G2 ELSE G2 := 10000.0;  // Default to a low resistance
                END;
+            9: FkV1 := Parser.DblValue ;
+           10: FkV2 := Parser.DblValue ;
+           11: FMVArating := Parser.DblValue;
+           12: FVarCurve := Param;
+           13: FpctR1 := Parser.DblValue;
+           14: FpctR2 := Parser.DblValue;
          ELSE
            // Inherited
               ClassEdit(ActiveGICTransformerObj, ParamPointer - NumPropsThisClass)
@@ -296,6 +331,10 @@ BEGIN
                        SetBus(2, GetBus(3));
                    End;
              END;
+          7..8: FpctRSpecified := FALSE;
+          9..10: FkVSpecified := TRUE;
+          12: FVarCurveObj := XYCurveClass.Find(FVarCurve);
+          13..14: FpctRSpecified := TRUE;
          ELSE
          END;
 
@@ -340,6 +379,17 @@ BEGIN
        G1            := OtherGICTrans.G1;
        G2            := OtherGICTrans.G2;
        SpecType      := OtherGICTrans.SpecType;
+       FMVARating    := OtherGICTrans.FMVARating;
+       FVarcurve     := OtherGICTrans.FVarcurve;
+       FVarcurveObj  := OtherGICTrans.FVarcurveObj;
+       FkV1    := OtherGICTrans.FkV1;
+       FkV2    := OtherGICTrans.FkV2;
+       FpctR1  := OtherGICTrans.FpctR1;
+       FpctR2  := OtherGICTrans.FpctR2;
+       FpctRSpecified    := OtherGICTrans.FpctRSpecified;
+       FkVSpecified      := OtherGICTrans.FkVSpecified;
+       FZBase1    := OtherGICTrans.FZBase1;
+       FZBase2    := OtherGICTrans.FZBase2;
 
        ClassMakeLike(OtherGICTrans);
 
@@ -383,6 +433,16 @@ BEGIN
      G2            := 10000.0;
      SpecType      := SPEC_GSU;
 
+     FMVARating := 100.0;
+     FVarCurve  := '';
+     FVarCurveObj := Nil;
+
+     FkVSpecified   := FALSE;
+     FkV1 := 345.0;
+     FkV2 := 138.0;
+     FpctR1 := 0.2;
+     FpctR2 := 0.2;
+
 
      NormAmps   := 0.0;
      EmergAmps  := 0.0;
@@ -393,7 +453,10 @@ BEGIN
      InitPropertyValues(0);
 
      Yorder := Fnterms * Fnconds;
+
+     FpctRSpecified := TRUE;  // Force computation of G1, G2
      RecalcElementData;
+     FpctRSpecified := FALSE;  // Turn flag off
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -407,10 +470,42 @@ Procedure TGICTransformerObj.RecalcElementData;
 
 BEGIN
 
-// Nothing to do
+   FZbase1 := SQR(FkV1)/FMVArating;
+   FZbase2 := SQR(FkV2)/FMVArating;
+
+   If FpctRSpecified Then Begin
+          G1 := 100.0 / (FZBase1 * FPctR1);
+          G2 := 100.0 / (FZBase2 * FPctR1);
+   End Else Begin
+          FPctR1 := 100.0 / (FZBase1 * G1);
+          FPctR2 := 100.0 / (FZBase2 * G2);
+   End;
 
 END;
 
+
+procedure TGICTransformerObj.WriteVarOutputRecord(var F: TextFile);
+Var
+   Curr:    Complex;
+   VarMag:  Double;
+   puCurrMag: Double;
+   i:         Integer;
+
+begin
+     If Assigned(FVarCurveObj) Then
+     Begin
+         ComputeIterminal;
+         Curr := CZERO;
+         for i := 1 to Fnphases do Caccum(Curr, Iterminal^[i]);
+         // MVA = sqrt(3) * kVLL * I/1000
+         // pu A per phase (Avg)
+         puCurrMag := Cabs(Curr) / (FMVArating * 1000.0 / FkV1 / Sqrt(3.0) ) / FNPhases;
+         VarMag := FVarCurveObj.GetYValue(puCurrMag) * FMVARating;
+     End
+     Else VarMag := 0.0;
+
+     Writeln(F, Format('%s, %.8g, %.8g', [GetBus(1), VarMag, puCurrMag ]));
+end;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Procedure TGICTransformerObj.CalcYPrim;
@@ -541,14 +636,19 @@ BEGIN
            SPEC_AUTO: Writeln(F, '~ ', PropertyName^[6], '= AUTO');
            SPEC_YY:   Writeln(F, '~ ', PropertyName^[6], '= YY');
         END;
-        Writeln(F,'~ ',PropertyName^[7],'=',(1.0/G1):0:2);
-        Writeln(F,'~ ',PropertyName^[8],'=',(1.0/G2):0:2);
+        Writeln(F,'~ ',PropertyName^[7],'=',Format('%.8g',[1.0/G1]));
+        Writeln(F,'~ ',PropertyName^[8],'=',Format('%.8g',[1.0/G2]));
+        Writeln(F,'~ ',PropertyName^[9],'=', FkV1:0:2);
+        Writeln(F,'~ ',PropertyName^[10],'=',FkV2:0:2);
+        Writeln(F,'~ ',PropertyName^[11],'=',FMVARating:0:2);
+        Writeln(F,'~ ',PropertyName^[12],'=',FVarcurve);
+        Writeln(F,'~ ',PropertyName^[13],'=',Format('%.8g',[FpctR1]));
+        Writeln(F,'~ ',PropertyName^[14],'=',Format('%.8g',[FpctR2]));
 
-
-         For i := NumPropsthisClass to NumProperties Do
-         Begin
+        For i := NumPropsthisClass+1 to NumProperties Do
+        Begin
             Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
-         End;
+        End;
 
     End;
 
@@ -567,6 +667,13 @@ begin
      PropertyValue[6] := 'GSU';
      PropertyValue[7] := '0.0001';
      PropertyValue[8] := '0.0001';
+     PropertyValue[9] := '345';
+     PropertyValue[10] := '138';
+     PropertyValue[11] := '100';
+     PropertyValue[12] := '';
+     PropertyValue[13] := '0.2';
+     PropertyValue[14] := '0.2';
+
 
      inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -590,6 +697,12 @@ begin
            5: Result := Format('%d', [Nphases]);
            7: Result := Format('%.8g', [1.0/G1]);
            8: Result := Format('%.8g', [1.0/G2]);
+           9: Result := Format('%.8g', [FkV1]);
+          10: Result := Format('%.8g', [FkV2]);
+          11: Result := Format('%.8g', [FMVARating]);
+          12: Result := Format('%s',   [Fvarcurve]);
+          13: Result := Format('%.8g', [FpctR1]);
+          14: Result := Format('%.8g', [FpctR2]);
        ELSE
            Result := Inherited GetPropertyValue(Index);
        END;

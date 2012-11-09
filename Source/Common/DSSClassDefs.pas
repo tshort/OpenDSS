@@ -46,7 +46,7 @@ CONST
       STORAGE_CONTROL  = 22 * 8;
       SWT_CONTROL      = 23 * 8;
       PVSYSTEM_ELEMENT = 24 * 8;
-      VV_CONTROL       = 25 * 8;
+      // Deleted --- VV_CONTROL       = 25 * 8;
       GIC_Line         = 26 * 8;
       GIC_Transformer  = 27 * 8;
       INV_CONTROL      = 28 * 8;
@@ -109,7 +109,6 @@ USES
      StorageController,
      SwtControl,
      PVSystem,
-     VVControl,
      InvControl,
      GICLine,
      GICTransformer
@@ -185,8 +184,8 @@ Begin
      PVSystemClass  := TPVSystem.Create;
      DSSClasses.New := PVSystemClass;
 
-     VVControlClass := TVVControl.Create;
-     DSSClasses.New := VVControlClass;
+// Deleted ---     VVControlClass := TVVControl.Create;
+// Deleted ---        DSSClasses.New := VVControlClass;
 
 
      InvControlClass := TInvControl.Create;

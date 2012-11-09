@@ -90,21 +90,21 @@
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-			<VerInfo_Build>5</VerInfo_Build>
+			<VerInfo_Build>6</VerInfo_Build>
 			<VerInfo_Release>1</VerInfo_Release>
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
 			<VerInfo_MinorVer>6</VerInfo_MinorVer>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<DCC_ExeOutput>..\x64</DCC_ExeOutput>
-			<VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.1.5;InternalName=;LegalCopyright=Copyright (C) 2008-2012 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.1.6;InternalName=;LegalCopyright=Copyright (C) 2008-2012 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-			<VerInfo_Build>5</VerInfo_Build>
+			<VerInfo_Build>7</VerInfo_Build>
 			<VerInfo_Release>1</VerInfo_Release>
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
 			<VerInfo_MinorVer>6</VerInfo_MinorVer>
 			<DCC_ExeOutput>..\x86</DCC_ExeOutput>
-			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.1.5;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2012 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.1.7;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2012 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
 			<DCC_DependencyCheckOutputName>..\OpenDSS.exe</DCC_DependencyCheckOutputName>
@@ -131,11 +131,12 @@
 			<VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.1.0;InternalName=;LegalCopyright=Copyright (C) 2008-2012 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<VerInfo_Build>6</VerInfo_Build>
 			<VerInfo_Release>1</VerInfo_Release>
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
 			<VerInfo_MinorVer>6</VerInfo_MinorVer>
 			<DCC_ExeOutput>..\x86</DCC_ExeOutput>
-			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.1.0;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2012 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.1.6;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2012 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
@@ -154,7 +155,7 @@
 						<VersionInfo Name="MajorVer">7</VersionInfo>
 						<VersionInfo Name="MinorVer">5</VersionInfo>
 						<VersionInfo Name="Release">1</VersionInfo>
-						<VersionInfo Name="Build">73</VersionInfo>
+						<VersionInfo Name="Build">95</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -166,7 +167,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">EPRI</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">Distribution System Simulator</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">7.5.1.73</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">7.5.1.95</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName">OpenDSS</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 2008-2012  EPRI, All Rights Reserved.</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
@@ -188,6 +189,87 @@
 					<Platform value="Win64">True</Platform>
 					<Platform value="Win32">True</Platform>
 				</Platforms>
+				<Deployment>
+					<DeployFile Class="DebugSymbols" Configuration="Release" LocalName="..\x64\OpenDSS.rsm">
+						<Platform Name="Win64">
+							<RemoteName>OpenDSS.rsm</RemoteName>
+						</Platform>
+					</DeployFile>
+					<DeployFile Class="ProjectOutput" Configuration="Release" LocalName="..\x64\OpenDSS.exe">
+						<Platform Name="Win64"/>
+					</DeployFile>
+					<DeployClass Name="ProjectOutput" Required="true">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DependencyPackage" Required="true">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+							<Extensions>.dylib</Extensions>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+							<Extensions>.bpl</Extensions>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DependencyModule">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+							<Extensions>.dylib</Extensions>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+							<Extensions>.dll;.bpl</Extensions>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="ProjectOSXInfoPList"/>
+					<DeployClass Name="File">
+						<Platform Name="OSX32">
+							<Operation>0</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DebugSymbols">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DependencyFramework">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+							<Extensions>.framework</Extensions>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="AdditionalDebugSymbols">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="ProjectOSXResource">
+						<Platform Name="OSX32">
+							<RemoteDir>Contents\Resources</RemoteDir>
+							<Operation>1</Operation>
+						</Platform>
+					</DeployClass>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="OSX32"/>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win64"/>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win32"/>
+				</Deployment>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
 		</ProjectExtensions>
@@ -352,7 +434,6 @@
 			<DCCReference Include="..\General\CableData.pas"/>
 			<DCCReference Include="..\General\ConductorData.pas"/>
 			<DCCReference Include="..\General\CableConstants.pas"/>
-			<DCCReference Include="..\Controls\VVControl.pas"/>
 			<DCCReference Include="..\Shared\Pstcalc.pas"/>
 			<DCCReference Include="..\PCElements\GICLine.pas"/>
 			<DCCReference Include="..\PDElements\GICTransformer.pas"/>
@@ -380,4 +461,5 @@
 		</ItemGroup>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
 		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+		<Import Condition="Exists('$(MSBuildProjectName).deployproj')" Project="$(MSBuildProjectName).deployproj"/>
 	</Project>

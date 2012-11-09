@@ -181,7 +181,6 @@ uses
   CableData in '..\General\CableData.pas',
   ConductorData in '..\General\ConductorData.pas',
   CableConstants in '..\General\CableConstants.pas',
-  VVControl in '..\Controls\VVControl.pas',
   Pstcalc in '..\Shared\Pstcalc.pas',
   GICLine in '..\PCElements\GICLine.pas',
   GICTransformer in '..\PDElements\GICTransformer.pas',

@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 35;
+        NumExportOptions = 36;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -59,6 +59,7 @@ Begin
       ExportOption[33] := 'EventLog';
       ExportOption[34] := 'AllocationFactors';
       ExportOption[35] := 'VoltagesElements';
+      ExportOption[36] := 'GICMvars';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -98,6 +99,7 @@ Begin
       ExportHelp[33] := '(Default file = EXP_EVTLOG.CSV) All entries in the present event log.';
       ExportHelp[34] := 'Exports load allocation factors. File name is assigned.';
       ExportHelp[35] := '(Default file = EXP_VOLTAGES_ELEM.CSV) Voltages to ground by circuit element.';
+      ExportHelp[36] := '(Default file = EXP_GIC_Mvar.CSV) Mvar for each GICtransformer object by bus for export to power flow programs ';
 
 End;
 
@@ -225,6 +227,7 @@ Begin
          33: FileName := 'EXP_EVTLOG.CSV';
          34: FileName := 'AllocationFactors.Txt';
          35: FileName := 'EXP_VOLTAGES_ELEM.CSV';
+         36: FileName := 'EXP_GIC_Mvar.CSV';
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
        END;
@@ -272,6 +275,7 @@ Begin
      33: ExportEventLog(FileName);
      34: DumpAllocationFactors(FileName);
      35: ExportVoltagesElements(FileName);
+     36: ExportGICMvar(FileName);
    ELSE
          ExportVoltages(FileName);    // default
    END;
