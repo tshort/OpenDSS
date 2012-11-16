@@ -19,7 +19,7 @@ unit InvControl;
 INTERFACE
 
 USES
-     Command, ControlClass, ControlElem, CktElement, DSSClass, PVSystem, Arraydef, ucomplex,
+     System.Generics.Collections, Command, ControlClass, ControlElem, CktElement, DSSClass, PVSystem, Arraydef, ucomplex,
      utilities, XYcurve, Dynamics, PointerList, Classes, StrUtils;
 
 TYPE
@@ -29,6 +29,33 @@ TYPE
     VOLTWATT,
     DYNAMICREACCURR
   );
+
+
+type
+  TRollAvgWindow = class(TObject)
+
+private
+    sample                          : TQueue<Double>;
+    sampletime                      : TQueue<Double>;
+    runningsumsample                : Double;
+    runningsumsampletime            : Double;
+    bufferlength                    : Integer;
+    bufferfull                      : Boolean;
+    function Get_AvgVal             : Double;
+    function Get_AccumSec           : Double;
+    procedure Set_BuffLength(const Value: Integer);
+
+public
+    constructor Create();
+    destructor Destroy; override;
+    procedure Add(IncomingSampleValue: Double;IncomingSampleTime: Double;VAvgWindowLengthSec:Double);
+
+
+    Property AvgVal      :Double  Read Get_AvgVal;
+    Property AccumSec    :Double  Read Get_AccumSec;
+    Property BuffLength  :Integer Read bufferlength Write Set_BuffLength;
+
+end;
 
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -67,28 +94,25 @@ TYPE
             FPpf,  // power factor parameter from the PVSystem object, not necessarily present pf 'output' if limited by kva rating or other parameters
             Fpresentkvar, // kvar parameter from the PVSystem object, not necessarily present kvar output if limited by kva rating or other parameters
             FpresentkW: Array of Double;
-            TotalWeight   :Double;
             NPhasesPVSys: Array of Integer;
             NCondsPVSys: Array of Integer;
             FListSize:Integer;
             FPVSystemNameList:TStringList;
+
             FPVSystemPointerList:PointerList.TPointerList;
-//            FWeights:pDoubleArray;
+
             Fvvc_curve_size: Integer; // length of the individual curve
             Fvvc_curve: TXYcurveObj;
             Fvvc_curveOffset: Double;
             Fvvc_curve2: TXYcurveObj;
             FActiveVVCurve: Integer;
             FVoltage_CurveX_ref: Integer;  // valid values are 0: = Vref (rated), 1:= avg
-            FVAvgWindowLength: Integer;  // voltage averaging window length for VOLTWATT and VOLTVAR only, in user-specified units of s, m, h (integer)
+            FVAvgWindowLengthSec: Double; // rolling average window length in seconds
             cBuffer : Array of Array of Complex;    // Complexarray buffer
             CondOffset : Array of Integer; // Offset for monitored terminal
-            // following applicable to volt-watt and volt-var
-            FVAvgWindowSamplesdblHour: Array of Array of Double;
-            FVAvgWindowSamples:Array of Array of Double;
-            FVAvgWindowValue: Array of Double;
-            FVAvgWindowSamplesIntervalUnit: String;
-            FVAvgWindowPointer: Array of Integer;
+
+            // following applicable to volt-var
+            FVVDeltaVtolerance: Double;
 
             // volt-watt, only related variables
             Fvoltwatt_curve_size: Integer;
@@ -102,28 +126,31 @@ TYPE
             FPendingChange: Array of Integer;
 
             // following apply to volt-var only
-            QDeliver: Array of Array of Double;
+            QDeliver: Array of Double;
             QNew: Array of Double;
             QOld: Array of Double;
             QHeadRoom: Array of Double;
+            Qoutputpu: Array of Double;
+            Qdesiredpu: Array of Double;
             FVpuSolution: Array of Array of Double;
             FVpuSolutionIdx: Integer;
             FdeltaQ_factor: Double;
 
             //following for dynamic reactive current mode
             FDbVMin, FDbVMax,FArGraLowV,FArGraHiV: Double;
-            FDynReacavgwindowLength: Integer;
-            FDynReacWindowSamplesIntervalUnit: String;
-            FDynReacWindowSamplesdblHour: Array of Array of Double;
-            FDynReacWindowSamples:Array of Array of Double;
-            FDynReacWindowValue: Array of Double;
-            FDynReacWindowPointer: Array of Integer;
+            FRollAvgWindow : Array of TRollAvgWindow;
+            FRollAvgWindowLength : Integer;
+            FRollAvgWindowLengthIntervalUnit: String;
+            deltaVDynReac: Array of Double;
+            priorRollAvgWindow: Array of Double;
+
+
+            FVoltageChangeTolerance: Double;
+            FVarChangeTolerance: Double;
 
             PROCEDURE Set_PendingChange(Value: Integer;DevIndex: Integer);
             FUNCTION Get_PendingChange(DevIndex: Integer):Integer;
-            PROCEDURE UpdateVAvgWindow;
-            PROCEDURE UpdateVDynReacAvgWindow;
-            FUNCTION  InterpretAvgVWindowLen(const s:string;index: Integer):Integer;
+            FUNCTION  InterpretAvgVWindowLen(const s:string):Integer;
 
      public
 
@@ -164,7 +191,8 @@ USES
 
 CONST
 
-    NumPropsThisClass = 12;
+    NumPropsThisClass = 16;
+
     NONE = 0;
     CHANGEVARLEVEL = 1;
     CHANGEWATTLEVEL = 2;
@@ -220,52 +248,94 @@ Begin
      PropertyName[10] := 'ArGraLowV';
      PropertyName[11] := 'ArGraHiV';
      PropertyName[12] := 'DynReacavgwindowlen';
+     PropertyName[13] := 'DeltaQ_factor';
+     PropertyName[14] := 'VoltageChangeTolerance';
+     PropertyName[15] := 'VarChangeTolerance';
+     PropertyName[16] := 'EventLog';
 
      PropertyHelp[1] := 'Array list of PVSystems to be controlled.  Usually only one PVSystem is controlled by one InvControl. '+
                         'If not specified, all PVSystems in the circuit are assumed to be controlled by this control, only. ' +
                         ' No capability of hierarchical control between two controls for a single PVSystem is implemented at this time.';
+
      PropertyHelp[2] := 'Mode with which the InvControl will control the PVSystem(s) specified in PVSystemList (usually just '+
                         'one PVSystem object).  Must be one of:  '+
                              '{VOLTVAR* | VOLTWATT | DYNAMICREACCURR} ' +
                          CRLF+CRLF+'In volt-var mode (Default), the control attempts to dispatch the vars according to one or two volt-var curves, depending on the local terminal voltage, present active power output, and the capabilities of the PVSystem. ' +
                          CRLF+CRLF+'In volt-watt mode , the control attempts to dispatch the watts according to one defined volt-watt curve, depending on the local terminal voltage and the capabilities of the PVSystem. '+
                          CRLF+CRLF+'In dynamic reactive current mode, the control attempts to increasingly counter deviations outside the deadband (around nominal, or average) by injecting increasing amounts of inductive or capacitive vars, within the capabilities of the PVSystem';
+
      PropertyHelp[3] := 'Required for VOLTVAR mode.  The name of an XYCurve object that describes the variation in var output (as a percentage of available vars, given present active power output and the capabilities of the PVSystem). '+
                         'Units for the x-axis are per-unit voltage, which may be in per-unit of the rated voltage for the PVSystem, or may be in per-unit of the average voltage at the terminals over a user-defined number of prior solutions. '+
                         'Units for the y-axis are in percent available desired vars, corresponding to the terminal voltage (x-axis value in per-unit).  The percent available vars depends on the kva rating of the PVSystem as well as the present '+
                         'output of active power.  Must be specified for VOLTVAR mode.';
+
      PropertyHelp[4] := 'Required for VOLTVAR mode, and defaults to 0.  For the times when the terminal voltage is decreasing, this is the off-set in per-unit voltage of a curve whose shape is the same as vvc_curve. '+
                         'It is offset by a certain negative value of per-unit voltage, which is defined by the base quantity for the x-axis of the volt-var curve (see help for voltage_curvex_ref)'+
                         'If the PVSystem terminal voltage has been increasing, and has not changed directions, utilize vvc_curve for the volt-var response. '+CRLF+
                         'If the PVSystem terminal voltage has been increasing and changes directions and begins to decrease, then move from utilizing vvc_curve to a volt-var curve of the same shape, but offset by a certain per-unit voltage value. '+
                         'Maintain the same per-unit available var output level (unless head-room has changed due to change in active power or kva rating of PVSystem).  var per-unit values remain the same for this internally constructed second curve (hysteresis curve). '+CRLF+
                         'If the PVSystem terminal voltage has been decreasing and changes directions and begins to increase , then move from utilizing the offset curve, back to the vvc_curve for volt-var response, but stay at the same per-unit available vars output level.';
+
      PropertyHelp[5] := 'Required for VOLTVAR and VOLTWATT modes, and defaults to rated.  Possible values are: {rated|avg}.  Defines whether the x-axis values (voltage in per-unit) for vvc_curve1 and vvc_curve2 (if set to other than NONE) correspond to the rated voltage for the '+
                         'PVSystem object (1.0 in either volt-var curve equals rated voltage), or the average terminal voltage recorded over a certain number of prior power-flow solutions.  With the avg setting, 1.0 per-unit on the x-axis of the volt-var curve(s) '+
                         'corresponds to the average voltage from a certain number of prior intervals.  See avgwindowlen parameter.';
+
      PropertyHelp[6] := 'Required for VOLTVAR mode and VOLTWATT mode, and defaults to 0 seconds (0s).  Sets the length of the averaging window over which the average PVSystem terminal voltage is calculated.  Units are indicated by appending s, m, or h to the integer value. '+
                         'The averaging window will calculate the average PVSystem terminal voltage over the specified period of time, up to and including the last power flow solution.  Note, if the solution stepsize is larger than '+
                         'the window length, then the voltage will be assumed to have been constant over the time-frame specified by the window length.';
+
      PropertyHelp[7] := 'Required for VOLTWATT mode.  The name of an XYCurve object that describes the variation in active power output (as a percentage -- in per-unit -- of maximum active power outut for the PVSystem). '+
                         'Units for the x-axis are per-unit voltage, which may be in per-unit of the rated voltage for the PVSystem, or may be in per-unit of the average voltage at the terminals over a user-defined number of prior solutions. '+
                         'Units for the y-axis are in per-unit of maximum active power output capability of the PVSystem, corresponding to the terminal voltage (x-axis value in per-unit). '+
                         'No default -- must be specified for VOLTWATT mode.';
+
      PropertyHelp[8] := 'Required for the dynamic reactive current mode (DYNAMICREACCURR), and defaults to 0.95 per-unit voltage (referenced to the PVSystem object rated voltage or a windowed average value). '+
                         'This parameter is the minimum voltage that defines the voltage dead-band within which no reactive power is allowed to be generated. ';
+
      PropertyHelp[9] := 'Required for the dynamic reactive current mode (DYNAMICREACCURR), and defaults to 1.05 per-unit voltage (referenced to the PVSystem object rated voltage or a windowed average value). '+
                         'This parameter is the maximum voltage that defines the voltage dead-band within which no reactive power is allowed to be generated. ';
+
      PropertyHelp[10] := 'Required for the dynamic reactive current mode (DYNAMICREACCURR), and defaults to 0.1  '+CRLF+
                          'This is a gradient, expressed in unit-less terms of %/%, to establish the ratio by which percentage capacitive reactive power production is increased as the  percent delta-voltage decreases below DbVMin. '+
                          'Percent delta-voltage is defined as the present PVSystem terminal voltage minus the moving average voltage, expressed as a percentage of the rated voltage for the PVSystem object. '+
                          'Note, the moving average voltage for the dynamic reactive current mode is different than the mmoving average voltage for the volt-watt and volt-var modes.';
+
      PropertyHelp[11] := 'Required for the dynamic reactive current mode (DYNAMICREACCURR), and defaults to 0.1  '+CRLF+
                          'This is a gradient, expressed in unit-less terms of %/%, to establish the ratio by which percentage inductive reactive power production is increased as the  percent delta-voltage decreases above DbVMax. '+
                          'Percent delta-voltage is defined as the present PVSystem terminal voltage minus the moving average voltage, expressed as a percentage of the rated voltage for the PVSystem object. '+
                          'Note, the moving average voltage for the dynamic reactive current mode is different than the mmoving average voltage for the volt-watt and volt-var modes.';
+
      PropertyHelp[12] := 'Required for the dynamic reactive current mode (DYNAMICREACCURR), and defaults to 0 seconds (0s).  Sets the length of the averaging window over which the average PVSystem terminal voltage is calculated '+
                          'for the dynamic reactive current mode.  Units are indicated by appending s, m, or h to the integer value.  Typically this will be a shorter averaging window than the volt-var and volt-watt averaging window.'+
                          'The averaging window will calculate the average PVSystem terminal voltage over the specified period of time, up to and including the last power flow solution.  Note, if the solution stepsize is larger than '+
                          'the window length, then the voltage will be assumed to have been constant over the time-frame specified by the window length.';
+
+     PropertyHelp[13] := 'Required for the VOLTVAR and DYNAMICREACCURR modes.  Defaults to 0.7.  Sets the maximum change (in per-unit) from the prior var '+
+                         'output level to the desired var output level during each control iteration.  If numerical instability is noticed in solutions '+
+                         'such as var sign changing from one control iteration to the next and voltages oscillating between two values with some separation, '+
+                         'this is an indication of numerical instability (use the EventLog to diagnose).  If the maximum control iterations are exceeded, and '+
+                         'no numerical instability is seen in the EventLog of via monitors, then try increasing the value of this parameter to reduce the number '+
+                         'of control iterations needed to achieve the control criteria, and move to the power flow solution.';
+
+     PropertyHelp[14] := 'Required for VOLTVAR and DYNAMICREACCURR modes.  Defaults to 0.0001 per-unit voltage.  This parameter should only be modified by advanced users of '+
+                         'the InvControl under these modes.  This is the change in voltage from one control iteration solution to the next that is one determining '+
+                         'parameter to stop additional control iterations.  This is the difference between the present per-unit voltage at the '+
+                         'terminals of the PVSystem and the prior control iteration PVSystem terminal voltage(s) (in per-unit), as an absolute value (without sign). '+
+                         'This voltage tolerance value plus the var tolerance value (VarChangeTolerance) determine, together, when to stop control iterations by the '+
+                         'InvControl.  If an InvControl is controlling more than one PVSystem, each PVSystem has this quantity calculated independently, and so an individual '+
+                         'PVSystem may reach the tolerance within different numbers of control iterations.';
+
+     PropertyHelp[15] := 'Required for VOLTVAR and DYNAMICREACCURR modes.  Defaults to 0.025 per-unit of available vars (for VOLTVAR mode) and 0.025 per-unit of the inverter '+
+                         'full steady-state current rating (at rated voltage), which is the kva rating.  This parameter should only be modified by advanced users of '+
+                         'the InvControl under these modes.  This is the change in vars from one control iteration solution to the next that is one determining '+
+                         'parameter to stop additional control iterations.  This is the difference between the desired target vars (in per-unit) of the PVSystem '+
+                         'and the present reactive power output (in per-unit), as an absolute value (without sign). '+
+                         'This reactive power tolerance value plus the voltage tolerance value (VarChangeTolerance) determine, together, when to stop control iterations by the '+
+                         'InvControl.  If an InvControl is controlling more than one PVSystem, each PVSystem has this quantity calculated independently, and so an individual '+
+                         'PVSystem may reach the tolerance within different numbers of control iterations.';
+
+     PropertyHelp[16] :=  '{Yes/True* | No/False} Default is YES for InvControl. Log control actions to Eventlog.';
+
 
 
 
@@ -334,7 +404,7 @@ Begin
 
             5: If Parser.StrValue = 'rated' then FVoltage_CurveX_ref := 0
                Else FVoltage_CurveX_ref := 1;
-            6: FVAvgWindowLength := InterpretAvgVWindowLen(Param,0);
+            6: FRollAvgWindowLength := InterpretAvgVWindowLen(Param);
             7: Begin
                   Fvoltwatt_curve := GetXYCurve(Param, VOLTWATT);
                   Fvoltwatt_curve_size := Fvoltwatt_curve.NumPoints;
@@ -358,7 +428,13 @@ Begin
 
             10: FArGraLowV := Parser.DblValue;
             11: FArGraHiV := Parser.DblValue;
-            12: FDynReacavgwindowLength := InterpretAvgVWindowLen(Param,1);
+            12: FRollAvgWindowLength := InterpretAvgVWindowLen(Param);
+            13: FdeltaQ_factor := Parser.DblValue;
+            14: FVoltageChangeTolerance := Parser.DblValue;
+            15: FVarChangeTolerance := Parser.DblValue;
+
+            16: ShowEventLog := InterpretYesNo(param);
+
          ELSE
            // Inherited parameters
            ClassEdit( ActiveInvControlObj, ParamPointer - NumPropsthisClass)
@@ -413,13 +489,12 @@ Begin
       end;
 
       ControlMode                := OtherInvControl.ControlMode;
-      TotalWeight                := OtherInvControl.TotalWeight;
       FListSize                  := OtherInvControl.FListSize;
       Fvvc_curve_size            := OtherInvControl.Fvvc_curve_size;
       Fvvc_curve                 := OtherInvControl.Fvvc_curve;
       Fvvc_curveOffset           := OtherInvControl.Fvvc_curveOffset;
       FVoltage_CurveX_ref        := OtherInvControl.FVoltage_CurveX_ref;
-      FVAvgWindowLength          := OtherInvControl.FVAvgWindowLength;
+      FVAvgWindowLengthSec       := OtherInvControl.FVAvgWindowLengthSec;
       Fvoltwatt_curve_size       := OtherInvControl.Fvoltwatt_curve_size;
       Fvoltwatt_curve            := OtherInvControl.Fvoltwatt_curve;
       FDbVMin                    := OtherInvControl.FDbVMin;
@@ -427,9 +502,12 @@ Begin
       FArGraLowV                 := OtherInvControl.FArGraLowV;
       FArGraHiV                  := OtherInvControl.FArGraHiV;
       FActiveVVCurve             := OtherInvControl.FActiveVVCurve;
-      FDynReacavgwindowLength    := OtherInvControl.FDynReacavgwindowLength;
-      FDynReacWindowSamplesIntervalUnit  := OtherInvControl.FDynReacWindowSamplesIntervalUnit;
+      FRollAvgWindowLength       := OtherInvControl.FRollAvgWindowLength;
+      FRollAvgWindowLengthIntervalUnit  := OtherInvControl.FRollAvgWindowLengthIntervalUnit;
       FvoltwattDeltaVTolerance   := OtherInvControl.FvoltwattDeltaVTolerance;
+      FdeltaQ_factor             := OtherInvControl.FdeltaQ_factor;
+      FVoltageChangeTolerance    := OtherInvControl.FVoltageChangeTolerance;
+      FVarChangeTolerance        := OtherInvControl.FVarChangeTolerance;
 
       For j := 1 to ParentClass.NumProperties Do PropertyValue[j] := OtherInvControl.PropertyValue[j];
 
@@ -474,16 +552,14 @@ Begin
      Fvvc_curve2            := nil;
      FActiveVVCurve         := 1;
      FVoltage_CurveX_ref    := 0;
-     FVAvgWindowLength      := 0;
+     FVAvgWindowLengthSec   := 0.0;
      cBuffer                := nil;
      CondOffset             := nil;
 
      // following applicable to volt-watt and volt-var
-     FVAvgWindowSamplesdblHour:= nil;
-     FVAvgWindowSamples     :=nil;
-     FVAvgWindowValue       :=nil;
-     FVAvgWindowSamplesIntervalUnit:= 's';
-     FVAvgWindowPointer     := nil;
+     FRollAvgWindow         := nil;
+     FRollAvgWindowLength   := 0;
+     FRollAvgWindowLengthIntervalUnit := 's';
 
      // volt-watt, only related variables
      Fvoltwatt_curve_size   := 0;
@@ -492,7 +568,7 @@ Begin
      FPresentVpu            := nil;
      FvoltwattDeltaVTolerance := 0.00001;  // per-unit change in voltage tolerance
                                          // typically between a prior solution and the present solution
-
+     FVVDeltaVtolerance  := 0.00001;
      PDeliver               := nil;
      PNew                   := nil;
      FPendingChange         := nil;
@@ -503,31 +579,29 @@ Begin
      QOld                  := nil;
      QHeadRoom             := nil;
      FVpuSolution          := nil;
-     FVpuSolutionIdx       := 0;
-     FdeltaQ_factor        := 0.4;
+     FVpuSolutionIdx       := 1;
+     FdeltaQ_factor        := 0.7;
+     Qoutputpu             := nil;
+     Qdesiredpu            := nil;
 
-     //following for dynamic reactive current mode
-     FDynReacavgwindowLength:= 0;
-     FDynReacWindowSamplesIntervalUnit:= 's';
-     FDynReacWindowSamplesdblHour:= nil;
-     FDynReacWindowSamples := nil;
-     FDynReacWindowValue   := nil;
-     FDynReacWindowPointer := nil;
+     FVoltageChangeTolerance:=0.0001;
+     FVarChangeTolerance    :=0.025;
+
 
 
      FPVSystemNameList := TSTringList.Create;
      FPVSystemPointerList := PointerList.TPointerList.Create(20);  // Default size and increment
-     TotalWeight := 1.0;
 
       //following for dynamic reactive current mode
-     FDbVMin := 0.95;
-     FDbVMax := 1.05;
-     FArGraLowV := 0.1;
-     FArGraHiV:= 0.1;
-     FDynReacavgwindowLength:= 0;
-     FDynReacWindowSamplesIntervalUnit:= 's';
+     FDbVMin                := 0.95;
+     FDbVMax                := 1.05;
+     FArGraLowV             := 0.1;
+     FArGraHiV              := 0.1;
+     deltaVDynReac          := nil;
+     priorRollAvgWindow     := nil;
 
-     FPendingChange := Nil;
+     //generic for control
+     FPendingChange := nil;
 
      InitPropertyValues(0);
 
@@ -552,12 +626,7 @@ Begin
      Finalize(NCondsPVSys);
      Finalize(cBuffer);
      Finalize(CondOffset);
-     Finalize(FVAvgWindowSamplesdblHour);
-     Finalize(FVAvgWindowSamples);
-     Finalize(FVAvgWindowValue);
-     Finalize(FVAvgWindowSamplesIntervalUnit);
-     Finalize(FVAvgWindowPointer);
-
+     Finalize(FRollAvgWindow);
      Finalize(FAvgpVuPrior);
      Finalize(FPresentVpu);
 
@@ -569,13 +638,13 @@ Begin
      Finalize(QNew);
      Finalize(QOld);
      Finalize(QHeadroom);
+     Finalize(Qoutputpu);
+     Finalize(Qdesiredpu);
+     Finalize(deltaVDynReac);
+     Finalize(priorRollAvgWindow);
      Finalize(FVpuSolution);
 
 
-     Finalize(FDynReacWindowSamplesdblHour);
-     Finalize(FDynReacWindowSamples);
-     Finalize(FDynReacWindowValue);
-     Finalize(FDynReacWindowPointer);
 
 
      Inherited Destroy;
@@ -604,9 +673,6 @@ Begin
         // User ControlledElement[] as the pointer to the PVSystem elements
          ControlledElement[i] :=  TPVSystemObj(FPVSystemPointerList.Get(i));  // pointer to i-th PVSystem
 
-         // Allocate a buffer big enough to hold everything from the monitored element
-  // *** Note that there is already a complex buffer allocated for each PVSystem to this dimension
-  // *** we can fix later to conserve a little memory    see "complexbuffer"
          SetLength(cBuffer[i], SizeOF(Complex) * ControlledElement[i].Yorder );
 
          ControlledElement[i].ActiveTerminalIdx := 1; // Make the 1 st terminal active
@@ -655,7 +721,6 @@ begin
        begin
           NphasesPVSys[i] := LocalDSCktElement.NPhases;
           NcondsPVSys[i]  := LocalDSCktElement.NConds;
-//          Setbus(1, MonitoredElement[i].GetBus(ElementTerminal[i]));
        end;
   end;
   inherited;
@@ -725,10 +790,10 @@ PROCEDURE TInvControlObj.DoPendingAction;
 VAR
 
   i                                         :Integer;
-  Pdesiredpu, QDesiredpu, PNeeded,
-  PMonitoredElement,QMonitoredElement       :Double;
-  voltagechangesolution,DeltaQ,DeltaV,
-  basekV                                    :Double;
+  Pdesiredpu, PNeeded,
+  PMonitoredElement                         :Double;
+//  voltagechangesolution
+  DeltaQ,basekV                             :Double;
   SMonitoredElement                         :Complex;
 
  // local pointer to current PVSystem element
@@ -746,7 +811,6 @@ BEGIN
       SMonitoredElement := PVSys.Power[1]; // s is in va
 
       PMonitoredElement := SMonitoredElement.re;
-      QMonitoredElement := SMonitoredElement.im;
 
       CASE PendingChange[i] OF
       CHANGEWATTLEVEL:
@@ -763,7 +827,7 @@ BEGIN
 
             If PVSys.puPmpp <> Pdesiredpu Then PVSys.puPmpp := Pdesiredpu;
 
-            AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
+            If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
               Format('**Limited PVSystem output level to**, puPmpp= %.5g', [PVSys.puPmpp]));
         end; // end if watts needed is not equal to zero
 
@@ -778,48 +842,51 @@ BEGIN
           PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
 
           PVSys.Varmode := VARMODEKVAR;  // Set var mode to VARMODEKVAR to indicate we might change kvar
-          QDesiredpu := 0.0;
+          QDesiredpu[i] := 0.0;
 
-          if(FVpuSolutionIdx <> 0) then voltagechangesolution := FVpuSolution[i,FVpuSolutionIdx] - FVpuSolution[i,FVpuSolutionIdx-1]
+
+          QHeadRoom[i] := SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW));
+{         if(FVpuSolutionIdx <> 1) then voltagechangesolution := FVpuSolution[i,FVpuSolutionIdx] - FVpuSolution[i,FVpuSolutionIdx-1]
           else voltagechangesolution := FVpuSolution[i,1] - FVpuSolution[i,3];
 
           if (voltagechangesolution > 0) and (FActiveVVCurve = 1) then
-            Qdesiredpu := Fvvc_curve.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
+            Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
 
           if (voltagechangesolution > 0) and (FActiveVVCurve = 2) then
             begin
-                Qdesiredpu := PVSys.Presentkvar / PVSys.kVARating;
+                Qdesiredpu[i] := -1.0*PVSys.Presentkvar / QHeadRoom[i];
                 FActiveVVCurve := 1;
             end;
 
           if (voltagechangesolution < 0) and (FActiveVVCurve = 2) then
-            Qdesiredpu := Fvvc_curve2.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
+            Qdesiredpu[i] := Fvvc_curve2.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
 
           if (voltagechangesolution < 0) and (FActiveVVCurve = 1) then
             begin
-                Qdesiredpu := PVSys.Presentkvar / PVSys.kVARating;
+                Qdesiredpu[i] := -1.0*PVSys.Presentkvar / QHeadRoom[i];
                 FActiveVVCurve := 2;
             end;
-          if (voltagechangesolution = 0)  then Qdesiredpu := Fvvc_curve.GetYValue(FPresentVpu[i]);;
-          QHeadRoom[i] := SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW/1000.0));
-          QDeliver[i,2] := QDesiredpu*PVSys.kVARating;
+          if (voltagechangesolution = 0)  then}
+            Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]);;
 
-          DeltaQ := QMonitoredElement/1000.0 - Min(QDeliver[i,2],QHeadRoom[i]);
+          QDeliver[i] := QDesiredpu[i]*QHeadRoom[i];
+          DeltaQ := QDeliver[i] - Qold[i];
+
           QNew[i] := QOld[i] + DeltaQ * FdeltaQ_factor;
-          QDeliver[i,2] := Min(QDeliver[i,2],QHeadRoom[i]);
-          If PVSys.Presentkvar <> Qnew[i] Then PVSys.Presentkvar := -1.0*Qnew[i];
-//          WriteDLLDebugFile(PVSys.Name);
-          AppendtoEventLog('InvControl.' + Self.Name + PVSys.Name+',',
-                           Format('**Set PVSystem output var level to**, kvar= %.5g', [PVSys.Presentkvar]));
 
 
-          ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
-//          WriteDLLDebugFile(ControlledElement[i].Name+','+Format('%-.5g',[ActiveCircuit.Solution.DynaVars.dblHour])+','+Format('%-.7g',[-1.0*PVSys.Presentkvar]));
+          If PVSys.Presentkvar <> Qnew[i] Then PVSys.Presentkvar := Qnew[i];
+          Qoutputpu[i] := PVSys.Presentkvar / QHeadroom[i];
+
+          If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name +','+ PVSys.Name+',',
+                           Format('**Set PVSystem output var level to**, kvar= %.5g', [PVSys.Presentkvar,FPresentVpu[i]]));
+
           FAvgpVuPrior[i] := FPresentVpu[i];
+          QOld[i] := QNew[i];
+          ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
 
           // Force recalc of power parms
           Set_PendingChange(NONE,i);
-          QOld[i] := QNew[i];
     end; // end if PendingChange = CHANGEVARLEVEL
 
     CHANGEDYNVARLEVEL:
@@ -827,25 +894,40 @@ BEGIN
         PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
         PVSys.Varmode := VARMODEKVAR;  // Set var mode to VARMODEKVAR to indicate we might change kvar
 
-        BasekV := ActiveCircuit.Buses^[ ControlledElement[i].terminals^[1].busRef].kVBase;
-        deltaV := 0.0;
-        if ((FPresentVpu[i] > FDbVMax) or (FPresentVpu[i] < FDbVMin)) then deltaV := FPresentVpu[i] - FDynReacWindowValue[i]/basekV;
-        if (deltaV <>0) and (FPresentVpu[i] < FDbVMin) then
-          begin
-            PVSys.Presentkvar := -100.0*deltaV*FArGraLowV*PVSys.kVARating;
-            AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
-                         Format('**PVSystem dynamic var output level to**, kvar= %.5g', [-100.0*deltaV*FArGraLowV*PVSys.kVARating]));
-          end
-        else if (deltaV <>0) and (FPresentVpu[i] > FDbVMax) then
-          begin
-            PVSys.Presentkvar := -100.0*deltaV*FArGraHiV*PVSys.kVARating;
-            AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
-                         Format('**PVSystem dynamic var output level to**, kvar= %.5g', [-100.0*deltaV*FArGraHiV*PVSys.kVARating]));
-          end;
+        QDesiredpu[i] := 0.0;
+
+
+        QHeadRoom[i] := SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW));
+
+
+
+
+        QOld[i] := PVSys.Presentkvar;
+        basekV := ActiveCircuit.Buses^[ PVSys.terminals^[1].busRef].kVBase;
+
+        deltaVDynReac[i] := FPresentVpu[i] - FRollAvgWindow[i].Get_AvgVal/(basekV*1000.0);
+
+        if (deltaVDynReac[i] <>0) and (deltaVDynReac[i] < FDbVMin) then
+            QDesiredpu[i] := deltaVDynReac[i]*FArGraLowV
+
+        else if (deltaVDynReac[i] <>0) and (deltaVDynReac[i] > FDbVMax) then
+            QDesiredpu[i] := deltaVDynReac[i]*FArGraHiV
+
+        else if deltaVDynReac[i] = 0.0 then
+             QDesiredpu[i] := 0.0;
+
+
+        if(Abs(QDesiredpu[i]*PVSys.kVARating) > QHeadroom[i]) then QDesiredpu[i] := sign(QDesiredpu[i])*QHeadroom[i]/PVSys.kVARating;
+        DeltaQ        := QDesiredpu[i]*PVSys.kVARating - Qold[i];
+        QNew[i]       := QOld[i] + (DeltaQ * FdeltaQ_factor);
+        PVSys.Presentkvar := -1.0*QNew[i];
+        Qoutputpu[i] := PVSys.Presentkvar / PVSys.kVARating;
+
+        If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
+                     Format('**PVSystem dynamic var output level to**, kvar= %.5g', [PVSys.Presentkvar]));
 
         ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
         FAvgpVuPrior[i] := FPresentVpu[i];
-
         // Force recalc of power parms
         Set_PendingChange(NONE,i);
     end // end if PendingChange = CHANGEDYNVARLEVEL
@@ -866,7 +948,6 @@ VAR
    basekV,
    Vpresent              :Double;
 
-   presentheadroom       :Double;
 
 begin
      // If list is not defined, go make one from all PVSystem in circuit
@@ -874,11 +955,6 @@ begin
 
      If (FListSize>0) then
      Begin
-
-          //First update the rolling average window, if at the proper point in the solve sequence, and if needed (avg used=Vref not used)
-          If (FVoltage_CurveX_ref <> 0) then UpdateVAvgWindow;
-
-          If (FDynReacavgwindowLength <> 0) then UpdateVDynReacAvgWindow;
 
          for i := 1 to FPVSystemPointerList.ListSize do
          begin
@@ -895,11 +971,11 @@ begin
                 Vpresent := Vpresent + Cabs(cBuffer[i,j]);
 
             // convert to per-unit on bus' kvbase
-            FPresentVpu[i] := (Vpresent / NPhasesPVSys[i]) / (basekV * 1000.0);
+            FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (basekV * 1000.0);
 
             // if using averaging window values, then set prior voltage to averaging window
-            if(FVoltage_CurveX_ref <> 0) then FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (FVAvgWindowValue[i]);
-    //      WriteDLLDebugFile(ControlledElement[i].Name+','+Format('%-.5g',[ActiveCircuit.Solution.DynaVars.dblHour])+','+Format('%-.7g',[FPresentVpu[i]]));
+            if(FVoltage_CurveX_ref <> 0) then FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (FRollAvgWindow[i].Get_AvgVal);
+
 
             CASE ControlMode of
                 VOLTWATT:
@@ -912,61 +988,66 @@ begin
                           With  ActiveCircuit.Solution.DynaVars Do
                           ControlActionHandle := ActiveCircuit.ControlQueue.Push
                             (intHour, t + TimeDelay, PendingChange[i], 0, Self);
-                          AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
+                          If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
                               ('**Ready to change watt output due in VOLTWATT mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                         end
                         else
                         begin
-                          ActiveCircuit.ControlQueue.Delete(ControlActionHandle);
-                          AppendtoEventLog('InvControl in VOLTWATT mode.' + Self.Name, '**DONE**');
                         end;
                     end;
 
 
                 VOLTVAR:
                 begin
-                    presentheadroom := SQRT(Sqr(ControlledElement[i].kVARating)-Sqr(ControlledElement[i].PresentkW));
-
-                    if (Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > 0.0001) or
-                      ((Abs(Abs(Controlledelement[i].Presentkvar) - Abs(QDeliver[i,2])) > (0.01*FkVALimit[i])) and
-
-                      (Abs(Abs(Controlledelement[i].Presentkvar) - Abs(presentheadroom)) > (0.01*FkVALimit[i]))) then
+                    if ((Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FVoltageChangeTolerance) or
+                      ((Abs(Abs(Qoutputpu[i]) - Abs(Qdesiredpu[i])) > FVarChangeTolerance))) then
                     begin
                       Set_PendingChange(CHANGEVARLEVEL,i);
 
                       ControlActionHandle := ActiveCircuit.ControlQueue.Push
                         (ActiveCircuit.Solution.DynaVars.intHour,
                         ActiveCircuit.Solution.DynaVars.t + TimeDelay, PendingChange[i], 0, Self);
-                      AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
+                      If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
                           ('**Ready to change var output due in VOLTVAR mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                     end
                     else
                     begin
-                      ActiveCircuit.ControlQueue.Delete(ControlActionHandle);
-                      AppendtoEventLog('InvControl in VOLTVAR mode.' + Self.Name, '**DONE**');
                     end;
                 end;
 
                 DYNAMICREACCURR:
                 begin
-                 if  (Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > 0.000001) and ((FPresentVpu[i] > FDbVMax) or (FPresentVpu[i] < FDbVMin)) then
-                 begin
-
+                if(priorRollAvgWindow[i] = 0.0) then
+                  begin
+                if ((Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FVoltageChangeTolerance)  and
+                      (Abs(Abs(Qoutputpu[i]) - Abs(Qdesiredpu[i])) > FVarChangeTolerance)) then
+                      begin
                       Set_PendingChange(CHANGEDYNVARLEVEL,i);
 
 
                           With ActiveCircuit.Solution.DynaVars Do
                           ControlActionHandle := ActiveCircuit.ControlQueue.Push
                             (intHour, t + TimeDelay, PendingChange[i], 0, Self);
-                          AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
-                              ('**Ready to change var output due in VOLTVAR mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
-                        end
-                        else
-                        begin
-                          ActiveCircuit.ControlQueue.Delete(ControlActionHandle);
-                          AppendtoEventLog('InvControl in VOLTVAR mode.' + Self.Name, '**DONE**');
-                        end;
-                    end;
+                          If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
+                              ('**Ready to change var output due in DYNAMICREACCURR mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
+                      end;
+                  end;
+                if priorRollAvgWindow[i] <> 0.0 then
+                begin
+                if (Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FVoltageChangeTolerance)  and
+                      ((Abs(Abs(Qoutputpu[i]) - Abs(Qdesiredpu[i])) > FVarChangeTolerance) or
+                      ((Abs(FPresentVpu[i] - FRollAvgWindow[i].Get_AvgVal/(basekV*1000.0)) > 0.01))) then
+                 begin
+                     Set_PendingChange(CHANGEDYNVARLEVEL,i);
+                          With ActiveCircuit.Solution.DynaVars Do
+                          ControlActionHandle := ActiveCircuit.ControlQueue.Push
+                            (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                          If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
+                              ('**Ready to change var output due in DYNAMICREACCURR mode**, Vavgpu= %.5g, VRollAvgpu=%.5g', [FPresentVpu[i],FRollAvgWindow[i].Get_AvgVal/(basekV*1000.0)]));
+                  end;
+
+                  end;
+                end
 
             ELSE
             END;
@@ -980,9 +1061,6 @@ end;
 
 procedure TInvControlObj.InitPropertyValues(ArrayOffset: Integer);
 begin
-// ***
-// Make sure these initial property values agree with property definitions
-// ***
      PropertyValue[1]  := ''; //PVSystem list
      PropertyValue[2]  := 'VOLTVAR'; // initial mode
      PropertyValue[3]  := '';  //vvc_curve1 name
@@ -992,12 +1070,16 @@ begin
 
      PropertyValue[7] := 'NONE'; // voltwatt_curve
 
-     //following for dynamic reactive current mode
      PropertyValue[8] := '0.95';  //'DbVMin';
      PropertyValue[9] := '1.05';  // 'DbVMax';
-     PropertyValue[10] := '';  // 'ArGraLowV';
-     PropertyValue[11] := '';  // 'ArGraHiV';
-     PropertyValue[12] := '0'; // 'DynReacavgwindowlen';
+     PropertyValue[10] := '0.1';  // 'ArGraLowV';
+     PropertyValue[11] := '0.1';  // 'ArGraHiV';
+     PropertyValue[12] := '0s'; // 'Rollingavgwindowlen';
+     PropertyValue[13] := '0.7'; // DeltaQ_factor
+     PropertyValue[14] := '0.0001'; //VoltageChangeTolerance
+     PropertyValue[15] := '0.025'; // Varchangetolerance
+     PropertyValue[16] := 'yes'; // 'DynReacavgwindowlen';
+
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -1041,28 +1123,17 @@ begin
        SetLength(PNew,FListSize+1);
        SetLength(FPendingChange,FListSize+1);
 
-       SetLength(QDeliver,FListSize+1,3);
+       SetLength(QDeliver,FListSize+1);
        SetLength(QNew,FListSize+1);
        SetLength(QOld,FListSize+1);
        SetLength(QHeadroom,FListSize+1);
+       SetLength(Qoutputpu,FListSize+1);
+       SetLength(Qdesiredpu,FListSize+1);
+       SetLength(deltaVDynReac,FListSize+1);
 
-       SetLength(FVpuSolution,FListSize+1,4);
-
-       if(FVAvgWindowLength > 0) then
-         begin
-              SetLength(FVAvgWindowSamplesdblHour,FListSize+1,FVAvgWindowLength+1);
-              SetLength(FVAvgWindowSamples,FListSize+1,FVAvgWindowLength+1);
-              SetLength(FVAvgWindowValue,FListSize+1);
-              SetLength(FVAvgWindowPointer,FListSize+1);
-         end;
-
-       if(FDynReacavgwindowLength > 0) then
-         begin
-              SetLength(FDynReacWindowSamplesdblHour,FListSize+1,FDynReacavgwindowLength+1);
-              SetLength(FDynReacWindowSamples,FListSize+1,FDynReacavgwindowLength+1);
-              SetLength(FDynReacWindowValue,FListSize+1);
-              SetLength(FDynReacWindowPointer,FListSize+1);
-         end;
+       SetLength(FVpuSolution,FListSize+1,3+1);
+       SetLength(FRollAvgWindow,FListSize+1);
+       SetLength(priorRollAvgWindow,FListSize+1);
 
        For i := 1 to FListSize Do Begin
            PVSys := PVSysClass.Find(FPVSystemNameList.Strings[i-1]);
@@ -1079,11 +1150,8 @@ begin
             FPVSystemNameList.Add(PVSys.Name);
          End;
 
-         {Allocate uniform weights}
+
          FListSize := FPVSystemPointerList.ListSize;
-//         FWeights := Nil;
-//         Reallocmem(FWeights, Sizeof(FWeights[1])*FListSize);
-//         For i := 1 to FListSize Do FWeights[i] := 1.0;
 
          SetLength(ControlledElement,FListSize+1);
 
@@ -1104,91 +1172,60 @@ begin
          SetLength(PDeliver,FListSize+1);
          SetLength(PNew,FListSize+1);
          SetLength(FPendingChange,FListSize+1);
-         SetLength(QDeliver,FListSize+1,3);
+         SetLength(QDeliver,FListSize+1);
          SetLength(QNew,FListSize+1);
          SetLength(QOld,FListSize+1);
          SetLength(QHeadroom,FListSize+1);
-         SetLength(FVpuSolution,FListSize+1,4);
+         SetLength(Qoutputpu,FListSize+1);
+         SetLength(Qdesiredpu,FListSize+1);
+         SetLength(FRollAvgWindow,FListSize+1);
+         SetLength(deltaVDynReac,FListSize+1);
+         SetLength(priorRollAvgWindow,FListSize+1);
+         SetLength(FVpuSolution,FListSize+1,3+1);
 
-         if(FVAvgWindowLength > 0) then
-           begin
-                SetLength(FVAvgWindowSamplesdblHour,FListSize+1,FVAvgWindowLength+1);
-                SetLength(FVAvgWindowSamples,FListSize+1,FVAvgWindowLength+1);
-                SetLength(FVAvgWindowValue,FListSize+1);
-                SetLength(FVAvgWindowPointer,FListSize+1);
-
-           end;
-
-         if(FDynReacavgwindowLength > 0) then
-           begin
-                SetLength(FDynReacWindowSamplesdblHour,FListSize+1,FDynReacavgwindowLength+1);
-                SetLength(FDynReacWindowSamples,FListSize+1,FVAvgWindowLength+1);
-                SetLength(FDynReacWindowValue,FListSize+1);
-                SetLength(FDynReacWindowPointer,FListSize+1);
-           end;
     End;  {Else}
 
-       // Add up total weights
-  //   TotalWeight := 0.0;
-//     For i := 1 to FlistSize Do  TotalWeight := TotalWeight + FWeights^[i];
 
      //Initialize arrays
+
      For i := 1 to FlistSize Do
      begin
             PVSys := PVSysClass.Find(FPVSystemNameList.Strings[i-1]);
 
-           For j := 1 to 6 Do cBuffer[i,j] := cZERO;
+           For j := 1 to 6 Do cBuffer[i,j]          := cZERO;
 
            Set_NTerms(PVSys.NTerms);
 
 
-           FkWLimit[i]:= 0.0;
-           FkVALimit[i] := 0.0;
-           FkvarLimit[i]:= 0.0;
-           FVref[i]:= 0.0;
-           FPpf[i]:= 0.0;
-           Fpresentkvar[i]:= 0.0;
-           FpresentkW[i]:= 0.0;
-           CondOffset[i] := 0;
-           NPhasesPVSys[i]:= PVSys.NPhases;
-           NCondsPVSys[i]:= PVSys.NConds;
-           FAvgpVuPrior[i] := 0.0;
-           FPresentVpu[i] := 0.0;
-           PDeliver[i] := 0.0;
-           PNew[i] := 0.0;
-           QDeliver[i,1] := 0.0; //old q deliver
-           QDeliver[i,2] := 0.0; //new q deliver
-           QNew[i] := 0.0;
-           QOld[i] := 0.0;
-           QHeadroom[i]:=0.0;
-           for j := 0 to 3 do  FVpuSolution[i,j]:=0.0;
+           FkWLimit[i]                              := 0.0;
+           FkVALimit[i]                             := 0.0;
+           FkvarLimit[i]                            := 0.0;
+           FVref[i]                                 := 0.0;
+           FPpf[i]                                  := 0.0;
+           Fpresentkvar[i]                          := 0.0;
+           FpresentkW[i]                            := 0.0;
+           CondOffset[i]                            := 0;
+           NPhasesPVSys[i]                          := PVSys.NPhases;
+           NCondsPVSys[i]                           := PVSys.NConds;
+           FAvgpVuPrior[i]                          := 0.0;
+           FPresentVpu[i]                           := 0.0;
+           PDeliver[i]                              := 0.0;
+           PNew[i]                                  := 0.0;
+           QDeliver[i]                              := 0.0;
+           QNew[i]                                  := 0.0;
+           QOld[i]                                  := -1.0;
+           QHeadroom[i]                             :=0.0;
+           Qoutputpu[i]                             :=0.0;
+           Qdesiredpu[i]                            :=0.0;
+           FRollAvgWindow[i]                        := TRollAvgWindow.Create;
+           FRollAvgWindow[i].BuffLength             := FRollAvgWindowLength;
+           deltaVDynReac[i]                         := 0.0;
 
-           FPendingChange[i]:= NONE;
+           priorRollAvgWindow[i]                    := 0.0;
+           for j := 1 to 3 do  FVpuSolution[i,j]:=0.0;
 
-           if(FVAvgWindowLength > 0) then
-             begin
-               For j := 1 to FVAvgWindowLength Do
-                 begin
-                    FVAvgWindowSamplesdblHour[i,j] := 0.0;
-                    FVAvgWindowSamples[i,j] := -1.0;  //initialize to -1.0;
-                               // indicates that a voltage sample has not been stored in i,j yet
-                  end;
-               FVAvgWindowValue[i] := 0.0;
-               FVAvgWindowPointer[i] := 0;
+           FPendingChange[i]                        := NONE;
 
-             end;
-
-           if(FVAvgWindowLength > 0) then
-             begin
-               For j := 1 to FVAvgWindowLength Do
-                 begin
-                  FDynReacWindowSamplesdblHour[i,j] := 0.0;
-                  FDynReacWindowSamples[i,j] := -1.0; //initialize to -1.0;
-                                // indicates that a voltage sample has not been stored in i,j yet
-                  end;
-               FDynReacWindowValue[i] := 0.0;
-               FDynReacWindowPointer[i] := 0;
-             end;
      end; {For}
 
    RecalcElementData;
@@ -1239,198 +1276,10 @@ End;
 
 { -------------------------------------------------------------------------- }
 
-{ -------------------------------------------------------------------------- }
-PROCEDURE TInvControlObj.UpdateVDynReacAvgWindow;
-VAR
-  i,j,k: Integer;
-  PVSys: TPVsystemObj;
-  voltagesum: Double;
-
-  accumulatedseconds: Double;
-  windowlengthsec: Double;
-  timeunitsmult: Double;
-  tempVbuffer: pComplexArray;
-
-
-Begin
-
-  tempVbuffer := Nil;   // Initialize for Reallocmem
-
-  For i := 1 to FListSize Do
-  Begin
-
-      PVSys := ControlledElement[i];
-      PVSys.ActiveTerminalIdx := 1;
-
-      Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * NCondsPVSys[i]);
-      for j := 1 to NCondsPVsys[i] do tempVbuffer[j] := cZERO;
-
-      // set the index value pointer to either the first element (if at end of window),
-      // or move pointer one to the right (increase pointer by 1, numerically)
-      if FDynReacWindowPointer[i] = (FDynReacavgwindowLength) then FDynReacWindowPointer[i] := 1
-      else FDynReacWindowPointer[i] := FDynReacWindowPointer[i] + 1;
-
-      // update with the present solution terminal voltage value and dynavars information
-      FDynReacWindowSamplesdblHour[i,FDynReacWindowPointer[i]] := ActiveCircuit.Solution.DynaVars.dblHour;
-
-      PVSys.GetTermVoltages(1,tempVbuffer);
-
-      voltagesum := 0;
-      for j := 1 to PVSys.NPhases do voltagesum := voltagesum + CAbs(tempVbuffer^[j]);
-      FDynReacWindowSamples[i,FDynReacWindowPointer[i]] := voltagesum / PVSys.NPhases; // voltage is average of per-phase voltages
-      voltagesum := FDynReacWindowSamples[i,FDynReacWindowPointer[i]]; // voltage is average of per-phase voltages
-
-      CASE lowercase(FDynReacWindowSamplesIntervalUnit)[1] of
-                    's': timeunitsmult := 1.0;
-                    'm': timeunitsmult := 60.0;
-                    'h': timeunitsmult := 3600.0;
-      ELSE
-                   timeunitsmult := 1.0;
-      END;
-
-      windowlengthsec := FDynReacavgwindowLength*timeunitsmult;
-      j := FDynReacWindowPointer[i];
-      k := 1; // now used for counting number of samples in window
-      //accumulate the voltages until we have hit the voltage averagingwindowlength
-      accumulatedseconds := ActiveCircuit.Solution.DynaVars.h;
-      while(accumulatedseconds < windowlengthsec) DO
-        Begin
-        if(j = 1) then j:= (FDynReacavgwindowLength)
-        else j := j-1;
-        if (j = FDynReacWindowPointer[i]) then Break; // if we've hit the present solution entry, then stop
-        // if we've hit the window length, then subtract the last entry (entry number 1), from the present entry
-        if (j = (FDynReacavgwindowLength)) then begin
-
-          if (accumulatedseconds + (FDynReacWindowSamplesdblHour[i,1] - FDynReacWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
-          // if a dynreac sample (voltage) is not equal to -1.0, then it is valid
-          if (FDynReacWindowSamples[i,j] <> -1.0) then begin
-            accumulatedseconds := accumulatedseconds + (FDynReacWindowSamplesdblHour[i,1] - FDynReacWindowSamplesdblHour[i,j])*3600.0;
-            voltagesum := voltagesum + FDynReacWindowSamples[i,j];
-            k := k + 1;
-          end;
-        end
-        // normal case
-        else begin
-          if (accumulatedseconds + (FDynReacWindowSamplesdblHour[i,j+1] - FDynReacWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
-          if (FDynReacWindowSamples[i,j] <> -1.0) then begin
-            accumulatedseconds := accumulatedseconds + (FDynReacWindowSamplesdblHour[i,j+1] - FDynReacWindowSamplesdblHour[i,j])*3600.0;
-            voltagesum := voltagesum + FDynReacWindowSamples[i,j];
-            k := k + 1;
-          end;
-
-
-        end;
-        End;
-        // if dlbhour is 0 then we will have k equal to 1 greater than it should be
-        if ActiveCircuit.Solution.DynaVars.dblHour = 0.0 then FDynReacWindowValue[i] := voltagesum / ((k-1)*1.0)
-        // normal case, dblhour is greater than 0
-        else FDynReacWindowValue[i] := voltagesum / (k*1.0);    // rolling window average value to be used by InvControl if VRef not used
-   end;
-
-   Reallocmem(tempVbuffer, 0);     // clean up memory at the end
-
-End;
-
-PROCEDURE TInvControlObj.UpdateVAvgWindow;
-VAR
-  i,j,k: Integer;
-  PVSys: TPVsystemObj;
-  voltagesum: Double;
-
-  accumulatedseconds: Double;
-  windowlengthsec: Double;
-  timeunitsmult: Double;
-  tempVbuffer: pComplexArray;
-
-
-Begin
-
-  tempVbuffer := Nil;   // Initialize for Reallocmem
-
-  For i := 1 to FListSize Do
-  Begin
-
-      PVSys := ControlledElement[i];
-      PVSys.ActiveTerminalIdx := 1;
-
-      Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * NCondsPVSys[i]);
-      for j := 1 to NCondsPVsys[i] do tempVbuffer[j] := cZERO;
-
-
-      // set the index value pointer to either the first element (if at end of window),
-      // or move pointer one to the right (increase pointer by 1, numerically)
-      if FVavgWindowPointer[i] = (FVavgwindowLength) then FVavgWindowPointer[i] := 1
-      else FVavgWindowPointer[i] := FVavgWindowPointer[i] + 1;
-
-      // update with the present solution terminal voltage value and dynavars information
-      FVavgWindowSamplesdblHour[i,FVavgWindowPointer[i]] := ActiveCircuit.Solution.DynaVars.dblHour;
-
-      PVSys.GetTermVoltages(1,tempVbuffer);
-
-      voltagesum := 0;
-      for j := 1 to PVSys.NPhases do voltagesum := voltagesum + CAbs(tempVbuffer^[j]);
-      FVavgWindowSamples[i,FDynReacWindowPointer[i]] := voltagesum / PVSys.NPhases; // voltage is average of per-phase voltages
-      voltagesum := FVavgWindowSamples[i,FVavgWindowPointer[i]]; // voltage is average of per-phase voltages
-
-      CASE lowercase(FVavgWindowSamplesIntervalUnit)[1] of
-                    's': timeunitsmult := 1.0;
-                    'm': timeunitsmult := 60.0;
-                    'h': timeunitsmult := 3600.0;
-      ELSE
-                   timeunitsmult := 1.0;
-      END;
-
-      windowlengthsec := FVavgwindowLength*timeunitsmult;
-      j := FVavgWindowPointer[i];
-      k := 1; // now used for counting number of samples in window
-      //accumulate the voltages until we have hit the voltage averagingwindowlength
-      accumulatedseconds := ActiveCircuit.Solution.DynaVars.h;
-      while(accumulatedseconds < windowlengthsec) DO
-        Begin
-        if(j = 1) then j:= (FVavgwindowLength)
-        else j := j-1;
-        if (j = FVavgWindowPointer[i]) then Break; // if we've hit the present solution entry, then stop
-        // if we've hit the window length, then subtract the last entry (entry number 1), from the present entry
-        if (j = (FVavgwindowLength)) then begin
-
-          if (accumulatedseconds + (FVavgWindowSamplesdblHour[i,1] - FVavgWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
-          // if a dynreac sample (voltage) is not equal to -1.0, then it is valid
-          if (FVavgWindowSamples[i,j] <> -1.0) then begin
-            accumulatedseconds := accumulatedseconds + (FVavgWindowSamplesdblHour[i,1] - FVavgWindowSamplesdblHour[i,j])*3600.0;
-            voltagesum := voltagesum + FVavgWindowSamples[i,j];
-            k := k + 1;
-          end;
-        end
-        // normal case
-        else begin
-          if (accumulatedseconds + (FVavgWindowSamplesdblHour[i,j+1] - FVavgWindowSamplesdblHour[i,j])*3600.0) > windowlengthsec then Break;
-          if (FVavgWindowSamples[i,j] <> -1.0) then begin
-            accumulatedseconds := accumulatedseconds + (FVavgWindowSamplesdblHour[i,j+1] - FVavgWindowSamplesdblHour[i,j])*3600.0;
-            voltagesum := voltagesum + FVavgWindowSamples[i,j];
-            k := k + 1;
-          end;
-
-
-        end;
-        End;
-        // if dlbhour is 0 then we will have k equal to 1 greater than it should be
-        if ActiveCircuit.Solution.DynaVars.dblHour = 0.0 then FVavgWindowValue[i] := voltagesum / ((k-1)*1.0)
-        // normal case, dblhour is greater than 0
-        else FVavgWindowValue[i] := voltagesum / (k*1.0);    // rolling window average value to be used by InvControl if VRef not used
-   end;
-
-   Reallocmem(tempVbuffer, 0);     // clean up memory at the end
-
-End;
 
 { -------------------------------------------------------------------------- }
 
-FUNCTION  TInvControlObj.InterpretAvgVWindowLen(const s:string;index:Integer):Integer;
-// From function caller:
-// +index = 0 means we are setting the rolling average window length info for
-//    volt-watt and volt-var modes
-// +index = 1 means we are setting the rolling average window length info for
-//    dynamic reactive current mode
+FUNCTION  TInvControlObj.InterpretAvgVWindowLen(const s:string):Integer;
 
 Var
    Code :Integer;
@@ -1442,8 +1291,8 @@ Begin
      val(s,Result, Code);
      If Code = 0 then
      begin
-         if(index = 0) then FVAvgWindowSamplesIntervalUnit := 's' // Only a number was specified, so must be seconds
-         else FDynReacWindowSamplesIntervalUnit := 's';
+         FRollAvgWindowLengthIntervalUnit := 's'; // Only a number was specified, so must be seconds
+         FVAvgWindowLengthSec := Result*1.0;
          Exit;
      end;
 
@@ -1453,39 +1302,35 @@ Begin
      Val(S2, Result, Code);
      If Code>0 then
      Begin   {check for error}
-         if(index = 0) then FVAvgWindowSamplesIntervalUnit := 's' // Only a number was specified, so must be seconds
-         else FDynReacWindowSamplesIntervalUnit := 's';
+         FRollAvgWindowLengthIntervalUnit := 's'; // Only a number was specified, so must be seconds
+         FVAvgWindowLengthSec := 0.0;
          Result := 0;
          DosimpleMsg('Error in specification of Voltage Averaging Window Length: ' + s, 1134);
          Exit;
      End;
 
-     if(index = 0) then
-     begin
-       case ch of
-          'h': FVAvgWindowSamplesIntervalUnit := 'h';
-          'm': FVAvgWindowSamplesIntervalUnit := 'm';
-          's': FVAvgWindowSamplesIntervalUnit := 's';
-       Else
-           FVAvgWindowSamplesIntervalUnit := 's'
-       end;
-     end;
-
-     if(index = 1) then
-     begin
-
-       case ch of
-        'h': FDynReacWindowSamplesIntervalUnit := 'h';
-        'm': FDynReacWindowSamplesIntervalUnit := 'm';
-        's': FDynReacWindowSamplesIntervalUnit := 's';
-       Else
-         FDynReacWindowSamplesIntervalUnit := 's';
+     case ch of
+        'h':
+          begin
+            FRollAvgWindowLengthIntervalUnit := 'h';
+            FVAvgWindowLengthSec := Result*3600.0;
+          end;
+        'm':
+          begin
+            FRollAvgWindowLengthIntervalUnit := 'm';
+            FVAvgWindowLengthSec := Result*60.0;
+          end;
+        's':
+          begin
+            FRollAvgWindowLengthIntervalUnit := 's';
+            FVAvgWindowLengthSec := Result*1.0;
+          end;
+     Else
+         FRollAvgWindowLengthIntervalUnit := 's';
+         FVAvgWindowLengthSec := Result*1.0;
          Result := 0; // Don't change it
          DosimpleMsg('Error in specification of voltage sample interval size: "' + s +'" Units can only be h, m, or s (single char only) ', 99934);
-       end;
-
      end;
-
 End;
 
 {--------------------------------------------------------------------------}
@@ -1504,34 +1349,50 @@ end;
 PROCEDURE TInvControl.UpdateAll;
 VAR
 
-   i,j,k:Integer;
-   basekV: Double;
-   localControlledElement: TDSSCktElement;
+   i,j,k                      : Integer;
+   solnvoltage                : Double;
+   localControlledElement     : TDSSCktElement;
+   tempVbuffer                : pComplexArray;
 Begin
+
+     tempVbuffer := Nil;   // Initialize for Reallocmem
+
 
      For i := 1 to ElementList.ListSize  Do
         With TInvControlObj(ElementList.Get(i)) Do
         begin
-            If Enabled Then if FVoltage_CurveX_ref = 1 then UpdateVAvgWindow;
+           for j := 1 to FPVSystemPointerList.ListSize do
+            begin
+             localControlledElement := ControlledElement[j];
 
-            if FVpuSolutionIdx = 3 then FVpuSolutionIdx := 1
-            else FVpuSolutionIdx :=FVpuSolutionIdx+1;
+             // allocated enough memory to buffer to hold voltages and initialize to cZERO
+             Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * localControlledElement.NConds);
+             for k := 1 to localControlledElement.NConds do tempVbuffer[k] := cZERO;
 
-            for j := 1 to FPVSystemNameList.Count do
-               begin
-                   localControlledElement := ControlledElement[i];
-                   localControlledElement.ComputeVterminal;
-                   for k := 1 to localControlledElement.Yorder do cBuffer[j,k] := localControlledElement.Vterminal^[k];
+             TInvControlObj(ElementList.Get(i)).priorRollAvgWindow[j] := TInvControlObj(ElementList.Get(i)).FRollAvgWindow[j].Get_AvgVal;
+             // compute the present terminal voltage
+             localControlledElement.ComputeVterminal;
 
-                   basekV := ActiveCircuit.Buses^[ ControlledElement[i].terminals^[1].busRef].kVBase;
-                   FVpuSolution[j,FVpuSolutionIdx] := 0.0;
-                  // Calculate the present average voltage
-                  For k := 1 to localcontrolledelement.NPhases Do
-                           FVpuSolution[j,FVpuSolutionIdx] := FVpuSolution[j,FVpuSolutionIdx] + Cabs(cBuffer[j,k]);
 
-                  //convert to per-unit
-                  FVpuSolution[j,FVpuSolutionIdx] := (FVpuSolution[j,FVpuSolutionIdx] / localControlledElement.Nphases) / (basekV * 1000.0);
-              end;
+             for k := 1 to localControlledElement.Yorder do tempVbuffer[k] := localControlledElement.Vterminal^[k];
+             solnvoltage := 0.0;
+             for k := 1 to localControlledElement.Nphases do solnvoltage := solnvoltage + Cabs(tempVbuffer[k]);
+             solnvoltage := solnvoltage / (localControlledElement.Nphases*1.0); // average of voltages if more than one phase
+
+             // add present power flow solution voltage to the rolling average window
+             TInvControlObj(ElementList.Get(i)).FRollAvgWindow[j].Add(solnvoltage,ActiveCircuit.Solution.DynaVars.h,FVAvgWindowLengthSec);
+
+
+             //update solution voltage in per-unit for hysteresis
+             if FVpuSolutionIdx = 3 then FVpuSolutionIdx := 1
+             else FVpuSolutionIdx :=FVpuSolutionIdx+1;
+
+             FVpuSolution[j,FVpuSolutionIdx] := solnvoltage/(ActiveCircuit.Buses^[ localcontrolledelement.terminals^[1].busRef].kVBase);
+
+             Reallocmem(tempVbuffer, 0);   // Clean up memory
+
+            end;
+
         end;
 End;
 
@@ -1551,22 +1412,76 @@ begin
 end;
 
 
+procedure TRollAvgWindow.Add(IncomingSampleValue: Double;IncomingSampleTime: Double;VAvgWindowLengthSec:Double);
+begin
+  if(sample.Count > 0) and (bufferfull) then
+    begin
+      runningsumsample := runningsumsample - sample.Dequeue;
+      sample.Enqueue(IncomingSampleValue);
+      runningsumsample := runningsumsample + IncomingSampleValue;
+      runningsumsampletime := runningsumsampletime - sampletime.Dequeue;
+      sampletime.Enqueue(IncomingSampleTime);
+      runningsumsampletime := runningsumsampletime +IncomingSampleTime;
+    end
+  else
+    begin
+      sample.Enqueue(IncomingSampleValue);
+      runningsumsample := runningsumsample + IncomingSampleValue;
+      sampletime.Enqueue(IncomingSampleTime);
+      runningsumsampletime := runningsumsampletime + IncomingSampleTime;
+      if (sample.Count = bufferlength) or (runningsumsampletime >= VAvgWindowLengthSec)
+          then bufferfull := True;
+    end;
+
+
+end;
+
+constructor TRollAvgWindow.Create();
+begin
+    sample        := TQueue<Double>.Create();
+    sampletime    := TQueue<Double>.Create();
+
+    runningsumsample                := 0.0;
+    runningsumsampletime            := 0.0;
+    bufferlength                    := 0;
+    bufferfull                      := False;
+end;
+
+destructor TRollAvgWindow.Destroy;
+begin
+  sample      := nil;
+  sampletime  := nil;
+
+  inherited;
+end;
+
+procedure TRollAvgWindow.Set_BuffLength(const Value: Integer);
+begin
+  bufferlength := Value;
+end;
+
+
+function TRollAvgWindow.Get_AvgVal: Double;
+begin
+  if(sample.Count = 0) then
+    Result:= 0.0
+  else  Result:= runningsumsample / sample.Count;
+end;
+
+function TRollAvgWindow.Get_AccumSec: Double;
+begin
+  if(sample.Count = 0) then
+    Result:= 0.0
+  else  Result:= runningsumsampletime;
+end;
+
+
 INITIALIZATION
 
 
-{previous_error = setpoint - process_feedback
-integral = 0
-start:
-  wait(dt)
-  error = setpoint - process_feedback
-  integral = integral + (error*dt)
-  derivative = (error - previous_error)/dt
-  output = (Kp*error) + (Ki*integral) + (Kd*derivative)
-  previous_error = error
-  goto start}
 
 Finalization
-  WriteDLLDebugFile('Wes');
+
 
 
 end.
