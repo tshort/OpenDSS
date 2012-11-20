@@ -2383,7 +2383,7 @@ Begin
 
      GICClass := TGICTransformer(GetDSSClassPtr('GICTransformer'));
 
-     Writeln(F, 'Bus, Mvar, Idc');
+     Writeln(F, 'Bus, Mvar, GIC Amps per phase');
      pElem := TGICTransformerObj(GICClass.ElementList.First);
      while PElem <> Nil do
      Begin
