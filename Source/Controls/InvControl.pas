@@ -13,8 +13,14 @@ unit InvControl;
 
   New InvControl.Name=myname PVSystemList = (pvsystem1  pvsystem2 ...)
 
-
-}
+Notes:
+  WGS (11/26/2012): Using dynamic arrays for many private variables in this unit.
+  Although dynamic arrays begin at 0 (by definition in Delphi),
+  this unit is using 1 to numberelements in all for loops - the 0th
+  element is un-used (except for Strings) in this unit.
+  All dynamic arrays are set to length numberelements+1 in the appropriate dimension.
+  All dynamic arrays are Finalize'd in the destroy procedure.
+  }
 
 INTERFACE
 
@@ -73,8 +79,6 @@ end;
        FUNCTION NewObject(const ObjName:String):Integer; override;
        Function GetXYCurve(Const CurveName: String; InvControlMode: EInvControlMode): TXYcurveObj;
        PROCEDURE UpdateAll;
-       PROCEDURE ApplyOffset;
-
    end;
 
 
@@ -105,7 +109,7 @@ end;
             Fvvc_curve: TXYcurveObj;
             Fvvc_curveOffset: Double;
             Fvvc_curve2: TXYcurveObj;
-            FActiveVVCurve: Integer;
+            FActiveVVCurve: Array of Integer;
             FVoltage_CurveX_ref: Integer;  // valid values are 0: = Vref (rated), 1:= avg
             FVAvgWindowLengthSec: Double; // rolling average window length in seconds
             cBuffer : Array of Array of Complex;    // Complexarray buffer
@@ -144,6 +148,7 @@ end;
             deltaVDynReac: Array of Double;
             priorRollAvgWindow: Array of Double;
 
+            FlagChangeCurve: Array of Boolean;
 
             FVoltageChangeTolerance: Double;
             FVarChangeTolerance: Double;
@@ -393,13 +398,12 @@ Begin
                End;
             3: Begin
                   Fvvc_curve := GetXYCurve(Param, VOLTVAR);
-                  Fvvc_curve2 := GetXYCurve(Param, VOLTVAR);
-                  ApplyOffset;
                   Fvvc_curve_size := Fvvc_curve.NumPoints;
                End;
             4: Begin
                   if(Parser.DblValue > 0.0) THEN DoSimpleMsg('Hysteresis offset should be a negative value, or 0 "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 1364)
-                  else Fvvc_curveOffset := Parser.DblValue;
+                  else
+                    Fvvc_curveOffset := Parser.DblValue;
                End;
 
             5: If Parser.StrValue = 'rated' then FVoltage_CurveX_ref := 0
@@ -550,7 +554,7 @@ Begin
      Fvvc_curve             := nil;
      Fvvc_curveOffset       := 0.0;
      Fvvc_curve2            := nil;
-     FActiveVVCurve         := 1;
+     FActiveVVCurve         := nil;
      FVoltage_CurveX_ref    := 0;
      FVAvgWindowLengthSec   := 0.0;
      cBuffer                := nil;
@@ -579,7 +583,7 @@ Begin
      QOld                  := nil;
      QHeadRoom             := nil;
      FVpuSolution          := nil;
-     FVpuSolutionIdx       := 1;
+     FVpuSolutionIdx       := 0;
      FdeltaQ_factor        := 0.7;
      Qoutputpu             := nil;
      Qdesiredpu            := nil;
@@ -587,7 +591,7 @@ Begin
      FVoltageChangeTolerance:=0.0001;
      FVarChangeTolerance    :=0.025;
 
-
+     FlagChangeCurve       := nil;
 
      FPVSystemNameList := TSTringList.Create;
      FPVSystemPointerList := PointerList.TPointerList.Create(20);  // Default size and increment
@@ -643,8 +647,8 @@ Begin
      Finalize(deltaVDynReac);
      Finalize(priorRollAvgWindow);
      Finalize(FVpuSolution);
-
-
+     Finalize(FlagChangeCurve);
+     Finalize(FActiveVVCurve);
 
 
      Inherited Destroy;
@@ -790,9 +794,8 @@ PROCEDURE TInvControlObj.DoPendingAction;
 VAR
 
   i                                         :Integer;
-  Pdesiredpu, PNeeded,
-  PMonitoredElement                         :Double;
-//  voltagechangesolution
+  Pdesiredpu                                :Double;
+  voltagechangesolution,QPresentpu,VpuFromCurve,
   DeltaQ,basekV                             :Double;
   SMonitoredElement                         :Complex;
 
@@ -807,29 +810,22 @@ BEGIN
 
       PVSys := ControlledElement[i];   // Use local variable in loop
 
-    // we need P and/or we need Q
+
       SMonitoredElement := PVSys.Power[1]; // s is in va
 
-      PMonitoredElement := SMonitoredElement.re;
-
       CASE PendingChange[i] OF
-      CHANGEWATTLEVEL:
+      CHANGEWATTLEVEL:  // volt-watt mode
       begin
-        PNeeded := FkWLimit[i]*1000 - PMonitoredElement;
 
         PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
-        if (PNeeded <> 0.0) then
-        begin
+        // P desired pu is the desired output based on the avg pu voltage on the
+        // monitored element
+        Pdesiredpu := Fvoltwatt_curve.GetYValue(FPresentVpu[i]);      //Y value = watts in per-unit of Pmpp
 
-            // P desired pu is the desired output based on the avg pu voltage on the
-            // monitored element
-            Pdesiredpu := Fvoltwatt_curve.GetYValue(FPresentVpu[i]);      //Y value = watts in per-unit of Pmpp
+        If PVSys.puPmpp <> Pdesiredpu Then PVSys.puPmpp := Pdesiredpu;
 
-            If PVSys.puPmpp <> Pdesiredpu Then PVSys.puPmpp := Pdesiredpu;
-
-            If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
-              Format('**Limited PVSystem output level to**, puPmpp= %.5g', [PVSys.puPmpp]));
-        end; // end if watts needed is not equal to zero
+        If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
+          Format('**Limited PVSystem output level to**, puPmpp= %.5g', [PVSys.puPmpp]));
 
         ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
         FAvgpVuPrior[i] := FPresentVpu[i];
@@ -837,7 +833,8 @@ BEGIN
         Set_PendingChange(NONE,i);
       end; // end if PendingChange = CHANGEWATTLEVEL
 
-      CHANGEVARLEVEL:
+
+      CHANGEVARLEVEL:  // volt var mode
       begin
           PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
 
@@ -846,37 +843,113 @@ BEGIN
 
 
           QHeadRoom[i] := SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW));
-{         if(FVpuSolutionIdx <> 1) then voltagechangesolution := FVpuSolution[i,FVpuSolutionIdx] - FVpuSolution[i,FVpuSolutionIdx-1]
-          else voltagechangesolution := FVpuSolution[i,1] - FVpuSolution[i,3];
+          QPresentpu   := PVSys.Presentkvar / QHeadRoom[i];
 
-          if (voltagechangesolution > 0) and (FActiveVVCurve = 1) then
-            Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
+          voltagechangesolution := 0.0;
 
-          if (voltagechangesolution > 0) and (FActiveVVCurve = 2) then
+          // for first two seconds, keep voltagechangesolution equal to zero
+          // we don't have solutions from the time-series power flow
+          if ((ActiveCircuit.Solution.DynaVars.dblHour*3600.0 / ActiveCircuit.Solution.DynaVars.h)<3.0) then voltagechangesolution := 0.0
+          else if(FVpuSolutionIdx = 1) then voltagechangesolution := FVpuSolution[i,1] - FVpuSolution[i,2]
+          else if(FVpuSolutionIdx = 2) then voltagechangesolution := FVpuSolution[i,2] - FVpuSolution[i,1];
+
+          // if no hysteresis (Fvvc_curveOffset == 0), then just look up the value
+          // from the volt-var curve
+          if Fvvc_curveOffset = 0.0 then Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i])
+
+          // else if we're going in the positive direction and on curve 1, stay
+          // with curve 1
+          else if (voltagechangesolution > 0) and (FActiveVVCurve[i] = 1) then
             begin
-                Qdesiredpu[i] := -1.0*PVSys.Presentkvar / QHeadRoom[i];
-                FActiveVVCurve := 1;
-            end;
+              if(FlagChangeCurve[i] = True) then
+                begin
+                    VpuFromCurve := Fvvc_curve.GetXValue(QPresentpu);
+                    if(Abs(FPresentVpu[i] - VpuFromCurve) <= FVoltageChangeTolerance) or ((FPresentVpu[i] - VpuFromCurve) > FVoltageChangeTolerance) then
+                    begin
+                      Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of headroom
+                      FlagChangeCurve[i] := False;
+                    end
+                    else Qdesiredpu[i] := QPresentpu;
+                end
+              else Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of headroom
+            end
 
-          if (voltagechangesolution < 0) and (FActiveVVCurve = 2) then
-            Qdesiredpu[i] := Fvvc_curve2.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of kva rating
-
-          if (voltagechangesolution < 0) and (FActiveVVCurve = 1) then
+          // with hysteresis if we're going in the positive direction on voltages
+          // from last two power flow solutions, and we're using curve 2, keep vars
+          // the same, and change to curve1 active
+          else if (voltagechangesolution > 0) and (FActiveVVCurve[i] = 2) then
             begin
-                Qdesiredpu[i] := -1.0*PVSys.Presentkvar / QHeadRoom[i];
-                FActiveVVCurve := 2;
-            end;
-          if (voltagechangesolution = 0)  then}
-            Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]);;
+                Qdesiredpu[i] := PVSys.Presentkvar / QHeadRoom[i];
+                FActiveVVCurve[i] := 1;
+                FlagChangeCurve[i] := True;
+            end
 
-          QDeliver[i] := QDesiredpu[i]*QHeadRoom[i];
-          DeltaQ := QDeliver[i] - Qold[i];
+          // with hysteresis if we're going in the negative direction on voltages
+          // from last two power flow solutions, and we're using curve 2, either
+          // lookup the vars for the voltage we're at (with offset on curve1),
+          // or if we've not just changed curves, stay at the current p.u.
+          // var output
+          else if (voltagechangesolution < 0) and (FActiveVVCurve[i] = 2) then
+            begin
+              if(FlagChangeCurve[i] = True) then
+                begin
+                    VpuFromCurve := Fvvc_curve.GetXValue(QPresentpu);
+                    VpuFromCurve := VpuFromCurve - Fvvc_curveOffset;
+                    if(Abs(FPresentVpu[i] - VpuFromCurve) <= FVoltageChangeTolerance) or ((FPresentVpu[i]-VpuFromCurve) > FVoltageChangeTolerance) then
+                    begin
+                      Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]-Fvvc_curveOffset);      //Y value = in per-unit of headroom
+                      FlagChangeCurve[i] := False;
+                    end
+                    else Qdesiredpu[i] := QPresentpu;
+                end
+              else Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]-Fvvc_curveOffset);      //Y value = in per-unit of headroom
+            end
 
-          QNew[i] := QOld[i] + DeltaQ * FdeltaQ_factor;
+          // with hysteresis if we're going in the negative direction on voltages
+          // from last two power flow solutions, and we're using curve 1, then
+          // stay with present output vars and make curve2 active, set curve change
+          // flag
+          else if (voltagechangesolution < 0) and (FActiveVVCurve[i] = 1) then
+            begin
+                Qdesiredpu[i] := PVSys.Presentkvar / QHeadRoom[i];
+                FActiveVVCurve[i] := 2;
+                FlagChangeCurve[i] := True;
+            end
+
+          // if no change in voltage from one powerflow to the next, then
+          // do one of the following
+          else if (voltagechangesolution = 0)  and (FActiveVVCurve[i] = 1) and (FlagChangeCurve[i] = False) then
+            Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i])
+          else if (voltagechangesolution = 0)  and (FActiveVVCurve[i] = 1) and (FlagChangeCurve[i] = True) then
+            Qdesiredpu[i] := PVSys.Presentkvar / QHeadroom[i]
+          else if (voltagechangesolution = 0)  and (FActiveVVCurve[i] = 2) and (FlagChangeCurve[i] = False) then
+            Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]-Fvvc_curveOffset)
+          else if (voltagechangesolution = 0)  and (FActiveVVCurve[i] = 2) and (FlagChangeCurve[i] = True) then
+            Qdesiredpu[i] := PVSys.Presentkvar / QHeadroom[i];
+
+          // only move deltaQ_factor amount to the desired p.u. available var
+          // output
+          if(FlagChangeCurve[i] = False) then
+          begin
+            QDeliver[i] := QDesiredpu[i]*QHeadRoom[i];
+            DeltaQ := QDeliver[i] - Qold[i];
+
+            QNew[i] := QOld[i] + DeltaQ * FdeltaQ_factor;
 
 
-          If PVSys.Presentkvar <> Qnew[i] Then PVSys.Presentkvar := Qnew[i];
-          Qoutputpu[i] := PVSys.Presentkvar / QHeadroom[i];
+            If PVSys.Presentkvar <> Qnew[i] Then PVSys.Presentkvar := Qnew[i];
+            Qoutputpu[i] := PVSys.Presentkvar / QHeadroom[i];
+          end
+
+          // else, stay at present var output level
+          else
+          begin
+            QDeliver[i] := QDesiredpu[i]*QHeadRoom[i];
+            QNew[i] := QDeliver[i];
+            PVSys.Presentkvar := QNew[i];
+            Qoutputpu[i] := PVSys.Presentkvar / QHeadroom[i];
+          end;
+
 
           If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name +','+ PVSys.Name+',',
                            Format('**Set PVSystem output var level to**, kvar= %.5g', [PVSys.Presentkvar,FPresentVpu[i]]));
@@ -889,14 +962,14 @@ BEGIN
           Set_PendingChange(NONE,i);
     end; // end if PendingChange = CHANGEVARLEVEL
 
-    CHANGEDYNVARLEVEL:
+    CHANGEDYNVARLEVEL: // dynamic reactive current mode
     begin
         PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
         PVSys.Varmode := VARMODEKVAR;  // Set var mode to VARMODEKVAR to indicate we might change kvar
 
         QDesiredpu[i] := 0.0;
 
-
+        // calculate headroom from kva rating of PVSystem and presentkW output level
         QHeadRoom[i] := SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW));
 
 
@@ -905,10 +978,20 @@ BEGIN
         QOld[i] := PVSys.Presentkvar;
         basekV := ActiveCircuit.Buses^[ PVSys.terminals^[1].busRef].kVBase;
 
+        // calculate deltaV quantity in per-unit from subtracting the rolling average
+        // value (in p.u.) from the present p.u. terminal voltage (average of line-ground)
+        // if more than one phase
         deltaVDynReac[i] := FPresentVpu[i] - FRollAvgWindow[i].Get_AvgVal/(basekV*1000.0);
 
+        // if below the lower deadband and deltaV quantity is non-zero then
+        // calculate desired pu var output. In per-unit of kva rating (also
+        // ampere rating), per report specifications.
         if (deltaVDynReac[i] <>0) and (deltaVDynReac[i] < FDbVMin) then
             QDesiredpu[i] := deltaVDynReac[i]*FArGraLowV
+
+        // if above the upper deadband and deltaV quantity is non-zero then
+        // calculate desired pu var output. In per-unit of kva rating (also
+        // ampere rating), per report specifications.
 
         else if (deltaVDynReac[i] <>0) and (deltaVDynReac[i] > FDbVMax) then
             QDesiredpu[i] := deltaVDynReac[i]*FArGraHiV
@@ -916,7 +999,8 @@ BEGIN
         else if deltaVDynReac[i] = 0.0 then
              QDesiredpu[i] := 0.0;
 
-
+        // as with volt-var mode, we don't want to jump directly to solution
+        // or we'll have oscillatory behavior
         if(Abs(QDesiredpu[i]*PVSys.kVARating) > QHeadroom[i]) then QDesiredpu[i] := sign(QDesiredpu[i])*QHeadroom[i]/PVSys.kVARating;
         DeltaQ        := QDesiredpu[i]*PVSys.kVARating - Qold[i];
         QNew[i]       := QOld[i] + (DeltaQ * FdeltaQ_factor);
@@ -955,7 +1039,8 @@ begin
 
      If (FListSize>0) then
      Begin
-
+         // If an InvControl controls more than one PV, control each one
+         // separately based on the PVSystem's terminal voltages, etc.
          for i := 1 to FPVSystemPointerList.ListSize do
          begin
             ControlledElement[i].ComputeVTerminal;
@@ -978,7 +1063,7 @@ begin
 
 
             CASE ControlMode of
-                VOLTWATT:
+                VOLTWATT:  // volt-watt control mode
                 begin
                     if (Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FvoltwattDeltaVTolerance) or
                       (Abs(Abs(Pdeliver[i]) - Abs(PNew[i])) > 0.5) then
@@ -997,25 +1082,28 @@ begin
                     end;
 
 
-                VOLTVAR:
+                VOLTVAR: // volt-var control mode
                 begin
                     if ((Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FVoltageChangeTolerance) or
-                      ((Abs(Abs(Qoutputpu[i]) - Abs(Qdesiredpu[i])) > FVarChangeTolerance))) then
+                      ((Abs(Abs(Qoutputpu[i]) - Abs(Qdesiredpu[i])) > FVarChangeTolerance))) or
+                      (ActiveCircuit.Solution.ControlIteration = 1) then
                     begin
                       Set_PendingChange(CHANGEVARLEVEL,i);
 
                       ControlActionHandle := ActiveCircuit.ControlQueue.Push
-                        (ActiveCircuit.Solution.DynaVars.intHour,
-                        ActiveCircuit.Solution.DynaVars.t + TimeDelay, PendingChange[i], 0, Self);
+                      (ActiveCircuit.Solution.DynaVars.intHour,
+                      ActiveCircuit.Solution.DynaVars.t + TimeDelay, PendingChange[i], 0, Self);
+
                       If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
-                          ('**Ready to change var output due in VOLTVAR mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
+                        ('**Ready to change var output due in VOLTVAR mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
+
                     end
                     else
                     begin
                     end;
                 end;
 
-                DYNAMICREACCURR:
+                DYNAMICREACCURR: // dynamic reactive current control mode
                 begin
                 if(priorRollAvgWindow[i] = 0.0) then
                   begin
@@ -1078,7 +1166,7 @@ begin
      PropertyValue[13] := '0.7'; // DeltaQ_factor
      PropertyValue[14] := '0.0001'; //VoltageChangeTolerance
      PropertyValue[15] := '0.025'; // Varchangetolerance
-     PropertyValue[16] := 'yes'; // 'DynReacavgwindowlen';
+     PropertyValue[16] := 'yes'; // show event log?
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -1131,9 +1219,11 @@ begin
        SetLength(Qdesiredpu,FListSize+1);
        SetLength(deltaVDynReac,FListSize+1);
 
-       SetLength(FVpuSolution,FListSize+1,3+1);
+       SetLength(FVpuSolution,FListSize+1,2+1);
        SetLength(FRollAvgWindow,FListSize+1);
        SetLength(priorRollAvgWindow,FListSize+1);
+       SetLength(FlagChangeCurve,FListSize+1);
+       SetLength(FActiveVVCurve, FListSize+1);
 
        For i := 1 to FListSize Do Begin
            PVSys := PVSysClass.Find(FPVSystemNameList.Strings[i-1]);
@@ -1181,7 +1271,9 @@ begin
          SetLength(FRollAvgWindow,FListSize+1);
          SetLength(deltaVDynReac,FListSize+1);
          SetLength(priorRollAvgWindow,FListSize+1);
-         SetLength(FVpuSolution,FListSize+1,3+1);
+         SetLength(FVpuSolution,FListSize+1,2+1);
+         SetLength(FlagChangeCurve,FListSize+1);
+         SetLength(FActiveVVCurve, FListSize+1);
 
     End;  {Else}
 
@@ -1220,9 +1312,11 @@ begin
            FRollAvgWindow[i]                        := TRollAvgWindow.Create;
            FRollAvgWindow[i].BuffLength             := FRollAvgWindowLength;
            deltaVDynReac[i]                         := 0.0;
-
+           FlagChangeCurve[i]                       := False;
+           FActiveVVCurve[i]                        := 1;
            priorRollAvgWindow[i]                    := 0.0;
-           for j := 1 to 3 do  FVpuSolution[i,j]:=0.0;
+
+           for j := 1 to 2 do  FVpuSolution[i,j]:=0.0;
 
            FPendingChange[i]                        := NONE;
 
@@ -1363,13 +1457,23 @@ Begin
         begin
            for j := 1 to FPVSystemPointerList.ListSize do
             begin
+             // only update solution idx one time through this routine
+             if (j = 1) and (i=1) then
+               begin
+                 //update solution voltage in per-unit for hysteresis
+                 if FVpuSolutionIdx = 2 then FVpuSolutionIdx := 1
+                 else FVpuSolutionIdx :=FVpuSolutionIdx+1;
+
+               end;
+
              localControlledElement := ControlledElement[j];
+
 
              // allocated enough memory to buffer to hold voltages and initialize to cZERO
              Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * localControlledElement.NConds);
              for k := 1 to localControlledElement.NConds do tempVbuffer[k] := cZERO;
 
-             TInvControlObj(ElementList.Get(i)).priorRollAvgWindow[j] := TInvControlObj(ElementList.Get(i)).FRollAvgWindow[j].Get_AvgVal;
+             priorRollAvgWindow[j] := FRollAvgWindow[j].Get_AvgVal;
              // compute the present terminal voltage
              localControlledElement.ComputeVterminal;
 
@@ -1380,14 +1484,11 @@ Begin
              solnvoltage := solnvoltage / (localControlledElement.Nphases*1.0); // average of voltages if more than one phase
 
              // add present power flow solution voltage to the rolling average window
-             TInvControlObj(ElementList.Get(i)).FRollAvgWindow[j].Add(solnvoltage,ActiveCircuit.Solution.DynaVars.h,FVAvgWindowLengthSec);
+             FRollAvgWindow[j].Add(solnvoltage,ActiveCircuit.Solution.DynaVars.h,FVAvgWindowLengthSec);
 
 
-             //update solution voltage in per-unit for hysteresis
-             if FVpuSolutionIdx = 3 then FVpuSolutionIdx := 1
-             else FVpuSolutionIdx :=FVpuSolutionIdx+1;
 
-             FVpuSolution[j,FVpuSolutionIdx] := solnvoltage/(ActiveCircuit.Buses^[ localcontrolledelement.terminals^[1].busRef].kVBase);
+             FVpuSolution[j,FVpuSolutionIdx] := solnvoltage/((ActiveCircuit.Buses^[ localcontrolledelement.terminals^[1].busRef].kVBase)*1000.0);
 
              Reallocmem(tempVbuffer, 0);   // Clean up memory
 
@@ -1396,20 +1497,6 @@ Begin
         end;
 End;
 
-PROCEDURE TInvControl.ApplyOffset;
-VAR
-
-   i,j:Integer;
-begin
-     For i := 1 to ElementList.ListSize  Do
-      begin
-        With TInvControlObj(ElementList.Get(i)) Do
-          begin
-            for j := 1 to Fvvc_curve2.NumPoints do
-              Fvvc_curve2.XValue_pt[j]:= Fvvc_curve.XValue_pt[j]+Fvvc_curveOffset;
-          end;
-      end;
-end;
 
 
 procedure TRollAvgWindow.Add(IncomingSampleValue: Double;IncomingSampleTime: Double;VAvgWindowLengthSec:Double);
@@ -1429,7 +1516,7 @@ begin
       runningsumsample := runningsumsample + IncomingSampleValue;
       sampletime.Enqueue(IncomingSampleTime);
       runningsumsampletime := runningsumsampletime + IncomingSampleTime;
-      if (sample.Count = bufferlength) or (runningsumsampletime >= VAvgWindowLengthSec)
+      if (runningsumsampletime >= VAvgWindowLengthSec)
           then bufferfull := True;
     end;
 
