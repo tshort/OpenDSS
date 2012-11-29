@@ -406,7 +406,7 @@ Begin
                     Fvvc_curveOffset := Parser.DblValue;
                End;
 
-            5: If Parser.StrValue = 'rated' then FVoltage_CurveX_ref := 0
+            5: If CompareTextShortest(Parser.StrValue, 'rated') = 0 then FVoltage_CurveX_ref := 0
                Else FVoltage_CurveX_ref := 1;
             6: FRollAvgWindowLength := InterpretAvgVWindowLen(Param);
             7: Begin
@@ -1051,22 +1051,22 @@ begin
 
             Vpresent := 0;
 
-            // Calculate the present average voltage
+            // Calculate the present average voltage  magnitude
             For j := 1 to ControlledElement[i].NPhases Do
                 Vpresent := Vpresent + Cabs(cBuffer[i,j]);
 
             // convert to per-unit on bus' kvbase
-            FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (basekV * 1000.0);
-
+            // is this correct ?? RCD
             // if using averaging window values, then set prior voltage to averaging window
-            if(FVoltage_CurveX_ref <> 0) then FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (FRollAvgWindow[i].Get_AvgVal);
+            if(FVoltage_CurveX_ref <> 0) then FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (FRollAvgWindow[i].Get_AvgVal)
+            else                              FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (basekV * 1000.0);;
 
 
             CASE ControlMode of
                 VOLTWATT:  // volt-watt control mode
                 begin
                     if (Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FvoltwattDeltaVTolerance) or
-                      (Abs(Abs(Pdeliver[i]) - Abs(PNew[i])) > 0.5) then
+                      (Abs(Abs(Pdeliver[i]) - Abs(PNew[i])) > 0.5) then     // WHERE are these set ??? RCD
                     begin
                       Set_PendingChange(CHANGEWATTLEVEL,i);
 
@@ -1432,7 +1432,7 @@ End;
 procedure TInvControlObj.Set_PendingChange(Value: Integer;DevIndex: Integer);
 begin
   FPendingChange[DevIndex] := Value;
-  DblTraceParameter := Integer(Value);
+  DblTraceParameter := Value;
 end;
 
 FUNCTION TInvControlObj.Get_PendingChange(DevIndex: Integer):Integer;
