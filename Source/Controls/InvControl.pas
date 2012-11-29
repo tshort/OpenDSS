@@ -125,8 +125,6 @@ end;
             FPresentVpu: Array of Double;
             FvoltwattDeltaVTolerance: Double; // tolerance of voltage change from one solution to the
 
-            PDeliver: Array of Double;
-            PNew: Array of Double;
             FPendingChange: Array of Integer;
 
             // following apply to volt-var only
@@ -573,8 +571,6 @@ Begin
      FvoltwattDeltaVTolerance := 0.00001;  // per-unit change in voltage tolerance
                                          // typically between a prior solution and the present solution
      FVVDeltaVtolerance  := 0.00001;
-     PDeliver               := nil;
-     PNew                   := nil;
      FPendingChange         := nil;
 
       // following apply to volt-var only
@@ -635,8 +631,6 @@ Begin
      Finalize(FPresentVpu);
 
      Finalize(FPendingChange);
-     Finalize(PDeliver);
-     Finalize(PNew);
 
      Finalize(QDeliver);
      Finalize(QNew);
@@ -1056,17 +1050,16 @@ begin
                 Vpresent := Vpresent + Cabs(cBuffer[i,j]);
 
             // convert to per-unit on bus' kvbase
-            // is this correct ?? RCD
+
             // if using averaging window values, then set prior voltage to averaging window
-            if(FVoltage_CurveX_ref <> 0) then FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (FRollAvgWindow[i].Get_AvgVal)
+            if(FVoltage_CurveX_ref <> 0) and (FRollAvgWindow[i].Get_AvgVal <> 0.0) then FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (FRollAvgWindow[i].Get_AvgVal)
             else                              FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (basekV * 1000.0);;
 
 
             CASE ControlMode of
                 VOLTWATT:  // volt-watt control mode
                 begin
-                    if (Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FvoltwattDeltaVTolerance) or
-                      (Abs(Abs(Pdeliver[i]) - Abs(PNew[i])) > 0.5) then     // WHERE are these set ??? RCD
+                    if (Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FvoltwattDeltaVTolerance) then
                     begin
                       Set_PendingChange(CHANGEWATTLEVEL,i);
 
@@ -1207,8 +1200,6 @@ begin
        SetLength(NPhasesPVSys,FListSize+1);
        SetLength(NCondsPVSys,FListSize+1);
 
-       SetLength(PDeliver,FListSize+1);
-       SetLength(PNew,FListSize+1);
        SetLength(FPendingChange,FListSize+1);
 
        SetLength(QDeliver,FListSize+1);
@@ -1259,8 +1250,6 @@ begin
          SetLength(NCondsPVSys,FListSize+1);
          SetLength(CondOffset,FListSize+1);
          SetLength(cBuffer,FListSize+1,7);  // assuming no more than 6 conductors
-         SetLength(PDeliver,FListSize+1);
-         SetLength(PNew,FListSize+1);
          SetLength(FPendingChange,FListSize+1);
          SetLength(QDeliver,FListSize+1);
          SetLength(QNew,FListSize+1);
@@ -1301,8 +1290,6 @@ begin
            NCondsPVSys[i]                           := PVSys.NConds;
            FAvgpVuPrior[i]                          := 0.0;
            FPresentVpu[i]                           := 0.0;
-           PDeliver[i]                              := 0.0;
-           PNew[i]                                  := 0.0;
            QDeliver[i]                              := 0.0;
            QNew[i]                                  := 0.0;
            QOld[i]                                  := -1.0;
