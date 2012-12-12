@@ -1188,7 +1188,8 @@ End;
 
 Procedure TWinding.ComputeAntiFloatAdder(PPM_Factor, VABase1ph:Double);
 begin
-       Y_PPM := -PPM_Factor/(SQR(VBase)/VABase1ph);
+       Y_PPM := -PPM_Factor/(SQR(VBase)/VABase1ph) /2.0;  //12-11-12 divided by two
+       // put half on each terminal of the winding.
 end;
 
 Constructor TWinding.Create;
@@ -1619,19 +1620,22 @@ begin
   with YPrim_Series do  begin
     for i := 1 to NumWindings do begin
       with Winding^[i] do begin
-        if Connection = 0 then begin
+        if Connection = 0 then
+        begin
           // handle wye, but ignore delta  (and open wye)
-          if Rneut >= 0 then begin
-            // <0 is flag for open neutral  (Ignore)
-            if (Rneut = 0) and (Xneut = 0) then
-              // Solidly Grounded
-              Value := Cmplx(1000000, 0)
-            else
-              // 1 microohm resistor
-              Value := Cinv(Cmplx(Rneut, XNeut * FreqMultiplier));
-            j := i * fNconds;
-            AddElement(j, j, Value);
+          if Rneut >= 0 then
+          begin
+              // <0 is flag for open neutral  (Ignore)
+              if (Rneut = 0) and (Xneut = 0) then
+                  // Solidly Grounded
+                  Value := Cmplx(1000000, 0)
+              else
+                  // 1 microohm resistor
+                  Value := Cinv(Cmplx(Rneut, XNeut * FreqMultiplier));
+              j := i * fNconds;
+              AddElement(j, j, Value);
           end
+
           else begin
             // Bump up neutral admittance a bit in case neutral is floating
             j := i * fNconds;
@@ -1639,6 +1643,7 @@ begin
               SetElement(j, j, Cadd(GetElement(j, j), Cmplx(0.0, Y_PPM)));
              { SetElement(j, j, CmulReal_im(GetElement(j, j), ppm_FloatFactorPlusOne));}
           end;
+
         end;
       end;
     end;
@@ -1688,6 +1693,7 @@ Var
     ctempArray2 :pComplexArray;
     cMinusOne  :Complex;
     AT         :TcMatrix;
+    Yadder     :Complex;
 
 begin
 
@@ -1821,14 +1827,15 @@ begin
 {$ENDIF}
 {*****************************************************************************************}
 
-   {Add a small Admittance to the first conductor of each winding so that
+   {Add a small Admittance to both conductors of each winding so that
     the matrix will always invert even if the user neglects to define a voltage
     reference on all sides}
    If ppm_FloatFactor <> 0.0 Then
      WITH Y_Term DO
        FOR i := 1 to NumWindings Do Begin
-           j := 2 * i - 1;
-           SetElement(j, j, Cadd(GetElement(j, j) , cmplx(0.0, Winding^[i].Y_PPM )));
+           Yadder := cmplx(0.0, Winding^[i].Y_PPM );
+           For j := (2 * i - 1) to (2 * i)  do
+           SetElement(j, j, Cadd(GetElement(j, j) , Yadder));
 {           SetElement(j, j, CmulReal_im(GetElement(j, j) , ppm_FloatFactorPlusOne));}
        End;
 
