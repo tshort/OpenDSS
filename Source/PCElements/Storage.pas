@@ -1064,6 +1064,7 @@ End;
 //----------------------------------------------------------------------------
 FUNCTION TStorageObj.GetPropertyValue(Index: Integer): String;
 
+
 Begin
 
       Result := '';

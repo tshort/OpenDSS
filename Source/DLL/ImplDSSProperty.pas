@@ -54,7 +54,7 @@ begin
       If (ActiveCircuit<> Nil)
       THEN  With ActiveDSSObject Do
         If FPropIndex <= ParentClass.NumProperties Then
-              Result := PropertyValue[FPropIndex];
+              Result := PropertyValue[ParentClass.PropertyIdxMap[FPropIndex]];
 
 end;
 

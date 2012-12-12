@@ -1002,10 +1002,10 @@ End;
 // ===========================================================================================
 FUNCTION TPVsystemObj.GetPropertyValue(Index: Integer): String;
 
+
 Begin
 
       Result := '';
-
       With PVSystemVars Do
       CASE Index of
           propKV         : Result := Format('%.6g', [kVPVSystemBase]);
