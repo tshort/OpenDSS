@@ -47,7 +47,7 @@ New Reactor.SUB8gnd phases=1 bus1=12.4 R=0.100 X=0
 
 !Perform analysis
 Set frequency=0.1
-Calcv
+
 Solve
 
 !Load file with bus coordinates, used for plotting
