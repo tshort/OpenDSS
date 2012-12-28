@@ -1,0 +1,23 @@
+
+Clear   ! always have this as the first line before defining a new circuit
+
+New Circuit.IEEE_30
+
+! Define a really stiff 132 kV source for the slack bus
+! (continue editing the VSOURCE object created by the New Circuit command)
+~ BasekV=132  Bus1=B1   pu=1.06  MVASC3=5000000  5000000
+
+! Define the circuit elements
+Redirect Lines.DSS
+
+Redirect Transformers.DSS
+
+Redirect Loads.DSS
+
+Redirect Capacitors.DSS
+
+Redirect Generators.DSS
+
+! Let the openDSS estimate the voltage bases
+Set Voltagebases=[132, 33, 11, 1]    ! legal bases for this problem
+Calcvoltagebases

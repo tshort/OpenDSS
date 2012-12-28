@@ -1,0 +1,2 @@
+
+New Load.Other_Feeders  bus1=_CANE_CREEK_DS_LSB.1.2.3  phases=3 kv=12.47 xfkVA=15000 pf=0.95 Allocationfactor=1 model=4 CVRwatts=0.8 CVRvars=3 Yearly=Load_Res status=variable conn=wye 

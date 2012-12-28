@@ -1,0 +1,4 @@
+! Shunt Capacitor definitions
+
+New Capacitor.B10 Bus1=B10 kV= 33 kvar=19000
+New Capacitor.B24 Bus1=B24 kV= 33 kvar=4300

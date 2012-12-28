@@ -1,0 +1,22 @@
+
+! Put Source Impedance in as a Reactor
+New Reactor.HVMV_Sub_HSB  bus1=SourceBus  bus2=HVMV_Sub_HSB  r=0  x=(1.051 0.88 0.001 3 * - - 115 12.47 / sqr *) normamps=400  emergamps=400
+
+! HV/MV Substation connected Delta/grounded-wye
+New Transformer.HVMV_Sub  phases=3  windings=2  buses=(HVMV_Sub_HSB, regxfmr_HVMV_Sub_LSB.1.2.3.0)  
+~ conns=(delta wye)  
+~ kvs=(115, 12.47)  kvas=(27500, 27500)  
+~ xhl=15.51  sub=y  subname=HVMV_Sub
+~ wdg=1  %r=0.67202
+~ wdg=2  %r=0.67202
+
+! Three single-phase voltage regulators on feeder
+! Define transformer part as low-impedance 2-winding Y-Y transformer
+New Transformer.FEEDER_REGA phases=1  windings=2  buses=(regxfmr_HVMV_Sub_LSB.1,  _HVMV_Sub_LSB.1)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(27500, 27500)  xhl=0.1 %loadloss=.001 wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0
+New Transformer.FEEDER_REGB phases=1  windings=2  buses=(regxfmr_HVMV_Sub_LSB.2,  _HVMV_Sub_LSB.2)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(27500, 27500)  xhl=0.1 %loadloss=.001 wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0
+New Transformer.FEEDER_REGC phases=1  windings=2  buses=(regxfmr_HVMV_Sub_LSB.3,  _HVMV_Sub_LSB.3)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(27500, 27500)  xhl=0.1 %loadloss=.001 wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0
+
+! Voltage regulator controls
+New RegControl.FEEDER_REGA transformer=FEEDER_REGA  winding=2 vreg=126.5  ptratio=60 band=2 
+New RegControl.FEEDER_REGB transformer=FEEDER_REGB  winding=2 vreg=126.5  ptratio=60 band=2 
+New RegControl.FEEDER_REGC transformer=FEEDER_REGC  winding=2 vreg=126.5  ptratio=60 band=2 
