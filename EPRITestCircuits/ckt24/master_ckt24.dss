@@ -1,0 +1,42 @@
+Clear
+
+New Circuit.ckt24 bus1=SourceBus pu=1.05  basekV=230 R1=0.63 X1=6.72 R0=4.07 X0=15.55
+
+Redirect  Wiredata_ckt24.dss
+Redirect  Linegeometry_ckt24.dss
+Redirect  LineCodes_ckt24.dss
+Redirect  TriplexLineCodes_ckt24.dss
+Redirect  Substation_ckt24.dss
+
+! Loadshapes for yearly simulations (normalized)
+New Loadshape.LS_PhaseA npts=8760 interval=1 mult=(file=LS_PhaseA.txt) action=normalize 
+New Loadshape.LS_PhaseB npts=8760 interval=1 mult=(file=LS_PhaseB.txt) action=normalize
+New Loadshape.LS_PhaseC npts=8760 interval=1 mult=(file=LS_PhaseC.txt) action=normalize
+New Loadshape.LS_ThreePhase npts=8760 interval=1 mult=(file=LS_ThreePhase.txt) action=normalize
+New Loadshape.Other_Bus_Load npts=8760 interval=1 mult=(file=Other_Bus_Load.txt) action=normalize
+
+Redirect  lines_ckt24.dss
+Redirect  Capacitors_ckt24.dss
+Redirect  stepxfmrs_ckt24.dss
+Redirect  transformers_ckt24.dss
+Redirect  sec_serv_ckt24.dss
+
+! Loads (allocated by XF kVA)
+Redirect  Allocated_Loads_ckt24.dss
+Redirect Other_Load_ckt24.dss
+! set the initial allocation factors based on previousload allocations
+Redirect  AllocationFactors_Base.Txt  !!! R=7 Vset=123
+
+! Let OpenDSS define the voltage bases
+Set voltagebases=[230,34.5,13.2,0.48,0.415,0.208]   ! Allowable voltage bases for this problem
+Calcvoltagebases
+
+! Define the monitors
+Redirect Monitors_ckt24.dss
+
+! optional energy meter. this was used to allocate the loads
+! New energymeter.Feeder element=line.fdr_05410 term=1 option=R action=C PhaseVolt=yes peakcurrent=(466,469,452)
+
+! now that we have buses defined, define the bus coordinates so we can draw pictures
+Buscoords buscoords_ckt24.dss
+

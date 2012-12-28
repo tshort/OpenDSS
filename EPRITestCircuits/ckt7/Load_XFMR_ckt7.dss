@@ -1,0 +1,188 @@
+New Transformer.0862099_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=157347.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_0862099.1.2.3 kV=0.208 kva=150
+New Transformer.1000663_XFMR_A phases=1 wdg=1 bus=165442.1 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000663.1 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1000663_XFMR_B phases=1 wdg=1 bus=165442.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000663.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1000663_XFMR_C phases=1 wdg=1 bus=165442.3 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000663.3 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1000252_XFMR_B phases=1 wdg=1 bus=165448.2 kV=7.19956121359083 kva=37 wdg=2 bus=X_1000252.2 kV=0.24 kva=37 %imag=1.1 %loadloss=1 %noloadloss=0.44 Xhl=1.3
+New Transformer.1001652_XFMR_A phases=1 wdg=1 bus=165450.1 kV=7.19956121359083 kva=25 wdg=2 bus=X_1001652.1 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1001746_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.698 %noloadloss=0.188 Xhl=4.14
+~ wdg=1 conn=delta bus=165452.1.2.3 kV=12.47 kva=300 wdg=2 conn=wye bus=X_1001746.1.2.3 kV=0.208 kva=300
+New Transformer.1000502_XFMR_B phases=1 wdg=1 bus=165453.2 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000502.2 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000824_XFMR_A phases=1 wdg=1 bus=165454.1 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000824.1 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1000824_XFMR_B phases=1 wdg=1 bus=165454.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000824.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1000824_XFMR_C phases=1 wdg=1 bus=165454.3 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000824.3 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1001745_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.698 %noloadloss=0.188 Xhl=4.14
+~ wdg=1 conn=delta bus=165457.1.2.3 kV=12.47 kva=300 wdg=2 conn=wye bus=X_1001745.1.2.3 kV=0.208 kva=300
+New Transformer.1001329_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=165460.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1001329.1.2.3 kV=0.208 kva=150
+New Transformer.1001359_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.1 %noloadloss=0.24 Xhl=5.6
+~ wdg=1 conn=delta bus=165462.1.2.3 kV=12.47 kva=500.01 wdg=2 conn=wye bus=X_1001359.1.2.3 kV=0.208 kva=500.01
+New Transformer.1001330_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.698 %noloadloss=0.188 Xhl=4.14
+~ wdg=1 conn=delta bus=165465.1.2.3 kV=12.47 kva=300 wdg=2 conn=wye bus=X_1001330.1.2.3 kV=0.208 kva=300
+New Transformer.1002020_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=165466.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1002020.1.2.3 kV=0.208 kva=150
+New Transformer.1000672_XFMR_A phases=1 wdg=1 bus=165467.1 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000672.1 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1001809_XFMR_B phases=1 wdg=1 bus=165468.2 kV=7.19956121359083 kva=10 wdg=2 bus=X_1001809.2 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1001708_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.1 %noloadloss=0.24 Xhl=5.6
+~ wdg=1 conn=delta bus=165477.1.2.3 kV=12.47 kva=750 wdg=2 conn=wye bus=X_1001708.1.2.3 kV=0.208 kva=750
+New Transformer.1001331_XFMR_B phases=1 wdg=1 bus=165480.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1001331.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1001345_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=165483.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1001345.1.2.3 kV=0.208 kva=150
+New Transformer.1000933_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=165484.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1000933.1.2.3 kV=0.208 kva=150
+New Transformer.1001823_XFMR_A phases=1 wdg=1 bus=165485.1 kV=7.19956121359083 kva=37 wdg=2 bus=X_1001823.1 kV=0.24 kva=37 %imag=1.1 %loadloss=1 %noloadloss=0.44 Xhl=1.3
+New Transformer.1001822_XFMR_A phases=1 wdg=1 bus=165486.1 kV=7.19956121359083 kva=5 wdg=2 bus=X_1001822.1 kV=0.24 kva=5 %imag=2.4 %loadloss=2.1 %noloadloss=0.68 Xhl=0.8
+New Transformer.1001822_XFMR_B phases=1 wdg=1 bus=165486.2 kV=7.19956121359083 kva=5 wdg=2 bus=X_1001822.2 kV=0.24 kva=5 %imag=2.4 %loadloss=2.1 %noloadloss=0.68 Xhl=0.8
+New Transformer.1001822_XFMR_C phases=1 wdg=1 bus=165486.3 kV=7.19956121359083 kva=5 wdg=2 bus=X_1001822.3 kV=0.24 kva=5 %imag=2.4 %loadloss=2.1 %noloadloss=0.68 Xhl=0.8
+New Transformer.1000042_XFMR_A phases=1 wdg=1 bus=165491.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000042.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000077_XFMR_A phases=1 wdg=1 bus=165492.1 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000077.1 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000474_XFMR_A phases=1 wdg=1 bus=165493.1 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000474.1 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000043_XFMR_A phases=1 wdg=1 bus=165494.1 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000043.1 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1001567_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=165503.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1001567.1.2.3 kV=0.208 kva=150
+New Transformer.1000232_XFMR_C phases=1 wdg=1 bus=181884.3 kV=7.19956121359083 kva=37 wdg=2 bus=X_1000232.3 kV=0.24 kva=37 %imag=1.1 %loadloss=1 %noloadloss=0.44 Xhl=1.3
+New Transformer.1000233_XFMR_B phases=1 wdg=1 bus=181885.2 kV=7.19956121359083 kva=37 wdg=2 bus=X_1000233.2 kV=0.24 kva=37 %imag=1.1 %loadloss=1 %noloadloss=0.44 Xhl=1.3
+New Transformer.1000569_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.698 %noloadloss=0.188 Xhl=4.14
+~ wdg=1 conn=delta bus=181893.1.2.3 kV=12.47 kva=300 wdg=2 conn=wye bus=X_1000569.1.2.3 kV=0.208 kva=300
+New Transformer.1000746_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.698 %noloadloss=0.188 Xhl=4.14
+~ wdg=1 conn=delta bus=181894.1.2.3 kV=12.47 kva=300 wdg=2 conn=wye bus=X_1000746.1.2.3 kV=0.208 kva=300
+New Transformer.1001016_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=181897.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1001016.1.2.3 kV=0.208 kva=150
+New Transformer.1000608_XFMR_A phases=1 wdg=1 bus=181898.1 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000608.1 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000609_XFMR_A phases=1 wdg=1 bus=181899.1 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000609.1 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000610_XFMR_A phases=1 wdg=1 bus=181900.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000610.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000611_XFMR_A phases=1 wdg=1 bus=181901.1 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000611.1 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000612_XFMR_A phases=1 wdg=1 bus=181902.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000612.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000598_XFMR_C phases=1 wdg=1 bus=181903.3 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000598.3 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000599_XFMR_C phases=1 wdg=1 bus=181904.3 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000599.3 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000600_XFMR_C phases=1 wdg=1 bus=181905.3 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000600.3 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000602_XFMR_C phases=1 wdg=1 bus=181906.3 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000602.3 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000601_XFMR_C phases=1 wdg=1 bus=181907.3 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000601.3 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000603_XFMR_B phases=1 wdg=1 bus=181910.2 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000603.2 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000604_XFMR_B phases=1 wdg=1 bus=181911.2 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000604.2 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000605_XFMR_B phases=1 wdg=1 bus=181912.2 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000605.2 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000606_XFMR_B phases=1 wdg=1 bus=181913.2 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000606.2 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1001349_XFMR_B phases=1 wdg=1 bus=181914.2 kV=7.19956121359083 kva=50 wdg=2 bus=X_1001349.2 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000607_XFMR_B phases=1 wdg=1 bus=181915.2 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000607.2 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1001933_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1 %noloadloss=0.21 Xhl=5.6
+~ wdg=1 conn=delta bus=181935.1.2.3 kV=12.47 kva=999.99 wdg=2 conn=wye bus=X_1001933.1.2.3 kV=0.208 kva=999.99
+New Transformer.1000198_XFMR_A phases=1 wdg=1 bus=181936.1 kV=7.19956121359083 kva=10 wdg=2 bus=X_1000198.1 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1000548_XFMR_A phases=1 wdg=1 bus=181937.1 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000548.1 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000069_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.698 %noloadloss=0.188 Xhl=4.14
+~ wdg=1 conn=delta bus=181938.1.2.3 kV=12.47 kva=300 wdg=2 conn=wye bus=X_1000069.1.2.3 kV=0.208 kva=300
+New Transformer.1001316_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=181941.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1001316.1.2.3 kV=0.208 kva=150
+New Transformer.1000531_XFMR_A phases=1 wdg=1 bus=181950.1 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000531.1 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000533_XFMR_A phases=1 wdg=1 bus=181951.1 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000533.1 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000532_XFMR_A phases=1 wdg=1 bus=181952.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000532.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000582_XFMR_A phases=1 wdg=1 bus=181953.1 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000582.1 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000581_XFMR_A phases=1 wdg=1 bus=181954.1 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000581.1 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000537_XFMR_A phases=1 wdg=1 bus=181955.1 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000537.1 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000536_XFMR_A phases=1 wdg=1 bus=181956.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000536.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000534_XFMR_C phases=1 wdg=1 bus=181957.3 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000534.3 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1000535_XFMR_C phases=1 wdg=1 bus=181958.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000535.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000586_XFMR_C phases=1 wdg=1 bus=181959.3 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000586.3 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000589_XFMR_C phases=1 wdg=1 bus=181960.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000589.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000587_XFMR_C phases=1 wdg=1 bus=181961.3 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000587.3 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000588_XFMR_C phases=1 wdg=1 bus=181962.3 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000588.3 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000585_XFMR_C phases=1 wdg=1 bus=181965.3 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000585.3 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000584_XFMR_C phases=1 wdg=1 bus=181966.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000584.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000583_XFMR_C phases=1 wdg=1 bus=181967.3 kV=7.19956121359083 kva=75 wdg=2 bus=X_1000583.3 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1000016_XFMR_B phases=1 wdg=1 bus=181975.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000016.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1000015_XFMR_A phases=1 wdg=1 bus=181976.1 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000015.1 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000764_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1 %noloadloss=0.21 Xhl=5.6
+~ wdg=1 conn=delta bus=181980.1.2.3 kV=12.47 kva=999.99 wdg=2 conn=wye bus=X_1000764.1.2.3 kV=0.208 kva=999.99
+New Transformer.1001685_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.9 %noloadloss=0.22 Xhl=5.7
+~ wdg=1 conn=delta bus=181981.1.2.3 kV=12.47 kva=1500 wdg=2 conn=wye bus=X_1001685.1.2.3 kV=0.208 kva=1500
+New Transformer.1001819_XFMR_A phases=1 wdg=1 bus=181985.1 kV=7.19956121359083 kva=10 wdg=2 bus=X_1001819.1 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1000199_XFMR_A phases=1 wdg=1 bus=181986.1 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000199.1 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000199_XFMR_B phases=1 wdg=1 bus=181986.2 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000199.2 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000199_XFMR_C phases=1 wdg=1 bus=181986.3 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000199.3 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000567_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.698 %noloadloss=0.188 Xhl=4.14
+~ wdg=1 conn=delta bus=181989.1.2.3 kV=12.47 kva=300 wdg=2 conn=wye bus=X_1000567.1.2.3 kV=0.208 kva=300
+New Transformer.1001665_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1 %noloadloss=0.21 Xhl=5.6
+~ wdg=1 conn=delta bus=181990.1.2.3 kV=12.47 kva=999.99 wdg=2 conn=wye bus=X_1001665.1.2.3 kV=0.208 kva=999.99
+New Transformer.1001577_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.9 %noloadloss=0.19 Xhl=5.7
+~ wdg=1 conn=delta bus=181991.1.2.3 kV=12.47 kva=2000.01 wdg=2 conn=wye bus=X_1001577.1.2.3 kV=0.208 kva=2000.01
+New Transformer.1000670_XFMR_B phases=1 wdg=1 bus=181994.2 kV=7.19956121359083 kva=10 wdg=2 bus=X_1000670.2 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1001339_XFMR_A phases=1 wdg=1 bus=181995.1 kV=7.19956121359083 kva=10 wdg=2 bus=X_1001339.1 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1001805_XFMR_A phases=1 wdg=1 bus=182002.1 kV=7.19956121359083 kva=10 wdg=2 bus=X_1001805.1 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1001805_XFMR_B phases=1 wdg=1 bus=182002.2 kV=7.19956121359083 kva=10 wdg=2 bus=X_1001805.2 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1001805_XFMR_C phases=1 wdg=1 bus=182002.3 kV=7.19956121359083 kva=10 wdg=2 bus=X_1001805.3 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1002055_XFMR_A phases=1 wdg=1 bus=182007.1 kV=7.19956121359083 kva=25 wdg=2 bus=X_1002055.1 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1002055_XFMR_B phases=1 wdg=1 bus=182007.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1002055.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1002055_XFMR_C phases=1 wdg=1 bus=182007.3 kV=7.19956121359083 kva=25 wdg=2 bus=X_1002055.3 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1000918_XFMR_C phases=1 wdg=1 bus=182018.3 kV=7.19956121359083 kva=10 wdg=2 bus=X_1000918.3 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1000538_XFMR_A phases=1 wdg=1 bus=182019.1 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000538.1 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000538_XFMR_B phases=1 wdg=1 bus=182019.2 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000538.2 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000538_XFMR_C phases=1 wdg=1 bus=182019.3 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000538.3 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000087_XFMR_A phases=1 wdg=1 bus=182020.1 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000087.1 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000087_XFMR_B phases=1 wdg=1 bus=182020.2 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000087.2 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000087_XFMR_C phases=1 wdg=1 bus=182020.3 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000087.3 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000070_XFMR_B phases=1 wdg=1 bus=182021.2 kV=7.19956121359083 kva=100 wdg=2 bus=X_1000070.2 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000071_XFMR_A phases=1 wdg=1 bus=182022.1 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000071.1 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000071_XFMR_B phases=1 wdg=1 bus=182022.2 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000071.2 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000071_XFMR_C phases=1 wdg=1 bus=182022.3 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000071.3 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000119_XFMR_B phases=1 wdg=1 bus=182026.2 kV=7.19956121359083 kva=10 wdg=2 bus=X_1000119.2 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1002001_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=182027.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1002001.1.2.3 kV=0.208 kva=150
+New Transformer.1000330_XFMR_C phases=1 wdg=1 bus=182153.3 kV=7.19956121359083 kva=50 wdg=2 bus=X_1000330.3 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000331_XFMR_A phases=1 wdg=1 bus=182154.1 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000331.1 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000331_XFMR_B phases=1 wdg=1 bus=182154.2 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000331.2 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000331_XFMR_C phases=1 wdg=1 bus=182154.3 kV=7.19956121359083 kva=15 wdg=2 bus=X_1000331.3 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1000277_XFMR_C phases=1 wdg=1 bus=182155.3 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000277.3 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1000256_XFMR_A phases=1 wdg=1 bus=182156.1 kV=7.19956121359083 kva=10 wdg=2 bus=X_1000256.1 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1000256_XFMR_B phases=1 wdg=1 bus=182156.2 kV=7.19956121359083 kva=10 wdg=2 bus=X_1000256.2 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1000256_XFMR_C phases=1 wdg=1 bus=182156.3 kV=7.19956121359083 kva=10 wdg=2 bus=X_1000256.3 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1001523_XFMR_A phases=1 wdg=1 bus=182159.1 kV=7.19956121359083 kva=25 wdg=2 bus=X_1001523.1 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1001523_XFMR_B phases=1 wdg=1 bus=182159.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1001523.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1001523_XFMR_C phases=1 wdg=1 bus=182159.3 kV=7.19956121359083 kva=25 wdg=2 bus=X_1001523.3 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1001522_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=0.698 %noloadloss=0.188 Xhl=4.14
+~ wdg=1 conn=delta bus=182160.1.2.3 kV=12.47 kva=300 wdg=2 conn=wye bus=X_1001522.1.2.3 kV=0.208 kva=300
+New Transformer.1001524_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=182161.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1001524.1.2.3 kV=0.208 kva=150
+New Transformer.1001525_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=182162.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1001525.1.2.3 kV=0.208 kva=150
+New Transformer.1001214_XFMR_B phases=1 wdg=1 bus=189948.2 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001214.2 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001215_XFMR_B phases=1 wdg=1 bus=189949.2 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001215.2 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001216_XFMR_B phases=1 wdg=1 bus=189950.2 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001216.2 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001217_XFMR_A phases=1 wdg=1 bus=189951.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001217.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001218_XFMR_A phases=1 wdg=1 bus=194048.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001218.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001220_XFMR_A phases=1 wdg=1 bus=194049.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001220.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001213_XFMR_B phases=1 wdg=1 bus=194050.2 kV=7.19956121359083 kva=75 wdg=2 bus=X_1001213.2 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1001227_XFMR_C phases=1 wdg=1 bus=194051.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001227.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001226_XFMR_C phases=1 wdg=1 bus=194052.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001226.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001225_XFMR_C phases=1 wdg=1 bus=194053.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001225.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001223_XFMR_A phases=1 wdg=1 bus=194054.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001223.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001222_XFMR_A phases=1 wdg=1 bus=194055.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001222.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001221_XFMR_A phases=1 wdg=1 bus=194056.1 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001221.1 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001219_XFMR_A phases=1 wdg=1 bus=194057.1 kV=7.19956121359083 kva=75 wdg=2 bus=X_1001219.1 kV=0.24 kva=75 %imag=1.3 %loadloss=0.8 %noloadloss=0.38 Xhl=1.2
+New Transformer.1001224_XFMR_C phases=1 wdg=1 bus=194058.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001224.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001228_XFMR_B phases=1 wdg=1 bus=194059.2 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001228.2 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001229_XFMR_B phases=1 wdg=1 bus=194060.2 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001229.2 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001230_XFMR_B phases=1 wdg=1 bus=194061.2 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001230.2 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001234_XFMR_C phases=1 wdg=1 bus=194062.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001234.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001233_XFMR_C phases=1 wdg=1 bus=194063.3 kV=7.19956121359083 kva=50 wdg=2 bus=X_1001233.3 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1001232_XFMR_C phases=1 wdg=1 bus=194064.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001232.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1001231_XFMR_C phases=1 wdg=1 bus=194065.3 kV=7.19956121359083 kva=100 wdg=2 bus=X_1001231.3 kV=0.24 kva=100 %imag=1.2 %loadloss=0.8 %noloadloss=0.36 Xhl=1.5
+New Transformer.1000916_XFMR_B phases=1 wdg=1 bus=210023.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1000916.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1001637_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=221730.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1001637.1.2.3 kV=0.208 kva=150
+New Transformer.1003053_XFMR_C phases=1 wdg=1 bus=232497.3 kV=7.19956121359083 kva=15 wdg=2 bus=X_1003053.3 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1001557_XFMR_B phases=1 wdg=1 bus=232292.2 kV=7.19956121359083 kva=50 wdg=2 bus=X_1001557.2 kV=0.24 kva=50 %imag=1 %loadloss=0.9 %noloadloss=0.37 Xhl=1.5
+New Transformer.1000801_XFMR_A phases=1 wdg=1 bus=232293.1 kV=7.19956121359083 kva=37 wdg=2 bus=X_1000801.1 kV=0.24 kva=37 %imag=1.1 %loadloss=1 %noloadloss=0.44 Xhl=1.3
+New Transformer.1003127_XFMR_B phases=1 wdg=1 bus=273626.2 kV=7.19956121359083 kva=10 wdg=2 bus=X_1003127.2 kV=0.24 kva=10 %imag=1.6 %loadloss=1.3 %noloadloss=0.68 Xhl=1.1
+New Transformer.1003133_XFMR_B phases=1 wdg=1 bus=275354.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1003133.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1003134_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.02 %noloadloss=0.213 Xhl=4.07
+~ wdg=1 conn=delta bus=280600.1.2.3 kV=12.47 kva=150 wdg=2 conn=wye bus=X_1003134.1.2.3 kV=0.208 kva=150
+New Transformer.1003125_XFMR_A phases=1 wdg=1 bus=282275.1 kV=7.19956121359083 kva=15 wdg=2 bus=X_1003125.1 kV=0.24 kva=15 %imag=1.4 %loadloss=1.3 %noloadloss=0.56 Xhl=1
+New Transformer.1003130_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.1 %noloadloss=0.24 Xhl=5.6
+~ wdg=1 conn=delta bus=283567.1.2.3 kV=12.47 kva=500.01 wdg=2 conn=wye bus=X_1003130.1.2.3 kV=0.208 kva=500.01
+New Transformer.1003140_XFMR_ABC phases=3 Windings=2 %imag=1 %loadloss=1.1 %noloadloss=0.24 Xhl=5.6
+~ wdg=1 conn=delta bus=283956.1.2.3 kV=12.47 kva=500.01 wdg=2 conn=wye bus=X_1003140.1.2.3 kV=0.208 kva=500.01
+New Transformer.1007732_XFMR_A phases=1 wdg=1 bus=287275.1 kV=7.19956121359083 kva=25 wdg=2 bus=X_1007732.1 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1007732_XFMR_B phases=1 wdg=1 bus=287275.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1007732.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1007732_XFMR_C phases=1 wdg=1 bus=287275.3 kV=7.19956121359083 kva=25 wdg=2 bus=X_1007732.3 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1007805_XFMR_A phases=1 wdg=1 bus=315933.1 kV=7.19956121359083 kva=25 wdg=2 bus=X_1007805.1 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1007805_XFMR_B phases=1 wdg=1 bus=315933.2 kV=7.19956121359083 kva=25 wdg=2 bus=X_1007805.2 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1
+New Transformer.1007805_XFMR_C phases=1 wdg=1 bus=315933.3 kV=7.19956121359083 kva=25 wdg=2 bus=X_1007805.3 kV=0.24 kva=25 %imag=1.3 %loadloss=1.1 %noloadloss=0.47 Xhl=1.1

@@ -1,0 +1,58 @@
+! Solution Run Script for Ckt5
+
+! Open this file first
+
+! generally when running from OpenDSS.EXE you will open this file first and control
+! the execution from here. Add any commands you wish.
+
+! Ckt 5 consists of:
+
+!  Devices = 4414
+!  Buses = 2998
+!  Nodes = 3437
+
+Compile [Master_ckt5.dss]    
+
+! Note:adding full path name in brackets will avoid having to manually change to this directory
+
+New monitor.ckt5_totalizedmonitor Transformer.MDV_SUB_1 term=2 mode=1 
+New monitor.ckt5_mon element=Line.MDV201_connector terminal=1 mode=0 Residual=yes
+New monitor.ckt5_mon_p element=Line.MDV201_connector terminal=1 mode=1 Ppolar=No
+
+Solve  ! This executes a snaphot power flow solution of the circuit
+
+
+
+plot circuit Power Max=2000 dots=n labels=n subs=y C1=Blue 1phlinestyle=3
+plot circuit Voltage Max=200 dots=n labels=n subs=y C1=Blue 1phlinestyle=3
+
+! Loss Density Plot
+plot circuit Losses Max=20 dots=n labels=n subs=y C1=Blue 1phlinestyle=3
+
+show voltages ln nodes
+show powers kva elements
+show overloads
+show currents elements
+show losses
+Export Capacity
+
+!********** ANNUAL SOLUTION SCRIPT ***********************
+
+set mode=yearly number=8760
+set casename=ckt5
+
+set demand=true
+set DIVerbose=true
+set voltexceptionreport = true
+solve
+closeDI
+
+!********** END ANNUAL SOLUTION SCRIPT ***********************
+
+! Export some monitors to CSV files
+
+Set ShowExport=True  ! automatically display exported files
+
+Export monitor ckt5_totalizedmonitor
+Export monitor ckt5mon
+Export monitor ckt5mon_p 

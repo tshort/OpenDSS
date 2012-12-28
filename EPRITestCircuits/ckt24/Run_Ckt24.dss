@@ -1,0 +1,28 @@
+
+!! Solution Run Script for Ckt5
+
+! generally when running from OpenDSS.EXE you will open this file first and control
+! the execution from here. Add any commands you wish.
+
+! Ckt24 consists of
+!
+! Devices = 9967
+! Buses = 6058
+! Nodes = 7522
+
+Compile "master_ckt24.dss"  
+
+! Note:adding full path name in brackets will avoid having to manually change to this directory
+
+solve
+
+! example circuit plots
+plot type=circuit quantity=Power    Max=2000 dots=n labels=n subs=y C1=Blue 1phlinestyle=3
+plot type=circuit quantity=Voltage Max=0.95 dots=n labels=n subs=y C1=Blue  1phlinestyle=3
+
+! Loss Density Plot
+plot type=circuit quantity=Losses  max=0.002     dots=n labels=n subs=y C1=Blue   1phlinestyle=3
+
+! to run an example yearly simulation, remove comment and run this script:
+
+// redirect annualsimulation.dss
