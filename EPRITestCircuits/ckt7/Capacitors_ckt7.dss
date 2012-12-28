@@ -1,5 +1,0 @@
-New capacitor.CP-NR-613 bus1=181945 kV=12.47 kvar=1200 conn=wye
-New capacitor.CP-85W-900 bus1=181993 kV=12.47 kvar=1200 conn=wye
-
-New capcontrol.CP-NR-613 capacitor=CP-NR-613 element=Line.175007 type=voltage ptratio=60 OnSetting=118 OffSetting=121 delay=75
-New capcontrol.CP-85W-900 capacitor=CP-85W-900 element=Line.175060 type=voltage ptratio=60 OnSetting=120 OffSetting=124 delay=30

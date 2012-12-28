@@ -1,4 +1,0 @@
-
-New Energymeter.25607 element=line.333 terminal=1 peakcurrent=[272.4, 241.6, 262.3]
-New monitor.25607PQ element=line.333 terminal=1 mode=17
-New monitor.25607VI element=line.333 terminal=1 mode=64
