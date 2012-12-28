@@ -111,6 +111,11 @@ end;
             Fvvc_curve2: TXYcurveObj;
             FActiveVVCurve: Array of Integer;
             FVoltage_CurveX_ref: Integer;  // valid values are 0: = Vref (rated), 1:= avg
+            FWatt_CurveY_ref: Integer; //valid values are 4 := percent of WMax (like Seal
+                                       //report; or 5 := percent of available watts (like
+                                       //WGS EPRI report implementation, see named constants
+                                       // VOLTWATT_WMAXPU = 4, and VOLTWATT_WAVAILPU = 5
+
             FVAvgWindowLengthSec: Double; // rolling average window length in seconds
             cBuffer : Array of Array of Complex;    // Complexarray buffer
             CondOffset : Array of Integer; // Offset for monitored terminal
@@ -434,7 +439,6 @@ Begin
             13: FdeltaQ_factor := Parser.DblValue;
             14: FVoltageChangeTolerance := Parser.DblValue;
             15: FVarChangeTolerance := Parser.DblValue;
-
             16: ShowEventLog := InterpretYesNo(param);
 
          ELSE
@@ -496,6 +500,7 @@ Begin
       Fvvc_curve                 := OtherInvControl.Fvvc_curve;
       Fvvc_curveOffset           := OtherInvControl.Fvvc_curveOffset;
       FVoltage_CurveX_ref        := OtherInvControl.FVoltage_CurveX_ref;
+
       FVAvgWindowLengthSec       := OtherInvControl.FVAvgWindowLengthSec;
       Fvoltwatt_curve_size       := OtherInvControl.Fvoltwatt_curve_size;
       Fvoltwatt_curve            := OtherInvControl.Fvoltwatt_curve;
@@ -554,6 +559,7 @@ Begin
      Fvvc_curve2            := nil;
      FActiveVVCurve         := nil;
      FVoltage_CurveX_ref    := 0;
+     FWatt_CurveY_ref       := VOLTWATT_WMAXPU;
      FVAvgWindowLengthSec   := 0.0;
      cBuffer                := nil;
      CondOffset             := nil;
@@ -810,13 +816,12 @@ BEGIN
       CASE PendingChange[i] OF
       CHANGEWATTLEVEL:  // volt-watt mode
       begin
-
         PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
         // P desired pu is the desired output based on the avg pu voltage on the
         // monitored element
         Pdesiredpu := Fvoltwatt_curve.GetYValue(FPresentVpu[i]);      //Y value = watts in per-unit of Pmpp
 
-        If PVSys.puPmpp <> Pdesiredpu Then PVSys.puPmpp := Pdesiredpu;
+        PVSys.puPmpp := Pdesiredpu;
 
         If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
           Format('**Limited PVSystem output level to**, puPmpp= %.5g', [PVSys.puPmpp]));
@@ -858,12 +863,16 @@ BEGIN
               if(FlagChangeCurve[i] = True) then
                 begin
                     VpuFromCurve := Fvvc_curve.GetXValue(QPresentpu);
-                    if(Abs(FPresentVpu[i] - VpuFromCurve) <= FVoltageChangeTolerance) or ((FPresentVpu[i] - VpuFromCurve) > FVoltageChangeTolerance) then
+                    if((FPresentVpu[i] - VpuFromCurve) < FVoltageChangeTolerance/2.0) then
                     begin
                       Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of headroom
                       FlagChangeCurve[i] := False;
                     end
-                    else Qdesiredpu[i] := QPresentpu;
+                    else
+                      begin
+                        Qdesiredpu[i] := QPresentpu;
+                        FlagChangeCurve[i] := False;
+                      end;
                 end
               else Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]);      //Y value = in per-unit of headroom
             end
@@ -889,12 +898,15 @@ BEGIN
                 begin
                     VpuFromCurve := Fvvc_curve.GetXValue(QPresentpu);
                     VpuFromCurve := VpuFromCurve - Fvvc_curveOffset;
-                    if(Abs(FPresentVpu[i] - VpuFromCurve) <= FVoltageChangeTolerance) or ((FPresentVpu[i]-VpuFromCurve) > FVoltageChangeTolerance) then
+                    if(Abs(FPresentVpu[i] - VpuFromCurve) < FVoltageChangeTolerance/2.0)  then
                     begin
                       Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]-Fvvc_curveOffset);      //Y value = in per-unit of headroom
                       FlagChangeCurve[i] := False;
                     end
-                    else Qdesiredpu[i] := QPresentpu;
+                    else begin
+                      Qdesiredpu[i] := QPresentpu;
+                      FlagChangeCurve[i] := False;
+                    end;
                 end
               else Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i]-Fvvc_curveOffset);      //Y value = in per-unit of headroom
             end
@@ -944,7 +956,8 @@ BEGIN
             Qoutputpu[i] := PVSys.Presentkvar / QHeadroom[i];
           end;
 
-
+          if (PVSys.name = '3p_existingsite3') then
+          WriteDLLDebugFile(Format('%.8g, %d, %s, %d, %.8g, %.8g, %d, %.8g,%.8g,%.8g,%.8g',[ActiveCircuit.Solution.DynaVars.dblHour, ActiveCircuit.Solution.ControlIteration, BoolToStr(FlagChangeCurve[i]),FVpuSolutionIdx,FVpuSolution[i,1],FVpuSolution[i,2],FActiveVVCurve[i],PVSys.Presentkvar,PVSys.PresentkW,Qoutputpu[i],FPresentVpu[i]]));
           If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name +','+ PVSys.Name+',',
                            Format('**Set PVSystem output var level to**, kvar= %.5g', [PVSys.Presentkvar,FPresentVpu[i]]));
 
