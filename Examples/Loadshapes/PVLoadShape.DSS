@@ -1,2 +1,0 @@
-New "LoadShape.PVLoadShape" npts=2900 interval=(1.0 3600 /) mult=(File=PVLoadshape-1sec-2900pts.csv) Action=Normalize
-
