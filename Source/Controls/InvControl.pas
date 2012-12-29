@@ -559,7 +559,6 @@ Begin
      Fvvc_curve2            := nil;
      FActiveVVCurve         := nil;
      FVoltage_CurveX_ref    := 0;
-     FWatt_CurveY_ref       := VOLTWATT_WMAXPU;
      FVAvgWindowLengthSec   := 0.0;
      cBuffer                := nil;
      CondOffset             := nil;
