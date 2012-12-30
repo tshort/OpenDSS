@@ -177,7 +177,7 @@ TYPE
         ShapeIsActual   :Boolean;
 
         PROCEDURE CalcDailyMult(Hr:double);
-        PROCEDURE CalcDutyMult(Hr:double);
+        PROCEDURE CalcDutyMult(Hr:double);  // now incorporates DutyStart offset
         Procedure CalcGenModelContribution;
         Procedure CalcInjCurrentArray;
         Procedure CalcVterminal;
@@ -227,6 +227,7 @@ TYPE
         DailyDispShapeObj :TLoadShapeObj;  // Daily Generator Shape for this load
         DutyShape       :String;  // Duty cycle load shape for changes typically less than one hour
         DutyShapeObj    :TLoadShapeObj;  // Shape for this generator
+        DutyStart       :Double; // starting time offset into the DutyShape [hrs] for this generator
         GenClass        :Integer;
         GenModel        :Integer;   // Variation with voltage
         GenVars         :TGeneratorVars; {State Variables}
@@ -443,6 +444,7 @@ Begin
      AddProperty('ShaftModel',  35, 'Name of user-written DLL containing a Shaft model, which models the prime mover and determines the power on the shaft for Dynamics studies. '+
                                     'Models additional mass elements other than the single-mass model in the DSS default model. Set to "none" to negate previous setting.');
      AddProperty('ShaftData', 36,  'String (in quotes or parentheses) that gets passed to user-written shaft dynamic model for defining the data for that model.');
+     AddProperty('DutyStart', 37, 'Starting time offset [hours] into the duty cycle shape for this generator, defaults to 0');
      AddProperty('debugtrace', 22,  '{Yes | No }  Default is no.  Turn this on to capture the progress of the generator model ' +
                           'for each iteration.  Creates a separate file for each generator named "GEN_name.CSV".' );
 
@@ -616,6 +618,7 @@ Begin
            34: UserModel.Edit := Parser.StrValue;  // Send edit string to user model
            35: ShaftModel.Name   := Parser.StrValue;
            36: ShaftModel.Edit   := Parser.StrValue;
+           37: DutyStart := Parser.DblValue;
 
 
          ELSE
@@ -717,6 +720,7 @@ Begin
        DailyDispShapeObj  := OtherGenerator.DailyDispShapeObj;
        DutyShape      := OtherGenerator.DutyShape;
        DutyShapeObj   := OtherGenerator.DutyShapeObj;
+       DutyStart      := OtherGenerator.DutyStart;
        DispatchMode   := OtherGenerator.DispatchMode;
        DispatchValue  := OtherGenerator.DispatchValue;
        GenClass       := OtherGenerator.GenClass;
@@ -838,6 +842,7 @@ Begin
      DailyDispShapeObj := nil;  // if DaillyShapeobj = nil then the load alway stays nominal * global multipliers
      DutyShape         := '';
      DutyShapeObj      := nil;  // if DutyShapeobj = nil then the load alway stays nominal * global multipliers
+     DutyStart         := 0.0;
      Connection        := 0;    // Wye (star)
      GenModel          := 1;  {Typical fixed kW negative load}
      GenClass          := 1;
@@ -959,7 +964,7 @@ Procedure TGeneratorObj.CalcDutyMult(Hr:Double);
 Begin
      If DutyShapeObj <> Nil Then
        Begin
-         ShapeFactor := DutyShapeObj.GetMult(Hr);
+         ShapeFactor := DutyShapeObj.GetMult(Hr + DutyStart);
          ShapeIsActual := DutyShapeObj.UseActual;
        End
      ELSE CalcDailyMult(Hr);  // Default to Daily Mult if no duty curve specified
