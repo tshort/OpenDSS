@@ -1,5 +1,10 @@
 ! Line-to-Neutral Connected 1-phase Center-tapped transformer
 
+! This is an interlaced transformer with Z = 1.2% + j1.7%
+
+!  XHL = XHT = 1.2 * 1.7%
+!  XLT = 0.8 * 1.7%
+
 New  Transformer.Example1-ph  phases=1  Windings=3 	
 ~ Xhl=2.04   Xht=2.04   Xlt=1.36  %noloadloss=.2
 ~ Buses=[bus1.1  bus2.1.0   Bus2.0.2]    ! mid-point of secondary is grounded
@@ -9,7 +14,7 @@ New  Transformer.Example1-ph  phases=1  Windings=3
 ~ conns=[wye wye wye]    ! default
 
 
-! Line-to-Line Connected 1-phase Center-tapped transformer
+! Line-to-Line Connected version of the same 1-phase Center-tapped transformer
 
 New  Transformer.Example1-ph  phases=1  Windings=3 	
 ~ Xhl=2.04   Xht=2.04   Xlt=1.36  %noloadloss=.2
@@ -18,3 +23,26 @@ New  Transformer.Example1-ph  phases=1  Windings=3
 ~ kVAs=[25 25 25]
 ~ %Rs = [0.6  1.2  1.2]
 ~ conns=[delta wye wye]   
+
+! Non-Interlaced version of same transformer 
+
+! The multipliers are coded into the script 
+
+New  Transformer.NonInterlaced  phases=1  Windings=3 
+~  Xhl=(1.7 2.7 *)    Xht=(1.7 2.5 *)    Xlt=(1.7 6.4 *)    %noloadloss=.2
+! Winding Definitions	
+~ wdg=1   Bus=Bus1.2.0   kV=7.2    kVA=25  %R=(0.25 1.2 *)  Conn=wye
+~ wdg=2   Bus=Bus2.1.0   kV=0.12   kVA=25  %R=(1.5 1.2 *)   Conn=wye
+~ Wdg=3   Bus=Bus2.0.2   kV=0.12   kVA=25  %R=(1.5 1.2 *)   Conn=wye
+
+
+! A Script to check the Short-circuit impedance (to 240 V windings)
+
+! 240 V Faults
+! Should be about 5000 A 
+
+New Fault.X1-X3   Bus1=Bus2.1  Bus2=Bus2.2
+Solve mode=direct
+Show currents element
+
+
