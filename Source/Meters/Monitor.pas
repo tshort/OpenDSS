@@ -1,7 +1,7 @@
 unit Monitor;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008-2010, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2013, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -15,6 +15,7 @@ unit Monitor;
    10-27-00 Changed default to magnitude and angle instead of real and imag
    12-18-01 Added Transformer Tap Monitor Code
    12-18-02 Added Monitor Stream
+   01-19-13 Added flicker meter mode
    2-19-08 Added SampleCount
 }
 
@@ -67,6 +68,7 @@ unit Monitor;
    1: Power each phase, complex (kw and kvars)
    2: Transformer Tap
    3: State Variables
+   4: Flicker level and severity index by phase (no modifiers apply)
    +16: Sequence components: V012, I012
    +32: Magnitude Only
    +64: Pos Seq only or Average of phases
@@ -119,6 +121,10 @@ TYPE
        NumStateVars    :Integer;
        StateBuffer     :pDoubleArray;
 
+       FlickerBuffer   :pComplexArray; // store phase voltages in polar form
+                                       // then convert to re=flicker level, update every time step
+                                       //             and im=Pst, update every 10 minutes
+
        IncludeResidual :Boolean;
        VIpolar         :Boolean;
        Ppolar          :Boolean;
@@ -135,6 +141,8 @@ TYPE
 
        Procedure AddDblsToBuffer(Dbl:pDoubleArray; Ndoubles:Integer);
        Procedure AddDblToBuffer(const Dbl:Double);
+
+       Procedure DoFlickerCalculations;  // call from CloseMonitorStream
 
        function  Get_FileName: String;
 
@@ -238,7 +246,9 @@ Begin
                     '0 = Voltages and currents' + CRLF+
                     '1 = Powers'+CRLF+
                     '2 = Tap Position (Transformers only)'+CRLF+
-                    '3 = State Variables (PCElements only)' +CRLF +CRLF+
+                    '3 = State Variables (PCElements only)' +CRLF+
+                    '4 = Flicker level and severity index (Pst) for voltages. No adders apply.' +CRLF+
+                    '    Flicker level at simulation time step, Pst at 10-minute time step.' +CRLF +CRLF+
                     'Normally, these would be actual phasor quantities from solution.' + CRLF+
                     'Combine with adders below to achieve other results for terminal quantities:' + CRLF+
                     '+16 = Sequence quantities' + CRLF+
@@ -452,6 +462,7 @@ Begin
      CurrentBuffer := Nil;
      VoltageBuffer := Nil;
      StateBuffer   := Nil;
+     FlickerBuffer := Nil;
 
      Basefrequency := 60.0;
      Hour          := 0;
@@ -493,6 +504,7 @@ Begin
      ReAllocMem(StateBuffer,0);
      ReAllocMem(CurrentBuffer,0);
      ReAllocMem(VoltageBuffer,0);
+     ReAllocMem(FlickerBuffer,0);
      Inherited Destroy;
 End;
 
@@ -562,6 +574,9 @@ Begin
                              NumStateVars := TPCElement(MeteredElement).Numvariables;
                              ReallocMem(StateBuffer, Sizeof(StateBuffer^[1])*NumStatevars);
                          End;
+                      4: Begin
+                             ReallocMem(FlickerBuffer, Sizeof(FlickerBuffer^[1])*Nphases);
+                         End;
                  Else
                      ReallocMem(CurrentBuffer, SizeOf(CurrentBuffer^[1])*MeteredElement.Yorder);
                      ReallocMem(VoltageBuffer, SizeOf(VoltageBuffer^[1])*MeteredElement.NConds);
@@ -591,6 +606,9 @@ begin
       3: Begin
          NumStateVars := TPCElement(MeteredElement).Numvariables;
          ReallocMem(StateBuffer, Sizeof(StateBuffer^[1])*NumStatevars);
+         End;
+      4: Begin
+         ReallocMem(FlickerBuffer, Sizeof(FlickerBuffer^[1])*Nphases);
          End;
       Else
          ReallocMem(CurrentBuffer, SizeOf(CurrentBuffer^[1])*MeteredElement.Yorder);
@@ -649,6 +667,13 @@ Begin
               For i := 1 to NumStateVars Do Begin
                   NameofState := AnsiString(TpcElement(MeteredElement).VariableName(i) + ',');
                   strLcat(strPtr, pAnsichar(NameofState), Sizeof(TMonitorStrBuffer));
+              End;
+        End;
+     4: Begin
+              RecordSize := 2 * FnPhases;
+              For i := 1 to FnPhases Do Begin
+                strLcat(strPtr, pAnsichar(AnsiString('Flk'+IntToStr(i)+', Pst'+IntToStr(i))), Sizeof(TMonitorStrBuffer));
+                if i < FnPhases then strLcat(strPtr, pAnsichar(', '), Sizeof(TMonitorStrBuffer));
               End;
         End;
      Else Begin
@@ -820,6 +845,7 @@ Procedure TMonitorObj.CloseMonitorStream;
 Begin
   Try
      If IsFileOpen THEN Begin  // only close open files
+        if (mode = 4) and (MonitorStream.Position > 0) then DoFlickerCalculations;
         MonitorStream.Seek(0, soFromBeginning);   // just move stream position to the beginning
         IsFileOpen := false;
      End;
@@ -931,6 +957,16 @@ Begin
               Exit; // Done with this mode now
         End;
 
+     4: Begin   // RMS phase voltages for flicker evaluation
+            TRY
+              FOR i := 1 to Fnphases DO Begin
+                  FlickerBuffer^[i] := ActiveCircuit.Solution.NodeV^[NodeRef^[i]];
+              End;
+            EXCEPT
+               On E:Exception Do DoSimpleMsg(E.Message + CRLF + 'NodeRef is invalid. Try solving a snapshot or direct before solving in a mode that takes a monitor sample.', 672);
+            END;
+        End;
+
      Else Exit  // Ignore invalid mask
 
    End;
@@ -974,6 +1010,10 @@ Begin
           IF (IsSequence OR ActiveCircuit.PositiveSequence) THEN  CmulArray(VoltageBuffer, 3.0, NumVI); // convert to total power
           If Ppolar Then ConvertComplexArrayToPolar(VoltageBuffer, NumVI);
           IsPower := TRUE;
+        End;
+     4: Begin
+          IsPower := FALSE;
+          ConvertComplexArrayToPolar(FlickerBuffer, Fnphases);
         End
    Else
    End;
@@ -1032,14 +1072,17 @@ Begin
        End ;
 
    ELSE
-     AddDblsToBuffer(@VoltageBuffer^[1].re, NumVI*2);
-     IF Not IsPower THEN Begin
-        IF IncludeResidual THEN AddDblsToBuffer(@ResidualVolt, 2);
-        AddDblsToBuffer(@CurrentBuffer^[Offset + 1].re, NumVI*2);
-        IF IncludeResidual THEN AddDblsToBuffer(@ResidualCurr, 2);
+     if Mode=4 then begin
+       AddDblsToBuffer(@FlickerBuffer^[1].re, Fnphases*2);
+     end else begin
+       AddDblsToBuffer(@VoltageBuffer^[1].re, NumVI*2);
+       IF Not IsPower THEN Begin
+          IF IncludeResidual THEN AddDblsToBuffer(@ResidualVolt, 2);
+          AddDblsToBuffer(@CurrentBuffer^[Offset + 1].re, NumVI*2);
+          IF IncludeResidual THEN AddDblsToBuffer(@ResidualCurr, 2);
+       End;
      End;
-   End;
-
+   END;
 End;
 
 {--------------------------------------------------------------------------}
@@ -1062,6 +1105,44 @@ Begin
     Inc(BufPtr);
     MonBuffer^[BufPtr]:=Dbl;
 End;
+
+Procedure TMonitorObj.DoFlickerCalculations;
+var
+  FSignature  :Integer;
+  Fversion    :Integer;
+  RecordSize  :Cardinal;
+  pStr        :pAnsichar;
+  RecordBytes :Cardinal;
+  sngBuffer   :Array[1..100] of Single;
+  hr          :single;
+  s           :single;
+  Nread       :Cardinal;
+  N           :Integer;
+begin
+  N := SampleCount;
+  With MonitorStream Do Begin
+    Seek(0, soFromBeginning);  // Start at the beginning of the Stream
+    Read( Fsignature, Sizeof(Fsignature));
+    Read( Fversion,   Sizeof(Fversion));
+    Read( RecordSize, Sizeof(RecordSize));
+    Read( Mode,       Sizeof(Mode));
+    Read( StrBuffer,  Sizeof(StrBuffer));
+  End;
+  pStr := @StrBuffer;
+  RecordBytes := Sizeof(SngBuffer[1]) * RecordSize;
+  Try
+    while Not (MonitorStream.Position>=MonitorStream.Size) do Begin
+      With MonitorStream Do Begin
+        Read( hr, SizeOF(hr));
+        Read( s,  SizeOf(s));
+        Nread := Read( sngBuffer, RecordBytes);
+      End;
+    End;
+  Finally
+    CloseMonitorStream;
+  end;
+end;
+
 {--------------------------------------------------------------------------}
 Procedure TMonitorObj.TranslateToCSV(Show:Boolean);
 
