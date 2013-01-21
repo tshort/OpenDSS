@@ -231,9 +231,9 @@ else
   [DEFINE WEB MEDIA Examples]
   Get Component Examples Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
-    Install Files C:\OpenDSS\Distrib\Installer\IEEETestCases\*.* to $TARGETDIR$\IEEETestCases, include subfolders
-    Install Files C:\OpenDSS\Distrib\Installer\EPRITestCircuits\*.* to $TARGETDIR$\EPRITestCircuits, include subfolders
-    Install Files C:\OpenDSS\Distrib\Installer\Examples\*.* to $TARGETDIR$\Examples, include subfolders
+    Install Files C:\OpenDSS\Distrib\IEEETestCases\*.* to $TARGETDIR$\IEEETestCases, include subfolders
+    Install Files C:\OpenDSS\Distrib\EPRITestCircuits\*.* to $TARGETDIR$\EPRITestCircuits, include subfolders
+    Install Files C:\OpenDSS\Distrib\Examples\*.* to $TARGETDIR$\Examples, include subfolders
   end
   [DEFINE WEB MEDIA Win32]
   Get Component Win32 Selection State into Variable SELECTED

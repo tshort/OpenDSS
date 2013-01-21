@@ -1317,7 +1317,7 @@ FALSE
 FALSE
 FALSE
 {0D19B813-0B44-4B91-A4C1-F50CF58D938C}
-C:\OpenDSS\Distrib\Installer\Examples\*.*
+C:\OpenDSS\Distrib\Examples\*.*
 TRUE|
 $TARGETDIR$\Examples
 FALSE
@@ -1330,7 +1330,7 @@ FALSE
 FALSE
 FALSE
 {9BAD3270-CAD0-459A-A746-565DEFC1C740}
-C:\OpenDSS\Distrib\Installer\EPRITestCircuits\*.*
+C:\OpenDSS\Distrib\EPRITestCircuits\*.*
 TRUE|
 $TARGETDIR$\EPRITestCircuits
 FALSE
@@ -1343,7 +1343,7 @@ FALSE
 FALSE
 FALSE
 {CF6292AD-58C5-44F2-B485-D4CC602EFB12}
-C:\OpenDSS\Distrib\Installer\IEEETestCases\*.*
+C:\OpenDSS\Distrib\IEEETestCases\*.*
 TRUE|
 $TARGETDIR$\IEEETestCases
 FALSE
