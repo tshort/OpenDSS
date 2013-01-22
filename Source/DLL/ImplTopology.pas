@@ -92,6 +92,7 @@ begin
         while (i <= k) and (not found) do begin
           if (Result[i-1] = pdElem.QualifiedName) and (Result[i] = pdLoop.QualifiedName) then found := True;
           if (Result[i-1] = pdLoop.QualifiedName) and (Result[i] = pdElem.QualifiedName) then found := True;
+          i := i + 1;
         end;
         if not found then begin
           k := k + 2;

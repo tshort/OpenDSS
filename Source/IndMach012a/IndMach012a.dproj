@@ -6,7 +6,7 @@
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
 			<DCC_DependencyCheckOutputName>IndMach012.dll</DCC_DependencyCheckOutputName>
 			<ProjectVersion>13.4</ProjectVersion>
-			<Config Condition="'$(Config)'==''">Debug</Config>
+			<Config Condition="'$(Config)'==''">Release</Config>
 			<FrameworkType>None</FrameworkType>
 			<Base>True</Base>
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -94,7 +94,7 @@
 		<PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
 			<DCC_ExeOutput>..\x64</DCC_ExeOutput>
-			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Induction Machine Model;FileVersion=2.1.0.0;InternalName=;LegalCopyright=Copyright (C) 2008-2012 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=2.1.0;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Induction Machine Model;FileVersion=2.1.0.0;InternalName=;LegalCopyright=Copyright (C) 2008-2013 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=2.1.0;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
@@ -137,7 +137,7 @@
 						<VersionInfo Name="MajorVer">2</VersionInfo>
 						<VersionInfo Name="MinorVer">0</VersionInfo>
 						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">43</VersionInfo>
+						<VersionInfo Name="Build">47</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -149,7 +149,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">EPRI Solutions, Inc</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">Induction Machine Model</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">2.0.0.43</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">2.0.0.47</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
 						<VersionInfoKeys Name="LegalCopyright"/>
 						<VersionInfoKeys Name="LegalTrademarks"/>
