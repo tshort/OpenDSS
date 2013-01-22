@@ -90,7 +90,7 @@ TYPE
        PROCEDURE AddInAuxCurrents(SolveType:Integer);
        PROCEDURE DoNewtonSolution;
        PROCEDURE DoNormalSolution;
-       PROCEDURE GetMachineInjCurrents;
+//       PROCEDURE GetMachineInjCurrents;
        PROCEDURE GetPCInjCurr;
        PROCEDURE GetSourceInjCurrents;
        procedure Set_Frequency(const Value: Double);
@@ -1465,12 +1465,12 @@ begin
      End;  {End With}
 end;
 
-Procedure TSolutionObj.GetMachineInjCurrents;
 
 { This procedure is called for Solve Direct and any other solution method
   that does not get the injection currents for PC elements normally. In Dynamics mode,
   Generators are voltage sources ...
-}
+
+Procedure TSolutionObj.GetMachineInjCurrents;
 
 Var
   pElem:TDSSCktElement;
@@ -1479,7 +1479,7 @@ begin
      // do machines in Dynamics Mode
      IF   IsDynamicModel THEN
       With ActiveCircuit DO  Begin
-       
+
          pElem := Generators.First;
          WHILE pElem<>nil Do Begin
              IF pElem.Enabled THEN pElem.InjCurrents; // uses NodeRef to add current into InjCurr Array;
@@ -1489,6 +1489,7 @@ begin
        End;
 
 end;
+}
 
 FUNCTION TSolutionObj.OK_for_Dynamics(Const Value:Integer): Boolean;
 

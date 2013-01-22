@@ -21,6 +21,7 @@ Uses ArrayDef;
 // 8/4/05: added back functionality to receive AC data.  Now these are 2 separate loops
 // 8/31/11 Converted to Object Pascal
 // 9/6/11  Removed PstAC code
+// 1/22/2013 added RMS flickermeter implementation (temc)
 
 // Note: allocates result array of doubles!!!
 Function  PstRMS(Var PstResult:pDoubleArray; pVoltages:pdoubleArray; Freqbase:double;  NcyclesperSample,  Npts,  Lamp:Integer):Integer;
@@ -29,6 +30,15 @@ Function  PstRMS(Var PstResult:pDoubleArray; pVoltages:pdoubleArray; Freqbase:do
       // will automatically clean up and reallocate PstStruct when this function is called
       // Init PstResult to Nil in calling routine.
       // Dispose of result in colling routine when done with it.
+
+// input: N points of RMS voltage in pT, pRms
+//        fBase (50 or 60) determines the weighting coefficients
+//        vBase to normalize the RMS voltage to per-unit
+//        pre-allocate pPst to hold the Pst results at 10-minute intervals
+// output: pRms overwritten with Block 4 flicker output
+//        pPst written with Block 5 Pst at 10-minute intervals
+Procedure FlickerMeter(N:integer; fBase: double; vBase: double; pT:pSingleArray;
+  var pRms:pSingleArray; var pPst: pSingleArray);
 
 Implementation
 
@@ -502,6 +512,25 @@ Begin
 	Result   := _Pst(PstResult, pVoltages,  Npts);
 
 End;
+
+Procedure FlickerMeter(N:integer; fBase: double; vBase: double; pT:pSingleArray;
+  var pRms:pSingleArray; var pPst: pSingleArray);
+var
+  i, ipst: integer;
+  t, tPst: single;
+begin
+  tPst:=0.0;
+  ipst:=1;
+  for i := 1 to N do begin
+    pRms[i] := pRms[i] / vbase;
+    t := pT[i];
+    if (t-tPst) >= 600.0 then begin // append a new Pst value
+      pPst[ipst] := 0.1;
+      inc(ipst);
+      tPst := t;
+    end;
+  end;
+end;
 
 
 initialization

@@ -168,7 +168,7 @@ TYPE
         FUNCTION  NormalizeToTOD(h: Integer; sec: Double): Double;
 
         FUNCTION  InterpretState(const S:String):Integer;
-        FUNCTION  StateToStr:String;
+//        FUNCTION  StateToStr:String;
         FUNCTION  DecodeState:String;
 
         FUNCTION  Get_PresentkW:Double;
@@ -2416,6 +2416,7 @@ Begin
      END;
 End;
 
+{ apparently for debugging only
 //----------------------------------------------------------------------------
 Function TStorageObj.StateToStr:String;
 Begin
@@ -2425,6 +2426,7 @@ Begin
           STORE_DISCHARGING: Result := 'Discharging';
       END;
 End;
+}
 
 //----------------------------------------------------------------------------
 FUNCTION TStorageObj.Get_Variable(i: Integer): Double;

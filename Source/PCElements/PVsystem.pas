@@ -2081,7 +2081,7 @@ PROCEDURE TPVsystemObj.InitStateVars;
 
 // for going into dynamics mode
 VAR
-    VNeut,
+//    VNeut,
     Edp   :Complex;
     i     :Integer;
     V012,
@@ -2136,8 +2136,8 @@ PROCEDURE TPVsystemObj.IntegrateStates;
 
 // dynamics mode integration routine
 
-VAR
-    TracePower:Complex;
+// VAR
+//    TracePower:Complex;
 
 Begin
    // Compute Derivatives and Then integrate

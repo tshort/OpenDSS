@@ -111,7 +111,7 @@ end;
             Fvvc_curve2: TXYcurveObj;
             FActiveVVCurve: Array of Integer;
             FVoltage_CurveX_ref: Integer;  // valid values are 0: = Vref (rated), 1:= avg
-            FWatt_CurveY_ref: Integer; //valid values are 4 := percent of WMax (like Seal
+ //           FWatt_CurveY_ref: Integer; //valid values are 4 := percent of WMax (like Seal
                                        //report; or 5 := percent of available watts (like
                                        //WGS EPRI report implementation, see named constants
                                        // VOLTWATT_WMAXPU = 4, and VOLTWATT_WAVAILPU = 5

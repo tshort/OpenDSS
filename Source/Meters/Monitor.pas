@@ -15,8 +15,8 @@ unit Monitor;
    10-27-00 Changed default to magnitude and angle instead of real and imag
    12-18-01 Added Transformer Tap Monitor Code
    12-18-02 Added Monitor Stream
-   01-19-13 Added flicker meter mode
    2-19-08 Added SampleCount
+   01-19-13 Added flicker meter mode
 }
 
 {
@@ -187,7 +187,7 @@ implementation
 USES
 
     ParserDel, DSSClassDefs, DSSGlobals, Circuit, CktElement,Transformer, PCElement,
-    Sysutils, ucmatrix, showresults, mathUtil, PointerList, TOPExport, Dynamics;
+    Sysutils, ucmatrix, showresults, mathUtil, PointerList, TOPExport, Dynamics, PstCalc;
 
 CONST
     SEQUENCEMASK = 16;
@@ -1113,11 +1113,21 @@ var
   RecordSize  :Cardinal;
   pStr        :pAnsichar;
   RecordBytes :Cardinal;
-  sngBuffer   :Array[1..100] of Single;
+  SngBuffer   :Array[1..100] of Single;
   hr          :single;
   s           :single;
   Nread       :Cardinal;
   N           :Integer;
+  Npst        :Integer;
+  i, p        :Integer;
+  bStart      :Integer;
+  data        :Array of pSingleArray; // indexed from zero (time) to FnPhases
+  pst         :Array of pSingleArray; // indexed from zero to FnPhases - 1
+  ipst        :integer;
+  tpst        :single;
+  defaultpst  :single;
+  Vbase       :single;
+  busref      :integer;
 begin
   N := SampleCount;
   With MonitorStream Do Begin
@@ -1127,19 +1137,60 @@ begin
     Read( RecordSize, Sizeof(RecordSize));
     Read( Mode,       Sizeof(Mode));
     Read( StrBuffer,  Sizeof(StrBuffer));
+    bStart := Position;
   End;
   pStr := @StrBuffer;
   RecordBytes := Sizeof(SngBuffer[1]) * RecordSize;
   Try
+    // read rms voltages out of the monitor stream into arrays
+    SetLength (data, Fnphases + 1);
+    SetLength (pst, Fnphases);
+    for p := 0 to FnPhases do data[p] := AllocMem (Sizeof(SngBuffer[1]) * N);
+    i := 1;
     while Not (MonitorStream.Position>=MonitorStream.Size) do Begin
       With MonitorStream Do Begin
-        Read( hr, SizeOF(hr));
+        Read( hr, SizeOf(hr));
         Read( s,  SizeOf(s));
-        Nread := Read( sngBuffer, RecordBytes);
+        Nread := Read(SngBuffer, RecordBytes);
+        data[0][i] := s + 3600.0 * hr;
+        for p := 1 to FnPhases do data[p][i] := SngBuffer[2*p - 1];
+        i := i + 1;
       End;
     End;
+
+    // calculate the flicker level and pst
+    Npst := 1 + Trunc (data[0][N] / 600.0); // pst updates every 10 minutes or 600 seconds
+    for p := 0 to FnPhases-1 do begin
+      pst[p] := AllocMem (Sizeof(SngBuffer[1]) * Npst);
+      busref := MeteredElement.Terminals[MeteredTerminal].BusRef;
+      Vbase := 1000.0 * ActiveCircuit.Buses^[busref].kVBase;
+      FlickerMeter (N, BaseFrequency, Vbase, data[0], data[p+1], pst[p]);
+    end;
+
+    // stuff the flicker level and pst back into the monitor stream
+    with MonitorStream do begin
+      Position := bStart;
+      tpst:=0.0;
+      ipst:=0;
+      defaultpst:=0;
+      for i := 1 to N do begin
+        if (data[0][i] - tpst) >= 600.0 then begin
+          inc(ipst);
+          tpst:=data[0][i];
+        end;
+        Position:=Position + 2 * SizeOf(hr); // don't alter the time
+        for p := 1 to FnPhases do begin
+          Write (data[p][i], sizeof(data[p][i]));
+          if (ipst > 0) and (ipst <= Npst) then
+            Write (pst[p-1][ipst], sizeof(pst[p-1][ipst]))
+          else
+            Write (defaultpst, sizeof(defaultpst))
+        end;
+      end;
+    end;
   Finally
-    CloseMonitorStream;
+    for p := 0 to FnPhases do ReAllocMem (data[p], 0);
+    for p := 0 to FnPhases-1 do ReAllocMem (pst[p], 0);
   end;
 end;
 
