@@ -1,0 +1,18 @@
+clear
+
+new circuit.pst bus1=EQSRC basekv=1.73205 pu=1 r1=0.00001 x1=0.00001 r0=0.00001 x0=0.00001
+New LoadShape.pst npts=8640 interval=(10.0 3600 /) 
+~   mult=(File=WindRmsV.csv) Action=Normalize
+
+New isource.pst bus1=PCC amps=1 angle=0
+New load.pst    bus1=PCC kV=1.73205 kW=3.0 pf=1.0 conn=wye duty=pst vminpu=0.01  Model=2
+
+new Monitor.v   element=load.pst terminal=1 mode=64
+new Monitor.s   element=load.pst terminal=1 mode=65 PPolar=no
+new Monitor.pst element=load.pst terminal=1 mode=4
+
+set voltagebases="1.73205"
+calcvoltagebases
+
+// solve mode=duty stepsize=10 number=8640
+
