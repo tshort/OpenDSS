@@ -513,21 +513,202 @@ Begin
 
 End;
 
+/////////////////////////////////////////////////////////
+//
+//  RMS flickermeter implementation
+//
+/////////////////////////////////////////////////////////
+
+Procedure Fhp(N:integer; Ts:single; whp: single;
+  x:pSingleArray; var y:pSingleArray);
+var
+  a: single;
+  a0, a1: single;
+  j: Integer;
+begin
+  y[1]:=0.0;
+  a:=0.5*Ts*whp;
+  a0:=a+1;
+  a1:=a-1;
+  for j := 2 to N do
+    y[j] := (1.0/a0)*(x[j]-x[j-1]-a1*y[j-1]);
+end;
+
+Procedure Flp(N:integer; Ts:single; tau: single;
+  x:pSingleArray; var y:pSingleArray);
+var
+  a0, a1: single;
+  j: Integer;
+begin
+  y[1]:=0.0;
+  a0:=1 + 2*tau/Ts;
+  a1:=1 - 2*tau/Ts;
+  for j := 2 to N do
+    y[j] := (1.0/a0)*(x[j]+x[j-1]-a1*y[j-1]);
+end;
+
+Procedure Fw1(N:integer; Ts:single; w1: single; k: single; lam: single;
+  x:pSingleArray; var y:pSingleArray);
+var
+  a0, a1, a2: single;
+  b0, b2: single;
+  j: Integer;
+begin
+  y[1]:=0.0;
+  y[2]:=0.0;
+  b0:=2*k*w1*Ts;
+  b2:=-2*k*w1*Ts;
+  a0:=w1*w1*Ts*Ts + 4*lam*Ts + 4;
+  a1:=2*w1*w1*Ts*Ts - 8;
+  a2:=w1*w1*Ts*Ts - 4*lam*Ts + 4;
+  for j := 3 to N do
+    y[j] := (1.0/a0)*(b0*x[j]+b2*x[j-2]-a1*y[j-1]-a2*y[j-2]);
+end;
+
+Procedure Fw2(N:integer; Ts:single; w2: single; w3: single; w4: single;
+  x:pSingleArray; var y:pSingleArray);
+var
+  a0, a1, a2: single;
+  b0, b1, b2: single;
+  j: Integer;
+begin
+  y[1]:=0.0;
+  y[2]:=0.0;
+  b0:=w3*w4*(Ts*Ts*w2 + 2*Ts);
+  b1:=w3*w4*2*Ts*Ts*w2;
+  b2:=w3*w4*(Ts*Ts*w2 - 2*Ts);
+  a0:=w2*(Ts*Ts*w3*w4 + 2*Ts*(w3+w4) + 4);
+  a1:=w2*(2*Ts*Ts*w3*w4 - 8);
+  a2:=w2*(Ts*Ts*w3*w4 - 2*Ts*(w3+w4) + 4);
+  for j := 3 to N do
+    y[j] := (1.0/a0)*(b0*x[j]+b1*x[j-1]+b2*x[j-2]-a1*y[j-1]-a2*y[j-2]);
+end;
+
+procedure QuickSort(var List: array of single; iLo, iHi: Integer) ;
+var
+  Lo       : integer;
+  Hi       : integer;
+  T        : single;
+  Mid      : single;
+begin
+  Lo := iLo;
+  Hi := iHi;
+  Mid:= List[(Lo + Hi) div 2];
+  repeat
+
+    while List[Lo] < Mid do Inc(Lo) ;
+    while List[Hi] > Mid do Dec(Hi) ;
+
+    if Lo <= Hi then
+    begin
+      T := List[Lo];
+      List[Lo] := List[Hi];
+      List[Hi] := T;
+      Inc(Lo);
+      Dec(Hi);
+    end;
+
+  until Lo > Hi;
+
+  if Hi > iLo then QuickSort(List, iLo, Hi);
+  if Lo < iHi then QuickSort(List, Lo, iHi);
+end;
+
+Function Percentile (List: array of single; iLo, iHi: Integer; pct: single):single;
+var
+  nlo, nhi: integer;
+  xhst, xlo, xhi, xfrac: single;
+begin
+  xhst := iHi - iLo + 1;
+  xfrac := Frac(0.01 * pct * xhst);
+  nlo := Trunc(0.01 * pct * xhst);
+  nhi := nlo + 1;
+  xlo := List[nlo];
+  xhi := List[nhi];
+  Result := xlo + xfrac * (xhi - xlo);
+end;
+
 Procedure FlickerMeter(N:integer; fBase: double; vBase: double; pT:pSingleArray;
   var pRms:pSingleArray; var pPst: pSingleArray);
 var
-  i, ipst: integer;
+  i, ipst, ihst: integer;
   t, tPst: single;
+  // filter coefficients
+  whp, w1, w2, w3, w4, k, lam, tau, ts, cf: single;
+  pBuf: pSingleArray;
+  hst: array of single;
+  pst, p01s, p1s, p3s, p10s, p50s: single;
+  p30, p50, p80, p17, p13, p10, p8, p6, p4, p3, p2p2, p1p5, p1, p0p7: single;
 begin
+  whp := 2.0 * Pi * 0.05;
+  tau := 0.3;
+  cf := 1.0 / 1.285e-6;
+  if fBase = 50.0 then begin
+    k := 1.74802;
+    lam := 2.0 * Pi * 4.05981;
+    w1 := 2.0 * Pi * 9.15494;
+    w2 := 2.0 * Pi * 2.27979;
+    w3 := 2.0 * Pi * 1.22535;
+    w4 := 2.0 * Pi * 21.9
+  end else begin
+    k := 1.6357 / 0.783;
+    lam := 2.0 * Pi * 4.167375;
+    w1 := 2.0 * Pi * 9.077169;
+    w2 := 2.0 * Pi * 2.939902;
+    w3 := 2.0 * Pi * 1.394468;
+    w4 := 2.0 * Pi * 17.31512
+  end;
   tPst:=0.0;
   ipst:=1;
+  ts := pT[2] - pT[1];
+  for i := 1 to N do pRms[i] := pRms[i] / vbase;
+  pBuf := AllocMem (N * sizeof (pBuf[1]));
+  Fhp(N, ts, whp, pRms, pBuf);
+  Fw1(N, ts, w1, k, lam, pBuf, pRms);
+  Fw2(N, ts, w2, w3, w4, pRms, pBuf);
+  for i := 1 to N do pBuf[i] := pBuf[i] * pBuf[i];
+  Flp(N, ts, tau, pBuf, pRms);
+
+  for i := 1 to N do pRms[i] := cf * pRms[i];
+
+  // build the Blcok 5 Pst outputs from Block 4 instantaneous flicker levels
+  SetLength (hst, trunc(600.0/Ts) + 1);
+  ihst:=Low(hst);
   for i := 1 to N do begin
-    pRms[i] := pRms[i] / vbase;
     t := pT[i];
+    hst[ihst] := pRms[i];
     if (t-tPst) >= 600.0 then begin // append a new Pst value
-      pPst[ipst] := 0.1;
+      QuickSort (hst, Low(hst), ihst);
+
+      p80 := Percentile (hst, Low(hst), ihst, 80);
+      p50 := Percentile (hst, Low(hst), ihst, 50);
+      p30 := Percentile (hst, Low(hst), ihst, 30);
+      p17:= Percentile (hst, Low(hst), ihst, 17);
+      p13 := Percentile (hst, Low(hst), ihst, 13);
+      p10 := Percentile (hst, Low(hst), ihst, 10);
+      p8 := Percentile (hst, Low(hst), ihst, 8);
+      p6 := Percentile (hst, Low(hst), ihst, 6);
+      p4 := Percentile (hst, Low(hst), ihst, 4);
+      p3 := Percentile (hst, Low(hst), ihst, 3);
+      p2p2 := Percentile (hst, Low(hst), ihst, 2.2);
+      p1p5 := Percentile (hst, Low(hst), ihst, 1.5);
+      p1 := Percentile (hst, Low(hst), ihst, 1);
+      p0p7 := Percentile (hst, Low(hst), ihst, 0.7);
+      p01s := Percentile (hst, Low(hst), ihst, 0.1);
+
+      p50s := (p30 + p50 + p80) / 3.0;
+      p10s := (p6 + p8 + p10 + p13 + p17) / 5.0;
+      p3s := (p2p2 + p3 + p4) / 3.0;
+      p1s := (p0p7 + p1 + p1p5) / 3.0;
+      pst := sqrt(0.0314*p01s + 0.0525*p1s + 0.0657*p3s + 0.28*p10s + 0.08*p50s);
+
+      pPst[ipst] := pst;
+
       inc(ipst);
       tPst := t;
+      ihst := Low(hst);
+    end else begin
+      inc(ihst);
     end;
   end;
 end;

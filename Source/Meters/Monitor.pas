@@ -102,6 +102,7 @@ TYPE
        Procedure ResetAll;   Override;
        Procedure SampleAll;  Override;  // Force all monitors to take a sample
        Procedure SaveAll;    Override;   // Force all monitors to save their buffers to disk
+       Procedure PostProcessAll;
        Procedure TOPExport(Objname:String);
 
    end;
@@ -138,6 +139,7 @@ TYPE
 
        IsFileOpen      :Boolean;
        ValidMonitor    :Boolean;
+       IsProcessed     :Boolean;
 
        Procedure AddDblsToBuffer(Dbl:pDoubleArray; Ndoubles:Integer);
        Procedure AddDblToBuffer(const Dbl:Double);
@@ -159,7 +161,8 @@ TYPE
        Procedure CalcYPrim;          Override;    // Always Zero for a monitor
        Procedure TakeSample;         Override; // Go add a sample to the buffer
        Procedure ResetIt;
-       Procedure Save;  // Saves present buffer to file
+       Procedure Save;     // Saves present buffer to file
+       Procedure PostProcess; // calculates Pst or other post-processing
 
        Procedure OpenMonitorStream;
        Procedure ClearMonitorStream;
@@ -258,9 +261,10 @@ Begin
                     'Mix adder to obtain desired results. For example:' + CRLF+
                     'Mode=112 will save positive sequence voltage and current magnitudes only' + CRLF+
                     'Mode=48 will save all sequence voltages and currents, but magnitude only.';
-     PropertyHelp[4] := '{Clear | Save | Take}' + CRLF +
+     PropertyHelp[4] := '{Clear | Save | Take | Process}' + CRLF +
                         '(C)lears or (S)aves current buffer.' + CRLF +
-                        '(T)ake action takes a sample.'+ CRLF + CRLF +
+                        '(T)ake action takes a sample.'+ CRLF +
+                        '(P)rocesses the data taken so far (e.g. Pst for mode 4).' + CRLF + CRLF +
                         'Note that monitors are automatically reset (cleared) when the Set Mode= command is issued. '+
                         'Otherwise, the user must explicitly reset all monitors (reset monitors command) or individual ' +
                         'monitors with the Clear action.';
@@ -323,6 +327,7 @@ Begin
                     's':Save;
                     'c','r':ResetIt;
                     't': TakeSample;
+                    'p': PostProcess;
                   End;
                End;  // buffer
             5: IncludeResidual := InterpretYesNo(Param);
@@ -370,6 +375,18 @@ Begin
           If Mon.enabled Then Mon.TakeSample;
           Mon := ActiveCircuit.Monitors.Next;
       End;
+End;
+
+{--------------------------------------------------------------------------}
+Procedure TDSSMonitor.PostProcessAll;
+VAR
+   Mon:TMonitorObj;
+Begin
+   Mon := ActiveCircuit.Monitors.First;
+   WHILE Mon<>Nil DO Begin
+       If Mon.Enabled Then Mon.PostProcess;
+       Mon := ActiveCircuit.Monitors.Next;
+   End;
 End;
 
 {--------------------------------------------------------------------------}
@@ -488,6 +505,7 @@ Begin
      FileSignature   := 43756;
      FileVersion     := 1;
      SampleCount     := 0;
+     IsProcessed     := FALSE;
 
      DSSObjType := ParClass.DSSClassType; //MON_ELEMENT;
 
@@ -648,6 +666,7 @@ Begin
   Try
 
      MonitorStream.Clear;
+     IsProcessed := FALSE;
      SampleCount  :=  0;
      IsPosSeq := False;
      fillchar(StrBuffer, Sizeof(TMonitorStrBuffer), 0);  {clear buffer}
@@ -845,7 +864,7 @@ Procedure TMonitorObj.CloseMonitorStream;
 Begin
   Try
      If IsFileOpen THEN Begin  // only close open files
-        if (mode = 4) and (MonitorStream.Position > 0) then DoFlickerCalculations;
+        PostProcess;
         MonitorStream.Seek(0, soFromBeginning);   // just move stream position to the beginning
         IsFileOpen := false;
      End;
@@ -877,10 +896,17 @@ End;
 {--------------------------------------------------------------------------}
 Procedure TMonitorObj.ResetIt;
 Begin
-
      BufPtr := 0;
      ClearMonitorStream;
+End;
 
+{--------------------------------------------------------------------------}
+Procedure TMonitorObj.PostProcess;
+Begin
+  if IsProcessed = FALSE then begin
+    if (mode = 4) and (MonitorStream.Position > 0) then DoFlickerCalculations;
+  end;
+  IsProcessed := TRUE;
 End;
 
 {--------------------------------------------------------------------------}
@@ -1111,12 +1137,10 @@ var
   FSignature  :Integer;
   Fversion    :Integer;
   RecordSize  :Cardinal;
-  pStr        :pAnsichar;
   RecordBytes :Cardinal;
   SngBuffer   :Array[1..100] of Single;
   hr          :single;
   s           :single;
-  Nread       :Cardinal;
   N           :Integer;
   Npst        :Integer;
   i, p        :Integer;
@@ -1139,7 +1163,6 @@ begin
     Read( StrBuffer,  Sizeof(StrBuffer));
     bStart := Position;
   End;
-  pStr := @StrBuffer;
   RecordBytes := Sizeof(SngBuffer[1]) * RecordSize;
   Try
     // read rms voltages out of the monitor stream into arrays
@@ -1151,7 +1174,7 @@ begin
       With MonitorStream Do Begin
         Read( hr, SizeOf(hr));
         Read( s,  SizeOf(s));
-        Nread := Read(SngBuffer, RecordBytes);
+        Read(SngBuffer, RecordBytes);
         data[0][i] := s + 3600.0 * hr;
         for p := 1 to FnPhases do data[p][i] := SngBuffer[2*p - 1];
         i := i + 1;
@@ -1346,7 +1369,7 @@ begin
      PropertyValue[1] := ''; //'element';
      PropertyValue[2] := '1'; //'terminal';
      PropertyValue[3] := '0'; //'mode';
-     PropertyValue[4] := ''; // 'action';  // buffer=clear|save
+     PropertyValue[4] := ''; // 'action';  // buffer=clear|save|take|process
      PropertyValue[5] := 'NO';
      PropertyValue[6] := 'YES';
      PropertyValue[7] := 'YES';
