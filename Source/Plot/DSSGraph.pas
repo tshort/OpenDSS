@@ -388,7 +388,7 @@ Begin
                Case Retval of
                    0: DoSimpleMsg('System out of memory. ', 45700);
                    ERROR_BAD_FORMAT: DoSimpleMsg('Graphics output file "'+ ActiveFileName + '" is Invalid.', 45701);
-                   ERROR_FILE_NOT_FOUND: DoSimpleMsg('DSSView program  Not Found.'
+                   ERROR_FILE_NOT_FOUND: DoSimpleMsg(DSSViewfile + ' File  Not Found.'
                                                      +CRLF+'It should be in the same directory as the OpenDSS program', 45702);
                    ERROR_PATH_NOT_FOUND: DoSimpleMsg('Path for DSSView program "'+DSSViewFile+'" Not Found.', 45703);
                End;
