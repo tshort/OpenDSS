@@ -614,11 +614,12 @@ begin
   if Lo < iHi then QuickSort(List, Lo, iHi);
 end;
 
-Function Percentile (List: array of single; iLo, iHi: Integer; pct: single):single;
+Function Percentile (var List: array of single; iLo, iHi: Integer; pctExceeded: single):single;
 var
   nlo, nhi: integer;
-  xhst, xlo, xhi, xfrac: single;
+  xhst, xlo, xhi, xfrac, pct: single;
 begin
+  pct := 100.0 - pctExceeded;
   xhst := iHi - iLo + 1;
   xfrac := Frac(0.01 * pct * xhst);
   nlo := Trunc(0.01 * pct * xhst);
