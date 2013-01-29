@@ -49,7 +49,7 @@ Uses      ExecCommands, ExecOptions,
           MessageForm,
           ComCtrls,
           TViewer,
-          Sysutils, FrmCSVchannelSelect;
+          Sysutils, FrmCSVchannelSelect, System.UITypes;
 
 
 Procedure InitProgressForm;

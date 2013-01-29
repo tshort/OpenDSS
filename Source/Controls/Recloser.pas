@@ -450,7 +450,7 @@ Begin
       RecloseIntervals^[3] := 2.0;
 
 
-     PresentState  := CLOSE;
+     PresentState  := CTRL_CLOSE;
 
 
      Operationcount := 1;
@@ -520,13 +520,13 @@ Begin
              ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Make the 1 st terminal active
              IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
              THEN Begin
-                PresentState := CLOSE;
+                PresentState := CTRL_CLOSE;
                 LockedOut := FALSE;
                 OperationCount := 1;
                 ArmedForOpen := FALSE;
              End
              ELSE Begin
-                PresentState := OPEN;
+                PresentState := CTRL_OPEN;
                 LockedOut := TRUE;
                 OperationCount := NumReclose + 1;
                 ArmedForClose := FALSE;
@@ -586,8 +586,8 @@ begin
     Begin
          ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Set active terminal of CktElement to terminal 1
          CASE Code of
-            Integer(OPEN):   CASE PresentState of
-                         CLOSE:IF ArmedForOpen THEN Begin   // ignore if we became disarmed in meantime
+            Integer(CTRL_OPEN):   CASE PresentState of
+                         CTRL_CLOSE:IF ArmedForOpen THEN Begin   // ignore if we became disarmed in meantime
                                     ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
                                     IF OperationCount > NumReclose THEN Begin
                                           LockedOut := TRUE;
@@ -603,8 +603,8 @@ begin
                                END;
                     ELSE {nada}
                     END;
-            Integer(CLOSE):  CASE PresentState of
-                         OPEN:IF ArmedForClose and Not LockedOut THEN Begin
+            Integer(CTRL_CLOSE):  CASE PresentState of
+                         CTRL_OPEN:IF ArmedForClose and Not LockedOut THEN Begin
                                   ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
                                   Inc(OperationCount);
                                   AppendtoEventLog('Recloser.'+Self.Name, 'Closed');
@@ -613,7 +613,7 @@ begin
                     ELSE {Nada}
                     END;
             Integer(CTRL_RESET):  CASE PresentState of
-                         CLOSE: IF Not ArmedForOpen THEN OperationCount := 1;       // Don't reset if we just rearmed
+                         CTRL_CLOSE: IF Not ArmedForOpen THEN OperationCount := 1;       // Don't reset if we just rearmed
                     ELSE  {Nada}
                     END;
          ELSE
@@ -667,8 +667,8 @@ begin
      ControlledElement.ActiveTerminalIdx := ElementTerminal;
 
      IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
-     THEN PresentState := CLOSE
-     ELSE PresentState := OPEN;
+     THEN PresentState := CTRL_CLOSE
+     ELSE PresentState := CTRL_OPEN;
 
 
      WITH  MonitoredElement Do
@@ -687,7 +687,7 @@ begin
               TDPhase :=  TDPhFast;
 	     End;
 
-         IF PresentState = CLOSE
+         IF PresentState = CTRL_CLOSE
          THEN Begin
                TripTime := -1.0;
                GroundTime := -1.0;
@@ -755,8 +755,8 @@ begin
                   IF Not ArmedForOpen
                   THEN WITH ActiveCircuit Do   // Then arm for an open operation
                   Begin
-                         ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Delaytime, OPEN, 0, Self);
-                         IF OperationCount <= NumReclose THEN ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + DelayTime + RecloseIntervals^[OperationCount], CLOSE, 0, Self);
+                         ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Delaytime, CTRL_OPEN, 0, Self);
+                         IF OperationCount <= NumReclose THEN ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + DelayTime + RecloseIntervals^[OperationCount], CTRL_CLOSE, 0, Self);
                          ArmedForOpen := TRUE;
                          ArmedForClose := TRUE;
                   End;
@@ -820,7 +820,7 @@ end;
 Procedure TRecloserObj.Reset;
 Begin
 
-     PresentState   := CLOSE;
+     PresentState   := CTRL_CLOSE;
      Operationcount := 1;
      LockedOut      := FALSE;
      ArmedForOpen   := FALSE;

@@ -73,6 +73,8 @@ var
 
 implementation
 
+uses system.UITypes;
+
 {$R *.DFM}
 
 Function IntToHexA(i, Digits:integer):String;

@@ -346,7 +346,7 @@ Begin
 
      RatedCurrent      := 1.0;
 
-     For i := 1 to Min(FUSEMAXDIM, FNPhases) Do PresentState[i]  := CLOSE;
+     For i := 1 to Min(FUSEMAXDIM, FNPhases) Do PresentState[i]  := CTRL_CLOSE;
      For i := 1 to Min(FUSEMAXDIM, FNPhases) Do ReadyToBlow[i]   := FALSE;
      For i := 1 to Min(FUSEMAXDIM, FNPhases) Do hAction[i]   := 0;
 
@@ -412,11 +412,11 @@ Begin
                  IF  ControlledElement.Closed [i]      // Check state of i-th phase of active terminal
                  THEN
                    Begin
-                    PresentState[i] := CLOSE;
+                    PresentState[i] := CTRL_CLOSE;
                    End
                  ELSE
                    Begin
-                    PresentState[i] := OPEN;
+                    PresentState[i] := CTRL_OPEN;
                    End;
                For i := 1 to ControlledElement.Nphases Do hAction[i] := 0;
                For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do ReadyToBlow[i] := FALSE;
@@ -467,7 +467,7 @@ begin
     Begin
          ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Set active terminal of CktElement to terminal 1
          CASE PresentState[Phs] of
-           CLOSE:IF ReadyToBlow[Phs] THEN
+           CTRL_CLOSE:IF ReadyToBlow[Phs] THEN
                    Begin   // ignore if we became disarmed in meantime
                       ControlledElement.Closed[Phs] := FALSE;   // Open all phases of active terminal
                       AppendtoEventLog('Fuse.'+Self.Name, 'Phase '+IntToStr(Phs)+' Blown');
@@ -521,10 +521,10 @@ begin
       Begin
 
          IF  ControlledElement.Closed [i]      // Check state of phases of active terminal
-         THEN PresentState[i] := CLOSE
-         ELSE PresentState[i] := OPEN;
+         THEN PresentState[i] := CTRL_CLOSE
+         ELSE PresentState[i] := CTRL_OPEN;
 
-         IF PresentState[i] = CLOSE THEN
+         IF PresentState[i] = CTRL_CLOSE THEN
            Begin
                TripTime := -1.0;
 
@@ -592,7 +592,7 @@ VAR
 Begin
     IF ControlledElement <> NIL  THEN
       Begin
-         For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do PresentState[i]   := CLOSE;
+         For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do PresentState[i]   := CTRL_CLOSE;
          For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do ReadyToBlow[i]   := FALSE;
          For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do hAction[i]   := 0;
           ControlledElement.ActiveTerminalIdx  := ElementTerminal;  // Set active terminal

@@ -214,7 +214,7 @@ Begin
   ElementName   := '';
   ControlledElement := NIL;
   ElementTerminal := 1;
-  PresentState  := CLOSE;
+  PresentState  := CTRL_CLOSE;
   Locked        := FALSE;
   TimeDelay := 120.0;
 
@@ -238,8 +238,8 @@ Begin
     ControlledElement.ActiveTerminalIdx := ElementTerminal;
     if not Locked then
       Case PresentState of
-        OPEN: ControlledElement.Closed[0] := FALSE;
-        CLOSE: ControlledElement.Closed[0] := TRUE;
+        CTRL_OPEN: ControlledElement.Closed[0] := FALSE;
+        CTRL_CLOSE: ControlledElement.Closed[0] := TRUE;
       End;
     // attach controller bus to the switch bus - no space allocated for monitored variables
     Setbus (1, ControlledElement.GetBus(ElementTerminal));
@@ -283,11 +283,11 @@ PROCEDURE TSwtControlObj.DoPendingAction(Const Code, ProxyHdl:Integer);
 begin
   if not Locked then begin
     ControlledElement.ActiveTerminalIdx := ElementTerminal;
-    if (Code = Integer(OPEN)) and (PresentState = CLOSE) then begin
+    if (Code = Integer(CTRL_OPEN)) and (PresentState = CTRL_CLOSE) then begin
       ControlledElement.Closed[0] := FALSE; // Open all phases of active terminal
       AppendtoEventLog('SwtControl.'+Self.Name, 'Opened');
     end;
-    if (Code = Integer(CLOSE)) and (PresentState = Open) then begin
+    if (Code = Integer(CTRL_CLOSE)) and (PresentState = CTRL_OPEN) then begin
       ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
       AppendtoEventLog('SwtControl.'+Self.Name, 'Closed');
     end;
@@ -298,14 +298,14 @@ PROCEDURE TSwtControlObj.InterpretSwitchAction(const Action:String);
 Begin
   If Not Locked Then begin
     Case LowerCase(Action)[1] of
-      'o': PresentState := OPEN;
-      'c': PresentState := CLOSE;
+      'o': PresentState := CTRL_OPEN;
+      'c': PresentState := CTRL_CLOSE;
     End;
     if ControlledElement <> nil then begin
       ControlledElement.ActiveTerminalIdx := ElementTerminal;
       Case PresentState of
-        OPEN: ControlledElement.Closed[0] := FALSE;
-        CLOSE: ControlledElement.Closed[0] := TRUE;
+        CTRL_OPEN: ControlledElement.Closed[0] := FALSE;
+        CTRL_CLOSE: ControlledElement.Closed[0] := TRUE;
       End;
     End;
   end;
@@ -315,8 +315,8 @@ PROCEDURE TSwtControlObj.Sample;
 begin
   ControlledElement.ActiveTerminalIdx := ElementTerminal;
   IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
-  THEN PresentState := CLOSE
-  ELSE PresentState := OPEN;
+  THEN PresentState := CTRL_CLOSE
+  ELSE PresentState := CTRL_OPEN;
 end;
 
 PROCEDURE TSwtControlObj.DumpProperties(Var F:TextFile; Complete:Boolean);
@@ -337,7 +337,7 @@ end;
 // TODO: should Reset close the switch?
 Procedure TSwtControlObj.Reset;
 Begin
-  PresentState   := CLOSE;
+  PresentState   := CTRL_CLOSE;
   Locked         := FALSE;
   IF ControlledElement <> NIL  THEN  Begin
     ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Set active terminal

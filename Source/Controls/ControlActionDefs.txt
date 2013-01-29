@@ -2,11 +2,11 @@
  TYPE
 
  EControlAction = (
-    NONE,
-    OPEN,
-    CLOSE,
-    CTRL_RESET, // can't use the same name as file reset function
-    LOCK,
-    UNLOCK,
-    TAPUP,
-    TAPDOWN);
+    CTRL_NONE,
+    CTRL_OPEN,
+    CTRL_CLOSE,
+    CTRL_RESET,
+    CTRL_LOCK,
+    CTRL_UNLOCK,
+    CTRL_TAPUP,
+    CTRL_TAPDOWN);

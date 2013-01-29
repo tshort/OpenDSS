@@ -409,7 +409,7 @@ uses Executive, DSSClassDefs, DSSGlobals,
   DlgPlotOptions,  DSSPlot, FrmCSVchannelSelect,
   DlgComboBox,dlgNumber, ExecOptions, ExecCommands, ExecHelper, Dynamics, DSSClass, ListForm,
   Lineunits, Monitor, FrmDoDSSCommand, Frm_RPNcalc, DSSForms, showOptions, ShellAPI,
-  IniRegSave;
+  IniRegSave, System.UITypes;
 
 {$R *.DFM}
 

@@ -484,11 +484,11 @@ Begin
 
          Vmax         := 126;
          Vmin         := 115;
-         PresentState := CLOSE;
+         PresentState := CTRL_CLOSE;
 
          ShouldSwitch :=  FALSE;
          Armed        :=  FALSE;
-         PendingChange:= NONE;
+         PendingChange:= CTRL_NONE;
      End;
 
      PublicDataStruct := @ControlVars;   // So User-written models can access
@@ -555,8 +555,8 @@ Begin
                      Then ControlledElement.Closed[0] := FALSE
                      Else ControlledElement.Closed[0] := TRUE;
                  IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
-                     THEN ControlVars.PresentState := CLOSE
-                     ELSE ControlVars.PresentState := OPEN;
+                     THEN ControlVars.PresentState := CTRL_CLOSE
+                     ELSE ControlVars.PresentState := CTRL_OPEN;
            End
          ELSE
            Begin
@@ -732,30 +732,30 @@ begin
 
          With ControlVars Do
          CASE PendingChange of
-            OPEN: CASE ControlledCapacitor.NumSteps of
+            CTRL_OPEN: CASE ControlledCapacitor.NumSteps of
                     1: Begin
-                        IF PresentState=CLOSE Then Begin
+                        IF PresentState=CTRL_CLOSE Then Begin
                           ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
                           If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Opened**');
-                          PresentState := OPEN;
+                          PresentState := CTRL_OPEN;
                           With ActiveCircuit.Solution Do LastOpenTime := DynaVars.t + 3600.0*DynaVars.intHour;
                         End;
                        End;
                     ELSE
-                        If PresentState=CLOSE Then Begin      // Do this only if at least one step is closed
+                        If PresentState=CTRL_CLOSE Then Begin      // Do this only if at least one step is closed
                            If NOT ControlledCapacitor.SubtractStep Then Begin
-                              PresentState := OPEN;
+                              PresentState := CTRL_OPEN;
                               ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
                               If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Opened**');
                            End
                            ELSE If ShowEventLog Then AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Step Down**');
                         End;
                     END;
-            CLOSE: BEGIN
-                      If PresentState=OPEN Then Begin
+            CTRL_CLOSE: BEGIN
+                      If PresentState=CTRL_OPEN Then Begin
                            ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
                            If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Closed**');
-                           PresentState := CLOSE;
+                           PresentState := CTRL_CLOSE;
                            ControlledCapacitor.AddStep;
                        End
                        ELSE Begin
@@ -843,8 +843,8 @@ begin
 
      ControlledElement.ActiveTerminalIdx := 1;
      IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
-     THEN ControlVars.PresentState := CLOSE
-     ELSE ControlVars.PresentState := OPEN;
+     THEN ControlVars.PresentState := CTRL_CLOSE
+     ELSE ControlVars.PresentState := CTRL_OPEN;
 
      WITH   MonitoredElement, ControlVars Do
      Begin
@@ -862,18 +862,18 @@ begin
               GetControlVoltage(Vtest);
 
               CASE PresentState of
-                 OPEN:
+                 CTRL_OPEN:
                       IF   Vtest < VMin
                       THEN Begin
-                          PendingChange  := CLOSE;
+                          PendingChange  := CTRL_CLOSE;
                           ShouldSwitch   := TRUE;
                           VoverrideEvent := TRUE;
                           If ShowEventLog Then AppendtoEventLog('Capacitor.' + ControlledElement.Name, Format('Low Voltage Override: %.8g V', [Vtest]));
                       End;
-                 CLOSE:
+                 CTRL_CLOSE:
                       IF   Vtest > Vmax
                       THEN Begin
-                          PendingChange  := OPEN;
+                          PendingChange  := CTRL_OPEN;
                           ShouldSwitch   := TRUE;
                           VoverrideEvent := TRUE;
                           If ShowEventLog Then AppendtoEventLog('Capacitor.' + ControlledElement.Name, Format('High Voltage Override: %.8g V', [Vtest]));
@@ -897,26 +897,26 @@ begin
 
 
                      CASE PresentState of
-                          OPEN:   IF CurrTest > ON_Value
+                          CTRL_OPEN:   IF CurrTest > ON_Value
                                   THEN  Begin
-                                        PendingChange := CLOSE;
+                                        PendingChange := CTRL_CLOSE;
                                         ShouldSwitch := TRUE;
                                   End
                                   ELSE // Reset
-                                        PendingChange := NONE;
-                          CLOSE:  IF CurrTest < OFF_Value
+                                        PendingChange := CTRL_NONE;
+                          CTRL_CLOSE:  IF CurrTest < OFF_Value
                                   THEN Begin
-                                         PendingChange := OPEN;
+                                         PendingChange := CTRL_OPEN;
                                          ShouldSwitch := TRUE;
                                   End
                                   ELSE  If ControlledCapacitor.AvailableSteps >0 Then Begin
                                     IF CurrTest > ON_Value THEN  Begin
-                                            PendingChange := CLOSE;
+                                            PendingChange := CTRL_CLOSE;
                                             ShouldSwitch := TRUE;
                                     End;
                                   End
                                   ELSE // Reset
-                                        PendingChange := NONE;
+                                        PendingChange := CTRL_NONE;
                      End;
 
                  End;
@@ -928,26 +928,26 @@ begin
                      GetControlVoltage(Vtest);
 
                      CASE PresentState of
-                          OPEN:   IF Vtest < ON_Value
+                          CTRL_OPEN:   IF Vtest < ON_Value
                                   THEN  Begin
-                                        PendingChange := CLOSE;
+                                        PendingChange := CTRL_CLOSE;
                                         ShouldSwitch := TRUE;
                                   End
                                   ELSE // Reset
-                                        PendingChange := NONE;
-                          CLOSE:  IF Vtest > OFF_Value
+                                        PendingChange := CTRL_NONE;
+                          CTRL_CLOSE:  IF Vtest > OFF_Value
                                   THEN Begin
-                                         PendingChange := OPEN;
+                                         PendingChange := CTRL_OPEN;
                                          ShouldSwitch := TRUE;
                                   End
                                   ELSE  If ControlledCapacitor.AvailableSteps >0 Then Begin
                                    IF Vtest < ON_Value THEN  Begin
-                                            PendingChange := CLOSE;
+                                            PendingChange := CTRL_CLOSE;
                                             ShouldSwitch := TRUE;
                                     End;
                                   End
                                   ELSE // Reset
-                                        PendingChange := NONE;
+                                        PendingChange := CTRL_NONE;
                      End;
 
                  End;
@@ -959,26 +959,26 @@ begin
                       Q := S.im * 0.001;  // kvar
 
                       CASE PresentState of
-                          OPEN:   IF Q > ON_Value
+                          CTRL_OPEN:   IF Q > ON_Value
                                   THEN  Begin
-                                        PendingChange := CLOSE;
+                                        PendingChange := CTRL_CLOSE;
                                         ShouldSwitch := TRUE;
                                   End
                                   ELSE // Reset
-                                        PendingChange := NONE;
-                          CLOSE:  IF Q < OFF_Value
+                                        PendingChange := CTRL_NONE;
+                          CTRL_CLOSE:  IF Q < OFF_Value
                                   THEN Begin
-                                         PendingChange := OPEN;
+                                         PendingChange := CTRL_OPEN;
                                          ShouldSwitch := TRUE;
                                   End
                                   ELSE IF ControlledCapacitor.AvailableSteps > 0 Then Begin
                                       IF Q > ON_Value Then Begin
-                                        PendingChange := CLOSE;  // We can go some more
+                                        PendingChange := CTRL_CLOSE;  // We can go some more
                                         ShouldSwitch := TRUE;
                                       End;
                                   End
                                   ELSE // Reset
-                                        PendingChange := NONE;
+                                        PendingChange := CTRL_NONE;
                       End;
 
                  End;
@@ -1010,52 +1010,52 @@ begin
                     End;
                     { 1/28/09 Code modified to accommodate OFF_Value < ON_Value }
                     CASE PresentState OF
-                          OPEN:   IF OFF_Value > ON_Value Then Begin
+                          CTRL_OPEN:   IF OFF_Value > ON_Value Then Begin
                                     IF (NormalizedTime >= ON_Value) and (NormalizedTime < OFF_Value)
                                     THEN  Begin
-                                          PendingChange := CLOSE;
+                                          PendingChange := CTRL_CLOSE;
                                           ShouldSwitch  := TRUE;
                                     End
                                     ELSE // Reset
-                                          PendingChange := NONE;
+                                          PendingChange := CTRL_NONE;
                                   End ELSE Begin    // OFF time is next day
                                     IF (NormalizedTime >= ON_Value) and (NormalizedTime < 24.0)
                                     THEN  Begin
-                                          PendingChange := CLOSE;
+                                          PendingChange := CTRL_CLOSE;
                                           ShouldSwitch  := TRUE;
                                     End
                                     ELSE // Reset
-                                          PendingChange := NONE;
+                                          PendingChange := CTRL_NONE;
                                   End;
 
-                          CLOSE:  IF OFF_Value > ON_Value Then Begin
+                          CTRL_CLOSE:  IF OFF_Value > ON_Value Then Begin
                                       IF (NormalizedTime ) >= OFF_Value
                                       THEN Begin
-                                             PendingChange := OPEN;
+                                             PendingChange := CTRL_OPEN;
                                              ShouldSwitch := TRUE;
                                       End
                                       ELSE IF ControlledCapacitor.AvailableSteps > 0 Then Begin
                                           IF (NormalizedTime >= ON_Value) and (NormalizedTime < OFF_Value) Then Begin
-                                             PendingChange := CLOSE;  // We can go some more
+                                             PendingChange := CTRL_CLOSE;  // We can go some more
                                              ShouldSwitch := TRUE;
                                           End;
                                       End
                                       ELSE // Reset
-                                            PendingChange := NONE;
+                                            PendingChange := CTRL_NONE;
                                   End ELSE Begin  // OFF time is next day
                                       IF (NormalizedTime >= OFF_Value) and (NormalizedTime < ON_Value)
                                       THEN Begin
-                                             PendingChange := OPEN;
+                                             PendingChange := CTRL_OPEN;
                                              ShouldSwitch := TRUE;
                                       End
                                       ELSE IF ControlledCapacitor.AvailableSteps > 0 Then Begin
                                           IF (NormalizedTime >= ON_Value) and (NormalizedTime < 24.0) Then Begin
-                                             PendingChange := CLOSE;  // We can go some more
+                                             PendingChange := CTRL_CLOSE;  // We can go some more
                                              ShouldSwitch := TRUE;
                                           End;
                                       End
                                       ELSE // Reset
-                                            PendingChange := NONE;
+                                            PendingChange := CTRL_NONE;
                                   End;
                      End;
                  End;
@@ -1070,26 +1070,26 @@ begin
                       {When turning on make sure there is at least half the kvar of the bank}
 
                       CASE PresentState of
-                          OPEN:   IF (PF < PFON_Value) and (S.im * 0.001 > ControlledCapacitor.Totalkvar * 0.5) // make sure we don't go too far leading
+                          CTRL_OPEN:   IF (PF < PFON_Value) and (S.im * 0.001 > ControlledCapacitor.Totalkvar * 0.5) // make sure we don't go too far leading
                                   THEN  Begin
-                                        PendingChange := CLOSE;
+                                        PendingChange := CTRL_CLOSE;
                                         ShouldSwitch := TRUE;
                                   End
                                   ELSE // Reset
-                                        PendingChange := NONE;
-                          CLOSE:  IF PF > PFOFF_Value
+                                        PendingChange := CTRL_NONE;
+                          CTRL_CLOSE:  IF PF > PFOFF_Value
                                   THEN Begin
-                                         PendingChange := OPEN;
+                                         PendingChange := CTRL_OPEN;
                                          ShouldSwitch := TRUE;
                                   End
                                   ELSE IF ControlledCapacitor.AvailableSteps > 0 Then Begin
                                       IF (PF < PFON_Value) and (S.im * 0.001 > ControlledCapacitor.Totalkvar/ControlledCapacitor.Numsteps * 0.5) Then Begin
-                                        PendingChange := CLOSE;  // We can go some more
+                                        PendingChange := CTRL_CLOSE;  // We can go some more
                                         ShouldSwitch := TRUE;
                                       End;
                                   End
                                   ELSE // Reset
-                                        PendingChange := NONE;
+                                        PendingChange := CTRL_NONE;
                       End;
 
                  End;
@@ -1100,7 +1100,7 @@ begin
       Begin
            IF   ShouldSwitch and Not Armed THEN
              Begin
-              If PendingChange = CLOSE Then Begin
+              If PendingChange = CTRL_CLOSE Then Begin
                  If (Solution.DynaVars.t + Solution.DynaVars.intHour*3600.0 - LastOpenTime)<DeadTime Then // delay the close operation
                       {2-6-09 Added ONDelay to Deadtime so that all caps do not close back in at same time}
                       TimeDelay := Max(ONDelay , (Deadtime + ONDelay) - (Solution.DynaVars.t + Solution.DynaVars.intHour*3600.0-LastOpenTime))
@@ -1111,7 +1111,7 @@ begin
               If ShowEventLog Then AppendtoEventLog('Capacitor.' + ControlledElement.Name, Format('**Armed**, Delay= %.5g sec', [TimeDelay]));
              End;
 
-          IF Armed and (PendingChange = NONE) Then
+          IF Armed and (PendingChange = CTRL_NONE) Then
             Begin
                 ControlQueue.Delete(ControlActionHandle);
                 Armed := FALSE;
@@ -1156,13 +1156,13 @@ End;
 
 Procedure TCapControlObj.Reset;
 begin
-      PendingChange := NONE;
+      PendingChange := CTRL_NONE;
       ControlledElement.ActiveTerminalIdx := 1;
       With ControlVars Do
       Begin
             CASE InitialState of
-                  OPEN:   ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
-                  CLOSE:  ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                  CTRL_OPEN:   ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
+                  CTRL_CLOSE:  ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
             END;
             ShouldSwitch := FALSE;
             LastOpenTime := -DeadTime;

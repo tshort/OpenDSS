@@ -73,7 +73,8 @@ var
 
 implementation
 
-Uses RichEdit, Executive, DSSGlobals, DSSForms,  Panel,Utilities, MessageForm, uComplex;
+Uses RichEdit, Executive, DSSGlobals, DSSForms,  Panel,Utilities, MessageForm, uComplex,
+  System.Types, System.UITypes;
 
 {$R *.DFM}
 
