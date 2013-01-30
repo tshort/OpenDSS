@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 10/2/2012 8:56:49 PM (- $Rev: 12980 $, 104283392).
+// File generated on 1/23/2013 1:06:50 PM (- $Rev: 12980 $, 61422024).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -855,6 +855,10 @@ library OpenDSSengine
     HRESULT _stdcall SaveAll(void);
     [propget, id(0x000000CB), helpstring("Number of Monitors\0 to take a sample of the present state\0r\0\0iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Count([out, retval] long* Value);
+    [id(0x000000CC), helpstring("Post-process monitor samples taken so far, e.g., Pst for mode=4")]
+    HRESULT _stdcall Process(void);
+    [id(0x000000CD), helpstring("All monitors post-process the data taken so far.")]
+    HRESULT _stdcall ProcessAll(void);
   };
 
   [

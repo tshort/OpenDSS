@@ -11,11 +11,11 @@ unit OpenDSSengine_TLB;
 // manual modifications will be lost.
 // ************************************************************************ //
 
-// $Rev: 45604 $
-// File generated on 10/29/2012 1:02:27 PM from Type Library described below.
+// $Rev: 41960 $
+// File generated on 1/23/2013 1:06:43 PM from Type Library described below.
 
 // ************************************************************************  //
-// Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
+// Type Lib: C:\OpenDSS\Source\DLL\OpenDSSengine (1)
 // LIBID: {8BFDE413-245A-4514-B151-B16DCC243796}
 // LCID: 0
 // Helpfile:
@@ -23,7 +23,6 @@ unit OpenDSSengine_TLB;
 // DepndLst:
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
-// SYS_KIND: SYS_WIN32
 // Errors:
 //   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
@@ -35,7 +34,7 @@ unit OpenDSSengine_TLB;
 
 interface
 
-uses Winapi.Windows, System.Classes, System.Variants, System.Win.StdVCL, Vcl.Graphics, Vcl.OleServer, Winapi.ActiveX;
+uses Windows, ActiveX, Classes, Graphics, OleServer, StdVCL, Variants;
 
 
 // *********************************************************************//
@@ -1056,6 +1055,8 @@ type
     procedure SampleAll; safecall;
     procedure SaveAll; safecall;
     function Get_Count: Integer; safecall;
+    procedure Process; safecall;
+    procedure ProcessAll; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1090,6 +1091,8 @@ type
     procedure SampleAll; dispid 201;
     procedure SaveAll; dispid 202;
     property Count: Integer readonly dispid 203;
+    procedure Process; dispid 204;
+    procedure ProcessAll; dispid 205;
   end;
 
 // *********************************************************************//
@@ -2323,9 +2326,9 @@ type
 // *********************************************************************//
   IDSSEventsEvents = dispinterface
     ['{AE501F77-F7F0-4201-A9AD-6AB385262203}']
-    function InitControls: HResult; dispid 201;
-    function StepControls: HResult; dispid 202;
-    function CheckControls: HResult; dispid 203;
+    procedure InitControls; dispid 201;
+    procedure StepControls; dispid 202;
+    procedure CheckControls; dispid 203;
   end;
 
 // *********************************************************************//
@@ -2736,7 +2739,7 @@ type
 
 implementation
 
-uses System.Win.ComObj;
+uses ComObj;
 
 class function CoText.Create: IText;
 begin

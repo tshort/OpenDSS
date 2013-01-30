@@ -295,6 +295,7 @@ VAR
    ParamPointer:Integer;
    ParamName:String;
    Param:String;
+   recalc: integer;
 
 Begin
 
@@ -304,6 +305,7 @@ Begin
   ActiveCircuit.ActiveCktElement := ActiveMonitorObj;
 
   Result := 0;
+  recalc:=0;
 
   WITH ActiveMonitorObj DO Begin
 
@@ -315,6 +317,7 @@ Begin
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
 
          If (ParamPointer>0) and (ParamPointer<=NumProperties) Then PropertyValue[ParamPointer]:= Param;
+         inc (recalc);
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 661);
@@ -327,7 +330,7 @@ Begin
                     's':Save;
                     'c','r':ResetIt;
                     't': TakeSample;
-                    'p': PostProcess;
+                    'p': begin PostProcess; dec(recalc) end
                   End;
                End;  // buffer
             5: IncludeResidual := InterpretYesNo(Param);
@@ -342,7 +345,7 @@ Begin
          Param := Parser.StrValue;
      End;
 
-     RecalcElementData;
+     if recalc > 0 then RecalcElementData;
   End;
 
 End;

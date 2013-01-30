@@ -36,6 +36,8 @@ type
     procedure SampleAll; safecall;
     procedure SaveAll; safecall;
     function Get_Count: Integer; safecall;
+    procedure Process; safecall;
+    procedure ProcessAll; safecall;
     { Protected declarations }
   end;
 
@@ -345,6 +347,23 @@ begin
     If ActiveCircuit <> Nil Then Begin
          Result := ActiveCircuit.Monitors.ListSize;
      End;
+end;
+
+procedure TMonitors.Process;
+var
+  pMon:TMonitorObj;
+begin
+  if ActiveCircuit <> Nil then begin
+    pMon := ActiveCircuit.Monitors.Active;
+    if PMon <> Nil then pMon.PostProcess;
+  end;
+end;
+
+procedure TMonitors.ProcessAll;
+begin
+  If ActiveCircuit <> Nil Then Begin
+    MonitorClass.PostProcessAll;
+  End;
 end;
 
 initialization
