@@ -1194,7 +1194,7 @@ Begin
              MODEFOLLOW: Begin
                               If DischargeTriggeredByTime Then Begin
                                   If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name,
-                                     Format('Fleet Set to Discharging by Time Trigger; Old kWTarget = %-.6g; New = 5-.6g',[FkwTarget, S.re * 0.001]));
+                                     Format('Fleet Set to Discharging by Time Trigger; Old kWTarget = %-.6g; New = %-.6g',[FkwTarget, S.re * 0.001]));
                                   FkwTarget := Max(FkWThreshold, S.re * 0.001);  // Capture present kW and reset target
                                   DischargeTriggeredByTime := FALSE;  // so we don't come back in here right away
                                   SetFleetToIdle;

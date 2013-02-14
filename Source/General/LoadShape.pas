@@ -204,7 +204,8 @@ Begin
 
      PropertyHelp[1] := 'Max number of points to expect in load shape vectors. This gets reset to the number of multiplier values found (in files only) if less than specified.';     // Number of points to expect
      PropertyHelp[2] := 'Time interval for fixed interval data, hrs. Default = 1. '+
-                        'If set = 0 then time data (in hours) is expected using either the Hour property or input files. ' +CRLF+CRLF+
+                        'If Interval = 0 then time data (in hours) may be at irregular intervals and time value must be specified using either the Hour property or input files. ' +
+                        'Then values are interpolated when Interval=0, but not for fixed interval data.  ' +CRLF+CRLF+
                         'See also "sinterval" and "minterval".'; // default = 1.0;
      PropertyHelp[3] := 'Array of multiplier values for active power (P).  You can also use the syntax: '+CRLF+
                         'mult = (file=filename)     !for text file one value per line'+CRLF+

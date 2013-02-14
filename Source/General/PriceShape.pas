@@ -188,7 +188,8 @@ Begin
      PropertyHelp[1] := 'Max number of points to expect in price shape vectors. This gets reset to the number of Price values ' +
                         'found if less than specified.';     // Number of points to expect
      PropertyHelp[2] := 'Time interval for fixed interval data, hrs. Default = 1. '+
-                        'If set = 0 then time data (in hours) is expected using either the Hour property or input files. ' +CRLF+CRLF+
+                        'If Interval = 0 then time data (in hours) may be at irregular intervals and time value must be specified using either the Hour property or input files. ' +
+                        'Then values are interpolated when Interval=0, but not for fixed interval data.  ' +CRLF+CRLF+
                         'See also "sinterval" and "minterval".'; // default = 1.0;
      PropertyHelp[3] := 'Array of Price values.  Units should be compatible with the object using the data. ' +
                         'You can also use the syntax: '+CRLF+
@@ -267,7 +268,7 @@ Begin
          If (ParamPointer>0) and (ParamPointer<=NumProperties) Then PropertyValue[ParamPointer] := Param;
 
          CASE ParamPointer OF
-            0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 610);
+            0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 58610);
             1: NumPoints := Parser.Intvalue;
             2: Interval := Parser.DblValue;
             3: Begin
@@ -342,7 +343,7 @@ Begin
 
        For i := 1 to ParentClass.NumProperties Do PropertyValue[i] := OtherPriceShape.PropertyValue[i];
     End
-   ELSE  DoSimpleMsg('Error in PriceShape MakeLike: "' + ShapeName + '" Not Found.', 611);
+   ELSE  DoSimpleMsg('Error in PriceShape MakeLike: "' + ShapeName + '" Not Found.', 58611);
 
 
 End;
@@ -388,7 +389,7 @@ Begin
        PriceShapeObj := ElementList.Next;
     End;
 
-    DoSimpleMsg('PriceShape: "' + Value + '" not Found.', 612);
+    DoSimpleMsg('PriceShape: "' + Value + '" not Found.', 58612);
 
 End;
 
@@ -405,7 +406,7 @@ Begin
        AssignFile(F,FileName);
        Reset(F);
     EXCEPT
-       DoSimpleMsg('Error Opening File: "' + FileName, 613);
+       DoSimpleMsg('Error Opening File: "' + FileName, 58613);
        CloseFile(F);
        Exit;
     End;
@@ -432,7 +433,7 @@ Begin
 
     EXCEPT
        On E:Exception Do Begin
-         DoSimpleMsg('Error Processing CSV File: "' + FileName + '. ' + E.Message , 614);
+         DoSimpleMsg('Error Processing CSV File: "' + FileName + '. ' + E.Message , 58614);
          CloseFile(F);
          Exit;
        End;
@@ -453,7 +454,7 @@ Begin
        AssignFile(F,FileName);
        Reset(F);
     EXCEPT
-       DoSimpleMsg('Error Opening File: "' + FileName, 615);
+       DoSimpleMsg('Error Opening File: "' + FileName, 58615);
        CloseFile(F);
        Exit;
     End;
@@ -472,7 +473,7 @@ Begin
            If i<>FNumPoints Then NumPoints := i;
        End;
     EXCEPT
-         DoSimpleMsg('Error Processing PriceShape File: "' + FileName, 616);
+         DoSimpleMsg('Error Processing PriceShape File: "' + FileName, 58616);
          CloseFile(F);
          Exit;
     End;
@@ -490,7 +491,7 @@ Begin
        AssignFile(F,FileName);
        Reset(F);
     EXCEPT
-       DoSimpleMsg('Error Opening File: "' + FileName, 617);
+       DoSimpleMsg('Error Opening File: "' + FileName, 58617);
        CloseFile(F);
        Exit;
     End;
@@ -509,7 +510,7 @@ Begin
            If i<>FNumPoints Then NumPoints := i;
        End;
     EXCEPT
-         DoSimpleMsg('Error Processing PriceShape File: "' + FileName, 618);
+         DoSimpleMsg('Error Processing PriceShape File: "' + FileName, 58618);
          CloseFile(F);
          Exit;
     End;
@@ -779,7 +780,7 @@ Begin
      EXCEPT
         ON E:Exception Do
         Begin
-          DoSimpleMsg('TOP Transfer File Error: '+E.message, 619);
+          DoSimpleMsg('TOP Transfer File Error: '+E.message, 58619);
           TRY
               TopTransferFile.Close;
           EXCEPT
@@ -807,10 +808,10 @@ Begin
        Obj := Find(ObjName);
        If Obj <>  Nil Then Begin
           If Obj.Interval>(1.0/60.0) Then ObjList.Add(Obj)
-          ELSE DoSimpleMsg('PriceShape.'+ObjName+' is not hourly fixed interval.', 620);
+          ELSE DoSimpleMsg('PriceShape.'+ObjName+' is not hourly fixed interval.', 58620);
        End
        ELSE Begin
-           DoSimpleMsg('PriceShape.'+ObjName+' not found.', 621);
+           DoSimpleMsg('PriceShape.'+ObjName+' not found.', 58621);
        End;
 
      End;
@@ -879,7 +880,7 @@ Begin
     End;
 
    End
-   ELSE DoSimpleMsg('PriceShape.'+Name + ' Prices not defined.', 622);
+   ELSE DoSimpleMsg('PriceShape.'+Name + ' Prices not defined.', 58622);
 End;
 
 PROCEDURE TPriceShapeObj.SaveToSngFile;
@@ -907,7 +908,7 @@ Begin
 
 
    End
-   ELSE DoSimpleMsg('PriceShape.'+Name + ' Prices not defined.', 623);
+   ELSE DoSimpleMsg('PriceShape.'+Name + ' Prices not defined.', 58623);
 
 
 End;
