@@ -7,14 +7,23 @@
 
 Compile ieee34Mod2.dss
 
+New Energymeter.M1  Line.L1  1
+
 set maxcontroliter=300
 solve
+Buscoords IEEE34_BusXY.csv
 
 show voltages LN Nodes
 show currents residual=y elements
 show powers kva element
 show taps
 
+Set MarkTransformers=yes
+// let OpenDSS compute coordinates for the mid points (not in the buscoords file)
+Interpolate  ! requires an energyMeter
+plot circuit Power max=2000 y y C1=$00FF0000
+
+Plot profile phases=all
 
 !-----------------------------------------------------------------------------
 !--------2nd Run Script for 34-bus Test Case---------------------------------
