@@ -87,6 +87,7 @@ TYPE
 
         IsParallel  :Boolean;
         RpSpecified :Boolean;
+        Bus2Defined :Boolean;
 
       Public
 
@@ -163,9 +164,12 @@ Begin
 
      PropertyHelp^[1] := 'Name of first bus. Examples:'+CRLF+
                          'bus1=busname'+CRLF+
-                         'bus1=busname.1.2.3';
+                         'bus1=busname.1.2.3'+CRLF+CRLF+
+                         'Bus2 property will default to this bus, node 0, unless previously specified. ' +
+                         'Only Bus1 need be specified for a Yg shunt reactor.';
      PropertyHelp^[2] := 'Name of 2nd bus. Defaults to all phases connected '+
-                         'to first bus, node 0. (Shunt Wye Connection)'+CRLF+
+                         'to first bus, node 0, (Shunt Wye Connection) '  +
+                         'except when Bus2 is specifically defined.'+CRLF+ CRLF+
                          'Not necessary to specify for delta (LL) connection';
      PropertyHelp^[3] := 'Number of phases.';
      PropertyHelp^[4] := 'Total kvar, all phases.  Evenly divided among phases. Only determines X. Specify R separately';
@@ -262,16 +266,19 @@ BEGIN
    WITH ActiveReactorObj DO BEGIN
      SetBus(1, S);
 
-     // Default Bus2 to zero node of Bus1. (Wye Grounded connection)
+     // Default Bus2 to zero node of Bus1 if not already defined. (Wye Grounded connection)
 
-     // Strip node designations from S
-     dotpos := Pos('.',S);
-     IF dotpos>0 THEN S2 := Copy(S,1,dotpos-1)
-     ELSE S2 := Copy(S,1,Length(S));  // copy up to Dot
-     FOR i := 1 to Fnphases DO S2 := S2 + '.0';
+     If Not Bus2Defined Then
+     Begin
+         // Strip node designations from S
+         dotpos := Pos('.',S);
+         IF dotpos>0 THEN S2 := Copy(S,1,dotpos-1)
+         ELSE S2 := Copy(S,1,Length(S));  // copy up to Dot
+         FOR i := 1 to Fnphases DO S2 := S2 + '.0';
 
-     SetBus(2,S2);
-     IsShunt := True;
+         SetBus(2,S2);
+         IsShunt := True;
+     End;
    END;
 END;
 
@@ -328,7 +335,10 @@ BEGIN
                 PrpSequence^[2] := 0;       // Reset this for save function
               End;
             2:If CompareText(StripExtension(GetBus(1)), StripExtension(GetBus(2))) <> 0
-              Then IsShunt := False;
+              Then Begin
+                IsShunt     := FALSE;
+                Bus2Defined := TRUE;
+              End;
             3: IF Fnphases <> Parser.IntValue
                THEN BEGIN
                  Nphases := Parser.IntValue ;
@@ -454,6 +464,7 @@ BEGIN
      Rp         := 0.0;  // Indicates it has not been set to a proper value
      IsParallel  := FALSE;
      RpSpecified := FALSE;
+     Bus2Defined := FALSE;
      Connection  :=0;   // 0 or 1 for wye (default) or delta, respectively
      SpecType    := 1; // 1=kvar, 2=Cuf, 3=Cmatrix
      NormAmps    := kvarRating * SQRT3/kvrating;

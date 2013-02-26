@@ -82,6 +82,7 @@ TYPE
         Cmatrix  :pDoubleArray;  // If not nil then overrides C
 
         DoHarmonicRecalc:Boolean;
+        Bus2Defined     :Boolean;
 
         SpecType   :Integer;
 
@@ -179,11 +180,14 @@ Begin
 
      // define Property help values
 
-     PropertyHelp^[1] := 'Name of first bus. Examples:' + CRLF +
-                         'bus1=busname' + CRLF + 'bus1=busname.1.2.3';
+     PropertyHelp^[1] := 'Name of first bus of 2-terminal capacitor. Examples:' + CRLF +
+                         'bus1=busname' + CRLF + 'bus1=busname.1.2.3'+CRLF+CRLF+
+                         'If only one bus specified, Bus2 will default to this bus, Node 0, ' +
+                         'and the capacitor will be a Yg shunt bank.';
      PropertyHelp^[2] := 'Name of 2nd bus. Defaults to all phases connected '+
-                         'to first bus, node 0. (Shunt Wye Connection)' + CRLF +
-                         'Not necessary to specify for delta (LL) connection';
+                         'to first bus, node 0, (Shunt Wye Connection) ' +
+                         'except when Bus2 explicitly specified. ' +CRLF+CRLF+
+                         'Not necessary to specify for delta (LL) connection.';
      PropertyHelp^[3] := 'Number of phases.';
      PropertyHelp^[4] := 'Total kvar, if one step, or ARRAY of kvar ratings for each step.  Evenly divided among phases. See rules for NUMSTEPS.';
      PropertyHelp^[5] := 'For 2, 3-phase, kV phase-phase. Otherwise specify actual can rating.';
@@ -285,16 +289,19 @@ BEGIN
    WITH ActiveCapacitorObj DO BEGIN
      SetBus(1, S);
 
-     // Default Bus2 to zero node of Bus1. (Grounded-Y connection)
+     // Default Bus2 to zero node of Bus1 unless it is previously defined. (Grounded-Y connection)
 
-     // Strip node designations from S
-     dotpos := Pos('.',S);
-     IF dotpos>0 THEN S2 := Copy(S,1,dotpos-1)
-                 ELSE S2 := Copy(S,1,Length(S));  // copy up to Dot
-     FOR i := 1 to Fnphases DO S2 := S2 + '.0';   // append series of ".0"'s
+     If Not Bus2Defined Then
+     Begin
+       // Strip node designations from S
+       dotpos := Pos('.',S);
+       IF dotpos>0 THEN S2 := Copy(S,1,dotpos-1)
+                   ELSE S2 := Copy(S,1,Length(S));  // copy up to Dot
+       FOR i := 1 to Fnphases DO S2 := S2 + '.0';   // append series of ".0"'s
 
-     SetBus(2, S2);    // default setting for Bus2
-     IsShunt := True;
+       SetBus(2, S2);    // default setting for Bus2
+       IsShunt := True;
+     End;
    END;
 END;
 
@@ -353,7 +360,10 @@ BEGIN
               PrpSequence^[2] := 0; // Reset this for save function
             End;
           2:If CompareText(StripExtension(GetBus(1)), StripExtension(GetBus(2))) <> 0
-            Then IsShunt := False;
+            Then Begin
+              IsShunt     := FALSE;
+              Bus2Defined := TRUE;
+            End;
           3: IF Fnphases <> Parser.IntValue
              THEN BEGIN
                Nphases := Parser.IntValue ;
@@ -508,6 +518,7 @@ BEGIN
      Yorder := Fnterms * Fnconds;
 
      DoHarmonicRecalc := FALSE;
+     Bus2Defined      := FALSE;
 
      RecalcElementData;
 

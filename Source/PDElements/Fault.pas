@@ -65,9 +65,12 @@ TYPE
    TFaultObj = class(TPDElement)
       Private
         MinAmps:Double;
-        IsTemporary, Cleared, Is_ON:Boolean;
-        On_Time:Double;
-        RandomMult:Double;
+        IsTemporary,
+        Cleared,
+        Is_ON       :Boolean;
+        Bus2Defined :Boolean;
+        On_Time     :Double;
+        RandomMult  :Double;
         FUNCTION FaultStillGoing: Boolean;
       Protected
         G :Double;         // single G per phase (line rating) if Gmatrix not specified
@@ -148,11 +151,13 @@ Begin
      PropertyName^[9] := 'MinAmps';
 
      // define Property help values
-     PropertyHelp[1] := 'Name of first bus. Examples:'+CRLF+
+     PropertyHelp[1] := 'Name of first bus. Examples:'+CRLF+  CRLF+
                      'bus1=busname'+CRLF+
-                     'bus1=busname.1.2.3';
-     PropertyHelp[2] := 'Name of 2nd bus. Defaults to all phases connected '+
-                     'to first bus, node 0, if not specified. (Shunt Wye Connection to ground reference)';
+                     'bus1=busname.1.2.3'+CRLF+  CRLF+
+                     'Bus2 automatically defaults to busname.0,0,0 unless it was previously defined. ';
+     PropertyHelp[2] := 'Name of 2nd bus of the 2-terminal Fault object. Defaults to all phases connected '+
+                     'to first bus, node 0, if not specified. (Shunt Wye Connection to ground reference)'+CRLF+  CRLF+
+                     'That is, the Fault defaults to a ground fault unless otherwise specified.';
      PropertyHelp[3] := 'Number of Phases. Default is 1.';
      PropertyHelp[4] := 'Resistance, each phase, ohms. Default is 0.0001. Assumed to be Mean value if gaussian random mode.'+
                     'Max value if uniform mode.  A Fault is actually a series resistance '+
@@ -224,17 +229,20 @@ BEGIN
    
      SetBus(1, S);
 
-     // Default Bus2 to zero node of Bus1. (Wye Grounded connection)
+     // Default Bus2 to zero node of Bus1 unless previously defined explicitly. (Wye Grounded connection)
 
-     // Strip node designations from S
-     dotpos := Pos('.',S);
-     IF dotpos>0 THEN S2 := Copy(S,1,dotpos-1)  // copy up to Dot
-     ELSE S2 := Copy(S,1,Length(S));
+     If Not Bus2Defined Then
+     Begin
+         // Strip node designations from S
+         dotpos := Pos('.',S);
+         IF dotpos>0 THEN S2 := Copy(S,1,dotpos-1)  // copy up to Dot
+         ELSE S2 := Copy(S,1,Length(S));
 
-     S2 := S2 + '.0.0.0';     // Set Default for up to 3 phases
+         S2 := S2 + '.0.0.0';     // Set Default for up to 3 phases
 
-     SetBus(2,S2);
-     IsShunt := True;
+         SetBus(2,S2);
+         IsShunt := True;
+     End;
    END;
 END;
 
@@ -287,7 +295,10 @@ BEGIN
          CASE ParamPointer OF
           1: PropertyValue[2] := GetBus(2);  // Bus2 gets modified if bus1 is
           2:If CompareText(StripExtension(GetBus(1)), StripExtension(GetBus(2))) <> 0
-            Then IsShunt := False;
+            Then Begin
+                IsShunt     := FALSE;
+                Bus2Defined := TRUE;
+            End;
           3: IF Fnphases <> Parser.IntValue THEN BEGIN
                Nphases := Parser.IntValue ;
                NConds := Fnphases;  // Force Reallocation of terminal info
@@ -400,6 +411,7 @@ BEGIN
      MinAmps      := 5.0;
      IsTemporary  := FALSE;
      Cleared      := FALSE;
+     Bus2Defined  := FALSE;
      Is_ON        := TRUE;
      On_Time      := 0.0;  // Always enabled at the start of a solution.
 
