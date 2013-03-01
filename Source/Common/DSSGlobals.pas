@@ -22,7 +22,7 @@ unit DSSGlobals;
 interface
 
 Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerList,
-     UComplex, Arraydef, CktElement, Circuit, IniRegSave,
+     UComplex, Arraydef, CktElement, Circuit, IniRegSave, Graphics,
      {Some units which have global vars defined here}
      Spectrum,
      LoadShape,
@@ -165,6 +165,8 @@ VAR
 
    DefaultEditor    :String;     // normally, Notepad
    DefaultFontSize  :Integer;
+   DefaultFontName  :String;
+   DefaultFontStyles :TFontStyles;
    DSSFileName      :String;     // Name of current exe or DLL
    DSSDirectory     :String;     // where the current exe resides
    StartupDirectory :String;     // Where we started
@@ -595,6 +597,10 @@ Begin
   DSS_Registry.Section := 'MainSect';
   DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
   DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '8' ));
+  DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'MS Sans Serif' );
+  DefaultFontStyles := [];
+  If DSS_Registry.ReadBool('ScriptFontBold', TRUE)    Then DefaultFontStyles := DefaultFontStyles + [fsbold];
+  If DSS_Registry.ReadBool('ScriptFontItalic', FALSE) Then DefaultFontStyles := DefaultFontStyles + [fsItalic];
   DefaultBaseFreq  := StrToInt(DSS_Registry.ReadString('BaseFrequency', '60' ));
   LastFileCompiled := DSS_Registry.ReadString('LastFile', '' );
   SetDataPath (DSS_Registry.ReadString('DataPath', DataDirectory));
@@ -606,6 +612,9 @@ Begin
   DSS_Registry.Section := 'MainSect';
   DSS_Registry.WriteString('Editor',        DefaultEditor);
   DSS_Registry.WriteString('ScriptFontSize', Format('%d',[DefaultFontSize]));
+  DSS_Registry.WriteString('ScriptFontName', Format('%s',[DefaultFontName]));
+  DSS_Registry.WriteBool('ScriptFontBold',   (fsBold in DefaultFontStyles));
+  DSS_Registry.WriteBool('ScriptFontItalic', (fsItalic in DefaultFontStyles));
   DSS_Registry.WriteString('BaseFrequency', Format('%d',[Round(DefaultBaseFreq)]));
   DSS_Registry.WriteString('LastFile',      LastFileCompiled);
   DSS_Registry.WriteString('DataPath', DataDirectory);
@@ -694,6 +703,8 @@ initialization
    AuxParser       := TParser.Create;
    DefaultEditor   := 'NotePad';
    DefaultFontSize := 8;
+   DefaultFontName := 'MS Sans Serif';
+
    NoFormsAllowed  := FALSE;
 
    EventStrings    := TStringList.Create;

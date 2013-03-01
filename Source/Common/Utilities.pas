@@ -52,6 +52,7 @@ FUNCTION  InterpretTimeStepSize(const s:string):double;
 FUNCTION  InterpretLoadShapeClass(const s:string):Integer;
 FUNCTION  InterpretEarthModel(const s:string):Integer;
 FUNCTION  InterpretColorName(const s:string):Integer;
+FUNCTION  InterpretComplex(const s:String):Complex;
 
 FUNCTION GetSolutionModeID:String;
 FUNCTION GetSolutionModeIDName(idx:Integer):String;
@@ -530,6 +531,22 @@ Begin
          Result := False
      END;
 
+End;
+
+//----------------------------------------------------------------------------
+Function InterpretComplex(const s:String):Complex;
+
+// interpret first two entries as complex numbers
+
+VAR
+   ParmName :String;
+
+Begin
+     Auxparser.CmdString := S;
+     ParmName := Auxparser.NextParam ;
+     Result.re  := AuxParser.dblvalue;
+     ParmName := Auxparser.NextParam ;
+     Result.im  := AuxParser.dblvalue;
 End;
 
 //----------------------------------------------------------------------------

@@ -776,14 +776,14 @@ Begin
              FOR i := 1 to Yorder DO
                Begin
                  Write(F, '! ');
-                 FOR j := 1 to i DO Write(F, Format(' %13.10g |',[YPrim.GetElement(i,j).re]));
+                 FOR j := 1 to Yorder DO Write(F, Format(' %13.10g |',[YPrim.GetElement(i,j).re]));
                  Writeln(F);
                End;
              Writeln(F, '! YPrim (B Matrix) = ');
              FOR i := 1 to Yorder DO
                Begin
                  Write(F, '! ');
-                 FOR j := 1 to i DO  Write(F, Format(' %13.10g |',[YPrim.GetElement(i,j).im]));
+                 FOR j := 1 to Yorder DO  Write(F, Format(' %13.10g |',[YPrim.GetElement(i,j).im]));
                  Writeln(F);
                End;
           End;

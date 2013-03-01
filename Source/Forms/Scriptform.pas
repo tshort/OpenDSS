@@ -220,7 +220,9 @@ begin
    UpdateCursorPos;
    HasFileName := FALSE;
    IsMainWindow := FALSE;
-   Editor.Font.Size := DefaultFontSize;
+   Editor.Font.Size  := DefaultFontSize;
+   Editor.Font.Name  := DefaultFontName;
+   Editor.Font.Style := DefaultFontStyles;
 end;
 
 procedure TMainEditForm.FormDestroy(Sender: TObject);
@@ -543,9 +545,11 @@ begin
            If Execute then Begin
               Editor.SelAttributes.Assign(Font);
               Editor.Font := Font;
-              DefaultFontSize := Editor.Font.Size;
+              DefaultFontSize   := Editor.Font.Size;
+              DefaultFontName   := Editor.Font.Name;
+              DefaultFontStyles := Editor.Font.Style;
            End
-           Else Editor.Font :=FontSave;
+           Else Editor.Font := FontSave;
         End;
 end;
 

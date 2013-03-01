@@ -3778,3 +3778,4 @@ finalization
     PstCalcCommands.Free;
 
 end.
+

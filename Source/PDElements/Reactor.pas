@@ -79,15 +79,19 @@ TYPE
         X,
         kvarrating,
         kvrating :Double;
+        Z, Z1, Z2, Z0 : Complex;
         Rmatrix, Gmatrix,
         XMatrix, Bmatrix :pDoubleArray;  // If not nil then overrides C
 
         Connection :Integer;   // 0 or 1 for wye (default) or delta, respectively
-        SpecType   :Integer;   // 1=kvar, 2=R+jX, 3=R and X matrices
+        SpecType   :Integer;   // 1=kvar, 2=R+jX, 3=R and X matrices, 4=sym components
 
         IsParallel  :Boolean;
         RpSpecified :Boolean;
         Bus2Defined :Boolean;
+        Z2Specified :Boolean;
+        Z0Specified :Boolean;
+
 
       Public
 
@@ -100,6 +104,7 @@ TYPE
 
         Procedure RecalcElementData; Override;
         Procedure CalcYPrim;         Override;
+        FUNCTION  GetPropertyValue(Index:Integer):String;         Override;
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);         Override;
         Procedure DumpProperties(Var F:TextFile;Complete:Boolean); Override;
 
@@ -112,7 +117,7 @@ implementation
 
 USES  ParserDel,  DSSClassDefs, DSSGlobals, Sysutils,  Mathutil, Utilities;
 
-Const NumPropsThisClass = 12;
+Const NumPropsThisClass = 16;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TReactor.Create;  // Creates superstructure for all Reactor objects
@@ -159,6 +164,10 @@ Begin
      PropertyName^[10] := 'R';
      PropertyName^[11] :='X';
      PropertyName^[12] :='Rp';
+     PropertyName^[13] :='Z1';
+     PropertyName^[14] :='Z2';
+     PropertyName^[15] :='Z0';
+     PropertyName^[16] :='Z';
 
      // define Property help values
 
@@ -181,10 +190,25 @@ Begin
                          'Mutually exclusive to specifying parameters by kvar or X.';
      PropertyHelp^[9] := '{Yes | No}  Default=No. Indicates whether Rmatrix and Xmatrix are to be considered in parallel. ' +
                          'Default is series. For other models, specify R and Rp.';
-     PropertyHelp^[10] := 'Resistance (in series with reactance), each phase, ohms.';
-     PropertyHelp^[11] := 'Reactance, each phase, ohms at base frequency.';
+     PropertyHelp^[10] := 'Resistance (in series with reactance), each phase, ohms. ' +
+                          'This property applies to REACTOR specified by either kvar or X. See also help on Z.';
+     PropertyHelp^[11] := 'Reactance, each phase, ohms at base frequency. See also help on Z.';
      PropertyHelp^[12] := 'Resistance in parallel with R and X (the entire branch). Assumed infinite if not specified.';
-
+     PropertyHelp^[13] := 'Positive-sequence impedance, ohms, as a 2-element array representing a complex number. Example: '+CRLF+CRLF+
+                          'Z1=[1, 2]  ! represents 1 + j2 '+CRLF+CRLF+
+                          'If defined, Z1, Z2, and Z0 are used to define the impedance matrix of the REACTOR. ' +
+                          'Z1 MUST BE DEFINED TO USE THIS OPTION FOR DEFINING THE MATRIX.'+CRLF+CRLF+
+                          'Side Effect: Sets Z2 and Z0 to same values unless they were previously defined.';
+     PropertyHelp^[14] := 'Negative-sequence impedance, ohms, as a 2-element array representing a complex number. Example: '+CRLF+CRLF+
+                          'Z2=[1, 2]  ! represents 1 + j2 ' +CRLF+CRLF+
+                          'Used to define the impedance matrix of the REACTOR if Z1 is also specified. '+CRLF+CRLF+
+                          'Note: Z2 defaults to Z1 if it is not specifically defined. If Z2 is not equal to Z1, the impedance matrix is asymmetrical.';
+     PropertyHelp^[15] := 'Zer0-sequence impedance, ohms, as a 2-element array representing a complex number. Example: '+CRLF+CRLF+
+                          'Z0=[3, 4]  ! represents 3 + j4 '+CRLF+CRLF+
+                          'Used to define the impedance matrix of the REACTOR if Z1 is also specified. '+CRLF+CRLF+
+                          'Note: Z0 defaults to Z1 if it is not specifically defined. ';
+     PropertyHelp^[16] := 'Alternative way of defining R and X properties. Enter a 2-element array representing R +jX in ohms. Example:'+CRLF+CRLF+
+                          'Z=[5  10]   ! equivalent to R=5  X=10 ';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -323,6 +347,10 @@ BEGIN
            10: R := Parser.Dblvalue;
            11: X := Parser.Dblvalue;
            12: Rp := Parser.Dblvalue;
+           13: Z1 := InterpretComplex(Param);
+           14: Z2 := InterpretComplex(Param);
+           15: Z0 := InterpretComplex(Param);
+           16: Z  := InterpretComplex(Param);
          ELSE
             // Inherited Property Edits
             ClassEdit(ActiveReactorObj, ParamPointer - NumPropsThisClass)
@@ -347,14 +375,26 @@ BEGIN
                END;
             4:   SpecType := 1;   // X specified by kvar, kV
             7,8: SpecType := 3;
-            11:  SpecType := 2;   // X specified directly
+            11:  SpecType := 2;   // X specified directly rather than computed from kvar
             12:  RpSpecified := TRUE;
+            13:  Begin
+                    SpecType := 4;    // have to set Z1 to get this mode
+                    If Not Z2Specified  Then  Z2 := Z1;
+                    If Not Z0Specified  Then  Z0 := Z1;
+                 End;
+            14:  Z2Specified := TRUE;
+            15:  Z0Specified := TRUE;
+            16:  Begin
+                    R := Z.re;
+                    X := Z.im;
+                    SpecType := 2;
+                 End
          ELSE
          END;
 
          //YPrim invalidation on anything that changes impedance values
          CASE ParamPointer OF
-             3..12: YprimInvalid := True;
+             3..16: YprimInvalid := True;
          ELSE
          END;
 
@@ -390,16 +430,24 @@ BEGIN
 
        END;
 
-       R := OtherReactor.R;
-       X := OtherReactor.X;
-       Rp := OtherReactor.Rp;
+       R   := OtherReactor.R;
+       X   := OtherReactor.X;
+       Rp  := OtherReactor.Rp;
+
        RpSpecified := OtherReactor.RpSpecified;
-       IsParallel := OtherReactor.IsParallel;
+       IsParallel  := OtherReactor.IsParallel;
 
        kvarrating := OtherReactor.kvarrating;
-       kvrating := OtherReactor.kvrating;
+       kvrating   := OtherReactor.kvrating;
        Connection := OtherReactor.Connection;
-       SpecType := OtherReactor.SpecType;
+       SpecType   := OtherReactor.SpecType;
+
+       Z        := OtherReactor.Z;
+       Z1       := OtherReactor.Z1;
+       Z2       := OtherReactor.Z2;
+       Z0       := OtherReactor.Z0;
+       Z2Specified := OtherReactor.Z2Specified;
+       Z0Specified := OtherReactor.Z0Specified;
 
        If OtherReactor.Rmatrix=Nil Then  Reallocmem(Rmatrix, 0)
        ELSE  BEGIN
@@ -465,6 +513,8 @@ BEGIN
      IsParallel  := FALSE;
      RpSpecified := FALSE;
      Bus2Defined := FALSE;
+     Z2Specified := FALSE;
+     Z0Specified := FALSE;
      Connection  :=0;   // 0 or 1 for wye (default) or delta, respectively
      SpecType    := 1; // 1=kvar, 2=Cuf, 3=Cmatrix
      NormAmps    := kvarRating * SQRT3/kvrating;
@@ -534,7 +584,8 @@ BEGIN
 
          {Copy Rmatrix to Gmatrix and Invert}
          For i := 1 to  Fnphases*Fnphases  Do Gmatrix^[i] := RMatrix^[i];
-         ETKInvert(Rmatrix, Fnphases, CheckError);
+// should be Gmatrix         ETKInvert(Rmatrix, Fnphases, CheckError);
+         ETKInvert(Gmatrix, Fnphases, CheckError);
          If CheckError>0 Then Begin
              DoSimpleMsg('Error inverting R Matrix for Reactor.'+name+' - G is zeroed.', 232);
              For i := 1 to  Fnphases*Fnphases  Do Gmatrix^[i] := 0.0;
@@ -545,7 +596,7 @@ BEGIN
          ETKInvert(Bmatrix, Fnphases, CheckError);
          If CheckError>0 Then Begin
              DoSimpleMsg('Error inverting X Matrix for Reactor.'+name+' - B is zeroed.', 233);
-             For i := 1 to  Fnphases*Fnphases  Do Gmatrix^[i] := 0.0;
+             For i := 1 to  Fnphases*Fnphases  Do Bmatrix^[i] := 0.0;
          End;
      End;
 
@@ -556,12 +607,14 @@ END;
 Procedure TReactorObj.CalcYPrim;
 
 VAR
-   Value, Value2:Complex;
+   Value, Value1, Value2:Complex;
+   Calpha1, CAlpha2:Complex;
+ //  Y0, Y1, Y2 : Complex;
    i,j, idx :Integer;
    FreqMultiplier:Double;
    ZValues :pComplexArray;
    YPrimTemp,
-   ZMatrix   :TCMatrix;
+   ZMatrix{, Ymatrix }  :TCMatrix;
 
 BEGIN
 
@@ -671,6 +724,140 @@ BEGIN
                  Zmatrix.Free;
               END;
           END;
+
+       4: BEGIN  // Symmetrical component Z's specified
+
+(***
+
+   parallel doesn't make sense
+              If IsParallel Then
+               Begin
+
+                 If Cabs(Z0) > 0.0 Then Y0 := Cinv(Z0) Else Y0 := Cmplx(1.0e12, 0.0);
+                 If Cabs(Z1) > 0.0 Then Y1 := Cinv(Z1) Else Y1 := Cmplx(1.0e12, 0.0);
+                 If Cabs(Z2) > 0.0 Then Y2 := Cinv(Z2) Else Y2 := Cmplx(1.0e12, 0.0);
+
+                  {Assumes the sequence networks are in parallel}
+                 Ymatrix := TcMatrix.CreateMatrix(Fnphases);
+
+                // diagonal elements  -- all the same
+                 If Fnphases=1 Then // assume positive sequence only model
+                     Value := Y1
+                 Else
+                     Value := Cadd(Y2, Cadd(Y1, Y0));
+
+                 Value.im := Value.im / FreqMultiplier; // Correct the impedances for frequency
+                 Value    := CdivReal(Value, 3.0);
+                 With Ymatrix Do FOR i := 1 to Fnphases  Do SetElement(i, i, Value);
+
+
+
+                 If FnPhases = 3 Then     // otherwise undefined
+                 Begin
+                     Calpha1 := Conjg(Calpha);   // Change it to agree with textbooks
+                     Calpha2 := Cmul(Calpha1, Calpha1);  // Alpha squared  = 1 /_ 240 = 1/_-120
+                     Value2  := Cadd(Cmul(Calpha2,Y2),Cadd(Cmul(Calpha1, Y1), Y0));
+                     Value1  := Cadd(Cmul(Calpha2,Y1),Cadd(Cmul(Calpha1, Y2), Y0));
+
+                     Value1.im := Value1.im / FreqMultiplier; // Correct the impedances for frequency
+                     Value2.im := Value2.im / FreqMultiplier; // Correct the impedances for frequency
+
+                     Value1 := CdivReal(Value1, 3.0);
+                     Value2 := CdivReal(Value2, 3.0);
+                     With Ymatrix Do Begin
+                       //Lower Triangle
+                         SetElement(2, 1, Value1);
+                         SetElement(3, 1, Value2);
+                         SetElement(3, 2, Value1);
+                       //Upper Triangle
+                         SetElement(1, 2, Value2);
+                         SetElement(1, 3, Value1);
+                         SetElement(2, 3, Value2);
+                     End;
+                 End;
+
+                 FOR i := 1 to Fnphases Do  BEGIN       // could be asymmetric
+                    FOR j := 1 to Fnphases Do  BEGIN
+                       Value := Ymatrix.GetElement(i,j);
+                       SetElement(i, j, Value);
+                       SetElement(i+Fnphases, j+Fnphases, Value);
+                       SetElement(i, j+Fnphases, Cnegate(Value));
+                       SetElement(i+Fnphases, j, Cnegate(Value));
+                     END;
+                  END;
+
+                  Ymatrix.Free;
+
+               End
+               Else Begin
+***)
+                {Series R+jX }
+
+                 Zmatrix := TcMatrix.CreateMatrix(Fnphases);
+
+                 // diagonal elements  -- all the same
+                 If Fnphases=1 Then // assume positive sequence only model
+                     Value := Z1
+                 Else
+                     Value := Cadd(Z2,Cadd(Z1,Z0));
+
+                 Value.im := Value.im * FreqMultiplier; // Correct the impedances for frequency
+                 Value  := CdivReal(Value,  3.0);
+                 FOR i := 1 to Fnphases  Do Begin
+                   Zmatrix.SetElement(i, i, Value)
+                 End;
+
+                 If FnPhases =3 Then     // otherwise undefined
+                 Begin
+
+                   // There are two possible off-diagonal elements  if Z1 <> Z2
+                   // Calpha is defined as 1 /_ -120 instead of 1 /_ 120
+
+                   Calpha1 := Conjg(Calpha);   // Change it to agree with textbooks
+                   Calpha2 := Cmul(Calpha1, Calpha1);  // Alpha squared  = 1 /_ 240 = 1/_-120
+                   Value2  := Cadd(Cmul(Calpha2,Z2),Cadd(Cmul(Calpha1, Z1), Z0));
+                   Value1  := Cadd(Cmul(Calpha2,Z1),Cadd(Cmul(Calpha1, Z2), Z0));
+
+                   Value1.im := Value1.im * FreqMultiplier; // Correct the impedances for frequency
+                   Value2.im := Value2.im * FreqMultiplier; // Correct the impedances for frequency
+
+                   Value1 := CdivReal(Value1, 3.0);
+                   Value2 := CdivReal(Value2, 3.0);
+                   With Zmatrix Do Begin
+                     //Lower Triangle
+                       SetElement(2, 1, Value1);
+                       SetElement(3, 1, Value2);
+                       SetElement(3, 2, Value1);
+                     //Upper Triangle
+                       SetElement(1, 2, Value2);
+                       SetElement(1, 3, Value1);
+                       SetElement(2, 3, Value2);
+                   End;
+
+                 End;
+
+                 ZMatrix.Invert;  {Invert in place - is now Ymatrix}
+                 If ZMatrix.InvertError>0 Then Begin       {If error, put in tiny series conductance}
+                    DoErrorMsg('TReactorObj.CalcYPrim', 'Matrix Inversion Error for Reactor "' + Name + '"',
+                               'Invalid impedance specified. Replaced with tiny conductance.', 234);
+                    ZMatrix.Clear;
+                    For i := 1 to Fnphases Do ZMatrix.SetElement(i, i, Cmplx(epsilon, 0.0));
+                 End;
+
+                 FOR i := 1 to Fnphases Do  BEGIN
+                    FOR j := 1 to Fnphases Do  BEGIN
+                       Value := Zmatrix.GetElement(i,j);
+                       SetElement(i, j, Value);
+                       SetElement(i+Fnphases, j+Fnphases, Value);
+                       SetElement(i, j+Fnphases, Cnegate(Value));
+                       SetElement(i+Fnphases, j, Cnegate(Value));
+                     END;
+                 END;
+
+                 Zmatrix.Free;
+
+              END;
+       //    END;
       END;
 
     END; {With YPRIM}
@@ -706,7 +893,7 @@ BEGIN
               7:  IF Rmatrix<>Nil THEN BEGIN
                      Write(F, PropertyName^[k],'= (');
                      For i := 1 to Fnphases DO BEGIN
-                        FOR j := 1 to i DO Write(F, Format('%-.5g',[RMatrix^[(i-1)*Fnphases + j]]),' ');
+                        FOR j := 1 to Fnphases DO Write(F, Format('%-.5g',[RMatrix^[(i-1)*Fnphases + j]]),' ');
                         IF i<>Fnphases THEN Write(F, '|');
                      END;
                      Writeln(F,')');
@@ -714,11 +901,15 @@ BEGIN
               8:  IF Xmatrix<>Nil THEN BEGIN
                      Write(F, PropertyName^[k],'= (');
                      For i := 1 to Fnphases DO BEGIN
-                        FOR j := 1 to i DO Write(F, Format('%-.5g',[XMatrix^[(i-1)*Fnphases + j]]),' ');
+                        FOR j := 1 to Fnphases DO Write(F, Format('%-.5g',[XMatrix^[(i-1)*Fnphases + j]]),' ');
                         IF i<>Fnphases THEN Write(F, '|');
                      END;
                      Writeln(F,')');
                   END;
+              13: Writeln(F, Format('Z1=[%-.8g, %-.8g]',[ Z1.re, Z1.im ]));
+              14: Writeln(F, Format('Z2=[%-.8g, %-.8g]',[ Z2.re, Z2.im ]));
+              15: Writeln(F, Format('Z0=[%-.8g, %-.8g]',[ Z0.re, Z0.im ]));
+              16: Writeln(F, Format('Z =[%-.8g, %-.8g]',[ R, X ]));
           ELSE
               Writeln(F,'~ ',PropertyName^[k],'=',PropertyValue[k]);
           END;
@@ -753,6 +944,21 @@ begin
 
 end;
 
+function TReactorObj.GetPropertyValue(Index: Integer): String;
+begin
+
+      CASE Index of
+          {Special cases for array properties}
+           13: Result := Format('[%-.8g, %-.8g]',[ Z1.re, Z1.im ]);
+           14: Result := Format('[%-.8g, %-.8g]',[ Z2.re, Z2.im ]);
+           15: Result := Format('[%-.8g, %-.8g]',[ Z0.re, Z0.im ]);
+           16: Result := Format('[%-.8g, %-.8g]',[ R, X ]);
+       ELSE
+         Result := Inherited GetPropertyValue(index);
+      END;
+
+end;
+
 procedure TReactorObj.InitPropertyValues(ArrayOffset: Integer);
 begin
 
@@ -768,6 +974,10 @@ begin
      PropertyValue[10] := '0';  // R series
      PropertyValue[11] := Format('%-.6g',[X]);  //X
      PropertyValue[12] := '0';  //Rp
+     PropertyValue[13] := '[0 0]';  //Z1
+     PropertyValue[14] := '[0 0]';  //Z2
+     PropertyValue[15] := '[0 0]';  //Z0
+     PropertyValue[16] := '[0 0]';  //Z
 
      inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -832,6 +1042,10 @@ begin
               S := S + Format(' X=%-.5g',[(Rs-Rm)]);
 
            END;
+           4:BEGIN // symmetrical components  Z1 specified
+              S := 'Phases=1 ';
+           END;
+
          END;
 
        Parser.CmdString := S;

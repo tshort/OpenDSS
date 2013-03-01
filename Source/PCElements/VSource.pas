@@ -43,30 +43,42 @@ TYPE
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
    TVsourceObj = class(TPCElement)
      private
-        MVAsc3 :Double;
-        MVAsc1 :Double;
-        Isc3   :Double;
-        Isc1   :Double;
-        ZSpecType :Integer;
-        R1, X1  :Double;
-        R0, X0  :Double;
-        X1R1    :Double;
-        X0R0    :Double;
+        MVAsc3  : Double;
+        MVAsc1  : Double;
+        Isc3    : Double;
+        Isc1    : Double;
+        ZSpecType : Integer;
+        R1, X1  : Double;  // Pos Seq Z
+        R2, X2  : Double;  // Neg Seq Z
+        R0, X0  : Double;  // Zero Seq Z
+        X1R1    : Double;
+        X0R0    : Double;
+        BaseMVA : Double;
+        puZ1, puZ0, puZ2 : Complex;
+        ZBase   : Double;
 
-        ScanType     :Integer;
-        SequenceType :Integer;
+        Bus2Defined : Boolean;
+        Z1Specified : Boolean;
+        puZ1Specified : Boolean;
+        puZ0Specified : Boolean;
+        puZ2Specified : Boolean;
+        Z2Specified : Boolean;
+        Z0Specified : Boolean;
+
+        ScanType     : Integer;
+        SequenceType : Integer;
 
         Procedure GetVterminalForSource;
 
       public
-        Z     :TCmatrix;  // Base Frequency Series Z matrix
-        Zinv  :TCMatrix;
-        VMag  :Double;
+        Z     : TCmatrix;  // Base Frequency Series Z matrix
+        Zinv  : TCMatrix;
+        VMag  : Double;
 
-        kVBase      :Double;
-        PerUnit     :Double;
-        Angle       :Double;
-        SrcFrequency:Double;
+        kVBase      : Double;
+        PerUnit     : Double;
+        Angle       : Double;
+        SrcFrequency: Double;
 
 
         constructor Create(ParClass:TDSSClass; const SourceName:String);
@@ -96,7 +108,7 @@ implementation
 
 USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command;
 
-Const NumPropsThisClass = 19;
+Const NumPropsThisClass = 26;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TVsource.Create;  // Creates superstructure for all Line objects
@@ -130,7 +142,6 @@ Begin
      CountProperties;   // Get inherited property count
      AllocatePropertyArrays;
 
-
      // Define Property names
      PropertyName[1] := 'bus1';
      PropertyName[2] := 'basekv';
@@ -151,9 +162,19 @@ Begin
      PropertyName[17] := 'ScanType';
      PropertyName[18] := 'Sequence';
      PropertyName[19]  := 'bus2';
+     PropertyName[20]  := 'Z1';
+     PropertyName[21]  := 'Z0';
+     PropertyName[22]  := 'Z2';
+     PropertyName[23]  := 'puZ1';
+     PropertyName[24]  := 'puZ0';
+     PropertyName[25]  := 'puZ2';
+     PropertyName[26]  := 'baseMVA';
 
      // define Property help values
-     PropertyHelp[1] := 'Name of bus to which the main terminal (1) is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3';
+     PropertyHelp[1] := 'Name of bus to which the main terminal (1) is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3' +CRLF+CRLF+
+                        'The VSOURCE object is a two-terminal voltage source (thevenin equivalent). ' +
+                        'Bus2 defaults to Bus1 with all phases connected to ground (node 0) unless previously specified. This is a Yg connection. ' +
+                        'If you want something different, define the Bus2 property ezplicitly.';
      PropertyHelp[2] := 'Base Source kV, usually phase-phase (L-L) unless you are making a positive-sequence model or 1-phase model'+
                         'in which case, it will be phase-neutral (L-N) kV.';
      PropertyHelp[3] := 'Per unit of the base voltage that the source is actually operating at.'+ CRLF +
@@ -189,6 +210,23 @@ Begin
      PropertyHelp[19] := 'Name of bus to which 2nd terminal is connected.'+CRLF+'bus2=busname'+CRLF+'bus2=busname.1.2.3' +
                         CRLF + CRLF +
                         'Default is Bus1.0.0.0 (grounded wye connection)';
+     PropertyHelp[20]  := 'Positive-sequence equivalent source impedance, ohms, as a 2-element array representing a complex number. Example: '+CRLF+CRLF+
+                          'Z1=[1, 2]  ! represents 1 + j2 '+CRLF+CRLF+
+                          'If defined, Z1, Z2, and Z0 are used to define the impedance matrix of the VSOURCE. ' +
+                          'Z1 MUST BE DEFINED TO USE THIS OPTION FOR DEFINING THE MATRIX.'+CRLF+CRLF+
+                          'Side Effect: Sets Z2 and Z0 to same values unless they were previously defined.';
+     PropertyHelp[21]  := 'Zero-sequence equivalent source impedance, ohms, as a 2-element array representing a complex number. Example: '+CRLF+CRLF+
+                          'Z0=[3, 4]  ! represents 3 + j4 '+CRLF+CRLF+
+                          'Used to define the impedance matrix of the VSOURCE if Z1 is also specified. '+CRLF+CRLF+
+                          'Note: Z0 defaults to Z1 if it is not specifically defined. ';
+     PropertyHelp[22]  := 'Negative-sequence equivalent source impedance, ohms, as a 2-element array representing a complex number. Example: '+CRLF+CRLF+
+                          'Z2=[1, 2]  ! represents 1 + j2 ' +CRLF+CRLF+
+                          'Used to define the impedance matrix of the VSOURCE if Z1 is also specified. '+CRLF+CRLF+
+                          'Note: Z2 defaults to Z1 if it is not specifically defined. If Z2 is not equal to Z1, the impedance matrix is asymmetrical.';
+     PropertyHelp[23]  := '2-element array: e.g., [1  2]. An alternate way to specify Z1. See Z1 property. Per-unit positive-sequence impedance on base of Vsource BasekV and BaseMVA.';
+     PropertyHelp[24]  := '2-element array: e.g., [1  2]. An alternate way to specify Z0. See Z0 property. Per-unit zero-sequence impedance on base of Vsource BasekV and BaseMVA.';
+     PropertyHelp[25]  := '2-element array: e.g., [1  2]. An alternate way to specify Z2. See Z2 property. Per-unit negative-sequence impedance on base of Vsource BasekV and BaseMVA.';
+     PropertyHelp[26]  := 'Default value is 100. Base used to convert values specifiied with puZ1, puZ0, and puZ2 properties to ohms on kV base specified by BasekV property.';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -224,15 +262,16 @@ BEGIN
    WITH ActiveVSourceObj DO BEGIN
      SetBus(1, S);
 
-     // Default Bus2 to zero node of Bus1. (Grounded-Y connection)
+     If Not Bus2Defined Then // Default Bus2 to zero node of Bus1. (Grounded-Y connection)
+     Begin
+         // Strip node designations from S
+         dotpos := Pos('.',S);
+         IF dotpos>0 THEN S2 := Copy(S,1,dotpos-1)
+                     ELSE S2 := Copy(S,1,Length(S));  // copy up to Dot
+         FOR i := 1 to Fnphases DO S2 := S2 + '.0';   // append series of ".0"'s
 
-     // Strip node designations from S
-     dotpos := Pos('.',S);
-     IF dotpos>0 THEN S2 := Copy(S,1,dotpos-1)
-                 ELSE S2 := Copy(S,1,Length(S));  // copy up to Dot
-     FOR i := 1 to Fnphases DO S2 := S2 + '.0';   // append series of ".0"'s
-
-     SetBus(2, S2);    // default setting for Bus2
+         SetBus(2, S2);    // default setting for Bus2
+     End;
    END;
 
 end;
@@ -240,9 +279,10 @@ end;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Function TVsource.Edit:Integer;
 VAR
-   ParamPointer :Integer;
+   ParamPointer : Integer;
    ParamName,
-   Param        :String;
+   Param        : String;
+   ZTemp        : Complex;
 
 Begin
   // continue parsing with contents of Parser
@@ -283,14 +323,14 @@ Begin
            14: X1    := Parser.DblValue;
            15: R0    := Parser.DblValue;
            16: X0    := Parser.DblValue;
-           17:Case Uppercase(Param)[1] of
+           17: Case Uppercase(Param)[1] of
                   'P': ScanType := 1;
                   'Z': ScanType := 0;
                   'N': ScanType := -1;
                 ELSE
                    DoSimpleMsg('Unknown Scan Type for "' + Class_Name +'.'+ Name + '": '+Param, 321);
                 END;
-           18:Case Uppercase(Param)[1] of
+           18: Case Uppercase(Param)[1] of
                   'P': Sequencetype := 1;
                   'Z': Sequencetype := 0;
                   'N': Sequencetype := -1;
@@ -298,15 +338,72 @@ Begin
                    DoSimpleMsg('Unknown Sequence Type for "' + Class_Name +'.'+ Name + '": '+Param, 321);
                 END;
            19: SetBus(2, param);
+           20: Ztemp := InterpretComplex(Param);
+           21: Ztemp := InterpretComplex(Param);
+           22: Ztemp := InterpretComplex(Param);
+           23: puZ1  := InterpretComplex(Param);
+           24: puZ0  := InterpretComplex(Param);
+           25: puZ2  := InterpretComplex(Param);
+           26: BaseMVA := Parser.DblValue ;
+
          ELSE
             ClassEdit(ActiveVsourceObj, ParamPointer - NumPropsThisClass)
          End;
+
+         CASE ParamPointer OF
+             20: Begin
+                     R1 := ZTemp.re;
+                     X1 := Ztemp.im;
+                     Z1Specified := TRUE;
+                     // default values for Z2, Z0
+                     If Not Z2Specified Then Begin
+                         R2 := R1;
+                         X2 := X2;
+                     End;
+                     If Not Z0Specified Then Begin
+                         R0 := R1;
+                         X0 := X2;
+                     End;
+                 End;
+             21: Begin
+                     R0 := ZTemp.re;
+                     X0 := Ztemp.im;
+                     Z0Specified := TRUE;
+                 End;
+             22: Begin
+                     R2 := ZTemp.re;
+                     X2 := Ztemp.im;
+                     Z2Specified := TRUE;
+                 End;
+             23:Begin
+                     puZ1Specified := TRUE;
+                     // default values for Z2, Z0
+                     If Not puZ2Specified Then Begin
+                         puZ2 := puZ1;
+                     End;
+                     If Not puZ0Specified Then Begin
+                         puZ0 := puZ1;
+                     End;
+                 End;
+             24:puZ0Specified := TRUE;
+             25:puZ2Specified := TRUE;
+         END;
 
          // Set the Z spec type switch depending on which was specified.
          CASE ParamPointer OF
              7, 8   :ZSpecType := 1;
              11, 12 :ZSpecType := 2;
              13, 14, 15, 16 : ZSpecType := 3;
+             19: Bus2Defined := TRUE;
+             20, 23: Zspectype := 3;
+         END;
+
+         CASE ParamPointer OF
+              2: ZBase   := SQR(kvBase) / BaseMVA;
+             23: Begin Z1Specified := TRUE;  puZ1Specified := TRUE; End;
+             24: puZ0Specified := TRUE;
+             25: puZ2Specified := TRUE;
+             26: ZBase   := SQR(kvBase) / BaseMVA;
          END;
 
          ParamName := Parser.NextParam;
@@ -333,32 +430,54 @@ Begin
    WITH ActiveVsourceObj DO Begin
 
        IF Fnphases <> OtherVSource.Fnphases THEN Begin
-         Nphases := OtherVSource.Fnphases;
-         NConds  := Fnphases;  // Forces reallocation of terminal stuff
+           Nphases := OtherVSource.Fnphases;
+           NConds  := Fnphases;  // Forces reallocation of terminal stuff
 
-         Yorder := Fnconds * Fnterms;
-         YPrimInvalid := True;
+           Yorder := Fnconds * Fnterms;
+           YPrimInvalid := True;
 
-         IF Z<>nil    THEN Z.Free;
-         IF Zinv<>nil THEN Zinv.Free;
+           IF Z<>nil    THEN Z.Free;
+           IF Zinv<>nil THEN Zinv.Free;
 
-         Z    := TCmatrix.CreateMatrix(Fnphases);
-         Zinv := TCMatrix.CreateMatrix(Fnphases);
+           Z    := TCmatrix.CreateMatrix(Fnphases);
+           Zinv := TCMatrix.CreateMatrix(Fnphases);
        End;
 
        Z.CopyFrom(OtherVSource.Z);
        // Zinv.CopyFrom(OtherLine.Zinv);
        VMag      := OtherVsource.Vmag;
        kVBase    := OtherVsource.kVBase;
+       BaseMVA   := OtherVsource.BaseMVA;
        PerUnit   := OtherVsource.PerUnit;
        Angle     := OtherVsource.Angle;
-       SrcFrequency := OtherVsource.SrcFrequency;
        MVAsc3    := OtherVsource.MVAsc3;
        MVAsc1    := OtherVsource.MVAsc1;
-       X1R1      := OtherVsource.X1R1;
-       X0R0      := OtherVsource.X0R0;
+
        Scantype     := OtherVsource.Scantype;
        Sequencetype := OtherVsource.Sequencetype;
+       SrcFrequency := OtherVsource.SrcFrequency;
+
+        ZSpecType      := OtherVsource.ZSpecType;
+        R1             := OtherVsource.R1;
+        X1             := OtherVsource.X1;
+        R2             := OtherVsource.R2;
+        X2             := OtherVsource.X2;
+        R0             := OtherVsource.R0;
+        X0             := OtherVsource.X0;
+        X1R1           := OtherVsource.X1R1;
+        X0R0           := OtherVsource.X0R0;
+        BaseMVA        := OtherVsource.BaseMVA;
+        puZ1           := OtherVsource.puZ1;
+        puZ0           := OtherVsource.puZ0;
+        puZ2           := OtherVsource.puZ2;
+        ZBase          := OtherVsource.ZBase;
+        Bus2Defined    := OtherVsource.Bus2Defined;
+        Z1Specified    := OtherVsource.Z1Specified;
+        Z2Specified    := OtherVsource.Z2Specified;
+        Z0Specified    := OtherVsource.Z0Specified;
+        puZ0Specified  := OtherVsource.puZ0Specified;
+        puZ1Specified  := OtherVsource.puZ1Specified;
+        puZ2Specified  := OtherVsource.puZ2Specified;
 
        ClassMakeLike(OtherVSource);
 
@@ -390,23 +509,37 @@ Begin
      Z        := nil;
      Zinv     := nil;
      {Basefrequency := 60.0;} // set in base class
-     MVAsc3   := 2000.0;
-     MVAsc1   := 2100.0;
+     MVAsc3    := 2000.0;
+     MVAsc1    := 2100.0;
      ZSpecType := 1; // default to MVAsc
+
      R1       := 1.65;
      X1       := 6.6;
+     R2       := R1;
+     X2       := X1;
      R0       := 1.9;
      X0       := 5.7;
      Isc3     := 10000.0;
      Isc1     := 10540.0;
-     kVBase   := 115.0;
      X1R1     := 4.0;
      X0R0     := 3.0;
-     PerUnit  := 1.0;
+     PerUnit  := 1.0;  // per unit voltage, not impedance
+     kVBase   := 115.0;
+     BaseMVA  := 100.0;
+     ZBase    := SQR(kvBase) / BaseMVA;
+
      SrcFrequency := BaseFrequency;
-     Angle    := 0.0;
-     Scantype := 1;
+     Angle        := 0.0;
+     Scantype     := 1;
      SequenceType := 1;
+
+     Bus2Defined   := FALSE;
+     Z1Specified   := FALSE;
+     Z2Specified   := FALSE;
+     Z0Specified   := FALSE;
+     puZ0Specified := FALSE;
+     puZ2Specified := FALSE;
+     puZ1Specified := FALSE;
 
      Spectrum := 'defaultvsource';
 
@@ -431,12 +564,14 @@ End;
 //=============================================================================
 Procedure TVsourceObj.RecalcElementData;
 VAR
-   Zs,Zm  :Complex;
-   i,j    :Integer;
+   Zs, Zm, Z1, Z2, Z0     : Complex;
+   Value, Value1, Value2 : Complex;
+   Calpha1, Calpha2      : Complex;
+   i, j    : Integer;
 
-   Factor :Double;
+   Factor : Double;
 
-   Rs, Xs, Rm, Xm :Double;
+   Rs, Xs, Rm, Xm : Double;
 
 Begin
     IF Z    <> nil THEN Z.Free;
@@ -459,6 +594,9 @@ Begin
             X1   := Sqr(KvBase) / MVAsc3/Sqrt(1.0 + 1.0/Sqr(X1R1));
             Xs   := Sqr(KvBase) / MVAsc1/Sqrt(1.0 + 1.0/Sqr(X0R0)); // Approx
             R1   := X1 / X1R1;
+            R2   := R1;  // default Z2 = Z1
+            X2   := X1;
+
             Xm   := Xs - X1;
             X0   := (Xs + 2.0 * Xm);
             R0   := X0 / X0R0;
@@ -478,6 +616,8 @@ Begin
             X1   := Sqr(KvBase) / MVAsc3 /Sqrt(1.0 + 1.0/Sqr(X1R1));
             Xs   := Sqr(KvBase) / MVAsc1 /Sqrt(1.0 + 1.0/Sqr(X0R0)); //Approx
             R1   := X1 / X1R1;
+            R2   := R1;  // default Z2 = Z1
+            X2   := X1;
             Xm   := Xs - X1;
             X0   := (Xs + 2.0 * Xm);
             R0   := X0 / X0R0;
@@ -488,13 +628,29 @@ Begin
             Rm := (R0 - R1) / 3.0;
           End;
 
-        3:Begin  // Z1, Z0    Specified
+        3:Begin  // Z1, Z2, Z0    Specified
 
+            // Compute Z1, Z2, Z0 in ohms if specified in pu
+            If puZ1Specified Then  Begin
+                R1 := puZ1.re * Zbase;
+                X1 := puZ1.im * Zbase;
+                R2 := puZ2.re * Zbase;
+                X2 := puZ2.im * Zbase;
+                R0 := puZ0.re * Zbase;
+                X0 := puZ0.im * Zbase;
+            End;
+
+            // Compute equivalent Isc3, Isc1, MVAsc3, MVAsc1 values;
             Isc3 := kVBase *1000.0 / SQRT3 /Cabs(cmplx(R1, X1));
 
-            If Fnphases=1 Then Begin  // Force Z0 to be Z1 so Zs is same as Z1
+            // compute nominal values for case where Z1=Z2
+            // we won't necessarily use it to build Yprim matrix if Z2 <> Z1
+
+            If Fnphases=1 Then Begin  // Force Z0 and Z2 to be Z1 so Zs is same as Z1
                 R0 := R1;
                 X0 := X1;
+                R2 := R1;
+                X2 := X1;
             End;
             Rs := (2.0 * R1 + R0) / 3.0;
             Xs := (2.0 * X1 + X0) / 3.0;
@@ -515,14 +671,57 @@ Begin
      { Don't change a specified value; only computed ones}
 
 
-    Zs := cmplx(Rs, Xs);
-    Zm := cmplx(Rm, Xm);
+    If (R1=R2) and (X1=X2) Then Begin
+    // Symmetric Matrix Case
+        Zs := cmplx(Rs, Xs);
+        Zm := cmplx(Rm, Xm);
 
-    FOR i := 1 to Fnphases DO Begin
-       Z.SetElement(i, i, Zs);
-       FOR j := 1 to i-1 DO Begin
-           Z.SetElemsym(i, j, Zm);
-       End;
+        FOR i := 1 to Fnphases DO Begin
+           Z.SetElement(i, i, Zs);
+           FOR j := 1 to i-1 DO Begin
+               Z.SetElemsym(i, j, Zm);
+           End;
+        End;
+    End Else Begin
+    // Asymmetric Matrix case where Z2 <> Z1
+         Z1 := Cmplx(R1, X1);
+         Z2 := Cmplx(R2, X2);
+         Z0 := Cmplx(R0, X0);
+
+         // Diagonals  (all the same)
+         Value  := Cadd(Z2,Cadd(Z1,Z0));   // Z1 + Z2 + Z0
+         Value  := CdivReal(Value,  3.0);
+         FOR i := 1 to Fnphases  Do Z.SetElement(i, i, Value);
+
+         // Off-Diagonals
+         If FnPhases =3 Then     // otherwise undefined
+         Begin
+
+             // There are two possible off-diagonal elements  if Z1 <> Z2
+             // Calpha is defined as 1 /_ -120 instead of 1 /_ 120
+
+             Calpha1 := Conjg(Calpha);           // Change Calpha to agree with textbooks
+             Calpha2 := Cmul(Calpha1, Calpha1);  // Alpha squared  = 1 /_ 240 = 1/_-120
+             //(Z0 + aZ1 + a2 Z2)/3
+             Value2  := Cadd(Cmul(Calpha2,Z2),Cadd(Cmul(Calpha1, Z1), Z0));
+             //(Z0 + a2 Z1 + aZ2)/3
+             Value1  := Cadd(Cmul(Calpha2,Z1),Cadd(Cmul(Calpha1, Z2), Z0));
+             // Apply 1/3 ...
+             Value1 := CdivReal(Value1, 3.0);
+             Value2 := CdivReal(Value2, 3.0);
+             With Z Do Begin
+               //Lower Triangle
+                 SetElement(2, 1, Value1);
+                 SetElement(3, 1, Value2);
+                 SetElement(3, 2, Value1);
+               //Upper Triangle
+                 SetElement(1, 2, Value2);
+                 SetElement(1, 3, Value1);
+                 SetElement(2, 3, Value2);
+             End;
+
+         End;
+
     End;
 
    CASE Fnphases OF
@@ -791,6 +990,14 @@ begin
      PropertyValue[17] := 'Pos';
      PropertyValue[18] := 'Pos';
      PropertyValue[19]  := GetBus(2);
+     PropertyValue[20]  := '[ 0 0 ]';
+     PropertyValue[21]  := '[ 0 0 ]';
+     PropertyValue[22]  := '[ 0 0 ]';
+     PropertyValue[23]  := '[ 0 0 ]';
+     PropertyValue[24]  := '[ 0 0 ]';
+     PropertyValue[25]  := '[ 0 0 ]';
+     PropertyValue[26]  := '100';
+
 
 
      inherited  InitPropertyValues(NumPropsThisClass);
@@ -811,6 +1018,13 @@ begin
           15 : Result := Format('%-.5g',[R0]);
           16 : Result := Format('%-.5g',[X0]);
           19 : Result := GetBus(2);
+          20 : Result := Format('Z1=[%-.8g, %-.8g]',[ R1 , X1 ]);
+          21 : Result := Format('Z0=[%-.8g, %-.8g]',[ R0 , X0 ]);
+          22 : Result := Format('Z2=[%-.8g, %-.8g]',[ R2 , X2 ]);
+          23 : Result := Format('puZ1=[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
+          24 : Result := Format('puZ0=[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
+          25 : Result := Format('puZ2=[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
+          26 : Result := Format('%-.5g',[BaseMVA]);
         Else
           Result := Inherited GetPropertyValue(Index);
         End;

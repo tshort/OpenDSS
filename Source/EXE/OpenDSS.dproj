@@ -1,477 +1,477 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
-        <ProjectGuid>{788e44da-813a-404b-a7ee-86a5fc1edae3}</ProjectGuid>
-        <MainSource>OpenDSS.dpr</MainSource>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-        <DCC_DependencyCheckOutputName>..\OpenDSS.exe</DCC_DependencyCheckOutputName>
-        <ProjectVersion>14.3</ProjectVersion>
-        <Config Condition="'$(Config)'==''">Debug</Config>
-        <FrameworkType>VCL</FrameworkType>
-        <Base>True</Base>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>3</TargetedPlatforms>
-        <AppType>Application</AppType>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
-        <Base_Win32>true</Base_Win32>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
-        <Base_Win64>true</Base_Win64>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
-        <Cfg_1>true</Cfg_1>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
-        <Cfg_1_Win32>true</Cfg_1_Win32>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
-        <Cfg_1_Win64>true</Cfg_1_Win64>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
-        <Cfg_2>true</Cfg_2>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
-        <Cfg_2_Win32>true</Cfg_2_Win32>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
-        <Cfg_2_Win64>true</Cfg_2_Win64>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base)'!=''">
-        <Manifest_File>None</Manifest_File>
-        <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
-        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;FMXTee.Editor;System.Win;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_MajorVer>7</VerInfo_MajorVer>
-        <VerInfo_MinorVer>5</VerInfo_MinorVer>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.5.0.0;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2012 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.5.0;Comments=</VerInfo_Keys>
-        <DCC_UsePackage>vcl;rtl;vclx;vclimg;vclactnband;dbrtl;vcldb;vcldbx;bdertl;vcltouch;xmlrtl;dsnap;dsnapcon;TeeUI;TeeDB;Tee;vclib;ibxpress;adortl;IndyCore;IndySystem;IndyProtocols;inet;intrawebdb_100_140;Intraweb_100_140;VclSmp;vclie;inetdb;webdsnap;websnap;inetdbbde;inetdbxpress;soaprtl;DbxCommonDriver;DbxClientDriver;DBXInterBaseDriver;DBXMySQLDriver;dbexpress;dbxcds;$(DCC_UsePackage)</DCC_UsePackage>
-        <DCC_DependencyCheckOutputName>OpenDSS.exe</DCC_DependencyCheckOutputName>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
-        <VerInfo_MinorVer>6</VerInfo_MinorVer>
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Release>2</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.2.1;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2013 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.2;Comments=</VerInfo_Keys>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_ExeOutput>.\x64\</DCC_ExeOutput>
-        <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1)'!=''">
-        <DCC_DependencyCheckOutputName>..\OpenDSS.exe</DCC_DependencyCheckOutputName>
-        <Version>7.0</Version>
-        <DCC_Alignment>1</DCC_Alignment>
-        <DCC_DebugInformation>False</DCC_DebugInformation>
-        <DCC_WriteableConstants>True</DCC_WriteableConstants>
-        <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
-        <DCC_IntegerOverflowCheck>True</DCC_IntegerOverflowCheck>
-        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-        <DCC_ExeOutput>..</DCC_ExeOutput>
-        <DCC_UnitSearchPath>$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_ResourcePath>$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_ResourcePath)</DCC_ResourcePath>
-        <DCC_ObjPath>$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_ObjPath)</DCC_ObjPath>
-        <DCC_IncludePath>$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_IncludePath)</DCC_IncludePath>
-        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Release>3</VerInfo_Release>
-        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
-        <VerInfo_MinorVer>6</VerInfo_MinorVer>
-        <DCC_ExeOutput>..\x86</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.3.1;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2013 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.3;Comments=</VerInfo_Keys>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Release>3</VerInfo_Release>
-        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
-        <VerInfo_MinorVer>6</VerInfo_MinorVer>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <DCC_ExeOutput>..\x64</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.3.1;InternalName=;LegalCopyright=Copyright (C) 2008-2013 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.3;Comments=</VerInfo_Keys>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2)'!=''">
-        <DCC_DependencyCheckOutputName>..\OpenDSS.exe</DCC_DependencyCheckOutputName>
-        <Version>7.0</Version>
-        <DCC_Alignment>1</DCC_Alignment>
-        <DCC_WriteableConstants>True</DCC_WriteableConstants>
-        <DCC_IntegerOverflowCheck>True</DCC_IntegerOverflowCheck>
-        <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
-        <DCC_ExeOutput>..</DCC_ExeOutput>
-        <DCC_UnitSearchPath>$(BDS)\Lib\Debug\Indy10;$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_ResourcePath>$(BDS)\Lib\Debug\Indy10;$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_ResourcePath)</DCC_ResourcePath>
-        <DCC_ObjPath>$(BDS)\Lib\Debug\Indy10;$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_ObjPath)</DCC_ObjPath>
-        <DCC_IncludePath>$(BDS)\Lib\Debug\Indy10;$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_IncludePath)</DCC_IncludePath>
-        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_Build>6</VerInfo_Build>
-        <VerInfo_Release>1</VerInfo_Release>
-        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
-        <VerInfo_MinorVer>6</VerInfo_MinorVer>
-        <DCC_ExeOutput>..\x86</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.1.6;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2012 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Release>1</VerInfo_Release>
-        <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
-        <VerInfo_MinorVer>6</VerInfo_MinorVer>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <DCC_ExeOutput>..\x64</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.1.0;InternalName=;LegalCopyright=Copyright (C) 2008-2012 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
-    </PropertyGroup>
-    <ProjectExtensions>
-        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
-        <Borland.ProjectType>VCLApplication</Borland.ProjectType>
-        <BorlandProject>
-            <Delphi.Personality>
-                <Parameters>
-                    <Parameters Name="DebugSourceDirs">C:\OpenDSS\Source\Common\</Parameters>
-                    <Parameters Name="UseLauncher">False</Parameters>
-                    <Parameters Name="LoadAllSymbols">True</Parameters>
-                    <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-                </Parameters>
-                <VersionInfo>
-                    <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
-                    <VersionInfo Name="AutoIncBuild">True</VersionInfo>
-                    <VersionInfo Name="MajorVer">7</VersionInfo>
-                    <VersionInfo Name="MinorVer">5</VersionInfo>
-                    <VersionInfo Name="Release">1</VersionInfo>
-                    <VersionInfo Name="Build">123</VersionInfo>
-                    <VersionInfo Name="Debug">False</VersionInfo>
-                    <VersionInfo Name="PreRelease">False</VersionInfo>
-                    <VersionInfo Name="Special">False</VersionInfo>
-                    <VersionInfo Name="Private">False</VersionInfo>
-                    <VersionInfo Name="DLL">False</VersionInfo>
-                    <VersionInfo Name="Locale">1033</VersionInfo>
-                    <VersionInfo Name="CodePage">1252</VersionInfo>
-                </VersionInfo>
-                <VersionInfoKeys>
-                    <VersionInfoKeys Name="CompanyName">EPRI</VersionInfoKeys>
-                    <VersionInfoKeys Name="FileDescription">Distribution System Simulator</VersionInfoKeys>
-                    <VersionInfoKeys Name="FileVersion">7.5.1.123</VersionInfoKeys>
-                    <VersionInfoKeys Name="InternalName">OpenDSS</VersionInfoKeys>
-                    <VersionInfoKeys Name="LegalCopyright">Copyright (C) 2008-2012  EPRI, All Rights Reserved.</VersionInfoKeys>
-                    <VersionInfoKeys Name="LegalTrademarks"/>
-                    <VersionInfoKeys Name="OriginalFilename"/>
-                    <VersionInfoKeys Name="ProductName">OpenDSS</VersionInfoKeys>
-                    <VersionInfoKeys Name="ProductVersion">7.5.1.7</VersionInfoKeys>
-                    <VersionInfoKeys Name="Comments"/>
-                </VersionInfoKeys>
-                <Source>
-                    <Source Name="MainSource">OpenDSS.dpr</Source>
-                </Source>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
-            </Delphi.Personality>
-            <ModelSupport>False</ModelSupport>
-            <Platforms>
-                <Platform value="Win32">True</Platform>
-                <Platform value="Win64">True</Platform>
-            </Platforms>
-            <Deployment>
-                <DeployFile LocalName="..\x64\OpenDSS.rsm" Configuration="Release" Class="DebugSymbols">
-                    <Platform Name="Win64">
-                        <RemoteName>OpenDSS.rsm</RemoteName>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\x64\OpenDSS.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win64"/>
-                </DeployFile>
-                <DeployClass Required="true" Name="ProjectOutput">
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                    </Platform>
-                </DeployClass>
-                <DeployClass Required="true" Name="DependencyPackage">
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.bpl</Extensions>
-                    </Platform>
-                </DeployClass>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                </DeployClass>
-                <DeployClass Name="ProjectOSXInfoPList"/>
-                <DeployClass Name="File">
-                    <Platform Name="OSX32">
-                        <Operation>0</Operation>
-                    </Platform>
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                    </Platform>
-                </DeployClass>
-                <DeployClass Name="DebugSymbols">
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                    </Platform>
-                </DeployClass>
-                <DeployClass Name="DependencyFramework">
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.framework</Extensions>
-                    </Platform>
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                    </Platform>
-                </DeployClass>
-                <DeployClass Name="AdditionalDebugSymbols">
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                    </Platform>
-                </DeployClass>
-                <DeployClass Name="ProjectOSXResource">
-                    <Platform Name="OSX32">
-                        <RemoteDir>Contents\Resources</RemoteDir>
-                        <Operation>1</Operation>
-                    </Platform>
-                </DeployClass>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
-            </Deployment>
-        </BorlandProject>
-        <ProjectFileVersion>12</ProjectFileVersion>
-    </ProjectExtensions>
-    <ItemGroup>
-        <DelphiCompile Include="$(MainSource)">
-            <MainSource>MainSource</MainSource>
-        </DelphiCompile>
-        <DCCReference Include="..\Forms\About.pas">
-            <Form>AboutBox</Form>
-        </DCCReference>
-        <DCCReference Include="..\Shared\Arraydef.pas"/>
-        <DCCReference Include="..\Common\AutoAdd.pas"/>
-        <DCCReference Include="..\Common\Bus.pas"/>
-        <DCCReference Include="..\PDElements\Capacitor.pas"/>
-        <DCCReference Include="..\Controls\CapControl.pas"/>
-        <DCCReference Include="..\Common\Circuit.pas"/>
-        <DCCReference Include="..\Common\CktElement.pas"/>
-        <DCCReference Include="..\Common\CktElementClass.pas"/>
-        <DCCReference Include="..\Shared\CktTree.pas"/>
-        <DCCReference Include="..\Shared\Command.pas"/>
-        <DCCReference Include="..\Common\Conductor.pas"/>
-        <DCCReference Include="..\Controls\ControlClass.pas"/>
-        <DCCReference Include="..\Controls\ControlElem.pas"/>
-        <DCCReference Include="..\Common\ControlQueue.pas"/>
-        <DCCReference Include="..\Forms\DlgComboBox.pas">
-            <Form>OptionComboForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\Forms\dlgNumber.pas">
-            <Form>ValueEntryForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\Forms\DlgPlotOptions.pas">
-            <Form>PlotOptionsForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\Common\DSSCallBackRoutines.pas"/>
-        <DCCReference Include="..\Common\DSSClass.pas"/>
-        <DCCReference Include="..\Common\DSSClassDefs.pas"/>
-        <DCCReference Include="..\Common\DSSForms.pas"/>
-        <DCCReference Include="..\Common\DSSGlobals.pas"/>
-        <DCCReference Include="..\General\DSSObject.pas"/>
-        <DCCReference Include="..\Plot\DSSPlot.pas"/>
-        <DCCReference Include="..\Shared\Dynamics.pas"/>
-        <DCCReference Include="..\Meters\EnergyMeter.pas"/>
-        <DCCReference Include="..\PCElements\Equivalent.pas"/>
-        <DCCReference Include="..\Common\EventQueue.pas"/>
-        <DCCReference Include="..\Executive\ExecCommands.pas"/>
-        <DCCReference Include="..\Executive\ExecHelper.pas"/>
-        <DCCReference Include="..\Executive\ExecOptions.pas"/>
-        <DCCReference Include="..\Executive\Executive.pas"/>
-        <DCCReference Include="..\Common\ExportCIMXML.pas"/>
-        <DCCReference Include="..\Executive\ExportOptions.pas"/>
-        <DCCReference Include="..\Common\ExportResults.pas"/>
-        <DCCReference Include="..\PDElements\Fault.pas"/>
-        <DCCReference Include="..\Common\Feeder.pas"/>
-        <DCCReference Include="..\Parser\Frm_RPNcalc.pas">
-            <Form>RPNForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\Forms\FrmCSVchannelSelect.pas">
-            <Form>ChannelSelectForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\Forms\FrmDoDSSCommand.pas">
-            <Form>DoDSSCommandForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\PDElements\fuse.pas"/>
-        <DCCReference Include="..\Controls\GenDispatcher.pas"/>
-        <DCCReference Include="..\PCElements\generator.pas"/>
-        <DCCReference Include="..\PCElements\GenUserModel.pas"/>
-        <DCCReference Include="..\General\GrowthShape.pas"/>
-        <DCCReference Include="..\Shared\HashList.pas"/>
-        <DCCReference Include="..\Forms\HelpForm.pas">
-            <Form>HelpForm1</Form>
-        </DCCReference>
-        <DCCReference Include="..\Shared\IniRegSave.pas"/>
-        <DCCReference Include="..\PCElements\Isource.pas"/>
-        <DCCReference Include="..\PDElements\Line.pas"/>
-        <DCCReference Include="..\General\LineCode.pas"/>
-        <DCCReference Include="..\General\LineGeometry.pas"/>
-        <DCCReference Include="..\General\LineSpacing.pas"/>
-        <DCCReference Include="..\Shared\LineUnits.pas"/>
-        <DCCReference Include="..\Forms\ListForm.pas">
-            <Form>ListBoxForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\PCElements\Load.pas"/>
-        <DCCReference Include="..\General\LoadShape.pas"/>
-        <DCCReference Include="..\Shared\mathutil.pas"/>
-        <DCCReference Include="..\Forms\MessageForm.pas">
-            <Form>MessageForm1</Form>
-        </DCCReference>
-        <DCCReference Include="..\Meters\MeterClass.pas"/>
-        <DCCReference Include="..\Meters\MeterElement.pas"/>
-        <DCCReference Include="..\Meters\Monitor.pas"/>
-        <DCCReference Include="MyDSSClassDefs.Pas"/>
-        <DCCReference Include="..\General\NamedObject.pas"/>
-        <DCCReference Include="..\Common\Notes.pas"/>
-        <DCCReference Include="..\General\OHLineConstants.pas"/>
-        <DCCReference Include="..\Forms\Panel.pas">
-            <Form>ControlPanel</Form>
-        </DCCReference>
-        <DCCReference Include="..\Parser\ParserDel.pas"/>
-        <DCCReference Include="..\PCElements\PCClass.pas"/>
-        <DCCReference Include="..\PCElements\PCElement.pas"/>
-        <DCCReference Include="..\PDElements\PDClass.pas"/>
-        <DCCReference Include="..\PDElements\PDElement.pas"/>
-        <DCCReference Include="..\Executive\PlotOptions.pas"/>
-        <DCCReference Include="..\Shared\PointerList.pas"/>
-        <DCCReference Include="..\Forms\ProgressForm.pas">
-            <Form>Progress</Form>
-        </DCCReference>
-        <DCCReference Include="..\Forms\PropEdit.pas">
-            <Form>PropEditForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\PCElements\PVsystem.pas"/>
-        <DCCReference Include="..\PCElements\PVSystemUserModel.pas"/>
-        <DCCReference Include="..\PDElements\Reactor.pas"/>
-        <DCCReference Include="..\Controls\Recloser.pas"/>
-        <DCCReference Include="..\Meters\ReduceAlgs.pas"/>
-        <DCCReference Include="..\Controls\RegControl.pas"/>
-        <DCCReference Include="..\Controls\Relay.pas"/>
-        <DCCReference Include="..\Parser\RPN.pas"/>
-        <DCCReference Include="..\Forms\Scriptform.pas">
-            <Form>MainEditForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\Meters\Sensor.pas"/>
-        <DCCReference Include="..\Executive\ShowOptions.pas"/>
-        <DCCReference Include="..\Common\ShowResults.pas"/>
-        <DCCReference Include="..\Common\Solution.pas"/>
-        <DCCReference Include="..\Common\SolutionAlgs.pas"/>
-        <DCCReference Include="..\General\Spectrum.pas"/>
-        <DCCReference Include="..\Shared\StackDef.pas"/>
-        <DCCReference Include="..\PCElements\Storage.pas"/>
-        <DCCReference Include="..\Controls\StorageController.pas"/>
-        <DCCReference Include="..\PCElements\StoreUserModel.pas"/>
-        <DCCReference Include="..\Controls\SwtControl.pas"/>
-        <DCCReference Include="..\General\TCC_Curve.pas"/>
-        <DCCReference Include="..\Common\Terminal.pas"/>
-        <DCCReference Include="..\Common\TOPExport.pas"/>
-        <DCCReference Include="..\PDElements\Transformer.pas"/>
-        <DCCReference Include="..\Forms\TViewer.pas">
-            <Form>TViewForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\Shared\Ucmatrix.pas"/>
-        <DCCReference Include="..\Shared\Ucomplex.pas"/>
-        <DCCReference Include="..\Common\Utilities.pas"/>
-        <DCCReference Include="..\PCElements\VSource.pas"/>
-        <DCCReference Include="..\General\WireData.pas"/>
-        <DCCReference Include="..\General\XfmrCode.pas"/>
-        <DCCReference Include="..\Common\Ymatrix.pas">
-            <Form>,
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{788e44da-813a-404b-a7ee-86a5fc1edae3}</ProjectGuid>
+			<MainSource>OpenDSS.dpr</MainSource>
+			<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+			<DCC_DependencyCheckOutputName>..\OpenDSS.exe</DCC_DependencyCheckOutputName>
+			<ProjectVersion>14.3</ProjectVersion>
+			<Config Condition="'$(Config)'==''">Release</Config>
+			<FrameworkType>VCL</FrameworkType>
+			<Base>True</Base>
+			<Platform Condition="'$(Platform)'==''">Win64</Platform>
+			<TargetedPlatforms>3</TargetedPlatforms>
+			<AppType>Application</AppType>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+			<Base_Win64>true</Base_Win64>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+			<Base_Win32>true</Base_Win32>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+			<Cfg_1_Win64>true</Cfg_1_Win64>
+			<CfgParent>Cfg_1</CfgParent>
+			<Cfg_1>true</Cfg_1>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+			<Cfg_1_Win32>true</Cfg_1_Win32>
+			<CfgParent>Cfg_1</CfgParent>
+			<Cfg_1>true</Cfg_1>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+			<Cfg_2_Win64>true</Cfg_2_Win64>
+			<CfgParent>Cfg_2</CfgParent>
+			<Cfg_2>true</Cfg_2>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+			<Cfg_2_Win32>true</Cfg_2_Win32>
+			<CfgParent>Cfg_2</CfgParent>
+			<Cfg_2>true</Cfg_2>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<Manifest_File>None</Manifest_File>
+			<VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
+			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;FMXTee.Editor;System.Win;$(DCC_Namespace)</DCC_Namespace>
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<VerInfo_MajorVer>7</VerInfo_MajorVer>
+			<VerInfo_MinorVer>5</VerInfo_MinorVer>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.5.0.0;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2012 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.5.0;Comments=</VerInfo_Keys>
+			<DCC_UsePackage>vcl;rtl;vclx;vclimg;vclactnband;dbrtl;vcldb;vcldbx;bdertl;vcltouch;xmlrtl;dsnap;dsnapcon;TeeUI;TeeDB;Tee;vclib;ibxpress;adortl;IndyCore;IndySystem;IndyProtocols;inet;intrawebdb_100_140;Intraweb_100_140;VclSmp;vclie;inetdb;webdsnap;websnap;inetdbbde;inetdbxpress;soaprtl;DbxCommonDriver;DbxClientDriver;DBXInterBaseDriver;DBXMySQLDriver;dbexpress;dbxcds;$(DCC_UsePackage)</DCC_UsePackage>
+			<DCC_DependencyCheckOutputName>OpenDSS.exe</DCC_DependencyCheckOutputName>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win64)'!=''">
+			<DCC_ExeOutput>.\x64\</DCC_ExeOutput>
+			<DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win32)'!=''">
+			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
+			<VerInfo_MinorVer>6</VerInfo_MinorVer>
+			<VerInfo_Build>1</VerInfo_Build>
+			<VerInfo_Release>2</VerInfo_Release>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.2.1;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2013 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.2;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<DCC_DependencyCheckOutputName>..\OpenDSS.exe</DCC_DependencyCheckOutputName>
+			<Version>7.0</Version>
+			<DCC_Alignment>1</DCC_Alignment>
+			<DCC_DebugInformation>False</DCC_DebugInformation>
+			<DCC_WriteableConstants>True</DCC_WriteableConstants>
+			<DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+			<DCC_IntegerOverflowCheck>True</DCC_IntegerOverflowCheck>
+			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+			<DCC_ExeOutput>..</DCC_ExeOutput>
+			<DCC_UnitSearchPath>$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_ResourcePath>$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_ResourcePath)</DCC_ResourcePath>
+			<DCC_ObjPath>$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_ObjPath)</DCC_ObjPath>
+			<DCC_IncludePath>$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_IncludePath)</DCC_IncludePath>
+			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+			<VerInfo_Build>3</VerInfo_Build>
+			<VerInfo_Release>3</VerInfo_Release>
+			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
+			<VerInfo_MinorVer>6</VerInfo_MinorVer>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<DCC_ExeOutput>..\x64</DCC_ExeOutput>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.3.3;InternalName=;LegalCopyright=Copyright (C) 2008-2013 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.3;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<VerInfo_Build>3</VerInfo_Build>
+			<VerInfo_Release>3</VerInfo_Release>
+			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
+			<VerInfo_MinorVer>6</VerInfo_MinorVer>
+			<DCC_ExeOutput>..\x86</DCC_ExeOutput>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.3.3;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2013 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.3;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_DependencyCheckOutputName>..\OpenDSS.exe</DCC_DependencyCheckOutputName>
+			<Version>7.0</Version>
+			<DCC_Alignment>1</DCC_Alignment>
+			<DCC_WriteableConstants>True</DCC_WriteableConstants>
+			<DCC_IntegerOverflowCheck>True</DCC_IntegerOverflowCheck>
+			<DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
+			<DCC_ExeOutput>..</DCC_ExeOutput>
+			<DCC_UnitSearchPath>$(BDS)\Lib\Debug\Indy10;$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_ResourcePath>$(BDS)\Lib\Debug\Indy10;$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_ResourcePath)</DCC_ResourcePath>
+			<DCC_ObjPath>$(BDS)\Lib\Debug\Indy10;$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_ObjPath)</DCC_ObjPath>
+			<DCC_IncludePath>$(BDS)\Lib\Debug\Indy10;$(BDS)\lib\Debug;$(DELPHI)\Lib\Debug;$(DCC_IncludePath)</DCC_IncludePath>
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+			<VerInfo_Release>1</VerInfo_Release>
+			<DCC_DebugDCUs>true</DCC_DebugDCUs>
+			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
+			<VerInfo_MinorVer>6</VerInfo_MinorVer>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<DCC_ExeOutput>..\x64</DCC_ExeOutput>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.1.0;InternalName=;LegalCopyright=Copyright (C) 2008-2012 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<VerInfo_Build>6</VerInfo_Build>
+			<VerInfo_Release>1</VerInfo_Release>
+			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
+			<VerInfo_MinorVer>6</VerInfo_MinorVer>
+			<DCC_ExeOutput>..\x86</DCC_ExeOutput>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=Distribution System Simulator;FileVersion=7.6.1.6;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2012 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.1;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType>VCLApplication</Borland.ProjectType>
+			<BorlandProject>
+				<Delphi.Personality>
+					<Parameters>
+						<Parameters Name="DebugSourceDirs">C:\OpenDSS\Source\Common\</Parameters>
+						<Parameters Name="UseLauncher">False</Parameters>
+						<Parameters Name="LoadAllSymbols">True</Parameters>
+						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+					</Parameters>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
+						<VersionInfo Name="MajorVer">7</VersionInfo>
+						<VersionInfo Name="MinorVer">5</VersionInfo>
+						<VersionInfo Name="Release">1</VersionInfo>
+						<VersionInfo Name="Build">131</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1033</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName">EPRI</VersionInfoKeys>
+						<VersionInfoKeys Name="FileDescription">Distribution System Simulator</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">7.5.1.131</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName">OpenDSS</VersionInfoKeys>
+						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 2008-2012  EPRI, All Rights Reserved.</VersionInfoKeys>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName">OpenDSS</VersionInfoKeys>
+						<VersionInfoKeys Name="ProductVersion">7.5.1.7</VersionInfoKeys>
+						<VersionInfoKeys Name="Comments"/>
+					</VersionInfoKeys>
+					<Source>
+						<Source Name="MainSource">OpenDSS.dpr</Source>
+					</Source>
+					<Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+					</Excluded_Packages>
+				</Delphi.Personality>
+				<ModelSupport>False</ModelSupport>
+				<Platforms>
+					<Platform value="Win64">True</Platform>
+					<Platform value="Win32">True</Platform>
+				</Platforms>
+				<Deployment>
+					<DeployFile Class="DebugSymbols" Configuration="Release" LocalName="..\x64\OpenDSS.rsm">
+						<Platform Name="Win64">
+							<RemoteName>OpenDSS.rsm</RemoteName>
+						</Platform>
+					</DeployFile>
+					<DeployFile Class="ProjectOutput" Configuration="Release" LocalName="..\x64\OpenDSS.exe">
+						<Platform Name="Win64"/>
+					</DeployFile>
+					<DeployClass Name="ProjectOutput" Required="true">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DependencyPackage" Required="true">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+							<Extensions>.dylib</Extensions>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+							<Extensions>.bpl</Extensions>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DependencyModule">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+							<Extensions>.dylib</Extensions>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+							<Extensions>.dll;.bpl</Extensions>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="ProjectOSXInfoPList"/>
+					<DeployClass Name="File">
+						<Platform Name="OSX32">
+							<Operation>0</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DebugSymbols">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DependencyFramework">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+							<Extensions>.framework</Extensions>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="AdditionalDebugSymbols">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="ProjectOSXResource">
+						<Platform Name="OSX32">
+							<RemoteDir>Contents\Resources</RemoteDir>
+							<Operation>1</Operation>
+						</Platform>
+					</DeployClass>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="OSX32"/>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win64"/>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win32"/>
+				</Deployment>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+		<ItemGroup>
+			<DelphiCompile Include="$(MainSource)">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<DCCReference Include="..\Forms\About.pas">
+				<Form>AboutBox</Form>
+			</DCCReference>
+			<DCCReference Include="..\Shared\Arraydef.pas"/>
+			<DCCReference Include="..\Common\AutoAdd.pas"/>
+			<DCCReference Include="..\Common\Bus.pas"/>
+			<DCCReference Include="..\PDElements\Capacitor.pas"/>
+			<DCCReference Include="..\Controls\CapControl.pas"/>
+			<DCCReference Include="..\Common\Circuit.pas"/>
+			<DCCReference Include="..\Common\CktElement.pas"/>
+			<DCCReference Include="..\Common\CktElementClass.pas"/>
+			<DCCReference Include="..\Shared\CktTree.pas"/>
+			<DCCReference Include="..\Shared\Command.pas"/>
+			<DCCReference Include="..\Common\Conductor.pas"/>
+			<DCCReference Include="..\Controls\ControlClass.pas"/>
+			<DCCReference Include="..\Controls\ControlElem.pas"/>
+			<DCCReference Include="..\Common\ControlQueue.pas"/>
+			<DCCReference Include="..\Forms\DlgComboBox.pas">
+				<Form>OptionComboForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\Forms\dlgNumber.pas">
+				<Form>ValueEntryForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\Forms\DlgPlotOptions.pas">
+				<Form>PlotOptionsForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\Common\DSSCallBackRoutines.pas"/>
+			<DCCReference Include="..\Common\DSSClass.pas"/>
+			<DCCReference Include="..\Common\DSSClassDefs.pas"/>
+			<DCCReference Include="..\Common\DSSForms.pas"/>
+			<DCCReference Include="..\Common\DSSGlobals.pas"/>
+			<DCCReference Include="..\General\DSSObject.pas"/>
+			<DCCReference Include="..\Plot\DSSPlot.pas"/>
+			<DCCReference Include="..\Shared\Dynamics.pas"/>
+			<DCCReference Include="..\Meters\EnergyMeter.pas"/>
+			<DCCReference Include="..\PCElements\Equivalent.pas"/>
+			<DCCReference Include="..\Common\EventQueue.pas"/>
+			<DCCReference Include="..\Executive\ExecCommands.pas"/>
+			<DCCReference Include="..\Executive\ExecHelper.pas"/>
+			<DCCReference Include="..\Executive\ExecOptions.pas"/>
+			<DCCReference Include="..\Executive\Executive.pas"/>
+			<DCCReference Include="..\Common\ExportCIMXML.pas"/>
+			<DCCReference Include="..\Executive\ExportOptions.pas"/>
+			<DCCReference Include="..\Common\ExportResults.pas"/>
+			<DCCReference Include="..\PDElements\Fault.pas"/>
+			<DCCReference Include="..\Common\Feeder.pas"/>
+			<DCCReference Include="..\Parser\Frm_RPNcalc.pas">
+				<Form>RPNForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\Forms\FrmCSVchannelSelect.pas">
+				<Form>ChannelSelectForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\Forms\FrmDoDSSCommand.pas">
+				<Form>DoDSSCommandForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\PDElements\fuse.pas"/>
+			<DCCReference Include="..\Controls\GenDispatcher.pas"/>
+			<DCCReference Include="..\PCElements\generator.pas"/>
+			<DCCReference Include="..\PCElements\GenUserModel.pas"/>
+			<DCCReference Include="..\General\GrowthShape.pas"/>
+			<DCCReference Include="..\Shared\HashList.pas"/>
+			<DCCReference Include="..\Forms\HelpForm.pas">
+				<Form>HelpForm1</Form>
+			</DCCReference>
+			<DCCReference Include="..\Shared\IniRegSave.pas"/>
+			<DCCReference Include="..\PCElements\Isource.pas"/>
+			<DCCReference Include="..\PDElements\Line.pas"/>
+			<DCCReference Include="..\General\LineCode.pas"/>
+			<DCCReference Include="..\General\LineGeometry.pas"/>
+			<DCCReference Include="..\General\LineSpacing.pas"/>
+			<DCCReference Include="..\Shared\LineUnits.pas"/>
+			<DCCReference Include="..\Forms\ListForm.pas">
+				<Form>ListBoxForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\PCElements\Load.pas"/>
+			<DCCReference Include="..\General\LoadShape.pas"/>
+			<DCCReference Include="..\Shared\mathutil.pas"/>
+			<DCCReference Include="..\Forms\MessageForm.pas">
+				<Form>MessageForm1</Form>
+			</DCCReference>
+			<DCCReference Include="..\Meters\MeterClass.pas"/>
+			<DCCReference Include="..\Meters\MeterElement.pas"/>
+			<DCCReference Include="..\Meters\Monitor.pas"/>
+			<DCCReference Include="MyDSSClassDefs.Pas"/>
+			<DCCReference Include="..\General\NamedObject.pas"/>
+			<DCCReference Include="..\Common\Notes.pas"/>
+			<DCCReference Include="..\General\OHLineConstants.pas"/>
+			<DCCReference Include="..\Forms\Panel.pas">
+				<Form>ControlPanel</Form>
+			</DCCReference>
+			<DCCReference Include="..\Parser\ParserDel.pas"/>
+			<DCCReference Include="..\PCElements\PCClass.pas"/>
+			<DCCReference Include="..\PCElements\PCElement.pas"/>
+			<DCCReference Include="..\PDElements\PDClass.pas"/>
+			<DCCReference Include="..\PDElements\PDElement.pas"/>
+			<DCCReference Include="..\Executive\PlotOptions.pas"/>
+			<DCCReference Include="..\Shared\PointerList.pas"/>
+			<DCCReference Include="..\Forms\ProgressForm.pas">
+				<Form>Progress</Form>
+			</DCCReference>
+			<DCCReference Include="..\Forms\PropEdit.pas">
+				<Form>PropEditForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\PCElements\PVsystem.pas"/>
+			<DCCReference Include="..\PCElements\PVSystemUserModel.pas"/>
+			<DCCReference Include="..\PDElements\Reactor.pas"/>
+			<DCCReference Include="..\Controls\Recloser.pas"/>
+			<DCCReference Include="..\Meters\ReduceAlgs.pas"/>
+			<DCCReference Include="..\Controls\RegControl.pas"/>
+			<DCCReference Include="..\Controls\Relay.pas"/>
+			<DCCReference Include="..\Parser\RPN.pas"/>
+			<DCCReference Include="..\Forms\Scriptform.pas">
+				<Form>MainEditForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\Meters\Sensor.pas"/>
+			<DCCReference Include="..\Executive\ShowOptions.pas"/>
+			<DCCReference Include="..\Common\ShowResults.pas"/>
+			<DCCReference Include="..\Common\Solution.pas"/>
+			<DCCReference Include="..\Common\SolutionAlgs.pas"/>
+			<DCCReference Include="..\General\Spectrum.pas"/>
+			<DCCReference Include="..\Shared\StackDef.pas"/>
+			<DCCReference Include="..\PCElements\Storage.pas"/>
+			<DCCReference Include="..\Controls\StorageController.pas"/>
+			<DCCReference Include="..\PCElements\StoreUserModel.pas"/>
+			<DCCReference Include="..\Controls\SwtControl.pas"/>
+			<DCCReference Include="..\General\TCC_Curve.pas"/>
+			<DCCReference Include="..\Common\Terminal.pas"/>
+			<DCCReference Include="..\Common\TOPExport.pas"/>
+			<DCCReference Include="..\PDElements\Transformer.pas"/>
+			<DCCReference Include="..\Forms\TViewer.pas">
+				<Form>TViewForm</Form>
+			</DCCReference>
+			<DCCReference Include="..\Shared\Ucmatrix.pas"/>
+			<DCCReference Include="..\Shared\Ucomplex.pas"/>
+			<DCCReference Include="..\Common\Utilities.pas"/>
+			<DCCReference Include="..\PCElements\VSource.pas"/>
+			<DCCReference Include="..\General\WireData.pas"/>
+			<DCCReference Include="..\General\XfmrCode.pas"/>
+			<DCCReference Include="..\Common\Ymatrix.pas">
+				<Form>,
   TempShape in &apos;..\General\TempShape.pas&apos;,
   XYcurve in &apos;..\General\XYcurve.pas&apos;,
   PriceShape in &apos;..\General\PriceShape.pas&apos;;
 
 {$R *.RES</Form>
-        </DCCReference>
-        <DCCReference Include="..\General\TempShape.pas"/>
-        <DCCReference Include="..\General\XYcurve.pas"/>
-        <DCCReference Include="..\General\PriceShape.pas"/>
-        <DCCReference Include="..\General\CNData.pas"/>
-        <DCCReference Include="..\General\TSData.pas"/>
-        <DCCReference Include="..\General\LineConstants.pas"/>
-        <DCCReference Include="..\General\CNLineConstants.pas"/>
-        <DCCReference Include="..\General\TSLineConstants.pas"/>
-        <DCCReference Include="..\General\CableData.pas"/>
-        <DCCReference Include="..\General\ConductorData.pas"/>
-        <DCCReference Include="..\General\CableConstants.pas"/>
-        <DCCReference Include="..\Shared\Pstcalc.pas"/>
-        <DCCReference Include="..\PCElements\GICLine.pas"/>
-        <DCCReference Include="..\PDElements\GICTransformer.pas"/>
-        <DCCReference Include="..\Plot\DSSGraph.pas"/>
-        <DCCReference Include="..\Controls\CapUserControl.pas"/>
-        <DCCReference Include="..\PCElements\StorageVars.pas"/>
-        <DCCReference Include="..\PCElements\GeneratorVars.pas"/>
-        <DCCReference Include="..\Controls\CapControlVars.pas"/>
-        <DCCReference Include="..\Controls\InvControl.pas"/>
-        <RcItem Include="OpenDSS3.ico">
-            <ResourceType>ICON</ResourceType>
-            <ResourceId>Icon_1</ResourceId>
-        </RcItem>
-        <BuildConfiguration Include="Debug">
-            <Key>Cfg_2</Key>
-            <CfgParent>Base</CfgParent>
-        </BuildConfiguration>
-        <BuildConfiguration Include="Base">
-            <Key>Base</Key>
-        </BuildConfiguration>
-        <BuildConfiguration Include="Release">
-            <Key>Cfg_1</Key>
-            <CfgParent>Base</CfgParent>
-        </BuildConfiguration>
-    </ItemGroup>
-    <Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
-    <Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
-    <Import Condition="Exists('$(MSBuildProjectName).deployproj')" Project="$(MSBuildProjectName).deployproj"/>
-</Project>
+			</DCCReference>
+			<DCCReference Include="..\General\TempShape.pas"/>
+			<DCCReference Include="..\General\XYcurve.pas"/>
+			<DCCReference Include="..\General\PriceShape.pas"/>
+			<DCCReference Include="..\General\CNData.pas"/>
+			<DCCReference Include="..\General\TSData.pas"/>
+			<DCCReference Include="..\General\LineConstants.pas"/>
+			<DCCReference Include="..\General\CNLineConstants.pas"/>
+			<DCCReference Include="..\General\TSLineConstants.pas"/>
+			<DCCReference Include="..\General\CableData.pas"/>
+			<DCCReference Include="..\General\ConductorData.pas"/>
+			<DCCReference Include="..\General\CableConstants.pas"/>
+			<DCCReference Include="..\Shared\Pstcalc.pas"/>
+			<DCCReference Include="..\PCElements\GICLine.pas"/>
+			<DCCReference Include="..\PDElements\GICTransformer.pas"/>
+			<DCCReference Include="..\Plot\DSSGraph.pas"/>
+			<DCCReference Include="..\Controls\CapUserControl.pas"/>
+			<DCCReference Include="..\PCElements\StorageVars.pas"/>
+			<DCCReference Include="..\PCElements\GeneratorVars.pas"/>
+			<DCCReference Include="..\Controls\CapControlVars.pas"/>
+			<DCCReference Include="..\Controls\InvControl.pas"/>
+			<RcItem Include="OpenDSS3.ico">
+				<ResourceType>ICON</ResourceType>
+				<ResourceId>Icon_1</ResourceId>
+			</RcItem>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+		<Import Condition="Exists('$(MSBuildProjectName).deployproj')" Project="$(MSBuildProjectName).deployproj"/>
+	</Project>
