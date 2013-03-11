@@ -1031,7 +1031,7 @@ Begin
           End;
           If VIPolar Then Begin
              ConvertComplexArrayToPolar(VoltageBuffer, NumVI);
-             ConvertComplexArrayToPolar(CurrentBuffer, NumVI * MeteredElement.NTerms); // get all of current buffer
+             ConvertComplexArrayToPolar(@CurrentBuffer^[Offset+1], NumVI );    // Corrected 3-11-13
           End;
         End;
      1: Begin     // Convert Voltage Buffer to power kW, kvar or Mag/Angle
@@ -1075,7 +1075,7 @@ Begin
                    Sum.re := Sum.re / FnPhases;
                    AddDblsToBuffer(@Sum.re,2);
                    Sum := cZero;
-                   FOR i := 1 to Fnphases DO Caccum(Sum, CurrentBuffer^[i]);
+                   FOR i := 1 to Fnphases DO Caccum(Sum, CurrentBuffer^[Offset+i]);   // Corrected 3-11-13
                    Sum.re := Sum.re / FnPhases;
                    AddDblsToBuffer(@Sum.re,2);
                 End;
