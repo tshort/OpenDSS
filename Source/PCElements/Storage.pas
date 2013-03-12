@@ -2708,6 +2708,8 @@ Begin
                                 If kWhStored > kWhReserve Then Fstate := Value
                                 ELSE Fstate := STORE_IDLING;  // not enough storage to discharge
                           End;
+     ELSE
+           Fstate := STORE_IDLING;
      END;
 
      If SavedState <> Fstate Then FStateChanged := TRUE;
