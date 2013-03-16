@@ -1076,7 +1076,13 @@ Begin
 
      FYprimFreq     := ActiveCircuit.Solution.Frequency;
      FreqMultiplier := FYprimFreq/BaseFrequency;
-     Y    := Yeq;
+
+     With ActiveCircuit.Solution Do
+     If IsHarmonicModel and (Frequency <> ActiveCircuit.Fundamental) Then  Begin
+         {Just a small value so things don't die and we get the actual injection current out the terminal}
+         Y := cmplx(Epsilon, 0.0)
+     End Else   Y    := Yeq;
+
      Y.im := Y.im / FreqMultiplier;  {Correct reactive part for frequency}
      Yij  := Cnegate(Y);
 
