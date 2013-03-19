@@ -151,6 +151,10 @@ TYPE
         Vminpu          :Double;
         YPrimOpenCond   :TCmatrix;
 
+        FVWMode         :Boolean; //boolean indicating if under volt-watt control mode from InvControl
+        FVWYAxis        :Integer;  // integer value indicating that whether y-axis of watts is in %Pmpp or %PAvailable
+                                  // 1 = %Pmpp, 0=%PAvailable.  Default is 1 such that pctPmpp user-settable
+                                  // property will correctly operate on Pmpp (NOT PAvailable)
         PROCEDURE CalcDailyMult(Hr:double);
         PROCEDURE CalcDutyMult(Hr:double);
         PROCEDURE CalcYearlyMult(Hr:double);
@@ -200,6 +204,14 @@ TYPE
         function  Get_Varmode: Integer;
 
         procedure Set_Varmode(const Value: Integer);
+        function  Get_VWmode: Boolean;
+
+        procedure Set_VWmode(const Value: Boolean);
+        function  Get_VWYAxis: Integer;
+
+        procedure Set_VWYAxis(const Value: Integer);
+
+        procedure kWOut_Calc;
 
       Protected
         PROCEDURE Set_ConductorClosed(Index:Integer; Value:Boolean); Override;
@@ -278,7 +290,8 @@ TYPE
         Property Pmpp         :Double  read PVSystemVars.FPmpp;
         Property puPmpp       :Double  read PVSystemVars.FpuPmpp         Write Set_puPmpp;
         Property Varmode      :Integer read Get_Varmode     Write Set_Varmode;  // 0=constat PF; 1=kvar specified
-
+        Property VWmode       :Boolean read Get_VWmode      Write Set_VWmode;
+        Property VWYAxis      :Integer read Get_VWYAxis     Write Set_VWYAxis;
    End;
 
 VAR
@@ -786,7 +799,8 @@ Begin
          pctX               := OtherPVsystemObj.pctX;
 
          RandomMult         := OtherPVsystemObj.RandomMult;
-
+         FVWMode            := OtherPVsystemObj.FVWMode;
+         FVWYAxis           := OtherPVsystemObj.FVWYAxis;
          UserModel.Name     := OtherPVsystemObj.UserModel.Name;  // Connect to user written models
 
          ClassMakeLike(OtherPVsystemObj);
@@ -940,7 +954,8 @@ Begin
      PVsystemObjSwitchOpen := FALSE;
      Spectrum := '';  // override base class
      SpectrumObj := nil;
-
+     FVWMode     := FALSE;
+     FVWYAxis    := 1;
      InitPropertyValues(0);
      RecalcElementData;
 
@@ -1371,7 +1386,13 @@ Begin
       Then Begin
           If Assigned(InverterCurveObj)
           Then EffFactor := InverterCurveObj.GetYValue(PanelkW/FkVArating);  // pu eff vs pu power
-          kW_Out := PanelkW * EffFactor * FpuPmpp;
+          kWOut_Calc; // if VOLTWATT control mode is enabled then smaller of:
+                      //    (1) panelKW* EffFactor
+                      //    (2) puPmpp, Pmpp (% of full-scale kW)
+                      // if VOLTWATT control mode is not enabled then go with
+                      // panelKW* EffFactor*puPmpp (puPmpp can be set locally in the
+                      // PVSystem object, but defaults to 100% or 1.0 per-unit.
+
       End
       ELSE Begin
           kW_Out := 0.0;
@@ -2222,12 +2243,58 @@ Begin
 End;
 
 
+// ============================================================Get_Varmode===============================
+
 function TPVsystemObj.Get_Varmode: Integer;
 begin
       If PFSpecified Then Result := 0 else Result := 1;    // 1 for kvar specified
 end;
 
+// ============================================================Get_VWmode===============================
 
+function TPVsystemObj.Get_VWmode: Boolean;
+begin
+      If FVWmode Then Result := TRUE else Result := FALSE;    // TRUE if volt-watt mode
+                                                              //  engaged from InvControl
+end;
+
+// ============================================================Get_VWYAxis===============================
+
+function TPVsystemObj.Get_VWYAxis: Integer;
+begin
+      If FVWYAxis = 1 Then Result := 1 else Result := 0;    // TRUE if volt-watt mode
+                                                              //  engaged from InvControl
+end;
+
+// ============================================================kWOut_Calc===============================
+
+Procedure TPVsystemObj.kWOut_Calc;
+
+Var
+    Peff, Pmpp :Double;
+
+    // --------Local Proc-----------------------
+    Procedure Calc_kWOut;
+    Begin
+       With PVSystemVars Do
+       Begin
+          Peff := PanelkW * EffFactor;
+          Pmpp := FPmpp*FpuPmpp;
+          if(Peff > Pmpp) then kW_Out := Pmpp
+          else kW_Out := Peff;
+       End;
+    End;
+    // -------------------------------
+
+begin
+      If VWmode  then
+          case FVWYAxis of
+               0: With PVSystemVars DO kW_Out := PanelkW * EffFactor*FpuPmpp;
+               1: Calc_kWOut;   // call local procedure
+          end
+      else
+            Calc_kWOut;
+end;
 
 // ============================================================Set_Variable===============================
 PROCEDURE TPVsystemObj.Set_Variable(i: Integer;  Value: Double);
@@ -2270,6 +2337,16 @@ begin
 
       kvarSpecified := Not PFSpecified;
 
+end;
+
+procedure TPVsystemObj.Set_VWmode(const Value: Boolean);
+begin
+      FVWmode := Value;
+end;
+
+procedure TPVsystemObj.Set_VWYAxis(const Value: Integer);
+begin
+      FVWYAxis := Value;
 end;
 
 // ===========================================================================================
