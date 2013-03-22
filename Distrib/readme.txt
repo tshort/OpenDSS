@@ -12,7 +12,7 @@ with optional documentation and examples.
 If you have 64-bit Windows, you may install both the 64-bit and 32-bit 
 versions.  The 32-bit version is required if you plan to automate OpenDSS 
 from Excel or any other 32-bit program.  The 64-bit version is required to 
-automate OpenDSS from MatLab on a 64-bit system.  
+automate OpenDSS from 64-bit MatLab on a 64-bit system.  
 
 Installation
 ============
@@ -32,6 +32,10 @@ Short-cuts to the program and manual are created under Start Menu/OpenDSS.
 Please see the manual, OpenDSSManual.PDF, for an overview of the program. 
 The most up-to-date reference information will always be found through the 
 software's "Help / DSS Help" menu command.
+
+If you have an earlier version of OpenDSS installed and registered, such as 7.4.3,
+remove it completely. Otherwise, Windows may retain a registry entry to the
+old 32-bit COM server when you start it up from a 32-bit program.
 
 COM Automation
 ==============
@@ -89,12 +93,12 @@ Source Code
 ===========
 
 The programming language for OpenDSS is Delphi 
-(http://www.embarcadero.com), currently version Delphi XE.  There is also 
+(http://www.embarcadero.com), currently version Delphi XE2.  There is also 
 a Free Pascal version of the program.  Some of the supporting modules may 
 require a C++ compiler to build from source.  OpenDSS source code is 
 available from the following SVN repository: 
 
-https://electricdss.svn.sourceforge.net/svnroot/electricdss
+http://svn.code.sf.net/p/electricdss/code/trunk/
 
 
 Third-party Components
@@ -124,7 +128,7 @@ http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=Questions_and_
 
 OpenDSS Forum
 
-http://sourceforge.net/projects/electricdss/forums/forum/861976
+http://sourceforge.net/p/electricdss/discussion/861976/
 
 What is Unique About OpenDSS?
 
@@ -136,19 +140,19 @@ http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=Main_Page
 
 IEEE Test Cases
 
-http://electricdss.svn.sourceforge.net/viewvc/electricdss/trunk/distrib/IEEETestCases/
+http://svn.code.sf.net/p/electricdss/code/trunk/Distrib/IEEETestCases/
 
 Source Code
 
-http://electricdss.svn.sourceforge.net/viewvc/electricdss/trunk/Source/
+http://svn.code.sf.net/p/electricdss/code/trunk/Source/
 
 Top level of Distribution area (Releases)
 
-http://electricdss.svn.sourceforge.net/viewvc/electricdss/trunk/Distrib/
+http://svn.code.sf.net/p/electricdss/code/trunk/Distrib/
 
 Examples
 
-http://electricdss.svn.sourceforge.net/viewvc/electricdss/trunk/distrib/Examples/
+http://svn.code.sf.net/p/electricdss/code/trunk/distrib/Examples/
 
 License
 =======
