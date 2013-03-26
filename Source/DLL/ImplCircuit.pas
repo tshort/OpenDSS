@@ -79,6 +79,7 @@ type
     function Get_Topology: ITopology; safecall;
     function Get_Sensors: Sensors; safecall;
     procedure UpdateStorage; safecall;
+    function Get_ParentPDElement: Integer; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -1034,6 +1035,26 @@ end;
 procedure TCircuit.UpdateStorage;
 begin
      StorageClass.UpdateAll;
+end;
+
+function TCircuit.Get_ParentPDElement: Integer;
+// Make parent PD element the active element if it exists
+Var
+   ActivePDElement :TPDElement;
+begin
+
+   Result := 0;
+   With ActiveCircuit Do
+   If ActiveCktElement is TPDElement Then
+   Begin
+       ActivePDElement := TPDElement(ActiveCktElement).ParentPDElement;
+       If ActivePDElement <> Nil Then
+       Begin
+         ActiveCktElement :=  ActivePDElement;
+         Result := ActivePDElement.ClassIndex;  // should be >0
+       End;
+   End;
+
 end;
 
 initialization

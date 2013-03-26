@@ -11,11 +11,11 @@ unit OpenDSSengine_TLB;
 // manual modifications will be lost.
 // ************************************************************************ //
 
-// $Rev: 41960 $
-// File generated on 1/23/2013 1:06:43 PM from Type Library described below.
+// $Rev: 45604 $
+// File generated on 3/26/2013 11:36:23 AM from Type Library described below.
 
 // ************************************************************************  //
-// Type Lib: C:\OpenDSS\Source\DLL\OpenDSSengine (1)
+// Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
 // LIBID: {8BFDE413-245A-4514-B151-B16DCC243796}
 // LCID: 0
 // Helpfile:
@@ -23,6 +23,7 @@ unit OpenDSSengine_TLB;
 // DepndLst:
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
+// SYS_KIND: SYS_WIN32
 // Errors:
 //   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
@@ -34,7 +35,7 @@ unit OpenDSSengine_TLB;
 
 interface
 
-uses Windows, ActiveX, Classes, Graphics, OleServer, StdVCL, Variants;
+uses Winapi.Windows, System.Classes, System.Variants, System.Win.StdVCL, Vcl.Graphics, Vcl.OleServer, Winapi.ActiveX;
 
 
 // *********************************************************************//
@@ -574,6 +575,7 @@ type
     function Get_Topology: ITopology; safecall;
     function Get_Sensors: Sensors; safecall;
     procedure UpdateStorage; safecall;
+    function Get_ParentPDElement: Integer; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -618,6 +620,7 @@ type
     property Capacitors: ICapacitors read Get_Capacitors;
     property Topology: ITopology read Get_Topology;
     property Sensors: Sensors read Get_Sensors;
+    property ParentPDElement: Integer read Get_ParentPDElement;
   end;
 
 // *********************************************************************//
@@ -687,6 +690,7 @@ type
     property Topology: ITopology readonly dispid 220;
     property Sensors: Sensors readonly dispid 221;
     procedure UpdateStorage; dispid 222;
+    property ParentPDElement: Integer readonly dispid 223;
   end;
 
 // *********************************************************************//
@@ -2326,9 +2330,9 @@ type
 // *********************************************************************//
   IDSSEventsEvents = dispinterface
     ['{AE501F77-F7F0-4201-A9AD-6AB385262203}']
-    procedure InitControls; dispid 201;
-    procedure StepControls; dispid 202;
-    procedure CheckControls; dispid 203;
+    function InitControls: HResult; dispid 201;
+    function StepControls: HResult; dispid 202;
+    function CheckControls: HResult; dispid 203;
   end;
 
 // *********************************************************************//
@@ -2739,7 +2743,7 @@ type
 
 implementation
 
-uses ComObj;
+uses System.Win.ComObj;
 
 class function CoText.Create: IText;
 begin

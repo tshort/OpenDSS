@@ -25,11 +25,13 @@ uses ComServ, DSSGlobals;
 function TError.Get_Description: WideString;
 begin
     Result := LastErrorMessage;
+    LastErrorMessage := ''; // Reset after retrieving message
 end;
 
 function TError.Get_Number: Integer;
 begin
     Result := ErrorNumber;
+    ErrorNumber := 0;  // Reset after retrieving ErrorNumber
 end;
 
 initialization
