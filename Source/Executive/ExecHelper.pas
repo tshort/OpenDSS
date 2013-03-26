@@ -3324,12 +3324,14 @@ Var
    ParamPointer :Integer;
    ParamName,
    Param:String;
-   BusName:String;
-   BusIdx :Integer;
-   Bus :TDSSBus;
+   BusMarker:TBusMarker;
+
 Begin
      Result := 0;
      ParamPointer := 0;
+
+     BusMarker := TBusMarker.Create;
+     ActiveCircuit.BusMarkerList.Add(BusMarker);
 
      ParamName := Parser.NextParam;
      Param := Parser.StrValue;
@@ -3339,10 +3341,11 @@ Begin
          THEN Inc(ParamPointer)
          ELSE ParamPointer := AddmarkerCommands.GetCommand(ParamName);
 
+         With BusMarker Do
          CASE ParamPointer OF
            1: BusName := Param;
            2: AddMarkerCode := Parser.IntValue;
-           3: AddMarkerColor:= Parser.IntValue;
+           3: AddMarkerColor:= InterpretColorName(Param);
            4: AddMarkerSize := Parser.IntValue;
 
          ELSE
@@ -3352,20 +3355,6 @@ Begin
          ParamName := Parser.NextParam;
          Param := Parser.StrValue;
      End;
-
-     BusIdx := ActiveCircuit.BusList.Find(BusName);
-     if BusIdx>0  then Begin
-          Bus := ActiveCircuit.Buses^[BusIdx];
-          if Bus.CoordDefined
-          then Begin
-               DoSimpleMsg('Sorry. This Command disabled in this version.', 28709);
-              // AddNewMarker(Bus.x, Bus.y, AddMarkerColor, AddMarkerCode, AddMarkerSize);
-              // ShowGraph;
-          End
-          Else DoSimpleMsg('Bus Coordinates not defined for bus ' + Busname, 28709);
-
-     End Else
-        Dosimplemsg('Bus not found.', 28708);
 
 End;
 
@@ -3740,6 +3729,8 @@ Begin
      Reallocmem(Varray,   0);   // discard temp arrays
      Reallocmem(PstArray, 0);
 End;
+
+
 
 initialization
 

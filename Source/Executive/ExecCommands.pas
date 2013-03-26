@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 98;
+     NumExecCommands = 99;
 
 Var
 
@@ -119,7 +119,7 @@ Begin
      ExecCommand[82] := '_ShowControlQueue';
      ExecCommand[83] := '_SolveDirect';
      ExecCommand[84] := '_SolvePFlow';
-     ExecCommand[85] := 'AddMarker';
+     ExecCommand[85] := 'AddBusMarker';
 
      ExecCommand[86] := 'Guids';
      ExecCommand[87] := 'SetLoadAndGenKV';
@@ -134,6 +134,7 @@ Begin
      ExecCommand[96] := 'Pstcalc';
      ExecCommand[97] := 'Variable';
      ExecCommand[98] := 'ReprocessBuses';
+     ExecCommand[99] := 'ClearBusMarkers';
 
 
 
@@ -389,7 +390,11 @@ Begin
      CommandHelp[82] := 'For step control of solution process: Show the present control queue contents.';
      CommandHelp[83] := 'For step control of solution process: Invoke direct solution function in DSS. Non-iterative solution of Y matrix and active sources only.';
      CommandHelp[84] := 'For step control of solution process: Invoke iterative power flow solution function of DSS directly.';
-     CommandHelp[85] := 'Add a marker to the active plot. Example: '+CRLF+CRLF+'AddMarker Bus=busname code=nn color=$00FF0000 size=3';
+     CommandHelp[85] := 'Add a marker to a bus in a circuit plot. Markers must be added before issuing the Plot command. Effect is persistent until circuit is cleared. ' +
+                        'See also ClearBusMarkers command. Example: '+CRLF+CRLF+
+                        'ClearBusMarkers    !...Clears any previous bus markers'+CRLF+
+                        'AddBusMarker Bus=Mybusname code=5 color=Red size=3'+CRLF+CRLF+
+                        'You can use any of the standard color names  or RGB numbers. See Help on C1 property in Plot command.';
      CommandHelp[86] := 'Read GUIDS for class names. Tab or comma-delimited file with full object name and GUID';
      CommandHelp[87] := 'Set load and generator object kv to agree with the bus they are connected to using the bus voltage base and connection type.';
      CommandHelp[88] := 'Convert all Loadshapes presently loaded into either files of single or files of double. '+
@@ -431,6 +436,7 @@ Begin
                         'If any part of the request is invalid, the Result is null.';
      CommandHelp[98] := 'Forces reprocessing of bus definitions whether there has been a change or not. Use for rebuilding meter zone lists ' +
                         'when a line length changes, for example or some other event that would not normally trigger an update to the bus list.';
+     CommandHelp[99] := 'Clear all bus markers created with the AddBusMarker command.';
 
 End;
 
@@ -646,6 +652,7 @@ Begin
        96: CmdResult := DoPstCalc;
        97: CmdResult := DoValVarCmd;
        98: ActiveCircuit.ReprocessBusDefs;
+       99: Activecircuit.ClearBusMarkers;
      ELSE
        // Ignore excess parameters
      End;

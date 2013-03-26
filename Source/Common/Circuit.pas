@@ -22,38 +22,53 @@ unit Circuit;
 interface
 
 USES
-     Solution, SysUtils, ArrayDef, HashList, PointerList, CktElement,
+     Classes, Solution, SysUtils, ArrayDef, HashList, PointerList, CktElement,
      DSSClass, {DSSObject,} Bus, LoadShape, PriceShape, ControlQueue, uComplex,
-     AutoAdd, EnergyMeter, NamedObject, CktTree;
+     AutoAdd, EnergyMeter, NamedObject, CktTree, Graphics;
 
 
 TYPE
     TReductionStrategy = (rsDefault, rsStubs, rsTapEnds, rsMergeParallel, rsBreakLoop, rsDangling, rsSwitches);
 
     CktElementDef = RECORD
-        CktElementClass:Integer;                      
+        CktElementClass:Integer;
         devHandle:Integer;
     END;
 
     pCktElementDefArray = ^CktElementDefArray;
     CktElementDefArray = Array[1..1] of CktElementDef;
 
+     // for adding markers to Plot
+    TBusMarker = class(TObject)
+    // Must be defined before calling circuit plot
+    private
+
+    public
+      BusName: String;
+      AddMarkerColor: Tcolor;
+      AddMarkerCode,
+      AddMarkerSize: Integer;
+
+      constructor Create;
+      destructor Destroy; override;
+    end;
+
     TDSSCircuit = CLASS(TNamedObject)
 
       Private
-          NodeBuffer:pIntegerArray;
-          NodeBufferMax:Integer;
-          FBusNameRedefined:Boolean;
+          NodeBuffer        :pIntegerArray;
+          NodeBufferMax     :Integer;
+          FBusNameRedefined :Boolean;
           FActiveCktElement :TDSSCktElement;
 
           // Temp arrays for when the bus swap takes place
-          SavedBuses: pTBusArray;
+          SavedBuses    :pTBusArray;
           SavedBusNames :pStringArray;
           SavedNumBuses :Integer;
 
-          FLoadMultiplier:Double;  // global multiplier for every load
+          FLoadMultiplier :Double;  // global multiplier for every load
 
-          AbortBusProcess:Boolean;
+          AbortBusProcess :Boolean;
 
           Branch_List: TCktTree; // topology from the first source, lazy evaluation
           BusAdjPC, BusAdjPD: TAdjArray; // bus adjacency lists of PD and PC elements
@@ -80,18 +95,20 @@ TYPE
           function Get_Name:String;
 
 
+
+
       Public
           FCaseName:String;
 
-          ActiveBusIndex   :Integer;
-          Fundamental   :Double;    // fundamental and default base frequency
+          ActiveBusIndex :Integer;
+          Fundamental    :Double;    // fundamental and default base frequency
 
           Control_BusNameRedefined  :Boolean;  // Flag for use by control elements to detect redefinition of buses
 
           BusList,
           AutoAddBusList,
-          DeviceList       :THashList;
-          DeviceRef  :pCktElementDefArray;  //Type and handle of device
+          DeviceList      :THashList;
+          DeviceRef       :pCktElementDefArray;  //Type and handle of device
 
           // lists of pointers to different elements by class
           Faults,
@@ -115,7 +132,7 @@ TYPE
           Loads,
           ShuntCapacitors,
           Feeders,
-          SwtControls        :TPointerList;
+          SwtControls        :PointerList.TPointerList;
 
           ControlQueue:TControlQueue;
 
@@ -188,15 +205,33 @@ TYPE
 
           PctNormalFactor:Double;
 
-          {Plot Markers}
-          NodeMarkerCode,
-          NodeMarkerWidth,
-          SwitchMarkerCode:Integer;
-          TransMarkerSize,
-          TransMarkerCode:Integer;
+          {------Plot Marker Circuit Globals---------}
+              NodeMarkerCode   :Integer;
+              NodeMarkerWidth  :Integer;
+              SwitchMarkerCode :Integer;
 
-          MarkSwitches:Boolean;
-          MarkTransformers:Boolean;
+              TransMarkerSize  :Integer;
+              CapMarkerSize    :Integer;
+              RegMarkerSize    :Integer;
+              PVMarkerSize     :Integer;
+              StoreMarkerSize  :Integer;
+
+              TransMarkerCode  :Integer;
+              CapMarkerCode    :Integer;
+              RegMarkerCode    :Integer;
+              PVMarkerCode     :Integer;
+              StoreMarkerCode  :Integer;
+
+              MarkSwitches     :Boolean;
+              MarkTransformers :Boolean;
+              MarkCapacitors   :Boolean;
+              MarkRegulators   :Boolean;
+              MarkPVSystems    :Boolean;
+              MarkStorage      :Boolean;
+
+              BusMarkerList  :TList;  // list of buses to mark
+
+          {---------------------------------}
 
           ActiveLoadShapeClass: Integer;
 
@@ -204,6 +239,7 @@ TYPE
           Destructor Destroy; Override;
 
           Procedure AddCktElement(Handle:Integer);  // Adds last DSS object created to circuit
+          Procedure ClearBusMarkers;
 
           Procedure TotalizeMeters;
           Function ComputeCapacity:Boolean;
@@ -367,11 +403,27 @@ BEGIN
      NodeMarkerWidth:= 1;
      MarkSwitches     := FALSE;
      MarkTransformers := FALSE;
+     MarkCapacitors   := FALSE;
+     MarkRegulators   := FALSE;
+     MarkPVSystems    := FALSE;
+     MarkStorage      := FALSE;
+
      SwitchMarkerCode := 5;
      TransMarkerCode  := 35;
-     TransMarkerSize  := 1;
+     CapMarkerCode    := 37;
+     RegMarkerCode    := 47;
+     PVMarkerCode     := 15;
+     StoreMarkerCode  := 9;
 
-     
+     TransMarkerSize  := 1;
+     CapMarkerSize    := 3;
+     RegMarkerSize    := 1;
+     PVMarkerSize     := 1;
+     StoreMarkerSize  := 1;
+
+     BusMarkerList := TList.Create;
+     BusMarkerList.Clear;
+
      TrapezoidalIntegration := FALSE;  // Default to Euler method
      LogEvents := FALSE;
 
@@ -459,6 +511,9 @@ BEGIN
      ShuntCapacitors.Free;
 
      ControlQueue.Free;
+
+     ClearBusMarkers;
+     BusMarkerList.Free;
 
      AutoAddObj.Free;
 
@@ -1269,6 +1324,35 @@ begin
   Branch_List := nil;
   if Assigned (BusAdjPC) then FreeAndNilBusAdjacencyLists (BusAdjPD, BusAdjPC);
 end;
+
+PROCEDURE TDSSCircuit.ClearBusMarkers;
+Var
+    i:Integer;
+Begin
+    For i := 0 to BusMarkerList.count-1 do TBusMarker(BusMarkerList.Items[i]).Free;
+    BusMarkerList.Clear;
+End ;
+
+{====================================================================}
+{ TBusMarker }
+{====================================================================}
+
+constructor TBusMarker.Create;
+begin
+  inherited;
+  BusName := '';
+  AddMarkerColor := clBlack;
+  AddMarkerCode := 4;
+  AddMarkerSize := 1;
+end;
+
+destructor TBusMarker.Destroy;
+begin
+  BusName := '';
+  inherited;
+end;
+
+
 
 end.
 

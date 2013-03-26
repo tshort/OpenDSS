@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 82;
+        NumExecOptions = 94;
 
 VAR
          ExecOption,
@@ -115,6 +115,18 @@ Begin
      ExecOption[80] := 'LoadShapeClass';
      ExecOption[81] := 'EarthModel';
      ExecOption[82] := 'QueryLog';
+     ExecOption[83] := 'MarkCapacitors';
+     ExecOption[84] := 'MarkRegulators';
+     ExecOption[85] := 'MarkPVSystems';
+     ExecOption[86] := 'MarkStorage';
+     ExecOption[87] := 'CapMarkerCode';
+     ExecOption[88] := 'RegMarkerCode';
+     ExecOption[89] := 'PVMarkerCode';
+     ExecOption[90] := 'StoreMarkerCode';
+     ExecOption[91] := 'CapMarkerSize';
+     ExecOption[92] := 'RegMarkerSize';
+     ExecOption[93] := 'PVMarkerSize';
+     ExecOption[94] := 'StoreMarkerSize';
 
 
 
@@ -322,7 +334,7 @@ Begin
      OptionHelp[76] := 'Default is 1.0. Relative size (a multiplier applied to default size) of daisy circles on daisy plot.';
      OptionHelp[77] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark transformer locations with a symbol. See TransMarkerCode. ' +
                        'The coordinate of one of the buses for winding 1 or 2 must be defined for the symbol to show';
-     OptionHelp[78] := 'Numeric marker code for transformers. Default is 35. See markstransformers option.';
+     OptionHelp[78] := 'Numeric marker code (0..47 see Users Manual) for transformers. Default is 35. See markstransformers option.';
      OptionHelp[79] := 'Size of transformer marker. Default is 1.';
      OptionHelp[80] := '={Daily | Yearly | Duty | None*} Default loadshape class to use for mode=time and mode=dynamic simulations. Loads and generators, etc., will follow ' +
                        'this shape as time is advanced. Default value is None. That is, Load will not vary with time.';
@@ -332,6 +344,18 @@ Begin
                        'Applies only to Line objects that use LineGeometry objects to compute impedances.';
      OptionHelp[82] := '{YES/TRUE | NO/FALSE} Default = FALSE. When set to TRUE/YES, clears the query log file and thereafter appends ' +
                        'the time-stamped Result string contents to the log file after a query command, ?. ';
+     OptionHelp[83] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Capacitor locations with a symbol. See CapMarkerCode. ';
+     OptionHelp[84] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Regulator locations with a symbol. See RegMarkerCode. ';
+     OptionHelp[85] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark PVSystem locations with a symbol. See PVMarkerCode. ';
+     OptionHelp[86] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Storage locations with a symbol. See StoreMarkerCode. ';
+     OptionHelp[87] := 'Numeric marker code (0..47 -- see Users Manual) for Capacitors. Default is 37.';
+     OptionHelp[88] := 'Numeric marker code (0..47 see Users Manual) for Regulators. Default is 47.';
+     OptionHelp[89] := 'Numeric marker code (0..47 see Users Manual) for PVSystems. Default is 15.';
+     OptionHelp[90] := 'Numeric marker code (0..47 see Users Manual) for Storage elements. Default is 9.';
+     OptionHelp[91] := 'Size of Capacitor marker. Default is 3.';
+     OptionHelp[92] := 'Size of Regulator marker. Default is 1.';
+     OptionHelp[93] := 'Size of PVsystem marker. Default is 1.';
+     OptionHelp[94] := 'Size of Storage marker. Default is 1.';
 
 End;
 //----------------------------------------------------------------------------
@@ -529,6 +553,19 @@ Begin
                    LogQueries := InterpretYesNo(Param);
                    If LogQueries Then ResetQueryLogFile;
                End;
+           83: ActiveCircuit.MarkCapacitors  := InterpretYesNo(Param);
+           84: ActiveCircuit.MarkRegulators  := InterpretYesNo(Param);
+           85: ActiveCircuit.MarkPVSystems   := InterpretYesNo(Param);
+           86: ActiveCircuit.MarkStorage     := InterpretYesNo(Param);
+           87: ActiveCircuit.CapMarkerCode   := Parser.IntValue;
+           88: ActiveCircuit.RegMarkerCode   := Parser.IntValue;
+           89: ActiveCircuit.PVMarkerCode    := Parser.IntValue;
+           90: ActiveCircuit.StoreMarkerCode := Parser.IntValue;
+           91: ActiveCircuit.CapMarkerSize   := Parser.IntValue;
+           92: ActiveCircuit.RegMarkerSize   := Parser.IntValue;
+           93: ActiveCircuit.PVMarkerSize    := Parser.IntValue;
+           94: ActiveCircuit.StoreMarkerSize := Parser.IntValue;
+
          ELSE
            // Ignore excess parameters
          End;
@@ -675,6 +712,18 @@ Begin
            80: AppendGlobalResult(GetActiveLoadShapeClass);
            81: AppendGlobalResult(GetEarthModel(DefaultEarthModel));
            82: If LogQueries Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           83: If ActiveCircuit.MarkCapacitors Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           84: If ActiveCircuit.MarkRegulators Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           85: If ActiveCircuit.MarkPVSystems  Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           86: If ActiveCircuit.MarkStorage    Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           87: AppendGlobalResult(Format('%d' ,[ActiveCircuit.CapMarkerCode]));
+           88: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RegMarkerCode]));
+           89: AppendGlobalResult(Format('%d' ,[ActiveCircuit.PVMarkerCode]));
+           90: AppendGlobalResult(Format('%d' ,[ActiveCircuit.StoreMarkerCode]));
+           91: AppendGlobalResult(Format('%d' ,[ActiveCircuit.CapMarkerSize]));
+           92: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RegMarkerSize]));
+           93: AppendGlobalResult(Format('%d' ,[ActiveCircuit.PVMarkerSize]));
+           94: AppendGlobalResult(Format('%d' ,[ActiveCircuit.StoreMarkerSize]));
          ELSE
            // Ignore excess parameters
          End;

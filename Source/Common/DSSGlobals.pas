@@ -23,6 +23,7 @@ interface
 
 Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerList,
      UComplex, Arraydef, CktElement, Circuit, IniRegSave, Graphics,
+
      {Some units which have global vars defined here}
      Spectrum,
      LoadShape,

@@ -60,12 +60,18 @@ Type
       { Misc support procedures }
       Procedure MarkSubTransformers;
       procedure MarkTheTransformers;
+      procedure MarkTheCapacitors;
+      procedure MarkTheRegulators;
+      procedure MarkThePVSystems;
+      procedure MarkTheStorage;
+      Procedure MarkSpecialClasses;
       Procedure DoBusLabels(Const Idx1, Idx2: Integer);
       Procedure DoBusLabel(const Idx: Integer; const BusLabel: String);
       Procedure LabelBuses;
       Procedure LoadGeneralLineData;
       Procedure SetColorArray;
       Procedure SetMaxScale;
+      Procedure AddBusMarkers;
 
       Function GetColor: Integer;
       Function Thickness: Integer;
@@ -155,8 +161,6 @@ Type
 
 Var
    DSSPlotObj: TDSSPlot;
-   AddMarkerColor: TColor;
-   AddMarkerCode, AddMarkerSize: Integer;
    SinglePhLineStyle: Integer;
    ThreePhLineStyle: Integer;
 
@@ -179,7 +183,11 @@ Uses DSSGraph,
    Controls,
    DlgPlotOptions,
    Bus,
-   Monitor;
+   Monitor,
+   Capacitor,
+   PVSystem,
+   Storage,
+   RegControl;
 
 Const
    Eps = 0.002;
@@ -292,6 +300,32 @@ begin
    End;
 end;
 
+procedure TDSSPlot.AddBusMarkers;
+
+Var
+   BusMarker : TBusMarker;
+   i : Integer;
+   Bus : TDSSBus;
+
+begin
+
+     For i := 0 to ActiveCircuit.BusMarkerList.Count-1 Do
+     Begin
+         BusMarker := ActiveCircuit.BusMarkerList.Items[i];
+         Bus1Idx := ActiveCircuit.BusList.Find(BusMarker.BusName);
+         if Bus1Idx>0  then Begin
+              Bus := ActiveCircuit.Buses^[Bus1Idx];
+              if Bus.CoordDefined  then  With BusMarker do
+              Begin
+                  AddNewMarker(Bus.x, Bus.y, AddMarkerColor, AddMarkerCode, AddMarkerSize);
+              End
+              Else DoSimpleMsg('Bus Coordinates not defined for bus ' + BusMarker.Busname, 28709);
+
+         End;
+     End;
+
+end;
+
 Function TDSSPlot.CoordinateSame(i1, i2: Integer): Boolean;
 
 Begin
@@ -375,10 +409,10 @@ end;
 procedure TDSSPlot.DoCircuitPlot;
 
 Var
-   LineStyleType: TPenStyle;
-   pGICLine: TGICLineObj;
-   pGICLineClass: TGICLine;
-   GICThickness: Integer;
+   LineStyleType : TPenStyle;
+   pGICLine : TGICLineObj;
+   pGICLineClass : TGICLine;
+   GICThickness : Integer;
 
    { ******************  Code for GICLines ************************** }
    function MaxGICCurrent: Double;
@@ -474,7 +508,7 @@ begin
          pGICLine := pGICLineClass.ElementList.Next;
       End;
 
-   { ******************  Code for GICLines ************************** }
+   { ******************  Code for Transformers ************************** }
 
    pTransf := ActiveCircuit.Transformers.First;
    While pTransf <> nil Do
@@ -494,6 +528,13 @@ begin
          End;
          pTransf := Transformers.Next;
       End;
+
+      { ******************  Code for special Bus Markers ************************** }
+
+      AddBusMarkers;
+
+
+
 end;
 
 Function GenPlotItemCompare(Item1, Item2: Pointer): Integer;
@@ -937,10 +978,7 @@ Begin
                MarkerIdx := 26;
                Set_KeyClass(DSSG_MARKERCLASS); { Marker }
                DoAutoAddPlot;
-               If ActiveCircuit.MarkTransformers Then
-                  MarkTheTransformers;
-               If ShowSubs Then
-                  MarkSubTransformers;
+               MarkSpecialClasses;
             End;
          ptCircuitplot:
             Begin
@@ -948,10 +986,7 @@ Begin
                Set_ChartCaption(S);
                SetMaxScale;
                DoCircuitPlot;
-               If ActiveCircuit.MarkTransformers Then
-                  MarkTheTransformers;
-               If ShowSubs Then
-                  MarkSubTransformers;
+               MarkSpecialClasses;
             End;
          ptGeneralDataPlot:
             Begin
@@ -960,10 +995,7 @@ Begin
                Set_KeyClass(DSSG_MARKERCLASS); { Marker }
                MarkerIdx := ActiveCircuit.NodeMarkerCode; // 24;
                DoGeneralPlot;
-               If ActiveCircuit.MarkTransformers Then
-                  MarkTheTransformers;
-               If ShowSubs Then
-                  MarkSubTransformers;
+               MarkSpecialClasses;
             End;
          ptGeneralCircuitPlot:
             Begin
@@ -972,18 +1004,12 @@ Begin
                Set_ChartCaption(S);
                SetMaxScale;
                DoGeneralCircuitPlot;
-               If ActiveCircuit.MarkTransformers Then
-                  MarkTheTransformers;
-               If ShowSubs Then
-                  MarkSubTransformers;
+               MarkSpecialClasses;
             End;
          ptMeterZones:
             Begin
                DoMeterZonePlot;
-               If ActiveCircuit.MarkTransformers Then
-                  MarkTheTransformers;
-               If ShowSubs Then
-                  MarkSubTransformers;
+               MarkSpecialClasses;
             End;
          ptdaisyplot:
             Begin
@@ -997,10 +1023,7 @@ Begin
                End
                Else
                   DoCircuitPlot;
-               If ActiveCircuit.MarkTransformers Then
-                  MarkTheTransformers;
-               If ShowSubs Then
-                  MarkSubTransformers;
+               MarkSpecialClasses;
                DoTheDaisies;
             End;
 
@@ -2850,6 +2873,31 @@ begin
    ShowGraph;
 end;
 
+procedure TDSSPlot.MarkSpecialClasses;
+{
+   Place markers  at certain locations for special types of devices
+}
+begin
+
+{Transformers}
+     If ActiveCircuit.MarkTransformers Then
+        MarkTheTransformers;
+     If ActiveCircuit.MarkCapacitors Then
+        MarkTheCapacitors;
+     If ActiveCircuit.MarkRegulators Then
+        MarkTheRegulators;
+     If ActiveCircuit.MarkPVSystems Then
+        MarkThePVSystems;
+     If ActiveCircuit.MarkStorage Then
+        MarkTheStorage;
+
+     If ShowSubs Then
+        MarkSubTransformers;
+
+
+
+end;
+
 procedure TDSSPlot.MarkSubTransformers;
 begin
    { Mark Locations of Substation Transformers }
@@ -2876,6 +2924,109 @@ begin
 
 end;
 
+procedure TDSSPlot.MarkTheCapacitors;
+Var
+     pCapacitor:TCapacitorObj;
+     BusIdx: Integer;
+     MyBus : TDSSBus;
+
+begin
+   pCapacitor := ActiveCircuit.ShuntCapacitors.first;
+   While pCapacitor <> Nil Do
+   Begin
+      If pCapacitor.Enabled Then
+         Begin
+            BusIdx := pCapacitor.Terminals^[1].BusRef;
+            With ActiveCircuit Do  Begin
+               MyBus :=  Buses^[BusIdx];
+               If MyBus.CoordDefined Then
+               Begin
+                  AddNewMarker(MyBus.X, MyBus.y , clRed, CapMarkerCode,CapMarkerSize);
+               End;
+            End;
+         End;
+      pCapacitor := ActiveCircuit.ShuntCapacitors.Next;
+   End;
+end;
+
+procedure TDSSPlot.MarkThePVSystems;
+Var
+     pPVSystem:TPVSystemObj;
+     BusIdx: Integer;
+     MyBus : TDSSBus;
+
+begin
+   pPVSystem := ActiveCircuit.PVSystems.first;
+   While pPVSystem <> Nil Do
+   Begin
+      If pPVSystem.Enabled Then
+         Begin
+            BusIdx := pPVSystem.Terminals^[1].BusRef;
+            With ActiveCircuit Do  Begin
+               MyBus :=  Buses^[BusIdx];
+               If MyBus.CoordDefined Then
+               Begin
+                  AddNewMarker(MyBus.X, MyBus.y , clRed, PVMarkerCode,PVMarkerSize);
+               End;
+            End;
+         End;
+      pPVSystem := ActiveCircuit.PVSystems.Next;
+   End;
+end;
+
+procedure TDSSPlot.MarkTheStorage;
+Var
+     pStorage:TStorageObj;
+     BusIdx: Integer;
+     MyBus : TDSSBus;
+
+begin
+   pStorage := ActiveCircuit.StorageElements.first;
+   While pStorage <> Nil Do
+   Begin
+      If pStorage.Enabled Then
+         Begin
+            BusIdx := pStorage.Terminals^[1].BusRef;
+            With ActiveCircuit Do  Begin
+               MyBus :=  Buses^[BusIdx];
+               If MyBus.CoordDefined Then
+               Begin
+                  AddNewMarker(MyBus.X, MyBus.y , clRed, StoreMarkerCode,StoreMarkerSize);
+               End;
+            End;
+         End;
+      pStorage := ActiveCircuit.StorageElements.Next;
+   End;
+end;
+
+procedure TDSSPlot.MarkTheRegulators;
+Var
+     pRegControl:TRegControlObj;
+     pXfmr : TTransfObj;
+     BusIdx: Integer;
+     MyBus : TDSSBus;
+
+begin
+   pRegControl := ActiveCircuit.RegControls.first;
+   While pRegControl <> Nil Do
+   Begin
+      If pRegControl.Enabled Then
+         Begin
+            pXfmr := pRegControl.Transformer;
+            BusIdx := pXfmr.Terminals^[pRegControl.TrWinding].BusRef;
+            With ActiveCircuit Do  Begin
+               MyBus :=  Buses^[BusIdx];
+               If MyBus.CoordDefined Then
+               Begin
+                  AddNewMarker(MyBus.X, MyBus.y , clRed, RegMarkerCode,RegMarkerSize);
+               End;
+            End;
+         End;
+      pRegControl := ActiveCircuit.RegControls.Next;
+   End;
+
+end;
+
 procedure TDSSPlot.MarkTheTransformers;
 Var
    Bus1Idx: Integer;
@@ -2883,7 +3034,7 @@ Var
    Xtr, Ytr: Double;
 
 begin
-   { Mark Locations of Substation Transformers }
+   { Mark Locations of  Transformers }
    pTransf := ActiveCircuit.Transformers.First;
    Set_LineWidth(1);
    While pTransf <> Nil Do
@@ -3057,6 +3208,9 @@ begin
          End;
          pLine := Lines.Next;
       End;
+
+
+   AddBusMarkers; // Add default bus markers to line plot
 
 end;
 
@@ -3399,9 +3553,7 @@ begin
 initialization
 
 DSSPlotObj := nil; // Instantiate only if Plot command issued
-AddMarkerColor := clBlack;
-AddMarkerCode := 4;
-AddMarkerSize := 1;
+
 SinglePhLineStyle := 1;
 ThreePhLineStyle := 1;
 
