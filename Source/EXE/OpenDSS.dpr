@@ -165,13 +165,14 @@ uses
   CableConstants in '..\General\CableConstants.pas',
   Pstcalc in '..\Shared\Pstcalc.pas',
   GICLine in '..\PCElements\GICLine.pas',
-  GICTransformer in '..\PDElements\GICTransformer.pas',
+  VSConverter in '..\PDElements\VSConverter.pas',
   DSSGraph in '..\Plot\DSSGraph.pas',
   CapUserControl in '..\Controls\CapUserControl.pas',
   StorageVars in '..\PCElements\StorageVars.pas',
   GeneratorVars in '..\PCElements\GeneratorVars.pas',
   CapControlVars in '..\Controls\CapControlVars.pas',
-  InvControl in '..\Controls\InvControl.pas';
+  InvControl in '..\Controls\InvControl.pas',
+  GICTransformer in '..\PDElements\GICTransformer.pas';
 
 {$R *.RES}
 

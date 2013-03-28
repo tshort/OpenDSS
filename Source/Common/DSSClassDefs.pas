@@ -50,6 +50,7 @@ CONST
       GIC_Line         = 26 * 8;
       GIC_Transformer  = 27 * 8;
       INV_CONTROL      = 28 * 8;
+      VS_CONVERTER     = 29 * 8;
 
 VAR
    NumIntrinsicClasses,
@@ -111,7 +112,8 @@ USES
      PVSystem,
      InvControl,
      GICLine,
-     GICTransformer
+     GICTransformer,
+     VSConverter
 ;
 
 
@@ -194,7 +196,7 @@ Begin
      DSSClasses.New := TGICLine.Create;
      DSSClasses.New := TGICTransformer.Create;
 
-
+     DSSClasses.New := TVSConverter.Create;
 
      MonitorClass   := TDSSMonitor.Create;  // Have to do this AFTER Generator
      DSSClasses.New := MonitorClass;

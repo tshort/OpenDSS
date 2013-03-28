@@ -183,13 +183,14 @@ uses
   CableConstants in '..\General\CableConstants.pas',
   Pstcalc in '..\Shared\Pstcalc.pas',
   GICLine in '..\PCElements\GICLine.pas',
-  GICTransformer in '..\PDElements\GICTransformer.pas',
+  VSConverter in '..\PDElements\VSConverter.pas',
   DSSGraph in '..\Plot\DSSGraph.pas',
   GeneratorVars in '..\PCElements\GeneratorVars.pas',
   StorageVars in '..\PCElements\StorageVars.pas',
   CapControlVars in '..\Controls\CapControlVars.pas',
   CapUserControl in '..\Controls\CapUserControl.pas',
-  InvControl in '..\Controls\InvControl.pas';
+  InvControl in '..\Controls\InvControl.pas',
+  GICTransformer in '..\PDElements\GICTransformer.pas';
 
 exports
   DllGetClassObject,
