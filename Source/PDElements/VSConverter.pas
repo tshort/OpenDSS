@@ -27,7 +27,17 @@ TYPE
 
   TVSConverterObj = class(TPDElement)
     Private
-      FDummy:           Double;
+      Fm:           Double;
+      Fd:           Double;
+      FrefVac:      Double;
+      FrefVdc:      Double;
+      FrefPac:      Double;
+      FrefQac:      Double;
+      FMinM:        Double;
+      FMaxM:        Double;
+      FMaxIac:      Double;
+      FMaxIdc:      Double;
+      Fmode:        Integer;
     Public
       constructor Create(ParClass:TDSSClass; const FaultName:String);
       destructor Destroy; override;
@@ -49,7 +59,12 @@ implementation
 uses
   ParserDel, MyDSSClassDefs, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, Ucomplex, MathUtil, Utilities;
 
-Const NumPropsthisclass = 3;
+Const NumPropsthisclass = 16;
+  VSC_FIXED  = 0;
+  VSC_PACVAC = 1;
+  VSC_PACQAC = 2;
+  VSC_VACVDC = 3;
+  VSC_VAC    = 4;
 
 // =====================================================
 // Class Methods
@@ -80,10 +95,43 @@ begin
   PropertyName^[1]  := 'BusAC';
   PropertyName^[2]  := 'BusDC';
   PropertyName^[3]  := 'phases';
+  PropertyName^[4]  := 'Rac';
+  PropertyName^[5]  := 'Xac';
+  PropertyName^[6]  := 'm0';
+  PropertyName^[7]  := 'd0';
+  PropertyName^[8]  := 'Mmin';
+  PropertyName^[9]  := 'Mmax';
+  PropertyName^[10] := 'Iacmax';
+  PropertyName^[11] := 'Idcmax';
+  PropertyName^[12] := 'Vacref';
+  PropertyName^[13] := 'Pacref';
+  PropertyName^[14] := 'Qacref';
+  PropertyName^[15] := 'Vdcref';
+  PropertyName^[16] := 'VscMode';
 
   PropertyHelp[1]  := 'Name of AC bus.';
   PropertyHelp[2]  := 'Name of DC bus.';
   PropertyHelp[3]  := 'Number of AC Phases. Default is 3.';
+  PropertyHelp[4]  := 'AC resistance (ohms) for the converter transformer, plus any series reactors. Default is 0.' + CRLF +
+                      'Must be 0 for Vac control mode.';
+  PropertyHelp[5]  := 'AC reactance (ohms) for the converter transformer, plus any series reactors. Default is 0.' + CRLF +
+                      'Must be 0 for Vac control mode. Must be >0 for PacVac, PacQac or VacVdc control mode.';
+  PropertyHelp[6]  := 'Fixed or initial value of the modulation index. Default is 0.5.';
+  PropertyHelp[7]  := 'Fixed or initial value of the power angle in degrees. Default is 0.';
+  PropertyHelp[8]  := 'Minimum value of modulation index. Default is 0.1.';
+  PropertyHelp[9]  := 'Maximum value of modulation index. Default is 0.9.';
+  PropertyHelp[10] := 'Maximum value of AC line current, RMS Amps. Default is 0, for no limit.';
+  PropertyHelp[11] := 'Maximum value of DC current, Amps. Default is 0, for no limit.';
+  PropertyHelp[12] := 'Reference AC line-to-neutral voltage, RMS Volts. Default is 0.' + CRLF +
+                      'Applies to PacVac, VacVdc and Vac control modes, influencing m.';
+  PropertyHelp[13] := 'Reference total AC real power, Watts. Default is 0.' + CRLF +
+                      'Applies to PacVac and PacQac control modes, influencing d.';
+  PropertyHelp[14] := 'Reference total QC reactive power, Vars. Default is 0.' + CRLF +
+                      'Applies to PacQac control mode, influencing m.';
+  PropertyHelp[15] := 'Reference DC voltage, Volts. Default is 0.' + CRLF +
+                      'Applies to VacVdc control mode, influencing d.';
+  PropertyHelp[16] := 'Control Mode (Fixed|PacVac|PacQac|VacVdc|Vac). Default is Fixed.' + CRLF +
+                      'Vac requires Rac=0 and Xac=0. PacVac, PacQac and VacVdc require Xac > 0.';
 
   ActiveProperty := NumPropsThisClass;
   inherited DefineProperties;
@@ -226,6 +274,18 @@ begin
   Fnconds := 3;
   Nterms := 2;
 
+  Fmode := VSC_FIXED;
+  Fm := 0.5;
+  Fd := 0.0;
+  FrefVac := 0.0;
+  FrefPac := 0.0;
+  FrefQac := 0.0;
+  FrefVdc := 0.0;
+  FminM := 0.1;
+  FmaxM := 0.9;
+  FmaxIac := 0.0;
+  FmaxIdc := 0.0;
+
   Setbus(2, (GetBus(1) + '.0'));  // Default to grounded
   IsShunt := True;
 
@@ -271,7 +331,7 @@ begin
   else YPrimTemp := Yprim_Series;
 
   with YPrimTemp do begin
-    Value := Cmplx(FDummy, 0.0);
+    Value := Cmplx(Fm, 0.0);
     Value2 := cnegate(Value);
     for i := 1 to Fnphases do begin
       SetElement(i,i,Value);
@@ -304,6 +364,19 @@ begin
   PropertyValue[1] := getbus(1);
   PropertyValue[2] := getbus(2);
   PropertyValue[3] := '3';
+  PropertyValue[4] := '0';
+  PropertyValue[5] := '0';
+  PropertyValue[6] := '0.5';
+  PropertyValue[7] := '0';
+  PropertyValue[8] := '0.1';
+  PropertyValue[9] := '0.9';
+  PropertyValue[10] := '0';
+  PropertyValue[11] := '0';
+  PropertyValue[12] := '0';
+  PropertyValue[13] := '0';
+  PropertyValue[14] := '0';
+  PropertyValue[15] := '0';
+  PropertyValue[16] := 'FIXED';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
