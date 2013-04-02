@@ -12,8 +12,6 @@ USES
 TYPE
   TVSConverter = class(TPDClass)
     private
-      Procedure VSCSetBusAC( const s:String);
-      Procedure VSCSetBusDC( const s:String);
     Protected
       Procedure DefineProperties;
       Function MakeLike(Const VSCName:String):Integer;Override;
@@ -29,6 +27,8 @@ TYPE
     Private
       Fm:           Double;
       Fd:           Double;
+      FRac:         Double;
+      FXac:         Double;
       FrefVac:      Double;
       FrefVdc:      Double;
       FrefPac:      Double;
@@ -57,7 +57,7 @@ var
 
 implementation
 uses
-  ParserDel, MyDSSClassDefs, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, Ucomplex, MathUtil, Utilities;
+  ParserDel, MyDSSClassDefs, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, Ucomplex, MathUtil, Utilities, StrUtils;
 
 Const NumPropsthisclass = 16;
   VSC_FIXED  = 0;
@@ -145,48 +145,12 @@ begin
   end;
 end;
 
-Procedure TVSConverter.VSCSetBusAC( const s:String);
-var
-   s2:String;
-   dotpos:Integer;
-begin
-   with ActiveVSConverterObj
-   do begin
-     SetBus(1, S);
-     dotpos := Pos('.',S);
-     if dotpos>0 then S2 := Copy(S,1,dotpos-1)
-     else S2 := Copy(S,1,Length(S));
-     S2 := S2 + '.0.0.0';
-     SetBus(2,S2);
-     IsShunt := True;
-   end;
-end;
-
-Procedure TVSConverter.VSCSetBusDC( const s:String);
-Var
-  s2:String;
-  dotpos:Integer;
-begin
-  with ActiveVSConverterObj do begin
-    if Nterms<>4 then begin
-      Nterms := 4;
-      NConds := Fnphases; // force reallocation of terminals and conductors
-    end;
-    SetBus(3, S);
-    dotpos := Pos('.',S);
-    if dotpos>0 then S2 := Copy(S,1,dotpos-1)
-    else S2 := Copy(S,1,Length(S));
-    S2 := S2 + '.0.0.0';
-    SetBus(4,S2);
-    IsShunt := True;
-  end;
-end;
-
 Function TVSConverter.Edit:Integer;
 var
   ParamPointer:Integer;
   ParamName:String;
   Param:String;
+  Tok:String;
 begin
   Result := 0;
   ActiveVSConverterObj := ElementList.Active;
@@ -202,23 +166,46 @@ begin
       if (ParamPointer>0) and (ParamPointer<=NumProperties) then PropertyValue[ParamPointer]:= Param;
       case ParamPointer of
         0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 350);
-        1: VSCSetBusAC(param);
-        2: VSCSetBusDC(param);
+        1: SetBus(1, param);
+        2: SetBus(2, param);
+        3: if Fnphases <> Parser.IntValue then begin
+             Nphases := Parser.IntValue ;
+             NConds := Fnphases;
+             ActiveCircuit.BusNameRedefined := True;
+          end;
+        4: FRac := Parser.DblValue;
+        5: FXac := Parser.DblValue;
+        6: Fm := Parser.DblValue;
+        7: Fd := Parser.DblValue;
+        8: FMinM := Parser.DblValue;
+        9: FMaxM := Parser.DblValue;
+        10: FMaxIac := Parser.DblValue;
+        11: FMaxIdc := Parser.DblValue;
+        12: FRefVac := Parser.DblValue;
+        13: FRefPac := Parser.DblValue;
+        14: FRefQac := Parser.DblValue;
+        15: FRefVdc := Parser.DblValue;
+        16: begin
+            Tok := Uppercase (LeftStr (param, 4));
+            if CompareStr (LeftStr(Tok, 1), 'F') = 0 then
+              Fmode := VSC_FIXED
+            else if CompareStr (Tok, 'PACV') = 0 then
+              Fmode := VSC_PACVAC
+            else if CompareStr (Tok, 'PACQ') = 0 then
+              Fmode := VSC_PACQAC
+            else if CompareStr (Tok, 'VACV') = 0 then
+              Fmode := VSC_VACVDC
+            else if CompareStr (Tok, 'VAC') = 0 then
+              Fmode := VSC_VAC
+            else
+              Fmode := VSC_FIXED
+          end;
       else
         ClassEdit(ActiveVSConverterObj, ParamPointer - NumPropsThisClass)
       end;
 
       case ParamPointer of
-        3: if Fnphases <> Parser.IntValue then begin
-          Nphases := Parser.IntValue ;
-          NConds := Fnphases;
-          ActiveCircuit.BusNameRedefined := True;
-          end;
-      else
-      end;
-
-      case ParamPointer OF
-        1..3: YprimInvalid := True;
+        1..16: YprimInvalid := True;
       else
       end;
 
@@ -244,6 +231,19 @@ begin
         NConds   := Fnphases;
         Yorder := Fnconds*Fnterms;
         YPrimInvalid := True;
+        FRac := OtherVSC.FRac;
+        FXac := OtherVSC.FXac;
+        Fm := OtherVSC.Fm;
+        Fd := OtherVSC.Fd;
+        FMinM := OtherVSC.FMinM;
+        FMaxM := OtherVSC.FMaxM;
+        FMaxIac := OtherVSC.FMaxIac;
+        FMaxIdc := OtherVSC.FMaxIdc;
+        FRefVac := OtherVSC.FRefVac;
+        FRefPac := OtherVSC.FRefPac;
+        FRefQac := OtherVSC.FRefQac;
+        FRefVdc := OtherVSC.FRefVdc;
+        Fmode := OtherVSC.Fmode;
       end;
       BaseFrequency := OtherVSC.BaseFrequency;
       ClassMakeLike(OtherVSC);
@@ -275,6 +275,8 @@ begin
   Nterms := 2;
 
   Fmode := VSC_FIXED;
+  FRac := 0.0;
+  FXac := 0.0;
   Fm := 0.5;
   Fd := 0.0;
   FrefVac := 0.0;
@@ -285,9 +287,6 @@ begin
   FmaxM := 0.9;
   FmaxIac := 0.0;
   FmaxIdc := 0.0;
-
-  Setbus(2, (GetBus(1) + '.0'));  // Default to grounded
-  IsShunt := True;
 
   NormAmps   := 0.0;
   EmergAmps  := 0.0;
@@ -348,11 +347,30 @@ Procedure TVSConverterObj.DumpProperties(Var F:TextFile; Complete:Boolean);
 var
   i:Integer;
 begin
-  Inherited DumpProperties(F, complete);
+  inherited DumpProperties(F, complete);
   with ParentClass do begin
     Writeln(F,'~ ',PropertyName^[1],'=',firstbus);
     Writeln(F,'~ ',PropertyName^[2],'=',nextbus);
     Writeln(F,'~ ',PropertyName^[3],'=',Fnphases:0);
+    Writeln(F,'~ ',PropertyName^[4],'=',FRac:0:4);
+    Writeln(F,'~ ',PropertyName^[5],'=',FXac:0:4);
+    Writeln(F,'~ ',PropertyName^[6],'=',Fm:0:4);
+    Writeln(F,'~ ',PropertyName^[7],'=',Fd:0:4);
+    Writeln(F,'~ ',PropertyName^[8],'=',FMinM:0:4);
+    Writeln(F,'~ ',PropertyName^[9],'=',FMaxM:0:4);
+    Writeln(F,'~ ',PropertyName^[10],'=',FMaxIac:0:4);
+    Writeln(F,'~ ',PropertyName^[11],'=',FMaxIdc:0:4);
+    Writeln(F,'~ ',PropertyName^[12],'=',FRefVac:0:4);
+    Writeln(F,'~ ',PropertyName^[13],'=',FRefPac:0:4);
+    Writeln(F,'~ ',PropertyName^[14],'=',FRefQac:0:4);
+    Writeln(F,'~ ',PropertyName^[15],'=',FRefVdc:0:4);
+    case Fmode of
+      VSC_FIXED:   Writeln(F, '~ ', PropertyName^[16], '= Fixed');
+      VSC_PACVAC:  Writeln(F, '~ ', PropertyName^[16], '= PacVac');
+      VSC_PACQAC:  Writeln(F, '~ ', PropertyName^[16], '= PacQac');
+      VSC_VACVDC:  Writeln(F, '~ ', PropertyName^[16], '= VacVdc');
+      VSC_VAC:     Writeln(F, '~ ', PropertyName^[16], '= Vac');
+    end;
     for i := NumPropsthisClass+1 to NumProperties do begin
       Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
     end;
@@ -380,11 +398,11 @@ begin
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
-  PropertyValue[NumPropsThisClass + 1] := '0';  // Normamps
-  PropertyValue[NumPropsThisClass + 2] := '0';  // emergamps
-  PropertyValue[NumPropsThisClass + 3] := '0';  // Fault rate
-  PropertyValue[NumPropsThisClass + 4] := '100';  // Pct Perm
-  PropertyValue[NumPropsThisClass + 5] := '0';  // Hrs to repair
+  PropertyValue[NumPropsThisClass + 1] := '0';   // Normamps
+  PropertyValue[NumPropsThisClass + 2] := '0';   // emergamps
+  PropertyValue[NumPropsThisClass + 3] := '0';   // Fault rate
+  PropertyValue[NumPropsThisClass + 4] := '100'; // Pct Perm
+  PropertyValue[NumPropsThisClass + 5] := '0';   // Hrs to repair
 end;
 
 function TVSConverterObj.GetPropertyValue(Index: Integer): String;
@@ -393,6 +411,25 @@ begin
     1: Result := GetBus(1);
     2: Result := GetBus(2);
     3: Result := Format('%d', [Nphases]);
+    4: Result := Format('%.8g', [FRac]);
+    5: Result := Format('%.8g', [FXac]);
+    6: Result := Format('%.8g', [Fm]);
+    7: Result := Format('%.8g', [Fd]);
+    8: Result := Format('%.8g', [FMinM]);
+    9: Result := Format('%.8g', [FMaxM]);
+    10: Result := Format('%.8g', [FMaxIac]);
+    11: Result := Format('%.8g', [FMaxIdc]);
+    12: Result := Format('%.8g', [FRefVac]);
+    13: Result := Format('%.8g', [FRefPac]);
+    14: Result := Format('%.8g', [FRefQac]);
+    15: Result := Format('%.8g', [FRefVdc]);
+    16: case Fmode of
+      VSC_FIXED:   Result := 'Fixed';
+      VSC_PACVAC:  Result := 'PacVac';
+      VSC_PACQAC:  Result := 'PacQac';
+      VSC_VACVDC:  Result := 'VacVdc';
+      VSC_VAC:     Result := 'Vac';
+    end
   else
     Result := Inherited GetPropertyValue(Index);
   end;
