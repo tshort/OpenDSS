@@ -1033,7 +1033,8 @@ Begin
                                   End;
                     YEARLYMODE:   Begin Factor := ActiveCircuit.GenMultiplier; CalcYearlyMult(DynaVars.dblHour);  End;
                     DUTYCYCLE:    Begin Factor := ActiveCircuit.GenMultiplier; CalcDutyMult(DynaVars.dblHour) ; End;
-                    GENERALTIME:  Begin   // General sequential time simulation
+                    GENERALTIME,   // General sequential time simulation
+                    DYNAMICMODE:  Begin
                                        Factor := ActiveCircuit.GenMultiplier;
                                        // This mode allows use of one class of load shape
                                        case ActiveCircuit.ActiveLoadShapeClass of
@@ -1046,8 +1047,7 @@ Begin
                                   End;
                     MONTECARLO1,
                     MONTEFAULT,
-                    FAULTSTUDY,
-                    DYNAMICMODE:  Factor := ActiveCircuit.GenMultiplier * 1.0;
+                    FAULTSTUDY:  Factor := ActiveCircuit.GenMultiplier * 1.0;
                     MONTECARLO2,
                     MONTECARLO3,
                     LOADDURATION1,
