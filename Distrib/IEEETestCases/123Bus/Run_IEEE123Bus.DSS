@@ -15,7 +15,7 @@
 ! =================================================================
 
 
-Compile (C:\opendss\IEEETestCases\123Bus\IEEE123Master.dss)
+Compile (IEEE123Master.dss)
 
 ! 'Compile' differs from "redirect" in that it changes the default directory 
 ! to the one in which the referenced file is located.

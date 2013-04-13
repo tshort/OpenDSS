@@ -29,12 +29,12 @@ Redirect Loadshape5.DSS
 Plot Loadshape Object=Loadshape5   
 
 ! this one has P and Q in actual kW values
-Redirect PVloadshape_Actual.DSS  
-plot Loadshape Object=PVloadshape_Actual
+Redirect LoadShape5_Actual.DSS  !  Note: UseActual=Yes
+plot Loadshape Object=Loadshape5_Actual
 
 ! PV Loadshape, 1-sec 
 Redirect PVLoadShape.DSS
 plot Loadshape Object=PVLoadshape
 
 
-plot Loadshape Object=LOADSHAPE1
+
