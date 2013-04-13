@@ -872,40 +872,40 @@ Begin
             Exit;
          End
          Else Begin
-            DoSimpleMsg('Make New Plot failed for Monitor Plot.', 8734);
+            DoSimpleMsg('Make New Plot failed for Monitor Plot.', 87341);
             Exit;
          End;
        End;   {Monitor Plot}
-      ptLoadShape: If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'Loadshape.DSV') > 0 Then
+      ptLoadShape: If MakeNewGraph(GetOutputDirectory + CircuitName_ + Format('Loadshape_%s.DSV', [ObjectName])) > 0 Then
          Begin
             DoLoadShapePlot(ObjectName);
             Exit; // All we need to do here
          End Else Begin
-            DoSimpleMsg('Make New Plot failed for Loadshape Plot.', 8734);
+            DoSimpleMsg('Make New Plot failed for Loadshape Plot.', 87342);
             Exit;
          End;
-      ptTShape: If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'TempShape.DSV') > 0 Then
+      ptTShape: If MakeNewGraph(GetOutputDirectory + CircuitName_ + Format('TempShape_%s.DSV', [ObjectName])) > 0 Then
          Begin
             DoTempShapePlot(ObjectName);
             Exit; // All we need to do here
          End Else Begin
-            DoSimpleMsg('Make New Plot failed for TempShape Plot.', 8734);
+            DoSimpleMsg('Make New Plot failed for TempShape Plot.', 87343);
             Exit;
          End;
-      ptPriceShape:If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'Priceshape.DSV') > 0 Then
+      ptPriceShape:If MakeNewGraph(GetOutputDirectory + CircuitName_ + Format('Priceshape_%s.DSV', [ObjectName])) > 0 Then
          Begin
             DoPriceShapePlot(ObjectName);
             Exit; // All we need to do here
          End Else Begin
-            DoSimpleMsg('Make New Plot failed for PriceShape Plot.', 8734);
+            DoSimpleMsg('Make New Plot failed for PriceShape Plot.', 87344);
             Exit;
          End;
-      ptProfile: If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'Profile.DSV') > 0 Then
+      ptProfile: If MakeNewGraph(GetOutputDirectory + CircuitName_ + Format('Profile%d.DSV', [PhasesToPlot])) > 0 Then
          Begin
             DoProfilePlot;
             Exit;
          End Else Begin
-            DoSimpleMsg('Make New Plot failed for Profile Plot.', 8734);
+            DoSimpleMsg('Make New Plot failed for Profile Plot.', 87345);
             Exit;
          End;
    ELSE { All other plots }
@@ -929,28 +929,28 @@ Begin
 
                             If MakeNewGraph(Fname) = 0 Then
                              Begin
-                              DoSimpleMsg('Make New Plot failed for Circuit Plot.', 8734);
-                              Exit;
+                                DoSimpleMsg('Make New Plot failed for Circuit Plot.', 87346);
+                                Exit;
                              End;
                          End;
           ptGeneralDataPlot: If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'General.DSV') = 0 Then
                            Begin
-                              DoSimpleMsg('Make New Plot failed for General Data Plot.', 8734);
+                              DoSimpleMsg('Make New Plot failed for General Data Plot.', 87347);
                               Exit;
                            End;
           ptGeneralCircuitPlot: If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'GeneralCircuit.DSV') = 0 Then
                            Begin
-                              DoSimpleMsg('Make New Plot failed for GeneralCircuit Plot.', 8734);
+                              DoSimpleMsg('Make New Plot failed for GeneralCircuit Plot.', 87348);
                               Exit;
                            End;
           ptMeterZones: If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'MeterZone.DSV') = 0 Then
                            Begin
-                              DoSimpleMsg('Make New Plot failed for MeterZone Plot.', 8734);
+                              DoSimpleMsg('Make New Plot failed for MeterZone Plot.', 87349);
                               Exit;
                            End;
           ptdaisyplot: If MakeNewGraph(GetOutputDirectory + CircuitName_ + 'Daisy.DSV') = 0 Then
                            Begin
-                              DoSimpleMsg('Make New Plot failed for Daisy Plot.', 8734);
+                              DoSimpleMsg('Make New Plot failed for Daisy Plot.', 87340);
                               Exit;
                            End;
       end;
