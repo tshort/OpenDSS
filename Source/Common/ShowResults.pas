@@ -90,7 +90,10 @@ Begin
 
      IF Buses^[i].NumNodesThisBus >= 3  THEN  Begin
 
-       FOR j := 1 to 3 DO  Vph[j] := Solution.NodeV^[Buses^[i].GetRef(j)] ;
+     // compute sequence voltages for Nodes 1, 2, and 3 only
+
+       With Buses^[i] Do
+       FOR j := 1 to 3 DO  Vph[j] := Solution.NodeV^[GetRef(FindIdx(j))] ;
 
        IF LL Then  Begin
              For j := 1 to 3 Do  Begin
@@ -142,32 +145,54 @@ Procedure  WriteBusVoltages(var F:TextFile; i:Integer; LL:Boolean);
 
 Var
   nref,j,k :Integer;
-  Volts:Complex;
-  Vmag, Vpu:Double;
-  Bname:String;
+  Volts : Complex;
+  Vmag, Vpu : Double;
+  Bname : String;
+  NodeName : String;
+  NodeIdx : Integer;
+  jj, kk  : Integer;
 
 Begin
      With ActiveCircuit Do Begin
-       For j := 1 to Buses^[i].NumNodesThisBus DO Begin
-         nref := Buses^[i].GetRef(j);
+       jj := 1;
+       With Buses^[i] Do
+       For j := 1 to NumNodesThisBus DO Begin
+         // Get the index of the next Node in numerical sequence
+
+         Repeat
+             NodeIdx := FindIdx(jj);  // Get the index of the Node that matches jj
+             inc(jj)
+         Until NodeIdx>0;
+
+         nref := GetRef(NodeIdx);   // Get the onverall node reference number
          Volts := ActiveCircuit.Solution.NodeV^[nref];
 
-         IF LL and (j<4) THEN
+
+         IF LL and (jj <= 4) THEN
+         // Line-to-line voltages
            Begin         // Convert to Line-Line assuming no more than 3 phases
-              k := j+1; IF k>3 Then k := 1;
-              IF k<=Buses^[i].NumNodesThisBus Then Begin
-                  nref := Buses^[i].GetRef(k);
+              // k is 1, 2, or 3
+              k := jj; IF k > 3 Then k := 1;
+              kk := FindIdx(k);
+              IF k <= NumNodesThisBus Then Begin
+                  nref := Buses^[i].GetRef(kk); // reference for next phase in sequence
                   Volts := Csub(Volts, ActiveCircuit.Solution.NodeV^[nref]);
               End;
            End;
+
          Vmag := Cabs(Volts)*0.001;
-         If Buses^[i].kvbase <> 0.0
-                Then Vpu := Vmag / Buses^[i].kVBase
+         If kvbase <> 0.0
+                Then Vpu := Vmag / kVBase
                 Else Vpu := 0.0;
-         IF LL then Vpu := Vpu/SQRT3;
+         IF LL and (jj <= 4) then Begin
+            Vpu := Vpu/SQRT3;
+            NodeName := Format('%d-%d',[GetNum(NodeIdx), GetNum(kk)]);
+         End
+         Else NodeName := Format('%d  ',[GetNum(NodeIdx)]);
+
          If j=1 Then Bname := Paddots(BusList.Get(i), MaxBusNameLength)
                 Else BName := Pad('   -', MaxBusNameLength);
-         Writeln(F, Format('%s %2d %10.5g /_ %6.1f %9.5g %9.3f', [UpperCase(Bname),  Buses^[i].GetNum(j),  Vmag, cdang(Volts),Vpu, Buses^[i].kvbase*SQRT3  ]));
+         Writeln(F, Format('%s %s %10.5g /_ %6.1f %9.5g %9.3f', [UpperCase(Bname), NodeName,  Vmag, cdang(Volts),Vpu, kvbase*SQRT3  ]));
        End;
      End;
 End;
