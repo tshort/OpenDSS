@@ -1484,7 +1484,7 @@ Begin
         pcElem := PCElements.First;
         WHILE   pcElem <> NIL
         Do Begin
-            pcElem.InitHarmonics;   // Virtual function
+            If pcElem.Enabled Then pcElem.InitHarmonics;   // Virtual function
             pcElem := PCElements.Next;
         End;
         Result := TRUE;
