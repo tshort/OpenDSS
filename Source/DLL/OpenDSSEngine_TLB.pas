@@ -207,6 +207,20 @@ const
   dssLoadConstPFixedX = $00000007;
 
 type
+  LineUnits = TOleEnum;
+const
+   dssLineUnitsNone = $00000000;
+   dssLineUnitsMiles =$00000001;
+   dssLineUnitskFt   =$00000002;
+   dssLineUnitskm    =$00000003;
+   dssLineUnitsmeter     =$00000004;
+   dssLineUnitsft    =$00000005;
+   dssLineUnitsinch    =$00000006;
+   dssLineUnitscm    =$00000007;
+   dssLineUnitsmm    =$00000008;
+   dssLineUnitsMaxnum =$00000009;
+
+type
 
 // *********************************************************************//
 // Forward declaration of types defined in TypeLibrary

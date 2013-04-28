@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 4/9/2013 10:12:35 AM (- $Rev: 12980 $, 88771308).
+// File generated on 4/28/2013 3:12:53 PM (- $Rev: 12980 $, 33484912).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -242,6 +242,33 @@ library OpenDSSengine
     dssLoadConstI = 5,
     dssLoadConstPFixedQ = 6,
     dssLoadConstPFixedX = 7
+  };
+
+  [
+    uuid(9422E077-D357-4C87-BA49-C193788E755F)
+  ]
+  enum LineUnits
+  {
+    [helpstring("No line length unit.")]
+    dssLineUnitsNone = 0,
+    [helpstring("Line length units in miles.")]
+    dssLineUnitsMiles = 1,
+    [helpstring("Line length units are in thousand feet.")]
+    dssLineUnitskFt = 2,
+    [helpstring("Line length units are km.")]
+    dssLineUnitskm = 3,
+    [helpstring("Line length units are meters.")]
+    dssLineUnitsmeter = 4,
+    [helpstring("Line units in feet.")]
+    dssLineUnitsft = 5,
+    [helpstring("Line length units are inches.")]
+    dssLineUnitsinch = 6,
+    [helpstring("Line units are cm.")]
+    dssLineUnitscm = 7,
+    [helpstring("Line length units are mm.")]
+    dssLineUnitsmm = 8,
+    [helpstring("Maximum number of line units constants.")]
+    dssLineUnitsMaxnum = 9
   };
 
   [
@@ -1206,6 +1233,10 @@ library OpenDSSengine
     HRESULT _stdcall Spacing([out, retval] BSTR* Value);
     [propput, id(0x000000CD), helpstring("Line spacing code")]
     HRESULT _stdcall Spacing([in] BSTR Value);
+    [propget, id(0x000000CE)]
+    HRESULT _stdcall Units([out, retval] long* Value);
+    [propput, id(0x000000CE)]
+    HRESULT _stdcall Units([in] long Value);
   };
 
   [

@@ -167,7 +167,7 @@ Begin
          nref := GetRef(NodeIdx);   // Get the onverall node reference number
          Volts := ActiveCircuit.Solution.NodeV^[nref];
 
-
+         kk := 1; // keep compiler from complaining
          IF LL and (jj <= 4) THEN
          // Line-to-line voltages
            Begin         // Convert to Line-Line assuming no more than 3 phases

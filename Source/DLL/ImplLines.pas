@@ -68,13 +68,16 @@ type
     function Get_Count: Integer; safecall;
     function Get_Spacing: WideString; safecall;
     procedure Set_Spacing(const Value: WideString); safecall;
+    function Get_Units: Integer; safecall;
+    procedure Set_Units(Value: Integer); safecall;
+
     { Protected declarations }
   end;
 
 implementation
 
 uses ComServ, Line, DSSClassDefs, DSSGlobals, CktElement,
-  uComplex, ExecHelper, dialogs, Sysutils, ParserDel, Variants, Math;
+  uComplex, ExecHelper, dialogs, Sysutils, ParserDel, Variants, Math, LineUnits;
 
 Function IsLine(Const CktElem:TDSSCktElement):Boolean;
 
@@ -260,6 +263,19 @@ function TLines.New(const Name: WideString): Integer;
 begin
       Result := AddObject('line', Name);    // Returns handle to object
 end;
+
+
+function TLines.Get_Units: Integer;
+begin
+  Result := 0;
+  IF ActiveCircuit <> NIL
+  THEN If IsLine(ActiveCircuit.ActiveCktElement)
+  THEN Begin
+       Result := TLineObj(ActiveCircuit.ActiveCktElement).LengthUnits;
+  End
+
+end;
+
 
 procedure TLines.Set_Bus1(const Value: WideString);
 begin
@@ -741,6 +757,26 @@ begin
        END;
   End;
 end;
+
+procedure TLines.Set_Units(Value: Integer);
+begin
+  IF ActiveCircuit <> NIL
+  THEN If IsLine(ActiveCircuit.ActiveCktElement)
+  THEN Begin
+       WITH TLineObj(ActiveCircuit.ActiveCktElement) Do Begin
+          if Value < dssLineUnitsMaxnum  then
+            begin
+               Parser.CmdString := Format('units=%s', [LineUnitsStr(Value)]);
+               Edit;
+               YprimInvalid := True;
+            end
+          else
+            DoSimpleMsg('Invalid line units integer sent via COM interface.  Please enter a value within range.',183);
+
+       END;
+  End;
+end;
+
 
 procedure TLines.Set_Xg(Value: Double);
 begin
