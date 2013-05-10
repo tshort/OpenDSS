@@ -183,7 +183,7 @@ uses
   CableConstants in '..\General\CableConstants.pas',
   Pstcalc in '..\Shared\Pstcalc.pas',
   GICLine in '..\PCElements\GICLine.pas',
-  VSConverter in '..\PDElements\VSConverter.pas',
+  VSConverter in '..\PCElements\VSConverter.pas',
   DSSGraph in '..\Plot\DSSGraph.pas',
   GeneratorVars in '..\PCElements\GeneratorVars.pas',
   StorageVars in '..\PCElements\StorageVars.pas',

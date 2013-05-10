@@ -8,9 +8,9 @@ unit VSConverter;
 }
 interface
 USES
-  Command, DSSClass, PDClass, Circuit, PDElement, UcMatrix, ArrayDef, XYCurve;
+  Command, DSSClass, PCClass, Circuit, PCElement, UcMatrix, Ucomplex, ArrayDef, XYCurve;
 TYPE
-  TVSConverter = class(TPDClass)
+  TVSConverter = class(TPCClass)
     private
     Protected
       Procedure DefineProperties;
@@ -23,7 +23,7 @@ TYPE
       Function NewObject(const ObjName:String):Integer; override;
   end;
 
-  TVSConverterObj = class(TPDElement)
+  TVSConverterObj = class(TPCElement)
     Private
       Fm:           Double;
       Fd:           Double;
@@ -38,12 +38,18 @@ TYPE
       FMaxIac:      Double;
       FMaxIdc:      Double;
       Fmode:        Integer;
+      FNdc:         Integer;
     Public
       constructor Create(ParClass:TDSSClass; const FaultName:String);
       destructor Destroy; override;
 
       Procedure RecalcElementData;Override;
       Procedure CalcYPrim;Override;
+
+      // these three functions make it a PCElement
+      Function  InjCurrents:Integer; Override;
+      Procedure GetInjCurrents(Curr:pComplexArray); Override;
+      Procedure GetCurrents(Curr: pComplexArray);Override;
 
       Procedure MakePosSequence;Override;
 
@@ -57,14 +63,14 @@ var
 
 implementation
 uses
-  ParserDel, MyDSSClassDefs, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, Ucomplex, MathUtil, Utilities, StrUtils;
+  ParserDel, MyDSSClassDefs, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, MathUtil, Utilities, StrUtils;
 
 Const NumPropsthisclass = 16;
   VSC_FIXED  = 0;
   VSC_PACVAC = 1;
   VSC_PACQAC = 2;
-  VSC_VACVDC = 3;
-  VSC_VAC    = 4;
+  VSC_VDCVAC = 3;
+  VSC_VDCQAC = 4;
 
 // =====================================================
 // Class Methods
@@ -74,7 +80,7 @@ constructor TVSConverter.Create;
 begin
   Inherited Create;
   Class_Name   := 'VSConverter';
-  DSSClassType := VS_CONVERTER + PD_ELEMENT;
+  DSSClassType := VS_CONVERTER + PC_ELEMENT;
   ActiveElement := 0;
   DefineProperties;
   CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
@@ -92,9 +98,9 @@ begin
   CountProperties;
   AllocatePropertyArrays;
 
-  PropertyName^[1]  := 'BusAC';
-  PropertyName^[2]  := 'BusDC';
-  PropertyName^[3]  := 'phases';
+  PropertyName^[1]  := 'Bus1';
+  PropertyName^[2]  := 'phases';
+  PropertyName^[3]  := 'Ndc';
   PropertyName^[4]  := 'Rac';
   PropertyName^[5]  := 'Xac';
   PropertyName^[6]  := 'm0';
@@ -109,9 +115,9 @@ begin
   PropertyName^[15] := 'Vdcref';
   PropertyName^[16] := 'VscMode';
 
-  PropertyHelp[1]  := 'Name of AC bus.';
-  PropertyHelp[2]  := 'Name of DC bus.';
-  PropertyHelp[3]  := 'Number of AC Phases. Default is 3.';
+  PropertyHelp[1]  := 'Name of converter bus, containing both AC and DC conductors. Bus2 is always ground.';
+  PropertyHelp[2]  := 'Number of AC plus DC conductors. Default is 4. AC phases numbered before DC conductors.';
+  PropertyHelp[3]  := 'Number of DC conductors. Default is 1. DC conductors numbered after AC phases.';
   PropertyHelp[4]  := 'AC resistance (ohms) for the converter transformer, plus any series reactors. Default is 0.' + CRLF +
                       'Must be 0 for Vac control mode.';
   PropertyHelp[5]  := 'AC reactance (ohms) for the converter transformer, plus any series reactors. Default is 0.' + CRLF +
@@ -123,15 +129,14 @@ begin
   PropertyHelp[10] := 'Maximum value of AC line current, RMS Amps. Default is 0, for no limit.';
   PropertyHelp[11] := 'Maximum value of DC current, Amps. Default is 0, for no limit.';
   PropertyHelp[12] := 'Reference AC line-to-neutral voltage, RMS Volts. Default is 0.' + CRLF +
-                      'Applies to PacVac, VacVdc and Vac control modes, influencing m.';
+                      'Applies to PacVac and VdcVac control modes, influencing m.';
   PropertyHelp[13] := 'Reference total AC real power, Watts. Default is 0.' + CRLF +
                       'Applies to PacVac and PacQac control modes, influencing d.';
-  PropertyHelp[14] := 'Reference total QC reactive power, Vars. Default is 0.' + CRLF +
-                      'Applies to PacQac control mode, influencing m.';
+  PropertyHelp[14] := 'Reference total AC reactive power, Vars. Default is 0.' + CRLF +
+                      'Applies to PacQac and VdcQac control modes, influencing m.';
   PropertyHelp[15] := 'Reference DC voltage, Volts. Default is 0.' + CRLF +
-                      'Applies to VacVdc control mode, influencing d.';
-  PropertyHelp[16] := 'Control Mode (Fixed|PacVac|PacQac|VacVdc|Vac). Default is Fixed.' + CRLF +
-                      'Vac requires Rac=0 and Xac=0. PacVac, PacQac and VacVdc require Xac > 0.';
+                      'Applies to VdcVac control mode, influencing d.';
+  PropertyHelp[16] := 'Control Mode (Fixed|PacVac|PacQac|VdcVac|VdcQac). Default is Fixed.';
 
   ActiveProperty := NumPropsThisClass;
   inherited DefineProperties;
@@ -167,12 +172,12 @@ begin
       case ParamPointer of
         0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 350);
         1: SetBus(1, param);
-        2: SetBus(2, param);
-        3: if Fnphases <> Parser.IntValue then begin
+        2: if Fnphases <> Parser.IntValue then begin
              Nphases := Parser.IntValue ;
              NConds := Fnphases;
              ActiveCircuit.BusNameRedefined := True;
           end;
+        3: FNdc := Parser.IntValue;
         4: FRac := Parser.DblValue;
         5: FXac := Parser.DblValue;
         6: Fm := Parser.DblValue;
@@ -193,10 +198,10 @@ begin
               Fmode := VSC_PACVAC
             else if CompareStr (Tok, 'PACQ') = 0 then
               Fmode := VSC_PACQAC
-            else if CompareStr (Tok, 'VACV') = 0 then
-              Fmode := VSC_VACVDC
-            else if CompareStr (Tok, 'VAC') = 0 then
-              Fmode := VSC_VAC
+            else if CompareStr (Tok, 'VDCV') = 0 then
+              Fmode := VSC_VDCVAC
+            else if CompareStr (Tok, 'VDCQ') = 0 then
+              Fmode := VSC_VDCQAC
             else
               Fmode := VSC_FIXED
           end;
@@ -229,7 +234,8 @@ begin
         Fnphases := OtherVSC.Fnphases;
         FnTerms  := OtherVSC.FnTerms;
         NConds   := Fnphases;
-        Yorder := Fnconds*Fnterms;
+        FNdc := OtherVSC.FNdc;
+        Yorder := FnConds * FnTerms;
         YPrimInvalid := True;
         FRac := OtherVSC.FRac;
         FXac := OtherVSC.FXac;
@@ -270,12 +276,14 @@ begin
   DSSObjType := ParClass.DSSClassType;
   Name := LowerCase(FaultName);
 
-  NPhases := 3;
-  Fnconds := 3;
-  Nterms := 2;
+  // typically the first 3 "phases" are AC, and the last one is DC
+  NPhases := 4;
+  Fnconds := 4;
+  Nterms := 1;
+  FNdc := 1;
 
   Fmode := VSC_FIXED;
-  FRac := 0.0;
+  FRac := EPSILON;
   FXac := 0.0;
   Fm := 0.5;
   Fd := 0.0;
@@ -287,12 +295,6 @@ begin
   FmaxM := 0.9;
   FmaxIac := 0.0;
   FmaxIdc := 0.0;
-
-  NormAmps   := 0.0;
-  EmergAmps  := 0.0;
-  FaultRate  := 0.0;
-  PctPerm    := 100.0;
-  HrsToRepair := 0.0;
 
   InitPropertyValues(0);
   Yorder := Fnterms * Fnconds;
@@ -306,52 +308,137 @@ end;
 
 Procedure TVSConverterObj.RecalcElementData;
 begin
+  if (FRac = 0.0) and (FXac = 0.0) then FRac := EPSILON;
+  Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
 end;
 
 Procedure TVSConverterObj.CalcYPrim;
 var
   Value, Value2:Complex;
+  FreqMultiplier:Double;
   i:Integer;
-  YPrimTemp :TCMatrix;
 begin
-  if YPrimInvalid then begin    // Reallocate YPrim if something has invalidated old allocation
+// build YPrim_Series non-zero for just the AC phases, and it will be diagonal
+  if YPrimInvalid then begin
     if YPrim_Series<>nil then  YPrim_Series.Free;
     YPrim_Series := TCmatrix.CreateMatrix(Yorder);
-    if YPrim_Shunt<>nil then  YPrim_Shunt.Free;
-    YPrim_Shunt := TCmatrix.CreateMatrix(Yorder);
     if YPrim <> nil then  YPrim.Free;
     YPrim := TcMatrix.CreateMatrix(Yorder);
   end else begin
     YPrim_Series.Clear;
-    YPrim_Shunt.Clear;
     Yprim.Clear;
   end;
-  if IsShunt then YPrimTemp := YPrim_Shunt
-  else YPrimTemp := Yprim_Series;
 
-  with YPrimTemp do begin
-    Value := Cmplx(Fm, 0.0);
-    Value2 := cnegate(Value);
-    for i := 1 to Fnphases do begin
+  // calculate the AC voltage source admittance
+  FYprimFreq := ActiveCircuit.Solution.Frequency;
+  FreqMultiplier := FYprimFreq / BaseFrequency;
+  Value.re := FRac;
+  Value.im := FXac * FreqMultiplier;
+  Value := cinv(Value);
+  Value2 := cnegate(Value);
+
+  with YPrim_Series do begin
+    for i := 1 to (Fnphases - FNdc) do begin
       SetElement(i,i,Value);
-      SetElement(i+Fnphases, i+Fnphases,Value);
+      SetElement(i+Fnphases, i+Fnphases, Value);
       SetElemSym(i, i+Fnphases, Value2);
     end;
   end;
-  YPrim.CopyFrom(YPrimTemp);
-  Inherited CalcYPrim;
+  YPrim.CopyFrom(YPrim_Series);
+  Inherited CalcYPrim; // may open some conductors
   YprimInvalid := False;
 end;
 
-Procedure TVSConverterObj.DumpProperties(Var F:TextFile; Complete:Boolean);
+function TVSConverterObj.InjCurrents:Integer;
+begin
+  GetInjCurrents(InjCurrent);
+  Result := Inherited InjCurrents; // Add into system array
+end;
+
+procedure TVSConverterObj.GetCurrents(Curr: pComplexArray);
+var
+  i:Integer;
+begin
+  try
+    with ActiveCircuit.Solution do begin
+      for i := 1 to Yorder do Vterminal^[i] := NodeV^[NodeRef^[i]];
+      // add the injection currents from both AC and DC nodes, to the
+      // currents from Yprim elements, which should be zero at the DC nodes
+      YPrim.MVMult(Curr, Vterminal);
+      GetInjCurrents(ComplexBuffer);
+      for i := 1 to Yorder do Curr^[i] := Csub(Curr^[i], ComplexBuffer^[i]);
+    end;
+  except
+    on E: Exception
+    do DoErrorMsg(('GetCurrents for Element: ' + Name + '.'), E.Message,
+        'Inadequate storage allotted for circuit element.', 327);
+  end;
+end;
+
+procedure TVSConverterObj.GetInjCurrents(Curr:pComplexArray);
+var
+  Vscale, Idc: Complex;
+  Vdc, Ia, Ib, Ic, Va, Vb, Vc, Sa, Sb, Sc, Sac: Complex;
+  Pac : Double;
+  i: integer;
+begin
+
+   { AC Voltage source injection currents given by this formula:
+     _     _           _         _
+     |Iinj1|           |Vsource  |
+     |     | = [Yprim] |         |
+     |Iinj2|           | 0       |
+     _     _           _         _
+   }
+
+//  implement hard-wired fixed mode, 4 phases, ndc = 1
+
+  // obtain the terminal control quantities
+  GetTerminalCurrents (ITerminal);
+  Ia := Iterminal[1];
+  Ib := Iterminal[2];
+  Ic := Iterminal[3];
+  for i := 1 to Yorder do Vterminal^[i] := ActiveCircuit.Solution.NodeV^[NodeRef^[i]];
+  Va := Vterminal^[1];
+  Vb := Vterminal^[2];
+  Vc := Vterminal^[3];
+  Sa := Cmul (Va, Conjg(Ia));
+  Sb := Cmul (Vb, Conjg(Ib));
+  Sc := Cmul (Vc, Conjg(Ic));
+  Sac := Cadd (Sa, Sb);
+  Sac := Cadd (Sac, Sc);
+  Pac := Sac.re;
+  if (Pac = 0.0) then Pac := 1.0;
+  Vdc := Vterminal^[4];
+  if (Vdc.re = 0.0) and (Vdc.im = 0.0) then Vdc := CONE;
+
+  Vscale := CMulReal (Vdc, 0.353553 * Fm);
+
+  // do the AC voltage source injection
+  RotatePhasorDeg(Vscale, 1.0, Fd);
+  Vterminal^[1] := Vscale;
+  RotatePhasorDeg(Vscale, 1.0, -120.0);
+  Vterminal^[2] := Vscale;
+  RotatePhasorDeg(Vscale, 1.0, -120.0);
+  Vterminal^[3] := Vscale;
+  Vterminal^[4] := CZERO;
+  YPrim.MVMult(Curr, Vterminal);
+
+  // do the DC current source injection
+  Idc := CdivReal (Vdc, Pac);
+  Curr^[4] := Idc;
+  ITerminalUpdated := FALSE;
+end;
+
+procedure TVSConverterObj.DumpProperties(Var F:TextFile; Complete:Boolean);
 var
   i:Integer;
 begin
   inherited DumpProperties(F, complete);
   with ParentClass do begin
     Writeln(F,'~ ',PropertyName^[1],'=',firstbus);
-    Writeln(F,'~ ',PropertyName^[2],'=',nextbus);
-    Writeln(F,'~ ',PropertyName^[3],'=',Fnphases:0);
+    Writeln(F,'~ ',PropertyName^[2],'=',Fnphases:0);
+    Writeln(F,'~ ',PropertyName^[3],'=',FNdc:0);
     Writeln(F,'~ ',PropertyName^[4],'=',FRac:0:4);
     Writeln(F,'~ ',PropertyName^[5],'=',FXac:0:4);
     Writeln(F,'~ ',PropertyName^[6],'=',Fm:0:4);
@@ -368,8 +455,8 @@ begin
       VSC_FIXED:   Writeln(F, '~ ', PropertyName^[16], '= Fixed');
       VSC_PACVAC:  Writeln(F, '~ ', PropertyName^[16], '= PacVac');
       VSC_PACQAC:  Writeln(F, '~ ', PropertyName^[16], '= PacQac');
-      VSC_VACVDC:  Writeln(F, '~ ', PropertyName^[16], '= VacVdc');
-      VSC_VAC:     Writeln(F, '~ ', PropertyName^[16], '= Vac');
+      VSC_VDCVAC:  Writeln(F, '~ ', PropertyName^[16], '= VdcVac');
+      VSC_VDCQAC:  Writeln(F, '~ ', PropertyName^[16], '= VdcQac');
     end;
     for i := NumPropsthisClass+1 to NumProperties do begin
       Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
@@ -380,8 +467,8 @@ end;
 procedure TVSConverterObj.InitPropertyValues(ArrayOffset: Integer);
 begin
   PropertyValue[1] := getbus(1);
-  PropertyValue[2] := getbus(2);
-  PropertyValue[3] := '3';
+  PropertyValue[2] := '4';
+  PropertyValue[3] := '1';
   PropertyValue[4] := '0';
   PropertyValue[5] := '0';
   PropertyValue[6] := '0.5';
@@ -397,20 +484,14 @@ begin
   PropertyValue[16] := 'FIXED';
 
   inherited  InitPropertyValues(NumPropsThisClass);
-
-  PropertyValue[NumPropsThisClass + 1] := '0';   // Normamps
-  PropertyValue[NumPropsThisClass + 2] := '0';   // emergamps
-  PropertyValue[NumPropsThisClass + 3] := '0';   // Fault rate
-  PropertyValue[NumPropsThisClass + 4] := '100'; // Pct Perm
-  PropertyValue[NumPropsThisClass + 5] := '0';   // Hrs to repair
 end;
 
 function TVSConverterObj.GetPropertyValue(Index: Integer): String;
 begin
   case Index of
     1: Result := GetBus(1);
-    2: Result := GetBus(2);
-    3: Result := Format('%d', [Nphases]);
+    2: Result := Format('%d', [Nphases]);
+    3: Result := Format('%d', [FNdc]);
     4: Result := Format('%.8g', [FRac]);
     5: Result := Format('%.8g', [FXac]);
     6: Result := Format('%.8g', [Fm]);
@@ -427,8 +508,8 @@ begin
       VSC_FIXED:   Result := 'Fixed';
       VSC_PACVAC:  Result := 'PacVac';
       VSC_PACQAC:  Result := 'PacQac';
-      VSC_VACVDC:  Result := 'VacVdc';
-      VSC_VAC:     Result := 'Vac';
+      VSC_VDCVAC:  Result := 'VdcVac';
+      VSC_VDCQAC:  Result := 'VdcQac';
     end
   else
     Result := Inherited GetPropertyValue(Index);
@@ -437,9 +518,10 @@ end;
 
 procedure TVSConverterObj.MakePosSequence;
 begin
-  if FnPhases<>1 then
-  begin
-    Parser.CmdString := 'Phases=1';
+  if FnPhases<>2 then begin
+    Parser.CmdString := 'Phases=2';
+    Edit;
+    Parser.CmdString := 'Ndc=1';
     Edit;
   end;
   inherited;
