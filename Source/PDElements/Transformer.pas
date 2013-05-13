@@ -88,6 +88,7 @@ TYPE
         DeltaDirection         :Integer;
         ppm_FloatFactor        :Double; //  parts per million winding float factor
         pctImag                :Double;
+        XRConst                :Boolean;
 
         FUNCTION  Get_PresentTap(i: Integer): double;
         PROCEDURE Set_PresentTap(i: Integer; const Value: double);
@@ -222,7 +223,7 @@ USES    DSSClassDefs, DSSGlobals, Sysutils, Utilities, XfmrCode;
 var
    XfmrCodeClass:TXfmrCode;
 
-Const NumPropsThisClass = 39;
+Const NumPropsThisClass = 40;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TTransf.Create;  // Creates superstructure for all Transformer objects
@@ -304,7 +305,7 @@ Begin
 
      PropertyName[38] := 'bank';
      PropertyName[39] := 'XfmrCode';
-
+     PropertyName[40] := 'XRConst';
 
 
      // define Property help values
@@ -378,6 +379,7 @@ Begin
                          '~ %Rs=(0.2  0.3)';
      PropertyHelp[38] := 'Name of the bank this transformer is part of, for CIM, MultiSpeak, and other interfaces.';
      PropertyHelp[39] := 'Name of a library entry for transformer properties. The named XfmrCode must already be defined.';
+     PropertyHelp[40] := '={Yes|No} Default is NO. Signifies whether or not the X/R is assumed contant for harmonic studies.';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -470,6 +472,7 @@ Begin
            37: InterpretAllRs(Param);
            38: XfmrBank := Param;
            39: FetchXfmrCode (Param);
+           40: XRConst := InterpretYesNo(Param);
          ELSE
            // Inherited properties
               ClassEdit(ActiveTransfObj, ParamPointer - NumPropsThisClass)
@@ -750,6 +753,7 @@ Begin
        pctNoLoadLoss    := OtherTransf.pctNoLoadLoss;
        NormMaxHkVA      := OtherTransf.NormMaxHkVA;
        EmergMaxHkVA     := OtherTransf.EmergMaxHkVA;
+       XRConst          := OtherTransf.XRConst;
 
        XfmrBank         := OtherTransf.XfmrBank;
        XfmrCode         := OtherTransf.XfmrCode;
@@ -822,7 +826,8 @@ Begin
 
   {Basefrequency := 60.0;   set in base class to circuit fundamental freq; Do not reset here}
   FaultRate     := 0.007;
-  IsSubstation  := False;
+  IsSubstation  := FALSE;
+  XRConst       := FALSE;
 
   Y_Terminal_FreqMult := 0.0;
 
@@ -1460,6 +1465,8 @@ begin
            35: Result := Format('%.7g', [pctImag]);
            36: Result := Format('%.7g', [ppm_FloatFactor / 1.0e-6]);
            37: FOR i := 1 to NumWindings Do Result := Result + Format('%.7g, ',[Winding^[i].rpu * 100.0]);
+           40: If XRconst Then  Result := 'YES' Else Result := 'NO';
+
 
 
         ELSE
@@ -1522,6 +1529,10 @@ begin
      PropertyValue[35] := '0';
      PropertyValue[36] := '1';
      PropertyValue[37] := '';
+     PropertyValue[38] := '';
+     PropertyValue[39] := '';
+     PropertyValue[40] := 'NO';
+
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -1694,15 +1705,19 @@ Var
     cMinusOne  :Complex;
     AT         :TcMatrix;
     Yadder     :Complex;
+    Rmult      :Double;
 
 begin
+
+     If XRConst Then  RMult := FreqMult Else RMult := 1.0;
+
 
 // Construct ZBMatrix;
      ZB.Clear;
      ZBase := 1.0/(VABase/Fnphases); // base ohms on 1.0 volt basis
      FOR i := 1 to Numwindings-1 Do
         { convert pu to ohms on one volt base as we go... }
-         ZB.SetElement(i, i, CmulReal(Cmplx((Winding^[1].Rpu + Winding^[i+1].Rpu), Freqmult*XSC^[i]), ZBase));
+         ZB.SetElement(i, i, CmulReal(Cmplx(Rmult * (Winding^[1].Rpu + Winding^[i+1].Rpu), Freqmult*XSC^[i]), ZBase));
 
      // Off diagonals
      k := NumWindings;
@@ -1712,7 +1727,7 @@ begin
             SetElemSym(i,j,
               CmulReal(
                   Csub(CAdd(GetElement(i, i), GetElement(j, j)),
-                  CmulReal(Cmplx((Winding^[i+1].Rpu + Winding^[j+1].Rpu), Freqmult*XSC^[k]),
+                  CmulReal(Cmplx(Rmult * (Winding^[i+1].Rpu + Winding^[j+1].Rpu), Freqmult*XSC^[k]),
                   ZBase)
                   ),  0.5) );
             Inc(k);

@@ -71,6 +71,7 @@ TYPE
         FAvgkW                  :Double;
         HarmAng                 :pDoubleArray;  // References for Harmonics mode
         HarmMag                 :pDoubleArray;
+        puSeriesRL              :Double;
         LastGrowthFactor        :Double;
         LastYear                :Integer;   // added FOR speedup so we don't have to search FOR growth factor a lot
         LoadFundamental         :double;
@@ -236,7 +237,7 @@ implementation
 
 USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, Command, Math, MathUtil, Utilities;
 
-Const  NumPropsThisClass = 33;
+Const  NumPropsThisClass = 34;
 
 Var  CDOUBLEONE:Complex;
 
@@ -308,6 +309,7 @@ Begin
      PropertyName[31] := 'CVRcurve';   // name of curve to use for yearly CVR simulations
      PropertyName[32] := 'NumCust';   // Number of customers, this load
      PropertyName[33] := 'ZIPV';      // array of 7 coefficients
+     PropertyName[34] := '%SeriesRL';      // pct of Load that is series R-L
 
 
      // define Property help values
@@ -418,6 +420,8 @@ Begin
                          ' Next 3 are ZIP weighting factors for reactive power (should sum to 1)' + CRLF +
                          ' Last 1 is cut-off voltage in p.u. of base kV; load is 0 below this cut-off' + CRLF +
                          ' No defaults; all coefficients must be specified if using model=8.';
+     PropertyHelp[34] := 'Percent of load that is series R-L for Harmonic studies. Default is 50. Remainder is assumed to be parallel R and L. ' +
+                         'This has a significant impact on the amount of damping observed in Harmonics solutions.';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -561,6 +565,8 @@ Begin
                  SetZIPVSize (7);
                  Parser.ParseAsVector (7, ZIPV);
                End;
+           34: puSeriesRL    := Parser.DblValue / 100.0;
+
          ELSE
            // Inherited edits
            ClassEdit(ActiveLoadObj, paramPointer - NumPropsThisClass)
@@ -672,6 +678,7 @@ Begin
        FCVRwattFactor    := OtherLoad.FCVRwattFactor;
        FCVRvarFactor     := OtherLoad.FCVRvarFactor;
        ShapeIsActual     := OtherLoad.ShapeIsActual;
+       puSeriesRL        := OtherLoad.puSeriesRL;
 
        SetZIPVSize (OtherLoad.nZIPV);
        for i := 1 to nZIPV do ZIPV^[i] := OtherLoad.ZIPV^[i];
@@ -783,6 +790,7 @@ Begin
      Spectrum   := 'defaultload';  // override base class definition
      HarmMag    := NIL;
      HarmAng    := NIL;
+     puSeriesRL := 0.50;
      ZIPV := nil;
      SetZIPVSize(0);
 
@@ -830,10 +838,11 @@ End;
 Procedure TLoadObj.CalcDailyMult(Hr:Double);
 
 Begin
-     IF DailyShapeObj <> Nil THEN Begin
-       ShapeFactor   := DailyShapeObj.GetMult(Hr);
-       ShapeIsActual := DailyShapeObj.UseActual;
-     End
+     IF DailyShapeObj <> Nil THEN
+       Begin
+         ShapeFactor   := DailyShapeObj.GetMult(Hr);
+         ShapeIsActual := DailyShapeObj.UseActual;
+       End
      ELSE ShapeFactor := Cmplx(1.0, 1.0);  // Default to no daily variation
 End;
 
@@ -842,10 +851,11 @@ End;
 Procedure TLoadObj.CalcDutyMult(Hr:double);
 
 Begin
-     IF DutyShapeObj <> Nil THEN Begin
-       ShapeFactor   := DutyShapeObj.GetMult(Hr);
-       ShapeIsActual := DutyShapeObj.UseActual;
-     End
+     IF DutyShapeObj <> Nil THEN
+       Begin
+           ShapeFactor   := DutyShapeObj.GetMult(Hr);
+           ShapeIsActual := DutyShapeObj.UseActual;
+       End
      ELSE CalcDailyMult(Hr);  // Default to Daily Mult IF no duty curve specified
 End;
 
@@ -870,10 +880,11 @@ Var
 
 Begin
   {CVR curve is assumed to be used in a yearly simulation}
-   IF   CVRShapeObj<>Nil THEN Begin
-     CVRFactor       := CVRShapeObj.GetMult(Hr);    {Complex}
-     FCVRWattFactor  := CVRFactor.re;
-     FCVRvarFactor   := CVRFactor.im;
+   IF   CVRShapeObj<>Nil THEN
+   Begin
+       CVRFactor       := CVRShapeObj.GetMult(Hr);    {Complex}
+       FCVRWattFactor  := CVRFactor.re;
+       FCVRvarFactor   := CVRFactor.im;
    End;
    {Else FCVRWattFactor, etc. remain unchanged}
 End;
@@ -883,14 +894,14 @@ FUNCTION TLoadObj.GrowthFactor(Year:Integer):Double;
 
 Begin
     IF Year = 0 Then
-       LastGrowthFactor := 1.0  // default all to 1 in year 0 ; use base values
+        LastGrowthFactor := 1.0  // default all to 1 in year 0 ; use base values
     ELSE
-      Begin
-        IF GrowthShapeObj=Nil THEN
-            LastGrowthFactor := Activecircuit.DefaultGrowthFactor
-        ELSE IF Year <> LastYear THEN    // Search growthcurve
-            LastGrowthFactor := GrowthShapeObj.GetMult(Year);
-      end;
+        Begin
+            IF GrowthShapeObj=Nil THEN
+                LastGrowthFactor := Activecircuit.DefaultGrowthFactor
+            ELSE IF Year <> LastYear THEN    // Search growthcurve
+                LastGrowthFactor := GrowthShapeObj.GetMult(Year);
+        end;
 
     Result := LastGrowthFactor;  // for Now
 End;
@@ -967,13 +978,16 @@ Begin
          Factor := GrowthFactor(Year)    // defaults to Base kW * growth
        End;
 
-    If ShapeIsActual then Begin
-        WNominal   := 1000.0 * ShapeFactor.re / Fnphases ;
-        varNominal := 1000.0 * ShapeFactor.im / Fnphases;
-    End Else Begin
-        WNominal   := 1000.0 * kWBase   * Factor * ShapeFactor.re / Fnphases ;
-        varNominal := 1000.0 * kvarBase * Factor * ShapeFactor.im / Fnphases;
-    End;
+    If ShapeIsActual then
+        Begin
+            WNominal   := 1000.0 * ShapeFactor.re / Fnphases ;
+            varNominal := 1000.0 * ShapeFactor.im / Fnphases;
+        End
+    Else
+        Begin
+            WNominal   := 1000.0 * kWBase   * Factor * ShapeFactor.re / Fnphases ;
+            varNominal := 1000.0 * kvarBase * Factor * ShapeFactor.im / Fnphases;
+        End;
 
     Yeq := CDivReal(Cmplx(WNominal, -VarNominal), Sqr(Vbase));
     IF   (Vminpu <> 0.0) THEN Yeq95 := CDivReal(Yeq, sqr(Vminpu))   // at 95% voltage
@@ -998,28 +1012,29 @@ Begin
 
     Case LoadSpecType of
       0:Begin  {kW, PF}
-          kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
-          IF PFNominal < 0.0 THEN kvarBase := -kvarBase;
-          kVABase := Sqrt(Sqr(kWbase) + sqr(kvarBase));
+            kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
+            IF PFNominal < 0.0 THEN kvarBase := -kvarBase;
+            kVABase := Sqrt(Sqr(kWbase) + sqr(kvarBase));
         End;
       1:Begin  {kW, kvar -- need to set PFNominal}
-          kVABase := Sqrt(Sqr(kWbase) + sqr(kvarBase));
-          If kVABase>0.0 then Begin
-             PFNominal := kWBase/kVABase;
-             {If kW and kvar are different signs, PF is negative}
-             If kvarbase<>0.0 then PFNominal := PFNominal * Sign(kWbase*kvarbase);
-          End;
+            kVABase := Sqrt(Sqr(kWbase) + sqr(kvarBase));
+            If kVABase>0.0 then Begin
+               PFNominal := kWBase/kVABase;
+               {If kW and kvar are different signs, PF is negative}
+               If kvarbase<>0.0 then PFNominal := PFNominal * Sign(kWbase*kvarbase);
+            End;
           {Else leave it as it is}
         End;
       2:Begin  {kVA, PF}
-          kWbase   := kVABase * Abs(PFNominal);
-          kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
-          IF PFNominal < 0.0 THEN kvarBase := -kvarBase;
+            kWbase   := kVABase * Abs(PFNominal);
+            kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
+            IF PFNominal < 0.0 THEN kvarBase := -kvarBase;
         End;
-      3,4: If PFChanged then Begin  // Recompute kvarBase
-              kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
-              IF   PFNominal < 0.0 THEN kvarBase := -kvarBase;
-              kVABase := Sqrt(Sqr(kWbase) + sqr(kvarBase));
+      3,4: If PFChanged then
+           Begin  // Recompute kvarBase
+                kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
+                IF   PFNominal < 0.0 THEN kvarBase := -kvarBase;
+                kVABase := Sqrt(Sqr(kWbase) + sqr(kvarBase));
            End;
 
            
@@ -1068,8 +1083,10 @@ End;
 PROCEDURE TLoadObj.CalcYPrimMatrix(Ymatrix:TcMatrix);
 
 Var
-   Y, Yij   :Complex;
-   i,j :Integer;
+   Y, Yij,
+   YParallel,
+   ZSeries   :Complex;
+   i, j :Integer;
    FreqMultiplier :Double;
 
 Begin
@@ -1078,12 +1095,37 @@ Begin
      FreqMultiplier := FYprimFreq/BaseFrequency;
 
      With ActiveCircuit.Solution Do
-     If IsHarmonicModel and (Frequency <> ActiveCircuit.Fundamental) Then  Begin
-         {Just a small value so things don't die and we get the actual injection current out the terminal}
-         Y := cmplx(Epsilon, 0.0)
-     End Else   Y    := Yeq;
+     If IsHarmonicModel and (Frequency <> ActiveCircuit.Fundamental) Then
+         Begin     // Harmonic Mode
+             If ActiveCircuit.NeglectLoadY  Then
+                 Begin
+                     {Just a small value so things don't die and we get the actual injection current out the terminal}
+                     Y := cmplx(Epsilon, 0.0)
+                 End
+             Else
+                // compute equivalent Y assuming some of the load is series R-L and the rest is parallel R-L
+                 Begin
+                      YParallel := CmulReal(Yeq, (1.0 - puSeriesRL));
+                      YParallel.im  :=  YParallel.im / FreqMultiplier;  {Correct reactive part for frequency}
 
-     Y.im := Y.im / FreqMultiplier;  {Correct reactive part for frequency}
+                      Y := YParallel;
+
+                      If puSeriesRL <> 0.0 Then
+                      Begin
+                          Zseries := Cinv(CmulReal(Yeq, puSeriesRL));
+                          Zseries.im  :=  Zseries.im * FreqMultiplier;  {Correct reactive part for frequency}
+                          Y := Cadd(Cinv(ZSeries), Y);
+                      End;
+
+                 End;
+         End
+     Else
+         Begin   // not Harmonic mode
+              Y    := Yeq;
+              Y.im := Y.im / FreqMultiplier;  {Correct reactive part for frequency}
+         End;
+
+
      Yij  := Cnegate(Y);
 
        CASE Connection OF
@@ -1845,10 +1887,11 @@ Begin
               22: Writeln(F,'~ ',PropertyName^[i],'=', FkVAAllocationFactor:5:3);
               23: Writeln(F,'~ ',PropertyName^[i],'=', kVABase:8:1);
               33: begin
-                Write(F,'~ ',PropertyName^[i],'=');
-                for j:=1 to nZIPV do Write(F, ZIPV^[j]:0:2,' ');
-                Writeln(F, '"');
-              end
+                    Write(F,'~ ',PropertyName^[i],'=');
+                    for j:=1 to nZIPV do Write(F, ZIPV^[j]:0:2,' ');
+                    Writeln(F, '"');
+                  end;
+              34: Writeln(F,'~ ',PropertyName^[i],'=', (puSeriesRL*100.0):8:1);
           ELSE
                   Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
           End;
@@ -2001,6 +2044,7 @@ begin
      PropertyValue[31] := '';  // CVRCurve
      PropertyValue[32] := '1';  // NumCust
      PropertyValue[33] := '';  // ZIPV coefficient array
+     PropertyValue[34] := '50';  // %SeriesRL
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -2030,7 +2074,6 @@ begin
          S := S + Format(' xfkVA=%-.5g  ',[FConnectedkVA/Fnphases]);
   End;
 
-
   Parser.CmdString := S;
   Edit;
 
@@ -2054,9 +2097,10 @@ begin
          23: Result := Format('%-g',   [kVABase]);
          30: Result := Format('%-.3g', [FCFactor]);
          33: begin
-              Result := '';
-              for i := 1 to nZIPV do Result := Result + Format(' %-g', [ZIPV^[i]]);
-         end
+                  Result := '';
+                  for i := 1 to nZIPV do Result := Result + Format(' %-g', [ZIPV^[i]]);
+             end;
+         34: Result := Format('%-g',   [puSeriesRL*100.0]);
      ELSE
          Result := Inherited GetPropertyValue(index);
      End;

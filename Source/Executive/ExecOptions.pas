@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 94;
+        NumExecOptions = 95;
 
 VAR
          ExecOption,
@@ -127,6 +127,7 @@ Begin
      ExecOption[92] := 'RegMarkerSize';
      ExecOption[93] := 'PVMarkerSize';
      ExecOption[94] := 'StoreMarkerSize';
+     ExecOption[95] := 'NeglectLoadY';
 
 
 
@@ -356,6 +357,8 @@ Begin
      OptionHelp[92] := 'Size of Regulator marker. Default is 1.';
      OptionHelp[93] := 'Size of PVsystem marker. Default is 1.';
      OptionHelp[94] := 'Size of Storage marker. Default is 1.';
+     OptionHelp[95] := '{YES/TRUE | NO/FALSE}  Default is NO. For Harmonic solution, neglect the Load shunt admittance branch that can siphon off some of the Load injection current. ' + CRLF + CRLF +
+                       'If YES, the current injected from the LOAD at harmonic frequencies will be nearly ideal.';
 
 End;
 //----------------------------------------------------------------------------
@@ -565,7 +568,7 @@ Begin
            92: ActiveCircuit.RegMarkerSize   := Parser.IntValue;
            93: ActiveCircuit.PVMarkerSize    := Parser.IntValue;
            94: ActiveCircuit.StoreMarkerSize := Parser.IntValue;
-
+           95: ActiveCircuit.NeglectLoadY    := InterpretYesNo(Param);
          ELSE
            // Ignore excess parameters
          End;
@@ -724,6 +727,7 @@ Begin
            92: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RegMarkerSize]));
            93: AppendGlobalResult(Format('%d' ,[ActiveCircuit.PVMarkerSize]));
            94: AppendGlobalResult(Format('%d' ,[ActiveCircuit.StoreMarkerSize]));
+           95: If ActiveCircuit.NeglectLoadY    Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
          ELSE
            // Ignore excess parameters
          End;

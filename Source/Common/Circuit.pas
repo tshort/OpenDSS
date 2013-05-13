@@ -173,6 +173,7 @@ TYPE
           ZonesLocked       :Boolean;
           MeterZonesComputed:Boolean;
           PositiveSequence  :Boolean;  // Model is to be interpreted as Pos seq
+          NeglectLoadY      :Boolean;
 
           // Voltage limits
           NormalMinVolts,
@@ -393,6 +394,7 @@ BEGIN
      ZonesLocked         := False;   // Meter zones recomputed after each change
      MeterZonesComputed  := False;
      PositiveSequence    := False;
+     NeglectLoadY        := False;
 
      NormalMinVolts := 0.95;
      NormalMaxVolts := 1.05;
