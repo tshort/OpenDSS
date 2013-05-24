@@ -80,12 +80,16 @@ type
     procedure Set_xfkVA(Value: Double); safecall;
     procedure Set_Xneut(Value: Double); safecall;
     procedure Set_Yearly(const Value: WideString); safecall;
+    function Get_ZIPV: OleVariant; safecall;
+    procedure Set_ZIPV(Value: OleVariant); safecall;
+    function Get_pctSeriesRL: Double; safecall;
+    procedure Set_pctSeriesRL(Value: Double); safecall;
 
   end;
 
 implementation
 
-uses ComServ,DSSGlobals, Executive, Load, Variants, SysUtils;
+uses ComServ,DSSGlobals, Executive, Load, Variants, SysUtils, math;
 
 function ActiveLoad: TLoadObj;
 begin
@@ -242,7 +246,7 @@ Begin
            End;
            IF NOT Found
            THEN Begin
-               DoSimpleMsg('Load "'+S+'" Not Found in Active Circuit.', 5003);
+               DoSimpleMsg('Load "' + S + '" Not Found in Active Circuit.', 5003);
                pLoad := Get(ActiveSave);    // Restore active Load
                ActiveCircuit.ActiveCktElement := pLoad;
            End;
@@ -755,6 +759,78 @@ procedure TLoads.Set_Yearly(const Value: WideString);
 begin
   Set_Parameter ('Yearly', Value);
 end;
+
+function TLoads.Get_ZIPV: OleVariant;
+Var
+  elem:TLoadObj;
+  k:Integer;
+
+Begin
+    Result := VarArrayCreate([0, 0], varDouble);
+    Result[0] := 0.0;  // error condition: one element array=0
+    elem := ActiveLoad;
+    IF elem <> Nil THEN
+    Begin
+         VarArrayRedim(Result, elem.nZIPV-1);
+         For k:=0 to elem.nZIPV-1 Do
+              Result[k] := elem.ZipV^[k+1];
+    End ;
+
+end;
+
+procedure TLoads.Set_ZIPV(Value: OleVariant);
+
+Var
+  elem:TLoadObj;
+  i, k, LoopLimit: Integer;
+
+begin
+    elem := ActiveLoad;
+    If elem <> nil Then
+    Begin
+         // allocate space for 7
+         elem.nZIPV := 7;
+         // only put as many elements as proviced up to nZIPV
+         LoopLimit := VarArrayHighBound(Value,1);
+         If (LoopLimit - VarArrayLowBound(Value,1) + 1) > 7 Then   LoopLimit :=  VarArrayLowBound(Value,1) + 6;
+
+         k := 1;
+         for i := VarArrayLowBound(Value,1) to LoopLimit do
+         Begin
+             elem.ZIPV^[k] := Value[i];
+             inc(k);
+         End;
+    End;
+end;
+
+function TLoads.Get_pctSeriesRL: Double;
+
+Var
+  elem:TLoadObj;
+
+begin
+       Result := -1.0; // signify  bad request
+       elem := ActiveLoad;
+       If elem <> nil Then
+       Begin
+           Result := elem.puSeriesRL * 100.0;
+       End;
+end;
+
+procedure TLoads.Set_pctSeriesRL(Value: Double);
+Var
+  elem:TLoadObj;
+
+begin
+       elem := ActiveLoad;
+
+       If elem <> nil Then
+       Begin
+            elem.puSeriesRL  := Value / 100.0;
+       End;
+end;
+
+
 
 initialization
   TAutoObjectFactory.Create(ComServer, TLoads, Class_Loads,

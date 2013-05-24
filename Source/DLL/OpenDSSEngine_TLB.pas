@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 3/26/2013 11:36:23 AM from Type Library described below.
+// File generated on 5/23/2013 3:53:24 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -205,20 +205,22 @@ const
   dssLoadConstI = $00000005;
   dssLoadConstPFixedQ = $00000006;
   dssLoadConstPFixedX = $00000007;
+  dssLoadZIPV = $00000008;
 
+// Constants for enum LineUnits
 type
   LineUnits = TOleEnum;
 const
-   dssLineUnitsNone = $00000000;
-   dssLineUnitsMiles =$00000001;
-   dssLineUnitskFt   =$00000002;
-   dssLineUnitskm    =$00000003;
-   dssLineUnitsmeter     =$00000004;
-   dssLineUnitsft    =$00000005;
-   dssLineUnitsinch    =$00000006;
-   dssLineUnitscm    =$00000007;
-   dssLineUnitsmm    =$00000008;
-   dssLineUnitsMaxnum =$00000009;
+  dssLineUnitsNone = $00000000;
+  dssLineUnitsMiles = $00000001;
+  dssLineUnitskFt = $00000002;
+  dssLineUnitskm = $00000003;
+  dssLineUnitsmeter = $00000004;
+  dssLineUnitsft = $00000005;
+  dssLineUnitsinch = $00000006;
+  dssLineUnitscm = $00000007;
+  dssLineUnitsmm = $00000008;
+  dssLineUnitsMaxnum = $00000009;
 
 type
 
@@ -1449,6 +1451,8 @@ type
     function Get_Count: Integer; safecall;
     function Get_Spacing: WideString; safecall;
     procedure Set_Spacing(const Value: WideString); safecall;
+    function Get_Units: Integer; safecall;
+    procedure Set_Units(Value: Integer); safecall;
     property Name: WideString read Get_Name write Set_Name;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
@@ -1479,6 +1483,7 @@ type
     property Parent: Integer read Get_Parent;
     property Count: Integer read Get_Count;
     property Spacing: WideString read Get_Spacing write Set_Spacing;
+    property Units: Integer read Get_Units write Set_Units;
   end;
 
 // *********************************************************************//
@@ -1519,6 +1524,7 @@ type
     property Parent: Integer readonly dispid 203;
     property Count: Integer readonly dispid 204;
     property Spacing: WideString dispid 205;
+    property Units: Integer dispid 206;
   end;
 
 // *********************************************************************//
@@ -1641,6 +1647,10 @@ type
     procedure Set_Status(Value: LoadStatus); safecall;
     function Get_Growth: WideString; safecall;
     procedure Set_Growth(const Value: WideString); safecall;
+    function Get_ZIPV: OleVariant; safecall;
+    procedure Set_ZIPV(Value: OleVariant); safecall;
+    function Get_pctSeriesRL: Double; safecall;
+    procedure Set_pctSeriesRL(Value: Double); safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1678,6 +1688,8 @@ type
     property Yearly: WideString read Get_Yearly write Set_Yearly;
     property Status: LoadStatus read Get_Status write Set_Status;
     property Growth: WideString read Get_Growth write Set_Growth;
+    property ZIPV: OleVariant read Get_ZIPV write Set_ZIPV;
+    property pctSeriesRL: Double read Get_pctSeriesRL write Set_pctSeriesRL;
   end;
 
 // *********************************************************************//
@@ -1724,6 +1736,8 @@ type
     property Yearly: WideString dispid 236;
     property Status: LoadStatus dispid 237;
     property Growth: WideString dispid 222;
+    property ZIPV: OleVariant dispid 238;
+    property pctSeriesRL: Double dispid 239;
   end;
 
 // *********************************************************************//

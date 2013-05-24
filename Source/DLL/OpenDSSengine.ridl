@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 4/28/2013 3:12:53 PM (- $Rev: 12980 $, 33484912).
+// File generated on 5/24/2013 12:35:16 PM (- $Rev: 12980 $, 71259384).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -241,7 +241,8 @@ library OpenDSSengine
     dssLoadCVR = 4,
     dssLoadConstI = 5,
     dssLoadConstPFixedQ = 6,
-    dssLoadConstPFixedX = 7
+    dssLoadConstPFixedX = 7,
+    dssLoadZIPV = 8
   };
 
   [
@@ -1419,6 +1420,14 @@ library OpenDSSengine
     HRESULT _stdcall Growth([out, retval] BSTR* Value);
     [propput, id(0x000000DE)]
     HRESULT _stdcall Growth([in] BSTR Value);
+    [propget, id(0x000000EE), helpstring("Array of 7  doubles with values for ZIPV property of the LOAD object")]
+    HRESULT _stdcall ZIPV([out, retval] VARIANT* Value);
+    [propput, id(0x000000EE)]
+    HRESULT _stdcall ZIPV([in] VARIANT Value);
+    [propget, id(0x000000EF)]
+    HRESULT _stdcall pctSeriesRL([out, retval] double* Value);
+    [propput, id(0x000000EF), helpstring("Percent of Load that is modeled as series R-L for harmonics studies")]
+    HRESULT _stdcall pctSeriesRL([in] double Value);
   };
 
   [
@@ -1455,7 +1464,7 @@ library OpenDSSengine
     HRESULT _stdcall First([out, retval] long* Value);
     [propget, id(0x000000CB), helpstring("Sets next element in active class to be the active DSS object. If object is a CktElement, ActiveCktElement also points to this element.  Returns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Next([out, retval] long* Value);
-    [propget, id(0x000000CC)]
+    [propget, id(0x000000CC), helpstring("Name of the Active Element of the Active Class")]
     HRESULT _stdcall Name([out, retval] BSTR* Value);
     [propput, id(0x000000CC)]
     HRESULT _stdcall Name([in] BSTR Value);
