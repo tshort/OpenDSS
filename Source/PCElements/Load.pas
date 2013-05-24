@@ -71,7 +71,6 @@ TYPE
         FAvgkW                  :Double;
         HarmAng                 :pDoubleArray;  // References for Harmonics mode
         HarmMag                 :pDoubleArray;
-        puSeriesRL              :Double;
         LastGrowthFactor        :Double;
         LastYear                :Integer;   // added FOR speedup so we don't have to search FOR growth factor a lot
         LoadFundamental         :double;
@@ -91,8 +90,6 @@ TYPE
         Yneut                   :Complex;
         YPrimOpenCond           :TCmatrix;  // To handle cases where one conductor of load is open
         YQFixed                 :Double;   // Fixed value of y FOR type 7 load
-        ZIPV                    :pDoubleArray;
-        nZIPV                   :Integer;
 
         // formerly private, now read-only properties for COM access
         FpuMean                 :Double;
@@ -106,6 +103,7 @@ TYPE
         ExemptFromLDCurve       :Boolean;
         Fixed                   :Boolean;   // IF Fixed, always at base value
         ShapeIsActual           :Boolean;
+        FnZIPV                  :Integer;
 
         FUNCTION  AllTerminalsClosed:Boolean;
         PROCEDURE CalcDailyMult(Hr:double);
@@ -140,6 +138,7 @@ TYPE
         procedure Set_kWhDays(const Value: Double);
         procedure Set_AllocationFactor(const Value: Double);
         PROCEDURE SetkWkvar(const PkW, Qkvar:Double);
+        procedure set_nZIPV(const Value: Integer);
 
 
       Protected
@@ -171,6 +170,8 @@ TYPE
         YearlyShapeObj     :TLoadShapeObj;  // Shape for this load
         CVRshape           :String;
         CVRShapeObj        :TLoadShapeObj;
+        ZIPV               :pDoubleArray;  // Made public 5-20-2013
+        puSeriesRL         :Double;
 
         FLoadModel:Integer;   // Variation with voltage
           {  1 = Constant kVA (P,Q always in same ratio)
@@ -226,6 +227,7 @@ TYPE
         Property MinPU:Double Read Vminpu;
         Property ExemptLoad:Boolean Read ExemptFromLDCurve;
         Property FixedLoad:Boolean Read Fixed;
+        Property nZIPV:Integer read FnZIPV write set_nZIPV;
    End;
 
 Var
@@ -415,7 +417,7 @@ Begin
                          'Define a Loadshape to agree with yearly or daily curve according to the type of analysis being done. ' +
                          'If NONE, the CVRwatts and CVRvars factors are used and assumed constant.';
      PropertyHelp[32] := 'Number of customers, this load. Default is 1.';
-     PropertyHelp[33] := 'Array of 7 coefficients:' + CRLF +
+     PropertyHelp[33] := 'Array of 7 coefficients:' + CRLF +  CRLF +
                          ' First 3 are ZIP weighting factors for real power (should sum to 1)' + CRLF +
                          ' Next 3 are ZIP weighting factors for reactive power (should sum to 1)' + CRLF +
                          ' Last 1 is cut-off voltage in p.u. of base kV; load is 0 below this cut-off' + CRLF +
@@ -681,7 +683,7 @@ Begin
        puSeriesRL        := OtherLoad.puSeriesRL;
 
        SetZIPVSize (OtherLoad.nZIPV);
-       for i := 1 to nZIPV do ZIPV^[i] := OtherLoad.ZIPV^[i];
+       for i := 1 to FnZIPV do ZIPV^[i] := OtherLoad.ZIPV^[i];
 
        ClassMakeLike(OtherLoad);  // Take care of inherited class properties
 
@@ -813,8 +815,8 @@ End;
 
 procedure TLoadObj.SetZIPVSize(n: Integer);
 begin
-  nZIPV := n;
-  ReAllocMem (ZIPV, Sizeof(ZIPV^[1]) * nZIPV);
+  FnZIPV := n;
+  ReAllocMem (ZIPV, Sizeof(ZIPV^[1]) * FnZIPV);
 end;
 
 //----------------------------------------------------------------------------
@@ -1951,6 +1953,11 @@ begin
   FkWhDays := Value;
   LoadSpecType := 4;
   ComputeAllocatedLoad;
+end;
+
+procedure TLoadObj.set_nZIPV(const Value: Integer);
+begin
+     SetZIPVSize(Value);
 end;
 
 PROCEDURE TLoadObj.ComputeAllocatedLoad;
