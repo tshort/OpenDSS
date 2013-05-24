@@ -384,7 +384,7 @@ Begin
 
    Try
        Editor.PlainText := True;
-       Editor.Lines.SaveToFile (Caption);
+       Editor.Lines.SaveToFile (Caption, TEncoding.ANSI);
        Editor.PlainText := False;
        HasBeenModified := FALSE;
        HasFileName := TRUE;

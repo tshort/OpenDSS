@@ -41,7 +41,6 @@ object MainEditForm: TMainEditForm
     OnChange = EditorChange
     OnKeyDown = EditorKeyDown
     OnSelectionChange = EditorSelectionChange
-    ExplicitTop = 28
   end
   object ToolBar1: TToolBar
     Left = 0
