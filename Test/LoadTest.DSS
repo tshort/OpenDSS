@@ -1,0 +1,12 @@
+clear
+new circuit.loadtest basekV=1 phases=1 pu=1.0 bus1=src
+new line.bus bus1=src bus2=load phases=1 rmatrix=(0.00001) xmatrix=(0) cmatrix=(0)
+
+new load.zipv   bus1=load kW=1 pf=0.88 phases=1 kV=1 model=8 vminpu=0.0 vmaxpu=1.2 
+~ zipv=(0.855,-0.9855,1.1305,2.559,-2.963,1.404,0.87)
+
+new load.constp bus1=load kW=1 pf=0.88 phases=1 kV=1 model=1 vminpu=0.8 vmaxpu=1.1
+new load.constz bus1=load kW=1 pf=0.88 phases=1 kV=1 model=2 vminpu=0.8 vmaxpu=1.1
+new load.consti bus1=load kW=1 pf=0.88 phases=1 kV=1 model=5 vminpu=0.8 vmaxpu=1.1
+new load.yville bus1=load kw=1 pf=0.88 phases=1 kv=1 model=4 cvrwatts=0.7 cvrvars=2.0
+new load.grnckt bus1=load kw=1 pf=0.88 phases=1 kv=1 model=4 cvrwatts=0.8 cvrvars=3.0

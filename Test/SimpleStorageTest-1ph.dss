@@ -1,0 +1,27 @@
+clear
+
+New Circuit.SimpleStore     ! Creates voltage source  (Vsource.Source)
+
+Edit Vsource.Source BasekV=115 pu=1.02  ISC3=30000  ISC1=25000  !Define source V and Z
+
+New Transformer.TR1 Buses=[SourceBus, Sub_Bus] Conns=[Delta Wye] kVs= [115 12.47]
+~ kVAs=[200000 200000] XHL=10
+
+New Linecode.336ACSR R1=0.058 X1=.1206 R0=.1784 X0=.4047 C1=3.4 C0=1.6 Units=kft
+
+New Line.LINE1 Bus1=Sub_Bus Bus2=LoadBus Linecode=336ACSR Length=0.011 Units=Mi 
+
+New Transformer.MVLV Buses=[LoadBus LVBus] Conns=[Delta Wye] kVs= [12.47  .400]  XHL = 5
+~ kVAs=[300 300]
+
+New Storage.Store1 phases=1 Bus1=LVBus.1.2  kV=0.400  conn=delta kVA=60 
+~ kWrated=60  kWHrated=   0.20833  %reserve=50    // 750 kW-s (kJ)
+~ state=discharge
+~ kW=50  PF=1
+~ DynaDLL="C:\Users\prdu001\OpenDSS\Source\DESS1\Dess1.DLL"   
+!  ~ DynaData=(help)
+~ DynaData=(file=DESSModel_Test.TxT)
+
+// New Load.LOAD1 Bus1=LoadBus kV=12.47 kW=1000 PF=.95 model=4 cvrwatts=1.2
+Solve
+

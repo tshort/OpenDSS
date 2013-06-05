@@ -1,0 +1,46 @@
+Clear
+New Circuit.MultiLineExample  ! example of 4 lines in parallel
+~ basekV=12.47
+
+// FIRST DEFINE WIREDATA FOR TYPES USED IN THE PROBLEM
+
+New Wiredata.ACSR477  GMR=0.0304000 DIAM=0.8830000 RAC=0.2160000     NormAmps=670.0000           Runits=mi radunits=in gmrunits=ft
+New Wiredata.ACSR2    GMR=0.0050400 DIAM=0.3250000 RAC=1.650000      NormAmps=180.0000           Runits=mi radunits=in gmrunits=ft
+
+// Definition from NEV test case in IEEE Test Feeders
+// Reduce out neutrals in this case  leaving 12x12
+New LINEGEOMETRY.QUADCIRCUIT nconds=17 nphases=12 Reduce=Y
+~ cond=1  Wire=ACSR477 x=-1.25 h=10    units=m  ! circuit 1
+~ cond=2  Wire=ACSR477 x=-0.25 h=10    units=m
+~ cond=3  Wire=ACSR477 x= 1.25 h=10    units=m
+~ cond=4  Wire=ACSR477 x=-1.25 h=11    units=m  ! circuit 2
+~ cond=5  Wire=ACSR477 x=-0.25 h=11    units=m
+~ cond=6  Wire=ACSR477 x= 1.25 h=11    units=m
+~ cond=7  Wire=ACSR477 x=-1.25 h=12    units=m  ! circuit 3
+~ cond=8  Wire=ACSR477 x=-0.25 h=12    units=m
+~ cond=9  Wire=ACSR477 x= 1.25 h=12    units=m
+~ cond=10 Wire=ACSR477 x=-1.25 h=13    units=m  ! circuit 4
+~ cond=11 Wire=ACSR477 x=-0.00 h=13.25 units=m  ! top of pole
+~ cond=12 Wire=ACSR477 x= 1.25 h=13    units=m
+~ cond=13 Wire=ACSR477 x= -0.1 h=9.0   units=m   ! Power Line Neutral
+~ cond=14 Wire=ACSR2   x= -0.1 h=8.0   units=m   ! Telecom messenger
+~ cond=15 Wire=ACSR2   x= -0.1 h=7.5   units=m   ! Telecom messenger
+~ cond=16 Wire=ACSR2   x= -0.1 h=7.0   units=m   ! Telecom messenger
+~ cond=17 Wire=ACSR2   x= -0.1 h=6.5   units=m   ! Telecom messenger
+
+
+New LINE.4Circuits Geometry=QUADCIRCUIT  Length=1 units=km
+~ Bus1=SourceBus.1.2.3.1.2.3.1.2.3.1.2.3   ! each circuit starts from same bus
+~ Bus2=OtherBus.1.2.3.4.5.6.7.8.9.10.11.12 ! Splits to other circuits
+
+// split off into 4  3-phase feeders
+New LINE.Ckt1 Bus1=OtherBus.1.2.3     Bus2=Ckt1Bus.1.2.3 !... etc ...
+New LINE.Ckt2 Bus1=OtherBus.4.5.6     Bus2=Ckt2Bus.1.2.3 !... etc ...
+New LINE.Ckt3 Bus1=OtherBus.7.8.9     Bus2=Ckt3Bus.1.2.3 !... etc ...
+New LINE.Ckt4 Bus1=OtherBus.10.11.12  Bus2=Ckt4Bus.1.2.3 !... etc ...
+
+Set voltagebases=[12.47]
+Calcvoltagebases
+
+show V LN Nodes
+! ... etc ...

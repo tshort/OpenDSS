@@ -1,0 +1,30 @@
+Clear
+
+New Circuit.ODRegTest
+
+New Transformer.T1  buses=[sourcebus subbus] conns=[delta delta] kVs=[115  6.600] kvas=[10000 10000] 
+
+New line.L1  Bus1=subbus Regbus  length=10
+
+! Regulator - open delta with C leading, A lagging, 
+new transformer.reg1a phases=1 windings=2 buses=(Regbus.1.2 RegBusout.1.2) conns='delta delta' kvs="6.6 6.6" kvas="2000 2000" XHL=1
+new regcontrol.creg1a transformer=reg1a winding=2 vreg=122 band=2 ptratio=55 ctprim=350 
+new transformer.reg1c like=reg1a buses=(Regbus.3.2 RegBusout.3.2)
+new regcontrol.creg1c like=creg1a transformer=reg1c 
+New Line.Jumper Phases=1 Bus1=Regbus.2      Bus2=RegBusout.2     r0=1e-3 r1=1e-3 x0=0 x1=0 c0=0 c1=0
+
+New line.L2  Bus1=RegBusout Loadbus  length=10
+
+New Load.Phase1  phases=1 Bus=Loadbus.1.2  conn=delta kV=6.6 kW=500 pf=0.95
+New Load.Phase2  phases=1 Bus=Loadbus.2.3  conn=delta kV=6.6 kW=600 pf=0.95
+New Load.Phase3  phases=1 Bus=Loadbus.3.1  conn=delta kV=6.6 kW=400 pf=0.95
+
+Set Voltagebases=[115 6.6]
+Calcvoltagebases
+
+Solve
+
+Show v ll n
+Show taps
+
+Show power kva elem

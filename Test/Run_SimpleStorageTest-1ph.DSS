@@ -1,0 +1,47 @@
+
+
+compile "C:\Users\prdu001\OpenDSS\Test\SimpleStorageTest-1ph.DSS"
+
+! Define Some Monitors to Capture Results
+New Monitor.M1 Storage.Store1 1 mode=3  ! variables
+New Monitor.MV1 Transformer.MVLV 1 mode=0 VIpolar=yes ppolar=no
+New Monitor.MV2 Transformer.MVLV 2 mode=0 VIpolar=yes ppolar=no
+
+solve
+
+setkvbase sub_bus  12.47
+setkvbase sourcebus 115
+setkvbase loadbus 12.47
+setkvbase LVBus 0.400
+
+! Dynamics Mode 200 usec time step, 1-s intervals
+Set mode=dynamics  stepsize=0.0002  number=5000
+solve
+
+Storage.Store1.DynaData=(pref=0)
+Solve
+
+Storage.Store1.DynaData=(pref=-50000)
+Solve 
+
+Storage.Store1.DynaData=(pref=0)
+Solve
+
+Storage.Store1.DynaData=(pref=50000)
+Solve 
+
+Storage.Store1.DynaData=(pref=0)
+Solve
+
+
+
+show mon m1
+show mon mv
+
+
+Plot monitor object= m1 channels=(15 16 )  ! Pr Pref
+Plot monitor object= m1 channels=(25 )   ! VC
+Plot monitor object= mv1 channels=(1 3 5 ) base=[7200 7200 7200] ! primary voltage
+Plot monitor object= mv1 channels=(9 11 13 )  ! Currents Primary
+Plot monitor object= mv2 channels=(1 3 5 ) base=[230 230 230] ! LV voltage
+Plot monitor object= mv2 channels=(9 11 13 )  ! Currents Secondary

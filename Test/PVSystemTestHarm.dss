@@ -1,0 +1,48 @@
+clear
+
+New Circuit.PVSystem  basekv=12.47  Isc3=1000 Isc1=900
+
+// P-T curve is per unit of rated Pmpp vs temperature
+// This one is for a Pmpp stated at 25 deg
+New XYCurve.MyPvsT npts=4  xarray=[0  25  75  100]  yarray=[1.2 1.0 0.8  0.6] 
+
+// efficiency curve is per unit eff vs per unit power
+New XYCurve.MyEff npts=4  xarray=[.1  .2  .4  1.0]  yarray=[.86  .9  .93  .97]  
+
+// per unit irradiance curve (per unit if "irradiance" property)
+New Loadshape.MyIrrad npts=24 interval=1 mult=[0 0 0 0 0 0 .1 .2 .3  .5  .8  .9  1.0  1.0  .99  .9  .7  .4  .1 0  0  0  0  0]
+
+// 24-hr temp shape curve
+New Tshape.MyTemp npts=24 interval=1 temp=[25, 25, 25, 25, 25, 25, 25, 25, 35, 40, 45, 50  60 60  55 40  35  30  25 25 25 25 25 25]
+
+// **** plot tshape object=mytemp
+
+// take the default line
+New Line.line1 Bus1=sourcebus bus2=PVbus  Length=2
+
+// pv definition
+! New PVSystem.PV phases=3 bus1=PVbus kV=12.47  kVA=500  irrad=0.8  Pmpp=500 temperature=25 PF=1  effcurve=Myeff  P-TCurve=MyPvsT Daily=MyIrrad  TDaily=MyTemp 
+New PVSystem.PV phases=1 bus1=PVbus kV=7.2  kVA=166    irrad=0.8  Pmpp=500 temperature=25 PF=1  effcurve=Myeff  P-TCurve=MyPvsT Daily=MyIrrad  TDaily=MyTemp 
+~ Spectrum=DefaultGen
+
+set voltagebases=[12.47]
+calcv
+
+solve  ! solves at the specified irradiance and temperature
+
+new monitor.m1 PVSystem.PV  1 mode=1 ppolar=no
+new monitor.m2 PVSystem.PV  1 
+
+solve
+solve mode=Harm
+
+show mon m1
+show mon m2
+
+
+Export monitors m1
+Plot monitor object= m1 channels=(1 )
+Export monitors m2
+Plot monitor object= m2 channels=(1 ) base=[7200]
+Export monitors m2
+Plot monitor object= m2 channels=(9 )

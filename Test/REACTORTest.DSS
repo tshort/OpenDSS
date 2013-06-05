@@ -1,0 +1,39 @@
+// Test of reactor specification with Z1, Z2, Z0
+
+// should be same as Kersting's induction motor model Example 9.2
+
+Clear
+
+New Circuit.ReactorTest
+
+New Transformer.t1  XHL=2 kvas=25 Buses=[SourceBus LoadBus] kvs=[115  0.24]  conns=[Y Y] %Loadloss=1 
+
+New Reactor.KerstingMotor  phases=3 Bus1=LoadBus.1.2.3 Bus2=LoadBus2.4.4.4  Z1=[1.9775  1.3431]  Z2=[0.1203  0.3623]  Z0=[1 0]  
+
+Set Voltage=[115 0.24]
+calcv
+
+Solve
+
+Dump reactor.* debug
+
+Show Currents Elements
+Show Powers kva Elements
+Show Voltage LN Nodes
+
+Clear
+
+New Circuit.ReactorTest2
+
+New Transformer.t1  XHL=2 kvas=25 Buses=[SourceBus LoadBus] kvs=[115  0.24]  conns=[Y Y] %Loadloss=1 
+
+New Reactor.KerstingMotor  phases=3 Bus1=LoadBus.1.2.3 Bus2=LoadBus2.0.0.0  Z1=[1.9775  1.3431]  Z2=[0.1203  0.3623]  Z0=[1000 0]  Parallel=no
+
+Solve
+
+Dump reactor.* debug
+
+Show Currents Elements
+Show Powers kva Elements
+Show Voltage LN Nodes
+
