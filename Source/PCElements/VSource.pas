@@ -358,11 +358,11 @@ Begin
                      // default values for Z2, Z0
                      If Not Z2Specified Then Begin
                          R2 := R1;
-                         X2 := X2;
+                         X2 := X1;
                      End;
                      If Not Z0Specified Then Begin
                          R0 := R1;
-                         X0 := X2;
+                         X0 := X1;
                      End;
                  End;
              21: Begin
@@ -389,11 +389,16 @@ Begin
              25:puZ2Specified := TRUE;
          END;
 
+         case ParamPointer of
+             13 : R2 := R1;
+             14 : X2 := X1;
+         end;
          // Set the Z spec type switch depending on which was specified.
          CASE ParamPointer OF
              7, 8   :ZSpecType := 1;
              11, 12 :ZSpecType := 2;
-             13, 14, 15, 16 : ZSpecType := 3;
+
+             13 .. 16 : ZSpecType := 3;
              19: Bus2Defined := TRUE;
              20, 23: Zspectype := 3;
          END;
@@ -790,7 +795,9 @@ Begin
           Value := Zinv.GetElement(i, j);
           YPrim_series.SetElement(i, j, Value);
           YPrim_series.SetElement(i + FNPhases, j + FNPhases, Value);
-          YPrim_series.SetElemsym(i + FNPhases, j, CNegate(Value))
+          //YPrim_series.SetElemsym(i + FNPhases, j, CNegate(Value))
+          YPrim_series.SetElement(i, j+Fnphases, Cnegate(Value));
+          YPrim_series.SetElement(i+Fnphases, j, Cnegate(Value));
        End;
      End;
 
@@ -1018,12 +1025,12 @@ begin
           15 : Result := Format('%-.5g',[R0]);
           16 : Result := Format('%-.5g',[X0]);
           19 : Result := GetBus(2);
-          20 : Result := Format('Z1=[%-.8g, %-.8g]',[ R1 , X1 ]);
-          21 : Result := Format('Z0=[%-.8g, %-.8g]',[ R0 , X0 ]);
-          22 : Result := Format('Z2=[%-.8g, %-.8g]',[ R2 , X2 ]);
-          23 : Result := Format('puZ1=[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
-          24 : Result := Format('puZ0=[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
-          25 : Result := Format('puZ2=[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
+          20 : Result := Format('[%-.8g, %-.8g]',[ R1 , X1 ]);
+          21 : Result := Format('[%-.8g, %-.8g]',[ R0 , X0 ]);
+          22 : Result := Format('[%-.8g, %-.8g]',[ R2 , X2 ]);
+          23 : Result := Format('[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
+          24 : Result := Format('[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
+          25 : Result := Format('[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
           26 : Result := Format('%-.5g',[BaseMVA]);
         Else
           Result := Inherited GetPropertyValue(Index);
