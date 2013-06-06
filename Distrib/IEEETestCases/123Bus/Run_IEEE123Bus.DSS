@@ -66,7 +66,7 @@ Redirect CircuitplottingScripts.DSS
 ! This script give results closer to the posted results by forcing 
 ! the regulators to the same tap as the solution posted
 
-Compile (C:\opendss\IEEETestCases\123Bus\IEEE123Master.dss)
+Compile (IEEE123Master.dss)
 
 ! set regulators on same tap as Kersting computes
 ! (uses RPN inline math feature of OpenDSS)
