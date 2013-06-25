@@ -2941,6 +2941,7 @@ var
   UnderVmin  :Double;
   MinBus     :Integer;
   MaxBus     :Integer;
+  BusCounted :Boolean;
 
 begin
      {For any bus with a defined voltage base, test for > Vmax or < Vmin}
@@ -2956,6 +2957,7 @@ begin
        For i := 1 to NumBuses do
        With Buses^[i] Do
        Begin
+           BusCounted := FALSE;
            If kVBase > 0.0 Then
            Begin
                For j := 1 to NumNodesThisBus Do
@@ -2975,11 +2977,15 @@ begin
                      End;
 
                      If (Vmagpu < NormalMinVolts) Then Begin
-                         Inc(UnderCount);
-                         Break; {next i}
+                         If Not BusCounted Then Begin     // Don't count more than once
+                             Inc(UnderCount);
+                             BusCounted := TRUE;
+                         End;
                      End Else if (Vmagpu > NormalMaxVolts) then Begin
-                         Inc(OverCount);
-                         Break;
+                         If Not BusCounted Then Begin
+                             Inc(OverCount);
+                             BusCounted := TRUE;
+                         End;
                      End;
                   End;
                End;

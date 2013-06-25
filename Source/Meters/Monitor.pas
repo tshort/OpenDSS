@@ -736,7 +736,7 @@ Begin
                            If i<NumVI Then strLcat(strPtr, pAnsichar(', '), Sizeof(TMonitorStrBuffer));
                        End;
                        IF IncludeResidual Then Begin
-                           strLcat(strPtr, pAnsichar(',|IN| (volts)'), Sizeof(TMonitorStrBuffer));
+                           strLcat(strPtr, pAnsichar(',|IN| (amps)'), Sizeof(TMonitorStrBuffer));
                        End;
                  End
                  Else Begin  // Power
