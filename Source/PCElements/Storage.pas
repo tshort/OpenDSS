@@ -1257,6 +1257,16 @@ Begin
                 FAULTSTUDY,
                 DYNAMICMODE:   ; // {do nothing for these modes}
              *)
+                GENERALTIME: Begin
+                         // This mode allows use of one class of load shape
+                         case ActiveCircuit.ActiveLoadShapeClass of
+                              USEDAILY:   CalcDailyMult(DynaVars.dblHour);
+                              USEYEARLY:  CalcYearlyMult(DynaVars.dblHour);
+                              USEDUTY:    CalcDutyMult(DynaVars.dblHour);
+                         else
+                              ShapeFactor := CDOUBLEONE     // default to 1 + j1 if not known
+                         end;
+                    End;
                 // Assume Daily curve, If any, for the following
                 MONTECARLO2,
                 MONTECARLO3,
