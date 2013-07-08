@@ -1,0 +1,54 @@
+Clear
+
+New Circuit.BundleDemo
+~ BasekV = 138  
+
+// Define conductor data
+New Wiredata.ACSR795  GMR=0.0393000 DIAM=1.140000  RAC=0.1288000     NormAmps=910.0000           Runits=mi radunits=in gmrunits=ft
+New Wiredata.ACSR2/0  GMR=0.0051000 DIAM=0.4470000 RAC=0.8950000     NormAmps=270.0000           Runits=mi radunits=in gmrunits=ft
+
+
+// Define Geometry for 2-conductor bundle (18 in. spacing) and 2 static wires
+New LineGeometry.795-Explicit  nconds=8  nphases=6 reduce=yes
+~ cond=1 wire =ACSR795 x=-8.75 h=40 units=ft
+~ cond=2 wire =ACSR795 x=-7.25 h=40 units=ft
+~ cond=3 wire =ACSR795 x=-0.75 h=40 units=ft
+~ cond=4 wire =ACSR795 x=0.75  h=40 units=ft
+~ cond=5 wire =ACSR795 x=7.25  h=40 units=ft
+~ cond=6 wire =ACSR795 x=8.75  h=40 units=ft
+! Sky wires
+~ cond=7 wire =ACSR2/0 x=-6 h=44 units=ft
+~ cond=8 wire =ACSR2/0 x=6 h=44 units=ft
+
+// Line Definition (only 6 conductors to connect after reduction)
+New Line.Explicit Bus1=SourceBus.1.1.2.2.3.3  Bus2=ExplicitBus.1.1.2.2.3.3 Geometry=795-Explicit Length=20 units=mi
+
+
+// Alternative way
+// Define Wiredata as single-conductor equivalent (See EPRI Red Book eq 2.4-11, and following)
+New Wiredata.ACSR795-Bundle  GMR=0.242796 DIAM=6.406247  RAC=(0.1288000 2 /)     NormAmps=(910.0000 2 *)           Runits=mi radunits=in gmrunits=ft
+
+New LineGeometry.795-Equiv Nconds=5 Nphases=3 reduce=yes
+~ cond=1 wire =ACSR795-Bundle x=-8.00 h=40 units=ft
+~ cond=2 wire =ACSR795-Bundle x= 0.00 h=40 units=ft
+~ cond=3 wire =ACSR795-Bundle x= 8.00 h=40 units=ft
+! Sky wires
+~ cond=4 wire =ACSR2/0 x=-6 h=44 units=ft
+~ cond=5 wire =ACSR2/0 x=6 h=44 units=ft
+
+New Line.Equivalent Bus1=sourceBus.1.2.3   Bus2=EquivBus.1.2.3 Geometry=795-Equiv Length=20 units=mi
+
+Show Lineconstants  60  mi
+
+Solve
+
+// Put a 3-phase Fault at the end of each line and solve
+
+New Fault.Fexplicit Phases=3 Bus1=ExplicitBus.1.2.3
+New Fault.FEquiv    Phases=3 Bus1=EquivBus.1.2.3
+
+Solve mode=direct
+
+show currents Resid=y Elem 
+
+
