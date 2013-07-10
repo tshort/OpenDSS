@@ -148,7 +148,7 @@ Begin
      // define Property help values
      PropertyHelp[1] := 'Number of phases this transformer. Default is 3.';
      PropertyHelp[2] := 'Number of windings, this transformers. (Also is the number of terminals) '+
-                    'Default is 2.';
+                    'Default is 2. This property triggers memory allocation for the Transformer and will cause other properties to revert to default values.';
    // Winding Definition
      PropertyHelp[3] := 'Set this = to the number of the winding you wish to define.  Then set '+
                     'the values for this winding.  Repeat for each winding.  Alternatively, use '+
