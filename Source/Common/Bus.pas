@@ -45,6 +45,8 @@ TYPE
        Keep,
        IsRadialBus  :Boolean;  // Flag for general use in bus searches
 
+       Lambda  :Double;  // Accumulated failure rate  downstream from this bus
+
        constructor Create;
        destructor  Destroy; override;
 
@@ -99,6 +101,7 @@ Begin
     x                := 0.0;
     y                := 0.0;
     DistFromMeter    := 0.0;
+    Lambda           := 0.0;  // accummulated failure rate
     CoordDefined     := FALSE;
     Keep             := FALSE;
     IsRadialBus      := FALSE;

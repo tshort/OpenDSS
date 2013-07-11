@@ -28,8 +28,9 @@ TYPE
 
        NormAmps,
        EmergAmps,
-       FaultRate,
-       PctPerm,
+       FaultRate,  // annual faults per year
+       PctPerm,    // percent of faults that are permanent in this element
+       AccumulatedLambda,  // accumulated failure rate for this branch
        HrsToRepair   :Double;
        FromTerminal,
        ToTerminal   :Integer;  // Set by Meter zone for radial feeder
@@ -72,6 +73,7 @@ Begin
     FromTerminal := 1;
     NumCustomers := 0;
     TotalCustomers := 0;
+    AccumulatedLambda := 0.0;
     SensorObj      := NIL;
     MeterObj       := NIL;
     ParentPDElement := NIL;

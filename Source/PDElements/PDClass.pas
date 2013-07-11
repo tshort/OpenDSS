@@ -66,7 +66,7 @@ Begin
      PropertyName^[ActiveProperty + 5] := 'repair';
 
      PropertyHelp^[ActiveProperty + 1] := 'Normal rated current.';
-     PropertyHelp^[ActiveProperty + 2] := 'Maximum current.';
+     PropertyHelp^[ActiveProperty + 2] := 'Maximum or emerg current.';
      PropertyHelp^[ActiveProperty + 3] := 'No. of failures per year.';
      PropertyHelp^[ActiveProperty + 4] := 'Percent of failures that become permanent.';
      PropertyHelp^[ActiveProperty + 5] := 'Hours to repair.';

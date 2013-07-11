@@ -471,7 +471,7 @@ Begin
                                  'Above this value, the load model reverts to a constant impedance model.');
      AddProperty('yearly',       propYEARLY,
                                  'Dispatch shape to use for yearly simulations.  Must be previously defined '+
-                                 'as a Loadshape object. If this is not specified, the Daily dispatch shape, If any, is repeated '+
+                                 'as a Loadshape object. If this is not specified, the Daily dispatch shape, if any, is repeated '+
                                  'during Yearly solution modes. In the default dispatch mode, ' +
                                  'the PVSystem element uses this loadshape to trigger State changes.');
      AddProperty('daily',        propDAILY,
@@ -487,7 +487,7 @@ Begin
 
      AddProperty('Tyearly',       propTYEARLY,
                                  'Temperature shape to use for yearly simulations.  Must be previously defined '+
-                                 'as a TShape object. If this is not specified, the Daily dispatch shape, If any, is repeated '+
+                                 'as a TShape object. If this is not specified, the Daily dispatch shape, if any, is repeated '+
                                  'during Yearly solution modes. ' +
                                  'The PVSystem element uses this TShape to determine the Pmpp from the Pmpp vs T curve. ' +
                                  'Units must agree with the Pmpp vs T curve.');

@@ -194,8 +194,8 @@ Type
         Procedure DefineProperties;
         Function  MakeLike(Const EnergyMeterName:String):Integer;   Override;
         procedure SetHasMeterFlag;
-     public
 
+     public
 
        DI_RegisterTotals   :TRegisterArray;
        DI_Dir              :String;
@@ -286,8 +286,8 @@ Type
        Function  MakeVPhaseReportFileName:String;
        Procedure AssignVoltBaseRegisterNames;
 
-       Procedure MakeFeederObj;
-       Procedure RemoveFeederObj;
+    // Not used   Procedure MakeFeederObj;
+    // Not used   Procedure RemoveFeederObj;
        Procedure TotalupDownstreamCustomers;
 
       Protected
@@ -298,9 +298,10 @@ Type
         Procedure AppendDemandIntervalFile;
 
       Public
-        RegisterNames          :Array[1..NumEMregisters] of String;
+        RegisterNames  :Array[1..NumEMregisters] of String;
 
         BranchList     :TCktTree;      // Pointers to all circuit elements in meter's zone
+        SequenceList   :TPointerList;  // Pointers to branches in sequence from meter to ends
 
         Registers      :TRegisterArray;
         Derivatives    :TRegisterArray;
@@ -576,7 +577,7 @@ Begin
                      MeteredElementChanged := TRUE;
                      DoRecalc := TRUE;
                   End;
-             11: If HasFeeder Then DoRecalc := True Else RemoveFeederObj;
+             (****11: If HasFeeder Then DoRecalc := True Else RemoveFeederObj; *)
          END;
 
          ParamName := Parser.NextParam;
@@ -831,6 +832,7 @@ Begin
      ElementName    := 'Vsource.'+TDSSCktElement(ActiveCircuit.CktElements.Get(1)).Name; // Default to first circuit element (source)
      MeteredElement := NIL;
      BranchList     := NIL;  // initialize to NIL, set later when inited
+     SequenceList   := Nil;
 
      This_Meter_DIFileIsOpen := FALSE;
      VPhaseReportFileIsOpen  := FALSE;
@@ -842,10 +844,11 @@ Begin
      MaxZonekVA_Emerg    := 0.0;
 
      ZoneIsRadial        := True;
-     HasFeeder           := FALSE;
+     HasFeeder           := FALSE; // Not used; leave as False
      FeederObj           := Nil;  // initialize to not assigned
      DefinedZoneList     := NIL;
      DefinedZoneListSize := 0;
+
      FLosses             := TRUE;   {Loss Reporting switches}
      FLineLosses         := TRUE;
      FXfmrLosses         := TRUE;
@@ -932,19 +935,21 @@ destructor TEnergyMeterObj.Destroy;
 var
    i :Integer;
 Begin
-    If Assigned (VBaseList) then Reallocmem(VBaseList, 0);
+    If Assigned (VBaseList)        then Reallocmem(VBaseList, 0);
     If Assigned (VBaseTotalLosses) then Reallocmem(VBaseTotalLosses, 0);
-    If Assigned (VBaseLineLosses) then Reallocmem(VBaseLineLosses, 0);
-    If Assigned (VBaseLoadLosses) then Reallocmem(VBaseLoadLosses, 0);
-    If Assigned (VBaseNoLoadLosses) then Reallocmem(VBaseNoLoadLosses, 0);
-    If Assigned (VBaseLoad) then Reallocmem(VBaseLoad, 0);
+    If Assigned (VBaseLineLosses)  then Reallocmem(VBaseLineLosses, 0);
+    If Assigned (VBaseLoadLosses)  then Reallocmem(VBaseLoadLosses, 0);
+    If Assigned (VBaseNoLoadLosses)then Reallocmem(VBaseNoLoadLosses, 0);
+    If Assigned (VBaseLoad)        then Reallocmem(VBaseLoad, 0);
      // Arrays for phase voltage report
-    If Assigned (VphaseMax) then  ReallocMem(VphaseMax, 0);
-    If Assigned (VPhaseMin) then  ReallocMem(VPhaseMin, 0);
+    If Assigned (VphaseMax)   then  ReallocMem(VphaseMax, 0);
+    If Assigned (VPhaseMin)   then  ReallocMem(VPhaseMin, 0);
     If Assigned (VPhaseAccum) then  ReallocMem(VPhaseAccum, 0);
     If Assigned (VPhaseAccumCount) then  ReallocMem(VPhaseAccumCount, 0);
+
     for i := 1 to NumEMRegisters do RegisterNames[i] := '';
-    BranchList.Free;
+    If Assigned(BranchList)   Then BranchList.Free;
+    If Assigned(SequenceList) Then SequenceList.Free;
     FreeStringArray(DefinedZoneList, DefinedZoneListSize);
     Inherited destroy;
 End;
@@ -954,7 +959,6 @@ Procedure TEnergyMeterObj.RecalcElementData;
 
 VAR
    DevIndex :Integer;
-
 
 Begin
      Devindex := GetCktElementIndex(ElementName);   // Global function
@@ -989,7 +993,7 @@ Begin
                  BranchList := Nil;
              End;
 
-             If HasFeeder Then MakeFeederObj;  // OK to call multiple times
+             (****If HasFeeder Then MakeFeederObj;  // OK to call multiple times  *)
 
          END;
      END
@@ -1010,7 +1014,7 @@ begin
     IF BranchList <> NIL Then BranchList.Free;
     BranchList := Nil;
   end;
-  If HasFeeder Then MakeFeederObj;
+  (***If HasFeeder Then MakeFeederObj;*)
   Inherited;
 end;
 
@@ -1558,10 +1562,11 @@ Var
   iPC, iPD      :Integer;
   ActiveBranch  :TDSSCktElement;
   TestElement   :TPDElement;
-  PC            :TPCElement;
+  pPCelem       :TPCElement;
   pLoad         :TLoadObj;
   IsFeederEnd   :Boolean;
   adjLst        :TList;
+  PCElementType :Cardinal;
 
 Begin
 
@@ -1569,7 +1574,7 @@ Begin
   VBasecount      := 0; {Build the voltage base list over in case a base added or deleted}
   for j := 1 to MaxVBaseCount  do VBaseList^[j] := 0.0;
 
-
+  // Make a new branch list
   IF BranchList <> NIL Then BranchList.Free;
   BranchList := TCktTree.Create;     {Instantiates ZoneEndsList, too}
 
@@ -1584,39 +1589,55 @@ Begin
    Before starting, all sensorObj definitions are cleared in PCElements and PDElements. The
    SensorObj property is passed down to the Load objects for LoadAllocation and State Estimation
   }
-  If MeteredElement is TPDElement then TPDElement(MeteredElement).SensorObj := Self
-  Else If MeteredElement is TPCElement then TPCElement(MeteredElement).SensorObj := Self;
+  If MeteredElement is TPDElement then
+    With TPDElement(MeteredElement) Do Begin
+       SensorObj := Self;
+       MeterObj  := Self;
+    End
+  Else If MeteredElement is TPCElement then
+    With TPCElement(MeteredElement) Do Begin
+       SensorObj := Self;
+       MeterObj  := Self;
+    End;
 
-  If MeteredElement is TPDElement then TPDElement(MeteredElement).MeterObj := Self
-  Else If MeteredElement is TPCElement then TPCElement(MeteredElement).MeterObj := Self;
 
   MeteredElement.Terminals^[MeteredTerminal].Checked := TRUE;
   With BranchList.PresentBranch Do Begin
-    // This bus is the head of the feeder; do not mark as radial bus
-    FromBusReference := MeteredElement.Terminals^[MeteredTerminal].BusRef;
-    ActiveCircuit.Buses^[FromBusReference].DistFromMeter := 0.0;
-    VoltBaseIndex    := AddToVoltBaseList(FromBusReference);
-    FromTerminal     := MeteredTerminal;
-    If MeteredElement is TPDElement Then TPDElement(MeteredElement).FromTerminal := MeteredTerminal;
+    // This bus is the head of the feeder or zone; do not mark as radial bus
+      FromBusReference := MeteredElement.Terminals^[MeteredTerminal].BusRef;
+      ActiveCircuit.Buses^[FromBusReference].DistFromMeter := 0.0;
+      VoltBaseIndex    := AddToVoltBaseList(FromBusReference);
+      FromTerminal     := MeteredTerminal;
+      If MeteredElement is TPDElement Then TPDElement(MeteredElement).FromTerminal := MeteredTerminal;
   End;
 
   // Check off this element so we don't use it  again
   With MeteredElement Do Begin
-    Checked    := True;
-    IsIsolated := FALSE;
+      Checked    := True;
+      IsIsolated := FALSE;
   End;
+
+  // Make SequenceList for use in reliability calcs or anything that
+  // needs to run through the tree quickly in a radial sequence
+  If Assigned(SequenceList) Then  SequenceList.Free;
+  SequenceList := PointerList.TPointerList.Create(1024); //make it a big allocation
 
   // Now start looking for other branches
   // Finds any branch connected to the TestBranch and adds it to the list
   // Goes until end of circuit, another energy meter, an open terminal, or disabled device.
   ActiveBranch := MeteredElement;
+
+  { ****************  MAIN LOOP *****************************}
   WHILE ActiveBranch <> NIL DO Begin
-    With BranchList.PresentBranch Do begin
-      IsLoopedHere  := FALSE;
-      IsParallel    := FALSE;
-      IsDangling    := TRUE;  // Unless we find something connected to it
-      VoltBaseIndex := AddToVoltBaseList(FromBusReference);
-    end;
+
+    Sequencelist.Add(ActiveBranch); // When done, this should be the correct order.
+
+    With BranchList.PresentBranch Do Begin
+        IsLoopedHere  := FALSE;
+        IsParallel    := FALSE;
+        IsDangling    := TRUE;  // Unless we find something connected to it
+        VoltBaseIndex := AddToVoltBaseList(FromBusReference);
+    End;
 
     TPDElement(ActiveBranch).NumCustomers := 0;   // Init counter
 
@@ -1625,39 +1646,43 @@ Begin
         // Now find all loads and generators connected to the bus on this end of branch
         // attach them as generic objects to cktTree node.
         TestBusNum := ActiveBranch.Terminals^[iTerm].BusRef;
-        BranchList.PresentBranch.ToBusReference := TestBusNum;   // Add this as a "to" bus reference
-        If isLineElement(ActiveBranch)   // Convert to consistent units (km)
-        then Buses^[TestBusNum].DistFromMeter := Buses^[BranchList.PresentBranch.FromBusReference].DistFromMeter
-          + TLineObj(ActiveBranch).Len * ConvertLineUnits(TLineObj(ActiveBranch).LengthUnits, UNITS_KM)
-        else Buses^[TestBusNum].DistFromMeter := Buses^[BranchList.PresentBranch.FromBusReference].DistFromMeter;
-
-        adjLst := BusAdjPC[TestBusNum];
-        for iPC := 0 to adjLst.Count - 1 do begin
-          pC := adjLst[iPC];
-          //  IF pC.Enabled Then Begin   only enabled elements in the search list
-          if pC.Checked Then Continue; // skip ones we already checked
-          BranchList.PresentBranch.IsDangling := FALSE;   // Something is connected here
-          // Is this a load or a generator or a Capacitor or reactor??
-          IF ((pC.DSSObjType and CLASSMASK) = LOAD_ELEMENT)
-          OR ((pC.DSSObjType and CLASSMASK) = GEN_ELEMENT)
-          OR ((pC.DSSObjType and CLASSMASK) = CAP_ELEMENT)
-          OR ((pC.DSSObjType and CLASSMASK) = REACTOR_ELEMENT) Then Begin
-            BranchList.NewObject := pC;
-            pC.Checked           := TRUE;  // So we don't pick this element up again
-            pC.IsIsolated        := FALSE;
-            pC.ActiveTerminalIdx := 1;
-            {Totalize Number of Customers if Load Type}
-            If (pC is TLoadObj) then Begin
-              pLoad := pC As TLoadObj;
-              Inc(TPDElement(ActiveBranch).NumCustomers, pLoad.NumCustomers);
-            End;
-            {If object does not have a sensor attached, it acquires the sensor of its parent branch}
-            If Not pC.HasSensorObj then pC.SensorObj := TPDElement(ActiveBranch).SensorObj;
-            pC.MeterObj := Self;
-          End; {IF}
+        With BranchList.PresentBranch Do Begin
+            ToBusReference := TestBusNum;   // Add this as a "to" bus reference
+            If isLineElement(ActiveBranch)   // Convert to consistent units (km)
+              then Buses^[TestBusNum].DistFromMeter := Buses^[FromBusReference].DistFromMeter
+                    + TLineObj(ActiveBranch).Len * ConvertLineUnits(TLineObj(ActiveBranch).LengthUnits, UNITS_KM)
+              else Buses^[TestBusNum].DistFromMeter := Buses^[FromBusReference].DistFromMeter;
         End;
 
-        // Now find all branches connected to this bus that we havent found already
+        adjLst := BusAdjPC[TestBusNum];
+        For iPC := 0 to adjLst.Count - 1 do Begin
+            pPCelem := adjLst[iPC];
+            //  IF pPCelem.Enabled Then Begin   only enabled elements in the search list
+            if NOT pPCelem.Checked Then Begin; // skip ones we already checked
+                BranchList.PresentBranch.IsDangling := FALSE;   // Something is connected here
+                // Is this a load or a generator or a Capacitor or reactor??
+                PCElementType := (pPCelem.DSSObjType and CLASSMASK);
+                IF (PCElementType = LOAD_ELEMENT)
+                OR (PCElementType = GEN_ELEMENT)
+                OR (PCElementType = CAP_ELEMENT)
+                OR (PCElementType = REACTOR_ELEMENT) Then Begin
+                      BranchList.NewObject      := pPCelem;
+                      pPCelem.Checked           := TRUE;  // So we don't pick this element up again
+                      pPCelem.IsIsolated        := FALSE;
+                      pPCelem.ActiveTerminalIdx := 1;
+                      {Totalize Number of Customers if Load Type}
+                      If (pPCelem is TLoadObj) then Begin
+                          pLoad := pPCelem As TLoadObj;
+                          Inc(TPDElement(ActiveBranch).NumCustomers, pLoad.NumCustomers);
+                      End;
+                      {If object does not have a sensor attached, it acquires the sensor of its parent branch}
+                      If Not pPCelem.HasSensorObj then pPCelem.SensorObj := TPDElement(ActiveBranch).SensorObj;
+                      pPCelem.MeterObj := Self;
+                End; {IF}
+            End;
+        End;
+
+        // Now find all branches connected to this bus that we haven't found already
         // Do not include in this zone if branch has open terminals or has another meter
 
         IF DefinedZoneListSize = 0 THEN Begin  // Search tree for connected branches (default)
@@ -1672,61 +1697,65 @@ Begin
                   IF TestBusNum = TestElement.Terminals^[j].BusRef THEN Begin
                     BranchList.PresentBranch.IsDangling := FALSE; // We found something it was connected to
                     {Check for loops and parallel branches and mark them}
-                    IF (TestElement.Checked) Then Begin      {This branch is on some meter's list already }
-                      BranchList.PresentBranch.IsLoopedHere := TRUE; {It's a loop}
-                      BranchList.PresentBranch.LoopLineObj := TestElement;
-                      If IsLineElement(ActiveBranch) and IsLineElement(TestElement) Then
-                        If CheckParallel(ActiveBranch, TestElement) Then
-                          BranchList.PresentBranch.IsParallel := TRUE; {It's paralleled with another line}
-                    End Else Begin  // push TestElement onto stack and set properties
-                      IsFeederEnd := FALSE;  // for interpolation
-                      BranchList.AddNewChild( TestElement, TestBusNum, j);  // Add new child to the branchlist
-                      With TestElement Do Begin
-                        Terminals^[j].Checked := TRUE;
-                        FromTerminal := j;
-                        Checked      := TRUE;
-                        IsIsolated   := FALSE;
-                        {Branch inherits sensor of upline branch if it doesn't have its own}
-                        If Not HasSensorObj  then SensorObj :=  TPDElement(ActiveBranch).SensorObj;
-                        MeterObj := Self;   // Set meterobj to this meter
-                        ParentPDElement := TPDElement(ActiveBranch);  // record the parent so we can easily back up for reconductoring, etc.
-                      End;
-                      Break;
-                    End; {Else}
+                      IF (TestElement.Checked) Then     {This branch is on some meter's list already }
+                          With BranchList.PresentBranch Do Begin
+                              IsLoopedHere := TRUE; {It's a loop}
+                              LoopLineObj  := TestElement;
+                              If IsLineElement(ActiveBranch) and IsLineElement(TestElement) Then
+                                If CheckParallel(ActiveBranch, TestElement) Then IsParallel := TRUE; {It's paralleled with another line}
+                          End
+                          Else Begin  // push TestElement onto stack and set properties
+                              IsFeederEnd := FALSE;  // for interpolation
+                              BranchList.AddNewChild( TestElement, TestBusNum, j);  // Add new child to the branchlist
+                              With TestElement Do Begin
+                                  Terminals^[j].Checked := TRUE;
+                                  FromTerminal := j;
+                                  Checked      := TRUE;
+                                  IsIsolated   := FALSE;
+                                  {Branch inherits sensor of upline branch if it doesn't have its own}
+                                  If Not HasSensorObj  then SensorObj :=  TPDElement(ActiveBranch).SensorObj;
+                                  MeterObj := Self;   // Set meterobj to this meter
+                                  ParentPDElement := TPDElement(ActiveBranch);  // record the parent so we can easily back up for reconductoring, etc.
+                              End;
+                              Break;
+                          End; {Else}
                   END; {IF TestBusNum}
                 END;  {FOR terminals}
               END; {ELSE}
           End; {FOR iPD}
-          If IsFeederEnd then
-            BranchList.ZoneEndsList.Add (BranchList.PresentBranch, TestBusNum);
-        {This is an end of the feeder and testbusnum is the end bus}
-        END ELSE Begin   // Zone is manually specified; Just add next element in list as a child
-          Inc(ZoneListCounter);
-          WHILE ZoneListCounter <= DefinedZoneListSize Do Begin
-            IF SetElementActive(DefinedZoneList^[ZoneListCounter]) = 0 THEN
-              Inc(ZoneListCounter) // Not Found. Let's search for another
-            ELSE Begin
-              TestElement := ActiveCktElement as TPDElement;
-              IF Not TestElement.Enabled THEN
-                Inc(ZoneListCounter)  // Lets ignore disabled devices
-              ELSE Begin
-                IF (TestElement.DSSObjType and BaseClassMask) <> PD_ELEMENT THEN
-                  Inc(ZoneListCounter)  // Lets ignore non-PD elements
-                ELSE
-                  BranchList.AddNewChild(TestElement, 0, 0); // add it as a child to the previous element
-                Break;                                  // Can't do reductions if manually spec'd
-              END;
-            END;
-          END; // while
+
+          If IsFeederEnd then BranchList.ZoneEndsList.Add (BranchList.PresentBranch, TestBusNum);
+             {This is an end of the feeder and testbusnum is the end bus}
+        END
+        ELSE Begin   // Zone is manually specified; Just add next element in list as a child
+            Inc(ZoneListCounter);
+            WHILE ZoneListCounter <= DefinedZoneListSize Do Begin
+                IF SetElementActive(DefinedZoneList^[ZoneListCounter]) = 0 THEN
+                      Inc(ZoneListCounter) // Not Found. Let's search for another
+                ELSE Begin
+                    TestElement := ActiveCktElement as TPDElement;
+                    IF Not TestElement.Enabled THEN
+                        Inc(ZoneListCounter)  // Lets ignore disabled devices
+                    ELSE Begin
+                        IF (TestElement.DSSObjType and BaseClassMask) <> PD_ELEMENT THEN
+                            Inc(ZoneListCounter)  // Lets ignore non-PD elements
+                        ELSE
+                            BranchList.AddNewChild(TestElement, 0, 0); // add it as a child to the previous element
+                        Break;                                         // Can't do reductions if manually spec'd
+                    END;
+                END;
+            END; // while
         END;
       End;  {WITH Active Circuit}
     End;   {FOR iTerm}
-    ActiveBranch := BranchList.GoForward;   // Sets PresentNode
+
+    ActiveBranch := BranchList.GoForward;   // Sets PresentBranch
+  { ****************  END MAIN LOOP *****************************}
   End;
 
   TotalupDownstreamCustomers;
 
-  If HasFeeder Then FeederObj.InitializeFeeder(BranchList);   // Synchronize the feeder definition
+  (****If HasFeeder Then FeederObj.InitializeFeeder(BranchList);   // Synchronize the feeder definition *)
 
   AssignVoltBaseRegisterNames;
 End;
@@ -2072,9 +2101,10 @@ begin
        {Default}
        DoReduceDefault(BranchList);
     End;
-
+(* Feeder Code removed
     // Resynchronize with Feeders
     If HasFeeder Then FeederObj.InitializeFeeder (Branchlist);
+*)
 
 end;
 
@@ -3007,35 +3037,44 @@ begin
      For i := n+1 to NumEMRegisters Do Mask[i] := 1.0;  // Set the rest to 1
 end;
 
+(* Feeder object code commented out
 procedure TEnergyMeterObj.MakeFeederObj;
 begin
   If Assigned(MeteredElement) Then Begin
-//    FeederClass.NewObject(Name);  // NewObject creates only if not existent. Else Inits  and desynchs
-//    FeederObj := ActiveCircuit.ActiveCktElement as TFeederObj;
-//    FeederObj.SetBus (1, MeteredElement.GetBus(MeteredTerminal));
-//    FeederObj.Nphases := MeteredElement.NPhases;
-//    FeederObj.Nconds  := MeteredElement.Nconds;
-    // FeederObj.Enabled := ActiveCircuit.RadialSolution;
+
+    FeederClass.NewObject(Name);  // NewObject creates only if not existent. Else Inits  and desynchs
+    FeederObj := ActiveCircuit.ActiveCktElement as TFeederObj;
+    FeederObj.SetBus (1, MeteredElement.GetBus(MeteredTerminal));
+    FeederObj.Nphases := MeteredElement.NPhases;
+    FeederObj.Nconds  := MeteredElement.Nconds;
+    FeederObj.Enabled := ActiveCircuit.RadialSolution;
+
   End
   Else DoSimpleMsg('Error: Attempted to make Feeder Obj without instantiating Metered Element in Energymeter.'+name,544);
 end;
-
+*)
+(*  Feeder object code commented out
 procedure TEnergyMeterObj.RemoveFeederObj;
 begin
+
     If Assigned(FeederObj) Then Begin
        FeederObj.Enabled := FALSE;
        FeederObj.SetCktElementFeederFlags (FALSE);
     End;
+
 end;
+*)
 
 procedure TEnergyMeterObj.EnableFeeder;
 // HasFeeder has to be true before feederObj will be re-enabled.
 begin
+(*  Feeder object code commented out  HasFeeder can never be true
     If HasFeeder Then Begin
         If Not Assigned(FeederObj) Then MakeFeederObj
         Else FeederObj.Enabled := TRUE;
         FeederObj.SetCktElementFeederFlags (TRUE);
     End;
+*)
 end;
 
 procedure TEnergyMeter.OpenAllDIFiles;
