@@ -223,7 +223,7 @@ USES    DSSClassDefs, DSSGlobals, Sysutils, Utilities, XfmrCode;
 var
    XfmrCodeClass:TXfmrCode;
 
-Const NumPropsThisClass = 40;
+Const NumPropsThisClass = 43;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TTransf.Create;  // Creates superstructure for all Transformer objects
@@ -306,7 +306,9 @@ Begin
      PropertyName[38] := 'bank';
      PropertyName[39] := 'XfmrCode';
      PropertyName[40] := 'XRConst';
-
+     PropertyName[41] := 'X12';
+     PropertyName[42] := 'X13';
+     PropertyName[43] := 'X23';
 
      // define Property help values
      PropertyHelp[1] := 'Number of phases this transformer. Default is 3.';
@@ -344,11 +346,11 @@ Begin
      PropertyHelp[15] := 'Use this to specify the kVA ratings of all windings at once using an array.';
      PropertyHelp[16] := 'Use this to specify the p.u. tap of all windings at once using an array.';
      PropertyHelp[17] := 'Use this to specify the percent reactance, H-L (winding 1 to winding 2).  Use '+
-                         'for 2- or 3-winding transformers. On the kva base of winding 1.';
+                         'for 2- or 3-winding transformers. On the kva base of winding 1. See also X12.';
      PropertyHelp[18] := 'Use this to specify the percent reactance, H-T (winding 1 to winding 3).  Use '+
-                         'for 3-winding transformers only. On the kVA base of winding 1.';
+                         'for 3-winding transformers only. On the kVA base of winding 1. See also X13.';
      PropertyHelp[19] := 'Use this to specify the percent reactance, L-T (winding 2 to winding 3).  Use '+
-                         'for 3-winding transformers only. On the kVA base of winding 1.';
+                         'for 3-winding transformers only. On the kVA base of winding 1.  See also X23.';
      PropertyHelp[20] := 'Use this to specify the percent reactance between all pairs of windings as an array. '+
                          'All values are on the kVA base of winding 1.  The order of the values is as follows:'+CRLF+CRLF+
                          '(x12 13 14... 23 24.. 34 ..)  '+CRLF+CRLF+
@@ -380,6 +382,12 @@ Begin
      PropertyHelp[38] := 'Name of the bank this transformer is part of, for CIM, MultiSpeak, and other interfaces.';
      PropertyHelp[39] := 'Name of a library entry for transformer properties. The named XfmrCode must already be defined.';
      PropertyHelp[40] := '={Yes|No} Default is NO. Signifies whether or not the X/R is assumed contant for harmonic studies.';
+     PropertyHelp[41] := 'Alternative to XHL for specifying the percent reactance from winding 1 to winding 2.  Use '+
+                         'for 2- or 3-winding transformers. Percent on the kVA base of winding 1. ';
+     PropertyHelp[42] := 'Alternative to XHT for specifying the percent reactance from winding 1 to winding 3.  Use '+
+                         'for 3-winding transformers only. Percent on the kVA base of winding 1. ';
+     PropertyHelp[43] := 'Alternative to XLT for specifying the percent reactance from winding 2 to winding 3.Use '+
+                         'for 3-winding transformers only. Percent on the kVA base of winding 1.  ';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -473,6 +481,9 @@ Begin
            38: XfmrBank := Param;
            39: FetchXfmrCode (Param);
            40: XRConst := InterpretYesNo(Param);
+           41: XHL :=  parser.Dblvalue * 0.01;
+           42: XHT :=  parser.Dblvalue * 0.01;
+           43: XLT :=  parser.Dblvalue * 0.01;
          ELSE
            // Inherited properties
               ClassEdit(ActiveTransfObj, ParamPointer - NumPropsThisClass)
@@ -505,7 +516,7 @@ Begin
                  Winding^[2].Rpu := Winding^[1].Rpu;
               End;
           37: pctLoadLoss := (Winding^[1].Rpu + Winding^[2].Rpu) * 100.0;  // Update
-
+          41..43: XHLChanged := True;
          ELSE
          End;
 
@@ -514,6 +525,7 @@ Begin
            5..19  : YprimInvalid := TRUE;
            26..27 : YprimInvalid := TRUE;
            35..37 : YprimInvalid := TRUE;
+           41..43 : YPrimInvalid := TRUE;
          ELSE
          End;
 
@@ -1120,9 +1132,12 @@ Begin
         End;
     End;
 
-    Writeln(F,'~ ','xhl=',xhl*100.0:0:3);
-    Writeln(F,'~ ','xht=',xht*100.0:0:3);
-    Writeln(F,'~ ','xlt=',xlt*100.0:0:3);
+    Writeln(F,'~ ','XHL=',xhl*100.0:0:3);
+    Writeln(F,'~ ','XHT=',xht*100.0:0:3);
+    Writeln(F,'~ ','XLT=',xlt*100.0:0:3);
+    Writeln(F,'~ ','X12=',xhl*100.0:0:3);
+    Writeln(F,'~ ','X13=',xht*100.0:0:3);
+    Writeln(F,'~ ','X23=',xlt*100.0:0:3);
     Write(F,'~ Xscmatrix= "');
     FOR i := 1 to (NumWindings-1)*NumWindings div 2 Do Write(F, Xsc^[i]*100.0:0:2,' ');
     Writeln(F,'"');
@@ -1466,6 +1481,9 @@ begin
            36: Result := Format('%.7g', [ppm_FloatFactor / 1.0e-6]);
            37: FOR i := 1 to NumWindings Do Result := Result + Format('%.7g, ',[Winding^[i].rpu * 100.0]);
            40: If XRconst Then  Result := 'YES' Else Result := 'NO';
+           41: Result := Format('%.7g', [XHL * 100.0]);
+           42: Result := Format('%.7g', [XHT * 100.0]);
+           43: Result := Format('%.7g', [XLT * 100.0]);
 
 
 
@@ -1532,6 +1550,9 @@ begin
      PropertyValue[38] := '';
      PropertyValue[39] := '';
      PropertyValue[40] := 'NO';
+     PropertyValue[41] := '7';   // Same as XHT ...
+     PropertyValue[42] := '35';
+     PropertyValue[43] := '30';
 
 
   inherited  InitPropertyValues(NumPropsThisClass);

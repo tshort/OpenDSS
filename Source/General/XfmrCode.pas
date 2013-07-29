@@ -76,7 +76,7 @@ implementation
 
 USES  ParserDel,  DSSClassDefs, DSSGlobals, Sysutils, Ucomplex, Utilities;
 
-Const      NumPropsThisClass = 33;
+Const      NumPropsThisClass = 36;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TXfmrCode.Create;
@@ -144,6 +144,9 @@ Begin
      PropertyName[31] := '%imag';
      PropertyName[32] := 'ppm_antifloat';
      PropertyName[33] := '%Rs';
+     PropertyName[34] := 'X12';
+     PropertyName[35] := 'X13';
+     PropertyName[36] := 'X23';
 
      // define Property help values
      PropertyHelp[1] := 'Number of phases this transformer. Default is 3.';
@@ -207,6 +210,12 @@ Begin
      PropertyHelp[33] := 'Use this property to specify all the winding %resistances using an array. Example:'+CRLF+CRLF+
                          'New Transformer.T1 buses="Hibus, lowbus" '+
                          '~ %Rs=(0.2  0.3)';
+     PropertyHelp[34] := 'Alternative to XHL for specifying the percent reactance from winding 1 to winding 2.  Use '+
+                         'for 2- or 3-winding transformers. Percent on the kVA base of winding 1. ';
+     PropertyHelp[35] := 'Alternative to XHT for specifying the percent reactance from winding 1 to winding 3.  Use '+
+                         'for 3-winding transformers only. Percent on the kVA base of winding 1. ';
+     PropertyHelp[36] := 'Alternative to XLT for specifying the percent reactance from winding 2 to winding 3.Use '+
+                         'for 3-winding transformers only. Percent on the kVA base of winding 1.  ';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -337,6 +346,9 @@ Begin
            31: pctImag          := Parser.DblValue;
            32: ppm_FloatFactor  := Parser.DblValue * 1.0e-6;
            33: InterpretWindings (Param, R);
+           34: XHL :=  parser.Dblvalue * 0.01;
+           35: XHT :=  parser.Dblvalue * 0.01;
+           36: XLT :=  parser.Dblvalue * 0.01;
          else
               ClassEdit(ActiveXfmrCodeObj, ParamPointer - NumPropsThisClass)
          End;
@@ -365,6 +377,7 @@ Begin
                  Winding^[2].Rpu := Winding^[1].Rpu;
               End;
           33: pctLoadLoss := (Winding^[1].Rpu + Winding^[2].Rpu) * 100.0; // Keep this up to date
+          34..36: UpdateXsc := True;
 
          ELSE
          End;
@@ -588,9 +601,12 @@ Begin
         End;
     End;
 
-    Writeln(F,'~ ','xhl=',xhl*100.0:0:3);
-    Writeln(F,'~ ','xht=',xht*100.0:0:3);
-    Writeln(F,'~ ','xlt=',xlt*100.0:0:3);
+    Writeln(F,'~ ','XHL=',xhl*100.0:0:3);
+    Writeln(F,'~ ','XHT=',xht*100.0:0:3);
+    Writeln(F,'~ ','XLT=',xlt*100.0:0:3);
+    Writeln(F,'~ ','X12=',xhl*100.0:0:3);
+    Writeln(F,'~ ','X13=',xht*100.0:0:3);
+    Writeln(F,'~ ','X23=',xlt*100.0:0:3);
     Write(F,'~ Xscmatrix= "');
     FOR i := 1 to (NumWindings-1)*NumWindings div 2 Do Write(F, Xsc^[i]*100.0:0:2,' ');
     Writeln(F,'"');
@@ -703,6 +719,9 @@ begin
      PropertyValue[31] := '0';
      PropertyValue[32] := '1';
      PropertyValue[33] := '';
+     PropertyValue[34] := '7';
+     PropertyValue[35] := '35';
+     PropertyValue[36] := '30';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 end;
