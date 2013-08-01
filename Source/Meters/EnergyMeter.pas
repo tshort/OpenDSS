@@ -1620,7 +1620,7 @@ Begin
   // Make SequenceList for use in reliability calcs or anything that
   // needs to run through the tree quickly in a radial sequence
   If Assigned(SequenceList) Then  SequenceList.Free;
-  SequenceList := PointerList.TPointerList.Create(1024); //make it a big allocation
+  SequenceList := PointerList.TPointerList.Create(1024); //make it a big initial allocation
 
   // Now start looking for other branches
   // Finds any branch connected to the TestBranch and adds it to the list

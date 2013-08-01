@@ -2015,7 +2015,7 @@ Begin
           If ActiveCircuit.Issolved and not ActiveCircuit.BusNameRedefined Then
           Begin
               Write(F, ', Year, Hour, MaxPuVoltage, MinPuVoltage, TotalMW, TotalMvar');
-              Write(F, ', kWLosses, pctLosses, kvarLosses, Frequency');
+              Write(F, ', MWLosses, pctLosses, MvarLosses, Frequency');
           End;
 
         Writeln (F);

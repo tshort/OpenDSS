@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 5/23/2013 3:53:24 PM from Type Library described below.
+// File generated on 8/1/2013 11:56:24 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -1077,6 +1077,13 @@ type
     function Get_Count: Integer; safecall;
     procedure Process; safecall;
     procedure ProcessAll; safecall;
+    function Get_FileVersion: Integer; safecall;
+    function Get_RecordSize: Integer; safecall;
+    function Get_Header: OleVariant; safecall;
+    function Get_dblHour: OleVariant; safecall;
+    function Get_dblFreq: OleVariant; safecall;
+    function Get_Channel(Index: Integer): OleVariant; safecall;
+    function Get_NumChannels: Integer; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1086,6 +1093,13 @@ type
     property ByteStream: OleVariant read Get_ByteStream;
     property SampleCount: Integer read Get_SampleCount;
     property Count: Integer read Get_Count;
+    property FileVersion: Integer read Get_FileVersion;
+    property RecordSize: Integer read Get_RecordSize;
+    property Header: OleVariant read Get_Header;
+    property dblHour: OleVariant read Get_dblHour;
+    property dblFreq: OleVariant read Get_dblFreq;
+    property Channel[Index: Integer]: OleVariant read Get_Channel;
+    property NumChannels: Integer read Get_NumChannels;
   end;
 
 // *********************************************************************//
@@ -1113,6 +1127,13 @@ type
     property Count: Integer readonly dispid 203;
     procedure Process; dispid 204;
     procedure ProcessAll; dispid 205;
+    property FileVersion: Integer readonly dispid 206;
+    property RecordSize: Integer readonly dispid 207;
+    property Header: OleVariant readonly dispid 208;
+    property dblHour: OleVariant readonly dispid 209;
+    property dblFreq: OleVariant readonly dispid 210;
+    property Channel[Index: Integer]: OleVariant readonly dispid 211;
+    property NumChannels: Integer readonly dispid 212;
   end;
 
 // *********************************************************************//
