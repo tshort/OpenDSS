@@ -266,7 +266,7 @@ Begin
    If ActiveCircuit <> Nil Then
    Begin
         pMon := ActiveCircuit.Monitors.Active;
-        If PMon <> Nil Then PMon.TranslateToCSV(False);
+        If PMon <> Nil Then PMon.Save;  // TranslateToCSV(False);
    End;
 
 end;

@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 8/1/2013 12:37:58 PM (- $Rev: 12980 $, 18881877).
+// File generated on 8/3/2013 10:19:05 PM (- $Rev: 12980 $, 3582765).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -861,7 +861,7 @@ library OpenDSSengine
     HRESULT _stdcall ResetAll(void);
     [id(0x00000007), helpstring("Causes active Monitor to take a sample.\0no more.\0onitors.\0ol iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Sample(void);
-    [id(0x00000008), helpstring("Causes active monitor to save its current buffer to CSV File\0iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [id(0x00000008), helpstring("Causes active monitor to save its current sample buffer to its monitor stream. Then you can access the Bytestream or channel data. Most standard solution modes do this automatically.")]
     HRESULT _stdcall Save(void);
     [id(0x00000009), helpstring("Converts monitor file to text and displays with text editor\0\0iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Show(void);
@@ -875,13 +875,13 @@ library OpenDSSengine
     HRESULT _stdcall Name([out, retval] BSTR* Value);
     [propput, id(0x00000001), helpstring("Sets the active Monitor object by name\0 DSS Help)\0xt editor\0\0iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Name([in] BSTR Value);
-    [propget, id(0x0000000C), helpstring("Byte Array containing monitor stream values\0Help)\0xt editor\0\0iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x0000000C), helpstring("Byte Array containing monitor stream values. Make sure a \"save\" is done first (standard solution modes do this automatically)")]
     HRESULT _stdcall ByteStream([out, retval] VARIANT* Value);
     [propget, id(0x0000000D), helpstring("Number of Samples in Monitor at Present\0ues\0Help)\0xt editor\0\0iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall SampleCount([out, retval] long* Value);
     [id(0x000000C9), helpstring("Causes all Monitors to take a sample of the present state\0r\0\0iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall SampleAll(void);
-    [id(0x000000CA), helpstring("Save all Monitors\0s to take a sample of the present state\0r\0\0iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [id(0x000000CA), helpstring("Save all Monitor buffers to their respective file streams.")]
     HRESULT _stdcall SaveAll(void);
     [propget, id(0x000000CB), helpstring("Number of Monitors\0 to take a sample of the present state\0r\0\0iteration of the most recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Count([out, retval] long* Value);
@@ -891,7 +891,7 @@ library OpenDSSengine
     HRESULT _stdcall ProcessAll(void);
     [propget, id(0x000000CE), helpstring("Monitor File Version (integer)")]
     HRESULT _stdcall FileVersion([out, retval] long* Value);
-    [propget, id(0x000000CF), helpstring("Size in Bytes of each record in ByteStream (Integer)")]
+    [propget, id(0x000000CF), helpstring("Size of each record in ByteStream (Integer). Same as NumChannels.")]
     HRESULT _stdcall RecordSize([out, retval] long* Value);
     [propget, id(0x000000D0), helpstring("Header string;  Variant array of strings containing Channel names")]
     HRESULT _stdcall Header([out, retval] VARIANT* Value);
@@ -899,7 +899,7 @@ library OpenDSSengine
     HRESULT _stdcall dblHour([out, retval] VARIANT* Value);
     [propget, id(0x000000D2), helpstring("Variant array of doubles containing frequency values for harmonics mode solutions; Empty for time mode solutions (use dblHour)")]
     HRESULT _stdcall dblFreq([out, retval] VARIANT* Value);
-    [propget, id(0x000000D3), helpstring("Variant array of doubles for the specified channel  (usage: MyArray = DSSMonitor.Channel(i))")]
+    [propget, id(0x000000D3), helpstring("Variant array of doubles for the specified channel  (usage: MyArray = DSSMonitor.Channel(i)) A Save or SaveAll  should be executed first. Done automatically by most standard solution modes.")]
     HRESULT _stdcall Channel([in] long Index, [out, retval] VARIANT* Value);
     [propget, id(0x000000D4), helpstring("Number of Channels in the active Monitor")]
     HRESULT _stdcall NumChannels([out, retval] long* Value);
