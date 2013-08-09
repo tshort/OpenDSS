@@ -79,6 +79,8 @@ procedure TPDElement.AccumLambda;
 begin
 
     WITH ActiveCircuit Do Begin
+        If FromTerminal = 2 Then Toterminal := 1 Else ToTerminal := 2;
+
         {Get Lambda for TO bus and add it to this section failure rate}
         AccumulatedLambda := Buses^[Terminals^[ToTerminal].BusRef].Lambda + Lambda;
 
@@ -106,6 +108,7 @@ begin
 
     With ActiveCircuit Do
     Begin
+        If FromTerminal = 2 Then Toterminal := 1 Else ToTerminal := 2;
         // If no interrupting device then the downline bus will have the same num of interruptions
         Buses^[Terminals^[ToTerminal].BusRef].Num_Interrupt :=  Buses^[Terminals^[FromTerminal].BusRef].Num_Interrupt;
 
