@@ -23,12 +23,12 @@ TYPE
    TDSSCktElement = class(TDSSObject)
     private
 
-      FBusNames: pStringArray;
-      FEnabled:Boolean;
-      FEnabledProperty:Integer;
-      FActiveTerminal:Integer;
-      FYPrimInvalid:Boolean;
-      FHandle:Integer;
+      FBusNames        : pStringArray;
+      FEnabled         : Boolean;
+      FEnabledProperty : Integer;
+      FActiveTerminal  : Integer;
+      FYPrimInvalid    : Boolean;
+      FHandle          : Integer;
 
       PROCEDURE Set_Freq(Value:Double);  // set freq and recompute YPrim.
 
@@ -47,9 +47,9 @@ TYPE
 
     Protected
 
-      Fnterms  :Integer;
-      Fnconds  :Integer;  // no. conductors per terminal
-      Fnphases :Integer;  // Phases, this device
+      Fnterms  : Integer;
+      Fnconds  : Integer;  // no. conductors per terminal
+      Fnphases : Integer;  // Phases, this device
 
 
       ComplexBuffer :pComplexArray;
@@ -68,26 +68,29 @@ TYPE
     public
 
       {Total Noderef array for element}
-      NodeRef :pIntegerArray;  // Need fast access to this
-      Yorder  :Integer;
-      LastTerminalChecked :Integer;  // Flag used in tree searches
+      NodeRef : pIntegerArray;  // Need fast access to this
+      Yorder  : Integer;
+
+      LastTerminalChecked : Integer;  // Flag used in tree searches
 
       Checked,
       HasEnergyMeter,
       HasSensorObj,
       IsIsolated,
       HasControl,
-      IsPartofFeeder  :Boolean;  // Flag used in tree searches etc
+      IsPartofFeeder    : Boolean;  // Flag used in tree searches etc
 
-      ControlElement  :TDSSCktElement; //Pointer to control for this device
-      
-      Iterminal:pComplexArray;  // Others need this
-      Vterminal:pComplexArray;
-      
-      BaseFrequency:Double;
+      HasOCPDevice      : Boolean; // Fuse, Relay, or Recloser
+      HasSwtControl     : Boolean; // Has a remotely-controlled Switch
+      ControlElement    : TDSSCktElement; //Pointer to control for this device
 
-      Terminals:pTerminalList;
-      ActiveTerminal: TPowerTerminal;
+      Iterminal : pComplexArray;  // Others need this
+      Vterminal : pComplexArray;
+
+      BaseFrequency  : Double;
+
+      Terminals      : pTerminalList;
+      ActiveTerminal : TPowerTerminal;
 
       PublicDataSize   : Integer;  // size of PublicDataStruct
       PublicDataStruct : Pointer;  // Generic Pointer to public data Block that may be access by other classes of elements
@@ -161,6 +164,7 @@ Begin
      FBusNames    := nil;
      Vterminal    := nil;
      Iterminal    := nil;  // present value of terminal current
+
      ComplexBuffer    := Nil;
      PublicDataStruct := Nil;   // pointer to fixed struct of data to be shared
      PublicDataSize   := 0;
@@ -173,15 +177,16 @@ Begin
      DSSObjType  := 0;
      Yorder      := 0;
 
-     YPrimInvalid := TRUE;
-     FEnabled     := TRUE;
+     YPrimInvalid   := TRUE;
+     FEnabled       := TRUE;
      HasEnergyMeter := FALSE;
      HasSensorObj   := FALSE;
+     HasOCPDevice   := FALSE;
+     HasSwtControl  := FALSE;
+     HasControl     := FALSE;
+     ControlElement := Nil;  // Init to no control on this element.
      IsPartofFeeder := False;
      IsIsolated     := FALSE;
-
-     ControlElement := Nil;  // Init to no control on this element.
-     HasControl     := FALSE;
 
      FActiveTerminal     := 1;
      LastTerminalChecked := 0;
@@ -210,8 +215,8 @@ Begin
 
     {Dispose YPrims}
     If Yprim_Series <> Nil then Yprim_Series.Free;
-    If Yprim_Shunt <> Nil  then Yprim_Shunt.Free;
-    If Yprim <> Nil        then Yprim.Free;
+    If Yprim_Shunt  <> Nil then Yprim_Shunt.Free;
+    If Yprim        <> Nil then Yprim.Free;
 
     Inherited Destroy;
 End;

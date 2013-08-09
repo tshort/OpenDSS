@@ -40,6 +40,8 @@ Procedure ExportProfile(FileNm:String; PhasesToPlot:Integer);
 Procedure ExportEventLog(FileNm:String);
 Procedure ExportVoltagesElements(FileNm:String);
 Procedure ExportGICMvar(FileNm:String);
+Procedure ExportBusLambdas(FileNm:String);
+
 
 
 
@@ -2022,7 +2024,7 @@ Begin
     End;
 
     Write(F, Format('"%s", ',  [DateTimeToStr(Now)]));
-    If ActiveCircuit <> Nil Then Write(F, Format('%s, ',  [ActiveCircuit.FCaseName]))
+    If ActiveCircuit <> Nil Then Write(F, Format('%s, ',  [ActiveCircuit.CaseName]))
                             Else Write(F, 'NONE, ');
 
     IF ActiveCircuit.Issolved Then Write(F,'SOLVED')
@@ -2394,6 +2396,34 @@ Begin
      GlobalResult := FileNm;
 
   Finally
+     CloseFile(F);
+  End;
+
+End;
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+Procedure ExportBusLambdas(FileNm:String);
+Var
+   F :TextFile;
+   i:Integer;
+
+
+Begin
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+     Writeln(F, 'Bus, Lambda, Num Interruptions');
+     With ActiveCircuit Do
+     For i := 1 to NumBuses Do
+       Begin
+           Writeln(F, Format('%s, %-13.11g, %-13.11g', [CheckForBlanks(Uppercase(BusList.Get(i))), Buses^[i].Lambda, Buses^[i].Num_Interrupt ]));
+       End;
+
+     GlobalResult := FileNm;
+
+  FINALLY
+
      CloseFile(F);
   End;
 

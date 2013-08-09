@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 99;
+     NumExecCommands = 100;
 
 Var
 
@@ -135,6 +135,7 @@ Begin
      ExecCommand[97] := 'Variable';
      ExecCommand[98] := 'ReprocessBuses';
      ExecCommand[99] := 'ClearBusMarkers';
+     ExecCommand[100] := 'LambdaCalc';
 
 
 
@@ -437,7 +438,7 @@ Begin
      CommandHelp[98] := 'Forces reprocessing of bus definitions whether there has been a change or not. Use for rebuilding meter zone lists ' +
                         'when a line length changes, for example or some other event that would not normally trigger an update to the bus list.';
      CommandHelp[99] := 'Clear all bus markers created with the AddBusMarker command.';
-
+     CommandHelp[100] := 'Perform first stage of reliability calcs: Failure rates and number of interruptions.';
 End;
 
 //----------------------------------------------------------------------------
@@ -653,6 +654,7 @@ Begin
        97: CmdResult := DoValVarCmd;
        98: ActiveCircuit.ReprocessBusDefs;
        99: Activecircuit.ClearBusMarkers;
+      100: CmdResult := DoLambdaCalcs;
      ELSE
        // Ignore excess parameters
      End;

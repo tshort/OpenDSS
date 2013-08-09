@@ -90,14 +90,14 @@ procedure TControlElem.Set_ControlledElement(const Value: TDSSCktElement);
 begin
 
   Try
-  // Check for reassignment
-    If Assigned(FControlledElement) Then  FControlledElement.HasControl := FALSE;
+      // Check for reassignment
+      If Assigned(FControlledElement) Then  FControlledElement.HasControl := FALSE;
   Finally
-  FControlledElement := Value;
-    If Assigned(FControlledElement) Then With FControlledElement Do Begin
-       HasControl := TRUE;
-       ControlElement := Self;
-    End;
+      FControlledElement := Value;
+        If Assigned(FControlledElement) Then With FControlledElement Do Begin
+           HasControl := TRUE;
+           ControlElement := Self;
+        End;
   End;
 end;
 

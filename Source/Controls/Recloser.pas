@@ -516,8 +516,11 @@ Begin
          IF   DevIndex>0   THEN Begin  // Both CktElement and monitored element must already exist
 
              ControlledElement := ActiveCircuit.CktElements.Get(DevIndex);
-
              ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Make the 1 st terminal active
+
+             ControlledElement.HasOCPDevice := TRUE;  // For Reliability calcs
+
+
              IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
              THEN Begin
                 PresentState := CTRL_CLOSE;

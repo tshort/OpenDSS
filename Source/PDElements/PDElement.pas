@@ -30,19 +30,20 @@ TYPE
        EmergAmps,
        FaultRate,  // annual faults per year
        PctPerm,    // percent of faults that are permanent in this element
+       Lambda,    // net failure rate for this branch
        AccumulatedLambda,  // accumulated failure rate for this branch
-       HrsToRepair   :Double;
+       HrsToRepair       : Double;
        FromTerminal,
-       ToTerminal   :Integer;  // Set by Meter zone for radial feeder
-       IsShunt      :Boolean;
+       ToTerminal        : Integer;  // Set by Meter zone for radial feeder
+       IsShunt           : Boolean;
 
-       NumCustomers  :Integer;
-       TotalCustomers :Integer;
+       NumCustomers      : Integer;
+       TotalCustomers    : Integer;
 
-       ParentPDElement :TPDElement;
+       ParentPDElement   : TPDElement;
 
-       MeterObj,   {Upline energymeter}
-       SensorObj   :TMeterElement; // Upline Sensor for this element  for allocation and estimation
+       MeterObj,                     {Upline energymeter}
+       SensorObj   : TMeterElement; // Upline Sensor for this element  for allocation and estimation
 
        Overload_UE,
        OverLoad_EEN  :double;  // Indicate amount of branch overload
@@ -52,6 +53,10 @@ TYPE
 
        PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
        PROCEDURE GetCurrents(Curr: pComplexArray); Override; // Get present values of terminal
+
+       PROCEDURE CalcLambda; virtual;  // Calc failure rates for section and buses
+       PROCEDURE AccumLambda;
+       PROCEDURE CalcNum_Int;  // Calc Number of Interruptions in forward sweep
 
        Property ExcesskVANorm[idxTerm:Integer] :Complex Read Get_ExcesskVANorm;
        Property ExcesskVAEmerg[idxTerm:Integer]:Complex Read Get_ExcesskVAEmerg;
@@ -64,20 +69,68 @@ implementation
 USES
     DSSClassDefs, DSSGlobals, Sysutils;
 
+{---------Summing Utility proc-------}
+procedure accumsum(var a, b : Double); Inline;
+Begin  a := a + b; End;
+{------------------------------------}
+
+procedure TPDElement.AccumLambda;
+
+begin
+
+    WITH ActiveCircuit Do Begin
+        {Get Lambda for TO bus and add it to this section failure rate}
+        AccumulatedLambda := Buses^[Terminals^[ToTerminal].BusRef].Lambda + Lambda;
+
+        {Compute accumulated to FROM Bus; if a fault interrupt, assume it isolates all downline faults}
+        If NOT HasOcpDevice Then Begin
+            // accumlate it to FROM bus
+            accumsum(Buses^[Terminals^[FromTerminal].BusRef].Lambda, AccumulatedLambda);
+        End;
+    End;
+
+end;
+
+procedure TPDElement.CalcLambda;   {Virtual function  -- LINE is different, for one}
+
+begin
+      {Default base algorithm for radial fault rate calculation}
+      {May be overridden by specific device class behavior}
+
+      Lambda := Faultrate * pctperm * 0.01;
+
+end;
+
+procedure TPDElement.CalcNum_Int;
+begin
+
+    With ActiveCircuit Do
+    Begin
+        // If no interrupting device then the downline bus will have the same num of interruptions
+        Buses^[Terminals^[ToTerminal].BusRef].Num_Interrupt :=  Buses^[Terminals^[FromTerminal].BusRef].Num_Interrupt;
+
+        // If Interrupting device (on FROM side)then downline will have additional interruptions
+        If HasOCPDevice Then Begin
+            accumsum(Buses^[Terminals^[ToTerminal].BusRef].Num_Interrupt, AccumulatedLambda);
+        End;
+    End;
+
+end;
 
 Constructor TPDElement.Create(ParClass:TDSSClass);
 Begin
     Inherited Create(ParClass);
 
-    IsShunt := False;
-    FromTerminal := 1;
-    NumCustomers := 0;
-    TotalCustomers := 0;
+    IsShunt          := FALSE;
+
+    FromTerminal     := 1;
+    NumCustomers     := 0;
+    TotalCustomers   := 0;
     AccumulatedLambda := 0.0;
-    SensorObj      := NIL;
-    MeterObj       := NIL;
-    ParentPDElement := NIL;
-    DSSObjType     := PD_ELEMENT;
+    SensorObj         := NIL;
+    MeterObj          := NIL;
+    ParentPDElement   := NIL;
+    DSSObjType        := PD_ELEMENT;
 End;
 
 destructor TPDElement.Destroy;

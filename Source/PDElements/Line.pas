@@ -94,21 +94,21 @@ TYPE
         SymComponentsModel   :Boolean;
         IsSwitch             :Boolean;
 
-        PROCEDURE GetLosses(Var TotalLosses, LoadLosses, NoLoadLosses:Complex); Override;
+        PROCEDURE GetLosses(Var TotalLosses, LoadLosses, NoLoadLosses:Complex);        Override;
         PROCEDURE GetSeqLosses(Var PosSeqLosses, NegSeqLosses, ZeroSeqLosses:complex); Override;
 
         constructor Create(ParClass:TDSSClass; const LineName:String);
         destructor Destroy; override;
 
-        PROCEDURE RecalcElementData;Override;
-        PROCEDURE CalcYPrim;Override;
+        PROCEDURE RecalcElementData; Override;
+        PROCEDURE CalcYPrim;         Override;
 
         PROCEDURE MakePosSequence;Override;  // Make a positive Sequence Model
-        FUNCTION  MergeWith(Var OtherLine:TLineObj; Series:Boolean):Boolean;
+        FUNCTION  MergeWith(Var OtherLine:TLineObj; Series:Boolean) : Boolean;
         Procedure UpdateControlElements(const NewName, OldName:String);
 
-        FUNCTION  GetPropertyValue(Index:Integer):String;Override;
-        PROCEDURE InitPropertyValues(ArrayOffset:Integer); Override;
+        FUNCTION  GetPropertyValue(Index:Integer) : String;  Override;
+        PROCEDURE InitPropertyValues(ArrayOffset:Integer);   Override;
         PROCEDURE DumpProperties(Var F:TextFile; Complete:Boolean);Override;
 
         // Public for the COM Interface
@@ -118,6 +118,9 @@ TYPE
         PROCEDURE FetchWireList(Const Code:String);
         PROCEDURE FetchCNCableList(Const Code:String);
         PROCEDURE FetchTSCableList(Const Code:String);
+
+        // Reliability calcs
+        PROCEDURE CalcLambda; Override;  // Calc failure rates for section and buses
 
         // CIM XML access
         property LineCodeSpecified: Boolean read FLineCodeSpecified;
@@ -285,6 +288,7 @@ Begin
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
+     PropertyHelp[NumPropsThisClass + 3] := 'Failure rate PER UNIT LENGTH per year. Length must be same units as LENGTH property.' ;
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -724,11 +728,11 @@ Begin
      Normamps := 400.0;
      EmergAmps := 600.0;
      PctPerm := 20.0;
-     FaultRate := 0.1;
+     FaultRate := 0.1; // per mile per year
      HrsToRepair := 3.0;
 
      SymComponentsChanged := False;
-     SymComponentsModel := True;
+     SymComponentsModel   := True;
 
      GeometrySpecified := False;
      GeometryCode      := '';
@@ -843,6 +847,14 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+procedure TLineObj.CalcLambda;
+begin
+  // inherited;
+
+  // Assume Faultrate specified in same units as length
+  Lambda := Faultrate * pctperm * 0.01 * Len;
+end;
+
 PROCEDURE TLineObj.CalcYPrim;
 
 VAR

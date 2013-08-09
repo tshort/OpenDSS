@@ -70,6 +70,7 @@ unit EnergyMeter;
 2/7/07  Fixed overload formulas
 9/18/08 Added load loss and no load loss registers  and aux registers
 11/8/08 Revamped TakeSample to fix bugs with Demand Interval reporting
+8/8/13  Added initial reliability calcs
 }
 
 {$WARN UNIT_PLATFORM OFF}
@@ -328,6 +329,8 @@ Type
         Procedure AllocateLoad;
         Procedure ReduceZone;  // Reduce Zone by eliminating buses and merging lines
         Procedure SaveZone(const dirname:String);
+
+        Procedure CalcLambdasAndNumInterrupts;
 
         FUNCTION  GetPropertyValue(Index:Integer):String;Override;
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
@@ -2230,6 +2233,35 @@ begin
        End;
 
      End;
+end;
+
+procedure TEnergyMeterObj.CalcLambdasAndNumInterrupts;
+Var
+    PD_Elem : TPDElement;
+    idx     : Integer;
+
+begin
+
+       If not assigned (SequenceList) Then Begin
+           DoSimpleMsg('Energymeter.' + Name + ' Zone not defined properly.', 52901);
+           Exit;
+       End;
+
+    // Backward sweep calculating failure rates
+       For idx := SequenceList.ListSize downto 1 Do
+       Begin
+         PD_Elem := SequenceList.Get(idx);
+         PD_Elem.CalcLambda;
+         PD_Elem.AccumLambda;
+       End;
+
+    // Forward sweep to get number of interruptions
+       For idx := 1 to SequenceList.ListSize Do
+       Begin
+         PD_Elem := SequenceList.Get(idx);
+         PD_Elem.CalcNum_Int;
+       End;
+
 end;
 
 function TEnergyMeterObj.GetPropertyValue(Index: Integer): String;

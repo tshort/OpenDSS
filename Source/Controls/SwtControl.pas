@@ -236,6 +236,9 @@ Begin
     Nphases := ControlledElement.NPhases;
     Nconds  := FNphases;
     ControlledElement.ActiveTerminalIdx := ElementTerminal;
+
+    ControlledElement.HasSwtControl := TRUE;  // For Reliability calcs
+
     if not Locked then
       Case PresentState of
         CTRL_OPEN: ControlledElement.Closed[0] := FALSE;

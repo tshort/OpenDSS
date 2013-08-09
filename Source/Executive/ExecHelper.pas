@@ -111,6 +111,7 @@ interface
          FUNCTION DoUpdateStorageCmd:Integer;
          FUNCTION DoPstCalc:Integer;
          FUNCTION DoValVarCmd:Integer;
+         FUNCTION DoLambdaCalcs:Integer;
 
          PROCEDURE DoSetNormal(pctNormal:Double);
 
@@ -3730,6 +3731,35 @@ Begin
      Reallocmem(PstArray, 0);
 End;
 
+FUNCTION DoLambdaCalcs:Integer;
+{Execute fault rate and bus number of interruptions calc}
+
+Var pMeter : TEnergyMeterObj;
+    i      : Integer;
+
+Begin
+      Result := 0;
+
+// Do for each Energymeter object in active circuit
+      pMeter := ActiveCircuit.EnergyMeters.First;
+      If pMeter=nil Then Begin
+        DoSimpleMsg('No EnergyMeter Objects Defined. EnergyMeter objects required for this function.',28724);
+        Exit;
+      End;
+
+       // initialize bus quantities
+       With ActiveCircuit Do
+       For i := 1 to NumBuses Do
+         With Buses^[i] Do Begin
+            Lambda        := 0.0;
+            Num_Interrupt := 0.0;
+         End;
+
+      while pMeter <> Nil do Begin
+         pMeter.CalcLambdasAndNumInterrupts;
+         pMeter := ActiveCircuit.EnergyMeters.Next;
+      End;
+End;
 
 
 initialization

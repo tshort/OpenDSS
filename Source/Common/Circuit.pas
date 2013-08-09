@@ -60,6 +60,7 @@ TYPE
           NodeBufferMax     :Integer;
           FBusNameRedefined :Boolean;
           FActiveCktElement :TDSSCktElement;
+          FCaseName         :String;
 
           // Temp arrays for when the bus swap takes place
           SavedBuses    :pTBusArray;
@@ -98,7 +99,6 @@ TYPE
 
 
       Public
-          FCaseName:String;
 
           ActiveBusIndex :Integer;
           Fundamental    :Double;    // fundamental and default base frequency
@@ -243,14 +243,14 @@ TYPE
           Procedure ClearBusMarkers;
 
           Procedure TotalizeMeters;
-          Function ComputeCapacity:Boolean;
+          Function ComputeCapacity : Boolean;
 
-          Function Save(Dir:String):Boolean;
+          Function Save(Dir:String): Boolean;
 
           Procedure ProcessBusDefs;
           Procedure ReProcessBusDefs;
           Procedure DoResetMeterZones;
-          Function  SetElementActive(Const FullObjectName:String):Integer;
+          Function  SetElementActive(Const FullObjectName:String) : Integer;
           Procedure InvalidateAllPCElements;
 
           Procedure DebugDump(Var F:TextFile);
@@ -261,12 +261,12 @@ TYPE
           Function GetBusAdjacentPDLists: TAdjArray;
           Function GetBusAdjacentPCLists: TAdjArray;
 
-          property Name             :String   Read Get_Name;
-          Property CaseName         :String   Read FCaseName Write Set_CaseName;
-          Property ActiveCktElement :TDSSCktElement Read FActiveCktElement Write Set_ActiveCktElement;
-          Property Losses           :Complex Read Get_Losses;  // Total Circuit PD Element losses
-          Property BusNameRedefined :Boolean  Read FBusNameRedefined Write Set_BusNameRedefined;
-          Property LoadMultiplier   :Double  Read FLoadMultiplier write Set_LoadMultiplier;
+          property Name             : String         Read Get_Name;
+          Property CaseName         : String         Read FCaseName         Write Set_CaseName;
+          Property ActiveCktElement : TDSSCktElement Read FActiveCktElement Write Set_ActiveCktElement;
+          Property Losses           : Complex        Read Get_Losses;  // Total Circuit PD Element losses
+          Property BusNameRedefined : Boolean        Read FBusNameRedefined Write Set_BusNameRedefined;
+          Property LoadMultiplier   : Double         Read FLoadMultiplier   write Set_LoadMultiplier;
 
       End;
 
@@ -295,9 +295,9 @@ BEGIN
      CaseName    := aName;  // Default case name to circuitname
                             // Sets CircuitName_
 
-     Fundamental  := DefaultBaseFreq;
+     Fundamental      := DefaultBaseFreq;
      ActiveCktElement := nil;
-     ActiveBusIndex := 1;    // Always a bus
+     ActiveBusIndex   := 1;    // Always a bus
 
      // initial allocations increased from 100 to 1000 to speed things up
 
@@ -309,40 +309,40 @@ BEGIN
      IncNodes   := 3000;
 
      // Allocate some nominal sizes
-     BusList    := THashList.Create(900);  // Bus name list Nominal size to start; gets reallocated
-     DeviceList := THashList.Create(900);
+     BusList        := THashList.Create(900);  // Bus name list Nominal size to start; gets reallocated
+     DeviceList     := THashList.Create(900);
      AutoAddBusList := THashList.Create(100);
 
      NumBuses   := 0;  // Eventually allocate a single source
      NumDevices := 0;
      NumNodes   := 0;
 
-     Faults       := TPointerList.Create(2);
-     CktElements  := TPointerList.Create(1000);
-     PDElements   := TPointerList.Create(1000);
-     PCElements   := TPointerList.Create(1000);
-     DSSControls  := TPointerList.Create(10);
-     Sources      := TPointerList.Create(10);
-     MeterElements:= TPointerList.Create(20);
-     Monitors     := TPointerList.Create(20);
-     EnergyMeters := TPointerList.Create(5);
-     Sensors      := TPointerList.Create(5);
-     Generators   := TPointerList.Create(5);
+     Faults          := TPointerList.Create(2);
+     CktElements     := TPointerList.Create(1000);
+     PDElements      := TPointerList.Create(1000);
+     PCElements      := TPointerList.Create(1000);
+     DSSControls     := TPointerList.Create(10);
+     Sources         := TPointerList.Create(10);
+     MeterElements   := TPointerList.Create(20);
+     Monitors        := TPointerList.Create(20);
+     EnergyMeters    := TPointerList.Create(5);
+     Sensors         := TPointerList.Create(5);
+     Generators      := TPointerList.Create(5);
      StorageElements := TPointerList.Create(5);
-     PVSystems := TPointerList.Create(5);
-     Feeders   := TPointerList.Create(10);
-     Substations  := TPointerList.Create(5);
-     Transformers := TPointerList.Create(10);
-     CapControls  := TPointerList.Create(10);
-     SwtControls  := TPointerList.Create(50);
-     RegControls  := TPointerList.Create(5);
-     Lines        := TPointerList.Create(1000);
-     Loads        := TPointerList.Create(1000);
-     ShuntCapacitors :=  TPointerList.Create(20);
+     PVSystems       := TPointerList.Create(5);
+     Feeders         := TPointerList.Create(10);
+     Substations     := TPointerList.Create(5);
+     Transformers    := TPointerList.Create(10);
+     CapControls     := TPointerList.Create(10);
+     SwtControls     := TPointerList.Create(50);
+     RegControls     := TPointerList.Create(5);
+     Lines           := TPointerList.Create(1000);
+     Loads           := TPointerList.Create(1000);
+     ShuntCapacitors := TPointerList.Create(20);
 
-     Buses     := Allocmem(Sizeof(Buses^[1])     * Maxbuses);
+     Buses        := Allocmem(Sizeof(Buses^[1])        * Maxbuses);
      MapNodeToBus := Allocmem(Sizeof(MapNodeToBus^[1]) * MaxNodes);
-     DeviceRef := AllocMem(SizeOf(DeviceRef^[1]) * MaxDevices);
+     DeviceRef    := AllocMem(SizeOf(DeviceRef^[1])    * MaxDevices);
 
      ControlQueue := TControlQueue.Create;
 
@@ -364,22 +364,22 @@ BEGIN
 
      // Init global circuit load and harmonic source multipliers
      FLoadMultiplier := 1.0;
-     GenMultiplier := 1.0;
-     HarmMult := 1.0;
+     GenMultiplier   := 1.0;
+     HarmMult        := 1.0;
 
-     PriceSignal := 25.0;   // $25/MWH
+     PriceSignal     := 25.0;   // $25/MWH
 
      // Factors for Autoadd stuff
-     UEWeight   := 1.0;  // Default to weighting UE same as losses
-     LossWeight := 1.0;
-     NumUEregs  := 1;
-     NumLossRegs := 1;
-     UEregs   := nil;  // set to something so it wont break reallocmem
-     LossRegs := nil;
+     UEWeight       := 1.0;  // Default to weighting UE same as losses
+     LossWeight     := 1.0;
+     NumUEregs      := 1;
+     NumLossRegs    := 1;
+     UEregs         := nil;  // set to something so it wont break reallocmem
+     LossRegs       := nil;
      Reallocmem(UEregs, sizeof(UEregs^[1])*NumUEregs);
      Reallocmem(Lossregs, sizeof(Lossregs^[1])*NumLossregs);
-     UEregs^[1]      := 10;   // Overload UE
-     LossRegs^[1]    := 13;   // Zone Losses
+     UEregs^[1]     := 10;   // Overload UE
+     LossRegs^[1]   := 13;   // Zone Losses
 
      CapacityStart := 0.9;     // for Capacity search
      CapacityIncrement := 0.005;
@@ -430,8 +430,8 @@ BEGIN
      LogEvents := FALSE;
 
      GeneratorDispatchReference := 0.0;
-     DefaultGrowthRate := 1.025;
-     DefaultGrowthFactor := 1.0;
+     DefaultGrowthRate          := 1.025;
+     DefaultGrowthFactor        := 1.0;
 
      DefaultDailyShapeObj  := LoadShapeClass.Find('default');
      DefaultYearlyShapeObj := LoadShapeClass.Find('default');
@@ -440,19 +440,19 @@ BEGIN
 
      BusNameRedefined := True;  // set to force rebuild of buslists, nodelists
 
-     SavedBuses:= nil;
+     SavedBuses    := nil;
      SavedBusNames := nil;
 
      ReductionStrategy := rsDefault;
      ReductionMaxAngle := 15.0;
-     ReductionZmag := 0.02;
+     ReductionZmag     := 0.02;
 
    {Misc objects}
    AutoAddObj := TAutoAdd.Create;
 
    Branch_List := nil;
-   BusAdjPC := nil;
-   BusAdjPD := nil;
+   BusAdjPC    := nil;
+   BusAdjPD    := nil;
 END;
 
 //----------------------------------------------------------------------------

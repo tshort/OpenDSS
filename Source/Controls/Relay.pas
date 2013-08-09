@@ -526,24 +526,24 @@ Begin
 
      RelayTarget := '';
 
-    PhaseCurve       := NIL;
-    GroundCurve       := NIL;
-    OVCurve        := NIL;
-    UVcurve        := NIL;
-    PhaseTrip      := 1.0;
-    GroundTrip     := 1.0;
-    TDPhase        := 1.0;
-    TDGround       := 1.0;
-    PhaseInst      := 0.0;
-    GroundInst     := 0.0;
-    ResetTime      := 15.0;
-    NumReclose     := 3;
-    RecloseIntervals := NIL;
+      PhaseCurve       := NIL;
+      GroundCurve       := NIL;
+      OVCurve        := NIL;
+      UVcurve        := NIL;
+      PhaseTrip      := 1.0;
+      GroundTrip     := 1.0;
+      TDPhase        := 1.0;
+      TDGround       := 1.0;
+      PhaseInst      := 0.0;
+      GroundInst     := 0.0;
+      ResetTime      := 15.0;
+      NumReclose     := 3;
+      RecloseIntervals := NIL;
 
-    Reallocmem(RecloseIntervals, SizeOf(RecloseIntervals^[1])*4); // fixed allocation of 4
-    RecloseIntervals^[1] := 0.5;
-    RecloseIntervals^[2] := 2.0;
-    RecloseIntervals^[3] := 2.0;
+      Reallocmem(RecloseIntervals, SizeOf(RecloseIntervals^[1])*4); // fixed allocation of 4
+      RecloseIntervals^[1] := 0.5;
+      RecloseIntervals^[2] := 2.0;
+      RecloseIntervals^[3] := 2.0;
 
 
      PresentState  := CTRL_CLOSE;
@@ -643,6 +643,9 @@ Begin
            Begin  // Both CktElement and monitored element must already exist
              ControlledElement := ActiveCircuit.CktElements.Get(DevIndex);
              ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Make the 1 st terminal active
+
+             ControlledElement.HasOCPDevice := TRUE;  // For Reliability calcs
+
              IF  ControlledElement.Closed [0]  THEN    // Check state of phases of active terminal
                Begin
                 PresentState := CTRL_CLOSE;

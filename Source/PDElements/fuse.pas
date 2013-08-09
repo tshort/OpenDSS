@@ -18,7 +18,6 @@ unit Fuse;
 
   CktElement to be controlled must already exist.
 
-
 }
 
 INTERFACE
@@ -408,15 +407,17 @@ Begin
                ControlledElement := ActiveCircuit.CktElements.Get(DevIndex);
                ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Make the 1 st terminal active
 
+               ControlledElement.HasOCPDevice := TRUE;  // For Reliability calcs
+
                For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do
                  IF  ControlledElement.Closed [i]      // Check state of i-th phase of active terminal
                  THEN
                    Begin
-                    PresentState[i] := CTRL_CLOSE;
+                       PresentState[i] := CTRL_CLOSE;
                    End
                  ELSE
                    Begin
-                    PresentState[i] := CTRL_OPEN;
+                       PresentState[i] := CTRL_OPEN;
                    End;
                For i := 1 to ControlledElement.Nphases Do hAction[i] := 0;
                For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do ReadyToBlow[i] := FALSE;
