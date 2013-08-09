@@ -12,6 +12,7 @@ USES
 TYPE
   TVSConverter = class(TPCClass)
     private
+      Procedure VscSetBus1(const S:String);
     Protected
       Procedure DefineProperties;
       Function MakeLike(Const VSCName:String):Integer;Override;
@@ -150,6 +151,23 @@ begin
   end;
 end;
 
+procedure TVSConverter.VscSetBus1(const S: String);
+var
+  s2:String;
+  i, dotpos:Integer;
+begin
+  with ActiveVSconverterObj do begin
+    SetBus(1, S);
+    dotpos := Pos('.',S);
+    if dotpos>0 then
+      S2 := Copy(S,1,dotpos-1)
+    else
+      S2 := Copy(S,1,Length(S));
+    for i := 1 to Fnphases do S2 := S2 + '.0';
+    SetBus(2, S2); // default setting for Bus2=Bus1.0.0.0.0
+  end;
+end;
+
 Function TVSConverter.Edit:Integer;
 var
   ParamPointer:Integer;
@@ -171,7 +189,7 @@ begin
       if (ParamPointer>0) and (ParamPointer<=NumProperties) then PropertyValue[ParamPointer]:= Param;
       case ParamPointer of
         0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 350);
-        1: SetBus(1, param);
+        1: VscSetBus1(param);
         2: if Fnphases <> Parser.IntValue then begin
              Nphases := Parser.IntValue ;
              NConds := Fnphases;
@@ -279,7 +297,7 @@ begin
   // typically the first 3 "phases" are AC, and the last one is DC
   NPhases := 4;
   Fnconds := 4;
-  Nterms := 1;
+  Nterms := 2; // two-terminal device, like the voltage source
   FNdc := 1;
 
   Fmode := VSC_FIXED;
@@ -416,16 +434,17 @@ begin
 
   // do the AC voltage source injection
   RotatePhasorDeg(Vscale, 1.0, Fd);
-  Vterminal^[1] := Vscale;
+//  Vterminal^[1] := Vscale;
   RotatePhasorDeg(Vscale, 1.0, -120.0);
-  Vterminal^[2] := Vscale;
+//  Vterminal^[2] := Vscale;
   RotatePhasorDeg(Vscale, 1.0, -120.0);
-  Vterminal^[3] := Vscale;
-  Vterminal^[4] := CZERO;
+//  Vterminal^[3] := Vscale;
+//  Vterminal^[4] := CZERO;
   YPrim.MVMult(Curr, Vterminal);
 
   // do the DC current source injection
   Idc := CdivReal (Vdc, Pac);
+  Idc := cmplx (160.0, 0.0);
   Curr^[4] := Idc;
   ITerminalUpdated := FALSE;
 end;
