@@ -67,7 +67,7 @@ TYPE
 implementation
 
 USES
-    DSSClassDefs, DSSGlobals, Sysutils;
+    DSSClassDefs, DSSGlobals, Sysutils, Bus;
 
 {---------Summing Utility proc-------}
 procedure accumsum(var a, b : Double); Inline;
@@ -76,6 +76,9 @@ Begin  a := a + b; End;
 
 procedure TPDElement.AccumLambda;
 
+Var
+    FromBus : TDSSBus;
+
 begin
 
     WITH ActiveCircuit Do Begin
@@ -83,11 +86,12 @@ begin
 
         {Get Lambda for TO bus and add it to this section failure rate}
         AccumulatedLambda := Buses^[Terminals^[ToTerminal].BusRef].Lambda + Lambda;
-
+        FromBus :=   Buses^[Terminals^[FromTerminal].BusRef];
+        FromBus.NumCustomers := TotalCustomers;
         {Compute accumulated to FROM Bus; if a fault interrupt, assume it isolates all downline faults}
         If NOT HasOcpDevice Then Begin
             // accumlate it to FROM bus
-            accumsum(Buses^[Terminals^[FromTerminal].BusRef].Lambda, AccumulatedLambda);
+            accumsum(FromBus.Lambda, AccumulatedLambda);
         End;
     End;
 
@@ -110,11 +114,15 @@ begin
     Begin
         If FromTerminal = 2 Then Toterminal := 1 Else ToTerminal := 2;
         // If no interrupting device then the downline bus will have the same num of interruptions
-        Buses^[Terminals^[ToTerminal].BusRef].Num_Interrupt :=  Buses^[Terminals^[FromTerminal].BusRef].Num_Interrupt;
+        With Buses^[Terminals^[ToTerminal].BusRef] Do Begin
+            Num_Interrupt  :=  Buses^[Terminals^[FromTerminal].BusRef].Num_Interrupt;
 
-        // If Interrupting device (on FROM side)then downline will have additional interruptions
-        If HasOCPDevice Then Begin
-            accumsum(Buses^[Terminals^[ToTerminal].BusRef].Num_Interrupt, AccumulatedLambda);
+            // If Interrupting device (on FROM side)then downline will have additional interruptions
+            If HasOCPDevice Then Begin
+                accumsum(Num_Interrupt, AccumulatedLambda);
+            End;
+            // compute number of cust interruptsat to bus
+            CustInterrupts :=  Num_Interrupt * NumCustomers;
         End;
     End;
 

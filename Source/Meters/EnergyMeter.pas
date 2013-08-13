@@ -2283,6 +2283,7 @@ begin
        PD_Elem := SequenceList.Get(1);
        pBus := ActiveCircuit.Buses^[PD_Elem.Terminals^[PD_Elem.FromTerminal].BusRef];
        pBus.Num_Interrupt := NumInterruptions;
+       pBus.CustInterrupts := NumInterruptions * pBus.NumCustomers;
        pBus.Int_Duration := Interruptionduration;
        For idx := 1 to SequenceList.ListSize Do
        Begin

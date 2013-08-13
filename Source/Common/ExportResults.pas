@@ -47,7 +47,7 @@ Procedure ExportBusLambdas(FileNm:String);
 
 IMPLEMENTATION
 
-Uses uComplex,  Arraydef, sysutils,   Circuit, DSSClassDefs, DSSGlobals,
+Uses uComplex,  Arraydef, System.sysutils,   Circuit, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution, CktElement, Utilities, Bus, MathUtil, DSSClass,
      PDElement, PCElement, Generator, EnergyMeter, Sensor, Load, RegControl,
      ParserDel, Math, Ymatrix, LineGeometry, WireData, LineCode, XfmrCode, NamedObject,
@@ -2413,11 +2413,13 @@ Begin
   Try
      Assignfile(F, FileNm);
      ReWrite(F);
-     Writeln(F, 'Bus, Lambda, Num Interruptions');
+     Writeln(F, 'Bus, Lambda, Num Interruptions, Num Customers, Num Cust Interrupts');
      With ActiveCircuit Do
      For i := 1 to NumBuses Do
+       With Buses^[i] Do
        Begin
-           Writeln(F, Format('%s, %-13.11g, %-13.11g', [CheckForBlanks(Uppercase(BusList.Get(i))), Buses^[i].Lambda, Buses^[i].Num_Interrupt ]));
+           Writeln(F, Format('%s, %-13.11g, %-13.11g, %d, %-13.11g',
+              [CheckForBlanks(Uppercase(BusList.Get(i))), Lambda, Num_Interrupt, NumCustomers, CustInterrupts ]));
        End;
 
      GlobalResult := FileNm;

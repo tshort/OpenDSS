@@ -49,10 +49,9 @@ TYPE
        Lambda       : Double;  // Accumulated failure rate  downstream from this bus faults per year
        Num_Interrupt: Double;  // Number of interruptions this bus per year
        Int_Duration : Double; // Avg Annual Interruption duration for this bus
-       BusSAIFI     : Double; // Average numbe of customer interruptions from this bus
-       BusSAIDI     : Double; // Average interruption duration
-       NumCustomers : Integer;
-
+       CustInterrupts : Double; // Accumulated Number of customer interruptions from this bus
+       CustDurations  : Double; // Accumulated Customer outage durations
+       NumCustomers   : Integer;  // Total Number of customers served from this bus
 
        constructor Create;
        destructor  Destroy; override;
@@ -73,11 +72,9 @@ TYPE
 
    end;
 
-
    // Bus Collection
    pTBusArray = ^TBusArray;
    TBusArray = Array[1..10] of TDSSBus;
-
 
    TNodeBus = Record
        BusRef :Integer;   // Ref to Bus in circuit's BusList
@@ -85,8 +82,6 @@ TYPE
    end;
    pTNodeBusArray = ^TNodeBusArray;
    TNodeBusArray = Array[1..2] of TNodeBus;
-
-
 
 implementation
 
@@ -110,8 +105,8 @@ Begin
     DistFromMeter    := 0.0;
     Lambda           := 0.0;  // accummulated failure rate
     Int_Duration     := 0.0;
-    BusSAIFI         := 0.0; // Average numbe of customer interruptions from this bus
-    BusSAIDI         := 0.0; // Average interruption duration
+    CustInterrupts   := 0.0; // Accumulated Number of customer interruptions from this bus
+    CustDurations    := 0.0; // Accumulated Customer outage durations
     NumCustomers     := 0;
     CoordDefined     := FALSE;
     Keep             := FALSE;
