@@ -308,6 +308,11 @@ Type
         Derivatives    :TRegisterArray;
         TotalsMask     :TRegisterArray;
 
+        // Reliability data for Head of Zone
+        SAIFI   : Double;     // For this Zone
+        SAIDI   : Double;
+        NumInterruptions     : Double; // Annual interruptions for upline circuit
+        InterruptionDuration : Double; // Aver interruption duration of upline circuit
 
         constructor Create(ParClass:TDSSClass; const EnergyMeterName:String);
         destructor Destroy; override;
@@ -349,7 +354,7 @@ USES  ParserDel, DSSClassDefs, DSSGlobals, Bus, Sysutils, MathUtil,  UCMatrix,
       Classes, ReduceAlgs, Windows, Math;
 
 
-Const NumPropsThisClass = 17;
+Const NumPropsThisClass = 19;
 
 VAR
 
@@ -432,6 +437,8 @@ Begin
      PropertyName^[15] := '3phaseLosses';
      PropertyName^[16] := 'VbaseLosses'; // segregate losses by voltage base
      PropertyName^[17] := 'PhaseVoltageReport'; // Compute Avg phase voltages in zone
+     PropertyName^[18] := 'InterruptionRate';
+     PropertyName^[19] := 'Int_Duration';
 
 {     PropertyName^[11] := 'Feeder';  **** removed - not used}
 
@@ -482,6 +489,8 @@ Begin
       PropertyHelp[17]:= '{Yes | No}  Default is NO.  Report min, max, and average phase voltages for the zone and tabulate by voltage base. ' +
                          'Demand Intervals must be turned on (Set Demand=true) and voltage bases must be defined for this property to take effect. '+
                          'Result is in a separate report file.';
+      PropertyHelp[18]:= 'Average number of annual interruptions for head of the meter zone (source side of zone or feeder).';
+      PropertyHelp[19]:= 'Average annual duration (hr) of interruptions for head of the meter zone.';
 
       (**** Not used in present version      PropertyHelp[11]:= '{Yes/True | No/False}  Default is NO. If set to Yes, a Feeder object is created corresponding to ' +
                          'the energymeter.  Feeder is enabled if Radial=Yes; diabled if Radial=No.  Feeder is ' +
@@ -569,7 +578,9 @@ Begin
            14: FSeqLosses     := InterpretYesNo(Param);
            15: F3PhaseLosses  := InterpretYesNo(Param);
            16: FVBaseLosses   := InterpretYesNo(Param);
-           17: FPhaseVoltageReport := InterpretYesNo(Param);
+           17: FPhaseVoltageReport  := InterpretYesNo(Param);
+           18: NumInterruptions     := Parser.dblvalue; // Annual interruptions for upline circuit
+           19: InterruptionDuration := Parser.dblValue; // hours
            (****11: HasFeeder := InterpretYesNo(Param); ***)
          ELSE
            ClassEdit(ActiveEnergyMeterObj, ParamPointer - NumPropsthisClass)
@@ -614,6 +625,10 @@ Begin
 
        MaxZonekVA_Norm  := OtherEnergyMeter.MaxZonekVA_Norm;
        MaxZonekVA_Emerg := OtherEnergyMeter.MaxZonekVA_emerg;
+
+       // Reliability
+       NumInterruptions := OtherEnergyMeter.NumInterruptions;
+       InterruptionDuration := OtherEnergyMeter.InterruptionDuration;
 
        FreeStringArray(DefinedZoneList, DefinedZoneListSize);
        DefinedZoneListSize    := OtherEnergyMeter.DefinedZoneListSize;
@@ -846,6 +861,13 @@ Begin
      MaxZonekVA_Norm     := 0.0;
      MaxZonekVA_Emerg    := 0.0;
 
+     // Zone reliability variables
+     SAIFI   := 0.0;     // For this Zone
+     SAIDI   := 0.0;
+     NumInterruptions     := 0.0; // Annual interruptions for upline circuit
+     InterruptionDuration := 0.0; // Aver interruption duration of upline circuit
+
+
      ZoneIsRadial        := True;
      HasFeeder           := FALSE; // Not used; leave as False
      FeederObj           := Nil;  // initialize to not assigned
@@ -858,13 +880,13 @@ Begin
      FSeqLosses          := TRUE;
      F3PhaseLosses       := TRUE;
      FVBaseLosses        := TRUE;
-     FPhaseVoltageReport      := FALSE;
+     FPhaseVoltageReport := FALSE;
      VbaseList           := NIL;
      VBaseTotalLosses    := NIL;
      VBaseLineLosses     := NIL;
      VBaseLoadLosses     := NIL;
      VBaseNoLoadLosses   := NIL;
-     VBaseLoad         := NIL;
+     VBaseLoad           := NIL;
      VBaseCount          := 0;
      MaxVBaseCount       := (NumEMRegisters - Reg_VBaseStart) div 5;
      ReallocMem(VBaseList, MaxVBaseCount * SizeOf(VBaseList^[1]));
@@ -2239,6 +2261,7 @@ procedure TEnergyMeterObj.CalcLambdasAndNumInterrupts;
 Var
     PD_Elem : TPDElement;
     idx     : Integer;
+    pBus    : TDSSBus;
 
 begin
 
@@ -2256,6 +2279,11 @@ begin
        End;
 
     // Forward sweep to get number of interruptions
+       // Initialize number of interruptions and Duration
+       PD_Elem := SequenceList.Get(1);
+       pBus := ActiveCircuit.Buses^[PD_Elem.Terminals^[PD_Elem.FromTerminal].BusRef];
+       pBus.Num_Interrupt := NumInterruptions;
+       pBus.Int_Duration := Interruptionduration;
        For idx := 1 to SequenceList.ListSize Do
        Begin
          PD_Elem := SequenceList.Get(idx);

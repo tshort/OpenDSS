@@ -45,9 +45,14 @@ TYPE
        Keep,
        IsRadialBus  :Boolean;  // Flag for general use in bus searches
 
+       // ***** Reliability Variables
        Lambda       : Double;  // Accumulated failure rate  downstream from this bus faults per year
        Num_Interrupt: Double;  // Number of interruptions this bus per year
        Int_Duration : Double; // Avg Annual Interruption duration for this bus
+       BusSAIFI     : Double; // Average numbe of customer interruptions from this bus
+       BusSAIDI     : Double; // Average interruption duration
+       NumCustomers : Integer;
+
 
        constructor Create;
        destructor  Destroy; override;
@@ -105,6 +110,9 @@ Begin
     DistFromMeter    := 0.0;
     Lambda           := 0.0;  // accummulated failure rate
     Int_Duration     := 0.0;
+    BusSAIFI         := 0.0; // Average numbe of customer interruptions from this bus
+    BusSAIDI         := 0.0; // Average interruption duration
+    NumCustomers     := 0;
     CoordDefined     := FALSE;
     Keep             := FALSE;
     IsRadialBus      := FALSE;
