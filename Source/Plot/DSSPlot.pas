@@ -531,7 +531,7 @@ begin
 
       { ******************  Code for special Bus Markers ************************** }
 
-      AddBusMarkers;
+   //   AddBusMarkers;
 
 
 
@@ -2879,22 +2879,15 @@ procedure TDSSPlot.MarkSpecialClasses;
 }
 begin
 
-{Transformers}
-     If ActiveCircuit.MarkTransformers Then
-        MarkTheTransformers;
-     If ActiveCircuit.MarkCapacitors Then
-        MarkTheCapacitors;
-     If ActiveCircuit.MarkRegulators Then
-        MarkTheRegulators;
-     If ActiveCircuit.MarkPVSystems Then
-        MarkThePVSystems;
-     If ActiveCircuit.MarkStorage Then
-        MarkTheStorage;
+     If ActiveCircuit.MarkTransformers Then MarkTheTransformers;
+     If ActiveCircuit.MarkCapacitors   Then MarkTheCapacitors;
+     If ActiveCircuit.MarkRegulators   Then MarkTheRegulators;
+     If ActiveCircuit.MarkPVSystems    Then MarkThePVSystems;
+     If ActiveCircuit.MarkStorage      Then MarkTheStorage;
 
-     If ShowSubs Then
-        MarkSubTransformers;
+     If ShowSubs Then MarkSubTransformers;
 
-
+     AddBusMarkers;
 
 end;
 
@@ -3210,7 +3203,7 @@ begin
       End;
 
 
-   AddBusMarkers; // Add default bus markers to line plot
+   // AddBusMarkers; // Add default bus markers to line plot
 
 end;
 
