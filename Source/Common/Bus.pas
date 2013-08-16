@@ -51,7 +51,7 @@ TYPE
        Int_Duration : Double; // Avg Annual Interruption duration for this bus
        CustInterrupts : Double; // Accumulated Number of customer interruptions from this bus
        CustDurations  : Double; // Accumulated Customer outage durations
-       NumCustomers   : Integer;  // Total Number of customers served from this bus
+       TotalNumCustomers   : Integer;  // Total Number of customers served from this bus
 
        constructor Create;
        destructor  Destroy; override;
@@ -107,7 +107,7 @@ Begin
     Int_Duration     := 0.0;
     CustInterrupts   := 0.0; // Accumulated Number of customer interruptions from this bus
     CustDurations    := 0.0; // Accumulated Customer outage durations
-    NumCustomers     := 0;
+    TotalNumCustomers     := 0;
     CoordDefined     := FALSE;
     Keep             := FALSE;
     IsRadialBus      := FALSE;

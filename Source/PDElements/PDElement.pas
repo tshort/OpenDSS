@@ -57,6 +57,8 @@ TYPE
        PROCEDURE CalcLambda; virtual;  // Calc failure rates for section and buses
        PROCEDURE AccumLambda;
        PROCEDURE CalcNum_Int;  // Calc Number of Interruptions in forward sweep
+       PROCEDURE CalcN_Lambda;
+       PROCEDURE ZeroReliabilityAccums; // Zero out reliability accumulators
 
        Property ExcesskVANorm[idxTerm:Integer] :Complex Read Get_ExcesskVANorm;
        Property ExcesskVAEmerg[idxTerm:Integer]:Complex Read Get_ExcesskVAEmerg;
@@ -70,7 +72,7 @@ USES
     DSSClassDefs, DSSGlobals, Sysutils, Bus;
 
 {---------Summing Utility proc-------}
-procedure accumsum(var a, b : Double); Inline;
+procedure accumsum(var a : Double; b : Double); Inline;
 Begin  a := a + b; End;
 {------------------------------------}
 
@@ -87,7 +89,7 @@ begin
         {Get Lambda for TO bus and add it to this section failure rate}
         AccumulatedLambda := Buses^[Terminals^[ToTerminal].BusRef].Lambda + Lambda;
         FromBus :=   Buses^[Terminals^[FromTerminal].BusRef];
-        FromBus.NumCustomers := TotalCustomers;
+        FromBus.TotalNumCustomers := TotalCustomers;
         {Compute accumulated to FROM Bus; if a fault interrupt, assume it isolates all downline faults}
         If NOT HasOcpDevice Then Begin
             // accumlate it to FROM bus
@@ -107,6 +109,14 @@ begin
 
 end;
 
+procedure TPDElement.CalcN_Lambda;
+Var
+   FromBus : TDSSBus;
+begin
+     FromBus := ActiveCircuit.Buses^[Terminals^[FromTerminal].BusRef];
+     WITH  FromBus Do accumsum(CustInterrupts, Num_Interrupt * TotalCustomers);
+end;
+
 procedure TPDElement.CalcNum_Int;
 begin
 
@@ -121,8 +131,6 @@ begin
             If HasOCPDevice Then Begin
                 accumsum(Num_Interrupt, AccumulatedLambda);
             End;
-            // compute number of cust interruptsat to bus
-            CustInterrupts :=  Num_Interrupt * NumCustomers;
         End;
     End;
 
@@ -246,5 +254,21 @@ begin
 
 end;
 
+
+procedure TPDElement.ZeroReliabilityAccums;
+Var
+   FromBus : TDSSBus;
+
+begin
+     FromBus := ActiveCircuit.Buses^[Terminals^[FromTerminal].BusRef];
+     WITH  FromBus Do Begin
+          CustInterrupts := 0.0;
+          Lambda         := 0.0;
+          TotalNumCustomers   := 0;
+          CustDurations  := 0.0;
+          Num_Interrupt  := 0.0;
+     End;
+
+end;
 
 end.

@@ -40,8 +40,8 @@ Procedure ExportProfile(FileNm:String; PhasesToPlot:Integer);
 Procedure ExportEventLog(FileNm:String);
 Procedure ExportVoltagesElements(FileNm:String);
 Procedure ExportGICMvar(FileNm:String);
-Procedure ExportBusLambdas(FileNm:String);
-
+Procedure ExportBusReliability(FileNm:String);
+Procedure ExportBranchReliability(FileNm:String);
 
 
 
@@ -2402,24 +2402,23 @@ Begin
 End;
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-Procedure ExportBusLambdas(FileNm:String);
+Procedure ExportBusReliability(FileNm:String);
 Var
    F :TextFile;
    i:Integer;
-
 
 Begin
 
   Try
      Assignfile(F, FileNm);
      ReWrite(F);
-     Writeln(F, 'Bus, Lambda, Num Interruptions, Num Customers, Num Cust Interrupts');
+     Writeln(F, 'Bus, Lambda, Num-Interruptions, Num-Customers, Cust-Interruptions');
      With ActiveCircuit Do
      For i := 1 to NumBuses Do
        With Buses^[i] Do
        Begin
-           Writeln(F, Format('%s, %-13.11g, %-13.11g, %d, %-13.11g',
-              [CheckForBlanks(Uppercase(BusList.Get(i))), Lambda, Num_Interrupt, NumCustomers, CustInterrupts ]));
+           Writeln(F, Format('%s, %-.11g, %-.11g, %d, %-.11g',
+              [CheckForBlanks(Uppercase(BusList.Get(i))), Lambda, Num_Interrupt, TotalNumCustomers, CustInterrupts ]));
        End;
 
      GlobalResult := FileNm;
@@ -2431,6 +2430,49 @@ Begin
 
 End;
 
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+Procedure ExportBranchReliability(FileNm:String);
+Var
+   F : TextFile;
+   i : Integer;
+   pElem : TPDElement;
+   pBus  : TDSSBus;
+   SAIFI : Double;
+
+Begin
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+     Writeln(F, 'Element, Lambda, "Accumulated-Lambda", Num-Customers, Total-Customers, Num-Interrupts, Cust-Interruptions, Cust-Durations, SAIFI');
+     With ActiveCircuit Do
+     Begin
+
+     // PDELEMENTS only
+       pElem := ActiveCircuit.PDElements.First;
+       WHILE pElem <> nil DO
+       BEGIN
+         IF pElem.Enabled THEN WITH pElem Do
+            BEGIN
+                pBus := Buses^[Terminals^[FromTerminal].BusRef] ;
+                If TotalCustomers>0 Then SAIFI := pBus.CustInterrupts/TotalCustomers Else SAIFI := 0.0 ;
+
+                Writeln(F, Format('%s.%s, %-.11g, %-.11g, %d, %d, %-.11g, %-.11g, %-.11g, %-.11g',
+                [ParentClass.Name, Name, Lambda, AccumulatedLambda, NumCustomers, TotalCustomers, pBus.Num_Interrupt, pBus.CustInterrupts, pBus.CustDurations, SAIFI ]));
+            END;
+         pElem := ActiveCircuit.PDElements.Next;
+       END;
+     END;
+
+
+     GlobalResult := FileNm;
+
+  FINALLY
+
+     CloseFile(F);
+  End;
+
+End;
 
 end.
 

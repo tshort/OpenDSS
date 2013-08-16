@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 37;
+        NumExportOptions = 38;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -60,7 +60,8 @@ Begin
       ExportOption[34] := 'AllocationFactors';
       ExportOption[35] := 'VoltagesElements';
       ExportOption[36] := 'GICMvars';
-      ExportOption[37] := 'BusLambdas';
+      ExportOption[37] := 'BusReliability';
+      ExportOption[38] := 'BranchReliability';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -101,7 +102,8 @@ Begin
       ExportHelp[34] := 'Exports load allocation factors. File name is assigned.';
       ExportHelp[35] := '(Default file = EXP_VOLTAGES_ELEM.CSV) Voltages to ground by circuit element.';
       ExportHelp[36] := '(Default file = EXP_GIC_Mvar.CSV) Mvar for each GICtransformer object by bus for export to power flow programs ';
-      ExportHelp[37] := '(Default file = EXP_BusLambdas.CSV) Failure rate and number of interruptions at each bus.';
+      ExportHelp[37] := '(Default file = EXP_BusReliability.CSV) Failure rate, number of interruptions and other reliability data at each bus.';
+      ExportHelp[38] := '(Default file = EXP_BranchReliability.CSV) Failure rate, number of interruptions and other reliability data for each PD element.';
 End;
 
 //----------------------------------------------------------------------------
@@ -229,7 +231,8 @@ Begin
          34: FileName := 'AllocationFactors.Txt';
          35: FileName := 'EXP_VOLTAGES_ELEM.CSV';
          36: FileName := 'EXP_GIC_Mvar.CSV';
-         37: FileName := 'EXP_BusLambdas.CSV';
+         37: FileName := 'EXP_BusReliability.CSV';
+         38: FileName := 'EXP_BranchReliability.CSV';
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
        END;
@@ -278,7 +281,8 @@ Begin
      34: DumpAllocationFactors(FileName);
      35: ExportVoltagesElements(FileName);
      36: ExportGICMvar(FileName);
-     37: ExportBusLambdas(FileName);
+     37: ExportBusReliability(FileName);
+     38: ExportBranchReliability(FileName);
    ELSE
          ExportVoltages(FileName);    // default
    END;

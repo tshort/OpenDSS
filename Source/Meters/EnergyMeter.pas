@@ -279,7 +279,7 @@ Type
 
        Procedure Integrate(Reg:Integer; const Deriv:Double; Const Interval:Double);
        Procedure SetDragHandRegister( Reg:Integer; const Value:Double);
-       Function Accumulate_Load(pLoad:TLoadObj; var TotalZonekW, TotalZonekvar, TotalLoad_EEN, TotalLoad_UE:Double):double;
+       Function  Accumulate_Load(pLoad:TLoadObj; var TotalZonekW, TotalZonekvar, TotalLoad_EEN, TotalLoad_UE:Double):double;
        Procedure Accumulate_Gen(pGen:TGeneratorObj; var TotalZonekW, TotalZonekvar:Double);
        Procedure CalcBusCoordinates(StartBranch:TCktTreeNode; FirstCoordRef, SecondCoordRef, LineCount:Integer);
        Function  AddToVoltBaseList(BusRef:Integer):Integer;
@@ -311,8 +311,8 @@ Type
         // Reliability data for Head of Zone
         SAIFI   : Double;     // For this Zone
         SAIDI   : Double;
-        NumInterruptions     : Double; // Annual interruptions for upline circuit
-        InterruptionDuration : Double; // Aver interruption duration of upline circuit
+        Source_NumInterruptions     : Double; // Annual interruptions for upline circuit
+        Source_IntDuration : Double; // Aver interruption duration of upline circuit
 
         constructor Create(ParClass:TDSSClass; const EnergyMeterName:String);
         destructor Destroy; override;
@@ -335,7 +335,7 @@ Type
         Procedure ReduceZone;  // Reduce Zone by eliminating buses and merging lines
         Procedure SaveZone(const dirname:String);
 
-        Procedure CalcLambdasAndNumInterrupts;
+        Procedure CalcSAIFI;
 
         FUNCTION  GetPropertyValue(Index:Integer):String;Override;
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
@@ -358,7 +358,7 @@ Const NumPropsThisClass = 19;
 
 VAR
 
-   Delta_Hrs      :Double;
+   Delta_Hrs : Double;
    // adjacency lists for PC and PD elements at each bus, built for faster searches
    BusAdjPC : TAdjArray; // also includes shunt PD elements
    BusAdjPD : TAdjArray;
@@ -437,7 +437,7 @@ Begin
      PropertyName^[15] := '3phaseLosses';
      PropertyName^[16] := 'VbaseLosses'; // segregate losses by voltage base
      PropertyName^[17] := 'PhaseVoltageReport'; // Compute Avg phase voltages in zone
-     PropertyName^[18] := 'InterruptionRate';
+     PropertyName^[18] := 'Int_Rate';
      PropertyName^[19] := 'Int_Duration';
 
 {     PropertyName^[11] := 'Feeder';  **** removed - not used}
@@ -490,7 +490,7 @@ Begin
                          'Demand Intervals must be turned on (Set Demand=true) and voltage bases must be defined for this property to take effect. '+
                          'Result is in a separate report file.';
       PropertyHelp[18]:= 'Average number of annual interruptions for head of the meter zone (source side of zone or feeder).';
-      PropertyHelp[19]:= 'Average annual duration (hr) of interruptions for head of the meter zone.';
+      PropertyHelp[19]:= 'Average annual duration, in hr, of interruptions for head of the meter zone (source side of zone or feeder).';
 
       (**** Not used in present version      PropertyHelp[11]:= '{Yes/True | No/False}  Default is NO. If set to Yes, a Feeder object is created corresponding to ' +
                          'the energymeter.  Feeder is enabled if Radial=Yes; diabled if Radial=No.  Feeder is ' +
@@ -579,8 +579,8 @@ Begin
            15: F3PhaseLosses  := InterpretYesNo(Param);
            16: FVBaseLosses   := InterpretYesNo(Param);
            17: FPhaseVoltageReport  := InterpretYesNo(Param);
-           18: NumInterruptions     := Parser.dblvalue; // Annual interruptions for upline circuit
-           19: InterruptionDuration := Parser.dblValue; // hours
+           18: Source_NumInterruptions  := Parser.dblvalue; // Annual interruptions for upline circuit
+           19: Source_IntDuration       := Parser.dblValue; // hours
            (****11: HasFeeder := InterpretYesNo(Param); ***)
          ELSE
            ClassEdit(ActiveEnergyMeterObj, ParamPointer - NumPropsthisClass)
@@ -627,8 +627,8 @@ Begin
        MaxZonekVA_Emerg := OtherEnergyMeter.MaxZonekVA_emerg;
 
        // Reliability
-       NumInterruptions := OtherEnergyMeter.NumInterruptions;
-       InterruptionDuration := OtherEnergyMeter.InterruptionDuration;
+       Source_NumInterruptions := OtherEnergyMeter.Source_NumInterruptions;
+       Source_IntDuration := OtherEnergyMeter.Source_IntDuration;
 
        FreeStringArray(DefinedZoneList, DefinedZoneListSize);
        DefinedZoneListSize    := OtherEnergyMeter.DefinedZoneListSize;
@@ -864,8 +864,8 @@ Begin
      // Zone reliability variables
      SAIFI   := 0.0;     // For this Zone
      SAIDI   := 0.0;
-     NumInterruptions     := 0.0; // Annual interruptions for upline circuit
-     InterruptionDuration := 0.0; // Aver interruption duration of upline circuit
+     Source_NumInterruptions  := 0.0; // Annual interruptions for upline circuit
+     Source_IntDuration       := 0.0; // Aver interruption duration of upline circuit
 
 
      ZoneIsRadial        := True;
@@ -1497,8 +1497,8 @@ End;
 
 procedure TEnergyMeterObj.TotalUpDownstreamCustomers;
 Var
-  i, Accumulator :integer;
-  PresentNode: TCktTreeNode;
+  i{, Accumulator} :integer;
+ // PresentNode: TCktTreeNode;
   CktElem:TPDElement;
 
 begin
@@ -1510,15 +1510,15 @@ begin
     End;
 
     {Init totsls and checked flag}
-    CktElem := BranchList.First;
+    CktElem := SequenceList.First;
     While CktElem <> Nil do  Begin
-        CktElem.Checked := False;
+        CktElem.Checked        := FALSE;
         CktElem.TotalCustomers := 0;
-        CktElem := BranchList.GoForward;
+        CktElem := SequenceList.Next;
     End;
 
   {This algorithm could be made more efficient with a Sequence list}
-
+    (*********
      For i := 1 to Branchlist.ZoneEndsList.NumEnds Do
      Begin
        {Busref := } Branchlist.ZoneEndsList.Get(i, PresentNode);
@@ -1544,6 +1544,23 @@ begin
           End;
        End;
      End; {For}
+     *******)
+
+     // Backward Sweep  -  Order is guaranteed to process end branches first
+     // sum numcustomers branch by branch
+     For i := SequenceList.ListSize  downto 1 do
+     Begin
+            CktElem := SequenceList.Get(i);
+            If Not CktElem.Checked  Then    // Avoid double counting
+            WITH CktElem Do
+            Begin
+
+                 Checked := TRUE;
+                 Inc(TotalCustomers, NumCustomers);
+                 If ParentPDElement <> Nil Then
+                    Inc(ParentPDElement.TotalCustomers, TotalCustomers);
+            End;
+     End;  {For i}
 
 end;
 
@@ -2257,11 +2274,12 @@ begin
      End;
 end;
 
-procedure TEnergyMeterObj.CalcLambdasAndNumInterrupts;
+procedure TEnergyMeterObj.CalcSAIFI;
 Var
     PD_Elem : TPDElement;
     idx     : Integer;
     pBus    : TDSSBus;
+    Bref    : Integer;
 
 begin
 
@@ -2270,27 +2288,54 @@ begin
            Exit;
        End;
 
+    // Zero reliability accumulators
+       For idx := SequenceList.ListSize downto 1 Do
+       TPDElement(SequenceList.Get(idx)).ZeroReliabilityAccums ;
+
     // Backward sweep calculating failure rates
        For idx := SequenceList.ListSize downto 1 Do
        Begin
-         PD_Elem := SequenceList.Get(idx);
-         PD_Elem.CalcLambda;
-         PD_Elem.AccumLambda;
+         With TPDElement(SequenceList.Get(idx)) do Begin
+             CalcLambda;
+             AccumLambda;
+         End;
        End;
 
     // Forward sweep to get number of interruptions
        // Initialize number of interruptions and Duration
        PD_Elem := SequenceList.Get(1);
        pBus := ActiveCircuit.Buses^[PD_Elem.Terminals^[PD_Elem.FromTerminal].BusRef];
-       pBus.Num_Interrupt := NumInterruptions;
-       pBus.CustInterrupts := NumInterruptions * pBus.NumCustomers;
-       pBus.Int_Duration := Interruptionduration;
+       pBus.Num_Interrupt  := Source_NumInterruptions;
+       pBus.CustInterrupts := Source_NumInterruptions * pBus.TotalNumCustomers;
+       pBus.Int_Duration   := Source_IntDuration;
+
        For idx := 1 to SequenceList.ListSize Do
        Begin
-         PD_Elem := SequenceList.Get(idx);
-         PD_Elem.CalcNum_Int;
+            TPDElement(SequenceList.Get(idx)).CalcNum_Int;
        End;
 
+    // Now do Backward sweep calculating N*Lambda
+       For idx := SequenceList.ListSize downto 1 Do
+       Begin
+         PD_Elem := SequenceList.Get(idx);
+         PD_Elem.CalcN_Lambda;
+(*   Debug
+   With PD_Elem Do Begin
+        Bref :=  Terminals^[FromTerminal].BusRef;
+        WriteDLLDebugFile(Format('%s.%s, %.11g, %.11g, %.11g ', [ParentClass.Name, Name, Lambda, AccumulatedLambda, ActiveCircuit.Buses^[Bref].CustInterrupts     ]));
+   End;
+*)
+       End;
+
+     // Calc SAIFI from 1st bus in Zone
+         PD_Elem := SequenceList.Get(1);
+         With PD_Elem Do Begin
+            Bref := Terminals^[ToTerminal].BusRef;
+            pBus := ActiveCircuit.Buses^[Bref] ;
+         End;
+         With pBus Do SAIFI := CustInterrupts / (TotalNumCustomers + PD_Elem.NumCustomers) ;
+
+      WriteDLLDebugfile(Format('Bus = %s, SAIFI= %.11g ',[ActiveCircuit.BusList.Get(Bref), SAIFI  ]));
 end;
 
 function TEnergyMeterObj.GetPropertyValue(Index: Integer): String;

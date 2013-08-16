@@ -3756,7 +3756,7 @@ Begin
          End;
 
       while pMeter <> Nil do Begin
-         pMeter.CalcLambdasAndNumInterrupts;
+         pMeter.CalcSAIFI;
          pMeter := ActiveCircuit.EnergyMeters.Next;
       End;
 End;

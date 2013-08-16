@@ -135,7 +135,7 @@ Begin
      ExecCommand[97] := 'Variable';
      ExecCommand[98] := 'ReprocessBuses';
      ExecCommand[99] := 'ClearBusMarkers';
-     ExecCommand[100] := 'LambdaCalc';
+     ExecCommand[100] := 'RelCalc';
 
 
 
@@ -438,7 +438,7 @@ Begin
      CommandHelp[98] := 'Forces reprocessing of bus definitions whether there has been a change or not. Use for rebuilding meter zone lists ' +
                         'when a line length changes, for example or some other event that would not normally trigger an update to the bus list.';
      CommandHelp[99] := 'Clear all bus markers created with the AddBusMarker command.';
-     CommandHelp[100] := 'Perform first stage of reliability calcs: Failure rates and number of interruptions.';
+     CommandHelp[100] := 'Perform first part of reliability calcs: Failure rates and number of interruptions.';
 End;
 
 //----------------------------------------------------------------------------

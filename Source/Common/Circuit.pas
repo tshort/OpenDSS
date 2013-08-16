@@ -412,7 +412,7 @@ BEGIN
 
      SwitchMarkerCode := 5;
      TransMarkerCode  := 35;
-     CapMarkerCode    := 37;
+     CapMarkerCode    := 38;
      RegMarkerCode    := 47;
      PVMarkerCode     := 15;
      StoreMarkerCode  := 9;
