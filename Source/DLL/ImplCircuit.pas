@@ -80,6 +80,7 @@ type
     function Get_Sensors: Sensors; safecall;
     procedure UpdateStorage; safecall;
     function Get_ParentPDElement: Integer; safecall;
+    function Get_XYCurves: XYCurves; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -1055,6 +1056,11 @@ begin
        End;
    End;
 
+end;
+
+function TCircuit.Get_XYCurves: XYCurves;
+begin
+     Result := FXYCurves as IXYCurves;
 end;
 
 initialization

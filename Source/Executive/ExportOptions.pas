@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 38;
+        NumExportOptions = 39;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -62,6 +62,7 @@ Begin
       ExportOption[36] := 'GICMvars';
       ExportOption[37] := 'BusReliability';
       ExportOption[38] := 'BranchReliability';
+      ExportOption[39] := 'NodeNames';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -104,6 +105,7 @@ Begin
       ExportHelp[36] := '(Default file = EXP_GIC_Mvar.CSV) Mvar for each GICtransformer object by bus for export to power flow programs ';
       ExportHelp[37] := '(Default file = EXP_BusReliability.CSV) Failure rate, number of interruptions and other reliability data at each bus.';
       ExportHelp[38] := '(Default file = EXP_BranchReliability.CSV) Failure rate, number of interruptions and other reliability data for each PD element.';
+      ExportHelp[39] := '(Default file = EXP_NodeNames.CSV) Exports Single-column file of all node names in the active circuit. Useful for making scripts.';
 End;
 
 //----------------------------------------------------------------------------
@@ -233,6 +235,7 @@ Begin
          36: FileName := 'EXP_GIC_Mvar.CSV';
          37: FileName := 'EXP_BusReliability.CSV';
          38: FileName := 'EXP_BranchReliability.CSV';
+         39: FileName := 'EXP_NodeNames.CSV';
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
        END;
@@ -283,6 +286,7 @@ Begin
      36: ExportGICMvar(FileName);
      37: ExportBusReliability(FileName);
      38: ExportBranchReliability(FileName);
+     39: ExportNodeNames(FileName);
    ELSE
          ExportVoltages(FileName);    // default
    END;

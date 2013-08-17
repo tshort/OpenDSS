@@ -2274,6 +2274,8 @@ begin
      End;
 end;
 
+
+{-------------------------------------------------------------------------------}
 procedure TEnergyMeterObj.CalcSAIFI;
 Var
     PD_Elem : TPDElement;
@@ -2295,16 +2297,16 @@ begin
     // Backward sweep calculating failure rates
        For idx := SequenceList.ListSize downto 1 Do
        Begin
-         With TPDElement(SequenceList.Get(idx)) do Begin
-             CalcLambda;
-             AccumLambda;
-         End;
+           With TPDElement(SequenceList.Get(idx)) do Begin
+               CalcLambda;
+               AccumLambda;
+           End;
        End;
 
     // Forward sweep to get number of interruptions
        // Initialize number of interruptions and Duration
        PD_Elem := SequenceList.Get(1);
-       pBus := ActiveCircuit.Buses^[PD_Elem.Terminals^[PD_Elem.FromTerminal].BusRef];
+       pBus    := ActiveCircuit.Buses^[PD_Elem.Terminals^[PD_Elem.FromTerminal].BusRef];
        pBus.Num_Interrupt  := Source_NumInterruptions;
        pBus.CustInterrupts := Source_NumInterruptions * pBus.TotalNumCustomers;
        pBus.Int_Duration   := Source_IntDuration;
@@ -2319,25 +2321,26 @@ begin
        Begin
          PD_Elem := SequenceList.Get(idx);
          PD_Elem.CalcN_Lambda;
-(*   Debug
+(* ****   Debug
    With PD_Elem Do Begin
         Bref :=  Terminals^[FromTerminal].BusRef;
         WriteDLLDebugFile(Format('%s.%s, %.11g, %.11g, %.11g ', [ParentClass.Name, Name, Lambda, AccumulatedLambda, ActiveCircuit.Buses^[Bref].CustInterrupts     ]));
    End;
-*)
+**** End Debug *)
        End;
 
      // Calc SAIFI from 1st bus in Zone
          PD_Elem := SequenceList.Get(1);
          With PD_Elem Do Begin
-            Bref := Terminals^[ToTerminal].BusRef;
-            pBus := ActiveCircuit.Buses^[Bref] ;
+              Bref := Terminals^[ToTerminal].BusRef;
+              pBus := ActiveCircuit.Buses^[Bref] ;
          End;
          With pBus Do SAIFI := CustInterrupts / (TotalNumCustomers + PD_Elem.NumCustomers) ;
 
-      WriteDLLDebugfile(Format('Bus = %s, SAIFI= %.11g ',[ActiveCircuit.BusList.Get(Bref), SAIFI  ]));
+(****      WriteDLLDebugfile(Format('Bus = %s, SAIFI= %.11g ',[ActiveCircuit.BusList.Get(Bref), SAIFI  ]));  *)
 end;
 
+{-------------------------------------------------------------------------------}
 function TEnergyMeterObj.GetPropertyValue(Index: Integer): String;
 begin
         Case Index of

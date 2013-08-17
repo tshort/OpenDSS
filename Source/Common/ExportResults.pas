@@ -42,6 +42,7 @@ Procedure ExportVoltagesElements(FileNm:String);
 Procedure ExportGICMvar(FileNm:String);
 Procedure ExportBusReliability(FileNm:String);
 Procedure ExportBranchReliability(FileNm:String);
+Procedure ExportNodeNames(FileNm:String);
 
 
 
@@ -66,7 +67,7 @@ Begin
   Nterm := pElem.Nterms;
   k:=0;
   BusName := (StripExtension(pElem.FirstBus));
-  Write(F, Format('%s.%s',[pElem.DSSClassName, pElem.Name]));
+  Write(F, System.Sysutils.Format('%s.%s',[pElem.DSSClassName, pElem.Name]));
 
 
   Write(F, Format(',%d',[NTerm]));
@@ -2434,7 +2435,6 @@ End;
 Procedure ExportBranchReliability(FileNm:String);
 Var
    F : TextFile;
-   i : Integer;
    pElem : TPDElement;
    pBus  : TDSSBus;
    SAIFI : Double;
@@ -2455,10 +2455,10 @@ Begin
          IF pElem.Enabled THEN WITH pElem Do
             BEGIN
                 pBus := Buses^[Terminals^[FromTerminal].BusRef] ;
-                If TotalCustomers>0 Then SAIFI := pBus.CustInterrupts/TotalCustomers Else SAIFI := 0.0 ;
+                With pBus Do If TotalNumCustomers>0 Then SAIFI := CustInterrupts/TotalNumCustomers Else SAIFI := 0.0 ;
 
                 Writeln(F, Format('%s.%s, %-.11g, %-.11g, %d, %d, %-.11g, %-.11g, %-.11g, %-.11g',
-                [ParentClass.Name, Name, Lambda, AccumulatedLambda, NumCustomers, TotalCustomers, pBus.Num_Interrupt, pBus.CustInterrupts, pBus.CustDurations, SAIFI ]));
+                [ParentClass.Name, Name, Lambda, AccumulatedLambda, NumCustomers, TotalCustomers, pBus.Num_Interrupt, TotalCustomers*pBus.Num_Interrupt, pBus.CustDurations, SAIFI ]));
             END;
          pElem := ActiveCircuit.PDElements.Next;
        END;
@@ -2473,6 +2473,46 @@ Begin
   End;
 
 End;
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+Procedure ExportNodeNames(FileNm:String);
+Var
+   F : TextFile;
+   i : Integer;
+   j : Integer;
+   BusName : String;
+
+Begin
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+     Writeln(F, 'Node_Name');
+     With ActiveCircuit Do
+     Begin
+
+       FOR i := 1 to NumBuses DO
+       Begin
+           BusName := BusList.Get(i);
+           With Buses^[i] Do
+           FOR j := 1 to NumNodesThisBus DO
+           Begin
+                Writeln(F, Format('%s.%d ', [BusName, GetNum(j)]) );
+           End;
+       End;
+
+     END;
+
+
+     GlobalResult := FileNm;
+
+  FINALLY
+
+     CloseFile(F);
+  End;
+
+End;
+
 
 end.
 

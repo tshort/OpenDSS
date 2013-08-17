@@ -41,7 +41,9 @@ Uses
        ImplDSS_Executive,
        ImplEvents,
        ImplSensors,
+       ImplXYCurves,
        DSSClass,
+       DSSClassDefs,
        OpenDSSengine_TLB;
 
 Var
@@ -74,6 +76,7 @@ Var
    FDSS_Executive :IDSS_Executive;
    FEvents      :IDSSEvents;
    FSensors     :ISensors;
+   FXYcurves    :IXYcurves;
 
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
@@ -143,6 +146,7 @@ Begin
      FDSS_Executive := TDSS_Executive.Create;
      FEvents      := TDSSEvents.Create;
      FSensors     := TSensors.Create;
+     FXYCurves    := TXYCurves.Create;
 
      FPropIndex := 0;
      FPropClass := Nil;

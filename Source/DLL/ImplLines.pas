@@ -353,7 +353,7 @@ Begin
              End;
              IF NOT Found
              THEN Begin
-                 DoSimpleMsg('EnergyMeter "'+S+'" Not Found in Active Circuit.', 5008);
+                 DoSimpleMsg('Line "'+S+'" Not Found in Active Circuit.', 5008);
                  pLine := Get(ActiveSave);    // Restore active Line
                  ActiveCircuit.ActiveCktElement := pLine;
              End;

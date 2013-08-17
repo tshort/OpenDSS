@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 8/3/2013 10:16:50 PM from Type Library described below.
+// File generated on 8/17/2013 11:42:45 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -24,6 +24,8 @@ unit OpenDSSengine_TLB;
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
 // SYS_KIND: SYS_WIN32
+// Errors:
+//   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
 {$TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers.
 {$WARN SYMBOL_PLATFORM OFF}
@@ -105,6 +107,8 @@ const
   CLASS_DSSEvents: TGUID = '{B734843A-08E4-42D3-9E24-C0D5F7BF6487}';
   IID_ISensors: TGUID = '{E7444ECD-B491-4D8E-A1E3-E5804BD571E2}';
   CLASS_Sensors: TGUID = '{FC54E9AA-1C6A-4CF8-837D-82B257D98E5A}';
+  IID_IXYCurves: TGUID = '{97AA7680-E994-4A0C-BAC3-9B67BA49825C}';
+  CLASS_XYCurves: TGUID = '{9594F37D-E47E-4701-892B-52BE7E576E87}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -280,6 +284,8 @@ type
   IDSSEventsEvents = dispinterface;
   ISensors = interface;
   ISensorsDisp = dispinterface;
+  IXYCurves = interface;
+  IXYCurvesDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -312,6 +318,7 @@ type
   DSS_Executive = IDSS_Executive;
   DSSEvents = IDSSEvents;
   Sensors = ISensors;
+  XYCurves = IXYCurves;
 
 
 // *********************************************************************//
@@ -590,6 +597,7 @@ type
     function Get_Sensors: Sensors; safecall;
     procedure UpdateStorage; safecall;
     function Get_ParentPDElement: Integer; safecall;
+    function Get_XYCurves: XYCurves; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -635,6 +643,7 @@ type
     property Topology: ITopology read Get_Topology;
     property Sensors: Sensors read Get_Sensors;
     property ParentPDElement: Integer read Get_ParentPDElement;
+    property XYCurves: XYCurves read Get_XYCurves;
   end;
 
 // *********************************************************************//
@@ -705,6 +714,7 @@ type
     property Sensors: Sensors readonly dispid 221;
     procedure UpdateStorage; dispid 222;
     property ParentPDElement: Integer readonly dispid 223;
+    property XYCurves: XYCurves readonly dispid 224;
   end;
 
 // *********************************************************************//
@@ -2465,6 +2475,73 @@ type
   end;
 
 // *********************************************************************//
+// Interface: IXYCurves
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {97AA7680-E994-4A0C-BAC3-9B67BA49825C}
+// *********************************************************************//
+  IXYCurves = interface(IDispatch)
+    ['{97AA7680-E994-4A0C-BAC3-9B67BA49825C}']
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_Npts: Integer; safecall;
+    procedure Set_Npts(Value: Integer); safecall;
+    function Get_Xarray: OleVariant; safecall;
+    procedure Set_Xarray(Value: OleVariant); safecall;
+    function Get_Yarray: OleVariant; safecall;
+    procedure Set_Yarray(Value: OleVariant); stdcall;
+    function Get_x: Double; safecall;
+    procedure Set_x(Value: Double); safecall;
+    function Get_y: Double; safecall;
+    procedure Set_y(Value: Double); safecall;
+    function Get_Xshift: Double; safecall;
+    procedure Set_Xshift(Value: Double); safecall;
+    function Get_Yshift: Double; safecall;
+    procedure Set_Yshift(Value: Double); safecall;
+    function Get_Xscale: Double; safecall;
+    procedure Set_Xscale(Value: Double); safecall;
+    function Get_Yscale: Double; safecall;
+    procedure Set_Yscale(Value: Double); safecall;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property Name: WideString read Get_Name write Set_Name;
+    property Npts: Integer read Get_Npts write Set_Npts;
+    property Xarray: OleVariant read Get_Xarray write Set_Xarray;
+    // Skipped Property "Yarray"
+    property x: Double read Get_x write Set_x;
+    property y: Double read Get_y write Set_y;
+    property Xshift: Double read Get_Xshift write Set_Xshift;
+    property Yshift: Double read Get_Yshift write Set_Yshift;
+    property Xscale: Double read Get_Xscale write Set_Xscale;
+    property Yscale: Double read Get_Yscale write Set_Yscale;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IXYCurvesDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {97AA7680-E994-4A0C-BAC3-9B67BA49825C}
+// *********************************************************************//
+  IXYCurvesDisp = dispinterface
+    ['{97AA7680-E994-4A0C-BAC3-9B67BA49825C}']
+    property Count: Integer readonly dispid 201;
+    property First: Integer readonly dispid 202;
+    property Next: Integer readonly dispid 203;
+    property Name: WideString dispid 204;
+    property Npts: Integer dispid 205;
+    property Xarray: OleVariant dispid 206;
+    function Yarray: OleVariant; dispid 207;
+    property x: Double dispid 208;
+    property y: Double dispid 209;
+    property Xshift: Double dispid 210;
+    property Yshift: Double dispid 211;
+    property Xscale: Double dispid 212;
+    property Yscale: Double dispid 213;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -2788,6 +2865,18 @@ type
     class function CreateRemote(const MachineName: string): ISensors;
   end;
 
+// *********************************************************************//
+// The Class CoXYCurves provides a Create and CreateRemote method to
+// create instances of the default interface IXYCurves exposed by
+// the CoClass XYCurves. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoXYCurves = class
+    class function Create: IXYCurves;
+    class function CreateRemote(const MachineName: string): IXYCurves;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -3060,6 +3149,16 @@ end;
 class function CoSensors.CreateRemote(const MachineName: string): ISensors;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_Sensors) as ISensors;
+end;
+
+class function CoXYCurves.Create: IXYCurves;
+begin
+  Result := CreateComObject(CLASS_XYCurves) as IXYCurves;
+end;
+
+class function CoXYCurves.CreateRemote(const MachineName: string): IXYCurves;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_XYCurves) as IXYCurves;
 end;
 
 end.

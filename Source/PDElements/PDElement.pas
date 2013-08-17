@@ -89,7 +89,7 @@ begin
         {Get Lambda for TO bus and add it to this section failure rate}
         AccumulatedLambda := Buses^[Terminals^[ToTerminal].BusRef].Lambda + Lambda;
         FromBus :=   Buses^[Terminals^[FromTerminal].BusRef];
-        FromBus.TotalNumCustomers := TotalCustomers;
+        FromBus.TotalNumCustomers :=  FromBus.TotalNumCustomers + TotalCustomers;
         {Compute accumulated to FROM Bus; if a fault interrupt, assume it isolates all downline faults}
         If NOT HasOcpDevice Then Begin
             // accumlate it to FROM bus
@@ -114,7 +114,11 @@ Var
    FromBus : TDSSBus;
 begin
      FromBus := ActiveCircuit.Buses^[Terminals^[FromTerminal].BusRef];
-     WITH  FromBus Do accumsum(CustInterrupts, Num_Interrupt * TotalCustomers);
+     WITH  FromBus Do Begin
+         accumsum(CustInterrupts, Num_Interrupt * TotalCustomers);
+(**** *)     WriteDLLDebugfile(Format('%s.%s, Bus = %s, CustInterrupt= %.11g, Num_Interrupt= %.11g, TotalCustomers= %d, TotalNumCustomers= %d ',
+                              [Self.ParentClass.Name, Self.Name, ActiveCircuit.Buslist.Get(Terminals^[FromTerminal].BusRef), CustInterrupts, Num_Interrupt, TotalCustomers, TotalNumCustomers  ]));
+     End;
 end;
 
 procedure TPDElement.CalcNum_Int;

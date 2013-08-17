@@ -227,6 +227,7 @@ type
     kVBaseMismatch1: TMenuItem;
     Summary2: TMenuItem;
     OpenDSSWiki1: TMenuItem;
+    NodeNames1: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DSSHelp1Click(Sender: TObject);
     procedure AboutDSS1Click(Sender: TObject);
@@ -384,6 +385,7 @@ type
     procedure Summary2Click(Sender: TObject);
     procedure OpenDSSWiki1Click(Sender: TObject);
     procedure TechNotes1Click(Sender: TObject);
+    procedure NodeNames1Click(Sender: TObject);
   private
     { Private declarations }
     PlotOptionString:String;
@@ -1548,6 +1550,11 @@ procedure TControlPanel.NewYMatrix1Click(Sender: TObject);
 begin
   If ActiveCircuit <> Nil Then
       ActiveScriptForm.ExecuteDSSCommand('buildy');
+end;
+
+procedure TControlPanel.NodeNames1Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Export NodeNames');
 end;
 
 procedure TControlPanel.Selection1Click(Sender: TObject);

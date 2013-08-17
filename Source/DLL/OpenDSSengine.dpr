@@ -190,7 +190,8 @@ uses
   CapControlVars in '..\Controls\CapControlVars.pas',
   CapUserControl in '..\Controls\CapUserControl.pas',
   InvControl in '..\Controls\InvControl.pas',
-  GICTransformer in '..\PDElements\GICTransformer.pas';
+  GICTransformer in '..\PDElements\GICTransformer.pas',
+  ImplXYCurves in 'ImplXYCurves.pas';
 
 exports
   DllGetClassObject,

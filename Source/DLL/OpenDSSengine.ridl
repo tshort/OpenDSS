@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 8/3/2013 10:19:05 PM (- $Rev: 12980 $, 3582765).
+// File generated on 8/17/2013 11:42:48 AM (- $Rev: 12980 $, 46783155).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -75,6 +75,8 @@ library OpenDSSengine
   coclass DSSEvents;
   interface ISensors;
   coclass Sensors;
+  interface IXYCurves;
+  coclass XYCurves;
 
 
   [
@@ -554,6 +556,8 @@ library OpenDSSengine
     HRESULT _stdcall UpdateStorage(void);
     [propget, id(0x000000DF), helpstring("Sets Parent PD element, if any, to be the active circuit element and returns index>0; Returns 0 if it fails or not applicable.")]
     HRESULT _stdcall ParentPDElement([out, retval] long* Value);
+    [propget, id(0x000000E0), helpstring("Interface to XYCurves in active circuit.")]
+    HRESULT _stdcall XYCurves([out, retval] XYCurves** Value);
   };
 
   [
@@ -2002,6 +2006,62 @@ library OpenDSSengine
   };
 
   [
+    uuid(97AA7680-E994-4A0C-BAC3-9B67BA49825C),
+    helpstring("Dispatch interface for XYCurves Object"),
+    dual,
+    oleautomation
+  ]
+  interface IXYCurves: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Number of XYCurve Objects")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CA), helpstring("Sets first XYcurve object active; returns 0 if none.")]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CB), helpstring("Advances to next XYCurve object; returns 0 if no more objects of this class")]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CC), helpstring("Name of active XYCurve Object")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000CC)]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000CD), helpstring("Get/Set Number of points in X-Y curve")]
+    HRESULT _stdcall Npts([out, retval] long* Value);
+    [propput, id(0x000000CD), helpstring("Get/Set Number of Points in X-Y curve")]
+    HRESULT _stdcall Npts([in] long Value);
+    [propget, id(0x000000CE)]
+    HRESULT _stdcall Xarray([out, retval] VARIANT* Value);
+    [propput, id(0x000000CE), helpstring("Get/Set X values as a Variant array of doubles. Set Npts to max number expected if setting")]
+    HRESULT _stdcall Xarray([in] VARIANT Value);
+    [propget, id(0x000000CF)]
+    HRESULT _stdcall Yarray([out, retval] VARIANT* Value);
+    [propput, id(0x000000CF), helpstring("Get/Set Y values in curve; Set Npts to max number expected if setting")]
+    void _stdcall Yarray([in] VARIANT Value);
+    [propget, id(0x000000D0), helpstring("Set X value or get interpolated value after setting Y")]
+    HRESULT _stdcall x([out, retval] double* Value);
+    [propput, id(0x000000D0)]
+    HRESULT _stdcall x([in] double Value);
+    [propget, id(0x000000D1)]
+    HRESULT _stdcall y([out, retval] double* Value);
+    [propput, id(0x000000D1), helpstring("Set Y value or get interpolated Y value after setting X")]
+    HRESULT _stdcall y([in] double Value);
+    [propget, id(0x000000D2), helpstring("Amount to shift X value from original curve")]
+    HRESULT _stdcall Xshift([out, retval] double* Value);
+    [propput, id(0x000000D2)]
+    HRESULT _stdcall Xshift([in] double Value);
+    [propget, id(0x000000D3), helpstring("amount to shift Y valiue from original curve")]
+    HRESULT _stdcall Yshift([out, retval] double* Value);
+    [propput, id(0x000000D3)]
+    HRESULT _stdcall Yshift([in] double Value);
+    [propget, id(0x000000D4)]
+    HRESULT _stdcall Xscale([out, retval] double* Value);
+    [propput, id(0x000000D4), helpstring("Factor to scale X values from original curve")]
+    HRESULT _stdcall Xscale([in] double Value);
+    [propget, id(0x000000D5)]
+    HRESULT _stdcall Yscale([out, retval] double* Value);
+    [propput, id(0x000000D5), helpstring("Amount to scale Y values from original curve. Represents a curve shift.")]
+    HRESULT _stdcall Yscale([in] double Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -2284,6 +2344,15 @@ library OpenDSSengine
   coclass Sensors
   {
     [default] interface ISensors;
+  };
+
+  [
+    uuid(9594F37D-E47E-4701-892B-52BE7E576E87),
+    helpstring("XYCurves Object")
+  ]
+  coclass XYCurves
+  {
+    [default] interface IXYCurves;
   };
 
 };
