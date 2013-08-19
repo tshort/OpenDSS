@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 8/17/2013 11:42:45 AM from Type Library described below.
+// File generated on 8/19/2013 12:11:13 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -746,6 +746,12 @@ type
     function Get_Distance: Double; safecall;
     function GetUniqueNodeNumber(StartNumber: Integer): Integer; safecall;
     function Get_CplxSeqVoltages: OleVariant; safecall;
+    function Get_Lambda: Double; safecall;
+    function Get_N_interrupts: Double; safecall;
+    function Get_Int_Duration: Double; safecall;
+    function Get_Cust_Interrupts: Double; safecall;
+    function Get_Cust_Duration: Double; safecall;
+    function Get_N_Customers: Integer; safecall;
     property Name: WideString read Get_Name;
     property NumNodes: Integer read Get_NumNodes;
     property Voltages: OleVariant read Get_Voltages;
@@ -764,6 +770,12 @@ type
     property y: Double read Get_y write Set_y;
     property Distance: Double read Get_Distance;
     property CplxSeqVoltages: OleVariant read Get_CplxSeqVoltages;
+    property Lambda: Double read Get_Lambda;
+    property N_interrupts: Double read Get_N_interrupts;
+    property Int_Duration: Double read Get_Int_Duration;
+    property Cust_Interrupts: Double read Get_Cust_Interrupts;
+    property Cust_Duration: Double read Get_Cust_Duration;
+    property N_Customers: Integer read Get_N_Customers;
   end;
 
 // *********************************************************************//
@@ -793,6 +805,12 @@ type
     property Distance: Double readonly dispid 204;
     function GetUniqueNodeNumber(StartNumber: Integer): Integer; dispid 205;
     property CplxSeqVoltages: OleVariant readonly dispid 206;
+    property Lambda: Double readonly dispid 207;
+    property N_interrupts: Double readonly dispid 208;
+    property Int_Duration: Double readonly dispid 209;
+    property Cust_Interrupts: Double readonly dispid 210;
+    property Cust_Duration: Double readonly dispid 211;
+    property N_Customers: Integer readonly dispid 212;
   end;
 
 // *********************************************************************//
@@ -1183,6 +1201,7 @@ type
     function Get_Count: Integer; safecall;
     function Get_AllBranchesInZone: OleVariant; safecall;
     function Get_CountBranches: Integer; safecall;
+    function Get_SAIFI: Double; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1201,6 +1220,7 @@ type
     property Count: Integer read Get_Count;
     property AllBranchesInZone: OleVariant read Get_AllBranchesInZone;
     property CountBranches: Integer read Get_CountBranches;
+    property SAIFI: Double read Get_SAIFI;
   end;
 
 // *********************************************************************//
@@ -1236,6 +1256,7 @@ type
     property Count: Integer readonly dispid 213;
     property AllBranchesInZone: OleVariant readonly dispid 214;
     property CountBranches: Integer readonly dispid 215;
+    property SAIFI: Double readonly dispid 216;
   end;
 
 // *********************************************************************//

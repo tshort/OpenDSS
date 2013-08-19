@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 8/17/2013 11:42:48 AM (- $Rev: 12980 $, 46783155).
+// File generated on 8/19/2013 12:11:23 AM (- $Rev: 12980 $, 178100070).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -356,11 +356,11 @@ library OpenDSSengine
     HRESULT _stdcall Enabled([out, retval] VARIANT_BOOL* Value);
     [propput, id(0x0000000F), helpstring("Boolean indicating that element is currently in the circuit.\0ase terminal\0ic)\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Enabled([in] VARIANT_BOOL Value);
-    [propget, id(0x00000010), helpstring("Normal ampere rating\0at element is currently in the circuit.\0ase terminal\0ic)\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x00000010), helpstring("Normal ampere rating for PD Elements")]
     HRESULT _stdcall NormalAmps([out, retval] double* Value);
     [propput, id(0x00000010), helpstring("Normal ampere rating\0at element is currently in the circuit.\0ase terminal\0ic)\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall NormalAmps([in] double Value);
-    [propget, id(0x00000011), helpstring("Emergency Ampere Rating\0element is currently in the circuit.\0ase terminal\0ic)\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x00000011), helpstring("Emergency Ampere Rating for PD elements")]
     HRESULT _stdcall EmergAmps([out, retval] double* Value);
     [propput, id(0x00000011), helpstring("Emergency Ampere Rating\0element is currently in the circuit.\0ase terminal\0ic)\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall EmergAmps([in] double Value);
@@ -614,6 +614,18 @@ library OpenDSSengine
     HRESULT _stdcall GetUniqueNodeNumber([in] long StartNumber, [out, retval] long* Value);
     [propget, id(0x000000CE), helpstring("Complex Double array of Sequence Voltages (0, 1, 2) at this Bus.")]
     HRESULT _stdcall CplxSeqVoltages([out, retval] VARIANT* Value);
+    [propget, id(0x000000CF), helpstring("Accumulated failure rate downstream from this bus; faults per year")]
+    HRESULT _stdcall Lambda([out, retval] double* Value);
+    [propget, id(0x000000D0), helpstring("Number of interruptions this bus per year")]
+    HRESULT _stdcall N_interrupts([out, retval] double* Value);
+    [propget, id(0x000000D1), helpstring("Average interruption duration, hr.")]
+    HRESULT _stdcall Int_Duration([out, retval] double* Value);
+    [propget, id(0x000000D2), helpstring("Annual number of customer-interruptions from this bus")]
+    HRESULT _stdcall Cust_Interrupts([out, retval] double* Value);
+    [propget, id(0x000000D3), helpstring("Accumulated customer outage durations")]
+    HRESULT _stdcall Cust_Duration([out, retval] double* Value);
+    [propget, id(0x000000D4), helpstring("Total numbers of customers served downline from this bus")]
+    HRESULT _stdcall N_Customers([out, retval] long* Value);
   };
 
   [
@@ -982,6 +994,8 @@ library OpenDSSengine
     HRESULT _stdcall AllBranchesInZone([out, retval] VARIANT* Value);
     [propget, id(0x000000D7), helpstring("Number of branches in Active energymeter zone.\0 active energymeter object.\0properly opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall CountBranches([out, retval] long* Value);
+    [propget, id(0x000000D8), helpstring("Triggers Reliabiliy calcs and returns SAIFI for this meter's Zone")]
+    HRESULT _stdcall SAIFI([out, retval] double* Value);
   };
 
   [
@@ -2021,17 +2035,17 @@ library OpenDSSengine
     HRESULT _stdcall Next([out, retval] long* Value);
     [propget, id(0x000000CC), helpstring("Name of active XYCurve Object")]
     HRESULT _stdcall Name([out, retval] BSTR* Value);
-    [propput, id(0x000000CC)]
+    [propput, id(0x000000CC), helpstring("Get Name of active XYCurve Object")]
     HRESULT _stdcall Name([in] BSTR Value);
     [propget, id(0x000000CD), helpstring("Get/Set Number of points in X-Y curve")]
     HRESULT _stdcall Npts([out, retval] long* Value);
     [propput, id(0x000000CD), helpstring("Get/Set Number of Points in X-Y curve")]
     HRESULT _stdcall Npts([in] long Value);
-    [propget, id(0x000000CE)]
+    [propget, id(0x000000CE), helpstring("Get/Set X values as a Variant array of doubles. Set Npts to max number expected if setting")]
     HRESULT _stdcall Xarray([out, retval] VARIANT* Value);
     [propput, id(0x000000CE), helpstring("Get/Set X values as a Variant array of doubles. Set Npts to max number expected if setting")]
     HRESULT _stdcall Xarray([in] VARIANT Value);
-    [propget, id(0x000000CF)]
+    [propget, id(0x000000CF), helpstring("Get/Set Y values in curve; Set Npts to max number expected if setting")]
     HRESULT _stdcall Yarray([out, retval] VARIANT* Value);
     [propput, id(0x000000CF), helpstring("Get/Set Y values in curve; Set Npts to max number expected if setting")]
     void _stdcall Yarray([in] VARIANT Value);
@@ -2039,7 +2053,7 @@ library OpenDSSengine
     HRESULT _stdcall x([out, retval] double* Value);
     [propput, id(0x000000D0)]
     HRESULT _stdcall x([in] double Value);
-    [propget, id(0x000000D1)]
+    [propget, id(0x000000D1), helpstring("Y value for present X or set this value then get corresponding X")]
     HRESULT _stdcall y([out, retval] double* Value);
     [propput, id(0x000000D1), helpstring("Set Y value or get interpolated Y value after setting X")]
     HRESULT _stdcall y([in] double Value);
@@ -2051,11 +2065,11 @@ library OpenDSSengine
     HRESULT _stdcall Yshift([out, retval] double* Value);
     [propput, id(0x000000D3)]
     HRESULT _stdcall Yshift([in] double Value);
-    [propget, id(0x000000D4)]
+    [propget, id(0x000000D4), helpstring("Factor to scale X values from original curve")]
     HRESULT _stdcall Xscale([out, retval] double* Value);
     [propput, id(0x000000D4), helpstring("Factor to scale X values from original curve")]
     HRESULT _stdcall Xscale([in] double Value);
-    [propget, id(0x000000D5)]
+    [propget, id(0x000000D5), helpstring("Factor to scale Y values from original curve")]
     HRESULT _stdcall Yscale([out, retval] double* Value);
     [propput, id(0x000000D5), helpstring("Amount to scale Y values from original curve. Represents a curve shift.")]
     HRESULT _stdcall Yscale([in] double Value);

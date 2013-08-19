@@ -36,6 +36,12 @@ type
     function Get_Distance: Double; safecall;
     function GetUniqueNodeNumber(StartNumber: Integer): Integer; safecall;
     function Get_CplxSeqVoltages: OleVariant; safecall;
+    function Get_Int_Duration: Double; safecall;
+    function Get_Lambda: Double; safecall;
+    function Get_Cust_Duration: Double; safecall;
+    function Get_Cust_Interrupts: Double; safecall;
+    function Get_N_Customers: Integer; safecall;
+    function Get_N_interrupts: Double; safecall;
   end;
 
 implementation
@@ -528,6 +534,60 @@ Begin
    End
   ELSE Result := VarArrayCreate([0, 0], varDouble);
 
+end;
+
+function TBus.Get_Int_Duration: Double;
+begin
+  Result := 0.0;
+  if ActiveCircuit <> Nil then
+    With ActiveCircuit Do
+      if ActiveBusIndex > 0 then
+         Result := Buses^[ActiveBusIndex].Int_Duration;
+end;
+
+function TBus.Get_Lambda: Double;
+begin
+  Result := 0.0;
+  if ActiveCircuit <> Nil then
+    With ActiveCircuit Do
+      if ActiveBusIndex > 0 then
+         Result := Buses^[ActiveBusIndex].Lambda;
+end;
+
+function TBus.Get_Cust_Duration: Double;
+begin
+  Result := 0.0;
+  if ActiveCircuit <> Nil then
+    With ActiveCircuit Do
+      if ActiveBusIndex > 0 then
+         Result := Buses^[ActiveBusIndex].CustDurations ;
+end;
+
+function TBus.Get_Cust_Interrupts: Double;
+begin
+  Result := 0.0;
+  if ActiveCircuit <> Nil then
+    With ActiveCircuit Do
+      if ActiveBusIndex > 0 then
+         Result := Buses^[ActiveBusIndex].CustDurations ;
+end;
+
+function TBus.Get_N_Customers: Integer;
+begin
+  Result := 0;
+  if ActiveCircuit <> Nil then
+    With ActiveCircuit Do
+      if ActiveBusIndex > 0 then
+         Result := Buses^[ActiveBusIndex].TotalNumCustomers  ;
+end;
+
+function TBus.Get_N_interrupts: Double;
+begin
+  Result := 0.0;
+  if ActiveCircuit <> Nil then
+    With ActiveCircuit Do
+      if ActiveBusIndex > 0 then
+         Result := Buses^[ActiveBusIndex].Num_Interrupt ;
 end;
 
 initialization

@@ -68,6 +68,13 @@ implementation
 uses ComServ, DSSClassDefs, DSSGlobals, UComplex, Sysutils,
      PDElement, PCElement, MathUtil, ImplGlobals, Variants, CktElement;
 
+{ - - - - - - - - - - - - -Helper Function- - - - - - - - - - - - - - - - - - -}
+FUNCTION IsPDElement : Boolean;
+Begin
+    Result :=  ((ActiveCircuit.ActiveCktElement.DSSObjType and 3) = PD_ELEMENT)
+End;
+{ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
+
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 function TCktElement.Get_BusNames: OleVariant;
 
@@ -702,7 +709,7 @@ begin
      If ActiveCircuit <> Nil Then
      With ActiveCircuit Do
      Begin
-         If (ActiveCktElement.DSSObjType and 3) = PD_ELEMENT Then
+         If IsPDElement Then
          Begin
              With ActiveCktElement As TPDElement Do EmergAmps := Value;
          End;  {Else Do Nothing}
@@ -720,11 +727,10 @@ end;
 procedure TCktElement.Set_NormalAmps(Value: Double);
 begin
      If ActiveCircuit <> Nil Then
-     With ActiveCircuit Do
      Begin
-         If (ActiveCktElement.DSSObjType and 3) = PD_ELEMENT Then
+         If IsPDElement Then
          Begin
-             With ActiveCktElement As TPDElement Do NormAmps := Value;
+             With ActiveCircuit Do With ActiveCktElement As TPDElement Do NormAmps := Value;
          End;  {Else Do Nothing}
      End;
 end;

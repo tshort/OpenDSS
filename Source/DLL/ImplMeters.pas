@@ -51,6 +51,7 @@ type
     function Get_Count: Integer; safecall;
     function Get_AllBranchesInZone: OleVariant; safecall;
     function Get_CountBranches: Integer; safecall;
+    function Get_SAIFI: Double; safecall;
     { Protected declarations }
   end;
 
@@ -98,17 +99,18 @@ Begin
 
    Result := 0;
    If ActiveCircuit <> Nil Then
+   With ActiveCircuit Do
    Begin
-        pMeter := ActiveCircuit.EnergyMeters.First;
+        pMeter := EnergyMeters.First;
         If pMeter <> Nil Then
         Begin
           Repeat
             If pMeter.Enabled
             Then Begin
-              ActiveCircuit.ActiveCktElement := pMeter;
+              ActiveCktElement := pMeter;
               Result := 1;
             End
-            Else  pMeter := ActiveCircuit.EnergyMeters.Next;
+            Else  pMeter := EnergyMeters.Next;
           Until (Result = 1) or (pMeter = nil);
         End
         Else
@@ -649,6 +651,24 @@ Begin
       End;
     end;
   End;
+end;
+
+function TMeters.Get_SAIFI: Double;
+Var
+  pMeterObj :TEnergyMeterObj;
+
+begin
+     Result := 0.0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+
+             pMeterObj.CalcSAIFI;
+             Result := pMeterObj.SAIFI;
+
+         End;
+     End;
 end;
 
 initialization

@@ -354,7 +354,7 @@ USES  ParserDel, DSSClassDefs, DSSGlobals, Bus, Sysutils, MathUtil,  UCMatrix,
       Classes, ReduceAlgs, Windows, Math;
 
 
-Const NumPropsThisClass = 19;
+Const NumPropsThisClass = 20;
 
 VAR
 
@@ -439,6 +439,7 @@ Begin
      PropertyName^[17] := 'PhaseVoltageReport'; // Compute Avg phase voltages in zone
      PropertyName^[18] := 'Int_Rate';
      PropertyName^[19] := 'Int_Duration';
+     PropertyName^[20] := 'SAIFI';    // Read only
 
 {     PropertyName^[11] := 'Feeder';  **** removed - not used}
 
@@ -491,7 +492,7 @@ Begin
                          'Result is in a separate report file.';
       PropertyHelp[18]:= 'Average number of annual interruptions for head of the meter zone (source side of zone or feeder).';
       PropertyHelp[19]:= 'Average annual duration, in hr, of interruptions for head of the meter zone (source side of zone or feeder).';
-
+      PropertyHelp[20]:= '(Read only) Makes SAIFI result available return on query (? energymeter.myMeter.SAIFI.';
       (**** Not used in present version      PropertyHelp[11]:= '{Yes/True | No/False}  Default is NO. If set to Yes, a Feeder object is created corresponding to ' +
                          'the energymeter.  Feeder is enabled if Radial=Yes; diabled if Radial=No.  Feeder is ' +
                          'synched automatically with the meter zone.  Do not create feeders for zones in meshed transmission systems.';
@@ -581,6 +582,7 @@ Begin
            17: FPhaseVoltageReport  := InterpretYesNo(Param);
            18: Source_NumInterruptions  := Parser.dblvalue; // Annual interruptions for upline circuit
            19: Source_IntDuration       := Parser.dblValue; // hours
+           20: PropertyValue[20] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
            (****11: HasFeeder := InterpretYesNo(Param); ***)
          ELSE
            ClassEdit(ActiveEnergyMeterObj, ParamPointer - NumPropsthisClass)
@@ -2063,6 +2065,10 @@ begin
      PropertyValue[15] := 'Yes'; // segregate losses by voltage base
      PropertyValue[16] := 'Yes';
      PropertyValue[17] := 'No';
+     PropertyValue[18] := '0';
+     PropertyValue[19] := '0';
+     PropertyValue[20] := '0';
+
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -2355,6 +2361,7 @@ begin
                 IF ZoneIsRadial Then Result := Result +' R,' Else Result := Result +' M,';
                 IF VoltageUEOnly then Result := Result +' V' Else Result := Result +' C';
               End;
+           20: Result := Format('%.11g',[SAIFI]);
         ELSE
            Result := Result + Inherited GetPropertyValue(index);
         END;
