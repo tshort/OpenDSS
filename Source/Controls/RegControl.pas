@@ -1062,7 +1062,7 @@ if ControlledElement <> nil then
     ctrldTransformer := Get_Transformer;
     ictrldWinding := TRWinding;
     With ctrldTransformer Do
-    Result := Trunc((PresentTap[ictrldWinding] - 1.0) / TapIncrement[ictrldWinding]);
+    Result := Trunc((PresentTap[ictrldWinding] - (MaxTap[ictrldWinding] + MinTap[ictrldWinding])/2.0) / TapIncrement[ictrldWinding]);
 
   end
   else
@@ -1198,7 +1198,7 @@ begin
       ctrldTransformer := TTransfObj(ControlledElement);
       ictrldWinding := TRWinding;
       With ctrldTransformer Do
-       PresentTap[ictrldWinding] := Value * TapIncrement[ictrldWinding] + 1.0;
+       PresentTap[ictrldWinding] := Value * TapIncrement[ictrldWinding] + ((MaxTap[ictrldWinding] + MinTap[ictrldWinding])/2.0);
 
 // Tap range checking is done in PresentTap
 // You can attempt to set the tap at an illegal value but it won't do anything

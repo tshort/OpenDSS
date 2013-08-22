@@ -1728,6 +1728,13 @@ Var
     Yadder     :Complex;
     Rmult      :Double;
 
+    {Function to fix a specification of a pu tap of 0.0}
+    {Regcontrol can attempt to force zero tap position in some models}
+    function ZeroTapFix(const tapvalue:Double):Double;
+    Begin
+         If TapValue=0.0 Then  Result := 0.0001 Else Result := Tapvalue;
+    End;
+
 begin
 
      If XRConst Then  RMult := FreqMult Else RMult := 1.0;
@@ -1836,14 +1843,18 @@ begin
    Y_Term_NL.Clear;
    AT := TcMatrix.Creatematrix(NumWindings * 2);
 
-   FOR i := 1 to   NumWindings Do AT.SetElement(2*i-1, i, Cmplx( 1.0/(Winding^[i].VBase*Winding^[i].puTap), 0.0));
-   FOR i := 1 to   NumWindings Do AT.SetElement(2*i,   i, Cmplx(-1.0/(Winding^[i].VBase*Winding^[i].puTap), 0.0));
+   // 8/22/2013 Added ZeroTapFix so that regcontrol can set a tap to zero
+
+   FOR i := 1 to   NumWindings Do With Winding^[i] Do AT.SetElement(2*i-1, i, Cmplx( 1.0/(VBase*ZeroTapFix(puTap)), 0.0));
+   FOR i := 1 to   NumWindings Do With Winding^[i] Do AT.SetElement(2*i,   i, Cmplx(-1.0/(VBase*ZeroTapFix(puTap)), 0.0));
    FOR i := 1 to 2*Numwindings Do ctemparray1^[i] := CZERO;
 
    FOR i := 1 TO 2*Numwindings Do Begin
-     FOR k := 1 to NumWindings Do Begin
-         IF i=(2*k-1)  THEN A^[k] := Cmplx(( 1.0/(Winding^[k].VBase*Winding^[k].puTap)), 0.0)
-         ELSE IF i=2*k THEN A^[k] := Cmplx((-1.0/(Winding^[k].VBase*Winding^[k].puTap)), 0.0)
+     FOR k := 1 to NumWindings Do
+     With Winding^[k] Do
+     Begin
+         IF i=(2*k-1)  THEN A^[k] := Cmplx(( 1.0/(VBase*ZeroTapFix(puTap))), 0.0)
+         ELSE IF i=2*k THEN A^[k] := Cmplx((-1.0/(VBase*ZeroTapFix(puTap))), 0.0)
                        ELSE A^[k] := cZERO;
      End;
      {Main Transformer part}
