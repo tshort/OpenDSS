@@ -300,7 +300,7 @@ implementation
 
 USES  ParserDel, Circuit,  Sysutils, Command, Math, MathUtil, DSSClassDefs, DSSGlobals, Utilities;
 
-Const NumPropsThisClass = 36;
+Const NumPropsThisClass = 37;
   // Dispatch modes
       DEFAULT = 0;
       LOADMODE = 1;
@@ -633,6 +633,8 @@ Begin
             // keep kvar nominal up to date with kW and PF
             4,5: SyncUpPowerQuantities;
 
+            // if a model 3 generator added, force calc of dQdV
+            6: If GenModel=3 Then ActiveCircuit.Solution.SolutionInitialized := FALSE;
 
     {Set shape objects;  returns nil if not valid}
      {Sets the kW and kvar properties to match the peak kW demand from the Loadshape}
