@@ -47,7 +47,7 @@ type
 implementation
 
 uses ComServ, DSSGlobals, ImplGlobals, Circuit, Ucomplex, MathUtil, sysutils,
-     ExecHelper, SolutionAlgs, Variants, Utilities;
+     ExecHelper, SolutionAlgs, Variants, Utilities, Bus;
 
 function TBus.Get_Name: WideString;
 begin
@@ -116,11 +116,12 @@ Begin
 end;
 
 function TBus.Get_Voltages: OleVariant;
-// Compute Complex for all nodes of voltages for Active Bus
+// Return Complex for all nodes of voltages for Active Bus
 
 VAR
-  Nvalues,i,  iV:Integer;
-  Volts:Complex;
+  Nvalues,i,  iV, NodeIdx, jj : Integer;
+  Volts : Complex;
+  pBus : TDSSBus;
 
 Begin
    IF ActiveCircuit = nil Then Begin
@@ -129,12 +130,21 @@ Begin
    ELSE With ActiveCircuit Do
    IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
    Begin
-      Nvalues := Buses^[ActiveBusIndex].NumNodesThisBus;
-      Result := VarArrayCreate( [0, 2*NValues -1], varDouble);
+      pBus    := Buses^[ActiveBusIndex];
+      Nvalues := pBus.NumNodesThisBus;
+      Result  := VarArrayCreate( [0, 2*NValues -1], varDouble);
       iV := 0;
+      jj := 1;
+      WITH pBus DO
       FOR i := 1 to  NValues DO
       Begin
-            Volts      := Solution.NodeV^[Buses^[ActiveBusIndex].GetRef(i)];
+            // this code so nodes come out in order from smallest to larges
+            Repeat
+                 NodeIdx := FindIdx(jj);  // Get the index of the Node that matches jj
+                 inc(jj)
+            Until NodeIdx>0;
+
+            Volts      := Solution.NodeV^[GetRef(NodeIdx)];  // referenced to pBus
             Result[iV] := Volts.re;
             Inc(iV);
             Result[iV] := Volts.im;
@@ -261,9 +271,10 @@ function TBus.Get_puVoltages: OleVariant;
 // Returns voltages at bus in per unit.  However, if kVBase=0, returns actual volts
 
 VAR
-  Nvalues,i, iV:Integer;
+  Nvalues,i, iV,  NodeIdx, jj :Integer;
   Volts:Complex;
   BaseFactor:Double;
+  pBus : TDSSBus;
 
 Begin
    IF ActiveCircuit = nil Then Begin
@@ -272,18 +283,29 @@ Begin
    ELSE With ActiveCircuit Do
    IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
    Begin
-      Nvalues := Buses^[ActiveBusIndex].NumNodesThisBus;
-      Result := VarArrayCreate( [0, 2*NValues -1], varDouble);
-      iV := 0;
-      If Buses^[ActiveBusIndex].kVBase>0.0 Then BaseFactor :=1000.0*Buses^[ActiveBusIndex].kVBase
-      Else BaseFactor := 1.0;
-      FOR i := 1 to  NValues DO
+      pBus    := Buses^[ActiveBusIndex];
+      With pBus Do
       Begin
-            Volts      := Solution.NodeV^[Buses^[ActiveBusIndex].GetRef(i)];
-            Result[iV] := Volts.re/BaseFactor;
-            Inc(iV);
-            Result[iV] := Volts.im/BaseFactor;
-            Inc(iV);
+          Nvalues := NumNodesThisBus;
+          Result := VarArrayCreate( [0, 2*NValues -1], varDouble);
+          iV := 0;
+          jj := 1;
+          If kVBase>0.0 Then BaseFactor := 1000.0*kVBase
+                        Else BaseFactor := 1.0;
+          FOR i := 1 to  NValues DO
+          Begin
+                // this code so nodes come out in order from smallest to larges
+                Repeat
+                     NodeIdx := FindIdx(jj);  // Get the index of the Node that matches jj
+                     inc(jj)
+                Until NodeIdx>0;
+
+                Volts      := Solution.NodeV^[GetRef(NodeIdx)];
+                Result[iV] := Volts.re/BaseFactor;
+                Inc(iV);
+                Result[iV] := Volts.im/BaseFactor;
+                Inc(iV);
+          End;
       End;
   End
   ELSE Result := VarArrayCreate([0, 0], varDouble);  // just return null array
