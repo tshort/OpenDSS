@@ -225,7 +225,8 @@ Begin
              End;
          3:  Begin
                  MaxScale := Parser.DblValue;
-                 If MaxScale>0.0 Then MaxScaleIsSpecified := TRUE;    // Indicate the user wants a particular value
+                 If MaxScale>0.0 Then MaxScaleIsSpecified := TRUE    // Indicate the user wants a particular value
+                                 Else MaxScaleIsSpecified := FALSE;
              End;
          4:  Dots := InterpretYesNo(Param);
          5:  Labels := InterpretYesNo(Param);
