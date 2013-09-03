@@ -1954,7 +1954,7 @@ Function TapPosition(const Transformer:TTransfObj; iWind:Integer):Integer;
 
 Begin
         With Transformer Do
-        Result :=   Round((PresentTap[iWind] - 1.0) / TapIncrement[iWind]  );
+        Result :=   Round((PresentTap[iWind] - (Maxtap[iWind] + Mintap[iWind])/2.0 ) / TapIncrement[iWind]  );
 
 End;
 
