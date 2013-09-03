@@ -53,6 +53,7 @@ TYPE
        CustDurations  : Double; // Accumulated Customer outage durations
        TotalNumCustomers   : Integer;  // Total Number of customers served from this bus
 
+
        constructor Create;
        destructor  Destroy; override;
 

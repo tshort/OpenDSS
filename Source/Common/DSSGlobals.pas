@@ -1,7 +1,7 @@
 unit DSSGlobals;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2013, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
