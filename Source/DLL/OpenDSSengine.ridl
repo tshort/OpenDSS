@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 8/19/2013 12:11:23 AM (- $Rev: 12980 $, 178100070).
+// File generated on 9/2/2013 11:47:12 PM (- $Rev: 12980 $, 219179766).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -77,6 +77,8 @@ library OpenDSSengine
   coclass Sensors;
   interface IXYCurves;
   coclass XYCurves;
+  interface IPDElements;
+  coclass PDElements;
 
 
   [
@@ -330,7 +332,7 @@ library OpenDSSengine
     HRESULT _stdcall NumConductors([out, retval] long* Value);
     [propget, id(0x00000004), helpstring("Number of Phases\0ors per Terminal\0lement\0ct\0a\0t\0i\0o\0n\0r\0k\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall NumPhases([out, retval] long* Value);
-    [propget, id(0x00000005), helpstring("Variant array of strings. Set Bus definitions for each terminal is connected.\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x00000005), helpstring("Variant array of strings. Get  Bus definitions for each terminal is connected.")]
     HRESULT _stdcall BusNames([out, retval] VARIANT* Value);
     [propput, id(0x00000005), helpstring("Variant array of strings. Set Bus definitions for each terminal is connected.\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall BusNames([in] VARIANT Value);
@@ -406,6 +408,8 @@ library OpenDSSengine
     HRESULT _stdcall Variable([in] BSTR MyVarName, [out] long* Code, [out, retval] double* Value);
     [propget, id(0x000000D5), helpstring("For PCElement, get the value of a variable by integer index.")]
     HRESULT _stdcall Variablei([in] long Idx, [out] long* Code, [out, retval] double* Value);
+    [propget, id(0x000000D6), helpstring("Variant array of integer containing the node numbers (representing phases, for example) for each conductor of each terminal. ")]
+    HRESULT _stdcall NodeOrder([out, retval] VARIANT* Value);
   };
 
   [
@@ -558,6 +562,8 @@ library OpenDSSengine
     HRESULT _stdcall ParentPDElement([out, retval] long* Value);
     [propget, id(0x000000E0), helpstring("Interface to XYCurves in active circuit.")]
     HRESULT _stdcall XYCurves([out, retval] XYCurves** Value);
+    [propget, id(0x000000E1), helpstring("Interface to PDElements collection")]
+    HRESULT _stdcall PDElements([out, retval] IPDElements** Value);
   };
 
   [
@@ -578,7 +584,7 @@ library OpenDSSengine
     HRESULT _stdcall Voltages([out, retval] VARIANT* Voltages);
     [propget, id(0x00000004), helpstring("Double Array of sequence voltages at this bus.\0ct.\0tion.\0ActiveElement).\0it element or a general DSS element.\0s.\0ements.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall SeqVoltages([out, retval] VARIANT* SeqVoltages);
-    [propget, id(0x00000005), helpstring("Integer Array of Node Numbers defined at the bus.\0\0tion.\0ActiveElement).\0it element or a general DSS element.\0s.\0ements.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x00000005), helpstring("Integer Array of Node Numbers defined at the bus in same order as the voltages.")]
     HRESULT _stdcall Nodes([out, retval] VARIANT* Nodes);
     [propget, id(0x00000006), helpstring("Open circuit voltage; Complex array.\0 at the bus.\0\0tion.\0ActiveElement).\0it element or a general DSS element.\0s.\0ements.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Voc([out, retval] VARIANT* Voc);
@@ -992,10 +998,14 @@ library OpenDSSengine
     HRESULT _stdcall Count([out, retval] long* Value);
     [propget, id(0x000000D6), helpstring("Wide string list of all branches in zone of the active energymeter object.\0properly opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall AllBranchesInZone([out, retval] VARIANT* Value);
-    [propget, id(0x000000D7), helpstring("Number of branches in Active energymeter zone.\0 active energymeter object.\0properly opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x000000D7), helpstring("Number of branches in Active energymeter zone. (Same as sequencelist size)")]
     HRESULT _stdcall CountBranches([out, retval] long* Value);
     [propget, id(0x000000D8), helpstring("Triggers Reliabiliy calcs and returns SAIFI for this meter's Zone")]
     HRESULT _stdcall SAIFI([out, retval] double* Value);
+    [propget, id(0x000000D9), helpstring("Get/set Index into Meter's SequenceList that contains branch pointers in lexical order. Earlier index guaranteed to be upline from later index. Set PDelement active.")]
+    HRESULT _stdcall SequenceIndex([out, retval] long* Value);
+    [propput, id(0x000000D9)]
+    HRESULT _stdcall SequenceIndex([in] long Value);
   };
 
   [
@@ -2076,6 +2086,48 @@ library OpenDSSengine
   };
 
   [
+    uuid(05D4E15E-1588-4ABB-8339-3527420C668B),
+    helpstring("Dispatch interface for PDElements Object"),
+    dual,
+    oleautomation
+  ]
+  interface IPDElements: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Number of PD elements (including disabled elements)")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CA), helpstring("Set the first enabled PD element to be the active element.  Returns 0 if none found.")]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CB), helpstring("Advance to the next PD element in the circuit. Enabled elements only. Returns 0 when no more elements.")]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CC), helpstring("Variant boolean indicating of PD element should be treated as a shunt element rather than a series element. Applies to Capacitor and Reactor elements in particular.")]
+    HRESULT _stdcall IsShunt([out, retval] VARIANT_BOOL* Value);
+    [propget, id(0x000000CD), helpstring("Get/Set Number of failures per year. For LINE elements: Number of failures per unit length per year. ")]
+    HRESULT _stdcall FaultRate([out, retval] double* Value);
+    [propput, id(0x000000CD)]
+    HRESULT _stdcall FaultRate([in] double Value);
+    [propget, id(0x000000CE), helpstring("Get/Set percent of faults that are permanent (require repair). Otherwise, fault is assumed to be transient/temporary.")]
+    HRESULT _stdcall pctPermanent([out, retval] double* Value);
+    [propput, id(0x000000CE)]
+    HRESULT _stdcall pctPermanent([in] double Value);
+    [propget, id(0x000000CF), helpstring("Get/Set name of active PD Element. Returns null string if active element is not PDElement type.")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000CF)]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000D0), helpstring("Failure rate for this branch. Faults per year including length of line.")]
+    HRESULT _stdcall Lambda([out, retval] double* Value);
+    [propget, id(0x000000D1), helpstring("accummulated failure rate for this branch on downline")]
+    HRESULT _stdcall AccumulatedL([out, retval] double* Value);
+    [propget, id(0x000000D2), helpstring("Average time to repair a permanent fault on this branch, hours.")]
+    HRESULT _stdcall RepairTime([out, retval] double* Value);
+    [propget, id(0x000000D3), helpstring("Number of customers, this branch")]
+    HRESULT _stdcall Numcustomers([out, retval] long* Value);
+    [propget, id(0x000000D4), helpstring("Total number of customers from this branch to the end of the zone")]
+    HRESULT _stdcall Totalcustomers([out, retval] long* Value);
+    [propget, id(0x000000D5), helpstring("Sets the parent PD element to be the active circuit element.  Returns 0 if no more elements upline.")]
+    HRESULT _stdcall ParentPDElement([out, retval] long* Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -2367,6 +2419,15 @@ library OpenDSSengine
   coclass XYCurves
   {
     [default] interface IXYCurves;
+  };
+
+  [
+    uuid(4DDCDADD-A1D3-40BB-98E7-B023BD3947BE),
+    helpstring("PDElements Object")
+  ]
+  coclass PDElements
+  {
+    [default] interface IPDElements;
   };
 
 };

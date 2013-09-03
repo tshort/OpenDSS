@@ -39,6 +39,7 @@ TYPE
 
        NumCustomers      : Integer;
        TotalCustomers    : Integer;
+       CustWeight        : Double; // Weighting factor for customers on this elemebt
 
        ParentPDElement   : TPDElement;
 

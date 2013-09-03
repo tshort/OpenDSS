@@ -160,7 +160,8 @@ function TBus.Get_Nodes: OleVariant;
 // return array of node numbers corresponding to voltages
 
 VAR
-  Nvalues,i, iV:Integer;
+  Nvalues,i, iV, NodeIdx, jj:Integer;
+  pBus : TDSSBus;
 
 Begin
    IF ActiveCircuit = nil Then Begin
@@ -169,13 +170,23 @@ Begin
    ELSE With ActiveCircuit Do
    IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
    Begin
-      Nvalues := Buses^[ActiveBusIndex].NumNodesThisBus;
-      Result := VarArrayCreate( [0, NValues -1], varInteger);
-      iV := 0;
-      FOR i := 1 to  NValues DO
+      pBus := Buses^[ActiveBusIndex];
+      With pBus Do
       Begin
-         Result[iV] := Buses^[ActiveBusIndex].GetNum(i);
-         Inc(iV);
+          Nvalues := NumNodesThisBus;
+          Result := VarArrayCreate( [0, NValues -1], varInteger);
+          iV := 0;
+          jj := 1;
+          FOR i := 1 to  NValues DO
+          Begin
+                // this code so nodes come out in order from smallest to larges
+              Repeat
+                   NodeIdx := FindIdx(jj);  // Get the index of the Node that matches jj
+                   inc(jj)
+              Until NodeIdx>0;
+             Result[iV] := Buses^[ActiveBusIndex].GetNum(NodeIdx);
+             Inc(iV);
+          End;
       End;
   End
   ELSE Result := VarArrayCreate([0, 0], varInteger);  // just return null array

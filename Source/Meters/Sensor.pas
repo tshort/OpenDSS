@@ -77,7 +77,7 @@ TYPE
         Function LimitToPlusMinusOne(const i:Integer):Integer;
         procedure ClearSensor;
         function Get_WLSCurrentError: Double;
-    function Get_WLSVoltageError: Double;
+        function Get_WLSVoltageError: Double;
 
      public
 
@@ -192,7 +192,7 @@ Begin
                         'sensors, Line-Line voltages are expected. For Wye, Line-Neutral are expected.';
      PropertyHelp[6] := 'Array of Currents (amps) measured by the current sensor. Specify this or power quantities; not both.';
      PropertyHelp[7] := 'Array of Active power (kW) measurements at the sensor. Is converted into Currents along with q=[...]'+CRLF+
-                        'Will override any i=[...] specification.';
+                        'Will override any currents=[...] specification.';
      PropertyHelp[8] := 'Array of Reactive power (kvar) measurements at the sensor. Is converted into Currents along with p=[...]';
      PropertyHelp[9] := 'Voltage sensor Connection: { wye | delta | LN | LL }.  Default is wye. Applies to voltage measurement only. '+CRLF+
                         'Currents are always assumed to be line currents.' + CRLF +

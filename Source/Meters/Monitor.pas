@@ -872,7 +872,7 @@ Begin
         IsFileOpen := false;
      End;
   Except
-      On E: Exception DO DoErrorMsg('Cannot open Monitor stream.',
+      On E: Exception DO DoErrorMsg('Cannot close Monitor stream.',
                     E.Message,
                     'Monitor: "' + Name + '"', 671)
   End;

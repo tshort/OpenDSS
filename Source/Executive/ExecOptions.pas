@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 95;
+        NumExecOptions = 98;
 
 VAR
          ExecOption,
@@ -128,6 +128,9 @@ Begin
      ExecOption[93] := 'PVMarkerSize';
      ExecOption[94] := 'StoreMarkerSize';
      ExecOption[95] := 'NeglectLoadY';
+     ExecOption[96] := 'MarkFuses';
+     ExecOption[97] := 'FuseMarkerCode';
+     ExecOption[98] := 'FuseMarkerSize';
 
 
 
@@ -347,8 +350,8 @@ Begin
                        'the time-stamped Result string contents to the log file after a query command, ?. ';
      OptionHelp[83] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Capacitor locations with a symbol. See CapMarkerCode. ';
      OptionHelp[84] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Regulator locations with a symbol. See RegMarkerCode. ';
-     OptionHelp[85] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark PVSystem locations with a symbol. See PVMarkerCode. ';
-     OptionHelp[86] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Storage locations with a symbol. See StoreMarkerCode. ';
+     OptionHelp[85] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark PVSystem locations with a symbol. See PVMarkerCode and PVMarkerSize. ';
+     OptionHelp[86] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Storage locations with a symbol. See StoreMarkerCode and StoreMarkerSize. ';
      OptionHelp[87] := 'Numeric marker code (0..47 -- see Users Manual) for Capacitors. Default is 38.';
      OptionHelp[88] := 'Numeric marker code (0..47 see Users Manual) for Regulators. Default is 47.';
      OptionHelp[89] := 'Numeric marker code (0..47 see Users Manual) for PVSystems. Default is 15.';
@@ -359,7 +362,9 @@ Begin
      OptionHelp[94] := 'Size of Storage marker. Default is 1.';
      OptionHelp[95] := '{YES/TRUE | NO/FALSE}  Default is NO. For Harmonic solution, neglect the Load shunt admittance branch that can siphon off some of the Load injection current. ' + CRLF + CRLF +
                        'If YES, the current injected from the LOAD at harmonic frequencies will be nearly ideal.';
-
+     OptionHelp[96] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Fuse locations with a symbol. See FuseMarkerCode and FuseMarkerSize. ';
+     OptionHelp[97] := 'Numeric marker code (0..47 see Users Manual) for Fuse elements. Default is 25.';
+     OptionHelp[98] := 'Size of Fuse marker. Default is 1.';
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -569,6 +574,9 @@ Begin
            93: ActiveCircuit.PVMarkerSize    := Parser.IntValue;
            94: ActiveCircuit.StoreMarkerSize := Parser.IntValue;
            95: ActiveCircuit.NeglectLoadY    := InterpretYesNo(Param);
+           96: ActiveCircuit.MarkFuses       := InterpretYesNo(Param);
+           97: ActiveCircuit.FuseMarkerCode  := Parser.IntValue;
+           98: ActiveCircuit.FuseMarkerSize  := Parser.IntValue;
          ELSE
            // Ignore excess parameters
          End;
@@ -728,6 +736,9 @@ Begin
            93: AppendGlobalResult(Format('%d' ,[ActiveCircuit.PVMarkerSize]));
            94: AppendGlobalResult(Format('%d' ,[ActiveCircuit.StoreMarkerSize]));
            95: If ActiveCircuit.NeglectLoadY    Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           96: If ActiveCircuit.MarkFuses       Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           97: AppendGlobalResult(Format('%d' ,[ActiveCircuit.FuseMarkerCode]));
+           98: AppendGlobalResult(Format('%d' ,[ActiveCircuit.FuseMarkerSize]));
          ELSE
            // Ignore excess parameters
          End;

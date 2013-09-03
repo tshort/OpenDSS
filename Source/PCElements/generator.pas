@@ -40,6 +40,7 @@ unit generator;
              added control terminal code for PCELement override.
     3-17-03  Revised user-written models and harmonic models
     5-11-09  Added properties to support kW, kvar, PV, and kV  through COM
+    8-28-13 Forced re-initializing solution if Model 3 generator added.
 }
 {
   The generator is essentially a negative load that can be dispatched.

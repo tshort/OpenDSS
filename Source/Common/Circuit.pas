@@ -1,7 +1,7 @@
 unit Circuit;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2013, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -216,12 +216,14 @@ TYPE
               RegMarkerSize    :Integer;
               PVMarkerSize     :Integer;
               StoreMarkerSize  :Integer;
+              FuseMarkerSize   :Integer;
 
               TransMarkerCode  :Integer;
               CapMarkerCode    :Integer;
               RegMarkerCode    :Integer;
               PVMarkerCode     :Integer;
               StoreMarkerCode  :Integer;
+              FuseMarkerCode   :Integer;
 
               MarkSwitches     :Boolean;
               MarkTransformers :Boolean;
@@ -229,6 +231,7 @@ TYPE
               MarkRegulators   :Boolean;
               MarkPVSystems    :Boolean;
               MarkStorage      :Boolean;
+              MarkFuses        :Boolean;
 
               BusMarkerList  :TList;  // list of buses to mark
 
@@ -409,6 +412,7 @@ BEGIN
      MarkRegulators   := FALSE;
      MarkPVSystems    := FALSE;
      MarkStorage      := FALSE;
+     MarkFuses        := FALSE;
 
      SwitchMarkerCode := 5;
      TransMarkerCode  := 35;
@@ -416,12 +420,14 @@ BEGIN
      RegMarkerCode    := 47;
      PVMarkerCode     := 15;
      StoreMarkerCode  := 9;
+     FuseMarkerCode   := 25;
 
      TransMarkerSize  := 1;
      CapMarkerSize    := 3;
      RegMarkerSize    := 1;
      PVMarkerSize     := 1;
      StoreMarkerSize  := 1;
+     FuseMarkerSize   := 1;
 
      BusMarkerList := TList.Create;
      BusMarkerList.Clear;

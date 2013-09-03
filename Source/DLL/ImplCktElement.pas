@@ -1,7 +1,7 @@
 unit ImplCktElement;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2013, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -61,12 +61,13 @@ type
     function Get_AllVariableValues: OleVariant; safecall;
     function Get_Variable(const MyVarName: WideString; out Code: Integer): Double; safecall;
     function Get_Variablei(Idx: Integer; out Code: Integer): Double; safecall;
+    function Get_NodeOrder: OleVariant; safecall;
   end;
 
 implementation
 
 uses ComServ, DSSClassDefs, DSSGlobals, UComplex, Sysutils,
-     PDElement, PCElement, MathUtil, ImplGlobals, Variants, CktElement;
+     PDElement, PCElement, MathUtil, ImplGlobals, Variants, CktElement, Utilities;
 
 { - - - - - - - - - - - - -Helper Function- - - - - - - - - - - - - - - - - - -}
 FUNCTION IsPDElement : Boolean;
@@ -1192,6 +1193,37 @@ begin
          {Else zero-length array null string}
      End
    End;
+
+end;
+
+function TCktElement.Get_NodeOrder: OleVariant;
+VAR
+   k : Integer;
+   i : Integer;
+   j : Integer;
+begin
+
+      Result := VarArrayCreate([0, 0], varInteger);
+      If ActiveCircuit <> Nil Then With ActiveCircuit Do
+      Begin
+
+         If ActiveCktElement<>Nil THEN
+         WITH ActiveCktElement DO
+         Begin
+              k := 0;
+              Result := VarArrayCreate([0, NTerms*Nconds-1], varInteger);
+
+              for i := 1 to Nterms do
+              Begin
+                  for j := (i-1)*NConds+1 to i*Nconds do
+                  Begin
+                       Result[k] := GetNodeNum(NodeRef^[j]);
+                       inc(k);
+                  End;
+              End;
+         End
+      End;
+
 
 end;
 

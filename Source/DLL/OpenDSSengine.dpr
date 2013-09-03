@@ -191,7 +191,8 @@ uses
   CapUserControl in '..\Controls\CapUserControl.pas',
   InvControl in '..\Controls\InvControl.pas',
   GICTransformer in '..\PDElements\GICTransformer.pas',
-  ImplXYCurves in 'ImplXYCurves.pas';
+  ImplXYCurves in 'ImplXYCurves.pas' {XYCurves: CoClass},
+  ImplPDElements in 'ImplPDElements.pas' {PDElements: CoClass};
 
 exports
   DllGetClassObject,

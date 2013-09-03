@@ -42,6 +42,7 @@ Uses
        ImplEvents,
        ImplSensors,
        ImplXYCurves,
+       ImplPDElements,
        DSSClass,
        DSSClassDefs,
        OpenDSSengine_TLB;
@@ -77,6 +78,7 @@ Var
    FEvents      :IDSSEvents;
    FSensors     :ISensors;
    FXYcurves    :IXYcurves;
+   FPDElements  :IPDElements;
 
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
@@ -116,7 +118,7 @@ end;
 Procedure InitializeInterfaces;
 
 Begin
-   // Create some references to interfaces so we can return them
+   // Create the references to internal interfaces so we can return them
    // Called from Main DLL
 
      FBus         := TBus.Create;
@@ -147,6 +149,7 @@ Begin
      FEvents      := TDSSEvents.Create;
      FSensors     := TSensors.Create;
      FXYCurves    := TXYCurves.Create;
+     FPDElements  := TPDElements.Create;
 
      FPropIndex := 0;
      FPropClass := Nil;

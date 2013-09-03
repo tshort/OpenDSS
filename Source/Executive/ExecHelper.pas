@@ -3756,7 +3756,7 @@ Begin
          End;
 
       while pMeter <> Nil do Begin
-         pMeter.CalcSAIFI;
+         pMeter.CalcReliabilityIndices;
          pMeter := ActiveCircuit.EnergyMeters.Next;
       End;
 End;

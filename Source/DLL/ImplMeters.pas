@@ -52,6 +52,8 @@ type
     function Get_AllBranchesInZone: OleVariant; safecall;
     function Get_CountBranches: Integer; safecall;
     function Get_SAIFI: Double; safecall;
+    function Get_SequenceIndex: Integer; safecall;
+    procedure Set_SequenceIndex(Value: Integer); safecall;
     { Protected declarations }
   end;
 
@@ -636,12 +638,15 @@ function TMeters.Get_CountBranches: Integer;
 
 Var
   pMeterObj :TEnergyMeterObj;
-  pelem : TDSSCktElement;
+  // pelem : TDSSCktElement;
 Begin
   Result := 0;
   IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO Begin
     pMeterObj := EnergyMeters.Active;
     if pMeterObj <> Nil then
+    Result := pMeterObj.SequenceList.ListSize;
+
+    (*
     If pMeterObj.BranchList <> Nil then Begin
       // Get count of branches
       pElem := pMeterObj.BranchList.First;
@@ -650,6 +655,8 @@ Begin
          pElem := pMeterObj.BranchList.GoForward;
       End;
     end;
+    *)
+
   End;
 end;
 
@@ -664,9 +671,44 @@ begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
 
-             pMeterObj.CalcSAIFI;
+             pMeterObj.CalcReliabilityIndices;
              Result := pMeterObj.SAIFI;
 
+         End;
+     End;
+end;
+
+function TMeters.Get_SequenceIndex: Integer;
+
+Var
+  pMeterObj :TEnergyMeterObj;
+
+begin
+     Result := 0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+             Result := pMeterObj.SequenceList.ActiveIndex;
+         End;
+     End;
+end;
+
+procedure TMeters.Set_SequenceIndex(Value: Integer);
+
+Var
+  pMeterObj :TEnergyMeterObj;
+
+begin
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then With pMeterObj Do
+         Begin
+             If (Value>0) and (Value<=SequenceList.ListSize) Then
+                      ActiveCktElement := SequenceList.Get(Value)
+             Else
+                DoSimpleMsg(Format('Invalid index for SequenceList: %d. List size is %d.',[Value, SequenceList.ListSize]), 500501);
          End;
      End;
 end;

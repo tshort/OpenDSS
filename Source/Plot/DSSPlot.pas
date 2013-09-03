@@ -64,6 +64,7 @@ Type
       procedure MarkTheRegulators;
       procedure MarkThePVSystems;
       procedure MarkTheStorage;
+      procedure MarkTheFuses;
       Procedure MarkSpecialClasses;
       Procedure DoBusLabels(Const Idx1, Idx2: Integer);
       Procedure DoBusLabel(const Idx: Integer; const BusLabel: String);
@@ -187,7 +188,8 @@ Uses DSSGraph,
    Capacitor,
    PVSystem,
    Storage,
-   RegControl;
+   RegControl,
+   Fuse;
 
 Const
    Eps = 0.002;
@@ -630,7 +632,7 @@ begin
          GenPlotItems.Sort(GenPlotItemCompare);
          // sorts using user-written routine
 
-         Set_ChartCaption(FieldName);
+         Set_ChartCaption(Format('%s, Max=%-.3g ',[FieldName, MaxValue]));
          For i := 0 to GenPlotItems.Count - 1 Do
          Begin
             GenPlotItem := GenPlotItems.items[i];
@@ -982,9 +984,9 @@ Begin
             End;
          ptCircuitplot:
             Begin
-               S := ActiveCircuit.CaseName + ':' + QuantityString;
-               Set_ChartCaption(S);
                SetMaxScale;
+               S := Format('%s:%s, max=%-6.3g',[ActiveCircuit.CaseName, QuantityString, MaxScale]);
+               Set_ChartCaption(S);
                DoCircuitPlot;
                MarkSpecialClasses;
             End;
@@ -1000,9 +1002,9 @@ Begin
          ptGeneralCircuitPlot:
             Begin
                LoadGeneralLineData;
-               S := ActiveCircuit.CaseName + ':' + QuantityString;
-               Set_ChartCaption(S);
                SetMaxScale;
+               S := Format('%s:%s, max=%-.3g',[ActiveCircuit.CaseName, QuantityString, MaxScale]);
+               Set_ChartCaption(S);
                DoGeneralCircuitPlot;
                MarkSpecialClasses;
             End;
@@ -1158,7 +1160,7 @@ begin
    MarkerIdx := 24;
    ObjectName := '';
 
-   FMaxLineThickness := 7;
+   FMaxLineThickness := 10;
 
    Channels := Nil;
    SetLength(Channels, 3);
@@ -1222,7 +1224,7 @@ begin
                Begin
                   If PlotType = ptGeneralCircuitPlot Then
                      Result := Round
-                       (5.0 * (abs(pLine.GeneralPlotQuantity) / MaxScale))
+                       (8.0 * (abs(pLine.GeneralPlotQuantity) / MaxScale))
                   Else
                      Result := 1;
                End;
@@ -1238,20 +1240,19 @@ begin
             pqPower:
                Begin
                   Result := Round
-                    (5.0 * (abs(pLine.Power[1].re) / MaxScale * 0.001)); // kW
+                    (5.0 * (abs(pLine.Power[1].re)* 0.001 / MaxScale )); // kW
                End;
             pqLosses:
                Begin // Losses per unit length
                   Result := Round
-                    (5.0 * (abs(pLine.Losses.re / pLine.Len)
-                          / MaxScale * 0.001)); // kW
+                    (5.0 * (abs(pLine.Losses.re / pLine.Len) * 0.001 / MaxScale));
                End;
             pqCapacity:
                Begin
                   If pLine.Normamps > 0.0 Then
                      Result := Round(5.0 * (1.0 - MaxCurrent / pLine.Normamps))
                   Else
-                     Result := 7;
+                     Result := FMaxLineThickness;
                End;
          Else
             Result := 1;
@@ -2884,6 +2885,7 @@ begin
      If ActiveCircuit.MarkRegulators   Then MarkTheRegulators;
      If ActiveCircuit.MarkPVSystems    Then MarkThePVSystems;
      If ActiveCircuit.MarkStorage      Then MarkTheStorage;
+     If ActiveCircuit.MarkFuses        Then MarkTheFuses;
 
      If ShowSubs Then MarkSubTransformers;
 
@@ -2940,6 +2942,34 @@ begin
          End;
       pCapacitor := ActiveCircuit.ShuntCapacitors.Next;
    End;
+end;
+
+procedure TDSSPlot.MarkTheFuses;
+Var
+     pFuse:TFuseObj;
+     BusIdx: Integer;
+     MyBus : TDSSBus;
+     FuseClass : TFuse;
+
+begin
+   FuseClass := GetDSSClassPtr('fuse') As TFuse;
+   pFuse := TFuseObj(FuseClass.ElementList.first);
+   While pFuse <> Nil Do
+   Begin
+      If pFuse.Enabled Then
+         Begin
+            BusIdx := pFuse.ControlledElement.Terminals^[pFuse.ElementTerminal ].BusRef;
+            With ActiveCircuit Do  Begin
+               MyBus :=  Buses^[BusIdx];
+               If MyBus.CoordDefined Then
+               Begin
+                  AddNewMarker(MyBus.X, MyBus.y , clRed, FuseMarkerCode, FuseMarkerSize);
+               End;
+            End;
+         End;
+      pFuse := TFuseObj(FuseClass.ElementList.Next);
+   End;
+
 end;
 
 procedure TDSSPlot.MarkThePVSystems;
@@ -3102,7 +3132,7 @@ begin
       pqCurrent:
          Result := 'Current';
       pqLosses:
-         Result := 'Losses';
+         Result := 'Loss Density';
       pqCapacity:
          Result := 'Capacity';
       pqNone:
@@ -3125,8 +3155,26 @@ begin
          pqVoltage:
             Begin
             End;
-         pqPower, pqLosses:
+
+         pqLosses:
             Begin
+               maxScale := 0.0;
+               pLine := ActiveCircuit.Lines.First;
+               While pLine <> Nil Do
+               Begin
+                  If pLine.Enabled Then
+                     With pLine Do
+                     Begin
+                        // ----ActiveTerminalIdx := 1;
+                        MaxScale := Max(MaxScale, abs(pLine.Losses.re / pLine.Len ))
+                     End;
+                  pLine := ActiveCircuit.Lines.Next;
+               End;
+               MaxScale := MaxScale * 0.001;
+            End;
+         pqPower:
+            Begin
+               maxScale := 0.0;
                pLine := ActiveCircuit.Lines.First;
                While pLine <> Nil Do
                Begin
@@ -3147,6 +3195,25 @@ begin
          pqCapacity:
             Begin
             End;
+
+         pqNone:
+               Begin
+                  If PlotType = ptGeneralCircuitPlot Then
+                  Begin
+                     pLine := ActiveCircuit.Lines.First;
+                     While pLine <> Nil Do
+                     Begin
+                        If pLine.Enabled Then
+                           With pLine Do
+                           Begin
+                              // ----ActiveTerminalIdx := 1;
+                              MaxScale := Max(MaxScale, abs(GeneralPlotQuantity))
+                           End;
+                        pLine := ActiveCircuit.Lines.Next;
+                     End;
+
+                  End;
+               End;
       ELSE
       END;
 

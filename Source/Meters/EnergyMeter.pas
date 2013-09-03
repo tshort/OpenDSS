@@ -335,7 +335,7 @@ Type
         Procedure ReduceZone;  // Reduce Zone by eliminating buses and merging lines
         Procedure SaveZone(const dirname:String);
 
-        Procedure CalcSAIFI;
+        Procedure CalcReliabilityIndices;
 
         FUNCTION  GetPropertyValue(Index:Integer):String;Override;
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
@@ -1556,7 +1556,6 @@ begin
             If Not CktElem.Checked  Then    // Avoid double counting
             WITH CktElem Do
             Begin
-
                  Checked := TRUE;
                  Inc(TotalCustomers, NumCustomers);
                  If ParentPDElement <> Nil Then
@@ -2282,12 +2281,12 @@ end;
 
 
 {-------------------------------------------------------------------------------}
-procedure TEnergyMeterObj.CalcSAIFI;
+procedure TEnergyMeterObj.CalcReliabilityIndices;
 Var
     PD_Elem : TPDElement;
     idx     : Integer;
     pBus    : TDSSBus;
-    Bref    : Integer;
+    Ncusts      : Integer;
 
 begin
 
@@ -2335,15 +2334,20 @@ begin
 **** End Debug *)
        End;
 
-     // Calc SAIFI from 1st bus in Zone
-         PD_Elem := SequenceList.Get(1);
-         With PD_Elem Do Begin
-              Bref := Terminals^[ToTerminal].BusRef;
-              pBus := ActiveCircuit.Buses^[Bref] ;
-         End;
-         With pBus Do SAIFI := CustInterrupts / (TotalNumCustomers + PD_Elem.NumCustomers) ;
+       SAIFI := 0.0;
+       Ncusts := 0;
+       WITH ActiveCircuit do
+       For idx := 1 to SequenceList.ListSize Do
+       Begin
+            PD_Elem := TPDElement(SequenceList.Get(idx));
+            WITH  PD_Elem Do Begin
+                 SAIFI := SAIFI + NumCustomers * Buses^[Terminals^[FromTerminal].BusRef].Num_Interrupt;
+                 inc(Ncusts, NumCustomers);
+            End ;
+       End;
+       If Ncusts>0  Then  SAIFI := SAIFI / Ncusts; // Normalize to total number of customers
 
-(****      WriteDLLDebugfile(Format('Bus = %s, SAIFI= %.11g ',[ActiveCircuit.BusList.Get(Bref), SAIFI  ]));  *)
+
 end;
 
 {-------------------------------------------------------------------------------}

@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 8/19/2013 12:11:13 AM from Type Library described below.
+// File generated on 9/2/2013 11:47:06 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -109,6 +109,8 @@ const
   CLASS_Sensors: TGUID = '{FC54E9AA-1C6A-4CF8-837D-82B257D98E5A}';
   IID_IXYCurves: TGUID = '{97AA7680-E994-4A0C-BAC3-9B67BA49825C}';
   CLASS_XYCurves: TGUID = '{9594F37D-E47E-4701-892B-52BE7E576E87}';
+  IID_IPDElements: TGUID = '{05D4E15E-1588-4ABB-8339-3527420C668B}';
+  CLASS_PDElements: TGUID = '{4DDCDADD-A1D3-40BB-98E7-B023BD3947BE}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -286,6 +288,8 @@ type
   ISensorsDisp = dispinterface;
   IXYCurves = interface;
   IXYCurvesDisp = dispinterface;
+  IPDElements = interface;
+  IPDElementsDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -319,6 +323,7 @@ type
   DSSEvents = IDSSEvents;
   Sensors = ISensors;
   XYCurves = IXYCurves;
+  PDElements = IPDElements;
 
 
 // *********************************************************************//
@@ -423,6 +428,7 @@ type
     function Get_AllVariableValues: OleVariant; safecall;
     function Get_Variable(const MyVarName: WideString; out Code: Integer): Double; safecall;
     function Get_Variablei(Idx: Integer; out Code: Integer): Double; safecall;
+    function Get_NodeOrder: OleVariant; safecall;
     property Name: WideString read Get_Name;
     property NumTerminals: Integer read Get_NumTerminals;
     property NumConductors: Integer read Get_NumConductors;
@@ -457,6 +463,7 @@ type
     property AllVariableValues: OleVariant read Get_AllVariableValues;
     property Variable[const MyVarName: WideString; out Code: Integer]: Double read Get_Variable;
     property Variablei[Idx: Integer; out Code: Integer]: Double read Get_Variablei;
+    property NodeOrder: OleVariant read Get_NodeOrder;
   end;
 
 // *********************************************************************//
@@ -503,6 +510,7 @@ type
     property AllVariableValues: OleVariant readonly dispid 211;
     property Variable[const MyVarName: WideString; out Code: Integer]: Double readonly dispid 212;
     property Variablei[Idx: Integer; out Code: Integer]: Double readonly dispid 213;
+    property NodeOrder: OleVariant readonly dispid 214;
   end;
 
 // *********************************************************************//
@@ -598,6 +606,7 @@ type
     procedure UpdateStorage; safecall;
     function Get_ParentPDElement: Integer; safecall;
     function Get_XYCurves: XYCurves; safecall;
+    function Get_PDElements: IPDElements; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -644,6 +653,7 @@ type
     property Sensors: Sensors read Get_Sensors;
     property ParentPDElement: Integer read Get_ParentPDElement;
     property XYCurves: XYCurves read Get_XYCurves;
+    property PDElements: IPDElements read Get_PDElements;
   end;
 
 // *********************************************************************//
@@ -715,6 +725,7 @@ type
     procedure UpdateStorage; dispid 222;
     property ParentPDElement: Integer readonly dispid 223;
     property XYCurves: XYCurves readonly dispid 224;
+    property PDElements: IPDElements readonly dispid 225;
   end;
 
 // *********************************************************************//
@@ -1202,6 +1213,8 @@ type
     function Get_AllBranchesInZone: OleVariant; safecall;
     function Get_CountBranches: Integer; safecall;
     function Get_SAIFI: Double; safecall;
+    function Get_SequenceIndex: Integer; safecall;
+    procedure Set_SequenceIndex(Value: Integer); safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1221,6 +1234,7 @@ type
     property AllBranchesInZone: OleVariant read Get_AllBranchesInZone;
     property CountBranches: Integer read Get_CountBranches;
     property SAIFI: Double read Get_SAIFI;
+    property SequenceIndex: Integer read Get_SequenceIndex write Set_SequenceIndex;
   end;
 
 // *********************************************************************//
@@ -1257,6 +1271,7 @@ type
     property AllBranchesInZone: OleVariant readonly dispid 214;
     property CountBranches: Integer readonly dispid 215;
     property SAIFI: Double readonly dispid 216;
+    property SequenceIndex: Integer dispid 217;
   end;
 
 // *********************************************************************//
@@ -2563,6 +2578,66 @@ type
   end;
 
 // *********************************************************************//
+// Interface: IPDElements
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {05D4E15E-1588-4ABB-8339-3527420C668B}
+// *********************************************************************//
+  IPDElements = interface(IDispatch)
+    ['{05D4E15E-1588-4ABB-8339-3527420C668B}']
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_IsShunt: WordBool; safecall;
+    function Get_FaultRate: Double; safecall;
+    procedure Set_FaultRate(Value: Double); safecall;
+    function Get_pctPermanent: Double; safecall;
+    procedure Set_pctPermanent(Value: Double); safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_Lambda: Double; safecall;
+    function Get_AccumulatedL: Double; safecall;
+    function Get_RepairTime: Double; safecall;
+    function Get_Numcustomers: Integer; safecall;
+    function Get_Totalcustomers: Integer; safecall;
+    function Get_ParentPDElement: Integer; safecall;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property IsShunt: WordBool read Get_IsShunt;
+    property FaultRate: Double read Get_FaultRate write Set_FaultRate;
+    property pctPermanent: Double read Get_pctPermanent write Set_pctPermanent;
+    property Name: WideString read Get_Name write Set_Name;
+    property Lambda: Double read Get_Lambda;
+    property AccumulatedL: Double read Get_AccumulatedL;
+    property RepairTime: Double read Get_RepairTime;
+    property Numcustomers: Integer read Get_Numcustomers;
+    property Totalcustomers: Integer read Get_Totalcustomers;
+    property ParentPDElement: Integer read Get_ParentPDElement;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IPDElementsDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {05D4E15E-1588-4ABB-8339-3527420C668B}
+// *********************************************************************//
+  IPDElementsDisp = dispinterface
+    ['{05D4E15E-1588-4ABB-8339-3527420C668B}']
+    property Count: Integer readonly dispid 201;
+    property First: Integer readonly dispid 202;
+    property Next: Integer readonly dispid 203;
+    property IsShunt: WordBool readonly dispid 204;
+    property FaultRate: Double dispid 205;
+    property pctPermanent: Double dispid 206;
+    property Name: WideString dispid 207;
+    property Lambda: Double readonly dispid 208;
+    property AccumulatedL: Double readonly dispid 209;
+    property RepairTime: Double readonly dispid 210;
+    property Numcustomers: Integer readonly dispid 211;
+    property Totalcustomers: Integer readonly dispid 212;
+    property ParentPDElement: Integer readonly dispid 213;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -2898,6 +2973,18 @@ type
     class function CreateRemote(const MachineName: string): IXYCurves;
   end;
 
+// *********************************************************************//
+// The Class CoPDElements provides a Create and CreateRemote method to
+// create instances of the default interface IPDElements exposed by
+// the CoClass PDElements. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoPDElements = class
+    class function Create: IPDElements;
+    class function CreateRemote(const MachineName: string): IPDElements;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -3180,6 +3267,16 @@ end;
 class function CoXYCurves.CreateRemote(const MachineName: string): IXYCurves;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_XYCurves) as IXYCurves;
+end;
+
+class function CoPDElements.Create: IPDElements;
+begin
+  Result := CreateComObject(CLASS_PDElements) as IPDElements;
+end;
+
+class function CoPDElements.CreateRemote(const MachineName: string): IPDElements;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_PDElements) as IPDElements;
 end;
 
 end.

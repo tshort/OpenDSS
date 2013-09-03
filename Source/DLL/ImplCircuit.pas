@@ -1,7 +1,7 @@
 unit ImplCircuit;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2013, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -9,6 +9,7 @@ unit ImplCircuit;
 {
  10/14/99  Corrected the calculation of Circuit Losses
  1/12/00  Modified first..next routines to ignore disabled devices
+ 8/19/13  Several mods
 }
 
 interface
@@ -81,6 +82,7 @@ type
     procedure UpdateStorage; safecall;
     function Get_ParentPDElement: Integer; safecall;
     function Get_XYCurves: XYCurves; safecall;
+    function Get_PDElements: IPDElements; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -1061,6 +1063,11 @@ end;
 function TCircuit.Get_XYCurves: XYCurves;
 begin
      Result := FXYCurves as IXYCurves;
+end;
+
+function TCircuit.Get_PDElements: IPDElements;
+begin
+     Result := FPDElements as IPDElements;
 end;
 
 initialization
