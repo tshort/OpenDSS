@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumShowOptions = 32;
+        NumShowOptions = 33;
 
 FUNCTION DoShowCmd:Integer;
 
@@ -58,7 +58,7 @@ Begin
     ShowOption[30] := 'kvbasemismatch';
     ShowOption[31] := 'deltaV';
     ShowOption[32] := 'QueryLog';
-
+    ShowOption[33] := 'Controlled';
 
 
 
@@ -131,6 +131,7 @@ Begin
                     'Scripts for correcting the voltage base are suggested.';
     ShowHelp[31] := 'Show voltages ACROSS each 2-terminal element, phase-by-phase. ';
     ShowHelp[32] := 'Show Query Log file. ';
+    ShowHelp[33] := 'Show Controlled elements and the names of the controls connected to them in CSV format.';
 
 End;
 
@@ -346,6 +347,7 @@ Begin
       30: ShowkVBaseMismatch(GetOutputDirectory + CircuitName_ + 'kVBaseMismatch.Txt');
       31: ShowDeltaV(GetOutputDirectory + CircuitName_ + 'DeltaV.Txt');
       32: FireOffEditor(QueryLogFileName);
+      33: ShowControlledElements(GetOutputDirectory + CircuitName_ + 'ControlledElements.CSV');
    ELSE
    End;
 

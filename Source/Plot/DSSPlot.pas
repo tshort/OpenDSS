@@ -65,6 +65,7 @@ Type
       procedure MarkThePVSystems;
       procedure MarkTheStorage;
       procedure MarkTheFuses;
+      procedure MarkTheReclosers;
       Procedure MarkSpecialClasses;
       Procedure DoBusLabels(Const Idx1, Idx2: Integer);
       Procedure DoBusLabel(const Idx: Integer; const BusLabel: String);
@@ -189,7 +190,8 @@ Uses DSSGraph,
    PVSystem,
    Storage,
    RegControl,
-   Fuse;
+   Fuse,
+   Recloser;
 
 Const
    Eps = 0.002;
@@ -2888,6 +2890,7 @@ begin
      If ActiveCircuit.MarkPVSystems    Then MarkThePVSystems;
      If ActiveCircuit.MarkStorage      Then MarkTheStorage;
      If ActiveCircuit.MarkFuses        Then MarkTheFuses;
+     If ActiveCircuit.MarkReclosers    Then MarkTheReclosers;
 
      If ShowSubs Then MarkSubTransformers;
 
@@ -2970,6 +2973,34 @@ begin
             End;
          End;
       pFuse := TFuseObj(FuseClass.ElementList.Next);
+   End;
+
+end;
+
+procedure TDSSPlot.MarkTheReclosers;
+Var
+     pRecloser:TRecloserObj;
+     BusIdx: Integer;
+     MyBus : TDSSBus;
+     RecloserClass : TRecloser;
+
+begin
+   RecloserClass := GetDSSClassPtr('Recloser') As TRecloser;
+   pRecloser := TRecloserObj(RecloserClass.ElementList.first);
+   While pRecloser <> Nil Do
+   Begin
+      If pRecloser.Enabled Then
+         Begin
+            BusIdx := pRecloser.ControlledElement.Terminals^[pRecloser.ElementTerminal ].BusRef;
+            With ActiveCircuit Do  Begin
+               MyBus :=  Buses^[BusIdx];
+               If MyBus.CoordDefined Then
+               Begin
+                  AddNewMarker(MyBus.X, MyBus.y , clLime, RecloserMarkerCode, RecloserMarkerSize);
+               End;
+            End;
+         End;
+      pRecloser := TRecloserObj(RecloserClass.ElementList.Next);
    End;
 
 end;

@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 98;
+        NumExecOptions = 101;
 
 VAR
          ExecOption,
@@ -131,6 +131,9 @@ Begin
      ExecOption[96] := 'MarkFuses';
      ExecOption[97] := 'FuseMarkerCode';
      ExecOption[98] := 'FuseMarkerSize';
+     ExecOption[99] := 'MarkReclosers';
+     ExecOption[100] := 'RecloserMarkerCode';
+     ExecOption[101] := 'RecloserMarkerSize';
 
 
 
@@ -353,11 +356,11 @@ Begin
      OptionHelp[85] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark PVSystem locations with a symbol. See PVMarkerCode and PVMarkerSize. ';
      OptionHelp[86] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Storage locations with a symbol. See StoreMarkerCode and StoreMarkerSize. ';
      OptionHelp[87] := 'Numeric marker code (0..47 -- see Users Manual) for Capacitors. Default is 38.';
-     OptionHelp[88] := 'Numeric marker code (0..47 see Users Manual) for Regulators. Default is 47.';
+     OptionHelp[88] := 'Numeric marker code (0..47 see Users Manual) for Regulators. Default is 17. (red)';
      OptionHelp[89] := 'Numeric marker code (0..47 see Users Manual) for PVSystems. Default is 15.';
      OptionHelp[90] := 'Numeric marker code (0..47 see Users Manual) for Storage elements. Default is 9.';
      OptionHelp[91] := 'Size of Capacitor marker. Default is 3.';
-     OptionHelp[92] := 'Size of Regulator marker. Default is 1.';
+     OptionHelp[92] := 'Size of Regulator marker. Default is 5.';
      OptionHelp[93] := 'Size of PVsystem marker. Default is 1.';
      OptionHelp[94] := 'Size of Storage marker. Default is 1.';
      OptionHelp[95] := '{YES/TRUE | NO/FALSE}  Default is NO. For Harmonic solution, neglect the Load shunt admittance branch that can siphon off some of the Load injection current. ' + CRLF + CRLF +
@@ -365,6 +368,9 @@ Begin
      OptionHelp[96] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Fuse locations with a symbol. See FuseMarkerCode and FuseMarkerSize. ';
      OptionHelp[97] := 'Numeric marker code (0..47 see Users Manual) for Fuse elements. Default is 25.';
      OptionHelp[98] := 'Size of Fuse marker. Default is 1.';
+     OptionHelp[99] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Recloser locations with a symbol. See RecloserMarkerCode and RecloserMarkerSize. ';
+     OptionHelp[100] := 'Numeric marker code (0..47 see Users Manual) for Recloser elements. Default is 17. (Lime)';
+     OptionHelp[101] := 'Size of Recloser marker. Default is 5.';
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -577,6 +583,9 @@ Begin
            96: ActiveCircuit.MarkFuses       := InterpretYesNo(Param);
            97: ActiveCircuit.FuseMarkerCode  := Parser.IntValue;
            98: ActiveCircuit.FuseMarkerSize  := Parser.IntValue;
+           99: ActiveCircuit.MarkReclosers       := InterpretYesNo(Param);
+          100: ActiveCircuit.RecloserMarkerCode  := Parser.IntValue;
+          101: ActiveCircuit.RecloserMarkerSize  := Parser.IntValue;
          ELSE
            // Ignore excess parameters
          End;

@@ -217,6 +217,7 @@ TYPE
               PVMarkerSize     :Integer;
               StoreMarkerSize  :Integer;
               FuseMarkerSize   :Integer;
+              RecloserMarkerSize   :Integer;
 
               TransMarkerCode  :Integer;
               CapMarkerCode    :Integer;
@@ -224,6 +225,7 @@ TYPE
               PVMarkerCode     :Integer;
               StoreMarkerCode  :Integer;
               FuseMarkerCode   :Integer;
+              RecloserMarkerCode   :Integer;
 
               MarkSwitches     :Boolean;
               MarkTransformers :Boolean;
@@ -232,6 +234,7 @@ TYPE
               MarkPVSystems    :Boolean;
               MarkStorage      :Boolean;
               MarkFuses        :Boolean;
+              MarkReclosers        :Boolean;
 
               BusMarkerList  :TList;  // list of buses to mark
 
@@ -413,21 +416,24 @@ BEGIN
      MarkPVSystems    := FALSE;
      MarkStorage      := FALSE;
      MarkFuses        := FALSE;
+     MarkReclosers    := FALSE;
 
      SwitchMarkerCode := 5;
      TransMarkerCode  := 35;
      CapMarkerCode    := 38;
-     RegMarkerCode    := 47;
+     RegMarkerCode    := 17; //47;
      PVMarkerCode     := 15;
      StoreMarkerCode  := 9;
      FuseMarkerCode   := 25;
+     RecloserMarkerCode := 17;
 
      TransMarkerSize  := 1;
      CapMarkerSize    := 3;
-     RegMarkerSize    := 1;
+     RegMarkerSize    := 5; //1;
      PVMarkerSize     := 1;
      StoreMarkerSize  := 1;
      FuseMarkerSize   := 1;
+     RecloserMarkerSize := 5;
 
      BusMarkerList := TList.Create;
      BusMarkerList.Clear;

@@ -368,13 +368,13 @@ Begin
         GroundDelayed  := OtherRecloser.GroundDelayed;
         PhaseFast      := OtherRecloser.PhaseFast;
         GroundFast     := OtherRecloser.GroundFast;
-        PhaseTrip     := OtherRecloser.PhaseTrip;
+        PhaseTrip      := OtherRecloser.PhaseTrip;
         GroundTrip     := OtherRecloser.GroundTrip;
         PhaseInst      := OtherRecloser.PhaseInst;
         GroundInst     := OtherRecloser.GroundInst;
         Resettime      := OtherRecloser.Resettime;
         NumReclose     := OtherRecloser.NumReclose;
-	NumFast        := OtherRecloser.NumFast;
+	      NumFast        := OtherRecloser.NumFast;
 
         Reallocmem(RecloseIntervals, SizeOf(RecloseIntervals^[1]) * 4);      // Always make a max of 4
         FOR i := 1 to NumReclose DO RecloseIntervals^[i] :=  OtherRecloser.RecloseIntervals^[i];
@@ -511,6 +511,10 @@ Begin
          End;
 
 {Check for existence of Controlled Element}
+
+         // If previously assigned, reset HasOCPDevice flag in case this is a move
+         If Assigned(ControlledElement) Then  ControlledElement.HasOCPDevice := FALSE;
+
 
          Devindex := GetCktElementIndex(ElementName); // Global function
          IF   DevIndex>0   THEN Begin  // Both CktElement and monitored element must already exist

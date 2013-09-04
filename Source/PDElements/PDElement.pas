@@ -91,7 +91,7 @@ begin
         AccumulatedLambda := Buses^[Terminals^[ToTerminal].BusRef].Lambda + Lambda;
         FromBus :=   Buses^[Terminals^[FromTerminal].BusRef];
         FromBus.TotalNumCustomers :=  FromBus.TotalNumCustomers + TotalCustomers;
-        {Compute accumulated to FROM Bus; if a fault interrupt, assume it isolates all downline faults}
+        {Compute accumulated to FROM Bus; if a fault interrupter, assume it isolates all downline faults}
         If NOT HasOcpDevice Then Begin
             // accumlate it to FROM bus
             accumsum(FromBus.Lambda, AccumulatedLambda);

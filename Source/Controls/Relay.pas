@@ -638,6 +638,9 @@ Begin
 
 {Check for existence of Controlled Element}
 
+         // If previously assigned, reset HasOCPDevice flag in case this is a move
+         If Assigned(ControlledElement) Then  ControlledElement.HasOCPDevice := FALSE;
+
          Devindex := GetCktElementIndex(ElementName); // Global function
          IF   DevIndex>0   THEN
            Begin  // Both CktElement and monitored element must already exist

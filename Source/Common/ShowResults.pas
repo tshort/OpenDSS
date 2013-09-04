@@ -37,6 +37,7 @@ Procedure ShowTopology(FileRoot:String); // summary and tree-view to separate fi
 Procedure ShowNodeCurrentSum(FileNm:String);
 Procedure ShowkVBaseMismatch(FileNm:String);
 Procedure ShowDeltaV(FileNm:String);
+Procedure ShowControlledElements(FileNm:String);
 
 implementation
 
@@ -3364,6 +3365,45 @@ Begin
         CloseFile(F);
         FireOffEditor(FileNm);
      End;
+
+End;
+
+Procedure ShowControlledElements(FileNm:String);
+
+Var F:Textfile;
+    pdelem : TPDElement;
+    pctrlelem  : TDSSCktElement;
+    i : Integer;
+
+Begin
+  Try
+
+     Assignfile(F,FileNm);
+     ReWrite(F);
+
+     pdelem := ActiveCircuit.PDElements.First;
+     while pdelem <> nil do
+     Begin
+          If pdelem.HasControl  Then
+          Begin
+            With pdelem Do Write(F, Format('%s.%s',[ParentClass.Name, Name ]));
+            For i := 1 to pdelem.ControlElementList.ListSize  do
+            Begin
+                 pctrlelem := pdelem.ControlElementList.Get(i);
+                 With  pctrlelem Do
+                       Write(F, Format(', %s.%s ', [ParentClass.Name, Name  ]));
+            End;
+            Writeln(F);
+          End;
+          pdelem := ActiveCircuit.PDElements.Next;
+     End;
+
+  Finally
+
+     CloseFile(F);
+     FireOffEditor(FileNm);
+
+  End;
 
 End;
 
