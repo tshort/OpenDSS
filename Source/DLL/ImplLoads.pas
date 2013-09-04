@@ -84,6 +84,8 @@ type
     procedure Set_ZIPV(Value: OleVariant); safecall;
     function Get_pctSeriesRL: Double; safecall;
     procedure Set_pctSeriesRL(Value: Double); safecall;
+    function Get_RelWeight: Double; safecall;
+    procedure Set_RelWeight(Value: Double); stdcall;
 
   end;
 
@@ -831,6 +833,24 @@ begin
 end;
 
 
+
+function TLoads.Get_RelWeight: Double;
+var
+  elem: TLoadObj;
+begin
+  Result := 0.0;
+  elem := ActiveLoad;
+  if elem <> nil then Result := elem.RelWeighting;
+
+end;
+
+procedure TLoads.Set_RelWeight(Value: Double);
+var
+  elem: TLoadObj;
+begin
+  elem := ActiveLoad;
+  if elem <> nil then elem.RelWeighting := Value;
+end;
 
 initialization
   TAutoObjectFactory.Create(ComServer, TLoads, Class_Loads,

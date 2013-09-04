@@ -172,6 +172,7 @@ TYPE
         CVRShapeObj        :TLoadShapeObj;
         ZIPV               :pDoubleArray;  // Made public 5-20-2013
         puSeriesRL         :Double;
+        RelWeighting       :Double;
 
         FLoadModel:Integer;   // Variation with voltage
           {  1 = Constant kVA (P,Q always in same ratio)
@@ -239,7 +240,7 @@ implementation
 
 USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, Command, Math, MathUtil, Utilities;
 
-Const  NumPropsThisClass = 34;
+Const  NumPropsThisClass = 35;
 
 Var  CDOUBLEONE:Complex;
 
@@ -312,6 +313,7 @@ Begin
      PropertyName[32] := 'NumCust';   // Number of customers, this load
      PropertyName[33] := 'ZIPV';      // array of 7 coefficients
      PropertyName[34] := '%SeriesRL';      // pct of Load that is series R-L
+     PropertyName[35] := 'RelWeight';      // Weighting factor for reliability
 
 
      // define Property help values
@@ -424,6 +426,8 @@ Begin
                          ' No defaults; all coefficients must be specified if using model=8.';
      PropertyHelp[34] := 'Percent of load that is series R-L for Harmonic studies. Default is 50. Remainder is assumed to be parallel R and L. ' +
                          'This has a significant impact on the amount of damping observed in Harmonics solutions.';
+     PropertyHelp[35] := 'Relative weighting factor for reliability calcs. Default = 1. Used to designate high priority loads such as hospitals, etc. ' + CRLF + CRLF +
+                         'Is multiplied by number of customers and load kW during reliability calcs.';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -558,16 +562,17 @@ Begin
            25: FpuStdDev     := Parser.DblValue/100.0;
            26: FCVRwattFactor:= Parser.DblValue;
            27: FCVRvarFactor := Parser.DblValue;
-           28: kWh          := Parser.DblValue;
-           29: kWhdays      := Parser.DblValue;
-           30: Cfactor      := Parser.DblValue;
-           31: CVRShape     := Param;
+           28: kWh           := Parser.DblValue;
+           29: kWhdays       := Parser.DblValue;
+           30: Cfactor       := Parser.DblValue;
+           31: CVRShape      := Param;
            32: NumCustomers  := Parser.IntValue;
            33: Begin
                  SetZIPVSize (7);
                  Parser.ParseAsVector (7, ZIPV);
                End;
            34: puSeriesRL    := Parser.DblValue / 100.0;
+           35: RelWeighting  := Parser.DblValue;
 
          ELSE
            // Inherited edits
@@ -681,6 +686,7 @@ Begin
        FCVRvarFactor     := OtherLoad.FCVRvarFactor;
        ShapeIsActual     := OtherLoad.ShapeIsActual;
        puSeriesRL        := OtherLoad.puSeriesRL;
+       RelWeighting      := OtherLoad.RelWeighting;
 
        SetZIPVSize (OtherLoad.nZIPV);
        for i := 1 to FnZIPV do ZIPV^[i] := OtherLoad.ZIPV^[i];
@@ -756,6 +762,7 @@ Begin
      LastYear       := 0;
      FCVRwattFactor := 1.0;
      FCVRvarFactor  := 2.0;
+     RelWeighting   := 1.0;
 
      LastGrowthFactor  :=1.0;
      FkVAAllocationFactor := 0.5;
@@ -2052,6 +2059,7 @@ begin
      PropertyValue[32] := '1';  // NumCust
      PropertyValue[33] := '';  // ZIPV coefficient array
      PropertyValue[34] := '50';  // %SeriesRL
+     PropertyValue[35] := '1';  // RelWeighting
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -2108,6 +2116,7 @@ begin
                   for i := 1 to nZIPV do Result := Result + Format(' %-g', [ZIPV^[i]]);
              end;
          34: Result := Format('%-g',   [puSeriesRL*100.0]);
+         35: Result := Format('%-g',   [RelWeighting]);
      ELSE
          Result := Inherited GetPropertyValue(index);
      End;

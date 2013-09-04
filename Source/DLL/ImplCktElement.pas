@@ -8,6 +8,7 @@ unit ImplCktElement;
 
 {
    5-17-00 Fixed bug in SeqCurrents and SeqPowers with location of Reallocmem
+   9-1-13 Added NodeOrder  array that corresponds to voltages, currents, powers
 }
 
 interface
@@ -51,7 +52,7 @@ type
     function Get_GUID: WideString; safecall;
     function Get_Handle: Integer; safecall;
     procedure Set_DisplayName(const Value: WideString); safecall;
-    function Get_Controller: WideString; safecall;
+    function Get_Controller(idx: Integer): WideString; safecall;
     function Get_EnergyMeter: WideString; safecall;
     function Get_HasVoltControl: WordBool; safecall;
     function Get_HasSwitchControl: WordBool; safecall;
@@ -62,6 +63,8 @@ type
     function Get_Variable(const MyVarName: WideString; out Code: Integer): Double; safecall;
     function Get_Variablei(Idx: Integer; out Code: Integer): Double; safecall;
     function Get_NodeOrder: OleVariant; safecall;
+    function Get_HasOCPDevice: WordBool; safecall;
+    function Get_NumControls: Integer; safecall;
   end;
 
 implementation
@@ -904,15 +907,18 @@ begin
       ActiveCircuit.ActiveCktElement.DisplayName := Value;
 end;
 
-function TCktElement.Get_Controller: WideString;
+function TCktElement.Get_Controller(idx: Integer): WideString;
 var
   ctrl: TDSSCktElement;
 begin
   Result := '';
-  If ActiveCircuit <> Nil Then begin
-    ctrl := ActiveCircuit.ActiveCktElement.ControlElement;
-    if ctrl <> Nil then
-      Result := Format('%s.%s', [ctrl.ParentClass.Name, ctrl.Name]);
+  If ActiveCircuit <> Nil Then With ActiveCircuit Do begin
+    If (idx>0) and (idx <= ActiveCktElement.ControlElementList.Listsize) Then
+    Begin
+      ctrl := ActiveCktElement.ControlElementList.Get(idx);
+      If ctrl <> Nil Then
+        Result := Format('%s.%s', [ctrl.ParentClass.Name, ctrl.Name]);
+    End;
   end;
 end;
 
@@ -930,19 +936,25 @@ begin
 end;
 
 function TCktElement.Get_HasVoltControl: WordBool;
+
+// Returns true if any of the controls is a capcontrol or a regcontrol
 var
   ctrl: TDSSCktElement;
 begin
   Result := FALSE;
   If ActiveCircuit <> Nil Then begin
-    ctrl := ActiveCircuit.ActiveCktElement.ControlElement;
-    if ctrl <> Nil then
+    ctrl := ActiveCircuit.ActiveCktElement.ControlElementlist.First;
+    While ctrl <> Nil Do Begin
       case (ctrl.DSSObjType And CLASSMASK) of
-        CAP_CONTROL: Result := True;
-        REG_CONTROL: Result := True
+        CAP_CONTROL,
+        REG_CONTROL: Result := True;
       else
         Result := False;
       end;
+      If Result Then  Exit;
+
+      ctrl := ActiveCircuit.ActiveCktElement.ControlElementlist.Next;
+    End;
   end;
 end;
 
@@ -952,13 +964,18 @@ var
 begin
   Result := FALSE;
   If ActiveCircuit <> Nil Then begin
-    ctrl := ActiveCircuit.ActiveCktElement.ControlElement;
-    if ctrl <> Nil then
+    ctrl := ActiveCircuit.ActiveCktElement.ControlElementList.First;
+    While ctrl <> Nil Do
+    Begin
       case (ctrl.DSSObjType And CLASSMASK) of
         SWT_CONTROL: Result := True;
       else
         Result := False;
       end;
+      If Result Then  Exit;
+
+      ctrl := ActiveCircuit.ActiveCktElement.ControlElementlist.Next;
+    End;
   end;
 end;
 
@@ -1225,6 +1242,25 @@ begin
       End;
 
 
+end;
+
+function TCktElement.Get_HasOCPDevice: WordBool;
+
+// Check for presence of a fuse, recloser, etc.
+begin
+  Result := FALSE;
+  If ActiveCircuit <> Nil Then begin
+    Result := ActiveCircuit.ActiveCktElement.HasOCPDevice;
+  end;
+
+end;
+
+function TCktElement.Get_NumControls: Integer;
+begin
+  Result := 0;
+  If ActiveCircuit <> Nil Then begin
+    Result := ActiveCircuit.ActiveCktElement.ControlElementList.listSize;
+  end;
 end;
 
 initialization

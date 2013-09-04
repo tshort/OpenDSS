@@ -54,6 +54,8 @@ type
     function Get_SAIFI: Double; safecall;
     function Get_SequenceIndex: Integer; safecall;
     procedure Set_SequenceIndex(Value: Integer); safecall;
+    function Get_SAIFIKW: Double; safecall;
+    procedure DoReliabilityCalc; safecall;
     { Protected declarations }
   end;
 
@@ -671,7 +673,6 @@ begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
 
-             pMeterObj.CalcReliabilityIndices;
              Result := pMeterObj.SAIFI;
 
          End;
@@ -711,6 +712,42 @@ begin
                 DoSimpleMsg(Format('Invalid index for SequenceList: %d. List size is %d.',[Value, SequenceList.ListSize]), 500501);
          End;
      End;
+end;
+
+function TMeters.Get_SAIFIKW: Double;
+Var
+  pMeterObj :TEnergyMeterObj;
+
+begin
+     Result := 0.0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+
+             Result := pMeterObj.SAIFIkW;
+
+         End;
+     End;
+
+end;
+
+
+procedure TMeters.DoReliabilityCalc;
+Var
+  pMeterObj :TEnergyMeterObj;
+
+begin
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+
+             pMeterObj.CalcReliabilityIndices;
+
+         End;
+     End;
+
 end;
 
 initialization

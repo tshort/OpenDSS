@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/2/2013 11:47:06 PM from Type Library described below.
+// File generated on 9/3/2013 5:04:00 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -421,7 +421,7 @@ type
     function Get_HasSwitchControl: WordBool; safecall;
     function Get_HasVoltControl: WordBool; safecall;
     function Get_EnergyMeter: WideString; safecall;
-    function Get_Controller: WideString; safecall;
+    function Get_Controller(idx: Integer): WideString; safecall;
     function Get_CplxSeqVoltages: OleVariant; safecall;
     function Get_CplxSeqCurrents: OleVariant; safecall;
     function Get_AllVariableNames: OleVariant; safecall;
@@ -429,6 +429,8 @@ type
     function Get_Variable(const MyVarName: WideString; out Code: Integer): Double; safecall;
     function Get_Variablei(Idx: Integer; out Code: Integer): Double; safecall;
     function Get_NodeOrder: OleVariant; safecall;
+    function Get_HasOCPDevice: WordBool; safecall;
+    function Get_NumControls: Integer; safecall;
     property Name: WideString read Get_Name;
     property NumTerminals: Integer read Get_NumTerminals;
     property NumConductors: Integer read Get_NumConductors;
@@ -456,7 +458,7 @@ type
     property HasSwitchControl: WordBool read Get_HasSwitchControl;
     property HasVoltControl: WordBool read Get_HasVoltControl;
     property EnergyMeter: WideString read Get_EnergyMeter;
-    property Controller: WideString read Get_Controller;
+    property Controller[idx: Integer]: WideString read Get_Controller;
     property CplxSeqVoltages: OleVariant read Get_CplxSeqVoltages;
     property CplxSeqCurrents: OleVariant read Get_CplxSeqCurrents;
     property AllVariableNames: OleVariant read Get_AllVariableNames;
@@ -464,6 +466,8 @@ type
     property Variable[const MyVarName: WideString; out Code: Integer]: Double read Get_Variable;
     property Variablei[Idx: Integer; out Code: Integer]: Double read Get_Variablei;
     property NodeOrder: OleVariant read Get_NodeOrder;
+    property HasOCPDevice: WordBool read Get_HasOCPDevice;
+    property NumControls: Integer read Get_NumControls;
   end;
 
 // *********************************************************************//
@@ -503,7 +507,7 @@ type
     property HasSwitchControl: WordBool readonly dispid 204;
     property HasVoltControl: WordBool readonly dispid 205;
     property EnergyMeter: WideString readonly dispid 206;
-    property Controller: WideString readonly dispid 207;
+    property Controller[idx: Integer]: WideString readonly dispid 207;
     property CplxSeqVoltages: OleVariant readonly dispid 208;
     property CplxSeqCurrents: OleVariant readonly dispid 209;
     property AllVariableNames: OleVariant readonly dispid 210;
@@ -511,6 +515,8 @@ type
     property Variable[const MyVarName: WideString; out Code: Integer]: Double readonly dispid 212;
     property Variablei[Idx: Integer; out Code: Integer]: Double readonly dispid 213;
     property NodeOrder: OleVariant readonly dispid 214;
+    property HasOCPDevice: WordBool readonly dispid 215;
+    property NumControls: Integer readonly dispid 216;
   end;
 
 // *********************************************************************//
@@ -1215,6 +1221,8 @@ type
     function Get_SAIFI: Double; safecall;
     function Get_SequenceIndex: Integer; safecall;
     procedure Set_SequenceIndex(Value: Integer); safecall;
+    function Get_SAIFIKW: Double; safecall;
+    procedure DoReliabilityCalc; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1235,6 +1243,7 @@ type
     property CountBranches: Integer read Get_CountBranches;
     property SAIFI: Double read Get_SAIFI;
     property SequenceIndex: Integer read Get_SequenceIndex write Set_SequenceIndex;
+    property SAIFIKW: Double read Get_SAIFIKW;
   end;
 
 // *********************************************************************//
@@ -1272,6 +1281,8 @@ type
     property CountBranches: Integer readonly dispid 215;
     property SAIFI: Double readonly dispid 216;
     property SequenceIndex: Integer dispid 217;
+    property SAIFIKW: Double readonly dispid 218;
+    procedure DoReliabilityCalc; dispid 219;
   end;
 
 // *********************************************************************//
@@ -1716,6 +1727,8 @@ type
     procedure Set_ZIPV(Value: OleVariant); safecall;
     function Get_pctSeriesRL: Double; safecall;
     procedure Set_pctSeriesRL(Value: Double); safecall;
+    function Get_RelWeight: Double; safecall;
+    procedure Set_RelWeight(Value: Double); stdcall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1755,6 +1768,7 @@ type
     property Growth: WideString read Get_Growth write Set_Growth;
     property ZIPV: OleVariant read Get_ZIPV write Set_ZIPV;
     property pctSeriesRL: Double read Get_pctSeriesRL write Set_pctSeriesRL;
+    // Skipped Property "RelWeight"
   end;
 
 // *********************************************************************//
@@ -1803,6 +1817,7 @@ type
     property Growth: WideString dispid 222;
     property ZIPV: OleVariant dispid 238;
     property pctSeriesRL: Double dispid 239;
+    function RelWeight: Double; dispid 240;
   end;
 
 // *********************************************************************//

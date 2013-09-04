@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 9/2/2013 11:47:12 PM (- $Rev: 12980 $, 219179766).
+// File generated on 9/3/2013 10:51:49 PM (- $Rev: 12980 $, 6071886).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -394,8 +394,8 @@ library OpenDSSengine
     HRESULT _stdcall HasVoltControl([out, retval] VARIANT_BOOL* Value);
     [propget, id(0x000000CE), helpstring("Name of the Energy Meter this element is assigned to.\0ive device.\0e is open.\0terminal.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall EnergyMeter([out, retval] BSTR* Value);
-    [propget, id(0x000000CF), helpstring("Full name of the controller attached to this element.\0ive device.\0e is open.\0terminal.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    HRESULT _stdcall Controller([out, retval] BSTR* Value);
+    [propget, id(0x000000CF), helpstring("Full name of the controller(s) attached to this element. Ex: str = Controller(2).  See NumControls")]
+    HRESULT _stdcall Controller([in] long idx, [out, retval] BSTR* Value);
     [propget, id(0x000000D0), helpstring("Complex double array of Sequence Voltage for all terminals of active circuit element.")]
     HRESULT _stdcall CplxSeqVoltages([out, retval] VARIANT* Value);
     [propget, id(0x000000D1), helpstring("Complex double array of Sequence Currents for all conductors of all terminals of active circuit element.")]
@@ -410,6 +410,10 @@ library OpenDSSengine
     HRESULT _stdcall Variablei([in] long Idx, [out] long* Code, [out, retval] double* Value);
     [propget, id(0x000000D6), helpstring("Variant array of integer containing the node numbers (representing phases, for example) for each conductor of each terminal. ")]
     HRESULT _stdcall NodeOrder([out, retval] VARIANT* Value);
+    [propget, id(0x000000D7), helpstring("True if a recloser, relay, or fuse controlling this ckt element. OCP = Overcurrent Protection ")]
+    HRESULT _stdcall HasOCPDevice([out, retval] VARIANT_BOOL* Value);
+    [propget, id(0x000000D8), helpstring("Number of controls connected to this device.")]
+    HRESULT _stdcall NumControls([out, retval] long* Value);
   };
 
   [
@@ -1000,12 +1004,16 @@ library OpenDSSengine
     HRESULT _stdcall AllBranchesInZone([out, retval] VARIANT* Value);
     [propget, id(0x000000D7), helpstring("Number of branches in Active energymeter zone. (Same as sequencelist size)")]
     HRESULT _stdcall CountBranches([out, retval] long* Value);
-    [propget, id(0x000000D8), helpstring("Triggers Reliabiliy calcs and returns SAIFI for this meter's Zone")]
+    [propget, id(0x000000D8), helpstring("Returns SAIFI for this meter's Zone. Execute Reliability Calc method first.")]
     HRESULT _stdcall SAIFI([out, retval] double* Value);
     [propget, id(0x000000D9), helpstring("Get/set Index into Meter's SequenceList that contains branch pointers in lexical order. Earlier index guaranteed to be upline from later index. Set PDelement active.")]
     HRESULT _stdcall SequenceIndex([out, retval] long* Value);
     [propput, id(0x000000D9)]
     HRESULT _stdcall SequenceIndex([in] long Value);
+    [propget, id(0x000000DA), helpstring("SAIFI based on kW rather than number of customers. Get after reliability calcs.")]
+    HRESULT _stdcall SAIFIKW([out, retval] double* Value);
+    [id(0x000000DB), helpstring("Calculate SAIFI, etc.")]
+    HRESULT _stdcall DoReliabilityCalc(void);
   };
 
   [
@@ -1470,6 +1478,10 @@ library OpenDSSengine
     HRESULT _stdcall pctSeriesRL([out, retval] double* Value);
     [propput, id(0x000000EF), helpstring("Percent of Load that is modeled as series R-L for harmonics studies")]
     HRESULT _stdcall pctSeriesRL([in] double Value);
+    [propget, id(0x000000F0), helpstring("Relative Weighting factor for the active LOAD")]
+    HRESULT _stdcall RelWeight([out, retval] double* Value);
+    [propput, id(0x000000F0), helpstring("Relative Weighting factor for the active LOAD")]
+    void _stdcall RelWeight([in] double Value);
   };
 
   [
@@ -1777,7 +1789,7 @@ library OpenDSSengine
   {
     [propget, id(0x000000C9), helpstring("Variant array of strings containing all RegControl names\0eset before actually switching.\0 actually operating the switch.\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
-    [propget, id(0x000000CA), helpstring("Sets a RegControl active by name\0ng all RegControl names\0eset before actually switching.\0 actually operating the switch.\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x000000CA), helpstring("Get/set Active RegControl  name")]
     HRESULT _stdcall Name([out, retval] BSTR* Value);
     [propput, id(0x000000CA), helpstring("Sets a RegControl active by name\0ng all RegControl names\0eset before actually switching.\0 actually operating the switch.\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Name([in] BSTR Value);

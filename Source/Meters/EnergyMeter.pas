@@ -303,13 +303,15 @@ Type
 
         BranchList     :TCktTree;      // Pointers to all circuit elements in meter's zone
         SequenceList   :TPointerList;  // Pointers to branches in sequence from meter to ends
+        LoadList       :TPointerList;  // Pointers to Loads in the Meter zone to aid reliability calcs
 
         Registers      :TRegisterArray;
         Derivatives    :TRegisterArray;
         TotalsMask     :TRegisterArray;
 
         // Reliability data for Head of Zone
-        SAIFI   : Double;     // For this Zone
+        SAIFI   : Double;     // For this Zone - based on number of customers
+        SAIFIkW : Double;     // For this Zone - based on kW load
         SAIDI   : Double;
         Source_NumInterruptions     : Double; // Annual interruptions for upline circuit
         Source_IntDuration : Double; // Aver interruption duration of upline circuit
@@ -354,7 +356,7 @@ USES  ParserDel, DSSClassDefs, DSSGlobals, Bus, Sysutils, MathUtil,  UCMatrix,
       Classes, ReduceAlgs, Windows, Math;
 
 
-Const NumPropsThisClass = 20;
+Const NumPropsThisClass = 21;
 
 VAR
 
@@ -440,6 +442,7 @@ Begin
      PropertyName^[18] := 'Int_Rate';
      PropertyName^[19] := 'Int_Duration';
      PropertyName^[20] := 'SAIFI';    // Read only
+     PropertyName^[21] := 'SAIFIkW';    // Read only
 
 {     PropertyName^[11] := 'Feeder';  **** removed - not used}
 
@@ -492,7 +495,8 @@ Begin
                          'Result is in a separate report file.';
       PropertyHelp[18]:= 'Average number of annual interruptions for head of the meter zone (source side of zone or feeder).';
       PropertyHelp[19]:= 'Average annual duration, in hr, of interruptions for head of the meter zone (source side of zone or feeder).';
-      PropertyHelp[20]:= '(Read only) Makes SAIFI result available return on query (? energymeter.myMeter.SAIFI.';
+      PropertyHelp[20]:= '(Read only) Makes SAIFI result available via return on query (? energymeter.myMeter.SAIFI.';
+      PropertyHelp[21]:= '(Read only) Makes SAIFIkW result available via return on query (? energymeter.myMeter.SAIFIkW.';
       (**** Not used in present version      PropertyHelp[11]:= '{Yes/True | No/False}  Default is NO. If set to Yes, a Feeder object is created corresponding to ' +
                          'the energymeter.  Feeder is enabled if Radial=Yes; diabled if Radial=No.  Feeder is ' +
                          'synched automatically with the meter zone.  Do not create feeders for zones in meshed transmission systems.';
@@ -583,6 +587,7 @@ Begin
            18: Source_NumInterruptions  := Parser.dblvalue; // Annual interruptions for upline circuit
            19: Source_IntDuration       := Parser.dblValue; // hours
            20: PropertyValue[20] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
+           21: PropertyValue[21] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
            (****11: HasFeeder := InterpretYesNo(Param); ***)
          ELSE
            ClassEdit(ActiveEnergyMeterObj, ParamPointer - NumPropsthisClass)
@@ -853,6 +858,7 @@ Begin
      MeteredElement := NIL;
      BranchList     := NIL;  // initialize to NIL, set later when inited
      SequenceList   := Nil;
+     LoadList       := Nil;
 
      This_Meter_DIFileIsOpen := FALSE;
      VPhaseReportFileIsOpen  := FALSE;
@@ -865,6 +871,7 @@ Begin
 
      // Zone reliability variables
      SAIFI   := 0.0;     // For this Zone
+     SAIFIkW := 0.0;
      SAIDI   := 0.0;
      Source_NumInterruptions  := 0.0; // Annual interruptions for upline circuit
      Source_IntDuration       := 0.0; // Aver interruption duration of upline circuit
@@ -977,6 +984,7 @@ Begin
     for i := 1 to NumEMRegisters do RegisterNames[i] := '';
     If Assigned(BranchList)   Then BranchList.Free;
     If Assigned(SequenceList) Then SequenceList.Free;
+    If Assigned(LoadList)     Then LoadList.Free;
     FreeStringArray(DefinedZoneList, DefinedZoneListSize);
     Inherited destroy;
 End;
@@ -1499,7 +1507,8 @@ End;
 
 procedure TEnergyMeterObj.TotalUpDownstreamCustomers;
 Var
-  i{, Accumulator} :integer;
+  i      :integer;
+  {, Accumulator}
  // PresentNode: TCktTreeNode;
   CktElem:TPDElement;
 
@@ -1664,6 +1673,8 @@ Begin
   // needs to run through the tree quickly in a radial sequence
   If Assigned(SequenceList) Then  SequenceList.Free;
   SequenceList := PointerList.TPointerList.Create(1024); //make it a big initial allocation
+  If Assigned(LoadList) Then  LoadList.Free;
+  LoadList := PointerList.TPointerList.Create(1024); //make it a big initial allocation
 
   // Now start looking for other branches
   // Finds any branch connected to the TestBranch and adds it to the list
@@ -1717,6 +1728,7 @@ Begin
                       If (pPCelem is TLoadObj) then Begin
                           pLoad := pPCelem As TLoadObj;
                           Inc(TPDElement(ActiveBranch).NumCustomers, pLoad.NumCustomers);
+                          LoadList.Add(pPCElem);  // Add to list of loads in this zone.)
                       End;
                       {If object does not have a sensor attached, it acquires the sensor of its parent branch}
                       If Not pPCelem.HasSensorObj then pPCelem.SensorObj := TPDElement(ActiveBranch).SensorObj;
@@ -2067,6 +2079,7 @@ begin
      PropertyValue[18] := '0';
      PropertyValue[19] := '0';
      PropertyValue[20] := '0';
+     PropertyValue[21] := '0';
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -2284,9 +2297,11 @@ end;
 procedure TEnergyMeterObj.CalcReliabilityIndices;
 Var
     PD_Elem : TPDElement;
+    pLoad   : TLoadObj;
     idx     : Integer;
     pBus    : TDSSBus;
-    Ncusts      : Integer;
+    dblNcusts  : Double;
+    dblkW      : Double;
 
 begin
 
@@ -2334,19 +2349,26 @@ begin
 **** End Debug *)
        End;
 
-       SAIFI := 0.0;
-       Ncusts := 0;
+       {Compute SAIFI based on numcustomers and load kW}
+       {SAIFI is weighted by specified load weights}
+       SAIFI     := 0.0;
+       SAIFIKW   := 0.0;
+       dblNcusts := 0.0;
+       dblkW     := 0.0;
        WITH ActiveCircuit do
-       For idx := 1 to SequenceList.ListSize Do
+       For idx := 1 to LoadList.ListSize Do
        Begin
-            PD_Elem := TPDElement(SequenceList.Get(idx));
-            WITH  PD_Elem Do Begin
-                 SAIFI := SAIFI + NumCustomers * Buses^[Terminals^[FromTerminal].BusRef].Num_Interrupt;
-                 inc(Ncusts, NumCustomers);
+            pLoad := TLoadObj(LoadList.Get(idx));
+            WITH  pLoad Do Begin
+                 pBus := Buses^[Terminals^[1].BusRef];  // pointer to bus
+                 SAIFI   := SAIFI   + NumCustomers * RelWeighting * pBus.Num_Interrupt;
+                 SAIFIkW := SAIFIkW + kWBase       * RelWeighting * pBus.Num_Interrupt;
+                 DblInc(dblNcusts, NumCustomers * RelWeighting);   // total up weighted numcustomers
+                 DblInc(dblkW,     kWBase       * RelWeighting);   // total up weighted kW
             End ;
        End;
-       If Ncusts>0  Then  SAIFI := SAIFI / Ncusts; // Normalize to total number of customers
-
+       If dblNcusts>0.0  Then  SAIFI   := SAIFI / dblNcusts; // Normalize to total number of customers
+       If dblkW>0.0      Then  SAIFIkW := SAIFIkW / dblkW; // Normalize to total number of customers
 
 end;
 
@@ -2366,6 +2388,7 @@ begin
                 IF VoltageUEOnly then Result := Result +' V' Else Result := Result +' C';
               End;
            20: Result := Format('%.11g',[SAIFI]);
+           21: Result := Format('%.11g',[SAIFIkW]);
         ELSE
            Result := Result + Inherited GetPropertyValue(index);
         END;
@@ -2380,6 +2403,7 @@ procedure TEnergyMeterObj.SaveZone(const dirname:String);
 
 Var cktElem, shuntElement:TDSSCktElement;
     LoadElement:TLoadObj;
+    pControlElem : TDSSCktElement;
     FBranches, FShunts, FLoads, FGens, FCaps: TextFile;
     NBranches, NShunts, Nloads, NGens, NCaps: Integer;
 
@@ -2461,9 +2485,14 @@ begin
            ActiveCktElement := cktElem;
            Inc(NBranches);
            WriteActiveDSSObject(FBranches, 'New');     // sets HasBeenSaved := TRUE
-           If ActiveCktElement.HasControl Then Begin
-              ActiveCktElement := ActiveCktElement.ControlElement;
-              WriteActiveDSSObject(FBranches, 'New');  //  regulator control ...Also, relays, switch controls
+           If cktElem.HasControl Then Begin
+              pControlElem := cktElem.ControlElementList.First;
+              while pControlElem <> nil do
+              Begin
+                   ActiveCktElement := pControlElem;
+                   WriteActiveDSSObject(FBranches, 'New');  //  regulator control ...Also, relays, switch controls
+                   pControlElem := cktElem.ControlElementList.Next;
+              End;
            End;
 
            shuntElement := Branchlist.FirstObject;
@@ -2483,17 +2512,27 @@ begin
                  End Else If (shuntElement.DSSObjType and Classmask)=GEN_ELEMENT Then Begin
                      Inc(NGens);
                      WriteActiveDSSObject(FGens, 'New');
-                     If ActiveCktElement.HasControl Then Begin
-                        ActiveCktElement := ActiveCktElement.ControlElement;
-                        WriteActiveDSSObject(FGens, 'New');
+                     If shuntElement.HasControl Then Begin
+                        pControlElem := shuntElement.ControlElementList.First;
+                        while pControlElem <>Nil do
+                        Begin
+                            ActiveCktElement := pControlElem;
+                            WriteActiveDSSObject(FGens, 'New');
+                            pControlElem := shuntElement.ControlElementList.Next;
+                        End;
                      End;
                  End
                  Else If (shuntElement.DSSObjType and Classmask)=CAP_ELEMENT Then Begin
                      Inc(NCaps);
                      WriteActiveDSSObject(FCaps, 'New');
-                     If ActiveCktElement.HasControl Then Begin
-                        ActiveCktElement := ActiveCktElement.ControlElement;
-                        WriteActiveDSSObject(FCaps, 'New');
+                     If shuntElement.HasControl Then Begin
+                        pControlElem := shuntElement.ControlElementList.First;
+                        while pControlElem <> Nil do
+                        Begin
+                            ActiveCktElement := pControlElem;
+                            WriteActiveDSSObject(FCaps, 'New');
+                            pControlElem := shuntElement.ControlElementList.Next;
+                        End;
                      End;
                  End Else Begin
                    Inc(NShunts);

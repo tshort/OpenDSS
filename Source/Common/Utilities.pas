@@ -2933,17 +2933,20 @@ Begin
             RenameCktElem(pCktElem);
             CASE ElemClass of
                 XFMR_ELEMENT: If pCktElem.HasControl Then Begin
-                    pCtrlElem := pCktElem.ControlElement;
-                    If assigned(pCtrlElem) Then
+                    pCtrlElem := pCktElem.ControlElementList.First;
+                    While assigned(pCtrlElem) Do
                     Begin
-                        Parser.CmdString := Format('Transformer=%s',[pCktElem.Name]);
-                        pCtrlElem.Edit;
+                        If (pCtrlElem.DSSObjType And CLASSMASK) = REG_CONTROL Then
+                        Begin
+                            Parser.CmdString := Format('Transformer=%s',[pCktElem.Name]);
+                            pCtrlElem.Edit;
+                        End;
+                        pCtrlElem := pCktElem.ControlElementList.Next;
                     End;
                 End;
             ELSE
                 {nada}
             END;
-
         End;
         pCktElem := Cktelements.Next;
     End;

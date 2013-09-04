@@ -15,7 +15,7 @@ unit CktElement;
 interface
 
 USES
-  Ucomplex,  Ucmatrix,  ArrayDef, Terminal, DSSObject, DSSClass;
+  Ucomplex,  Ucmatrix,  ArrayDef, Terminal, DSSObject, DSSClass, PointerList;
 
 
 TYPE
@@ -82,7 +82,7 @@ TYPE
 
       HasOCPDevice      : Boolean; // Fuse, Relay, or Recloser
       HasSwtControl     : Boolean; // Has a remotely-controlled Switch
-      ControlElement    : TDSSCktElement; //Pointer to control for this device
+      ControlElementList: TPointerList; //Pointer to control for this device
 
       Iterminal : pComplexArray;  // Others need this
       Vterminal : pComplexArray;
@@ -184,9 +184,11 @@ Begin
      HasOCPDevice   := FALSE;
      HasSwtControl  := FALSE;
      HasControl     := FALSE;
-     ControlElement := Nil;  // Init to no control on this element.
      IsPartofFeeder := False;
      IsIsolated     := FALSE;
+
+     // Make list for a small number of controls with an increment of 1
+     ControlElementList := PointerList.TPointerList.Create(1);
 
      FActiveTerminal     := 1;
      LastTerminalChecked := 0;
@@ -212,6 +214,9 @@ Begin
     Reallocmem (Vterminal,0);
     Reallocmem (NodeRef,0);
     Reallocmem (ComplexBuffer,0);
+
+    If assigned(ControlElementList) Then   ControlElementList.Free;
+
 
     {Dispose YPrims}
     If Yprim_Series <> Nil then Yprim_Series.Free;

@@ -2635,11 +2635,12 @@ end;
 
 Procedure ShowTopology(FileRoot:String);
 Var
-  F, Ftree:TextFile;
-  FileNm, TreeNm:String;
-  pdElem:TPDElement;
-  LoadElem  :TLoadObj;
-  topo:TCktTree;
+  F, Ftree       : TextFile;
+  FileNm, TreeNm : String;
+  pdElem         : TPDElement;
+  pControlElem   : TDSSCktElement;
+  LoadElem       : TLoadObj;
+  topo           : TCktTree;
   nLoops, nParallel, nLevels, nIsolated, nSwitches: Integer;
 Begin
   Try
@@ -2683,9 +2684,14 @@ Begin
             Write (Ftree, Format(' (Sensor: %s.%s) ',
               [PDElem.SensorObj.ParentClass.Name, PDElem.SensorObj.Name]));
           if PDElem.HasControl then begin
-            Write(Ftree, Format(' (Control: %s.%s) ',
-              [PDElem.ControlElement.ParentClass.Name, PDElem.ControlElement.Name]));
-            IF ((PDElem.ControlElement.DSSObjType and CLASSMASK) = SWT_CONTROL) then Inc (nSwitches);
+            pControlElem := PDElem.ControlElementList.First;
+            while pControlElem <> Nil do
+            Begin                                // accommodate multiple controls on same branch
+                Write(Ftree, Format(' (Control: %s.%s) ',
+                  [pControlElem.ParentClass.Name, pControlElem.Name]));
+                IF ((pControlElem.DSSObjType and CLASSMASK) = SWT_CONTROL) then Inc (nSwitches);
+                pControlElem := PDElem.ControlElementList.Next;
+            End;
           end;
           if PDElem.HasEnergyMeter then
             Write(Ftree, Format(' (Meter: %s) ', [PDElem.MeterObj.Name]));
@@ -2700,9 +2706,15 @@ Begin
             Write(Ftree, Format(' (Sensor: %s.%s) ',
               [LoadElem.SensorObj.ParentClass.Name, LoadElem.SensorObj.Name]));
           if LoadElem.HasControl then begin
-            Write(Ftree, Format(' (Control: %s.%s) ',
-              [LoadElem.ControlElement.ParentClass.Name, LoadElem.ControlElement.Name]));
-            IF ((LoadElem.ControlElement.DSSObjType and CLASSMASK) = SWT_CONTROL) then Inc (nSwitches);
+
+            pControlElem := LoadElem.ControlElementList.First;
+            while pControlElem <> Nil do
+            Begin                                // accommodate multiple controls on same branch
+                Write(Ftree, Format(' (Control: %s.%s) ',
+                  [pControlElem.ParentClass.Name, pControlElem.Name]));
+                IF ((pControlElem.DSSObjType and CLASSMASK) = SWT_CONTROL) then Inc (nSwitches);
+                pControlElem := LoadElem.ControlElementList.Next;
+            End;
           end;
           if LoadElem.HasEnergyMeter then
             Write(Ftree, Format(' (Meter: %s) ', [LoadElem.MeterObj.Name]));
@@ -2722,9 +2734,15 @@ Begin
           Write (Ftree, Format(' (Sensor: %s.%s) ',
             [PDElem.SensorObj.ParentClass.Name, PDElem.SensorObj.Name]));
         if PDElem.HasControl then begin
-          Write (Ftree, Format(' (Control: %s.%s) ',
-            [PDElem.ControlElement.ParentClass.Name, PDElem.ControlElement.Name]));
-            IF ((PDElem.ControlElement.DSSObjType and CLASSMASK) = SWT_CONTROL) then Inc (nSwitches);
+            pControlElem := PDElem.ControlElementList.First;
+            while pControlElem <> Nil do
+            Begin                                // accommodate multiple controls on same branch
+                Write (Ftree, Format(' (Control: %s.%s) ',
+                [pControlElem.ParentClass.Name, pControlElem.Name]));
+                IF ((pControlElem.DSSObjType and CLASSMASK) = SWT_CONTROL) then Inc (nSwitches);
+                pControlElem := PDElem.ControlElementList.Next;
+            End;
+
         end;
         if PDElem.HasEnergyMeter then
           Write (Ftree, Format(' (Meter: %s) ', [PDElem.MeterObj.Name]));

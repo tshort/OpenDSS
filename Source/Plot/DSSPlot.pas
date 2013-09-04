@@ -337,7 +337,7 @@ Begin
    Try { Trap Divide by zero error }
       With ActiveCircuit Do
          If (abs(1.0 - abs(Buses^[i1].X / Buses^[i2].X)) < Eps) and
-           (abs(1.0 - abs(Buses^[i1].Y / Buses^[i2].Y)) < Eps) Then
+            (abs(1.0 - abs(Buses^[i1].Y / Buses^[i2].Y)) < Eps) Then
             Result := TRUE
          Else
             Result := FALSE;
@@ -863,7 +863,7 @@ Begin
  //     DoSimpleMsg('Make New Plot failed in DSSPlot Execute.', 8734);
  //     Exit;
  //  End;
-
+ TRY
    Case PlotType of
       ptmonitorplot: Begin
          Fname := GetOutputDirectory + CircuitName_ + 'MONITOR-' + UpperCase(ObjectName);
@@ -1065,7 +1065,9 @@ Begin
 
    End; { CASE }
 
+ FINALLY
    ShowGraph;
+ END;
 
 end;
 
@@ -3619,8 +3621,7 @@ ThreePhLineStyle := 1;
 
 finalization
 
-If Assigned(DSSPlotObj) then
-   DSSPlotObj.Free;
+If Assigned(DSSPlotObj) then  DSSPlotObj.Free;
 
 end.
 
