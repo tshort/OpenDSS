@@ -73,6 +73,8 @@ TYPE
             IsUserModel     :Boolean;
             UserModel       :TCapUserControl;
 
+            FpctMinkvar : double;
+
             FUNCTION  Get_Capacitor : TCapacitorObj;
             FUNCTION  NormalizeToTOD(h : Integer; sec : Double) : Double;
             procedure Set_PendingChange(const Value : EControlAction);
@@ -136,7 +138,7 @@ CONST
     AVGPHASES = -1;
     MAXPHASE  = -2;
     MINPHASE  = -3;
-    NumPropsThisClass = 20;
+    NumPropsThisClass = 21;
 
 
 {--------------------------------------------------------------------------}
@@ -190,6 +192,7 @@ Begin
      PropertyName[18] := 'EventLog';
      PropertyName[19] := 'UserModel';
      PropertyName[20] := 'UserData';
+     PropertyName[21] := 'pctMinkvar';
 
 
      PropertyHelp[1] := 'Full object name of the circuit element, typically a line or transformer, '+
@@ -241,6 +244,7 @@ Begin
      PropertyHelp[18] :=  '{Yes/True* | No/False} Default is YES for CapControl. Log control actions to Eventlog.';
      PropertyHelp[19] :=  'Name of DLL containing user-written CapControl model, overriding the default model.  Set to "none" to negate previous setting. ';
      PropertyHelp[20] :=  'String (in quotes or parentheses if necessary) that gets passed to the user-written CapControl model Edit function for defining the data required for that model. ';
+     PropertyHelp[21] :=  'For PF control option, min percent of total bank kvar at which control will close capacitor switch. Default = 50.';
 
      ActiveProperty  := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -324,6 +328,7 @@ Begin
            18: ShowEventLog := InterpretYesNo(param);
            19: UserModel.Name := Parser.StrValue;  // Connect to user written model
            20: UserModel.Edit := Parser.StrValue;  // Send edit string to user model
+           21: FpctMinKvar := Parser.DblValue;
 
          ELSE
            // Inherited parameters
@@ -429,8 +434,9 @@ Begin
         UserModel.Name   := OtherCapControl.UserModel.Name;  // Connect to user written models
         IsUserModel      := OtherCapControl.IsUserModel;
 
+        FpctMinkvar      := OtherCapControl.FpctMinkvar;
 
-        ShowEventLog        := OtherCapControl.ShowEventLog;
+        ShowEventLog     := OtherCapControl.ShowEventLog;
 
 
         For i := 1 to ParentClass.NumProperties Do PropertyValue[i] := OtherCapControl.PropertyValue[i];
@@ -499,6 +505,8 @@ Begin
      ElementTerminal   := 1;
      CapacitorName     := '';
      MonitoredElement  := Nil;
+
+     FpctMinkvar := 50.0;
 
      IsUserModel := FALSE;
      UserModel  := TCapUserControl.Create;
@@ -1070,7 +1078,7 @@ begin
                       {When turning on make sure there is at least half the kvar of the bank}
 
                       CASE PresentState of
-                          CTRL_OPEN:   IF (PF < PFON_Value) and (S.im * 0.001 > ControlledCapacitor.Totalkvar * 0.5) // make sure we don't go too far leading
+                          CTRL_OPEN:   IF (PF < PFON_Value) and (S.im * 0.001 > ControlledCapacitor.Totalkvar * FpctMinkvar * 0.01) // make sure we don't go too far leading
                                   THEN  Begin
                                         PendingChange := CTRL_CLOSE;
                                         ShouldSwitch := TRUE;
@@ -1193,7 +1201,7 @@ begin
      PropertyValue[18] := 'YES';
      PropertyValue[19] := '';
      PropertyValue[20] := '';
-
+     PropertyValue[21] := '50';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
