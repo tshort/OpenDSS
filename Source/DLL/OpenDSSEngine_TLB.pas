@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/3/2013 5:04:00 PM from Type Library described below.
+// File generated on 9/12/2013 9:41:22 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -24,8 +24,6 @@ unit OpenDSSengine_TLB;
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
 // SYS_KIND: SYS_WIN32
-// Errors:
-//   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
 {$TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers.
 {$WARN SYMBOL_PLATFORM OFF}
@@ -111,6 +109,10 @@ const
   CLASS_XYCurves: TGUID = '{9594F37D-E47E-4701-892B-52BE7E576E87}';
   IID_IPDElements: TGUID = '{05D4E15E-1588-4ABB-8339-3527420C668B}';
   CLASS_PDElements: TGUID = '{4DDCDADD-A1D3-40BB-98E7-B023BD3947BE}';
+  IID_IReclosers: TGUID = '{21001789-9F46-4323-93B0-8B31395FD6E4}';
+  CLASS_Reclosers: TGUID = '{B92B059F-FEFD-4554-8F07-AFDCEFBBEA7B}';
+  IID_IRelays: TGUID = '{76956697-6055-4E8E-B4D6-650805D3F90D}';
+  CLASS_Relays: TGUID = '{9D887EEA-7454-4214-BC56-AC42F5A3318E}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -290,6 +292,10 @@ type
   IXYCurvesDisp = dispinterface;
   IPDElements = interface;
   IPDElementsDisp = dispinterface;
+  IReclosers = interface;
+  IReclosersDisp = dispinterface;
+  IRelays = interface;
+  IRelaysDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -324,6 +330,8 @@ type
   Sensors = ISensors;
   XYCurves = IXYCurves;
   PDElements = IPDElements;
+  Reclosers = IReclosers;
+  Relays = IRelays;
 
 
 // *********************************************************************//
@@ -613,6 +621,8 @@ type
     function Get_ParentPDElement: Integer; safecall;
     function Get_XYCurves: XYCurves; safecall;
     function Get_PDElements: IPDElements; safecall;
+    function Get_Reclosers: IReclosers; safecall;
+    function Get_Relays: IRelays; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -660,6 +670,8 @@ type
     property ParentPDElement: Integer read Get_ParentPDElement;
     property XYCurves: XYCurves read Get_XYCurves;
     property PDElements: IPDElements read Get_PDElements;
+    property Reclosers: IReclosers read Get_Reclosers;
+    property Relays: IRelays read Get_Relays;
   end;
 
 // *********************************************************************//
@@ -732,6 +744,8 @@ type
     property ParentPDElement: Integer readonly dispid 223;
     property XYCurves: XYCurves readonly dispid 224;
     property PDElements: IPDElements readonly dispid 225;
+    property Reclosers: IReclosers readonly dispid 226;
+    property Relays: IRelays readonly dispid 227;
   end;
 
 // *********************************************************************//
@@ -1223,6 +1237,7 @@ type
     procedure Set_SequenceIndex(Value: Integer); safecall;
     function Get_SAIFIKW: Double; safecall;
     procedure DoReliabilityCalc; safecall;
+    function Get_SeqListSize: Integer; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1244,6 +1259,7 @@ type
     property SAIFI: Double read Get_SAIFI;
     property SequenceIndex: Integer read Get_SequenceIndex write Set_SequenceIndex;
     property SAIFIKW: Double read Get_SAIFIKW;
+    property SeqListSize: Integer read Get_SeqListSize;
   end;
 
 // *********************************************************************//
@@ -1283,6 +1299,7 @@ type
     property SequenceIndex: Integer dispid 217;
     property SAIFIKW: Double readonly dispid 218;
     procedure DoReliabilityCalc; dispid 219;
+    property SeqListSize: Integer readonly dispid 220;
   end;
 
 // *********************************************************************//
@@ -2615,6 +2632,7 @@ type
     function Get_Numcustomers: Integer; safecall;
     function Get_Totalcustomers: Integer; safecall;
     function Get_ParentPDElement: Integer; safecall;
+    function Get_FromTerminal: Integer; safecall;
     property Count: Integer read Get_Count;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -2628,6 +2646,7 @@ type
     property Numcustomers: Integer read Get_Numcustomers;
     property Totalcustomers: Integer read Get_Totalcustomers;
     property ParentPDElement: Integer read Get_ParentPDElement;
+    property FromTerminal: Integer read Get_FromTerminal;
   end;
 
 // *********************************************************************//
@@ -2650,6 +2669,134 @@ type
     property Numcustomers: Integer readonly dispid 211;
     property Totalcustomers: Integer readonly dispid 212;
     property ParentPDElement: Integer readonly dispid 213;
+    property FromTerminal: Integer readonly dispid 214;
+  end;
+
+// *********************************************************************//
+// Interface: IReclosers
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {21001789-9F46-4323-93B0-8B31395FD6E4}
+// *********************************************************************//
+  IReclosers = interface(IDispatch)
+    ['{21001789-9F46-4323-93B0-8B31395FD6E4}']
+    function Get_AllNames: OleVariant; safecall;
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_MonitoredObj: WideString; safecall;
+    procedure Set_MonitoredObj(const Value: WideString); safecall;
+    function Get_MonitoredTerm: Integer; safecall;
+    procedure Set_MonitoredTerm(Value: Integer); safecall;
+    function Get_SwitchedObj: WideString; safecall;
+    procedure Set_SwitchedObj(const Value: WideString); safecall;
+    function Get_SwitchedTerm: Integer; safecall;
+    procedure Set_SwitchedTerm(Value: Integer); safecall;
+    function Get_NumFast: Integer; safecall;
+    procedure Set_NumFast(Value: Integer); safecall;
+    function Get_Shots: Integer; safecall;
+    procedure Set_Shots(Value: Integer); safecall;
+    function Get_RecloseIntervals: OleVariant; safecall;
+    function Get_PhaseTrip: Double; safecall;
+    procedure Set_PhaseTrip(Value: Double); safecall;
+    function Get_PhaseInst: Double; safecall;
+    procedure Set_PhaseInst(Value: Double); safecall;
+    function Get_GroundTrip: Double; safecall;
+    procedure Set_GroundTrip(Value: Double); safecall;
+    function Get_GroundInst: Double; safecall;
+    procedure Set_GroundInst(Value: Double); safecall;
+    property AllNames: OleVariant read Get_AllNames;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property Name: WideString read Get_Name write Set_Name;
+    property MonitoredObj: WideString read Get_MonitoredObj write Set_MonitoredObj;
+    property MonitoredTerm: Integer read Get_MonitoredTerm write Set_MonitoredTerm;
+    property SwitchedObj: WideString read Get_SwitchedObj write Set_SwitchedObj;
+    property SwitchedTerm: Integer read Get_SwitchedTerm write Set_SwitchedTerm;
+    property NumFast: Integer read Get_NumFast write Set_NumFast;
+    property Shots: Integer read Get_Shots write Set_Shots;
+    property RecloseIntervals: OleVariant read Get_RecloseIntervals;
+    property PhaseTrip: Double read Get_PhaseTrip write Set_PhaseTrip;
+    property PhaseInst: Double read Get_PhaseInst write Set_PhaseInst;
+    property GroundTrip: Double read Get_GroundTrip write Set_GroundTrip;
+    property GroundInst: Double read Get_GroundInst write Set_GroundInst;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IReclosersDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {21001789-9F46-4323-93B0-8B31395FD6E4}
+// *********************************************************************//
+  IReclosersDisp = dispinterface
+    ['{21001789-9F46-4323-93B0-8B31395FD6E4}']
+    property AllNames: OleVariant readonly dispid 201;
+    property Count: Integer readonly dispid 202;
+    property First: Integer readonly dispid 203;
+    property Next: Integer readonly dispid 204;
+    property Name: WideString dispid 205;
+    property MonitoredObj: WideString dispid 206;
+    property MonitoredTerm: Integer dispid 207;
+    property SwitchedObj: WideString dispid 208;
+    property SwitchedTerm: Integer dispid 209;
+    property NumFast: Integer dispid 210;
+    property Shots: Integer dispid 211;
+    property RecloseIntervals: OleVariant readonly dispid 212;
+    property PhaseTrip: Double dispid 213;
+    property PhaseInst: Double dispid 214;
+    property GroundTrip: Double dispid 215;
+    property GroundInst: Double dispid 216;
+  end;
+
+// *********************************************************************//
+// Interface: IRelays
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {76956697-6055-4E8E-B4D6-650805D3F90D}
+// *********************************************************************//
+  IRelays = interface(IDispatch)
+    ['{76956697-6055-4E8E-B4D6-650805D3F90D}']
+    function Get_AllNames: OleVariant; safecall;
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_MonitoredObj: WideString; safecall;
+    procedure Set_MonitoredObj(const Value: WideString); safecall;
+    function Get_MonitoredTerm: Integer; safecall;
+    procedure Set_MonitoredTerm(Value: Integer); safecall;
+    function Get_SwitchedObj: WideString; safecall;
+    procedure Set_SwitchedObj(const Value: WideString); safecall;
+    function Get_SwitchedTem: Integer; safecall;
+    procedure Set_SwitchedTem(Value: Integer); safecall;
+    property AllNames: OleVariant read Get_AllNames;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property Name: WideString read Get_Name write Set_Name;
+    property MonitoredObj: WideString read Get_MonitoredObj write Set_MonitoredObj;
+    property MonitoredTerm: Integer read Get_MonitoredTerm write Set_MonitoredTerm;
+    property SwitchedObj: WideString read Get_SwitchedObj write Set_SwitchedObj;
+    property SwitchedTem: Integer read Get_SwitchedTem write Set_SwitchedTem;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IRelaysDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {76956697-6055-4E8E-B4D6-650805D3F90D}
+// *********************************************************************//
+  IRelaysDisp = dispinterface
+    ['{76956697-6055-4E8E-B4D6-650805D3F90D}']
+    property AllNames: OleVariant readonly dispid 201;
+    property Count: Integer readonly dispid 202;
+    property First: Integer readonly dispid 203;
+    property Next: Integer readonly dispid 204;
+    property Name: WideString dispid 205;
+    property MonitoredObj: WideString dispid 206;
+    property MonitoredTerm: Integer dispid 207;
+    property SwitchedObj: WideString dispid 208;
+    property SwitchedTem: Integer dispid 209;
   end;
 
 // *********************************************************************//
@@ -3000,6 +3147,30 @@ type
     class function CreateRemote(const MachineName: string): IPDElements;
   end;
 
+// *********************************************************************//
+// The Class CoReclosers provides a Create and CreateRemote method to
+// create instances of the default interface IReclosers exposed by
+// the CoClass Reclosers. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoReclosers = class
+    class function Create: IReclosers;
+    class function CreateRemote(const MachineName: string): IReclosers;
+  end;
+
+// *********************************************************************//
+// The Class CoRelays provides a Create and CreateRemote method to
+// create instances of the default interface IRelays exposed by
+// the CoClass Relays. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoRelays = class
+    class function Create: IRelays;
+    class function CreateRemote(const MachineName: string): IRelays;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -3292,6 +3463,26 @@ end;
 class function CoPDElements.CreateRemote(const MachineName: string): IPDElements;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_PDElements) as IPDElements;
+end;
+
+class function CoReclosers.Create: IReclosers;
+begin
+  Result := CreateComObject(CLASS_Reclosers) as IReclosers;
+end;
+
+class function CoReclosers.CreateRemote(const MachineName: string): IReclosers;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_Reclosers) as IReclosers;
+end;
+
+class function CoRelays.Create: IRelays;
+begin
+  Result := CreateComObject(CLASS_Relays) as IRelays;
+end;
+
+class function CoRelays.CreateRemote(const MachineName: string): IRelays;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_Relays) as IRelays;
 end;
 
 end.

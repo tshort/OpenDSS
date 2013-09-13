@@ -118,8 +118,6 @@ TYPE
             OverTrip,
             UnderTrip:Double;
 
-            MonitoredElementName     :String;
-            MonitoredElementTerminal :Integer;
             MonitoredElement         :TDSSCktElement;
 
             PresentState   :EControlAction;
@@ -150,6 +148,9 @@ TYPE
 
      public
 
+       MonitoredElementName     :String;
+       MonitoredElementTerminal :Integer;
+
        constructor Create(ParClass:TDSSClass; const RelayName:String);
        destructor Destroy; override;
 
@@ -173,7 +174,8 @@ TYPE
 
 
 VAR
-    ActiveRelayObj:TRelayObj;
+    ActiveRelayObj : TRelayObj;
+    RelayClass     : TRelay;
 
 {--------------------------------------------------------------------------}
 IMPLEMENTATION
@@ -207,6 +209,7 @@ Begin
      CommandList.Abbrev := TRUE;
 
      TCC_CurveClass := GetDSSClassPtr('TCC_Curve');
+     RelayClass := Self;
 End;
 
 {--------------------------------------------------------------------------}

@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 9/3/2013 10:51:49 PM (- $Rev: 12980 $, 6071886).
+// File generated on 9/12/2013 10:08:21 PM (- $Rev: 12980 $, 3451256).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -79,6 +79,10 @@ library OpenDSSengine
   coclass XYCurves;
   interface IPDElements;
   coclass PDElements;
+  interface IReclosers;
+  coclass Reclosers;
+  interface IRelays;
+  coclass Relays;
 
 
   [
@@ -332,7 +336,7 @@ library OpenDSSengine
     HRESULT _stdcall NumConductors([out, retval] long* Value);
     [propget, id(0x00000004), helpstring("Number of Phases\0ors per Terminal\0lement\0ct\0a\0t\0i\0o\0n\0r\0k\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall NumPhases([out, retval] long* Value);
-    [propget, id(0x00000005), helpstring("Variant array of strings. Get  Bus definitions for each terminal is connected.")]
+    [propget, id(0x00000005), helpstring("Variant array of strings. Get  Bus definitions to which each terminal is connected. 0-based array.")]
     HRESULT _stdcall BusNames([out, retval] VARIANT* Value);
     [propput, id(0x00000005), helpstring("Variant array of strings. Set Bus definitions for each terminal is connected.\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\a\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall BusNames([in] VARIANT Value);
@@ -508,9 +512,9 @@ library OpenDSSengine
     HRESULT _stdcall SetActiveElement([in] BSTR FullName, [out, retval] long* Value);
     [id(0x00000021)]
     HRESULT _stdcall Capacity([in] double Start, [in] double Increment, [out, retval] double* Value);
-    [id(0x00000022), helpstring("Sets Active bus by name.  Returns bus index (zero based) compatible with AllBusNames and Buses collection.\0Else index to be used in CktElements collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [id(0x00000022), helpstring("Sets Active bus by name. Ignores node list.  Returns bus index (zero based) compatible with AllBusNames and Buses collection.")]
     HRESULT _stdcall SetActiveBus([in] BSTR BusName, [out, retval] long* Value);
-    [id(0x00000024), helpstring("Sets ActiveBus by Integer value.  Returns 0 if OK.\0ased) compatible with AllBusNames and Buses collection.\0Else index to be used in CktElements collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [id(0x00000024), helpstring("Sets ActiveBus by Integer value.  0-based index compatible with SetActiveBus return value and AllBusNames indexing. Returns 0 if OK.")]
     HRESULT _stdcall SetActiveBusi([in] long BusIndex, [out, retval] long* Value);
     [propget, id(0x00000023), helpstring("Double Array of all bus voltages (each node) magnitudes in Per unit\0with AllBusNames and Buses collection.\0Else index to be used in CktElements collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall AllBusVmagPu([out, retval] VARIANT* Value);
@@ -568,6 +572,10 @@ library OpenDSSengine
     HRESULT _stdcall XYCurves([out, retval] XYCurves** Value);
     [propget, id(0x000000E1), helpstring("Interface to PDElements collection")]
     HRESULT _stdcall PDElements([out, retval] IPDElements** Value);
+    [propget, id(0x000000E2)]
+    HRESULT _stdcall Reclosers([out, retval] IReclosers** Value);
+    [propget, id(0x000000E3)]
+    HRESULT _stdcall Relays([out, retval] IRelays** Value);
   };
 
   [
@@ -958,7 +966,7 @@ library OpenDSSengine
     HRESULT _stdcall Sample(void);
     [id(0x0000000A), helpstring("Saves meter register values.\0 sample.\0\0e Meter registers for the active Meter.\0ost recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Save(void);
-    [propget, id(0x0000000C), helpstring("Set a meter to be active by name.\0le.\0\0e Meter registers for the active Meter.\0ost recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x0000000C), helpstring("Get/Set the active meter  name.")]
     HRESULT _stdcall Name([out, retval] BSTR* Value);
     [propput, id(0x0000000C), helpstring("Set a meter to be active by name.\0le.\0\0e Meter registers for the active Meter.\0ost recent solution.\0eue.\0y.\0g control actions.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Name([in] BSTR Value);
@@ -1006,14 +1014,16 @@ library OpenDSSengine
     HRESULT _stdcall CountBranches([out, retval] long* Value);
     [propget, id(0x000000D8), helpstring("Returns SAIFI for this meter's Zone. Execute Reliability Calc method first.")]
     HRESULT _stdcall SAIFI([out, retval] double* Value);
-    [propget, id(0x000000D9), helpstring("Get/set Index into Meter's SequenceList that contains branch pointers in lexical order. Earlier index guaranteed to be upline from later index. Set PDelement active.")]
+    [propget, id(0x000000D9), helpstring("Get/set Index into Meter's SequenceList that contains branch pointers in lexical order. Earlier index guaranteed to be upline from later index. Sets PDelement active.")]
     HRESULT _stdcall SequenceIndex([out, retval] long* Value);
-    [propput, id(0x000000D9)]
+    [propput, id(0x000000D9), helpstring("Get/set Index into Meter's SequenceList that contains branch pointers in lexical order. Earlier index guaranteed to be upline from later index. Sets PDelement active.")]
     HRESULT _stdcall SequenceIndex([in] long Value);
     [propget, id(0x000000DA), helpstring("SAIFI based on kW rather than number of customers. Get after reliability calcs.")]
     HRESULT _stdcall SAIFIKW([out, retval] double* Value);
     [id(0x000000DB), helpstring("Calculate SAIFI, etc.")]
     HRESULT _stdcall DoReliabilityCalc(void);
+    [propget, id(0x000000DC), helpstring("Size of Sequence List")]
+    HRESULT _stdcall SeqListSize([out, retval] long* Value);
   };
 
   [
@@ -2137,6 +2147,110 @@ library OpenDSSengine
     HRESULT _stdcall Totalcustomers([out, retval] long* Value);
     [propget, id(0x000000D5), helpstring("Sets the parent PD element to be the active circuit element.  Returns 0 if no more elements upline.")]
     HRESULT _stdcall ParentPDElement([out, retval] long* Value);
+    [propget, id(0x000000D6), helpstring("Number of the terminal of active PD element that is on the \"from\" side. This is set after the meter zone is determined.")]
+    HRESULT _stdcall FromTerminal([out, retval] long* Value);
+  };
+
+  [
+    uuid(21001789-9F46-4323-93B0-8B31395FD6E4),
+    helpstring("Dispatch interface for Reclosers Object"),
+    dual,
+    oleautomation
+  ]
+  interface IReclosers: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Variant array of strings with names of all Reclosers in Active Circuit")]
+    HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
+    [propget, id(0x000000CA), helpstring("Number of Reclosers in active circuit.")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CB), helpstring("Set First Recloser to be Active Ckt Element. Returns 0 if none.")]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CC), helpstring("Iterate to the next recloser in the circuit. Returns zero if no more.")]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CD), helpstring("Get Name of active Recloser or set the active Recloser by name.")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000CD)]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000CE), helpstring("Full name of object this Recloser is monitoring.")]
+    HRESULT _stdcall MonitoredObj([out, retval] BSTR* Value);
+    [propput, id(0x000000CE), helpstring("Set monitored object by full name.")]
+    HRESULT _stdcall MonitoredObj([in] BSTR Value);
+    [propget, id(0x000000CF), helpstring("Terminal number of Monitored object for the Recloser ")]
+    HRESULT _stdcall MonitoredTerm([out, retval] long* Value);
+    [propput, id(0x000000CF)]
+    HRESULT _stdcall MonitoredTerm([in] long Value);
+    [propget, id(0x000000D0), helpstring("Full name of the circuit element that is being switched by the Recloser.")]
+    HRESULT _stdcall SwitchedObj([out, retval] BSTR* Value);
+    [propput, id(0x000000D0)]
+    HRESULT _stdcall SwitchedObj([in] BSTR Value);
+    [propget, id(0x000000D1), helpstring("Terminal number of the controlled device being switched by the Recloser")]
+    HRESULT _stdcall SwitchedTerm([out, retval] long* Value);
+    [propput, id(0x000000D1)]
+    HRESULT _stdcall SwitchedTerm([in] long Value);
+    [propget, id(0x000000D2), helpstring("Number of fast shots")]
+    HRESULT _stdcall NumFast([out, retval] long* Value);
+    [propput, id(0x000000D2)]
+    HRESULT _stdcall NumFast([in] long Value);
+    [propget, id(0x000000D3), helpstring("Number of shots to lockout (fast + delayed)")]
+    HRESULT _stdcall Shots([out, retval] long* Value);
+    [propput, id(0x000000D3)]
+    HRESULT _stdcall Shots([in] long Value);
+    [propget, id(0x000000D4), helpstring("Variant Array of Doubles: reclose intervals, s, between shots.")]
+    HRESULT _stdcall RecloseIntervals([out, retval] VARIANT* Value);
+    [propget, id(0x000000D5), helpstring("Phase trip curve multiplier or actual amps")]
+    HRESULT _stdcall PhaseTrip([out, retval] double* Value);
+    [propput, id(0x000000D5), helpstring("Phase Trip multiplier or actual amps")]
+    HRESULT _stdcall PhaseTrip([in] double Value);
+    [propget, id(0x000000D6), helpstring("Phase instantaneous curve multipler or actual amps")]
+    HRESULT _stdcall PhaseInst([out, retval] double* Value);
+    [propput, id(0x000000D6)]
+    HRESULT _stdcall PhaseInst([in] double Value);
+    [propget, id(0x000000D7), helpstring("Ground (3I0) trip multiplier or actual amps")]
+    HRESULT _stdcall GroundTrip([out, retval] double* Value);
+    [propput, id(0x000000D7)]
+    HRESULT _stdcall GroundTrip([in] double Value);
+    [propget, id(0x000000D8), helpstring("Ground (3I0) instantaneous trip setting - curve multipler or actual amps.")]
+    HRESULT _stdcall GroundInst([out, retval] double* Value);
+    [propput, id(0x000000D8), helpstring("Ground (3I0) trip instantaneous multiplier or actual amps")]
+    HRESULT _stdcall GroundInst([in] double Value);
+  };
+
+  [
+    uuid(76956697-6055-4E8E-B4D6-650805D3F90D),
+    helpstring("Dispatch interface for Relays Object"),
+    dual,
+    oleautomation
+  ]
+  interface IRelays: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Variant array of strings containing names of all Relay elements")]
+    HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
+    [propget, id(0x000000CA), helpstring("Number of Relays in circuit")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CB), helpstring("Set First Relay active. If none, returns 0.")]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CC), helpstring("Advance to next Relay object. Returns 0 when no more relays.")]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CD), helpstring("Get name of active relay.")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000CD), helpstring("Set Relay active by name")]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000CE), helpstring("Full name of object this Relay is monitoring.")]
+    HRESULT _stdcall MonitoredObj([out, retval] BSTR* Value);
+    [propput, id(0x000000CE)]
+    HRESULT _stdcall MonitoredObj([in] BSTR Value);
+    [propget, id(0x000000CF), helpstring("Number of terminal of monitored element that this Relay is monitoring.")]
+    HRESULT _stdcall MonitoredTerm([out, retval] long* Value);
+    [propput, id(0x000000CF)]
+    HRESULT _stdcall MonitoredTerm([in] long Value);
+    [propget, id(0x000000D0), helpstring("Full name of element that will be switched when relay trips.")]
+    HRESULT _stdcall SwitchedObj([out, retval] BSTR* Value);
+    [propput, id(0x000000D0)]
+    HRESULT _stdcall SwitchedObj([in] BSTR Value);
+    [propget, id(0x000000D1)]
+    HRESULT _stdcall SwitchedTem([out, retval] long* Value);
+    [propput, id(0x000000D1), helpstring("Terminal number of the switched object that will be opened when the relay trips.")]
+    HRESULT _stdcall SwitchedTem([in] long Value);
   };
 
   [
@@ -2440,6 +2554,24 @@ library OpenDSSengine
   coclass PDElements
   {
     [default] interface IPDElements;
+  };
+
+  [
+    uuid(B92B059F-FEFD-4554-8F07-AFDCEFBBEA7B),
+    helpstring("Reclosers Object")
+  ]
+  coclass Reclosers
+  {
+    [default] interface IReclosers;
+  };
+
+  [
+    uuid(9D887EEA-7454-4214-BC56-AC42F5A3318E),
+    helpstring("Relays Object")
+  ]
+  coclass Relays
+  {
+    [default] interface IRelays;
   };
 
 };

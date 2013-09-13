@@ -43,6 +43,8 @@ Uses
        ImplSensors,
        ImplXYCurves,
        ImplPDElements,
+       ImplReclosers,
+       ImplRelays,
        DSSClass,
        DSSClassDefs,
        OpenDSSengine_TLB;
@@ -79,7 +81,8 @@ Var
    FSensors     :ISensors;
    FXYcurves    :IXYcurves;
    FPDElements  :IPDElements;
-
+   FReclosers   :IReclosers;
+   FRelays      :IRelays;
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
 
@@ -150,6 +153,8 @@ Begin
      FSensors     := TSensors.Create;
      FXYCurves    := TXYCurves.Create;
      FPDElements  := TPDElements.Create;
+     FReclosers   := TReclosers.Create;
+     FRelays      := TRelays.Create;
 
      FPropIndex := 0;
      FPropClass := Nil;

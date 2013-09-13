@@ -200,7 +200,7 @@ Begin
     End;
     IF NOT Found THEN Begin
       DoSimpleMsg('Capacitor "'+S+'" Not Found in Active Circuit.', 5003);
-      elem := lst.Get(ActiveSave);    // Restore active Load
+      elem := lst.Get(ActiveSave);    // Restore active Capacitor
       ActiveCircuit.ActiveCktElement := elem;
     End;
   End;

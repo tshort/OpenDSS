@@ -57,8 +57,6 @@ TYPE
 
             DelayTime  :Double;
 
-            MonitoredElementName     :String;
-            MonitoredElementTerminal :Integer;
             MonitoredElement	     :TDSSCktElement;
 
             hAction         :Array[1..FUSEMAXDIM] of Integer;         // handle to control queue actions
@@ -71,6 +69,9 @@ TYPE
             PROCEDURE InterpretFuseAction(const Action:String);
 
      public
+
+            MonitoredElementName     :String;
+            MonitoredElementTerminal :Integer;
 
        constructor Create(ParClass:TDSSClass; const FuseName:String);
        destructor Destroy; override;

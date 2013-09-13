@@ -56,6 +56,7 @@ type
     procedure Set_SequenceIndex(Value: Integer); safecall;
     function Get_SAIFIKW: Double; safecall;
     procedure DoReliabilityCalc; safecall;
+    function Get_SeqListSize: Integer; safecall;
     { Protected declarations }
   end;
 
@@ -729,7 +730,6 @@ begin
 
          End;
      End;
-
 end;
 
 
@@ -743,11 +743,25 @@ begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
 
-             pMeterObj.CalcReliabilityIndices;
+                pMeterObj.CalcReliabilityIndices;
 
          End;
      End;
+end;
 
+function TMeters.Get_SeqListSize: Integer;
+Var
+  pMeterObj :TEnergyMeterObj;
+
+begin
+     Result := 0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+             Result := pMeterObj.SequenceList.ListSize ;
+         End;
+     End;
 end;
 
 initialization

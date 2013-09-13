@@ -161,7 +161,7 @@
 						<VersionInfo Name="MajorVer">7</VersionInfo>
 						<VersionInfo Name="MinorVer">5</VersionInfo>
 						<VersionInfo Name="Release">1</VersionInfo>
-						<VersionInfo Name="Build">166</VersionInfo>
+						<VersionInfo Name="Build">172</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -173,7 +173,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">EPRI</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">DSS Engine</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">7.5.1.166</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">7.5.1.172</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName">OpenDSSEngine</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 2008-2012  EPRI. All Rights Reserved.</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
@@ -460,6 +460,12 @@
 			</DCCReference>
 			<DCCReference Include="ImplPDElements.pas">
 				<CoClasses>PDElements</CoClasses>
+			</DCCReference>
+			<DCCReference Include="ImplReclosers.pas">
+				<CoClasses>Reclosers</CoClasses>
+			</DCCReference>
+			<DCCReference Include="ImplRelays.pas">
+				<CoClasses>Relays</CoClasses>
 			</DCCReference>
 			<RidlCompile Include="OpenDSSengine.ridl"/>
 			<BuildConfiguration Include="Debug">

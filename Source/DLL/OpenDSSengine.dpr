@@ -192,7 +192,9 @@ uses
   InvControl in '..\Controls\InvControl.pas',
   GICTransformer in '..\PDElements\GICTransformer.pas',
   ImplXYCurves in 'ImplXYCurves.pas' {XYCurves: CoClass},
-  ImplPDElements in 'ImplPDElements.pas' {PDElements: CoClass};
+  ImplPDElements in 'ImplPDElements.pas' {PDElements: CoClass},
+  ImplReclosers in 'ImplReclosers.pas' {Reclosers: CoClass},
+  ImplRelays in 'ImplRelays.pas' {Relays: CoClass};
 
 exports
   DllGetClassObject,

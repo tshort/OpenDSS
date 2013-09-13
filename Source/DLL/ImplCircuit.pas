@@ -83,6 +83,8 @@ type
     function Get_ParentPDElement: Integer; safecall;
     function Get_XYCurves: XYCurves; safecall;
     function Get_PDElements: IPDElements; safecall;
+    function Get_Reclosers: IReclosers; safecall;
+    function Get_Relays: IRelays; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -109,7 +111,8 @@ uses ComServ,
      dialogs,
      YMatrix,
      Variants,
-     arrayDef;
+     arrayDef,
+     Utilities;
 
 function TCircuit.Get_Buses(Index: OleVariant): IBus;
 
@@ -650,7 +653,7 @@ end;
 
 function TCircuit.SetActiveBus(const BusName: WideString): Integer;
 begin
-     DSSGlobals.SetActiveBus(BusName);
+     DSSGlobals.SetActiveBus(StripExtension(BusName));
      If Assigned(Activecircuit) then Result := ActiveCircuit.ActiveBusIndex - 1 Else Result := -1;
 end;
 
@@ -1068,6 +1071,16 @@ end;
 function TCircuit.Get_PDElements: IPDElements;
 begin
      Result := FPDElements as IPDElements;
+end;
+
+function TCircuit.Get_Reclosers: IReclosers;
+begin
+    Result := FReclosers as IReclosers;
+end;
+
+function TCircuit.Get_Relays: IRelays;
+begin
+     Result := FRelays as IRelays;
 end;
 
 initialization

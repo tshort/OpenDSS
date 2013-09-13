@@ -58,14 +58,7 @@ TYPE
             PhaseFast,
             GroundFast     :TTCC_CurveObj;
 
-            PhaseTrip,
-            GroundTrip,
-            PhaseInst,
-            GroundInst : Double;
 
-            RecloseIntervals :pdoubleArray;
-            NumFast,
-	    NumReclose :Integer;
             ResetTime,
             DelayTime,
             TDGrDelayed,
@@ -73,8 +66,6 @@ TYPE
             TDGrFast,
             TDPhFast  :Double;
 
-            MonitoredElementName     :String;
-            MonitoredElementTerminal :Integer;
             MonitoredElement	     :TDSSCktElement;
 
             PresentState    :EControlAction;
@@ -91,6 +82,17 @@ TYPE
             PROCEDURE InterpretRecloserAction(const Action:String);
 
      public
+
+        RecloseIntervals : pdoubleArray;
+        NumFast,
+        NumReclose : Integer;
+        MonitoredElementName     :String;
+        MonitoredElementTerminal :Integer;
+        PhaseTrip,
+        GroundTrip,
+        PhaseInst,
+        GroundInst : Double;
+
 
        constructor Create(ParClass:TDSSClass; const RecloserName:String);
        destructor Destroy; override;
@@ -115,7 +117,9 @@ TYPE
 
 
 VAR
-    ActiveRecloserObj:TRecloserObj;
+    ActiveRecloserObj : TRecloserObj;
+    RecloserClass     : TRecloser;
+
 
 {--------------------------------------------------------------------------}
 IMPLEMENTATION
@@ -163,6 +167,7 @@ Begin
      CommandList.Abbrev := TRUE;
 
      TCC_CurveClass := GetDSSClassPtr('TCC_Curve');
+     RecloserClass := Self;
 End;
 
 {--------------------------------------------------------------------------}
@@ -301,9 +306,9 @@ Begin
             3: ElementName     := lowercase(param);
             4: ElementTerminal := Parser.IntValue;
             5: NumFast   := Parser.Intvalue;
-	    6: PhaseFast  := GetTccCurve(Param);
+	          6: PhaseFast  := GetTccCurve(Param);
             7: PhaseDelayed := GetTCCCurve(Param);
-	    8: GroundFast  := GetTccCurve(Param);
+	          8: GroundFast  := GetTccCurve(Param);
             9: GroundDelayed := GetTCCCurve(Param);
            10: PhaseTrip   := Parser.Dblvalue;
            11: GroundTrip  := Parser.Dblvalue;
@@ -813,6 +818,7 @@ VAR
 begin
         Result := '';
         CASE Index of
+          15: Result := Format('%d', [NumReclose+1]);
           16: Begin
                Result := '(';
                FOR i := 1 to NumReclose Do Result := Result + Format('%-g, ' , [RecloseIntervals^[i]]);
