@@ -65,6 +65,8 @@ type
     function Get_NodeOrder: OleVariant; safecall;
     function Get_HasOCPDevice: WordBool; safecall;
     function Get_NumControls: Integer; safecall;
+    function Get_OCPDevIndex: Integer; safecall;
+    function Get_OCPDevType: Integer; safecall;
   end;
 
 implementation
@@ -1252,7 +1254,6 @@ begin
   If ActiveCircuit <> Nil Then begin
     Result := ActiveCircuit.ActiveCktElement.HasOCPDevice;
   end;
-
 end;
 
 function TCktElement.Get_NumControls: Integer;
@@ -1261,6 +1262,55 @@ begin
   If ActiveCircuit <> Nil Then begin
     Result := ActiveCircuit.ActiveCktElement.ControlElementList.listSize;
   end;
+end;
+
+function TCktElement.Get_OCPDevIndex: Integer;
+Var
+   i : integer;
+   pCktElement : TDSSCktElement;
+begin
+     Result := 0;
+     If ActiveCircuit <> Nil Then  With ActiveCircuit Do
+     Begin
+         i := 1;
+         Repeat
+              pCktElement :=  ActiveCktElement.ControlElementList.Get(i);
+              If pCktElement <> Nil Then
+              Case (pCktElement.DSSObjType and CLASSMASK) of
+
+                FUSE_CONTROL     : Result := i;
+                RECLOSER_CONTROL : Result := i;
+                RELAY_CONTROL    : Result := i;
+
+              End;
+              inc(i);
+         Until (i > pCktElement.ControlElementList.listSize) or (Result > 0);
+     End;
+
+end;
+
+function TCktElement.Get_OCPDevType: Integer;
+Var
+   i : integer;
+   pCktElement : TDSSCktElement;
+begin
+     Result := 0;
+     If ActiveCircuit <> Nil Then  With ActiveCircuit Do
+     Begin
+         i := 1;
+         Repeat
+              pCktElement :=  ActiveCktElement.ControlElementList.Get(i);
+              If pCktElement <> Nil Then
+              Case (pCktElement.DSSObjType and CLASSMASK) of
+
+                FUSE_CONTROL     : Result := 1;
+                RECLOSER_CONTROL : Result := 2;
+                RELAY_CONTROL    : Result := 3;
+
+              End;
+              inc(i);
+         Until (i > pCktElement.ControlElementList.listSize) or (Result > 0);
+     End;
 end;
 
 initialization

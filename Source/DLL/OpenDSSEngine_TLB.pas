@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/12/2013 9:41:22 PM from Type Library described below.
+// File generated on 9/13/2013 1:44:46 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -24,6 +24,8 @@ unit OpenDSSengine_TLB;
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
 // SYS_KIND: SYS_WIN32
+// Errors:
+//   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
 {$TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers.
 {$WARN SYMBOL_PLATFORM OFF}
@@ -439,6 +441,8 @@ type
     function Get_NodeOrder: OleVariant; safecall;
     function Get_HasOCPDevice: WordBool; safecall;
     function Get_NumControls: Integer; safecall;
+    function Get_OCPDevIndex: Integer; safecall;
+    function Get_OCPDevType: Integer; safecall;
     property Name: WideString read Get_Name;
     property NumTerminals: Integer read Get_NumTerminals;
     property NumConductors: Integer read Get_NumConductors;
@@ -476,6 +480,8 @@ type
     property NodeOrder: OleVariant read Get_NodeOrder;
     property HasOCPDevice: WordBool read Get_HasOCPDevice;
     property NumControls: Integer read Get_NumControls;
+    property OCPDevIndex: Integer read Get_OCPDevIndex;
+    property OCPDevType: Integer read Get_OCPDevType;
   end;
 
 // *********************************************************************//
@@ -525,6 +531,8 @@ type
     property NodeOrder: OleVariant readonly dispid 214;
     property HasOCPDevice: WordBool readonly dispid 215;
     property NumControls: Integer readonly dispid 216;
+    property OCPDevIndex: Integer readonly dispid 217;
+    property OCPDevType: Integer readonly dispid 218;
   end;
 
 // *********************************************************************//
@@ -2706,6 +2714,8 @@ type
     procedure Set_GroundTrip(Value: Double); safecall;
     function Get_GroundInst: Double; safecall;
     procedure Set_GroundInst(Value: Double); safecall;
+    procedure Open; safecall;
+    procedure Close; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property Count: Integer read Get_Count;
     property First: Integer read Get_First;
@@ -2747,6 +2757,8 @@ type
     property PhaseInst: Double dispid 214;
     property GroundTrip: Double dispid 215;
     property GroundInst: Double dispid 216;
+    procedure Open; dispid 217;
+    procedure Close; dispid 218;
   end;
 
 // *********************************************************************//
@@ -2768,8 +2780,8 @@ type
     procedure Set_MonitoredTerm(Value: Integer); safecall;
     function Get_SwitchedObj: WideString; safecall;
     procedure Set_SwitchedObj(const Value: WideString); safecall;
-    function Get_SwitchedTem: Integer; safecall;
-    procedure Set_SwitchedTem(Value: Integer); safecall;
+    function Get_SwitchedTerm: Integer; safecall;
+    procedure Set_SwitchedTerm(Value: Integer); safecall;
     property AllNames: OleVariant read Get_AllNames;
     property Count: Integer read Get_Count;
     property First: Integer read Get_First;
@@ -2778,7 +2790,7 @@ type
     property MonitoredObj: WideString read Get_MonitoredObj write Set_MonitoredObj;
     property MonitoredTerm: Integer read Get_MonitoredTerm write Set_MonitoredTerm;
     property SwitchedObj: WideString read Get_SwitchedObj write Set_SwitchedObj;
-    property SwitchedTem: Integer read Get_SwitchedTem write Set_SwitchedTem;
+    property SwitchedTerm: Integer read Get_SwitchedTerm write Set_SwitchedTerm;
   end;
 
 // *********************************************************************//
@@ -2796,7 +2808,7 @@ type
     property MonitoredObj: WideString dispid 206;
     property MonitoredTerm: Integer dispid 207;
     property SwitchedObj: WideString dispid 208;
-    property SwitchedTem: Integer dispid 209;
+    property SwitchedTerm: Integer dispid 209;
   end;
 
 // *********************************************************************//
