@@ -87,10 +87,10 @@ TYPE
       Iterminal : pComplexArray;  // Others need this
       Vterminal : pComplexArray;
 
-      BaseFrequency  : Double;
+      BaseFrequency    : Double;
 
-      Terminals      : pTerminalList;
-      ActiveTerminal : TPowerTerminal;
+      Terminals        : pTerminalList;
+      ActiveTerminal   : TPowerTerminal;
 
       PublicDataSize   : Integer;  // size of PublicDataStruct
       PublicDataStruct : Pointer;  // Generic Pointer to public data Block that may be access by other classes of elements

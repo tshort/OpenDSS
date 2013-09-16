@@ -982,7 +982,7 @@ begin
      PropertyValue[2]  := '115';
      PropertyValue[3]  := '1';
      PropertyValue[4]  := '0';
-     PropertyValue[5]  := Format('%d',[Round(DefaultBaseFreq)]);
+     PropertyValue[5]  := Format('%d',[Round(ActiveCircuit.Fundamental)]);
      PropertyValue[6]  := '3';
      PropertyValue[7]  := '2000';
      PropertyValue[8]  := '2100';

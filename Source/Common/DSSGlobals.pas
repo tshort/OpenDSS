@@ -197,7 +197,7 @@ VAR
    LineSpacingClass   :TLineSpacing;
    StorageClass       :TStorage;
    PVSystemClass      :TPVSystem;
-  // Deleted ---    VVControlClass     :TVVControl;
+   // Deleted ---    VVControlClass     :TVVControl;
    InvControlClass     :TInvControl;
 
    EventStrings: TStringList;

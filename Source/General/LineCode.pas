@@ -700,7 +700,7 @@ begin
          9: Result  := Get_Rmatrix;
         10: Result  := Get_Xmatrix;
         11:  Result := get_Cmatrix;
-        12: Result := Format('%.g',[DefaultBaseFreq]); // 'baseFreq';
+        12: Result := Format('%.g',[Basefrequency]); //  was defaultbasefrequency ??? 'baseFreq';
         18: If ReduceByKron  then Result := 'Y' Else Result := 'N';
         19: Result := Format('%.5g',[Rg]);
         20: Result := Format('%.5g',[Xg]);
