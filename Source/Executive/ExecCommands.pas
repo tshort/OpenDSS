@@ -164,13 +164,14 @@ Begin
                          '~ R1=.1'+CRLF+'(continue editing)'+CRLF+CRLF+
                          'Select Line.Line1 2 ' +CRLF+
                          'Voltages  (returns voltages at terminal 2 in Result)';
-     CommandHelp[7]  := '{Save [class=]{Meters | Circuit | Voltages | (classname)} [file=]filename [dir=]directory ' + CRLF +
-                        ' Default class = Meters, which saves the present values in both monitors and energy meters in the active circuit. ' +
+     CommandHelp[7]  := '{Save [class=]{Meters | Circuit | Voltages | (classname)} [file=]filename [dir=]directory ' + CRLF + CRLF +
+                        'Default class = Meters, which saves the present values in both monitors and energy meters in the active circuit. ' + CRLF + CRLF +
                         '"Save Circuit" saves the present enabled circuit elements to the specified subdirectory in standard DSS form ' +
-                        'with a Master.txt file and separate files for each class of data. If Dir= not specified a unique name based on the circuit name is created '+
-                        'automatically.  If Dir= is specified, any existing files are overwritten. ' + CRLF +
+                        'with a Master.txt file and separate files for each class of data. ' + CRLF + CRLF +
+                        'If Dir= not specified a unique name based on the circuit name is created automatically. '+ CRLF + CRLF +
+                        'If Dir= is specified, any existing files are overwritten. ' + CRLF + CRLF +
                         '"Save Voltages" saves the present solution in a simple CSV format in a file called DSS_SavedVoltages. '+
-                        'Used for VDIFF command.'+CRLF+
+                        'Used for VDIFF command.'+ CRLF + CRLF +
                         'Any class can be saved to a file.  If no filename specified, the classname is used.';
      CommandHelp[8]  := 'Writes selected results to a text file and brings '+
                          'up the default text editor (see Set Editor=....) with the file for you to browse.'+CRLF+  CRLF+
