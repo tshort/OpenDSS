@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 101;
+        NumExecOptions = 102;
 
 VAR
          ExecOption,
@@ -134,6 +134,7 @@ Begin
      ExecOption[99] := 'MarkReclosers';
      ExecOption[100] := 'RecloserMarkerCode';
      ExecOption[101] := 'RecloserMarkerSize';
+     ExecOption[102] := 'RegistryUpdate';
 
 
 
@@ -371,6 +372,8 @@ Begin
      OptionHelp[99] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Recloser locations with a symbol. See RecloserMarkerCode and RecloserMarkerSize. ';
      OptionHelp[100] := 'Numeric marker code (0..47 see Users Manual) for Recloser elements. Default is 17. (Lime)';
      OptionHelp[101] := 'Size of Recloser marker. Default is 5.';
+     OptionHelp[102] := '{YES/TRUE | NO/FALSE}  Default is Yes. Update Windows Registry values upon exiting.  You might want to turn this off if you temporarily ' +
+                        'change fonts or DefaultBaseFrequency, for example. ';
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -586,6 +589,7 @@ Begin
            99: ActiveCircuit.MarkReclosers       := InterpretYesNo(Param);
           100: ActiveCircuit.RecloserMarkerCode  := Parser.IntValue;
           101: ActiveCircuit.RecloserMarkerSize  := Parser.IntValue;
+          102: UpdateRegistry                    := InterpretYesNo(Param);
          ELSE
            // Ignore excess parameters
          End;

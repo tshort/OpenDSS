@@ -206,6 +206,8 @@ VAR
    DSSClassList       :TPointerList; // pointers to the base class types
    ClassNames         :THashList;
 
+   UpdateRegistry     :Boolean;  // update on program exit
+
 
 PROCEDURE DoErrorMsg(Const S, Emsg, ProbCause :String; ErrNum:Integer);
 PROCEDURE DoSimpleMsg(Const S :String; ErrNum:Integer);
@@ -610,15 +612,17 @@ End;
 
 PROCEDURE WriteDSS_Registry;
 Begin
-  DSS_Registry.Section := 'MainSect';
-  DSS_Registry.WriteString('Editor',        DefaultEditor);
-  DSS_Registry.WriteString('ScriptFontSize', Format('%d',[DefaultFontSize]));
-  DSS_Registry.WriteString('ScriptFontName', Format('%s',[DefaultFontName]));
-  DSS_Registry.WriteBool('ScriptFontBold',   (fsBold in DefaultFontStyles));
-  DSS_Registry.WriteBool('ScriptFontItalic', (fsItalic in DefaultFontStyles));
-  DSS_Registry.WriteString('BaseFrequency', Format('%d',[Round(DefaultBaseFreq)]));
-  DSS_Registry.WriteString('LastFile',      LastFileCompiled);
-  DSS_Registry.WriteString('DataPath', DataDirectory);
+  If UpdateRegistry Then  Begin
+      DSS_Registry.Section := 'MainSect';
+      DSS_Registry.WriteString('Editor',        DefaultEditor);
+      DSS_Registry.WriteString('ScriptFontSize', Format('%d',[DefaultFontSize]));
+      DSS_Registry.WriteString('ScriptFontName', Format('%s',[DefaultFontName]));
+      DSS_Registry.WriteBool('ScriptFontBold',   (fsBold in DefaultFontStyles));
+      DSS_Registry.WriteBool('ScriptFontItalic', (fsItalic in DefaultFontStyles));
+      DSS_Registry.WriteString('BaseFrequency', Format('%d',[Round(DefaultBaseFreq)]));
+      DSS_Registry.WriteString('LastFile',      LastFileCompiled);
+      DSS_Registry.WriteString('DataPath', DataDirectory);
+  End;
 End;
 
 PROCEDURE ResetQueryLogFile;
@@ -713,6 +717,7 @@ initialization
 
    LogQueries        := FALSE;
    QueryLogFileName  := '';
+   UpdateRegistry    := TRUE;
 
 
    //WriteDLLDebugFile('DSSGlobals');
