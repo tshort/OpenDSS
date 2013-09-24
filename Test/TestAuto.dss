@@ -1,0 +1,33 @@
+Clear
+
+// Script to Test RegControl on a transformer configured as an autotransformer
+
+New Circuit.TestAuto
+~ BasekV=12.47
+
+New Line.Line1 Bus1=SourceBus.1.2.3 Bus2=Hbus.1.2.3 
+
+New REACTOR.Jumper  phases=1 Bus1=Hbus.1  Bus2=Xbus.2  R=0  X=0.0001
+
+New Transformer.Auto1 X12=1 Phases=1 Windings=2
+~ wdg=1 Bus=Xbus.1.0  kV=7.2   kVA=50 
+~ wdg=2 Bus=Xbus.1.2 kV=0.72  kVA=50  Maxtap=1.0 Mintap=-1.0
+~ %loadloss=.1
+
+New Load.Load1 Phases=1 Bus1=Xbus.1.0  kW=100 PF=.9 kV=7.2
+
+Set voltagebases=[12.47]
+calcvoltagebases
+
+New REGCONTROL.Reg1 transformer=Auto1 winding=2 bus=Xbus.1  ptratio=60  vreg=125 maxtapchange=1
+
+Set maxcontrol=30
+
+solve
+
+Show Currents Elements
+Show Voltage LN Nodes
+
+Show Eventlog
+show taps
+

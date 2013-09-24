@@ -404,6 +404,7 @@ Begin
            57: SetDataPath(Param);  // Set a legal data path
            67: DSSExecutive.RecorderOn := InterpretYesNo(Param);
            73: DefaultBaseFreq  := Parser.DblValue;
+          102: UpdateRegistry   := InterpretYesNo(Param);
          ELSE
             Begin
                 DoSimpleMsg('You must create a new circuit object first: "new circuit.mycktname" to execute this Set command.', 301);
@@ -554,9 +555,9 @@ Begin
            71: AutoShowExport := InterpretYesNo(Param);
            72: MaxAllocationIterations := Parser.IntValue;
            73: Begin
-                 DefaultBaseFreq  := Parser.DblValue;
-                 ActiveCircuit.Fundamental        := Parser.DblValue;     // Set Base Frequency for system (used henceforth)
-                 ActiveCircuit.Solution.Frequency := Parser.DblValue;
+                   DefaultBaseFreq  := Parser.DblValue;
+                   ActiveCircuit.Fundamental        := Parser.DblValue;     // Set Base Frequency for system (used henceforth)
+                   ActiveCircuit.Solution.Frequency := Parser.DblValue;
                End ;
            74: ActiveCircuit.MarkSwitches     := InterpretYesNo(Param);
            75: ActiveCircuit.SwitchMarkerCode := Parser.IntValue;
