@@ -1,0 +1,12 @@
+clear
+
+New Circuit.XYCurve  basekv=12.47  Isc3=1000 Isc1=900
+
+// P-T curve is per unit of rated Pmpp vs temperature
+// This one is for a Pmpp stated at 25 deg
+New XYCurve.MyPvsT npts=4  xarray=[0  25  75  100]  yarray=[1.2 1.0 0.8  0.6] 
+
+// efficiency curve is per unit eff vs per unit power
+New XYCurve.MyEff npts=4  xarray=[.1  .2  .4  1.0]  yarray=[.86  .9  .93  .97]  
+
+// per unit irradiance curve (per unit if "irradiance" property)
