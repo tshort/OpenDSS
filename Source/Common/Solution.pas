@@ -309,7 +309,7 @@ Begin
     IsDynamicModel   := FALSE;
     IsHarmonicModel  := FALSE;
 
-    Frequency := ActiveCircuit.Fundamental;
+    Frequency := DefaultBaseFreq;
     {Fundamental := 60.0; Moved to Circuit and used as default base frequency}
     Harmonic := 1.0;
     

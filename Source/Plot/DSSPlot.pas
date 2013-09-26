@@ -1338,7 +1338,7 @@ begin
    If UseXarray Then
       FreeMem(Xarray, Xsize);
    Set_Autorange(2.0); // 2% rim
-   ShowGraph; { Form Freed on close }
+//***   ShowGraph; { Form Freed on close }
 end;
 
 procedure TDSSPlot.DoLoadShapePlot(const LoadShapeName: String);
@@ -1424,7 +1424,7 @@ begin
    If UseXarray Then
       FreeMem(Xarray, Xsize);
    Set_Autorange(2.0); // 2% rim
-   ShowGraph; { Form Freed on close }
+//***   ShowGraph; { Form Freed on close }
 end;
 
 { --------------------------------------------------------- }
@@ -1589,7 +1589,7 @@ begin
       set_KeepAspectRatio(FALSE);
 
       Set_Autorange(2.0); // 2% rim
-      ShowGraph; { Form Freed on close }
+//****      ShowGraph; { Form Freed on close }
 
    Finally
 
@@ -1977,7 +1977,7 @@ begin
 
    set_KeepAspectRatio(FALSE);
 
-   ShowGraph; { Form Freed on close }
+//****   ShowGraph; { Form Freed on close }
 
    Names.Free;
 
@@ -2282,7 +2282,7 @@ begin
       set_KeepAspectRatio(FALSE);
 
       Set_Autorange(2.0); // 2% rim
-      ShowGraph; { Form Freed on close }
+//****      ShowGraph; { Form Freed on close }
 
       Names.Free;
 
@@ -2465,7 +2465,7 @@ begin
       End; { With }
 
       Set_Autorange(2.0); // 2% rim
-      ShowGraph;
+//***      ShowGraph;
 
    End
    Else
@@ -2541,7 +2541,7 @@ begin
    If UseXarray Then FreeMem(Xarray, Xsize);
 
    Set_Autorange(2.0); // 2% rim
-   ShowGraph; { Form Freed on close }
+//***   ShowGraph; { Form Freed on close }
 end;
 
 procedure TDSSPlot.DoProfilePlot;
@@ -2875,7 +2875,7 @@ begin
    End;
    Set_Properties(DSSGraphProps);
    Set_Autorange(2.0); // 2% rim
-   ShowGraph;
+//****   ShowGraph;
 end;
 
 procedure TDSSPlot.MarkSpecialClasses;
@@ -3628,7 +3628,7 @@ begin
            End;
            Set_Properties(ActiveGraphProps);
            *)
-         ShowGraph;
+//****         ShowGraph;
 
       End;
 

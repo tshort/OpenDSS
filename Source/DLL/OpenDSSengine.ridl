@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 9/14/2013 8:48:35 PM (- $Rev: 12980 $, 46712346).
+// File generated on 9/26/2013 3:42:31 PM (- $Rev: 12980 $, 102971486).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -567,13 +567,13 @@ library OpenDSSengine
     [propget, id(0x000000DC), helpstring("Interface to the active circuit's topology object.\0tion.\0ActiveElement).\0it element or a general DSS element.\0s.\0ements.\0ties.\0se properties.\0s collection or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Topology([out, retval] ITopology** Value);
     [propget, id(0x000000DD), helpstring("Interface to Sensors in the Active Circuit.")]
-    HRESULT _stdcall Sensors([out, retval] Sensors** Value);
-    [id(0x000000DE)]
+    HRESULT _stdcall Sensors([out, retval] ISensors** Value);
+    [id(0x000000DE), helpstring("Forces update to all storage classes. Typically done after a solution. Done automatically in intrinsic solution modes.")]
     HRESULT _stdcall UpdateStorage(void);
     [propget, id(0x000000DF), helpstring("Sets Parent PD element, if any, to be the active circuit element and returns index>0; Returns 0 if it fails or not applicable.")]
     HRESULT _stdcall ParentPDElement([out, retval] long* Value);
     [propget, id(0x000000E0), helpstring("Interface to XYCurves in active circuit.")]
-    HRESULT _stdcall XYCurves([out, retval] XYCurves** Value);
+    HRESULT _stdcall XYCurves([out, retval] IXYCurves** Value);
     [propget, id(0x000000E1), helpstring("Interface to PDElements collection")]
     HRESULT _stdcall PDElements([out, retval] IPDElements** Value);
     [propget, id(0x000000E2)]

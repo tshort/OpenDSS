@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/13/2013 1:44:46 PM from Type Library described below.
+// File generated on 9/26/2013 3:42:26 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -624,10 +624,10 @@ type
     function Get_RegControls: IRegControls; safecall;
     function Get_Capacitors: ICapacitors; safecall;
     function Get_Topology: ITopology; safecall;
-    function Get_Sensors: Sensors; safecall;
+    function Get_Sensors: ISensors; safecall;
     procedure UpdateStorage; safecall;
     function Get_ParentPDElement: Integer; safecall;
-    function Get_XYCurves: XYCurves; safecall;
+    function Get_XYCurves: IXYCurves; safecall;
     function Get_PDElements: IPDElements; safecall;
     function Get_Reclosers: IReclosers; safecall;
     function Get_Relays: IRelays; safecall;
@@ -674,9 +674,9 @@ type
     property RegControls: IRegControls read Get_RegControls;
     property Capacitors: ICapacitors read Get_Capacitors;
     property Topology: ITopology read Get_Topology;
-    property Sensors: Sensors read Get_Sensors;
+    property Sensors: ISensors read Get_Sensors;
     property ParentPDElement: Integer read Get_ParentPDElement;
-    property XYCurves: XYCurves read Get_XYCurves;
+    property XYCurves: IXYCurves read Get_XYCurves;
     property PDElements: IPDElements read Get_PDElements;
     property Reclosers: IReclosers read Get_Reclosers;
     property Relays: IRelays read Get_Relays;
@@ -747,10 +747,10 @@ type
     property RegControls: IRegControls readonly dispid 218;
     property Capacitors: ICapacitors readonly dispid 219;
     property Topology: ITopology readonly dispid 220;
-    property Sensors: Sensors readonly dispid 221;
+    property Sensors: ISensors readonly dispid 221;
     procedure UpdateStorage; dispid 222;
     property ParentPDElement: Integer readonly dispid 223;
-    property XYCurves: XYCurves readonly dispid 224;
+    property XYCurves: IXYCurves readonly dispid 224;
     property PDElements: IPDElements readonly dispid 225;
     property Reclosers: IReclosers readonly dispid 226;
     property Relays: IRelays readonly dispid 227;

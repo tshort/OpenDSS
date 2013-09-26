@@ -78,10 +78,10 @@ type
     function Get_Transformers: ITransformers; safecall;
     function Get_Capacitors: ICapacitors; safecall;
     function Get_Topology: ITopology; safecall;
-    function Get_Sensors: Sensors; safecall;
+    function Get_Sensors: ISensors; safecall;
     procedure UpdateStorage; safecall;
     function Get_ParentPDElement: Integer; safecall;
-    function Get_XYCurves: XYCurves; safecall;
+    function Get_XYCurves: IXYCurves; safecall;
     function Get_PDElements: IPDElements; safecall;
     function Get_Reclosers: IReclosers; safecall;
     function Get_Relays: IRelays; safecall;
@@ -1033,7 +1033,7 @@ begin
      Result := FTopology as ITopology;
 end;
 
-function TCircuit.Get_Sensors: Sensors;
+function TCircuit.Get_Sensors: ISensors;
 begin
     Result := FSensors as ISensors;
 end;
@@ -1063,7 +1063,7 @@ begin
 
 end;
 
-function TCircuit.Get_XYCurves: XYCurves;
+function TCircuit.Get_XYCurves: IXYCurves;
 begin
      Result := FXYCurves as IXYCurves;
 end;

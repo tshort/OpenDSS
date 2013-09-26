@@ -1124,7 +1124,7 @@ begin
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('cndata'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('tsdata'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('linegeometry'),'', FALSE);
-    If Success Then Success :=  WriteClassFile(GetDssClassPtr('linecode'),'', FALSE);
+    // If Success Then Success :=  WriteClassFile(GetDssClassPtr('linecode'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('linespacing'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('linecode'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('xfmrcode'),'', FALSE);

@@ -367,39 +367,52 @@ Begin
        Writeln(ActiveDSSGraphFile, 'ClickOn');
 End;
 
+function IsOpen(const txt:TextFile):Boolean;
+const
+  fmTextOpenRead = 55217;
+  fmTextOpenWrite = 55218;
+begin
+  Result := (TTextRec(txt).Mode = fmTextOpenRead) or (TTextRec(txt).Mode = fmTextOpenWrite)
+end;
+
 Procedure ShowGraph;
 Var
     retval  :integer;
     DSSViewFile :String;
 Begin
-       CloseFile(ActiveDSSGraphFile);
-       Sysutils.FileClose(ActiveSolutionFileHdl);
 
-        TRY
-           If FileExists(ActiveFileName) Then
-           Begin
-               DSSViewFile := EncloseQuotes(DSSDirectory + 'DSSView.exe');
-               retval := ShellExecute (0, 'open',
-                                      PChar(DSSViewFile),
-                                      PChar(EncloseQuotes(ActiveFileName)),
-                                       Nil, SW_SHOW);
-               LastResultFile := ActiveFileName;
+       If  IsOpen(ActiveDSSGraphFile) Then
+       Begin
 
-               Case Retval of
-                   0: DoSimpleMsg('System out of memory. ', 45700);
-                   ERROR_BAD_FORMAT: DoSimpleMsg('Graphics output file "'+ ActiveFileName + '" is Invalid.', 45701);
-                   ERROR_FILE_NOT_FOUND: DoSimpleMsg(DSSViewfile + ' File  Not Found.'
-                                                     +CRLF+'It should be in the same directory as the OpenDSS program', 45702);
-                   ERROR_PATH_NOT_FOUND: DoSimpleMsg('Path for DSSView program "'+DSSViewFile+'" Not Found.', 45703);
-               End;
-           End;
-        EXCEPT
-            On E: Exception DO
-              DoErrorMsg('ShowGraph.', E.Message,
-                         'Is DSSView.EXE correctly installed???', 45704);
-        END;
+         CloseFile(ActiveDSSGraphFile);
+         Sysutils.FileClose(ActiveSolutionFileHdl);
 
-        GlobalResult := ActiveFileName;
+          TRY
+             If FileExists(ActiveFileName) Then
+             Begin
+                 DSSViewFile := EncloseQuotes(DSSDirectory + 'DSSView.exe');
+                 retval := ShellExecute (0, 'open',
+                                        PChar(DSSViewFile),
+                                        PChar(EncloseQuotes(ActiveFileName)),
+                                         Nil, SW_SHOW);
+                 LastResultFile := ActiveFileName;
+
+                 Case Retval of
+                     0: DoSimpleMsg('System out of memory. ', 45700);
+                     ERROR_BAD_FORMAT: DoSimpleMsg('Graphics output file "'+ ActiveFileName + '" is Invalid.', 45701);
+                     ERROR_FILE_NOT_FOUND: DoSimpleMsg(DSSViewfile + ' File  Not Found.'
+                                                       +CRLF+'It should be in the same directory as the OpenDSS program', 45702);
+                     ERROR_PATH_NOT_FOUND: DoSimpleMsg('Path for DSSView program "'+DSSViewFile+'" Not Found.', 45703);
+                 End;
+             End;
+          EXCEPT
+              On E: Exception DO
+                DoErrorMsg('ShowGraph.', E.Message,
+                           'Is DSSView.EXE correctly installed???', 45704);
+          END;
+
+          GlobalResult := ActiveFileName;
+       End;
 
 End;
 
