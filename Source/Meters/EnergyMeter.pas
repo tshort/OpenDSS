@@ -2404,8 +2404,8 @@ procedure TEnergyMeterObj.SaveZone(const dirname:String);
 Var cktElem, shuntElement:TDSSCktElement;
     LoadElement:TLoadObj;
     pControlElem : TDSSCktElement;
-    FBranches, FShunts, FLoads, FGens, FCaps: TextFile;
-    NBranches, NShunts, Nloads, NGens, NCaps: Integer;
+    FBranches, FShunts, FLoads, FGens, FCaps, FXfmrs: TextFile;
+    NBranches, NShunts, Nloads, NGens, NCaps, NXfmrs: Integer;
 
 
 begin
@@ -2424,6 +2424,19 @@ begin
      Except
          On E:Exception Do Begin
              DoSimpleMsg('Error creating Branches.dss for Energymeter: ' + Self.Name+'. '+E.Message , 530);
+             CloseFile(FBranches);
+             Exit;
+         End;
+     End;
+
+     Try
+         AssignFile(FXfmrs, 'Transformers.dss');     // Both lines and transformers
+         Rewrite(FXfmrs);
+         NXfmrs := 0;
+     Except
+         On E:Exception Do Begin
+             DoSimpleMsg('Error creating Transformers.dss for Energymeter: ' + Self.Name+'. '+E.Message , 530);
+             CloseFile(FXfmrs);
              Exit;
          End;
      End;
@@ -2447,7 +2460,7 @@ begin
      Except
          On E:Exception Do Begin
              DoSimpleMsg('Error creating Loads.dss for Energymeter: ' + Self.Name+'. '+E.Message , 532);
-             CloseFile(FBranches);
+             CloseFile(FLoads);
              Exit;
          End;
      End;
@@ -2483,17 +2496,36 @@ begin
        Begin
          If CktElem.Enabled Then Begin
            ActiveCktElement := cktElem;
-           Inc(NBranches);
-           WriteActiveDSSObject(FBranches, 'New');     // sets HasBeenSaved := TRUE
-           If cktElem.HasControl Then Begin
-              pControlElem := cktElem.ControlElementList.First;
-              while pControlElem <> nil do
-              Begin
-                   ActiveCktElement := pControlElem;
-                   WriteActiveDSSObject(FBranches, 'New');  //  regulator control ...Also, relays, switch controls
-                   pControlElem := cktElem.ControlElementList.Next;
-              End;
+
+           If (CktElem.DSSObjType and Classmask) = XFMR_ELEMENT  Then
+           Begin
+             Inc(NXfmrs);
+             WriteActiveDSSObject(FXfmrs, 'New');     // sets HasBeenSaved := TRUE
+             If cktElem.HasControl Then Begin
+                pControlElem := cktElem.ControlElementList.First;
+                while pControlElem <> nil do
+                Begin
+                     ActiveCktElement := pControlElem;
+                     WriteActiveDSSObject(FXfmrs, 'New');  //  regulator control ...Also, relays, switch controls
+                     pControlElem := cktElem.ControlElementList.Next;
+                End;
+             End;
+           End
+           Else Begin  {Mostly LINE elements}
+             Inc(NBranches);
+             WriteActiveDSSObject(FBranches, 'New');     // sets HasBeenSaved := TRUE
+             If cktElem.HasControl Then Begin
+                pControlElem := cktElem.ControlElementList.First;
+                while pControlElem <> nil do
+                Begin
+                     ActiveCktElement := pControlElem;
+                     WriteActiveDSSObject(FBranches, 'New');  //  regulator control ...Also, relays, switch controls
+                     pControlElem := cktElem.ControlElementList.Next;
+                End;
+             End;
            End;
+
+
 
            shuntElement := Branchlist.FirstObject;
            While shuntElement <> Nil Do
@@ -2546,6 +2578,7 @@ begin
        End;{WHILE}
 
      CloseFile(FBranches);
+     CloseFile(FXfmrs);
      CloseFile(Fshunts);
      CloseFile(FLoads);
      CloseFile(FGens);
@@ -2553,6 +2586,7 @@ begin
 
      {If any records were written to the file, record their relative names}
      If NBranches>0  Then SavedFileList.Add (dirname + '\Branches.dss') else DeleteFile('Branches.dss');
+     If NXfmrs>0  Then SavedFileList.Add (dirname + '\Transformers.dss') else DeleteFile('Transformers.dss');
      If NShunts>0 Then SavedFileList.Add (dirname + '\Shunts.dss') else DeleteFile('Shunts.dss');
      If NLoads>0  Then SavedFileList.Add (dirname + '\Loads.dss') else DeleteFile('Loads.dss');
      If NGens>0   Then SavedFileList.Add (dirname + '\Generators.dss') else DeleteFile('Generators.dss');

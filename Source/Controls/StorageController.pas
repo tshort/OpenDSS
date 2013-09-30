@@ -1669,8 +1669,6 @@ End;
 
 //----------------------------------------------------------------------------
 FUNCTION TStorageControllerObj.ReturnWeightsList: String;
-VAR
-     i :Integer;
 Begin
      If FleetSize=0 Then
        Begin
@@ -1678,12 +1676,8 @@ Begin
             Exit;
        End;
 
-     Result := '['+ Format('%-.6g',[FWeights^[1]]);
-     For i := 2 to FleetSize Do
-       Begin
-             Result := Result  + Format(', %-.6g',[FWeights^[i]]);
-       End;
-     Result := Result + ']';  // terminate the array
+     Result := GetDSSArray_Real(FleetSize, FWeights);
+
 End;
 
 INITIALIZATION

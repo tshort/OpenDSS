@@ -846,37 +846,23 @@ Begin
     WITH ParentClass Do
      FOR i := 1 to NumProperties Do
      Begin
-        CASE i of
-          3, 4: Writeln(F,'~ ',PropertyName^[i],'=(',PropertyValue[i],')');
-        ELSE
           Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
-        END;
      End;
 
 
 end;
 
 FUNCTION TLoadShapeObj.GetPropertyValue(Index: Integer): String;
-VAR
-   i: Integer;
 begin
-        Case Index of
-        3,4: Result := '(';
-        Else
         Result := '';
-        End;
 
         CASE Index of
-          2: Result := Format('%.8g', [Interval]);
-          3: FOR i := 1 to FNumPoints Do Result := Result + Format('%-g, ' , [PMultipliers^[i]]);
-          4: IF Hours <> Nil THEN FOR i := 1 to FNumPoints Do Result := Result + Format('%-g, ' , [Hours^[i]]) ;
-          5: Result := Format('%.8g', [Mean ]);
-          6: Result := Format('%.8g', [StdDev ]);
-          11: IF Assigned(QMultipliers) Then Begin
-                Result := '(';
-                FOR i := 1 to FNumPoints Do Result := Result + Format('%-g, ' , [QMultipliers^[i]]);
-                Result := Result + ')';
-              End;
+           2: Result := Format('%.8g', [Interval]);
+           3: Result := GetDSSArray_Real( FNumPoints, PMultipliers);
+           4: IF Hours <> Nil THEN Result := GetDSSArray_Real( FNumPoints, Hours) ;
+           5: Result := Format('%.8g', [Mean ]);
+           6: Result := Format('%.8g', [StdDev ]);
+          11: IF Assigned(QMultipliers) Then  Result := GetDSSArray_Real( FNumPoints, QMultipliers);
           12: If UseActual then Result := 'Yes' else Result := 'No';
           13: Result := Format('%.8g', [MaxP ]);
           14: Result := Format('%.8g', [MaxQ ]);
@@ -888,10 +874,6 @@ begin
            Result := Inherited GetPropertyValue(index);
         END;
 
-        Case Index of
-        3,4: Result := Result + ')';
-        Else
-        End;
 end;
 
 procedure TLoadShapeObj.InitPropertyValues(ArrayOffset: Integer);

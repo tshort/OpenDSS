@@ -461,40 +461,21 @@ Begin
     WITH ParentClass Do
      FOR i := 1 to NumProperties Do
      Begin
-       // CASE i of
-       //   2,3: Writeln(F,'~ ',PropertyName^[i],'=(',PropertyValue[i],')');
-       // ELSE
           Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
-       // END;
      End;
-
-
 end;
 
 FUNCTION TTCC_CurveObj.GetPropertyValue(Index: Integer): String;
-VAR
-   i: Integer;
 begin
-    Case Index of
-        2,3: Result := '(';
-     Else
         Result := '';
-     End;
 
         CASE Index of
-          2: FOR i := 1 to Npts Do Result := Result + Format('%-g, ' , [C_Values^[i]]);
-          3: FOR i := 1 to Npts Do Result := Result + Format('%-g, ' , [T_Values^[i]]);
+          2: Result := GetDSSArray_Real( Npts, C_Values);
+          3: Result := GetDSSArray_Real( Npts, T_Values);
         ELSE
-           Result := Inherited GetPropertyValue(index);
+             Result := Inherited GetPropertyValue(index);
         END;
-
-    Case Index of
-        2,3: Result := Result + ')';
-    Else
-    End;
-
 end;
-
 
 procedure TTCC_CurveObj.InitPropertyValues(ArrayOffset: Integer);
 begin
@@ -505,7 +486,5 @@ begin
      Inherited InitPropertyValues(NumPropsThisClass);
      
 end;
-
-
 
 end.

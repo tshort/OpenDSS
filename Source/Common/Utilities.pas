@@ -1924,7 +1924,8 @@ Var
 
 Begin
    ParClass := ActiveDSSObject.ParentClass;
-   Write(F, NeworEdit, ' "', ParClass.Name + '.' + ActiveDSSObject.Name,'"');
+  //  Write(F, NeworEdit, ' "', ParClass.Name + '.' + ActiveDSSObject.Name,'"');
+   Write(F, Format('%s "%s.%s"',[NeworEdit, ParClass.Name, ActiveDSSObject.Name ]));
 
    ActiveDSSObject.SaveWrite(F);
 
@@ -2447,9 +2448,9 @@ VAr
    i:Integer;
 
 BEGIN
-   Result := '(';
-   For i := 1 to n Do Result := Result + Format(' %-.5g',[dbls^[i]]);
-   Result := Result + ')';
+   Result := '[';
+   For i := 1 to n Do Result := Result + Format(' %-.6g',[dbls^[i]]);
+   Result := Result + ']';
 END;
 
 FUNCTION GetDSSArray_Integer(n:Integer; ints:pIntegerArray):String;
@@ -2458,9 +2459,9 @@ VAr
    i:Integer;
 
 BEGIN
-   Result := '(';
+   Result := '[';
    For i := 1 to n Do Result := Result + Format(' %-.d',[ints^[i]]);
-   Result := Result + ')';
+   Result := Result + ']';
 END;
 
 FUNCTION CmulReal_im(const a:Complex; const Mult:Double):Complex;  // Multiply only imaginary part by a real

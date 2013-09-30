@@ -700,30 +700,20 @@ Begin
     WITH ParentClass Do
      FOR i := 1 to NumProperties Do
      Begin
-        CASE i of
-          3, 4: Writeln(F,'~ ',PropertyName^[i],'=(',PropertyValue[i],')');
-        ELSE
           Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
-        End;
      End;
 
 
 End;
 
 FUNCTION TTShapeObj.GetPropertyValue(Index: Integer): String;
-VAR
-   i: Integer;
 Begin
-        Case Index of
-        3,4: Result := '[';
-        ELSE
         Result := '';
-        End;
 
         CASE Index of
           2: Result := Format('%.8g', [Interval]);
-          3: FOR i := 1 to FNumPoints Do Result := Result + Format('%-g, ' , [TValues^[i]]);
-          4: IF Hours <> Nil Then FOR i := 1 to FNumPoints Do Result := Result + Format('%-g, ' , [Hours^[i]]) ;
+          3: Result := GetDSSArray_Real( FNumPoints, TValues);
+          4: IF Hours <> Nil Then Result := GetDSSArray_Real( FNumPoints, Hours) ;
           5: Result := Format('%.8g', [Mean ]);
           6: Result := Format('%.8g', [StdDev ]);
           10: Result := Format('%.8g', [Interval * 3600.0 ]);
@@ -732,10 +722,6 @@ Begin
            Result := Inherited GetPropertyValue(index);
         End;
 
-        Case Index of
-        3,4: Result := Result + ']';
-        ELSE
-        End;
 End;
 
 PROCEDURE TTShapeObj.InitPropertyValues(ArrayOffset: Integer);

@@ -1128,7 +1128,11 @@ begin
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('linespacing'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('linecode'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('xfmrcode'),'', FALSE);
+    If Success Then Success :=  WriteClassFile(GetDssClassPtr('loadshape'),'', FALSE);
+    If Success Then Success :=  WriteClassFile(GetDssClassPtr('TShape'),'', FALSE);
+    If Success Then Success :=  WriteClassFile(GetDssClassPtr('priceshape'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('growthshape'),'', FALSE);
+    If Success Then Success :=  WriteClassFile(GetDssClassPtr('XYcurve'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('TCC_Curve'),'', FALSE);
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('Spectrum'),'', FALSE);
     If Success Then Success := SaveFeeders; // Save feeders first
