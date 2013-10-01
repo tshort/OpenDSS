@@ -21,7 +21,7 @@ New monitor.ckt5_mon_p element=Line.MDV201_connector terminal=1 mode=1 Ppolar=No
 
 Solve  ! This executes a snaphot power flow solution of the circuit
 
-
+Export seqv
 plot general quantity=7 max=.1 dots=n labels=n subs=y object=C:\Users\prdu001\OpenDSS\Distrib\EPRITestCircuits\ckt5\ckt5_EXP_SEQVOLTAGES.CSV 
 
 
