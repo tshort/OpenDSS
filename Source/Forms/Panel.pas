@@ -386,6 +386,7 @@ type
     procedure OpenDSSWiki1Click(Sender: TObject);
     procedure TechNotes1Click(Sender: TObject);
     procedure NodeNames1Click(Sender: TObject);
+    procedure TCCCurve1Click(Sender: TObject);
   private
     { Private declarations }
     PlotOptionString:String;
@@ -1628,6 +1629,11 @@ begin
       ActiveScriptForm.ExecuteDSSCommand('Set reduceoption=Tapends');
       ActiveScriptForm.ExecuteDSSCommand('reduce');
     End;
+end;
+
+procedure TControlPanel.TCCCurve1Click(Sender: TObject);
+begin
+     DoSimpleMsg('This function currently inactive.', 999123);
 end;
 
 procedure TControlPanel.BreakLoops1Click(Sender: TObject);

@@ -3628,7 +3628,7 @@ begin
            End;
            Set_Properties(ActiveGraphProps);
            *)
-//****         ShowGraph;
+         ShowGraph;
 
       End;
 
