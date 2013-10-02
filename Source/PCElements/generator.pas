@@ -176,6 +176,7 @@ TYPE
         YPrimOpenCond   :TCmatrix;  // To handle cases where one conductor of load is open ; We revert to admittance for inj currents
         YQFixed         :Double;  // Fixed value of y for type 7 load
         ShapeIsActual   :Boolean;
+        ForceBalanced   :Boolean;
 
         PROCEDURE CalcDailyMult(Hr:double);
         PROCEDURE CalcDutyMult(Hr:double);  // now incorporates DutyStart offset
@@ -301,7 +302,7 @@ implementation
 
 USES  ParserDel, Circuit,  Sysutils, Command, Math, MathUtil, DSSClassDefs, DSSGlobals, Utilities;
 
-Const NumPropsThisClass = 37;
+Const NumPropsThisClass = 38;
   // Dispatch modes
       DEFAULT = 0;
       LOADMODE = 1;
@@ -377,7 +378,7 @@ Begin
                     '4:Const kW, Fixed Q (Q never varies)'+CRLF+
                     '5:Const kW, Fixed Q(as a constant reactance)'+CRLF+
                     '6:Compute load injection from User-written Model.(see usage of Xd, Xdp)'+CRLF+
-                    '7:Constant kW, kvar, but current-limited below Vminpu. Approximates a simple inverter.');
+                    '7:Constant kW, kvar, but current-limited below Vminpu. Approximates a simple inverter. See also Balanced.');
      AddProperty('Vminpu', 23,   'Default = 0.90.  Minimum per unit voltage for which the Model is assumed to apply. ' +
                           'Below this value, the load model reverts to a constant impedance model. For model 7, the current is ' +
                           'limited to the value computed for constant power at Vminpu.');
@@ -448,6 +449,7 @@ Begin
      AddProperty('DutyStart', 37, 'Starting time offset [hours] into the duty cycle shape for this generator, defaults to 0');
      AddProperty('debugtrace', 22,  '{Yes | No }  Default is no.  Turn this on to capture the progress of the generator model ' +
                           'for each iteration.  Creates a separate file for each generator named "GEN_name.CSV".' );
+      AddProperty('Balanced',  38, '{Yes | No*} Default is No.  For Model=7, force balanced current only for 3-phase generators. Force zero- and negative-sequence to zero.');
 
 
 
@@ -620,7 +622,7 @@ Begin
            35: ShaftModel.Name   := Parser.StrValue;
            36: ShaftModel.Edit   := Parser.StrValue;
            37: DutyStart := Parser.DblValue;
-
+           38: ForceBalanced := InterpretYesNo(Param);
 
          ELSE
            // Inherited parameters
@@ -917,6 +919,7 @@ Begin
      FForcedON     := FALSE;
      GenSwitchOpen := FALSE;
      ShapeIsActual := FALSE;
+     ForceBalanced := FALSE;
 
      Spectrum := 'defaultgen';  // override base class
 
@@ -992,8 +995,9 @@ End;
 //----------------------------------------------------------------------------
 Procedure TGeneratorObj.SetNominalGeneration;
 VAR
-   Factor:Double;
-   GenOn_Saved:Boolean;
+   Factor      : Double;
+   GenOn_Saved : Boolean;
+   VBaseTemp   : Double;
 
 Begin
    GenOn_Saved := GenON;
@@ -1100,7 +1104,9 @@ Begin
 
           If GenModel=7 Then With Genvars Do
           Begin
-              CurrentLimit  := Cdivreal( Cmplx(Pnominalperphase,Qnominalperphase), Vbase95);
+              VbaseTemp := VBase95;
+              If Fnphases=3 then If Connection=1 Then  VbaseTemp := VBase95 * SQRT3;
+              CurrentLimit  := Cdivreal( Cmplx(Pnominalperphase, Qnominalperphase), VBaseTemp);
               Model7MaxCurr := Cabs(CurrentLimit);
           End;
 
@@ -1667,15 +1673,23 @@ procedure TGeneratorObj.DoCurrentLimitedPQ;
 
 
 VAR
-   i:Integer;
-   Curr, V:Complex;
-   Vmag, VmagLN: Double;
+   i : Integer;
+   Curr, V : Complex;
+   Vmag, VmagLN : Double;
+   V012 : Array[0..2] of Complex;  // Sequence voltages
 
 Begin
      //Treat this just like the Load model
 
     CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
     CalcVTerminalPhase; // get actual voltage across each phase of the load
+    If ForceBalanced and (Fnphases=3) Then Begin
+        Phase2SymComp(Vterminal, @V012);
+        V012[0] := CZERO; // Force zero-sequence voltage to zero
+        V012[2] := CZERO; // Force negative-sequence voltage to zero
+        SymComp2Phase(Vterminal, @V012);  // Reconstitute Vterminal as balanced
+    End;
+
     ZeroITerminal;
 
     FOR i := 1 to Fnphases Do
@@ -1685,15 +1699,24 @@ Begin
 
       CASE Connection of
         0: Begin
+              With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));
+              If Cabs(Curr) > Model7MaxCurr Then Curr := Conjg( Cdiv( CurrentLimit, CDivReal(V, Vmag)) );
+
+        (*
               IF   (VMag <= VBase95) or ((VMag > VBase105))    // limit the current magnitude when voltage drops outside normal range
               THEN Curr := Conjg( Cdiv( CurrentLimit, CDivReal(V, Vmag)) )   // Current limit expression
               ELSE With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Above Vminpu, constant PQ
+        *)
            End;
         1: Begin
-              VmagLN := Vmag/SQRT3;
+              With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));
+              If Cabs(Curr) > Model7MaxCurr Then Curr := Conjg( Cdiv( CurrentLimit, CDivReal(V, Vmag)) );
+
+        (*    VmagLN := Vmag/SQRT3;
               IF   (VmagLN <= VBase95) or ((VmagLN > VBase105))    // limit the current magnitude when voltage drops outside normal range
               THEN Curr := Conjg( Cdiv( CurrentLimit, CDivReal(V, Vmag)) )   // Current limit expression
               ELSE With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Above Vminpu, constant PQ
+        *)
            End;
       END;
 
@@ -1714,6 +1737,8 @@ Var
    i     : Integer;
    V012,
    I012  : Array[0..2] of Complex;
+
+   Model7TestCurrent : Double;
 
 Begin
 
@@ -1749,8 +1774,10 @@ Begin
 
                       ITerminal^[1] := CDiv(CSub(Csub(VTerminal^[1], Vthev), VTerminal^[2]), Zthev);
                       If Genmodel=7 Then
+                      Begin
                          If Cabs(Iterminal^[1]) > Model7MaxCurr Then   // Limit the current but keep phase angle
                             ITerminal^[1] := ptocomplex(topolar(Model7MaxCurr, cang(Iterminal^[1])));
+                      End;
 
                       ITerminal^[2] := Cnegate(ITerminal^[1]);
                 End;
@@ -1766,10 +1793,15 @@ Begin
                                 CalcVthev_Dyn_Mod7(V012[1]);
 
                                 // Positive Sequence Contribution to Iterminal
+
                                 I012[1] := CDiv(Csub(V012[1], Vthev), Zthev);
-                                If Cabs(I012[1]) > Model7MaxCurr Then   // Limit the current but keep phase angle
-                                   I012[1] := ptocomplex(topolar(Model7MaxCurr, cang(I012[1])));
-                               I012[2] := Cdiv(V012[2], Zthev);  // for inverter
+                                If Connection=1 Then Model7TestCurrent := Model7MaxCurr * SQRT3
+                                Else Model7TestCurrent := Model7MaxCurr;
+                                If Cabs(I012[1]) > Model7TestCurrent Then   // Limit the current but keep phase angle
+                                   I012[1] := ptocomplex(topolar(Model7TestCurrent, cang(I012[1])));
+                                If ForceBalanced
+                                  Then I012[2] := CZERO
+                                  Else I012[2] := Cdiv(V012[2], Zthev);  // for inverter
 
                              End
                       ELSE
@@ -1782,8 +1814,10 @@ Begin
                       END;
 
                       {Adjust for generator connection}
-                      If Connection=1 Then I012[0] := CZERO
-                                      Else I012[0] := Cdiv(V012[0], Cmplx(0.0, Xdpp));
+                      If Connection=1
+                         Then I012[0] := CZERO
+                         Else I012[0] := Cdiv(V012[0], Cmplx(0.0, Xdpp));
+
                       SymComp2Phase(ITerminal, @I012);  // Convert back to phase components
 
                       // Neutral current
@@ -2308,6 +2342,8 @@ begin
      PropertyValue[34]     := '';
      PropertyValue[35]     := '';
      PropertyValue[36]     := '';
+     PropertyValue[37]     := '0';
+     PropertyValue[38]     := 'No';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -2620,7 +2656,10 @@ begin
          27: Result := Format('%.6g', [Genvars.kVArating*0.001]);
          34,36: Begin
                     Result := '(' + inherited GetPropertyValue(index) + ')';
-                End
+                End;
+         37: Result := Format('%.6g', [DutyStart]);
+         38: If ForceBalanced Then Result := 'Yes' else Result := 'No';
+
       ELSE
          Result := Inherited GetPropertyValue(index);
       END;
