@@ -117,9 +117,11 @@ begin
      FromBus := ActiveCircuit.Buses^[Terminals^[FromTerminal].BusRef];
      WITH  FromBus Do Begin
          accumsum(CustInterrupts, Num_Interrupt * TotalCustomers);
-(**** *)     WriteDLLDebugfile(Format('%s.%s, Bus = %s, CustInterrupt= %.11g, Num_Interrupt= %.11g, TotalCustomers= %d, TotalNumCustomers= %d ',
+(****
+     WriteDLLDebugfile(Format('%s.%s, Bus = %s, CustInterrupt= %.11g, Num_Interrupt= %.11g, TotalCustomers= %d, TotalNumCustomers= %d ',
                               [Self.ParentClass.Name, Self.Name, ActiveCircuit.Buslist.Get(Terminals^[FromTerminal].BusRef), CustInterrupts, Num_Interrupt, TotalCustomers, TotalNumCustomers  ]));
-     End;
+*)
+    End;
 end;
 
 procedure TPDElement.CalcNum_Int;

@@ -128,8 +128,10 @@ TYPE
         Yeq95           :Complex;   // at 95%
         Yeq105          :Complex;   // at 105%
 
-        CurrentLimit    :Complex;
-        Model7MaxCurr   :Double;
+        Edp               :Complex;
+        PhaseCurrentLimit    :Complex;
+        Model7MaxPhaseCurr   :Double;
+        Model7LastAngle      :Double;
         DebugTrace      :Boolean;
         DeltaQMax       :Double;  // Max allowable var change on Model=3 per iteration
         DispatchMode    :Integer;
@@ -997,7 +999,6 @@ Procedure TGeneratorObj.SetNominalGeneration;
 VAR
    Factor      : Double;
    GenOn_Saved : Boolean;
-   VBaseTemp   : Double;
 
 Begin
    GenOn_Saved := GenON;
@@ -1104,10 +1105,8 @@ Begin
 
           If GenModel=7 Then With Genvars Do
           Begin
-              VbaseTemp := VBase95;
-              If Fnphases=3 then If Connection=1 Then  VbaseTemp := VBase95 * SQRT3;
-              CurrentLimit  := Cdivreal( Cmplx(Pnominalperphase, Qnominalperphase), VBaseTemp);
-              Model7MaxCurr := Cabs(CurrentLimit);
+              PhaseCurrentLimit  := Cdivreal( Cmplx(Pnominalperphase, -Qnominalperphase), VBase95);
+              Model7MaxPhaseCurr := Cabs(PhaseCurrentLimit);
           End;
 
       END;
@@ -1674,8 +1673,8 @@ procedure TGeneratorObj.DoCurrentLimitedPQ;
 
 VAR
    i : Integer;
-   Curr, V : Complex;
-   Vmag, VmagLN : Double;
+   PhaseCurr, DeltaCurr, VLN, VLL : Complex;
+   VMagLN, VMagLL : Double;
    V012 : Array[0..2] of Complex;  // Sequence voltages
 
 Begin
@@ -1683,6 +1682,7 @@ Begin
 
     CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
     CalcVTerminalPhase; // get actual voltage across each phase of the load
+
     If ForceBalanced and (Fnphases=3) Then Begin
         Phase2SymComp(Vterminal, @V012);
         V012[0] := CZERO; // Force zero-sequence voltage to zero
@@ -1694,35 +1694,34 @@ Begin
 
     FOR i := 1 to Fnphases Do
     Begin
-      V    := Vterminal^[i];
-      VMag := Cabs(V);
 
       CASE Connection of
         0: Begin
-              With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));
-              If Cabs(Curr) > Model7MaxCurr Then Curr := Conjg( Cdiv( CurrentLimit, CDivReal(V, Vmag)) );
+              VLN    := Vterminal^[i];   // VTerminal is LN for this connection
+              VMagLN := Cabs(VLN);
+              With Genvars Do
+                 PhaseCurr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), VLN));
+              If Cabs(PhaseCurr) > Model7MaxPhaseCurr Then
+                 PhaseCurr := Conjg( Cdiv( PhaseCurrentLimit, CDivReal(VLN, VMagLN)) );
 
-        (*
-              IF   (VMag <= VBase95) or ((VMag > VBase105))    // limit the current magnitude when voltage drops outside normal range
-              THEN Curr := Conjg( Cdiv( CurrentLimit, CDivReal(V, Vmag)) )   // Current limit expression
-              ELSE With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Above Vminpu, constant PQ
-        *)
+              StickCurrInTerminalArray(ITerminal, Cnegate(PhaseCurr), i);  // Put into Terminal array taking into account connection
+              ITerminalUpdated := TRUE;
+              StickCurrInTerminalArray(InjCurrent,PhaseCurr, i);  // Put into Terminal array taking into account connection
            End;
         1: Begin
-              With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));
-              If Cabs(Curr) > Model7MaxCurr Then Curr := Conjg( Cdiv( CurrentLimit, CDivReal(V, Vmag)) );
+              VLL    := Vterminal^[i];     // VTerminal is LL for this connection
+              VMagLL := Cabs(VLL);
+              With Genvars Do
+                 DeltaCurr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), VLL));
+              If Cabs(DeltaCurr)*SQRT3 > Model7MaxPhaseCurr Then
+                 DeltaCurr := Conjg( Cdiv( PhaseCurrentLimit, CDivReal(VLL, VMagLL/SQRT3)) );
 
-        (*    VmagLN := Vmag/SQRT3;
-              IF   (VmagLN <= VBase95) or ((VmagLN > VBase105))    // limit the current magnitude when voltage drops outside normal range
-              THEN Curr := Conjg( Cdiv( CurrentLimit, CDivReal(V, Vmag)) )   // Current limit expression
-              ELSE With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Above Vminpu, constant PQ
-        *)
+              StickCurrInTerminalArray(ITerminal, Cnegate(DeltaCurr), i);  // Put into Terminal array taking into account connection
+              ITerminalUpdated := TRUE;
+              StickCurrInTerminalArray(InjCurrent,DeltaCurr, i);  // Put into Terminal array taking into account connection
            End;
       END;
 
-      StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
-      ITerminalUpdated := TRUE;
-      StickCurrInTerminalArray(InjCurrent,Curr, i);  // Put into Terminal array taking into account connection
     End;
 
 end;
@@ -1738,11 +1737,9 @@ Var
    V012,
    I012  : Array[0..2] of Complex;
 
-   Model7TestCurrent : Double;
-
 Begin
 
-   CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array  and computes VTerminal
+   CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array  and computes VTerminal L-N
 
    {Inj = -Itotal (in) - Yprim*Vtemp}
 
@@ -1772,11 +1769,11 @@ Begin
                       END;
 
 
-                      ITerminal^[1] := CDiv(CSub(Csub(VTerminal^[1], Vthev), VTerminal^[2]), Zthev);
+                      ITerminal^[1] := CDiv(CSub(Csub(VTerminal^[1], Vthev), VTerminal^[2]), Zthev);  // ZThev is based on Xd'
                       If Genmodel=7 Then
                       Begin
-                         If Cabs(Iterminal^[1]) > Model7MaxCurr Then   // Limit the current but keep phase angle
-                            ITerminal^[1] := ptocomplex(topolar(Model7MaxCurr, cang(Iterminal^[1])));
+                         If Cabs(Iterminal^[1]) > Model7MaxPhaseCurr Then   // Limit the current but keep phase angle
+                            ITerminal^[1] := ptocomplex(topolar(Model7MaxPhaseCurr, cang(Iterminal^[1])));
                       End;
 
                       ITerminal^[2] := Cnegate(ITerminal^[1]);
@@ -1790,18 +1787,18 @@ Begin
                           7: Begin  // simple inverter model
                                 // Positive Sequence Contribution to Iterminal
                                 // Assume inverter stays in phase with pos seq voltage
+                                // and pos seq current is limited
                                 CalcVthev_Dyn_Mod7(V012[1]);
 
                                 // Positive Sequence Contribution to Iterminal
+                                // Ref Frame here is all L-N
 
-                                I012[1] := CDiv(Csub(V012[1], Vthev), Zthev);
-                                If Connection=1 Then Model7TestCurrent := Model7MaxCurr * SQRT3
-                                Else Model7TestCurrent := Model7MaxCurr;
-                                If Cabs(I012[1]) > Model7TestCurrent Then   // Limit the current but keep phase angle
-                                   I012[1] := ptocomplex(topolar(Model7TestCurrent, cang(I012[1])));
-                                If ForceBalanced
-                                  Then I012[2] := CZERO
-                                  Else I012[2] := Cdiv(V012[2], Zthev);  // for inverter
+                                I012[1] := CDiv(Csub(V012[1], Vthev), Zthev); // ZThev is based on Xd'
+                                If Cabs(I012[1]) > Model7MaxPhaseCurr  // Limit the current but keep phase angle
+                                   Then I012[1] := ptocomplex(topolar(Model7MaxPhaseCurr, cang(I012[1])));
+                                If ForceBalanced  // set the negative sequence current
+                                   Then I012[2] := CZERO
+                                   Else I012[2] := Cdiv(V012[2], Zthev);  // for inverter ZThev is  (Xd' + j0)
 
                              End
                       ELSE
@@ -1809,7 +1806,7 @@ Begin
                             CalcVthev_Dyn;  // Update for latest phase angle
 
                             // Positive Sequence Contribution to Iterminal
-                            I012[1] := CDiv(Csub(V012[1], Vthev), Zthev);
+                            I012[1] := CDiv(Csub(V012[1], Vthev), Zthev);  // ZThev is based on Xd'
                             I012[2] := Cdiv(V012[2], Cmplx(0.0, Xdpp));  // machine use Xd"
                       END;
 
@@ -2352,7 +2349,7 @@ end;
 PROCEDURE TGeneratorObj.InitStateVars;
 Var
     {VNeut,}
-    Edp   :Complex;
+
     i     :Integer;
     V012,
     I012  :Array[0..2] of Complex;
@@ -2405,6 +2402,8 @@ begin
          // Theta is angle on Vthev[1] relative to system reference
          //Theta  := Cang(Vthev^[1]);   // Assume source at 0
          Theta  := Cang(Edp) ;
+         If GenModel=7 Then Model7LastAngle := Theta;
+
          dTheta := 0.0;
          w0     := Twopi * ActiveCircuit.Solution.Frequency;
          // recalc Mmass and D in case the frequency has changed
@@ -2788,10 +2787,22 @@ begin
 end;
 
 procedure TGeneratorObj.CalcVthev_Dyn_Mod7(const V: Complex);
-{Adjust VThev to be in phase with V}
+{Adjust VThev to be in phase with V, if possible}
+{
+ If the voltage magnitude drops below 15% or so, the accuracy of determining the
+ phase angle gets flaky. This algorithm approximates the action of a PLL that will
+ hold the last phase angle until the voltage recovers.
+}
+Var
+    Model7angle : Double;
 begin
    If GenSwitchOpen Then GenVars.VThevMag := 0.0;
-   Vthev := pclx(GenVars.VthevMag, cAng(V));
+   If Cabs(V) > 0.2 * Vbase Then  Model7angle := Cang(V)
+   Else Model7Angle := Model7LastAngle;
+
+   Vthev := pclx(GenVars.VthevMag, Model7angle);
+   Model7Lastangle := Model7angle;
+
 end;
 
 initialization

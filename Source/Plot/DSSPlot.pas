@@ -3487,7 +3487,7 @@ begin
       Case Quantity of
          vizVOLTAGE:
             Begin
-               FName := FName + Element.Name + '_V.DSV';
+               FName := FName + Format('%s_%s_V.DSV',[Element.ParentClass.Name, Element.Name]);
                cBuffer := Element.Vterminal;
                For i := 1 to Min(2, Nterm) do
                   kVBase1[i] := Max(1.0,
@@ -3496,12 +3496,12 @@ begin
             End;
          vizCURRENT:
             Begin
-                 FName := FName + Element.Name + '_I.DSV';
+                 FName := FName + Format('%s_%s_I.DSV',[Element.ParentClass.Name, Element.Name]);
                  cBuffer := Element.Iterminal;
             End;
          vizPOWER:
             Begin
-               FName := FName + Element.Name + '_PQ.DSV';
+               FName := FName + Format('%s_%s_PQ.DSV',[Element.ParentClass.Name, Element.Name]);
                cBuffer := Allocmem(Sizeof(Complex) * Element.Yorder);
                CBufferAllocated := TRUE;
                With Element Do
