@@ -251,9 +251,10 @@ END;
 Function TFault.Edit:Integer;
 
 VAR
-   ParamPointer:Integer;
-   ParamName:String;
-   Param:String;
+   ParamPointer : Integer;
+   ParamName    : String;
+   Param        : String;
+   PhasesTemp   : Integer;
 
 BEGIN
   Result := 0;
@@ -299,11 +300,14 @@ BEGIN
                 IsShunt     := FALSE;
                 Bus2Defined := TRUE;
             End;
-          3: IF Fnphases <> Parser.IntValue THEN BEGIN
-               Nphases := Parser.IntValue ;
-               NConds := Fnphases;  // Force Reallocation of terminal info
-               ActiveCircuit.BusNameRedefined := True;  // Set Global Flag to signal circuit to rebuild busdefs
-             END;
+          3: Begin
+               PhasesTemp := Parser.IntValue;
+               IF Fnphases <> PhasesTemp THEN BEGIN
+                 Nphases := PhasesTemp;
+                 NConds := Fnphases;  // Force Reallocation of terminal info
+                 ActiveCircuit.BusNameRedefined := True;  // Set Global Flag to signal circuit to rebuild busdefs
+               END;
+             End;
           4: SpecType := 1;
           6: SpecType := 2;
           7: If ON_Time>0.0 THEN Is_ON := FALSE;   // Assume fault will be on later
