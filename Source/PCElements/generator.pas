@@ -358,7 +358,7 @@ Begin
      AddProperty('phases', 1, 'Number of Phases, this Generator.  Power is evenly divided among phases.');
      AddProperty('bus1', 2, 'Bus to which the Generator is connected.  May include specific node specification.');
      AddProperty('kv',  3,  'Nominal rated (1.0 per unit) voltage, kV, for Generator. For 2- and 3-phase Generators, specify phase-phase kV. '+
-                    'Otherwise, specify actual kV across each branch of the Generator. '+
+                    'Otherwise, for phases=1 or phases>3, specify actual kV across each branch of the Generator. '+
                     'If wye (star), specify phase-neutral kV. '+
                     'If delta or phase-phase connected, specify phase-phase kV.');  // line-neutral voltage//  base voltage
      AddProperty('kW', 4, 'Total base kW for the Generator.  A positive value denotes power coming OUT of the element, '+CRLF+
@@ -1683,7 +1683,7 @@ Begin
     CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
     CalcVTerminalPhase; // get actual voltage across each phase of the load
 
-    If ForceBalanced and (Fnphases=3) Then Begin
+    If ForceBalanced and (Fnphases=3) Then Begin    // convert to pos-seq only
         Phase2SymComp(Vterminal, @V012);
         V012[0] := CZERO; // Force zero-sequence voltage to zero
         V012[2] := CZERO; // Force negative-sequence voltage to zero
@@ -1760,7 +1760,7 @@ Begin
                  Begin
                    // 1-phase generators have 2 conductors
                       CASE Genmodel of
-                           7: Begin
+                           7: Begin  // simple inverter model
                                   // Assume inverter stays in phase with terminal voltage
                                   CalcVthev_Dyn_Mod7(CSub(VTerminal^[1], VTerminal^[2]));
                               End;
@@ -2797,6 +2797,10 @@ Var
     Model7angle : Double;
 begin
    If GenSwitchOpen Then GenVars.VThevMag := 0.0;
+   {
+      For Phases=1, Vbase is voltage across the terminals.
+      Else it is LN voltage.
+   }
    If Cabs(V) > 0.2 * Vbase Then  Model7angle := Cang(V)
    Else Model7Angle := Model7LastAngle;
 

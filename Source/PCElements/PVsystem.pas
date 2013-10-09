@@ -51,7 +51,8 @@ TYPE
         Vthevharm       :Double;  {Thevinen equivalent voltage mag  for Harmonic model}
         VthevmagDyn     :Double;  {Thevinen equivalent voltage mag  reference for Dynamics model}
         Thetaharm       :Double;  {Thevinen equivalent  angle reference for Harmonic model}
-        ThetaDyn        :Double;   {Thevinen equivalent  angle reference for Dynamics model}
+        ThetaDyn        :Double;  {Thevinen equivalent  angle reference for Dynamics model}
+        InitialVAngle   :Double;  {initial terminal voltage angle when entering dynamics mode}
         EffFactor       :Double;
         TempFactor      :Double;
         PanelkW         :Double; //computed
@@ -59,7 +60,7 @@ TYPE
         FPmpp           :Double;
         FpuPmpp         :Double;
         FIrradiance     :Double;
-        MaxDynCurrent   :Double;
+        MaxDynPhaseCurrent   :Double;
 
         {32-bit integers}
         NumPhases       :Integer;   {Number of phases}
@@ -97,11 +98,13 @@ TYPE
 // ===========================================================================================
    TPVsystemObj = class(TPCElement)
       Private
-        YEQ             :Complex;   // at nominal
-        YEQ95           :Complex;   // at Vmin
-        YEQ105          :Complex;   // at VMax
-        CurrentLimit    :Complex;
-        Zthev           :Complex;
+        YEQ               :Complex;   // at nominal
+        YEQ_Min           :Complex;   // at Vmin
+        YEQ_Max           :Complex;   // at VMax
+        PhaseCurrentLimit :Complex;
+        Zthev             :Complex;
+
+        LastThevAngle   :Double;
 
         DebugTrace              :Boolean;
         PVSystemSolutionCount   :Integer;
@@ -111,6 +114,9 @@ TYPE
 
         PFSpecified             :Boolean;
         kvarSpecified           :Boolean;
+
+        ForceBalanced           :Boolean;
+        CurrentLimited          :Boolean;
 
         kvar_out        :Double;
         kW_out          :Double;
@@ -145,8 +151,8 @@ TYPE
 
         varBase         :Double; // Base vars per phase
         VBase           :Double;  // Base volts suitable for computing currents
-        VBase105        :Double;
-        VBase95         :Double;
+        VBaseMax        :Double;
+        VBaseMin         :Double;
         Vmaxpu          :Double;
         Vminpu          :Double;
         YPrimOpenCond   :TCmatrix;
@@ -343,8 +349,10 @@ Const
     propUSERDATA   = 28;
     propDEBUGTRACE = 29;
     proppctPmpp    = 30;
+    propBalanced   = 31;
+    propLimited    = 32;
 
-    NumPropsThisClass = 30; // Make this agree with the last property constant
+    NumPropsThisClass = 32; // Make this agree with the last property constant
 
 VAR
 
@@ -450,11 +458,11 @@ Begin
                               'The value for the temperature at which Pmpp is defined should be 1.0. ' +
                               'The net array power is determined by the irradiance * Pmpp * f(Temperature)');
      AddProperty('%R',        propPCTR,
-                              'Equivalent percent internal resistance, ohms. Default is 0. Placed in series with internal voltage source' +
-                              ' for harmonics and dynamics modes. ');
+                              'Equivalent percent internal resistance, ohms. Default is 50%. Placed in series with internal voltage source' +
+                              ' for harmonics and dynamics modes. (Limits fault current to about 2 pu if not current limited -- see LimitCurrent) ');
      AddProperty('%X',        propPCTX,
-                              'Equivalent percent internal reactance, ohms. Default is 50%. Placed in series with internal voltage source' +
-                              ' for harmonics and dynamics modes. (Limits fault current to 2 pu.) ' );
+                              'Equivalent percent internal reactance, ohms. Default is 0%. Placed in series with internal voltage source' +
+                              ' for harmonics and dynamics modes. ' );
      AddProperty('model',     propMODEL,
                               'Integer code (default=1) for the model to use for power output variation with voltage. '+
                               'Valid values are:' +CRLF+CRLF+
@@ -469,6 +477,11 @@ Begin
      AddProperty('Vmaxpu',       propVMAXPU,
                                  'Default = 1.10.  Maximum per unit voltage for which the Model is assumed to apply. ' +
                                  'Above this value, the load model reverts to a constant impedance model.');
+     AddProperty('Balanced',     propBalanced,
+                                 '{Yes | No*} Default is No.  Force balanced current only for 3-phase PVSystems. Forces zero- and negative-sequence to zero. ');
+     AddProperty('LimitCurrent', propLimited,
+                                 'Limits current magnitude to Vminpu value for both 1-phase and 3-phase PVSystems similar to Generator Model 7. For 3-phase, ' +
+                                 'limits the positive-sequence current but not the negative-sequence.');
      AddProperty('yearly',       propYEARLY,
                                  'Dispatch shape to use for yearly simulations.  Must be previously defined '+
                                  'as a Loadshape object. If this is not specified, the Daily dispatch shape, if any, is repeated '+
@@ -600,8 +613,8 @@ Begin
                VBase := kVPVSystemBase * 1000.0 ;   // Just use what is supplied
           END;
 
-          VBase95  := Vminpu * VBase;
-          VBase105 := Vmaxpu * VBase;
+          VBaseMin  := Vminpu * VBase;
+          VBaseMax := Vmaxpu * VBase;
 
           Yorder := Fnconds * Fnterms;
           YPrimInvalid := True;
@@ -685,7 +698,9 @@ Begin
                propUSERMODEL    : UserModel.Name := Parser.StrValue;  // Connect to user written models
                propUSERDATA     : UserModel.Edit := Parser.StrValue;  // Send edit string to user model
                propDEBUGTRACE   : DebugTrace   := InterpretYesNo(Param);
-               proppctPmpp      : PVSystemVars.FpuPmpp        := Parser.DblValue / 100.0;  // convert to pu
+               proppctPmpp      : PVSystemVars.FpuPmpp  := Parser.DblValue / 100.0;  // convert to pu
+               propBalanced     : ForceBalanced  := InterpretYesNo(Param);
+               propLimited      : CurrentLimited := InterpretYesNo(Param);
 
              ELSE
                // Inherited parameters
@@ -760,8 +775,8 @@ Begin
          Vbase             := OtherPVsystemObj.Vbase;
          Vminpu            := OtherPVsystemObj.Vminpu;
          Vmaxpu            := OtherPVsystemObj.Vmaxpu;
-         Vbase95           := OtherPVsystemObj.Vbase95;
-         Vbase105          := OtherPVsystemObj.Vbase105;
+         VBaseMin           := OtherPVsystemObj.VBaseMin;
+         VBaseMax          := OtherPVsystemObj.VBaseMax;
          kW_out            := OtherPVsystemObj.kW_out;
          kvar_out          := OtherPVsystemObj.kvar_out;
          Pnominalperphase  := OtherPVsystemObj.Pnominalperphase;
@@ -793,7 +808,7 @@ Begin
          FpctCutout                  := OtherPVsystemObj.FpctCutout;
          PVSystemVars.FIrradiance    := OtherPVsystemObj.PVSystemVars.FIrradiance;
 
-         PVSystemVars.FkVArating          := OtherPVsystemObj.PVSystemVars.FkVArating;
+         PVSystemVars.FkVArating     := OtherPVsystemObj.PVSystemVars.FkVArating;
 
          pctR               := OtherPVsystemObj.pctR;
          pctX               := OtherPVsystemObj.pctX;
@@ -802,6 +817,9 @@ Begin
          FVWMode            := OtherPVsystemObj.FVWMode;
          FVWYAxis           := OtherPVsystemObj.FVWYAxis;
          UserModel.Name     := OtherPVsystemObj.UserModel.Name;  // Connect to user written models
+
+         ForceBalanced      := OtherPVsystemObj.ForceBalanced;
+         CurrentLimited     := OtherPVsystemObj.CurrentLimited;
 
          ClassMakeLike(OtherPVsystemObj);
 
@@ -847,23 +865,22 @@ VAR
 
 Begin
       idx := First;
-      WHILE idx > 0 Do
-      Begin
+      WHILE (idx > 0)
+      Do Begin
            TPVsystemObj(GetActiveObj).ResetRegisters;
            idx := Next;
       End;
 End;
 
 {--------------------------------------------------------------------------}
-PROCEDURE TPVsystem.SampleAll;  // Force all EnergyMeters in the circuit to take a sample
+PROCEDURE TPVsystem.SampleAll;  // Force all active PV System energy meters  to take a sample
 
 VAR
       i :Integer;
 Begin
       For i := 1 to ElementList.ListSize  Do
         With TPVsystemObj(ElementList.Get(i)) Do
-          If Enabled
-          Then TakeSample;
+          If Enabled Then TakeSample;
 End;
 
 // ===========================================================================================
@@ -910,14 +927,16 @@ Begin
      VBase            := 7200.0;
      Vminpu           := 0.90;
      Vmaxpu           := 1.10;
-     VBase95          := Vminpu  * Vbase;
-     VBase105         := Vmaxpu  * Vbase;
+     VBaseMin         := Vminpu  * Vbase;
+     VBaseMax         := Vmaxpu  * Vbase;
      Yorder           := Fnterms * Fnconds;
      RandomMult       := 1.0 ;
 
      PFSpecified      := TRUE;
      kvarSpecified    := FALSE;
      InverterON       := TRUE; // start with inverterON
+     ForceBalanced    := FALSE;
+     CurrentLimited   := FALSE;
 
      With PVSystemVars Do Begin
          FTemperature  := 25.0;
@@ -925,10 +944,10 @@ Begin
          FkVArating    := 500.0;
          FPmpp         := 500.0;
          FpuPmpp       := 1.0;    // full on
-     end;
+     End;
 
-     FpctCutIn        := 20.0;
-     FpctCutOut       := 20.0;
+     FpctCutIn         := 20.0;
+     FpctCutOut        := 20.0;
 
       {Output rating stuff}
      kW_out       := 500.0;
@@ -987,10 +1006,10 @@ Begin
      PropertyValue[propCONNECTION] := 'wye';
      PropertyValue[propKVAR]       := Format('%-g', [Presentkvar]);
 
-     PropertyValue[propPCTR]      := Format('%-g', [pctR]);
-     PropertyValue[propPCTX]      := Format('%-g', [pctX]);
+     PropertyValue[propPCTR]       := Format('%-g', [pctR]);
+     PropertyValue[propPCTX]       := Format('%-g', [pctX]);
 
-     PropertyValue[propCLASS]     := '1'; //'class'
+     PropertyValue[propCLASS]      := '1'; //'class'
 
      PropertyValue[propInvEffCurve] := '';
      PropertyValue[propTemp]        := Format('%-g', [FTemperature]);
@@ -1007,6 +1026,8 @@ Begin
      PropertyValue[propUSERDATA]  := '';  // Userdata
      PropertyValue[propDEBUGTRACE]:= 'NO';
      PropertyValue[proppctPmpp]   := '100';
+     PropertyValue[propBalanced]  := 'NO';
+     PropertyValue[propLimited]   := 'NO';
    End;
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -1053,6 +1074,9 @@ Begin
           propUSERMODEL  : Result := UserModel.Name;
           propUSERDATA   : Result := '(' + inherited GetPropertyValue(index) + ')';
           proppctPmpp    : Result := Format('%.6g', [FpuPmpp * 100.0]);
+          propBalanced   : If ForceBalanced  Then Result:='Yes' Else Result := 'No';
+          propLimited    : If CurrentLimited Then Result:='Yes' Else Result := 'No';
+
 
           {propDEBUGTRACE = 33;}
       ELSE  // take the generic handler
@@ -1151,8 +1175,8 @@ PROCEDURE TPVsystemObj.RecalcElementData;
 
 Begin
 
-    VBase95  := VMinPu * VBase;
-    VBase105 := VMaxPu * VBase;
+    VBaseMin  := VMinPu * VBase;
+    VBaseMax := VMaxPu * VBase;
 
     varBase := 1000.0 * kvar_out / Fnphases;
 
@@ -1259,18 +1283,18 @@ Begin
 
                 YEQ  := CDivReal(Cmplx(Pnominalperphase, -Qnominalperphase), Sqr(Vbase));   // Vbase must be L-N for 3-phase
 
-                If   (Vminpu <> 0.0) Then YEQ95 := CDivReal(YEQ, SQR(Vminpu))  // at 95% voltage
-                                     Else YEQ95 := YEQ; // Always a constant Z model
+                If   (Vminpu <> 0.0) Then YEQ_Min := CDivReal(YEQ, SQR(Vminpu))  // at 95% voltage
+                                     Else YEQ_Min := YEQ; // Always a constant Z model
 
-                If   (Vmaxpu <> 0.0) Then  YEQ105 := CDivReal(YEQ, SQR(Vmaxpu))   // at 105% voltage
-                                     Else  YEQ105 := YEQ;
+                If   (Vmaxpu <> 0.0) Then  YEQ_Max := CDivReal(YEQ, SQR(Vmaxpu))   // at 105% voltage
+                                     Else  YEQ_Max := YEQ;
 
             { Like Model 7 generator, max current is based on amount of current to get out requested power at min voltage
             }
                 With PVSystemvars Do
                 Begin
-                    CurrentLimit  := Cdivreal( Cmplx(Pnominalperphase,Qnominalperphase), VBase95) ;
-                    MaxDynCurrent := Cabs(CurrentLimit);
+                    PhaseCurrentLimit  := Cdivreal( Cmplx(Pnominalperphase,Qnominalperphase), VBaseMin) ;
+                    MaxDynPhaseCurrent := Cabs(PhaseCurrentLimit);
                 End;
 
 
@@ -1566,47 +1590,85 @@ PROCEDURE TPVsystemObj.DoConstantPQPVsystemObj;
 {Compute total terminal current for Constant PQ}
 
 VAR
-   i:Integer;
-   Curr, V:Complex;
-   Vmag: Double;
+   i : Integer;
+   PhaseCurr,
+   DeltaCurr,
+   VLN, VLL : Complex;
+   VmagLN,
+   VmagLL : Double;
+   V012 : Array[0..2] of Complex;  // Sequence voltages
 
 Begin
      //Treat this just like the Load model
 
-    CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
-    ZeroITerminal;
-
+        CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
+        ZeroITerminal;
 
         CalcVTerminalPhase; // get actual voltage across each phase of the load
+
+        If ForceBalanced and (Fnphases=3)
+        Then Begin  // convert to pos-seq only
+            Phase2SymComp(Vterminal, @V012);
+            V012[0] := CZERO; // Force zero-sequence voltage to zero
+            V012[2] := CZERO; // Force negative-sequence voltage to zero
+            SymComp2Phase(Vterminal, @V012);  // Reconstitute Vterminal as balanced
+        End;
+
         FOR i := 1 to Fnphases
         Do Begin
-            V    := Vterminal^[i];
-            VMag := Cabs(V);
 
             CASE Connection of
 
              0: Begin  {Wye}
-                    IF   VMag <= VBase95
-                    THEN Curr := Cmul(YEQ95, V)  // Below 95% use an impedance model
-                    ELSE If VMag > VBase105
-                    THEN Curr := Cmul(YEQ105, V)  // above 105% use an impedance model
-                    ELSE Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Between 95% -105%, constant PQ
-                End;
+                    VLN    := Vterminal^[i];
+                    VMagLN := Cabs(VLN);
+
+                    If CurrentLimited Then Begin
+                       {Current-Limited Model}
+                       PhaseCurr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), VLN));
+                       If Cabs(PhaseCurr) >  PVSystemvars.MaxDynPhaseCurrent Then
+                          PhaseCurr := Conjg( Cdiv( PhaseCurrentLimit, CDivReal(VLN, VMagLN)) );
+                    End Else Begin
+                       {The usual model}
+                       IF   (VMagLN <= VBaseMin)
+                           THEN PhaseCurr := Cmul(YEQ_Min, VLN)  // Below Vminpu use an impedance model
+                       ELSE If (VMagLN > VBaseMax)
+                           THEN PhaseCurr := Cmul(YEQ_Max, VLN)  // above Vmaxpu use an impedance model
+                       ELSE PhaseCurr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), VLN));  // Between Vminpu and Vmaxpu, constant PQ
+                   End;
+
+                    StickCurrInTerminalArray(ITerminal, Cnegate(PhaseCurr), i);  // Put into Terminal array taking into account connection
+                    IterminalUpdated := TRUE;
+                    StickCurrInTerminalArray(InjCurrent, PhaseCurr, i);  // Put into Terminal array taking into account connection
+                 End;
 
               1: Begin  {Delta}
-                    VMag := VMag/SQRT3;  // L-N magnitude
-                    IF   VMag <= VBase95
-                    THEN Curr := Cmul(CdivReal(YEQ95, 3.0), V)  // Below 95% use an impedance model
-                    ELSE If VMag > VBase105
-                    THEN Curr := Cmul(CdivReal(YEQ105, 3.0), V)  // above 105% use an impedance model
-                    ELSE  Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Between 95% -105%, constant PQ
+                    VLL    := Vterminal^[i];
+                    VMagLL := Cabs(VLL);
+
+                    If CurrentLimited
+                    Then Begin
+                       {Current-Limited Model}
+                       DeltaCurr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), VLL));
+                       If Cabs(DeltaCurr)*SQRT3 >  PVSystemvars.MaxDynPhaseCurrent Then
+                          DeltaCurr := Conjg( Cdiv( PhaseCurrentLimit, CDivReal(VLL, VMagLL/SQRT3)) );
+                    End Else Begin
+                       {The usual model}
+                        VMagLN := VmagLL/SQRT3;
+                        IF   VMagLN <= VBaseMin
+                             THEN DeltaCurr := Cmul(CdivReal(YEQ_Min, 3.0), VLL)  // Below 95% use an impedance model
+                        ELSE If VMagLN > VBaseMax
+                             THEN DeltaCurr := Cmul(CdivReal(YEQ_Max, 3.0), VLL)  // above 105% use an impedance model
+                        ELSE  DeltaCurr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), VLL));  // Between 95% -105%, constant PQ
+                    End;
+
+                    StickCurrInTerminalArray(ITerminal, Cnegate(DeltaCurr), i);  // Put into Terminal array taking into account connection
+                    IterminalUpdated := TRUE;
+                    StickCurrInTerminalArray(InjCurrent, DeltaCurr, i);  // Put into Terminal array taking into account connection
                 End;
 
              END;
 
-            StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
-            IterminalUpdated := TRUE;
-            StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
         End;
 
 End;
@@ -1616,24 +1678,34 @@ PROCEDURE TPVsystemObj.DoConstantZPVsystemObj;
 
 {constant Z model}
 VAR
-   i    :Integer;
+   i    : Integer;
    Curr,
-   YEQ2 :Complex;
+   YEQ2 : Complex;
+   V012 : Array[0..2] of Complex;  // Sequence voltages
 
 Begin
 
 // Assume YEQ is kept up to date
     CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
     CalcVTerminalPhase; // get actual voltage across each phase of the load
+
+    If ForceBalanced and (Fnphases=3) Then Begin  // convert to pos-seq only
+        Phase2SymComp(Vterminal, @V012);
+        V012[0] := CZERO; // Force zero-sequence voltage to zero
+        V012[2] := CZERO; // Force negative-sequence voltage to zero
+        SymComp2Phase(Vterminal, @V012);  // Reconstitute Vterminal as balanced
+    End;
+
     ZeroITerminal;
+
     If  (Connection=0)
-    Then YEQ2 := YEQ
-    Else YEQ2 := CdivReal(YEQ, 3.0);
+        Then YEQ2 := YEQ        // YEQ is always line to neutral
+        Else YEQ2 := CdivReal(YEQ, 3.0); // YEQ for delta connection
 
      FOR i := 1 to Fnphases
      Do Begin
 
-        Curr := Cmul(YEQ2, Vterminal^[i]);   // YEQ is always line to neutral
+        Curr := Cmul(YEQ2, Vterminal^[i]);
         StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
         IterminalUpdated := TRUE;
         StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
@@ -1647,18 +1719,18 @@ End;
 PROCEDURE TPVsystemObj.DoUserModel;
 {Compute total terminal Current from User-written model}
 VAR
-   i:Integer;
+   i : Integer;
 
 Begin
 
    CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
 
    If UserModel.Exists     // Check automatically selects the usermodel If true
-   Then  Begin
+   Then Begin
          UserModel.FCalc (Vterminal, Iterminal);
          IterminalUpdated := TRUE;
          With ActiveCircuit.Solution
-         Do  Begin          // Negate currents from user model for power flow PVSystem element model
+         Do Begin          // Negate currents from user model for power flow PVSystem element model
                FOR i := 1 to FnConds Do Caccum(InjCurrent^[i], Cnegate(Iterminal^[i]));
          End;
    End
@@ -1671,16 +1743,33 @@ PROCEDURE TPVsystemObj.DoDynamicMode;
 
 {Compute Total Current and add into InjTemp}
 Var
-   i:     Integer;
+   i     : Integer;
    V012,
-   I012:  Array[0..2] of Complex;
-   Vthev: Complex;
+   I012  : Array[0..2] of Complex;
+   Vthev : Complex;
+   Theta : Double; // phase angle of thevinen source
 
-  {-------------- Internal Proc -----------------------}
-   Procedure CalcVthev_Dyn(const V:Complex);
-   Begin
-        Vthev := pclx(PVSystemVars.VthevMagDyn, cAng(V));
-   End;
+    {-------------- Internal Proc -----------------------}
+     Procedure CalcVthev_Dyn(const V:Complex);
+    {
+       If the voltage magnitude drops below 15% or so, the accuracy of determining the
+       phase angle gets flaky. This algorithm approximates the action of a PLL that will
+       hold the last phase angle until the voltage recovers.
+    }
+     Begin
+       {Try to keep in phase with terminal voltage}
+
+        With PVSystemVars Do
+        Begin
+
+          If Cabs(V) > 0.20 * Vbase
+             Then  Theta := ThetaDyn + (Cang(V) - InitialVangle)
+             Else  Theta := LastThevAngle;
+
+          Vthev := pclx(VthevMagDyn, Theta);
+          LastThevAngle :=  Theta;     // remember this for angle persistence
+        End;
+     End;
 
 Begin
 
@@ -1695,11 +1784,10 @@ Begin
                 UserModel.FCalc(Vterminal, Iterminal);  // returns terminal currents in Iterminal
               End
          ELSE Begin
-                  DoSimpleMsg(Format('Dynamics model missing for Generator.%s ',[Name]), 5671);
+                  DoSimpleMsg(Format('Dynamics model missing for PVSystem.%s ',[Name]), 5671);
                   SolutionAbort := TRUE;
               End;
    ELSE  {All other models -- current-limited like Generator Model 7}
-
 
       {
         This is a simple model that is basically a thevinen equivalent without inertia
@@ -1714,15 +1802,17 @@ Begin
 
 
                       ITerminal^[1] := CDiv(CSub(Csub(VTerminal^[1], Vthev), VTerminal^[2]), Zthev);
-                      If Cabs(Iterminal^[1]) > MaxDynCurrent Then   // Limit the current but keep phase angle
-                            ITerminal^[1] := ptocomplex(topolar(MaxDynCurrent, cang(Iterminal^[1])));
+
+                      If CurrentLimited Then
+                      If Cabs(Iterminal^[1]) > MaxDynPhaseCurrent Then   // Limit the current but keep phase angle
+                            ITerminal^[1] := ptocomplex(topolar(MaxDynPhaseCurrent, cang(Iterminal^[1])));
 
                       ITerminal^[2] := Cnegate(ITerminal^[1]);
                 End;
 
               3: With PVSystemVars Do
                  Begin
-                      Phase2SymComp(Vterminal, @V012);
+                      Phase2SymComp(Vterminal, @V012);  // convert Vabc to V012
 
                       Begin  // simple inverter model
                         // Positive Sequence Contribution to Iterminal
@@ -1731,15 +1821,22 @@ Begin
 
                         // Positive Sequence Contribution to Iterminal
                         I012[1] := CDiv(Csub(V012[1], Vthev), Zthev);
-                        If Cabs(I012[1]) > MaxDynCurrent Then   // Limit the current but keep phase angle
-                           I012[1] := ptocomplex(topolar(MaxDynCurrent, cang(I012[1])));
-                        I012[2] := Cdiv(V012[2], Zthev);  // for inverter
+
+                        If CurrentLimited and (Cabs(I012[1]) > MaxDynPhaseCurrent) Then   // Limit the pos seq current but keep phase angle
+                           I012[1] := ptocomplex(topolar(MaxDynPhaseCurrent, cang(I012[1])));
+
+                        If ForceBalanced Then Begin
+                            I012[2] := CZERO;
+                        End Else
+                            I012[2] := Cdiv(V012[2], Zthev);  // for inverter
 
                       End;
 
                       {Adjust for generator connection}
-                      If Connection=1 Then I012[0] := CZERO
-                                      Else I012[0] := Cdiv(V012[0], Zthev);
+                      If (Connection=1) or ForceBalanced
+                      Then I012[0] := CZERO
+                      Else I012[0] := Cdiv(V012[0], Zthev);
+
                       SymComp2Phase(ITerminal, @I012);  // Convert back to phase components
 
                       // Neutral current
@@ -2114,6 +2211,7 @@ PROCEDURE TPVsystemObj.InitStateVars;
 VAR
 //    VNeut,
     Edp   :Complex;
+    V12   :Complex;
     i     :Integer;
     V012,
     I012  :Array[0..2] of Complex;
@@ -2137,9 +2235,11 @@ Begin
          CASE Fnphases of
 
               1: Begin
-                      Edp      := Csub( CSub(NodeV^[NodeRef^[1]], NodeV^[NodeRef^[2]]) , Cmul(ITerminal^[1], Zthev));
+                      V12 := CSub(NodeV^[NodeRef^[1]], NodeV^[NodeRef^[2]]);
+                      InitialVAngle := Cang(V12);
+                      Edp      := Csub(V12  , Cmul(ITerminal^[1], Zthev));
                       VthevmagDyn := Cabs(Edp);
-                      ThetaDyn    := Cang(Edp);
+                      ThetaDyn    := Cang(Edp); // initial thev equivalent phase angle
                  End;
 
               3: Begin
@@ -2149,14 +2249,17 @@ Begin
 
                      For i := 1 to FNphases Do Vabc[i] := NodeV^[NodeRef^[i]];   // Wye Voltage
                      Phase2SymComp(@Vabc, @V012);
+                     InitialVAngle := Cang(V012[1]);
                      Edp      := Csub( V012[1] , Cmul(I012[1], Zthev));    // Pos sequence
                      VthevmagDyn := Cabs(Edp);
-                     ThetaDyn    := Cang(Edp);
+                     ThetaDyn    := Cang(Edp); // initial thev equivalent phase angle
                  End;
          ELSE
               DoSimpleMsg(Format('Dynamics mode is implemented only for 1- or 3-phase Generators. PVSystem.'+name+' has %d phases.', [Fnphases]), 5673);
               SolutionAbort := TRUE;
          END;
+
+         LastThevAngle := ThetaDyn;
 
     End;
 

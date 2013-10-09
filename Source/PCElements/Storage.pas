@@ -87,6 +87,8 @@ TYPE
         Yeq105          :Complex;   // at 105%
         YeqIdling       :Complex;   // in shunt representing idle impedance
         YeqDischarge    :Complex;   // equiv at rated power of storage element only
+        PhaseCurrentLimit :Complex;
+        MaxDynPhaseCurrent   :Double;
 
         DebugTrace      :Boolean;
         FState          :Integer;
@@ -96,6 +98,8 @@ TYPE
         StorageFundamental     :Double;  {Thevinen equivalent voltage mag and angle reference for Harmonic model}
         StorageObjSwitchOpen   :Boolean;
 
+        ForceBalanced   :Boolean;
+        CurrentLimited  :Boolean;
 
         kVANotSet       :Boolean;
         kvar_out        :Double;
@@ -152,8 +156,6 @@ TYPE
         PROCEDURE DoHarmonicMode;
         PROCEDURE DoUserModel;
         PROCEDURE DoDynaModel;
-
-        PROCEDURE CalcVthev_Dyn;
 
         PROCEDURE Integrate(Reg:Integer; const Deriv:Double; Const Interval:Double);
         PROCEDURE SetDragHandRegister(Reg:Integer; const Value:Double);
@@ -313,8 +315,10 @@ Const
   propCHARGETIME = 36;
   propDynaDLL    = 37;
   propDynaData   = 38;
+  propBalanced   = 39;
+  propLimited    = 40;
 
-  NumPropsThisClass = 38; // Make this agree with the last property constant
+  NumPropsThisClass = 40; // Make this agree with the last property constant
 
 
 
@@ -452,6 +456,9 @@ Begin
      AddProperty('Vmaxpu',       propVMAXPU,
                                  'Default = 1.10.  Maximum per unit voltage for which the Model is assumed to apply. ' +
                                  'Above this value, the load model reverts to a constant impedance model.');
+     AddProperty('Balanced',     propBalanced, '{Yes | No*} Default is No.  Force balanced current only for 3-phase PVSystems. Forces zero- and negative-sequence to zero.  ');
+     AddProperty('LimitCurrent', propLimited,  'Limits current magnitude to Vminpu value for both 1-phase and 3-phase PVSystems similar to Generator Model 7. For 3-phase, ' +
+                                 'limits the positive-sequence current but not the negative-sequence.');
      AddProperty('yearly',       propYEARLY,
                                  'Dispatch shape to use for yearly simulations.  Must be previously defined '+
                                  'as a Loadshape object. If this is not specified, the Daily dispatch shape, if any, is repeated '+
@@ -705,6 +712,8 @@ Begin
                propCHARGETIME   : ChargeTime := Parser.DblValue;
                propDynaDLL      : DynaModel.Name := Parser.StrValue;
                propDynaData     : DynaModel.Edit := Parser.StrValue;
+               propBalanced     : ForceBalanced  := InterpretYesNo(Param);
+               propLimited      : CurrentLimited := InterpretYesNo(Param);
 
 
              ELSE
@@ -832,6 +841,8 @@ Begin
          UserModel.Name   := OtherStorageObj.UserModel.Name;  // Connect to user written models
          DynaModel.Name   := OtherStorageObj.DynaModel.Name;
          IsUserModel      := OtherStorageObj.IsUserModel;
+         ForceBalanced    := OtherStorageObj.ForceBalanced;
+         CurrentLimited   := OtherStorageObj.CurrentLimited;
 
          ClassMakeLike(OtherStorageObj);
 
@@ -984,7 +995,10 @@ Begin
      StorageObjSwitchOpen := FALSE;
      Spectrum := '';  // override base class
      SpectrumObj := nil;
-     
+
+     ForceBalanced    := FALSE;
+     CurrentLimited   := FALSE;
+
      InitPropertyValues(0);
      RecalcElementData;
 
@@ -1039,6 +1053,7 @@ Begin
      PropertyValue[propVMINPU]    := '0.90';
      PropertyValue[propVMAXPU]    := '1.10';
      PropertyValue[propSTATE]     := 'IDLING';
+
      With StorageVars Do Begin
            PropertyValue[propKVA]       := Format('%-g', [StorageVars.kVARating]);
            PropertyValue[propKWRATED]   := Format('%-g', [kWRating]);
@@ -1055,6 +1070,8 @@ Begin
      PropertyValue[propDYNADLL] := '';  //
      PropertyValue[propDYNADATA]  := '';  //
      PropertyValue[propDEBUGTRACE]:= 'NO';
+     PropertyValue[propBalanced]  := 'NO';
+     PropertyValue[propLimited]   := 'NO';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -1107,6 +1124,9 @@ Begin
           propPCTKWIN    : Result := Format('%.6g', [pctkWin]);
           propPCTSTORED  : Result := Format('%.6g', [kWhStored/kWhRating * 100.0]);
           propCHARGETIME : Result := Format('%.6g', [Chargetime]);
+          propBalanced   : If ForceBalanced  Then Result:='Yes' Else Result := 'No';
+          propLimited    : If CurrentLimited Then Result:='Yes' Else Result := 'No';
+
       ELSE  // take the generic handler
            Result := Inherited GetPropertyValue(index);
       END;
@@ -1314,6 +1334,14 @@ Begin
                       If   (Vmaxpu <> 0.0) Then  Yeq105 := CDivReal(Yeq, Sqr(Vmaxpu))   // at 105% voltage
                                            Else  Yeq105 := Yeq;
                   END;
+                  { Like Model 7 generator, max current is based on amount of current to get out requested power at min voltage
+                }
+                  With StorageVars Do
+                  Begin
+                      PhaseCurrentLimit  := Cdivreal( Cmplx(Pnominalperphase,Qnominalperphase), VBase95) ;
+                      MaxDynPhaseCurrent := Cabs(PhaseCurrentLimit);
+                  End;
+
              End;
               { When we leave here, all the Yeq's are in L-N values}
 
@@ -1648,10 +1676,13 @@ PROCEDURE TStorageObj.DoConstantPQStorageObj;
 {Compute total terminal current for Constant PQ}
 
 VAR
-   i:Integer;
-   Curr, V:  Complex;
+   i : Integer;
+   Curr,
+   VLN, VLL :  Complex;
    //---DEBUG--- S:Complex;
-   Vmag: Double;
+   VmagLN,
+   VmagLL : Double;
+   V012 : Array[0..2] of Complex;  // Sequence voltages
 
 Begin
      //Treat this just like the Load model
@@ -1678,27 +1709,44 @@ Begin
     ELSE   // For Charging and Discharging
 
         CalcVTerminalPhase; // get actual voltage across each phase of the load
+
+        If ForceBalanced and (Fnphases=3)
+        Then Begin  // convert to pos-seq only
+            Phase2SymComp(Vterminal, @V012);
+            V012[0] := CZERO; // Force zero-sequence voltage to zero
+            V012[2] := CZERO; // Force negative-sequence voltage to zero
+            SymComp2Phase(Vterminal, @V012);  // Reconstitute Vterminal as balanced
+        End;
+
         FOR i := 1 to Fnphases Do Begin
-            V    := Vterminal^[i];
-            VMag := Cabs(V);
 
             CASE Connection of
 
              0: Begin  {Wye}
-                  IF   VMag <= VBase95
-                  THEN Curr := Cmul(Yeq95, V)  // Below 95% use an impedance model
-                  ELSE If VMag > VBase105
-                  THEN Curr := Cmul(Yeq105, V)  // above 105% use an impedance model
-                  ELSE Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Between 95% -105%, constant PQ
+                  VLN    := Vterminal^[i];
+                  VMagLN := Cabs(VLN);
+                  IF   VMagLN <= VBase95
+                  THEN Curr := Cmul(Yeq95, VLN)  // Below 95% use an impedance model
+                  ELSE If VMagLN > VBase105
+                  THEN Curr := Cmul(Yeq105, VLN)  // above 105% use an impedance model
+                  ELSE Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), VLN));  // Between 95% -105%, constant PQ
+                  If CurrentLimited Then
+                       If Cabs(Curr) >  MaxDynPhaseCurrent Then
+                          Curr := Conjg( Cdiv( PhaseCurrentLimit, CDivReal(VLN, VMagLN)) );
                 End;
 
               1: Begin  {Delta}
-                  If Fnphases > 1 Then VMag := VMag/SQRT3;  // L-N magnitude
-                  IF   VMag <= VBase95
-                  THEN Curr := Cmul(CdivReal(Yeq95, 3.0), V)  // Below 95% use an impedance model
-                  ELSE If VMag > VBase105
-                  THEN Curr := Cmul(CdivReal(Yeq105, 3.0), V)  // above 105% use an impedance model
-                  ELSE  Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Between 95% -105%, constant PQ
+                  VLL    := Vterminal^[i];
+                  VMagLL := Cabs(VLL);
+                  If Fnphases > 1 Then VMagLN := VMagLL/SQRT3 Else VMagLN := VmagLL;  // L-N magnitude
+                  IF   VMagLN <= VBase95
+                  THEN Curr := Cmul(CdivReal(Yeq95, 3.0), VLL)  // Below 95% use an impedance model
+                  ELSE If VMagLN > VBase105
+                  THEN Curr := Cmul(CdivReal(Yeq105, 3.0), VLL)  // above 105% use an impedance model
+                  ELSE  Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), VLL));  // Between 95% -105%, constant PQ
+                  If CurrentLimited Then
+                      If Cabs(Curr)*SQRT3 >  MaxDynPhaseCurrent Then
+                          Curr := Conjg( Cdiv( PhaseCurrentLimit, CDivReal(VLL, VMagLN)) ); // Note VmagLN has sqrt3 factor in it
                 End;
 
              END;
@@ -1722,6 +1770,7 @@ VAR
    i    :Integer;
    Curr,
    Yeq2 :Complex;
+   V012 : Array[0..2] of Complex;  // Sequence voltages
 
 Begin
 
@@ -1730,6 +1779,14 @@ Begin
     CalcVTerminalPhase; // get actual voltage across each phase of the load
     ZeroITerminal;
     If Connection=0 Then Yeq2 := Yeq Else Yeq2 := CdivReal(Yeq, 3.0);
+
+    If ForceBalanced and (Fnphases=3)
+    Then Begin  // convert to pos-seq only
+        Phase2SymComp(Vterminal, @V012);
+        V012[0] := CZERO; // Force zero-sequence voltage to zero
+        V012[2] := CZERO; // Force negative-sequence voltage to zero
+        SymComp2Phase(Vterminal, @V012);  // Reconstitute Vterminal as balanced
+    End;
 
      FOR i := 1 to Fnphases Do Begin
 
@@ -1784,6 +1841,12 @@ Var
     V012,
     I012  : Array[0..2] of Complex;
 
+
+    procedure CalcVthev_Dyn;
+    begin
+         With StorageVars Do Vthev := pclx(VthevMag, Theta);   // keeps theta constant
+    end;
+
 Begin
 
 {****}  // Test using DESS model
@@ -1800,24 +1863,33 @@ Begin
         With StorageVars Do
         case Fnphases of
             1:Begin
-                CalcVthev_Dyn;  // Update for latest phase angle
-                ITerminal^[1] := CDiv(CSub(Csub(VTerminal^[1], Vthev), VTerminal^[2]), Zthev);
-                ITerminal^[2] := Cnegate(ITerminal^[1]);
-            End;
-              3:
-                 Begin
-                      Phase2SymComp(Vterminal, @V012);
+                  CalcVthev_Dyn;  // Update for latest phase angle
+                  ITerminal^[1] := CDiv(CSub(Csub(VTerminal^[1], Vthev), VTerminal^[2]), Zthev);
+                  If CurrentLimited Then
+                    If Cabs(Iterminal^[1]) > MaxDynPhaseCurrent Then   // Limit the current but keep phase angle
+                        ITerminal^[1] := ptocomplex(topolar(MaxDynPhaseCurrent, cang(Iterminal^[1])));
+                   ITerminal^[2] := Cnegate(ITerminal^[1]);
+              End;
+            3: Begin
+                  Phase2SymComp(Vterminal, @V012);
 
-                             // Positive Sequence Contribution to Iterminal
-                      CalcVthev_Dyn;  // Update for latest phase angle
+                  // Positive Sequence Contribution to Iterminal
+                  CalcVthev_Dyn;  // Update for latest phase angle
 
-                      // Positive Sequence Contribution to Iterminal
-                      I012[1] := CDiv(Csub(V012[1], Vthev), Zthev);
-                      I012[2] := Cdiv(V012[2], Zthev);
+                  // Positive Sequence Contribution to Iterminal
+                  I012[1] := CDiv(Csub(V012[1], Vthev), Zthev);
 
-                      I012[0] := CZERO ;
+                  If CurrentLimited and (Cabs(I012[1]) > MaxDynPhaseCurrent) Then   // Limit the pos seq current but keep phase angle
+                     I012[1] := ptocomplex(topolar(MaxDynPhaseCurrent, cang(I012[1])));
 
-                      SymComp2Phase(ITerminal, @I012);  // Convert back to phase components
+                  If ForceBalanced Then Begin
+                      I012[2] := CZERO;
+                  End Else
+                      I012[2] := Cdiv(V012[2], Zthev);  // for inverter
+
+                  I012[0] := CZERO ;
+
+                  SymComp2Phase(ITerminal, @I012);  // Convert back to phase components
 
                 End;
         Else
@@ -1931,12 +2003,7 @@ Begin
 
 End;
 
-procedure TStorageObj.CalcVthev_Dyn;
-begin
 
-   With StorageVars Do Vthev := pclx(VthevMag, Theta);
-
-end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - -
 (*
