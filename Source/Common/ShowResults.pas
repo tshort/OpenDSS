@@ -469,12 +469,12 @@ BEGIN
       Begin
          Inc(k);
          If ShowResidual Then Caccum(Ctotal, cBuffer^[k]);
-         Writeln(F, Format('%s  %4d    %13.5g /_ %6.1f',[UpperCase(FromBus), GetNodeNum(pElem.NodeRef^[k]),  Cabs(cBuffer^[k]), cdang(cBuffer^[k])]));
+         Writeln(F, Format('%s  %4d    %13.5g /_ %6.1f =  %9.5g +j %9.5g',[UpperCase(FromBus), GetNodeNum(pElem.NodeRef^[k]),  Cabs(cBuffer^[k]), cdang(cBuffer^[k]), cBuffer^[k].re, cBuffer^[k].im]));
       End;
       If ShowResidual and (pElem.NPhases > 1) Then
       Begin
         ResidPolar := CtoPolardeg(cnegate(Ctotal));
-        Writeln(F, Format('%s Resid    %13.5g /_ %6.1f',[UpperCase(FromBus), ResidPolar.mag, ResidPolar.ang  ]));
+        Writeln(F, Format('%s Resid    %13.5g /_ %6.1f =   %9.5g +j %9.5g',[UpperCase(FromBus), ResidPolar.mag, ResidPolar.ang, -cTotal.re, -Ctotal.im  ]));
       End;
       If j<Nterm Then Writeln(F,'------------');
       FromBus := Pad(StripExtension(pElem.Nextbus),MaxBusNameLength);
@@ -623,7 +623,7 @@ Begin
      Writeln(F);
      Writeln(F, 'Power Delivery Elements');
      Writeln(F);
-     Writeln(F,Pad('  Bus', MaxBusNameLength),' Phase    Magnitude, A     Angle');
+     Writeln(F,Pad('  Bus', MaxBusNameLength),' Phase    Magnitude, A     Angle      (Real)   +j  (Imag)');
      Writeln(F);
 
 
@@ -657,7 +657,7 @@ Begin
      Writeln(F);
      Writeln(F, 'Power Conversion Elements');
      Writeln(F);
-     Writeln(F,Pad('  Bus', MaxBusNameLength),' Phase    Magnitude, A     Angle');
+     Writeln(F,Pad('  Bus', MaxBusNameLength),' Phase    Magnitude, A     Angle      (Real)   +j  (Imag)');
      Writeln(F);
 
      // PCELEMENTS next
@@ -1390,7 +1390,7 @@ Begin
      Writeln(F);
      Writeln(F, 'Power Delivery Elements');
      Writeln(F);
-     Writeln(F,'  Bus         Phase    Magnitude, A     Angle');
+     Writeln(F,'  Bus         Phase    Magnitude, A     Angle      (Real)   +j  (Imag)');
      Writeln(F);
 
 
@@ -1420,7 +1420,7 @@ Begin
      Writeln(F);
      Writeln(F, 'Power Conversion Elements');
      Writeln(F);
-     Writeln(F,'  Bus         Phase    Magnitude, A     Angle');
+     Writeln(F,'  Bus         Phase    Magnitude, A     Angle      (Real)   +j  (Imag)');
      Writeln(F);
 
      // PCELEMENTS next
@@ -1435,6 +1435,17 @@ Begin
       p_Elem := ActiveCircuit.PCElements.Next;
      End;
 
+      // FAULTs next
+     p_Elem := ActiveCircuit.Faults.First;
+
+     WHILE p_Elem<>nil DO Begin
+      IF p_Elem.Enabled THEN  If CheckBusReference(p_Elem, BusReference, j) Then Begin
+         WriteTerminalCurrents(F, p_Elem, FALSE);
+         Writeln(F);
+       End;
+
+      p_Elem := ActiveCircuit.Faults.Next;
+     End;
 
      {Branch Powers}
      Writeln(F);
