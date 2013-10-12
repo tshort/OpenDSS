@@ -1227,18 +1227,26 @@ begin
     Begin
         Meter := EnergyMeters.Get(i); // Recast pointer
         CurrDir :=  Meter.Name;
-        If CreateDir(CurrDir) Then
+        If DirectoryExists(CurrDir) Then
          Begin
             SetCurrentDir(CurrDir);
             Meter.SaveZone(CurrDir);
             SetCurrentDir(SaveDir);
          End
-         Else Begin
-            DoSimpleMsg('Cannot create directory: '+CurrDir, 436);
-            Result := FALSE;
-            SetCurrentDir(SaveDir);  // back to whence we came
-            Break;
-         End;
+        Else Begin
+             If CreateDir(CurrDir) Then
+             Begin
+                SetCurrentDir(CurrDir);
+                Meter.SaveZone(CurrDir);
+                SetCurrentDir(SaveDir);
+             End
+             Else Begin
+                DoSimpleMsg('Cannot create directory: '+CurrDir, 436);
+                Result := FALSE;
+                SetCurrentDir(SaveDir);  // back to whence we came
+                Break;
+             End;
+        End;
     End;  {For}
     
 end;
