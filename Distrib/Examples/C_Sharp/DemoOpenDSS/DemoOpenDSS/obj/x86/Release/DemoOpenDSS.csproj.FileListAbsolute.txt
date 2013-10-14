@@ -1,0 +1,15 @@
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\Interop.OpenDSSengine.dll
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.csproj.ResolveComReference.cache
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\bin\Release\DemoOpenDSS.exe.manifest
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\bin\Release\DemoOpenDSS.application
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\bin\Release\DemoOpenDSS.exe
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\bin\Release\DemoOpenDSS.pdb
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\ResolveAssemblyReference.cache
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.DemoOpenDSSUI.resources
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.Properties.Resources.resources
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\GenerateResource.read.1.tlog
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\GenerateResource.write.1.tlog
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.exe.manifest
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.application
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.exe
+F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.pdb
