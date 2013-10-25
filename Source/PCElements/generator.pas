@@ -1811,7 +1811,7 @@ Begin
                       END;
 
                       {Adjust for generator connection}
-                      If Connection=1
+                      If (Connection=1) or  ForceBalanced
                          Then I012[0] := CZERO
                          Else I012[0] := Cdiv(V012[0], Cmplx(0.0, Xdpp));
 
