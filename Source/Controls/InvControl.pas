@@ -142,12 +142,16 @@ end;
             QDeliver: Array of Double;
             QNew: Array of Double;
             QOld: Array of Double;
+            PNew: Array of Double;
+            POld: Array of Double;
+
             QHeadRoom: Array of Double;
             Qoutputpu: Array of Double;
             Qdesiredpu: Array of Double;
             FVpuSolution: Array of Array of Double;
             FVpuSolutionIdx: Integer;
             FdeltaQ_factor: Double;
+            FdeltaP_factor: Double;
 
             //following for dynamic reactive current mode
             FDbVMin, FDbVMax,FArGraLowV,FArGraHiV: Double;
@@ -211,7 +215,7 @@ USES
 
 CONST
 
-    NumPropsThisClass = 20;
+    NumPropsThisClass = 21;
 
     NONE = 0;
     CHANGEVARLEVEL = 1;
@@ -275,7 +279,8 @@ Begin
      PropertyName[17] := 'RateofChangeMode';
      PropertyName[18] := 'LPFTau';
      PropertyName[19] := 'RiseFallLimit';
-     PropertyName[20] := 'EventLog';
+     PropertyName[20] := 'DeltaP_factor';
+     PropertyName[21] := 'EventLog';
 
      PropertyHelp[1] := 'Array list of PVSystems to be controlled.  Usually only one PVSystem is controlled by one InvControl. '+CRLF+CRLF+
                         'If not specified, all PVSystems in the circuit are assumed to be controlled by this control, only. ' +CRLF+CRLF+
@@ -405,7 +410,15 @@ Begin
                          'For VOLTVAR mode, the units for this number are in  per-unit QAvailable/second.'+CRLF+CRLF+
                          'Note:  Set to -1 to disable the rise/fall limit.  Otherwise, set it to a positive value for both rise limit and fall limit. ';
 
-     PropertyHelp[20] :=  '{Yes/True* | No/False} Default is YES for InvControl. Log control actions to Eventlog.';
+     PropertyHelp[20] := 'Required for the VOLTWATT modes.  Defaults to 1.0. '+CRLF+CRLF+
+                         'Sets the maximum change (in unit of the y-axis) from the prior active power output level to the desired active power output level during each control iteration. '+CRLF+CRLF+CRLF+
+                         'If numerical instability is noticed in solutions such as active power changing substantially from one control iteration to the next and/or voltages oscillating between two values with some separation, '+
+                         'this is an indication of numerical instability (use the EventLog to diagnose). '+CRLF+CRLF+
+                         'If the maximum control iterations are exceeded, and no numerical instability is seen in the EventLog of via monitors, then try increasing the value of this parameter to reduce the number '+
+                         'of control iterations needed to achieve the control criteria, and move to the power flow solution.';
+
+
+     PropertyHelp[21] :=  '{Yes/True* | No/False} Default is YES for InvControl. Log control actions to Eventlog.';
 
 
 
@@ -522,7 +535,8 @@ Begin
                   If Parser.DblValue > 0 then FRiseFallLimit := Parser.DblValue
                   else RateofChangeMode := INACTIVE;
                 End;
-            20: ShowEventLog := InterpretYesNo(param);
+            20: FdeltaP_factor := Parser.DblValue;
+            21: ShowEventLog := InterpretYesNo(param);
 
          ELSE
            // Inherited parameters
@@ -597,6 +611,7 @@ Begin
       FRollAvgWindowLengthIntervalUnit  := OtherInvControl.FRollAvgWindowLengthIntervalUnit;
       FvoltwattDeltaVTolerance   := OtherInvControl.FvoltwattDeltaVTolerance;
       FdeltaQ_factor             := OtherInvControl.FdeltaQ_factor;
+      FdeltaP_factor             := OtherInvControl.FdeltaP_factor;
       FVoltageChangeTolerance    := OtherInvControl.FVoltageChangeTolerance;
       FVarChangeTolerance        := OtherInvControl.FVarChangeTolerance;
       FVoltwattYAxis             := OtherInvControl.FVoltwattYAxis;
@@ -675,9 +690,13 @@ Begin
      QNew                     := nil;
      QOld                     := nil;
      QHeadRoom                := nil;
+     PNew                     := nil;
+     POld                     := nil;
+
      FVpuSolution             := nil;
      FVpuSolutionIdx          := 0;
      FdeltaQ_factor           := 0.7;
+     FdeltaP_factor           := 1.0;
      Qoutputpu                := nil;
      Qdesiredpu               := nil;
      FVoltwattYAxis           := 1;
@@ -740,6 +759,8 @@ Begin
      Finalize(QHeadroom);
      Finalize(Qoutputpu);
      Finalize(Qdesiredpu);
+     Finalize(PNew);
+     Finalize(POld);
      Finalize(deltaVDynReac);
      Finalize(priorRollAvgWindow);
      Finalize(FVpuSolution);
@@ -897,7 +918,7 @@ VAR
   Pdesiredpu                                :Double;
   voltagechangesolution,QPresentpu,VpuFromCurve,
   DeltaQ,basekV,alpha,Pdesiredpu_temp,
-  LPFvarspu,Qdesiredpu_temp                 :Double;
+  LPFvarspu,Qdesiredpu_temp,DeltaP          :Double;
   SMonitoredElement                         :Complex;
 
  // local pointer to current PVSystem element
@@ -936,12 +957,18 @@ BEGIN
 
         if (FROCEvaluated[i] = False) then
         begin
-           PVSys.puPmpp := Pdesiredpu;
+           DeltaP := Pdesiredpu - POld[i];
+           PNew[i] := POld[i] + DeltaP * FdeltaP_factor;
+
+           PVSys.puPmpp := PNew[i];
+
            If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
             Format('**VOLTWATT mode limited PVSystem output level to**, puPmpp= %.5g, PriorWatts= %.5g', [PVSys.puPmpp,FPriorWattspu[i]]));
 
            ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
            FAvgpVuPrior[i] := FPresentVpu[i];
+           POld[i] := PVSys.puPmpp;
+
            // Force recalc of power parms
            Set_PendingChange(NONE,i);
         end;
@@ -960,12 +987,18 @@ BEGIN
                  if (LPFWattspu < Pdesiredpu)  and (LPFWattspu <> 0.0) then
                  begin
                     Pdesiredpu := LPFWattspu;
-                    PVSys.puPmpp := Pdesiredpu;
+                    DeltaP := Pdesiredpu - POld[i];
+                    PNew[i] := POld[i] + DeltaP * FdeltaP_factor;
+
+                    PVSys.puPmpp := PNew[i];
+
                     If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
                       Format('**VOLTWATT mode (ROC LPF) limited PVSystem output level to**, puPmpp= %.5g, PriorWatts= %.5g', [PVSys.puPmpp,FPriorWattspu[i]]));
 
                     ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
                     FAvgpVuPrior[i] := FPresentVpu[i];
+                    POld[i] := PVSys.puPmpp;
+
                     // Force recalc of power parms
                     Set_PendingChange(NONE,i);
 
@@ -987,12 +1020,20 @@ BEGIN
                 if (Pdesiredpu_temp <> 0.0) and (Pdesiredpu_temp < PVSys.puPmpp)  then
                   begin
                     Pdesiredpu :=Pdesiredpu_temp;
+                    DeltaP := Pdesiredpu - POld[i];
+                    PNew[i] := POld[i] + DeltaP * FdeltaP_factor;
+
+                    PVSys.puPmpp := PNew[i];
+
+
                     PVSys.puPmpp := Pdesiredpu;
                     If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
                       Format('**VOLTWATT mode (ROC RF) limited PVSystem output level to**, puPmpp= %.5g, PriorWatts= %.5g', [PVSys.puPmpp,FPriorWattspu[i]]));
 
                     ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
                     FAvgpVuPrior[i] := FPresentVpu[i];
+                    POld[i] := PVSys.puPmpp;
+
                     // Force recalc of power parms
                     Set_PendingChange(NONE,i);
 
@@ -1497,7 +1538,8 @@ begin
      PropertyValue[17] := 'INACTIVE'; //rate of change limit
      PropertyValue[18] := '0.0'; // LPF tau constant, in seconds
      PropertyValue[19] := '-1.0'; // Rise/fall Limit
-     PropertyValue[20] := 'yes'; // show event log?
+     PropertyValue[21] := '1.0'; // deltaP_factor
+     PropertyValue[21] := 'yes'; // show event log?
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -1547,6 +1589,8 @@ begin
        SetLength(Qoutputpu,FListSize+1);
        SetLength(Qdesiredpu,FListSize+1);
        SetLength(deltaVDynReac,FListSize+1);
+       SetLength(PNew,FListSize+1);
+       SetLength(POld,FListSize+1);
 
        SetLength(FVpuSolution,FListSize+1,2+1);
        SetLength(FRollAvgWindow,FListSize+1);
@@ -1600,6 +1644,9 @@ begin
          SetLength(QHeadroom,FListSize+1);
          SetLength(Qoutputpu,FListSize+1);
          SetLength(Qdesiredpu,FListSize+1);
+         SetLength(PNew,FListSize+1);
+         SetLength(POld,FListSize+1);
+
          SetLength(FRollAvgWindow,FListSize+1);
          SetLength(deltaVDynReac,FListSize+1);
          SetLength(priorRollAvgWindow,FListSize+1);
@@ -1641,6 +1688,8 @@ begin
            QDeliver[i]                              := 0.0;
            QNew[i]                                  := 0.0;
            QOld[i]                                  := -1.0;
+           PNew[i]                                  := 0.0;
+           POld[i]                                  := -1.0;
            QHeadroom[i]                             :=0.0;
            Qoutputpu[i]                             :=0.0;
            Qdesiredpu[i]                            :=0.0;
@@ -1812,6 +1861,7 @@ Begin
                            Else If RateofChangeMode = RISEFALL then Result := 'RISEFALL';
 
                          end;
+          20            : Result := Format('%.6g', [FdeltaP_factor]);
 
       ELSE  // take the generic handler
            Result := Inherited GetPropertyValue(index);
