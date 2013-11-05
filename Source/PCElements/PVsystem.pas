@@ -537,7 +537,7 @@ Begin
 
      // Override default help string
      PropertyHelp[NumPropsThisClass +1] := 'Name of harmonic voltage or current spectrum for this PVSystem element. ' +
-                         'Current injection is assumed for inverter. ' +
+                         'A harmonic voltage source is assumed for the inverter. ' +
                          'Default value is "default", which is defined when the DSS starts.';
 
 End;
