@@ -116,6 +116,7 @@ end;
 
             Fvvc_curve_size: Integer; // length of the individual curve
             Fvvc_curve: TXYcurveObj;
+            Fvvc_curvename: String;
             Fvvc_curveOffset: Double;
             Fvvc_curve2: TXYcurveObj;
             FActiveVVCurve: Array of Integer;
@@ -129,6 +130,8 @@ end;
 
             Fvoltwatt_curve_size: Integer;
             Fvoltwatt_curve: TXYcurveObj;
+            Fvoltwatt_curvename: String;
+
             FAvgpVuPrior: Array of Double;
             FPriorWattspu: Array of Double;
             FPriorvarspu: Array of Double;
@@ -476,8 +479,12 @@ Begin
                    Else If CompareTextShortest(Parser.StrValue, 'dynamicreaccurr')= 0 Then  ControlMode := DYNAMICREACCURR;
                End;
             3: Begin
-                  Fvvc_curve := GetXYCurve(Param, VOLTVAR);
-                  Fvvc_curve_size := Fvvc_curve.NumPoints;
+                  Fvvc_curvename := Parser.StrValue;
+                  if Length(Fvvc_curvename) > 0 then
+                    begin
+                      Fvvc_curve := GetXYCurve(Fvvc_curvename, VOLTVAR);
+                      Fvvc_curve_size := Fvvc_curve.NumPoints;
+                    end;
                End;
             4: Begin
                   if(Parser.DblValue > 0.0) THEN DoSimpleMsg('Hysteresis offset should be a negative value, or 0 "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 1364)
@@ -489,8 +496,12 @@ Begin
                Else FVoltage_CurveX_ref := 1;
             6: FRollAvgWindowLength := InterpretAvgVWindowLen(Param);
             7: Begin
-                  Fvoltwatt_curve := GetXYCurve(Param, VOLTWATT);
-                  Fvoltwatt_curve_size := Fvoltwatt_curve.NumPoints;
+                  Fvoltwatt_curvename := Parser.StrValue;
+                  if Length(Fvoltwatt_curvename) > 0 then
+                    begin
+                      Fvoltwatt_curve := GetXYCurve(Fvoltwatt_curvename, VOLTWATT);
+                      Fvoltwatt_curve_size := Fvoltwatt_curve.NumPoints;
+                    end;
                End;
             8: Begin
                   FDbVMin := Parser.DblValue;
@@ -596,12 +607,14 @@ Begin
       FListSize                  := OtherInvControl.FListSize;
       Fvvc_curve_size            := OtherInvControl.Fvvc_curve_size;
       Fvvc_curve                 := OtherInvControl.Fvvc_curve;
+      Fvvc_curvename             := OtherInvControl.Fvvc_curvename;
       Fvvc_curveOffset           := OtherInvControl.Fvvc_curveOffset;
       FVoltage_CurveX_ref        := OtherInvControl.FVoltage_CurveX_ref;
 
       FVAvgWindowLengthSec       := OtherInvControl.FVAvgWindowLengthSec;
       Fvoltwatt_curve_size       := OtherInvControl.Fvoltwatt_curve_size;
       Fvoltwatt_curve            := OtherInvControl.Fvoltwatt_curve;
+      Fvoltwatt_curvename        := OtherInvControl.Fvoltwatt_curvename;
       FDbVMin                    := OtherInvControl.FDbVMin;
       FDbVMax                    := OtherInvControl.FDbVMax;
       FArGraLowV                 := OtherInvControl.FArGraLowV;
@@ -657,6 +670,7 @@ Begin
      FPVSystemPointerList     := nil;
      Fvvc_curve_size          :=0;
      Fvvc_curve               := nil;
+     Fvvc_curvename           := '';
      Fvvc_curveOffset         := 0.0;
      Fvvc_curve2              := nil;
      FActiveVVCurve           := nil;
@@ -678,6 +692,7 @@ Begin
      // volt-watt, only related variables
      Fvoltwatt_curve_size     := 0;
      Fvoltwatt_curve          := nil;
+     Fvoltwatt_curvename      := '';
      FAvgpVuPrior             := nil;
      FPresentVpu              := nil;
      FvoltwattDeltaVTolerance := 0.00001;  // per-unit change in voltage tolerance
@@ -1382,6 +1397,12 @@ begin
             CASE ControlMode of
                 VOLTWATT:  // volt-watt control mode
                 begin
+                  if Length(Fvoltwatt_curvename) = 0 then
+                    begin
+                      DoSimpleMsg('XY Curve object representing voltwatt_curve does not exist or is not tied to InvControl.', 381);
+                      exit
+                    end;
+
                   ControlledElement[i].VWmode  := TRUE;
                   if (Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FvoltwattDeltaVTolerance) and (FROCEvaluated[i] = False) then
                     begin
@@ -1422,6 +1443,12 @@ begin
                 VOLTVAR: // volt-var control mode
                 begin
                     ControlledElement[i].VWmode := FALSE;
+                    if Length(Fvvc_curvename) = 0 then
+                      begin
+                        DoSimpleMsg('XY Curve object representing vvc1_curve does not exist or is not tied to InvControl.', 382);
+                        exit
+                      end;
+
                     if  (FRocEvaluated[i] = False) and (FWithinTol[i] = False)  then
                     begin
                      if (((Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FVoltageChangeTolerance) or
@@ -1734,7 +1761,7 @@ Begin
   Result := XY_CurveClass.Find(CurveName);
 
   IF Result = NIL THEN begin
-    DoSimpleMsg('XY Curve object: "' + CurveName + '" not found.', 380);
+    DoSimpleMsg('XY Curve object: "' + CurveName + '" representing VOLTWATT or VOLTVAR curve (depending on mode) not found.', 380);
     Exit;
   end;
 
@@ -1831,7 +1858,8 @@ Begin
                             if ControlMode = VOLTWATT then Result := 'VOLTWATT';
                             if ControlMode = DYNAMICREACCURR then Result := 'DYNAMICREACCURR';
                          End;
-          3              : Result := Format('%d', [Fvvc_curve.Name]);
+
+          3              : Result := Format ('%s',[Fvvc_curvename]);
           4              : Result := Format('%-.6g', [Fvvc_curveOffset]);
           5              :
                          begin
@@ -1839,7 +1867,7 @@ Begin
                             else                             Result := 'avg';
                          end;
           6              : Result := Format('%d', [FRollAvgWindowLength,FRollAvgWindowLengthIntervalUnit]);
-          7              : Result := Format ('%d',[Fvoltwatt_curve.Name]);
+          7              : Result := Format ('%s',[Fvoltwatt_curvename]);
           8              : Result := Format('%.6g', [FDbVMin]);
           9              : Result := Format('%.6g', [FDbVMax]);
           10             : Result := Format('%.6g', [FArGraLowV]);
