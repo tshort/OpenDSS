@@ -207,7 +207,8 @@ Begin
                         'If Interval = 0 then time data (in hours) may be at irregular intervals and time value must be specified using either the Hour property or input files. ' +
                         'Then values are interpolated when Interval=0, but not for fixed interval data.  ' +CRLF+CRLF+
                         'See also "sinterval" and "minterval".'; // default = 1.0;
-     PropertyHelp[3] := 'Array of multiplier values for active power (P).  You can also use the syntax: '+CRLF+
+     PropertyHelp[3] := 'Array of multiplier values for active power (P) or other key value (such as pu V for Vsource). ' + CRLF+  CRLF +
+                        'You can also use the syntax: '+CRLF+  CRLF +
                         'mult = (file=filename)     !for text file one value per line'+CRLF+
                         'mult = (dblfile=filename)  !for packed file of doubles'+CRLF+
                         'mult = (sngfile=filename)  !for packed file of singles '+CRLF+
@@ -245,8 +246,9 @@ Begin
                         'qmult = (file=filename)     !for text file one value per line'+CRLF+
                         'qmult = (dblfile=filename)  !for packed file of doubles'+CRLF+
                         'qmult = (sngfile=filename)  !for packed file of singles ';     // vector of qmultiplier values
-     PropertyHelp[12] := '{Yes | No* | True | False*} If true, signals to Load, Generator, or other objects to ' +
-                         'use the return value as the actual kW, kvar value rather than a multiplier. Nominally for AMI data.';
+     PropertyHelp[12] := '{Yes | No* | True | False*} If true, signals to Load, Generator, Vsource, or other objects to ' +
+                         'use the return value as the actual kW, kvar, kV, or other value rather than a multiplier. ' +
+                         'Nominally for AMI Load data but may be used for other functions.';
      PropertyHelp[13] := 'kW value at the time of max power. Is automatically set upon reading in a loadshape. '+
                          'Use this property to override the value automatically computed or to retrieve the value computed.';
      PropertyHelp[14] := 'kvar value at the time of max kW power. Is automatically set upon reading in a loadshape. '+
