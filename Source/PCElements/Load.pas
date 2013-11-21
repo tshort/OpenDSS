@@ -343,19 +343,19 @@ Begin
                         '7:Const P, Fixed Impedance Q'+CRLF+
                         '8:ZIPV (7 values)'+CRLF+CRLF+
                         'For Types 6 and 7, only the P is modified by load multipliers.';
-     PropertyHelp[7] := 'Load shape to use for yearly simulations.  Must be previously defined '+
-                        'as a Loadshape object. Defaults to Daily load shape ' +
+     PropertyHelp[7] := 'LOADSHAPE object to use for yearly simulations.  Must be previously defined '+
+                        'as a Loadshape object. Is set to the Daily load shape ' +
                         ' when Daily is defined.  The daily load shape is repeated in this case. '+
                         'Set Status=Fixed to ignore Loadshape designation. ' +
                         'Set to NONE to reset to no loadahape. ' +
                         'The default is no variation.';
-     PropertyHelp[8] := 'Load shape to use for daily simulations.  Must be previously defined '+
+     PropertyHelp[8] := 'LOADSHAPE object to use for daily simulations.  Must be previously defined '+
                         'as a Loadshape object of 24 hrs, typically. ' +
                         'Set Status=Fixed to ignore Loadshape designation. ' +
                         'Set to NONE to reset to no loadahape. ' +
                         'Default is no variation (constant) if not defined. ' +
                         'Side effect: Sets Yearly load shape if not already defined.';
-     PropertyHelp[9] := 'Load shape to use for duty cycle simulations.  Must be previously defined '+
+     PropertyHelp[9] := 'LOADSHAPE object to use for duty cycle simulations.  Must be previously defined '+
                         'as a Loadshape object.  Typically would have time intervals less than 1 hr. '+
                         'Designate the number of points to solve using the Set Number=xxxx command. '+
                         'If there are fewer points in the actual shape, the shape is assumed to repeat.'+
@@ -663,14 +663,14 @@ Begin
        Connection     := OtherLoad.Connection;
        Rneut          := OtherLoad.Rneut;
        Xneut          := OtherLoad.Xneut;
-       YearlyShape    := OtherLoad.YearlyShape;
-       YearlyShapeObj := OtherLoad.YearlyShapeObj;
        CVRshape       := OtherLoad.CVRshape;
        CVRshapeObj    := OtherLoad.CVRshapeObj;
        DailyShape     := OtherLoad.DailyShape;
        DailyShapeObj  := OtherLoad.DailyShapeObj;
        DutyShape      := OtherLoad.DutyShape;
        DutyShapeObj   := OtherLoad.DutyShapeObj;
+       YearlyShape    := OtherLoad.YearlyShape;
+       YearlyShapeObj := OtherLoad.YearlyShapeObj;
        GrowthShape    := OtherLoad.GrowthShape;
        GrowthShapeObj := OtherLoad.GrowthShapeObj;
 //        Spectrum       := OtherLoad.Spectrum;       in base class now
@@ -1053,7 +1053,7 @@ Begin
 
     SetNominalLoad;
 
-    {Now check FOR errors.  IF any of these came out nil and the string was not nil, give warning}
+    {Now check for errors.  IF any of these came out nil and the string was not nil, give warning}
     If CompareText(YearlyShape, 'none')=0    Then YearlyShape := '';
     If CompareText(DailyShape, 'none')=0     Then DailyShape := '';
     If CompareText(DutyShape, 'none')=0      Then DutyShape := '';

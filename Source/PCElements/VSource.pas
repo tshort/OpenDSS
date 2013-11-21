@@ -18,7 +18,7 @@ unit VSource;
 
 interface
 
-USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum;
+USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum, Loadshape;
 
 
 
@@ -57,20 +57,27 @@ TYPE
         puZ1, puZ0, puZ2 : Complex;
         ZBase   : Double;
 
-        Bus2Defined : Boolean;
-        Z1Specified : Boolean;
+        Bus2Defined   : Boolean;
+        Z1Specified   : Boolean;
         puZ1Specified : Boolean;
         puZ0Specified : Boolean;
         puZ2Specified : Boolean;
-        Z2Specified : Boolean;
-        Z0Specified : Boolean;
+        Z2Specified   : Boolean;
+        Z0Specified   : Boolean;
 
         ScanType     : Integer;
         SequenceType : Integer;
 
+        ShapeFactor  : Complex;
+        ShapeIsActual: Boolean;
         Procedure GetVterminalForSource;
 
+        PROCEDURE CalcDailyMult(Hr:double);
+        PROCEDURE CalcDutyMult(Hr:double);
+        PROCEDURE CalcYearlyMult(Hr:double);
+
       public
+
         Z     : TCmatrix;  // Base Frequency Series Z matrix
         Zinv  : TCMatrix;
         VMag  : Double;
@@ -79,6 +86,13 @@ TYPE
         PerUnit     : Double;
         Angle       : Double;
         SrcFrequency: Double;
+
+        DailyShape    : String;         // Daily (24 HR) load shape
+        DailyShapeObj : TLoadShapeObj;  // Daily load Shape FOR this load
+        DutyShape     : String;         // Duty cycle load shape FOR changes typically less than one hour
+        DutyShapeObj  : TLoadShapeObj;  // Shape for this load
+        YearlyShape   : String;  // ='fixed' means no variation  exempt from variation
+        YearlyShapeObj: TLoadShapeObj;  // Shape for this load
 
 
         constructor Create(ParClass:TDSSClass; const SourceName:String);
@@ -106,9 +120,11 @@ VAR
 implementation
 
 
-USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command;
+USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Utilities, Sysutils, Command;
 
-Const NumPropsThisClass = 26;
+Const NumPropsThisClass = 29;
+
+Var CDOUBLEONE: Complex;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TVsource.Create;  // Creates superstructure for all Line objects
@@ -161,14 +177,17 @@ Begin
      PropertyName[16] := 'X0';
      PropertyName[17] := 'ScanType';
      PropertyName[18] := 'Sequence';
-     PropertyName[19]  := 'bus2';
-     PropertyName[20]  := 'Z1';
-     PropertyName[21]  := 'Z0';
-     PropertyName[22]  := 'Z2';
-     PropertyName[23]  := 'puZ1';
-     PropertyName[24]  := 'puZ0';
-     PropertyName[25]  := 'puZ2';
-     PropertyName[26]  := 'baseMVA';
+     PropertyName[19] := 'bus2';
+     PropertyName[20] := 'Z1';
+     PropertyName[21] := 'Z0';
+     PropertyName[22] := 'Z2';
+     PropertyName[23] := 'puZ1';
+     PropertyName[24] := 'puZ0';
+     PropertyName[25] := 'puZ2';
+     PropertyName[26] := 'baseMVA';
+     PropertyName[27] := 'Yearly';
+     PropertyName[28] := 'Daily';
+     PropertyName[29] := 'Duty';
 
      // define Property help values
      PropertyHelp[1] := 'Name of bus to which the main terminal (1) is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3' +CRLF+CRLF+
@@ -227,6 +246,24 @@ Begin
      PropertyHelp[24]  := '2-element array: e.g., [1  2]. An alternate way to specify Z0. See Z0 property. Per-unit zero-sequence impedance on base of Vsource BasekV and BaseMVA.';
      PropertyHelp[25]  := '2-element array: e.g., [1  2]. An alternate way to specify Z2. See Z2 property. Per-unit negative-sequence impedance on base of Vsource BasekV and BaseMVA.';
      PropertyHelp[26]  := 'Default value is 100. Base used to convert values specifiied with puZ1, puZ0, and puZ2 properties to ohms on kV base specified by BasekV property.';
+     PropertyHelp[27]  := 'LOADSHAPE object to use for the per-unit voltage for YEARLY-mode simulations. Set the Mult property of the LOADSHAPE ' +
+                          'to the pu curve. Qmult is not used. If UseActual=Yes then the Mult curve should be actual L-N kV.' + CRLF+CRLF+
+                          'Must be previously defined as a LOADSHAPE object. '+  CRLF+CRLF+
+                          'Is set to the Daily load shape when Daily is defined.  The daily load shape is repeated in this case. '+
+                          'Set to NONE to reset to no loadahape for Yearly mode. ' +
+                          'The default is no variation.';
+     PropertyHelp[28]  := 'LOADSHAPE object to use for the per-unit voltage for DAILY-mode simulations. Set the Mult property of the LOADSHAPE ' +
+                          'to the pu curve. Qmult is not used. If UseActual=Yes then the Mult curve should be actual L-N kV.' + CRLF+CRLF+
+                          'Must be previously defined as a LOADSHAPE object. '+  CRLF+CRLF+
+                          'Sets Yearly curve if it is not already defined.   '+
+                          'Set to NONE to reset to no loadahape for Yearly mode. ' +
+                          'The default is no variation.';
+     PropertyHelp[29]  := 'LOADSHAPE object to use for the per-unit voltage for DUTYCYCLE-mode simulations. Set the Mult property of the LOADSHAPE ' +
+                          'to the pu curve. Qmult is not used. If UseActual=Yes then the Mult curve should be actual L-N kV.' + CRLF+CRLF+
+                          'Must be previously defined as a LOADSHAPE object. '+  CRLF+CRLF+
+                          'Defaults to Daily load shape when Daily is defined.   '+
+                          'Set to NONE to reset to no loadahape for Yearly mode. ' +
+                          'The default is no variation.';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -299,7 +336,7 @@ Begin
      WHILE Length(Param) > 0 DO Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
-     
+
          If (ParamPointer > 0) and (ParamPointer <= NumProperties) Then PropertyValue[ParamPointer] := Param;
 
          CASE ParamPointer OF
@@ -346,6 +383,9 @@ Begin
            25: puZ2  := InterpretComplex(Param);
            26: BaseMVA := Parser.DblValue ;
 
+           27: YearlyShape  := Param;
+           28: DailyShape   := Param;
+           29: DutyShape    := Param;
          ELSE
             ClassEdit(ActiveVsourceObj, ParamPointer - NumPropsThisClass)
          End;
@@ -387,6 +427,15 @@ Begin
                  End;
              24:puZ0Specified := TRUE;
              25:puZ2Specified := TRUE;
+    {Set shape objects;  returns nil if not valid}
+    {Sets the kW and kvar properties to match the peak kW demand from the Loadshape}
+             27: YearlyShapeObj := LoadShapeClass.Find(YearlyShape);
+             28: Begin
+                    DailyShapeObj := LoadShapeClass.Find(DailyShape);
+                  {If Yearly load shape is not yet defined, make it the same as Daily}
+                    IF YearlyShapeObj=Nil THEN YearlyShapeObj := DailyShapeObj;
+                 End;
+             29: DutyShapeObj := LoadShapeClass.Find(DutyShape);
          END;
 
          case ParamPointer of
@@ -484,6 +533,15 @@ Begin
         puZ1Specified  := OtherVsource.puZ1Specified;
         puZ2Specified  := OtherVsource.puZ2Specified;
 
+        {Loadshape stuff}
+        ShapeIsActual  := OtherVsource.ShapeIsActual;
+        DailyShape     := OtherVsource.DailyShape;
+        DailyShapeObj  := OtherVsource.DailyShapeObj;
+        DutyShape      := OtherVsource.DutyShape;
+        DutyShapeObj   := OtherVsource.DutyShapeObj;
+        YearlyShape    := OtherVsource.YearlyShape;
+        YearlyShapeObj := OtherVsource.YearlyShapeObj;
+
        ClassMakeLike(OtherVSource);
 
        For i := 1 to ParentClass.NumProperties Do FPropertyValue[i] := OtherVsource.FPropertyValue[i];
@@ -547,6 +605,14 @@ Begin
      puZ1Specified := FALSE;
 
      Spectrum := 'defaultvsource';
+
+     ShapeIsActual := FALSE;
+     YearlyShape    := '';
+     YearlyShapeObj := nil;  // IF YearlyShapeobj = nil THEN the Vsource alway stays nominal
+     DailyShape     := '';
+     DailyShapeObj  := nil;  // IF DaillyShapeobj = nil THEN the Vsource alway stays nominal
+     DutyShape      := '';
+     DutyShapeObj   := nil;  // IF DutyShapeobj = nil THEN the Vsource alway stays nominal
 
      InitPropertyValues(0);
 
@@ -740,6 +806,17 @@ Begin
           DoSimpleMsg('Spectrum Object "' + Spectrum + '" for Device Vsource.'+Name+' Not Found.', 324);
    End;
 
+    {Now check for errors.  If any of these came out nil and the string was not nil, give warning}
+    If CompareText(YearlyShape, 'none')=0    Then YearlyShape := '';
+    If CompareText(DailyShape, 'none')=0     Then DailyShape := '';
+    If CompareText(DutyShape, 'none')=0      Then DutyShape := '';
+    IF YearlyShapeObj = Nil THEN
+      IF Length(YearlyShape)>0 THEN DoSimpleMsg('WARNING! Vsource Yearly load shape: "'+ YearlyShape +'" Not Found.', 34583);
+    IF DailyShapeObj = Nil THEN
+      IF Length(DailyShape)>0 THEN DoSimpleMsg('WARNING! Vsource Daily load shape: "'+ DailyShape +'" Not Found.', 34584);
+    IF DutyShapeObj = Nil THEN
+      IF Length(DutyShape)>0 THEN DoSimpleMsg('WARNING! Vsource Duty load shape: "'+ DutyShape +'" Not Found.', 34585);
+
    Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
    
 End;
@@ -823,47 +900,83 @@ Begin
 
   TRY
 
-  {This formulation will theoretically handle voltage sources of any number of phases assuming they are
-   equally displaced in time.}
+  {
+   This formulation will theoretically handle voltage sources of
+   any number of phases assuming they are
+   equally displaced in time.
+  }
 
-       CASE Fnphases OF
-         1:Vmag := kVBase * PerUnit * 1000.0;
-         ELSE
-           Vmag := kVBase * PerUnit * 1000.0/2.0/Sin((180.0/Fnphases)*PI/180.0);
-       End;
 
-      WITH ActiveCircuit.Solution Do
+      WITH ActiveCircuit.Solution Do  Begin
 
-       IF IsHarmonicModel THEN Begin
+           ShapeIsActual := FALSE;
 
-            SrcHarmonic :=  Frequency/SrcFrequency;
-            Vharm := CMulReal(SpectrumObj.GetMult(SrcHarmonic), Vmag);  // Base voltage for this harmonic
-            RotatePhasorDeg(Vharm, SrcHarmonic, Angle);  // Rotate for phase 1 shift
-            FOR i := 1 to Fnphases Do Begin
-              Vterminal^[i] :=  Vharm;
-              VTerminal^[i+Fnphases] := CZERO;
-              If (i < Fnphases) Then Begin
-                 CASE ScanType of
-                    1: RotatePhasorDeg(Vharm, 1.0, -360.0/Fnphases); // maintain pos seq
-                    0: ;  // Do nothing for Zero Sequence; All the same
-                  Else
-                       RotatePhasorDeg(Vharm, SrcHarmonic, -360.0/Fnphases); // normal rotation
+          {Modify magnitude based on a LOADSHAPE if assigned}
+           case Mode of
+               {Uses same logic as LOAD}
+               DAILYMODE:   Begin
+                                 CalcDailyMult(DynaVars.dblHour);
+                            End;
+               YEARLYMODE:  Begin
+                                 CalcYearlyMult(DynaVars.dblHour);
+                            End;
+               DUTYCYCLE:   Begin
+                                 CalcDutyMult(DynaVars.dblHour);
+                            End;
+           end;
+
+           If (Mode=DAILYMODE)  or     {If a loadshape mode simulation}
+              (Mode=YEARLYMODE) or
+              (Mode=DUTYCYCLE)
+           Then  Begin  {Loadshape cases}
+                If ShapeIsActual
+                    Then Vmag := 1000.0 * ShapeFactor.re  // assumes actual L-N voltage or voltage across source
+                    Else
+                         CASE Fnphases OF
+                               1:Vmag := kVBase * ShapeFactor.re * 1000.0;
+                         ELSE
+                                 Vmag := kVBase * ShapeFactor.re * 1000.0/2.0/Sin((180.0/Fnphases)*PI/180.0);
+                         End;
+           End
+           Else  // Normal Case
+                 CASE Fnphases OF
+                   1:Vmag := kVBase * PerUnit * 1000.0;
+                   ELSE
+                     Vmag := kVBase * PerUnit * 1000.0/2.0/Sin((180.0/Fnphases)*PI/180.0);
+                 End;
+
+           IF IsHarmonicModel THEN Begin
+
+                SrcHarmonic :=  Frequency/SrcFrequency;
+                Vharm := CMulReal(SpectrumObj.GetMult(SrcHarmonic), Vmag);  // Base voltage for this harmonic
+                RotatePhasorDeg(Vharm, SrcHarmonic, Angle);  // Rotate for phase 1 shift
+                FOR i := 1 to Fnphases Do Begin
+                  Vterminal^[i] :=  Vharm;
+                  VTerminal^[i+Fnphases] := CZERO;
+                  If (i < Fnphases) Then Begin
+                     CASE ScanType of
+                        1: RotatePhasorDeg(Vharm, 1.0, -360.0/Fnphases); // maintain pos seq
+                        0: ;  // Do nothing for Zero Sequence; All the same
+                      Else
+                           RotatePhasorDeg(Vharm, SrcHarmonic, -360.0/Fnphases); // normal rotation
+                      END;
+                  End;
+                End;
+
+           End ELSE Begin  // non-harmonic modes
+
+               If  abs(Frequency - SrcFrequency) > EPSILON2 Then  Vmag:=0.0;  // Solution Frequency and Source Frequency don't match!
+         {NOTE: RE-uses VTerminal space}
+               FOR i := 1 to Fnphases DO Begin
+                  CASE Sequencetype of
+                     -1: Vterminal^[i] :=  pdegtocomplex(Vmag, (360.0 + Angle + (i-1)* 360.0/Fnphases) );  // neg seq
+                      0: Vterminal^[i] :=  pdegtocomplex(Vmag, (360.0 + Angle) );   // all the same for zero sequence
+                   Else
+                         Vterminal^[i] :=  pdegtocomplex(Vmag, (360.0 + Angle - (i-1)* 360.0/Fnphases) );
                   END;
-              End;
-            End;
+                  VTerminal^[i+Fnphases] := CZERO;    // See comments in GetInjCurrents
+               End;
 
-       End ELSE Begin  // non-harmonic modes
-
-           If  abs(Frequency - SrcFrequency) > EPSILON2 Then  Vmag:=0.0;  // Solution Frequency and Source Frequency don't match!
-     {NOTE: RE-uses VTerminal space}
-           FOR i := 1 to Fnphases DO Begin
-              CASE Sequencetype of
-                 -1: Vterminal^[i] :=  pdegtocomplex(Vmag, (360.0 + Angle + (i-1)* 360.0/Fnphases) );  // neg seq
-                  0: Vterminal^[i] :=  pdegtocomplex(Vmag, (360.0 + Angle) );   // all the same for zero sequence
-               Else
-                     Vterminal^[i] :=  pdegtocomplex(Vmag, (360.0 + Angle - (i-1)* 360.0/Fnphases) );
-              END;
-              VTerminal^[i+Fnphases] := CZERO;    // See comments in GetInjCurrents
            End;
 
 
@@ -1004,6 +1117,9 @@ begin
      PropertyValue[24]  := '[ 0 0 ]';
      PropertyValue[25]  := '[ 0 0 ]';
      PropertyValue[26]  := '100';
+     PropertyValue[27]  := '';
+     PropertyValue[28]  := '';
+     PropertyValue[29]  := '';
 
 
 
@@ -1037,6 +1153,45 @@ begin
         End;
 end;
 
+
+//----------------------------------------------------------------------------
+Procedure TVSourceObj.CalcDailyMult(Hr:Double);
+
+Begin
+     IF DailyShapeObj <> Nil THEN
+       Begin
+         ShapeFactor   := DailyShapeObj.GetMult(Hr);
+         ShapeIsActual := DailyShapeObj.UseActual;
+       End
+     ELSE ShapeFactor := CDOUBLEONE;  // Default to no daily variation
+End;
+
+
+//----------------------------------------------------------------------------
+Procedure TVSourceObj.CalcDutyMult(Hr:double);
+
+Begin
+     IF DutyShapeObj <> Nil THEN
+       Begin
+           ShapeFactor   := DutyShapeObj.GetMult(Hr);
+           ShapeIsActual := DutyShapeObj.UseActual;
+       End
+     ELSE CalcDailyMult(Hr);  // Default to Daily Mult IF no duty curve specified
+End;
+
+//----------------------------------------------------------------------------
+Procedure TVSourceObj.CalcYearlyMult(Hr:double);
+
+Begin
+{Yearly curve is assumed to be hourly only}
+     IF   YearlyShapeObj<>Nil THEN Begin
+           ShapeFactor   := YearlyShapeObj.GetMult(Hr);
+           ShapeIsActual := YearlyShapeObj.UseActual;
+     End
+     ELSE ShapeFactor := CDOUBLEONE;
+                          // Defaults to no variation
+End;
+
 //=============================================================================
 procedure TVsourceObj.MakePosSequence;
 
@@ -1056,4 +1211,7 @@ begin
 
 end;
 
+initialization
+
+   CDOUBLEONE := CMplx(1.0, 1.0);
 end.
