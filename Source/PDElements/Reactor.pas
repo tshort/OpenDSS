@@ -51,7 +51,7 @@ unit Reactor;
 }
 interface
 USES
-   Command, DSSClass, PDClass, PDElement, uComplex, UcMatrix, ArrayDef;
+   Command, DSSClass, PDClass, PDElement, uComplex, UcMatrix, ArrayDef, XYCurve;
 
 TYPE
 
@@ -76,7 +76,7 @@ TYPE
    TReactorObj = class(TPDElement)
       Private
         R, Rp, Gp,
-        X,
+        X, L,
         kvarrating,
         kvrating :Double;
         Z, Z1, Z2, Z0 : Complex;
@@ -94,6 +94,12 @@ TYPE
 
 
       Public
+
+        RCurve      :String;
+        RCurveObj   :TXYCurveObj;
+        LCurve      :String;
+        LCurveObj   :TXYCurveObj;
+
 
         constructor Create(ParClass:TDSSClass; const ReactorName:String);
         destructor  Destroy; override;
@@ -117,7 +123,7 @@ implementation
 
 USES  ParserDel,  DSSClassDefs, DSSGlobals, Sysutils,  Mathutil, Utilities;
 
-Const NumPropsThisClass = 16;
+Const NumPropsThisClass = 18;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TReactor.Create;  // Creates superstructure for all Reactor objects
@@ -161,13 +167,15 @@ Begin
      PropertyName^[7] := 'Rmatrix';
      PropertyName^[8] := 'Xmatrix';
      PropertyName^[9] := 'Parallel';
-     PropertyName^[10] := 'R';
+     PropertyName^[10] :='R';
      PropertyName^[11] :='X';
      PropertyName^[12] :='Rp';
      PropertyName^[13] :='Z1';
      PropertyName^[14] :='Z2';
      PropertyName^[15] :='Z0';
      PropertyName^[16] :='Z';
+     PropertyName^[17] :='RCurve';
+     PropertyName^[18] :='LCurve';
 
      // define Property help values
 
@@ -209,6 +217,8 @@ Begin
                           'Note: Z0 defaults to Z1 if it is not specifically defined. ';
      PropertyHelp^[16] := 'Alternative way of defining R and X properties. Enter a 2-element array representing R +jX in ohms. Example:'+CRLF+CRLF+
                           'Z=[5  10]   ! equivalent to R=5  X=10 ';
+     PropertyHelp^[17] := 'Name of XYCurve object describing per-uniu variation of phase resistance, R, vs. frequency. Applies to resistance specified by R property.';
+     PropertyHelp^[18] := 'Name of XYCurve object describing per-unit variation of phase inductance, L=X/w, vs. frequency. Applies to reactance specified by X or kvar property.';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -351,6 +361,8 @@ BEGIN
            14: Z2 := InterpretComplex(Param);
            15: Z0 := InterpretComplex(Param);
            16: Z  := InterpretComplex(Param);
+           17: RCurve := Param;
+           18: LCurve := Param;
          ELSE
             // Inherited Property Edits
             ClassEdit(ActiveReactorObj, ParamPointer - NumPropsThisClass)
@@ -388,13 +400,17 @@ BEGIN
                     R := Z.re;
                     X := Z.im;
                     SpecType := 2;
-                 End
+                 End;
+            17: RCurveObj   := XYCurveClass.Find(RCurve);
+            18: LCurveObj   := XYCurveClass.Find(LCurve);
          ELSE
          END;
 
          //YPrim invalidation on anything that changes impedance values
          CASE ParamPointer OF
              3..16: YprimInvalid := True;
+             17: If RCurveObj=nil Then DoSimpleMsg('Resistance-frequency curve XYCurve.'+RCurve+' not Found.', 2301);
+             18: If LCurveObj=nil Then DoSimpleMsg('Inductance-frequency curve XYCurve.'+LCurve+' not Found.', 2301);
          ELSE
          END;
 
@@ -448,6 +464,12 @@ BEGIN
        Z0       := OtherReactor.Z0;
        Z2Specified := OtherReactor.Z2Specified;
        Z0Specified := OtherReactor.Z0Specified;
+
+
+       RCurve    := OtherReactor.RCurve;
+       RCurveobj := OtherReactor.RCurveobj;
+       LCurve    := OtherReactor.LCurve;
+       LCurveobj := OtherReactor.LCurveobj;
 
        If OtherReactor.Rmatrix=Nil Then  Reallocmem(Rmatrix, 0)
        ELSE  BEGIN
@@ -523,6 +545,12 @@ BEGIN
      PctPerm     := 100.0;
      HrsToRepair := 3.0;
      Yorder      := Fnterms * Fnconds;
+
+     RCurve      := '';
+     RCurveObj   := nil;
+     LCurve      := '';
+     LCurveObj   := nil;
+
      RecalcElementData;
 
      InitPropertyValues(0);
@@ -563,12 +591,14 @@ BEGIN
                END;
           END;
           X := SQR(PhasekV)*1000.0/kvarPerPhase;
+          L := X/twopi/BaseFrequency;
           {Leave R as specified}
           NormAmps  := kvarPerPhase/PhasekV;
           EmergAmps := NormAmps * 1.35;
        END;
      2:BEGIN // R + j X
-          // Nothing to do
+          // Nothing much to do
+          L := X/twopi/BaseFrequency;
        END;
      3:BEGIN // Matrices
 
@@ -615,6 +645,7 @@ VAR
    ZValues :pComplexArray;
    YPrimTemp,
    ZMatrix{, Ymatrix }  :TCMatrix;
+   RValue, LValue : Double;
 
 BEGIN
 
@@ -653,7 +684,12 @@ BEGIN
 
        1, 2: BEGIN   {Some form of R and X specified}
                // Adjust for frequency
-               Value := Cinv(Cmplx(R, X * FreqMultiplier));
+               If Assigned(RCurveObj) Then RValue := R * RCurveObj.GetYValue(FYprimFreq)
+               Else RValue := R;
+               If Assigned(LCurveObj) Then LValue := L * LCurveObj.GetYValue(FYprimFreq)
+               Else LValue := L;
+
+               Value := Cinv(Cmplx(RValue, LValue * Twopi * FYprimFreq));
                // Add in Rp Value if specified
                if RpSpecified then  Caccum(Value, Cmplx(Gp, 0.0));
 
@@ -978,6 +1014,8 @@ begin
      PropertyValue[14] := '[0 0]';  //Z2
      PropertyValue[15] := '[0 0]';  //Z0
      PropertyValue[16] := '[0 0]';  //Z
+     PropertyValue[17] := '';
+     PropertyValue[18] := '';
 
      inherited  InitPropertyValues(NumPropsThisClass);
 
