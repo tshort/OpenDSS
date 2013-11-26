@@ -9,9 +9,11 @@ unit Reactor;
 {   10-26-00  Created from Capacitor  object
     3-2-06 Added Parallel Option and corrected frequency adjustments
            RMATRIX, Xmatrix untested
+    2013   Added Symmetrical component specification and frequency-dependence for simplr
+           R+jX model
 
-}
-{Basic  Reactor
+
+Basic  Reactor
 
   Uses same rules as Capacitor and Fault for connections
 
@@ -40,13 +42,16 @@ unit Reactor;
          all phases. For 1-phase, kV = Reactor coil kV rating.
          For 2 or 3-phase, kV is line-line three phase. For more than 3 phases, specify
          kV as actual coil voltage.
-     2.  Series Resistance and Reactance in ohns at base frequency to be used in each phase.  If specified in this manner,
-         the given value is always used whether wye or delta.
+     2.  Series Resistance, R, and Reactance, X, in ohns at base frequency to be used in each phase.  If specified in this manner,
+         the given value is always used whether wye or delta.  X may be specified as Inductance, LmH, in mH.
+         The Z property may also be used to specify R and X in an array.
      3.  A R and X  matrices .
          If conn=wye then 2-terminal through device
          If conn=delta then 1-terminal.
          Ohms at base frequency
          Note that Rmatix may be in parallel with Xmatric (set parallel = Yes)
+     4.  As symmetrical component values using Z1, Z2, and Z0 complex array properties.
+         Z2 defaults to Z1, but can be set to a different value.
 
 }
 interface
@@ -123,7 +128,7 @@ implementation
 
 USES  ParserDel,  DSSClassDefs, DSSGlobals, Sysutils,  Mathutil, Utilities;
 
-Const NumPropsThisClass = 18;
+Const NumPropsThisClass = 19;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TReactor.Create;  // Creates superstructure for all Reactor objects
@@ -176,6 +181,7 @@ Begin
      PropertyName^[16] :='Z';
      PropertyName^[17] :='RCurve';
      PropertyName^[18] :='LCurve';
+     PropertyName^[19] :='LmH';
 
      // define Property help values
 
@@ -200,7 +206,7 @@ Begin
                          'Default is series. For other models, specify R and Rp.';
      PropertyHelp^[10] := 'Resistance (in series with reactance), each phase, ohms. ' +
                           'This property applies to REACTOR specified by either kvar or X. See also help on Z.';
-     PropertyHelp^[11] := 'Reactance, each phase, ohms at base frequency. See also help on Z.';
+     PropertyHelp^[11] := 'Reactance, each phase, ohms at base frequency. See also help on Z and LmH properties.';
      PropertyHelp^[12] := 'Resistance in parallel with R and X (the entire branch). Assumed infinite if not specified.';
      PropertyHelp^[13] := 'Positive-sequence impedance, ohms, as a 2-element array representing a complex number. Example: '+CRLF+CRLF+
                           'Z1=[1, 2]  ! represents 1 + j2 '+CRLF+CRLF+
@@ -217,8 +223,13 @@ Begin
                           'Note: Z0 defaults to Z1 if it is not specifically defined. ';
      PropertyHelp^[16] := 'Alternative way of defining R and X properties. Enter a 2-element array representing R +jX in ohms. Example:'+CRLF+CRLF+
                           'Z=[5  10]   ! equivalent to R=5  X=10 ';
-     PropertyHelp^[17] := 'Name of XYCurve object describing per-uniu variation of phase resistance, R, vs. frequency. Applies to resistance specified by R property.';
-     PropertyHelp^[18] := 'Name of XYCurve object describing per-unit variation of phase inductance, L=X/w, vs. frequency. Applies to reactance specified by X or kvar property.';
+     PropertyHelp^[17] := 'Name of XYCurve object, previously defined, describing per-unit variation of phase resistance, R, vs. frequency. Applies to resistance specified by R or Z property. ' +
+                          'If actual values are not known, R often increases by approximately the square root of frequency.';
+     PropertyHelp^[18] := 'Name of XYCurve object, previously defined, describing per-unit variation of phase inductance, L=X/w, vs. frequency. Applies to reactance specified by X, LmH, Z, or kvar property.' +
+                          'L generally decreases somewhat with frequency above the base frequency, approaching a limit at a few kHz.';
+     PropertyHelp^[19] := 'Inductance, mH. Alternate way to define the reactance, X, property.';
+
+
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -363,6 +374,7 @@ BEGIN
            16: Z  := InterpretComplex(Param);
            17: RCurve := Param;
            18: LCurve := Param;
+           19: L := Parser.DblValue / 1000.0;  // convert from mH to H
          ELSE
             // Inherited Property Edits
             ClassEdit(ActiveReactorObj, ParamPointer - NumPropsThisClass)
@@ -403,6 +415,10 @@ BEGIN
                  End;
             17: RCurveObj   := XYCurveClass.Find(RCurve);
             18: LCurveObj   := XYCurveClass.Find(LCurve);
+            19: Begin
+                   SpecType := 2;
+                   X := L * TwoPi * BaseFrequency;
+                End
          ELSE
          END;
 
@@ -411,6 +427,7 @@ BEGIN
              3..16: YprimInvalid := True;
              17: If RCurveObj=nil Then DoSimpleMsg('Resistance-frequency curve XYCurve.'+RCurve+' not Found.', 2301);
              18: If LCurveObj=nil Then DoSimpleMsg('Inductance-frequency curve XYCurve.'+LCurve+' not Found.', 2301);
+             19: YprimInvalid := True;
          ELSE
          END;
 
@@ -946,6 +963,7 @@ BEGIN
               14: Writeln(F, Format('Z2=[%-.8g, %-.8g]',[ Z2.re, Z2.im ]));
               15: Writeln(F, Format('Z0=[%-.8g, %-.8g]',[ Z0.re, Z0.im ]));
               16: Writeln(F, Format('Z =[%-.8g, %-.8g]',[ R, X ]));
+              19: Writeln(F, Format('%-.8g', [L * 1000.0]));
           ELSE
               Writeln(F,'~ ',PropertyName^[k],'=',PropertyValue[k]);
           END;
@@ -984,11 +1002,14 @@ function TReactorObj.GetPropertyValue(Index: Integer): String;
 begin
 
       CASE Index of
+           10: Result := Format('%-.8g',[ R ]);
+           11: Result := Format('%-.8g',[ X ]);
           {Special cases for array properties}
            13: Result := Format('[%-.8g, %-.8g]',[ Z1.re, Z1.im ]);
            14: Result := Format('[%-.8g, %-.8g]',[ Z2.re, Z2.im ]);
            15: Result := Format('[%-.8g, %-.8g]',[ Z0.re, Z0.im ]);
            16: Result := Format('[%-.8g, %-.8g]',[ R, X ]);
+           19: Result := Format('%-.8g', [ L * 1000.0 ]);
        ELSE
          Result := Inherited GetPropertyValue(index);
       END;
@@ -1016,6 +1037,7 @@ begin
      PropertyValue[16] := '[0 0]';  //Z
      PropertyValue[17] := '';
      PropertyValue[18] := '';
+     PropertyValue[19] := Format('%-.8g',[X/TwoPi/BaseFrequency*1000.0]);  //X
 
      inherited  InitPropertyValues(NumPropsThisClass);
 
