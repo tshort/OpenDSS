@@ -46,6 +46,9 @@ class DSS:
 # that represents the electric circuit that is being modeled
         if filename != "":
             self.text.Command = "compile " + filename
+            self.text.Command = "New EnergyMeter.Feeder Line.L115 1"
+            self.text.Command = "solve"
+            self.text.Command = "Buscoords Buscoords.dat"   # load in bus coordinates
             self.populate_results()
 
 
@@ -337,7 +340,7 @@ class Branch:
 
 
 if __name__ == '__main__':
-    d = DSS(r"C:\Users/prdu001/OpenDSS/Examples/IEEE123Bus/IEEE123Master.dss")
+    d = DSS(r"C:\OpenDSS\code\Distrib\IEEETestCases\123Bus\IEEE123Master.dss")
     d.plots()
 
     
