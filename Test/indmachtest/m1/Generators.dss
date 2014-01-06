@@ -1,0 +1,1 @@
+New "Generator.g1" bus1=b3 pf=1 UserModel=Indmach012a kv=13.8 kW=4000 kVA=5000 Xdp=.27 Xdpp=0.2 H=1 model=6 UserData=(Rs=0.0053 Xs=0.106 Rr=0.007 Xr=0.12 Xm=4 MaxSlip=0.1) Balanced=No conn=Delta enabled=true

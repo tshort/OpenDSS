@@ -1,0 +1,1 @@
+New "Transformer.sub" phases=3 windings=2 buses=[sourcebus.1.2.3.4, b1.1.2.3.4, ] conns=[delta, wye, ] kVs=[115, 13.8, ] kVAs=[40000, 40000, ] Xhl=10 buses=[sourcebus.1.2.3.4, b1.1.2.3.4, ] conns=[delta, wye, ] kVs=[115, 13.8, ] kVAs=[40000, 40000, ] taps=[1, 1.05, ] wdg=1 %R=0.2 wdg=2 %R=0.2

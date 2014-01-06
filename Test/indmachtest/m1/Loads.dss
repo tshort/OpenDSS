@@ -1,0 +1,2 @@
+New "Load.ld2" phases=3 bus1=b2 kV=13.8 kW=2000
+New "Load.ld3" phases=3 bus1=b3 kV=13.8 kW=2000

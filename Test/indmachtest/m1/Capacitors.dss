@@ -1,0 +1,2 @@
+New "Capacitor.c1" bus1=b2 phases=3 kvar=[ 600] kv=13.8
+New "CapControl.c1" element=line.L2 terminal=1 capacitor=C1 type=current CTratio=1 ONsetting=200 OFFsetting=175 Delay=15 enabled=false ENABLED=NO

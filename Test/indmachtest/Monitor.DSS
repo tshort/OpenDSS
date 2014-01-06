@@ -1,0 +1,5 @@
+New "Monitor.b1" element=Line.L1 terminal=1 mode=0
+New "Monitor.b2" element=Line.L2 terminal=1 mode=0
+New "Monitor.b3" element=Line.L2 terminal=2 mode=0
+New "Monitor.b3_gen" element=Generator.G1 terminal=1 mode=3
+New "Monitor.subt" element=Transformer.Sub terminal=2 mode=2

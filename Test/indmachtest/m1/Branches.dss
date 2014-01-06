@@ -1,0 +1,2 @@
+New "Line.l1" bus1=b1 bus2=b2 linecode=336matrix normamps=400 emergamps=600 faultrate=0.1 pctperm=20 repair=0 length=1 units=mi
+New "Line.l2" bus1=b2 bus2=b3 linecode=336matrix normamps=400 emergamps=600 faultrate=0.1 pctperm=20 repair=0 length=1 units=mi

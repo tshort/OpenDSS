@@ -1,0 +1,22 @@
+Clear
+New Circuit.dsscircuit1
+
+
+Redirect Vsource.dss
+Redirect LineCode.DSS
+Redirect LoadShape.DSS
+Redirect GrowthShape.DSS
+Redirect TCC_Curve.DSS
+Redirect Spectrum.DSS
+Redirect m1\Branches.dss
+Redirect m1\Loads.dss
+Redirect m1\Generators.dss
+Redirect m1\Capacitors.dss
+Redirect Load.DSS
+Redirect Transformer.DSS
+Redirect RegControl.DSS
+Redirect Reactor.DSS
+Redirect Monitor.DSS
+Redirect EnergyMeter.DSS
+MakeBusList
+Buscoords buscoords.dss

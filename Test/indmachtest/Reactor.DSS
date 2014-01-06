@@ -1,0 +1,2 @@
+New "Reactor.subpri" phases=1 bus1=Sourcebus.4.0 R=0 X=0.0001
+New "Reactor.subsec" phases=1 bus1=B1.4.0 R=0 X=0.0001

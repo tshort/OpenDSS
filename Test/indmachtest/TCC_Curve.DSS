@@ -1,0 +1,4 @@
+New "TCC_Curve.a" npts=5 C_array=[ 1 2.5 4.5 8 14] T_array=[ 0.15 0.07 0.05 0.045 0.045]
+New "TCC_Curve.d" npts=5 C_array=[ 1 2.5 4.5 8 14] T_array=[ 6 0.7 0.2 0.06 0.02]
+New "TCC_Curve.tlink" npts=7 C_array=[ 2 2.1 3 4 6 22 50] T_array=[ 300 100 10.1 4 1.4 0.1 0.02]
+New "TCC_Curve.klink" npts=6 C_array=[ 2 2.2 3 4 6 30] T_array=[ 300 20 4 1.3 0.41 0.02]
