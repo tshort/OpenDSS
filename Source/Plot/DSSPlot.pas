@@ -758,6 +758,7 @@ Var
    pMeter: TEnergyMeterObj;
    hMeter, Idx1, Idx2: Integer;
    FdrColor: Integer;
+   LineStyleType : TPenStyle;
    LoopLine: TLineObj;
    S: String;
 
@@ -769,7 +770,7 @@ Var
       Begin
          AddNewLine(ActiveCircuit.Buses^[Idx1].X, ActiveCircuit.Buses^[Idx1].Y,
             ActiveCircuit.Buses^[Idx2].X, ActiveCircuit.Buses^[Idx2].Y, Clr,
-            Thickness, Style(1), Dots, Nam, FALSE, 0, 0, 0);
+            Thickness, LineStyleType, Dots, Nam, FALSE, 0, 0, 0);
          If Labels Then
             DoBusLabels(Idx1, Idx2);
       End;
@@ -812,6 +813,10 @@ begin
             ActiveCircuit.ActiveCktElement := pLine;
             Idx1 := pLine.Terminals^[1].BusRef;
             Idx2 := pLine.Terminals^[2].BusRef;
+            If pLine.NPhases = 1 Then
+               LineStyleType := Style(SinglePhLineStyle)
+            Else
+               LineStyleType := Style(ThreePhLineStyle);
             If ShowLoops and pMeter.BranchList.PresentBranch.IsLoopedHere Then
             Begin
                DrawMeterZoneLine(Color3, pLine.Name);
