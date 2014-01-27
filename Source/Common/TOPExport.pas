@@ -72,7 +72,7 @@ VAR
 
 implementation
 
-Uses ComObj, SysUtils, Dialogs, ActiveX, DSSGlobals;
+Uses ComObj, SysUtils, AnsiStrings, Dialogs, ActiveX, DSSGlobals;
 Var
   TOP_Inited:Boolean;
 
@@ -158,7 +158,7 @@ BEGIN
          IDXData := IDXCurrentNames + NCurrents * CurrNameSize;
          IdxBaseData := 0;
 
-         StrCopy(Title1,pAnsichar(Title));
+         sysutils.StrCopy(Title1,pAnsichar(Title));
          Title2[0] := #0;
          Title3[0] := #0;
          Title4[0] := #0;
@@ -183,13 +183,13 @@ BEGIN
 
      If Header.NVoltages > 0 Then
      For i:=0 to Vnames.Count-1 Do Begin
-        StrCopy(Buf, pAnsichar(AnsiString(Vnames.Strings[i])));    // Assign string to a buffer
+        Sysutils.StrCopy(Buf, pAnsichar(AnsiString(Vnames.Strings[i])));    // Assign string to a buffer
         BlockWrite(Fout, Buf, Header.VoltNameSize, NumWrite);    // Strings is default property of TStrings
      END;
 
      If Header.NCurrents > 0 Then
      For i:=0 to Cnames.Count-1 Do Begin
-        StrCopy(Buf, pAnsichar(AnsiString(Cnames.Strings[i])));    // Assign string to a buffer
+        Sysutils.StrCopy(Buf, pAnsichar(AnsiString(Cnames.Strings[i])));    // Assign string to a buffer
         BlockWrite(Fout, Buf, Header.CurrNameSize, NumWrite);
      END;
 

@@ -228,6 +228,7 @@ type
     Summary2: TMenuItem;
     OpenDSSWiki1: TMenuItem;
     NodeNames1: TMenuItem;
+    Image2: TImage;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DSSHelp1Click(Sender: TObject);
     procedure AboutDSS1Click(Sender: TObject);
