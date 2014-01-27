@@ -663,21 +663,23 @@ Begin
     CASE ZSpecType OF
         1:Begin  // MVAsc
             X1   := Sqr(KvBase) / MVAsc3/Sqrt(1.0 + 1.0/Sqr(X1R1));
-            Xs   := Sqr(KvBase) / MVAsc1/Sqrt(1.0 + 1.0/Sqr(X0R0)); // Approx
+          //  Xs   := Sqr(KvBase) / MVAsc1/Sqrt(1.0 + 1.0/Sqr(X0R0)); // Approx
             R1   := X1 / X1R1;
             R2   := R1;  // default Z2 = Z1
             X2   := X1;
-
-            Xm   := Xs - X1;
-            X0   := (Xs + 2.0 * Xm);
-            R0   := X0 / X0R0;
             Isc3 := MVAsc3 * 1000.0 /(SQRT3 * kVBase);
             Isc1 := MVAsc1 * 1000.0 /(Factor * kVBase);
 
-            IF Fnphases = 1 THEN  Rs := Xs / X0R0
-                            ELSE  Rs := (2.0 * R1 + R0) / 3.0;
+        //  Compute R0, X0
+            R0 := QuadSolver((1.0 + SQR(X0R0)), (4.0*(R1 + X1 * X0R0)), (4.0 * (R1*R1 + X1*X1)- SQR(3.0 * kVBase * 1000.0 /Factor/Isc1)));
+            X0 := R0 * X0R0;
 
-            Rm   := (R0 - R1) / 3.0;
+            // for Z matrix
+            Xs := (2.0 * X1 + X0) / 3.0;
+            Rs := (2.0 * R1 + R0) / 3.0;
+
+            Rm := (R0 - R1) / 3.0;
+            Xm := (X0 - X1) / 3.0;
           End;
 
         2:Begin  // Isc
@@ -685,18 +687,20 @@ Begin
             MVAsc3 := SQRT3 * kVBase * Isc3 / 1000.0;
             MVAsc1 := Factor * kVBase * Isc1 / 1000.0;
             X1   := Sqr(KvBase) / MVAsc3 /Sqrt(1.0 + 1.0/Sqr(X1R1));
-            Xs   := Sqr(KvBase) / MVAsc1 /Sqrt(1.0 + 1.0/Sqr(X0R0)); //Approx
             R1   := X1 / X1R1;
             R2   := R1;  // default Z2 = Z1
             X2   := X1;
-            Xm   := Xs - X1;
-            X0   := (Xs + 2.0 * Xm);
-            R0   := X0 / X0R0;
+        //  Compute R0, X0
+            R0 := QuadSolver((1.0 + SQR(X0R0)), (4.0*(R1 + X1 * X0R0)), (4.0 * (R1*R1 + X1*X1)- SQR(3.0 * kVBase * 1000.0 /Factor/Isc1)));
+            X0 := R0 * X0R0;
 
-            IF    Fnphases = 1 THEN  Rs := Xs / X0R0
-                               ELSE  Rs := (2.0 * R1 + R0) / 3.0;
+            // for Z matrix
+            Xs := (2.0 * X1 + X0) / 3.0;
+            Rs := (2.0 * R1 + R0) / 3.0;
 
             Rm := (R0 - R1) / 3.0;
+            Xm := (X0 - X1) / 3.0;
+
           End;
 
         3:Begin  // Z1, Z2, Z0    Specified

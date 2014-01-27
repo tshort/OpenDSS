@@ -89,6 +89,7 @@ FUNCTION  CmulReal_im(const a:Complex; const Mult:Double):Complex;  // Multiply 
 //FUNCTION IsValidNumericField(const NumberField:TEdit):Boolean;
 FUNCTION  MaxdblArrayValue(npts:Integer; dbls:pDoubleArray):Double;
 FUNCTION  iMaxAbsdblArrayValue(npts:Integer; dbls:pDoubleArray):Integer;
+FUNCTION QuadSolver(Const a, b, c: Double):Double; // returns largest of two answers
 
 
 {Save Function Helper}
@@ -2966,6 +2967,29 @@ Begin
     ControlUpDatePtrs.Free;
 
 End;  {With}
+
+End;
+
+FUNCTION QuadSolver(Const a, b, c: Double):Double; // returns largest of two answers
+
+VAR
+   Ans1, Ans2, MidTerm, a2: Double;
+
+Begin
+    Result := 0.0;   // default return
+    If a=0.0 Then  Begin
+        If b <> 0.0 Then  Result := -c/b;
+    End Else
+    Begin
+        MidTerm := sqrt(b*b - 4.0*a*c) ;
+        a2 := 2.0*a;
+        Ans1 := (-b + MidTerm)/a2;
+        Ans2 := (-b - MidTerm)/a2;
+        // return most positive number
+        If (Ans1 > Ans2)
+        Then  Result := Ans1
+        Else  Result := Ans2;
+    End;
 
 End;
 
