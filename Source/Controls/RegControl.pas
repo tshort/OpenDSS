@@ -1062,7 +1062,7 @@ if ControlledElement <> nil then
     ctrldTransformer := Get_Transformer;
     ictrldWinding := TRWinding;
     With ctrldTransformer Do
-    Result := Trunc((PresentTap[ictrldWinding] - (MaxTap[ictrldWinding] + MinTap[ictrldWinding])/2.0) / TapIncrement[ictrldWinding]);
+    Result := round((PresentTap[ictrldWinding] - (MaxTap[ictrldWinding] + MinTap[ictrldWinding])/2.0) / TapIncrement[ictrldWinding]);
 
   end
   else
