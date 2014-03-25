@@ -95,9 +95,10 @@ BEGIN
      StringPtr := nil;  // Allocmem(Sizeof(StringPtr^[1]) * Nelements);
 
      NumLists := round(sqrt(Nelements));
+     If NumLists<1 Then NumLists := 1;  // make sure at least one list
      ElementsPerList := Nelements div NumLists + 1;
      AllocationInc := ElementsPerList;
-     If NumLists<1 Then NumLists := 1;  // make sure at least one list
+
      Getmem(ListPtr, Sizeof(Listptr^[1]) * NumLists);
      FOR i := 1 to NumLists DO BEGIN
          {Allocate initial Sublists to zero; alocated on demand}
