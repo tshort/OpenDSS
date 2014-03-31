@@ -1346,6 +1346,7 @@ PROCEDURE TLoadObj.DoConstantILoad;
 Var
    i    :Integer;
    V    :Complex;
+   Vmag :Double;
    Curr :Complex;
 
 Begin
@@ -1366,7 +1367,12 @@ Begin
     Begin
         V    := Vterminal^[i];
 
-        Curr := Conjg( Cdiv( Cmplx(WNominal,varNominal), CMulReal( CDivReal(V, Cabs(V)), Vbase) ));
+        Vmag := Cabs(V);
+        IF      VMag <= VBase95  THEN Curr := Cmul(Yeq95,   V)  // Below 95% use an impedance model
+        ELSE IF VMag >  VBase105 THEN Curr := Cmul(Yeq105,  V)  // above 105% use an impedance model
+        ELSE Begin
+                Curr := Conjg( Cdiv( Cmplx(WNominal,varNominal), CMulReal( CDivReal(V, Cabs(V)), Vbase) ));
+             End;
 
         StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
         IterminalUpdated := TRUE;
@@ -1442,27 +1448,35 @@ Begin
     FOR i := 1 to Fnphases DO Begin
         V    := Vterminal^[i];
         Vmag := Cabs(V);
-        VRatio := Vmag/VBase;    // vbase is l-n FOR wye and l-l FOR delta
-        // Linear factor adjustment does not converge for some reason while power adjust does easily
-           // WattFactor := (1.0 + FCVRwattFactor*(Vmag/VBase - 1.0));
-        If FCVRWattFactor <> 1.0 then WattFactor := math.power(VRatio, FCVRWattFactor)
-                                 else WattFactor := Vratio;  // old value (in error): 1.0;
-        If WattFactor > 0.0 Then Curr := Conjg(Cdiv(Cmplx(WNominal * WattFactor, 0.0), V))
-                            Else Curr := CZERO; // P component of current
+        IF      VMag <= VBase95 THEN Curr := Cmul(Yeq95,  V)  // Below 95% use an impedance model
+        ELSE IF VMag > VBase105 THEN Curr := Cmul(Yeq105,  V)  // above 105% use an impedance model
+        ELSE Begin
+              VRatio := Vmag/VBase;    // vbase is l-n FOR wye and l-l FOR delta
 
-        {Compute Q component of current}
-        If FCVRvarFactor = 2.0 Then  Begin  {Check for easy, quick ones first}
-             Cvar := Cmul(Cmplx(0.0, Yeq.im), V); // 2 is same as Constant impedance
-        End Else If FCVRvarFactor = 3.0 Then Begin
-             VarFactor := math.intpower(VRatio, 3);
-{****    WriteDLLDebugFile(Format('%s, V=%.6g +j %.6g',[Name, V.re, V.im]));  }
-             Cvar      := Conjg(Cdiv(Cmplx(0.0, VarNominal * VarFactor), V));
-        End Else Begin
-            {Other Var factor code here if not squared or cubed}
-             VarFactor := math.power(VRatio, FCVRvarFactor);
-             Cvar      := Conjg(Cdiv(Cmplx(0.0, VarNominal * VarFactor), V));
+      {****        WriteDLLDebugFile(Format('Iter=%d, Name="%s", V=%.6g +j %.6g, Vmag=%.6g',[ActiveCircuit.Solution.iteration, Name, V.re, V.im, Vmag]));}
+
+              // Linear factor adjustment does not converge for some reason while power adjust does easily
+                 // WattFactor := (1.0 + FCVRwattFactor*(Vmag/VBase - 1.0));
+              If FCVRWattFactor <> 1.0 then WattFactor := math.power(VRatio, FCVRWattFactor)
+                                       else WattFactor := Vratio;  // old value (in error): 1.0;
+              If WattFactor > 0.0 Then Curr := Conjg(Cdiv(Cmplx(WNominal * WattFactor, 0.0), V))
+                                  Else Curr := CZERO; // P component of current
+
+              If Vmag = 0.0  Then  Cvar := CZERO    // Trap divide by zero error
+              {Compute Q component of current}
+              Else If FCVRvarFactor = 2.0 Then  Begin  {Check for easy, quick ones first}
+                   Cvar := Cmul(Cmplx(0.0, Yeq.im), V); // 2 is same as Constant impedance
+              End Else If FCVRvarFactor = 3.0 Then Begin
+                   VarFactor := math.intpower(VRatio, 3);
+      {****    WriteDLLDebugFile(Format('%s, V=%.6g +j %.6g',[Name, V.re, V.im]));  }
+                   Cvar      := Conjg(Cdiv(Cmplx(0.0, VarNominal * VarFactor), V));
+              End Else Begin
+                  {Other Var factor code here if not squared or cubed}
+                   VarFactor := math.power(VRatio, FCVRvarFactor);
+                   Cvar      := Conjg(Cdiv(Cmplx(0.0, VarNominal * VarFactor), V));
+              End;
+              Caccum(Curr, Cvar);  // add in Q component of current
         End;
-        Caccum(Curr, Cvar);  // add in Q component of current
 {****  WriteDLLDebugFile(Format('%s, %d, %-.5g, %-.5g, %-.5g, %-.5g, %-.5g, %-.5g, %-.5g, %-.5g ', [Name, i, Vmag, VRatio, Wnominal, WattFactor, VarNominal, VarFactor, Cabs(Curr), Cmul(V, Conjg(Curr)).re]));}
         StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
         IterminalUpdated := TRUE;
