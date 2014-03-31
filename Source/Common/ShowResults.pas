@@ -1044,7 +1044,7 @@ Begin
              Write(F,UpperCase(FromBus),'  ',GetNodeNum(p_Elem.NodeRef^[k]):4,'    ',S.re/1000.0:6:1,' +j ',S.im/1000.0:6:1);
              Writeln(F, '   ', Cabs(S)/1000.0:8:1,'     ', PowerFactor(S):8:4);
           End;
-          Write(F,Paddots('   TERMINAL TOTAL', MaxBusNameLength+10),Saccum.re/1000.0:6:1,' +j ',Saccum.im/1000.0:6:1);
+          Write(F,Paddots('  TERMINAL TOTAL ', MaxBusNameLength+10),Saccum.re/1000.0:8:1,' +j ',Saccum.im/1000.0:8:1);
           Writeln(F, '   ', Cabs(Saccum)/1000.0:8:1,'     ', PowerFactor(Saccum):8:4);
           FromBus := Pad(StripExtension(p_Elem.Nextbus),MaxBusNameLength);
         End;
