@@ -98,20 +98,20 @@
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-			<VerInfo_Build>25</VerInfo_Build>
+			<VerInfo_Build>26</VerInfo_Build>
 			<VerInfo_Release>3</VerInfo_Release>
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
 			<VerInfo_MinorVer>6</VerInfo_MinorVer>
-			<VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.3.25;InternalName=;LegalCopyright=Copyright (C) 2008-2013 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.3;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=;FileVersion=7.6.3.26;InternalName=;LegalCopyright=Copyright (C) 2008-2013 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.3;Comments=</VerInfo_Keys>
 			<DCC_ExeOutput>..\x64</DCC_ExeOutput>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-			<VerInfo_Build>25</VerInfo_Build>
+			<VerInfo_Build>26</VerInfo_Build>
 			<Debugger_HostApplication>C:\Users\prdu001\Delprogs\DGScreener3\DGScreener3.exe</Debugger_HostApplication>
 			<VerInfo_Release>3</VerInfo_Release>
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
 			<VerInfo_MinorVer>6</VerInfo_MinorVer>
-			<VerInfo_Keys>CompanyName=EPRI;FileDescription=DSS Engine;FileVersion=7.6.3.25;InternalName=OpenDSSEngine;LegalCopyright=Copyright (C) 2008-2013 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=OpenDSSEngine.DLL;ProductName=OpenDSS;ProductVersion=7.6.3;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=DSS Engine;FileVersion=7.6.3.26;InternalName=OpenDSSEngine;LegalCopyright=Copyright (C) 2008-2013 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=OpenDSSEngine.DLL;ProductName=OpenDSS;ProductVersion=7.6.3;Comments=</VerInfo_Keys>
 			<DCC_ExeOutput>..\x86</DCC_ExeOutput>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -161,7 +161,7 @@
 						<VersionInfo Name="MajorVer">7</VersionInfo>
 						<VersionInfo Name="MinorVer">5</VersionInfo>
 						<VersionInfo Name="Release">1</VersionInfo>
-						<VersionInfo Name="Build">204</VersionInfo>
+						<VersionInfo Name="Build">209</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -173,7 +173,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">EPRI</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">DSS Engine</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">7.5.1.204</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">7.5.1.209</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName">OpenDSSEngine</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 2008-2012  EPRI. All Rights Reserved.</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
