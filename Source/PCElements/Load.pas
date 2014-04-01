@@ -83,6 +83,7 @@ TYPE
         VBase                   :Double;  // Base volts suitable for computing currents
         VBase105                :Double;
         VBase95                 :Double;
+        VBaseZ                  :Double;
         WNominal                :Double;  // Nominal Watts per phase
         Yeq                     :Complex;   // at nominal
         Yeq105                  :Complex;
@@ -100,6 +101,7 @@ TYPE
         VminEmerg               :Double;  // overrides system settings IF <> 0.0
         VminNormal              :Double;
         Vminpu                  :Double;
+        VZpu                   :Double; // below this voltage, resorts to linear @ Yeq
         ExemptFromLDCurve       :Boolean;
         Fixed                   :Boolean;   // IF Fixed, always at base value
         ShapeIsActual           :Boolean;
@@ -240,7 +242,7 @@ implementation
 
 USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, Command, Math, MathUtil, Utilities;
 
-Const  NumPropsThisClass = 35;
+Const  NumPropsThisClass = 36;
 
 Var  CDOUBLEONE:Complex;
 
@@ -295,8 +297,8 @@ Begin
      PropertyName[14] := 'Xneut';
      PropertyName[15] := 'status';  // fixed or variable
      PropertyName[16] := 'class';  // integer
-     PropertyName[17] := 'Vminpu';  // Min pu voltage FOR which model applies
-     PropertyName[18] := 'Vmaxpu';  // Max pu voltage FOR which model applies
+     PropertyName[17] := 'Vminpu';  // Min pu voltage for which model applies
+     PropertyName[18] := 'Vmaxpu';  // Max pu voltage for which model applies
      PropertyName[19] := 'Vminnorm';  // Min pu voltage normal load
      PropertyName[20] := 'Vminemerg';  // Min pu voltage emergency rating
      PropertyName[21] := 'xfkVA';  // Service transformer rated kVA
@@ -314,6 +316,7 @@ Begin
      PropertyName[33] := 'ZIPV';      // array of 7 coefficients
      PropertyName[34] := '%SeriesRL';      // pct of Load that is series R-L
      PropertyName[35] := 'RelWeight';      // Weighting factor for reliability
+     PropertyName[36] := 'VZpu';      // Below this value resort to constant Z model = Yeq
 
 
      // define Property help values
@@ -380,8 +383,9 @@ Begin
                          ' day-after-day for the period study.';  // fixed or variable
      PropertyHelp[16] := 'An arbitrary integer number representing the class of load so that load values may '+
                          'be segregated by load value. Default is 1; not used internally.';
-     PropertyHelp[17] := 'Default = 0.95.  Minimum per unit voltage for which the MODEL is assumed to apply. ' +
-                         'Below this value, the load model reverts to a constant impedance model.';
+     PropertyHelp[17] := 'Default = 0.95.  Minimum per unit voltage for which the MODEL is assumed to apply. Lower end of normal voltage range.' +
+                         'Below this value, the load model reverts to a constant impedance model that matches the model at the transition voltage. '+
+                         'See also "VZpu" which causes the model to match Model=2 at the transition.';
      PropertyHelp[18] := 'Default = 1.05.  Maximum per unit voltage for which the MODEL is assumed to apply. ' +
                          'Above this value, the load model reverts to a constant impedance model.';
      PropertyHelp[19] := 'Minimum per unit voltage for load EEN evaluations, Normal limit.  Default = 0, which defaults to system "vminnorm" ' +
@@ -428,6 +432,8 @@ Begin
                          'This has a significant impact on the amount of damping observed in Harmonics solutions.';
      PropertyHelp[35] := 'Relative weighting factor for reliability calcs. Default = 1. Used to designate high priority loads such as hospitals, etc. ' + CRLF + CRLF +
                          'Is multiplied by number of customers and load kW during reliability calcs.';
+     PropertyHelp[36] := 'Default = 0.50.  Per unit voltage at which the model switch to same as constant Z model (model=2). ' +
+                         'This allows more consistent convergence when opening switches and solving for fault situations.';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -497,6 +503,7 @@ Begin
             End;
             VBase95  := Vminpu * VBase;
             VBase105 := Vmaxpu * VBase;
+            VBaseZ   := VZpu   * VBase;
 
             Yorder := Fnconds * Fnterms;
             YPrimInvalid := True;
@@ -573,6 +580,7 @@ Begin
                End;
            34: puSeriesRL    := Parser.DblValue / 100.0;
            35: RelWeighting  := Parser.DblValue;
+           36: VZPu          := Parser.DblValue;
 
          ELSE
            // Inherited edits
@@ -649,8 +657,10 @@ Begin
 
        kVLoadBase     := OtherLoad.kVLoadBase;
        Vbase          := OtherLoad.Vbase;
+       VZpu           := OtherLoad.VZpu;
        Vminpu         := OtherLoad.Vminpu;
        Vmaxpu         := OtherLoad.Vmaxpu;
+       VBaseZ         := OtherLoad.VBaseZ;
        Vbase95        := OtherLoad.Vbase95;
        Vbase105       := OtherLoad.Vbase105;
        kWBase         := OtherLoad.kWBase;
@@ -783,8 +793,10 @@ Begin
      VminEmerg      := 0.0;
      kVLoadBase     := 12.47;
      VBase          := 7200.0;
+     VZpu           := 0.50;
      VminPu         := 0.95;
      VMaxPU         := 1.05;
+     VBaseZ         := VZpu * Vbase;
      VBase95        := VminPu * Vbase;
      VBase105       := VMaxPU * Vbase;
      Yorder         := Fnterms * Fnconds;
@@ -1014,6 +1026,7 @@ PROCEDURE TLoadObj.RecalcElementData;
 
 Begin
 
+    VBaseZ   := VZPu   * VBase;
     VBase95  := VMinPu * VBase;
     VBase105 := VMaxPu * VBase;
 
@@ -1273,7 +1286,8 @@ Begin
       V    := Vterminal^[i];
       VMag := Cabs(V);
 
-      IF      VMag <= VBase95 THEN Curr := Cmul(Yeq95,  V)  // Below 95% use an impedance model
+      IF      VMag <= VBaseZ  THEN Curr := Cmul(Yeq,    V)  // Below VbaseZ resort to linear equal to Yprim contribution
+      ELSE IF VMag <= VBase95 THEN Curr := Cmul(Yeq95,  V)  // Below 95% use an impedance model
       ELSE IF VMag > VBase105 THEN Curr := Cmul(Yeq105, V)  // above 105% use an impedance model
       ELSE Curr := Conjg(Cdiv(Cmplx(WNominal,varNominal), V));  // Above 95%, constant PQ
 
@@ -1325,10 +1339,9 @@ Begin
     FOR i := 1 to Fnphases DO Begin
         V    := Vterminal^[i];
         VMag := Cabs(V);
-        IF   VMag <= VBase95
-        THEN Curr := Cmul(Yeq95, V)  // Below 95% use an impedance model
-        ELSE IF VMag > VBase105
-        THEN Curr := Cmul(Yeq105, V)  // above 105% use an impedance model
+        IF      VMag <= VBaseZ  THEN Curr := Cmul(Yeq,   V)  // Below VbaseZ resort to linear equal to Yprim contribution
+        ELSE IF VMag <= VBase95 THEN Curr := Cmul(Yeq95, V)  // Below 95% use an impedance model
+        ELSE IF VMag > VBase105 THEN Curr := Cmul(Yeq105, V)  // above 105% use an impedance model
         ELSE Begin
             Curr := Conjg(Cdiv(Cmplx(WNominal, 0.0), V));  // Above 95%, constant P
             Caccum(Curr, Cmul(Cmplx(0.0, Yeq.im), V));  // add in Q component of current
@@ -1368,7 +1381,8 @@ Begin
         V    := Vterminal^[i];
 
         Vmag := Cabs(V);
-        IF      VMag <= VBase95  THEN Curr := Cmul(Yeq95,   V)  // Below 95% use an impedance model
+        IF      VMag <= VBaseZ   THEN Curr := Cmul(Yeq,     V)  // Below VbaseZ resort to linear equal to Yprim contribution
+        ELSE IF VMag <= VBase95  THEN Curr := Cmul(Yeq95,   V)  // Below 95% use an impedance model
         ELSE IF VMag >  VBase105 THEN Curr := Cmul(Yeq105,  V)  // above 105% use an impedance model
         ELSE Begin
                 Curr := Conjg( Cdiv( Cmplx(WNominal,varNominal), CMulReal( CDivReal(V, Cabs(V)), Vbase) ));
@@ -1448,7 +1462,9 @@ Begin
     FOR i := 1 to Fnphases DO Begin
         V    := Vterminal^[i];
         Vmag := Cabs(V);
-        IF      VMag <= VBase95 THEN Curr := Cmul(Yeq95,  V)  // Below 95% use an impedance model
+
+        IF      VMag <= VBaseZ  THEN Curr := Cmul(Yeq,    V)  // Below VbaseZ resort to linear equal to Yprim contribution
+        ELSE IF VMag <= VBase95 THEN Curr := Cmul(Yeq95,  V)  // Below 95% use an impedance model
         ELSE IF VMag > VBase105 THEN Curr := Cmul(Yeq105,  V)  // above 105% use an impedance model
         ELSE Begin
               VRatio := Vmag/VBase;    // vbase is l-n FOR wye and l-l FOR delta
@@ -1509,7 +1525,8 @@ Begin
     FOR i := 1 to Fnphases DO Begin
         V    := Vterminal^[i];
         VMag := Cabs(V);
-        IF      VMag <= VBase95 THEN Curr := Cmul(Cmplx(Yeq95.re,  YQfixed), V)  // Below 95% use an impedance model
+        IF      VMag <= VBaseZ  THEN Curr := Cmul(Yeq,    V)  // Below VbaseZ resort to linear equal to Yprim contribution
+        ELSE IF VMag <= VBase95 THEN Curr := Cmul(Cmplx(Yeq95.re,  YQfixed), V)  // Below 95% use an impedance model
         ELSE IF VMag > VBase105 THEN Curr := Cmul(Cmplx(Yeq105.re, YQfixed), V)  // above 105% use an impedance model
         ELSE Begin
                 Curr := Conjg(Cdiv(Cmplx(WNominal, varBase), V));
@@ -1538,7 +1555,8 @@ Begin
     FOR i := 1 to Fnphases DO Begin
         V:=Vterminal^[i];
         Vmag := Cabs(V);
-        IF      Vmag <= VBase95  THEN Curr := Cmul(Cmplx(Yeq95.re,  YQfixed), V)  // Below 95% use an impedance model
+        IF      VMag <= VBaseZ   THEN Curr := Cmul(Yeq,    V)  // Below VbaseZ resort to linear equal to Yprim contribution
+        ELSE IF Vmag <= VBase95  THEN Curr := Cmul(Cmplx(Yeq95.re,  YQfixed), V)  // Below 95% use an impedance model
         ELSE IF VMag >  VBase105 THEN Curr := Cmul(Cmplx(Yeq105.re, YQfixed), V)
         ELSE Begin
               Curr := Conjg(Cdiv(Cmplx(WNominal, 0.0), V)); // P component of current
@@ -2074,6 +2092,7 @@ begin
      PropertyValue[33] := '';  // ZIPV coefficient array
      PropertyValue[34] := '50';  // %SeriesRL
      PropertyValue[35] := '1';  // RelWeighting
+     PropertyValue[36] := '0.5';  // VZpu
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -2131,6 +2150,7 @@ begin
              end;
          34: Result := Format('%-g',   [puSeriesRL*100.0]);
          35: Result := Format('%-g',   [RelWeighting]);
+         36: Result := Format('%-g',   [VZpu]);
      ELSE
          Result := Inherited GetPropertyValue(index);
      End;
