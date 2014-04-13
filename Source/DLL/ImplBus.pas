@@ -42,6 +42,8 @@ type
     function Get_Cust_Interrupts: Double; safecall;
     function Get_N_Customers: Integer; safecall;
     function Get_N_interrupts: Double; safecall;
+    function Get_puVLL: OleVariant; safecall;
+    function Get_VLL: OleVariant; safecall;
   end;
 
 implementation
@@ -621,6 +623,112 @@ begin
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
          Result := Buses^[ActiveBusIndex].Num_Interrupt ;
+end;
+
+
+function TBus.Get_puVLL: OleVariant;
+
+VAR
+  Nvalues,i,  iV, NodeIdxi, NodeIdxj, jj : Integer;
+  Volts : Complex;
+  pBus : TDSSBus;
+  BaseFactor : double;
+
+Begin
+   IF ActiveCircuit = nil Then Begin
+        Result := VarArrayCreate([0, 0], varDouble)
+   End
+   ELSE With ActiveCircuit Do
+   IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
+   Begin
+      pBus    := Buses^[ActiveBusIndex];
+      Nvalues := pBus.NumNodesThisBus;
+      If Nvalues > 3 Then Nvalues := 3;
+
+      If Nvalues > 1 Then
+      Begin
+          If Nvalues = 2 Then  Nvalues := 1;  // only one L-L voltage if 2 phase
+          Result  := VarArrayCreate( [0, 2*NValues -1], varDouble);
+          iV := 0;
+          WITH pBus DO
+          Begin
+            If kVBase>0.0 Then BaseFactor := 1000.0*kVBase*sqrt3
+                          Else BaseFactor := 1.0;
+            FOR i := 1 to  NValues DO     // for 2- or 3-phases
+            Begin
+                  // this code assumes the nodes are ordered 1, 2, 3
+                  NodeIdxi := FindIdx(i);  // Get the index of the Node that matches i
+                  jj := i+1;
+                  if jj>3 then jj := 1; // wrap around
+                  NodeIdxj := FindIdx(jj);
+
+                  With Solution Do Volts := Csub(NodeV^[GetRef(NodeIdxi)], NodeV^[GetRef(NodeIdxj)]);
+                  Result[iV] := Volts.re / BaseFactor;
+                  Inc(iV);
+                  Result[iV] := Volts.im / BaseFactor;
+                  Inc(iV);
+            End;
+          End;  {With pBus}
+      End
+      ELSE Begin  // for 1-phase buses, do not attempt to compute.
+          Result := VarArrayCreate([0, 1], varDouble);  // just return -1's in array
+          Result[0] := -99999.0;
+          Result[1] := 0.0;
+      End;
+  End
+  ELSE Result := VarArrayCreate([0, 0], varDouble);  // just return null array
+
+
+end;
+
+function TBus.Get_VLL: OleVariant;
+VAR
+  Nvalues,i,  iV, NodeIdxi, NodeIdxj, jj : Integer;
+  Volts : Complex;
+  pBus : TDSSBus;
+
+Begin
+   IF ActiveCircuit = nil Then Begin
+        Result := VarArrayCreate([0, 0], varDouble)
+   End
+   ELSE With ActiveCircuit Do
+   IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
+   Begin
+      pBus    := Buses^[ActiveBusIndex];
+      Nvalues := pBus.NumNodesThisBus;
+      If Nvalues > 3 Then Nvalues := 3;
+
+      If Nvalues > 1 Then
+      Begin
+          If Nvalues = 2 Then  Nvalues := 1;  // only one L-L voltage if 2 phase
+          Result  := VarArrayCreate( [0, 2*NValues -1], varDouble);
+          iV := 0;
+          WITH pBus DO
+            FOR i := 1 to  NValues DO     // for 2- or 3-phases
+            Begin
+
+                  // this code assumes the nodes are ordered 1, 2, 3
+                  // this code so nodes come out in order from smallest to largest
+                  NodeIdxi := FindIdx(i);  // Get the index of the Node that matches i
+                  jj := i+1;
+                  if jj>3 then jj := 1; // wrap around
+                  NodeIdxj := FindIdx(jj);
+
+                  With Solution Do Volts := Csub(NodeV^[GetRef(NodeIdxi)], NodeV^[GetRef(NodeIdxj)]);
+                  Result[iV] := Volts.re;
+                  Inc(iV);
+                  Result[iV] := Volts.im;
+                  Inc(iV);
+            End;
+      End
+      ELSE Begin  // for 1-phase buses, do not attempt to compute.
+          Result := VarArrayCreate([0, 1], varDouble);  // just return -1's in array
+          Result[0] := -99999.0;
+          Result[1] := 0.0;
+      End;
+  End
+  ELSE Result := VarArrayCreate([0, 0], varDouble);  // just return null array
+
 end;
 
 initialization

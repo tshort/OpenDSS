@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 10/1/2013 1:43:45 PM (- $Rev: 12980 $, 102953015).
+// File generated on 4/12/2014 5:19:08 PM (- $Rev: 12980 $, 73066235).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -83,6 +83,8 @@ library OpenDSSengine
   coclass Reclosers;
   interface IRelays;
   coclass Relays;
+  interface ICmathLib;
+  coclass CmathLib;
 
 
   [
@@ -648,6 +650,10 @@ library OpenDSSengine
     HRESULT _stdcall Cust_Duration([out, retval] double* Value);
     [propget, id(0x000000D4), helpstring("Total numbers of customers served downline from this bus")]
     HRESULT _stdcall N_Customers([out, retval] long* Value);
+    [propget, id(0x000000D5), helpstring("For 2- and 3-phase buses, returns variant array of complex numbers represetin L-L voltages in volts. Returns -1.0 for 1-phase bus. If more than 3 phases, returns only first 3.")]
+    HRESULT _stdcall VLL([out, retval] VARIANT* Value);
+    [propget, id(0x000000D6), helpstring("Returns Complex array of pu L-L voltages for 2- and 3-phase buses. Returns -1.0 for 1-phase bus. If more than 3 phases, returns only 3 phases.")]
+    HRESULT _stdcall puVLL([out, retval] VARIANT* Value);
   };
 
   [
@@ -710,6 +716,8 @@ library OpenDSSengine
     HRESULT _stdcall Executive([out, retval] IDSS_Executive** Value);
     [propget, id(0x000000CE), helpstring("Interface to the DSS Events")]
     HRESULT _stdcall Events([out, retval] IDSSEvents** Value);
+    [propget, id(0x000000CC), helpstring("Returns an interface to the complex math library.")]
+    HRESULT _stdcall CmathLib([out, retval] ICmathLib** Value);
   };
 
   [
@@ -2262,6 +2270,30 @@ library OpenDSSengine
   };
 
   [
+    uuid(2B649EC0-FA89-45ED-A937-E7CB47806A3A),
+    helpstring("Dispatch interface for CmathLib Object"),
+    dual,
+    oleautomation
+  ]
+  interface ICmathLib: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Convert real and imaginary doubles to Variant array of doubles")]
+    HRESULT _stdcall cmplx([in] double RealPart, [in] double ImagPart, [out, retval] VARIANT* Value);
+    [propget, id(0x000000CA), helpstring("Return abs value of complex number given in real and imag doubles")]
+    HRESULT _stdcall cabs([in] double realpart, [in] double imagpart, [out, retval] double* Value);
+    [propget, id(0x000000CB), helpstring("Returns the angle, in degrees, of a complex number specified as two doubles: Realpart and imagpart.")]
+    HRESULT _stdcall cdang([in] double RealPart, [in] double ImagPart, [out, retval] double* Value);
+    [propget, id(0x000000CC), helpstring("Convert complex number to magnitude and angle, degrees. Returns variant array of two doubles.")]
+    HRESULT _stdcall ctopolardeg([in] double RealPart, [in] double ImagPart, [out, retval] VARIANT* Value);
+    [propget, id(0x000000CD), helpstring("Convert magnitude, angle in degrees to a complex number. Returns Variant array of two doubles.")]
+    HRESULT _stdcall pdegtocomplex([in] double magnitude, [in] double angle, [out, retval] VARIANT* Value);
+    [propget, id(0x000000CE), helpstring("Multiply two complex numbers: (a1, b1) * (a2, b2). Returns result as a variant array of two doubles.")]
+    HRESULT _stdcall cmul([in] double a1, [in] double b1, [in] double a2, [in] double b2, [out, retval] VARIANT* Value);
+    [propget, id(0x000000CF), helpstring("Divide two complex number: (a1, b1)/(a2, b2). Returns variant array of two doubles representing complex result.")]
+    HRESULT _stdcall cdiv([in] double a1, [in] double b1, [in] double a2, [in] double b2, [out, retval] VARIANT* Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -2580,6 +2612,15 @@ library OpenDSSengine
   coclass Relays
   {
     [default] interface IRelays;
+  };
+
+  [
+    uuid(76847D49-B650-4850-9486-E08B48F87E39),
+    helpstring("CmathLib Object")
+  ]
+  coclass CmathLib
+  {
+    [default] interface ICmathLib;
   };
 
 };

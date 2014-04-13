@@ -45,6 +45,7 @@ Uses
        ImplPDElements,
        ImplReclosers,
        ImplRelays,
+       ImplCmathLib,
        DSSClass,
        DSSClassDefs,
        OpenDSSengine_TLB;
@@ -83,6 +84,7 @@ Var
    FPDElements  :IPDElements;
    FReclosers   :IReclosers;
    FRelays      :IRelays;
+   FCmathLib    :ICmathLib;
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
 
@@ -155,6 +157,7 @@ Begin
      FPDElements  := TPDElements.Create;
      FReclosers   := TReclosers.Create;
      FRelays      := TRelays.Create;
+     FCmathLib    := TCmathLib.Create;
 
      FPropIndex := 0;
      FPropClass := Nil;

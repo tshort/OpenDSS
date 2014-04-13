@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/26/2013 3:42:26 PM from Type Library described below.
+// File generated on 4/12/2014 4:51:44 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -115,6 +115,8 @@ const
   CLASS_Reclosers: TGUID = '{B92B059F-FEFD-4554-8F07-AFDCEFBBEA7B}';
   IID_IRelays: TGUID = '{76956697-6055-4E8E-B4D6-650805D3F90D}';
   CLASS_Relays: TGUID = '{9D887EEA-7454-4214-BC56-AC42F5A3318E}';
+  IID_ICmathLib: TGUID = '{2B649EC0-FA89-45ED-A937-E7CB47806A3A}';
+  CLASS_CmathLib: TGUID = '{76847D49-B650-4850-9486-E08B48F87E39}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -298,6 +300,8 @@ type
   IReclosersDisp = dispinterface;
   IRelays = interface;
   IRelaysDisp = dispinterface;
+  ICmathLib = interface;
+  ICmathLibDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -334,6 +338,7 @@ type
   PDElements = IPDElements;
   Reclosers = IReclosers;
   Relays = IRelays;
+  CmathLib = ICmathLib;
 
 
 // *********************************************************************//
@@ -791,6 +796,8 @@ type
     function Get_Cust_Interrupts: Double; safecall;
     function Get_Cust_Duration: Double; safecall;
     function Get_N_Customers: Integer; safecall;
+    function Get_VLL: OleVariant; safecall;
+    function Get_puVLL: OleVariant; safecall;
     property Name: WideString read Get_Name;
     property NumNodes: Integer read Get_NumNodes;
     property Voltages: OleVariant read Get_Voltages;
@@ -815,6 +822,8 @@ type
     property Cust_Interrupts: Double read Get_Cust_Interrupts;
     property Cust_Duration: Double read Get_Cust_Duration;
     property N_Customers: Integer read Get_N_Customers;
+    property VLL: OleVariant read Get_VLL;
+    property puVLL: OleVariant read Get_puVLL;
   end;
 
 // *********************************************************************//
@@ -850,6 +859,8 @@ type
     property Cust_Interrupts: Double readonly dispid 210;
     property Cust_Duration: Double readonly dispid 211;
     property N_Customers: Integer readonly dispid 212;
+    property VLL: OleVariant readonly dispid 213;
+    property puVLL: OleVariant readonly dispid 214;
   end;
 
 // *********************************************************************//
@@ -884,6 +895,7 @@ type
     function SetActiveClass(const ClassName: WideString): Integer; safecall;
     function Get_Executive: IDSS_Executive; safecall;
     function Get_Events: IDSSEvents; safecall;
+    function Get_CmathLib: ICmathLib; safecall;
     property NumCircuits: Integer read Get_NumCircuits;
     property Circuits[Idx: OleVariant]: ICircuit read Get_Circuits;
     property ActiveCircuit: ICircuit read Get_ActiveCircuit;
@@ -901,6 +913,7 @@ type
     property ActiveClass: IActiveClass read Get_ActiveClass;
     property Executive: IDSS_Executive read Get_Executive;
     property Events: IDSSEvents read Get_Events;
+    property CmathLib: ICmathLib read Get_CmathLib;
   end;
 
 // *********************************************************************//
@@ -933,6 +946,7 @@ type
     function SetActiveClass(const ClassName: WideString): Integer; dispid 203;
     property Executive: IDSS_Executive readonly dispid 205;
     property Events: IDSSEvents readonly dispid 206;
+    property CmathLib: ICmathLib readonly dispid 204;
   end;
 
 // *********************************************************************//
@@ -2812,6 +2826,45 @@ type
   end;
 
 // *********************************************************************//
+// Interface: ICmathLib
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {2B649EC0-FA89-45ED-A937-E7CB47806A3A}
+// *********************************************************************//
+  ICmathLib = interface(IDispatch)
+    ['{2B649EC0-FA89-45ED-A937-E7CB47806A3A}']
+    function Get_cmplx(RealPart: Double; ImagPart: Double): OleVariant; safecall;
+    function Get_cabs(realpart: Double; imagpart: Double): Double; safecall;
+    function Get_cdang(RealPart: Double; ImagPart: Double): Double; safecall;
+    function Get_ctopolardeg(RealPart: Double; ImagPart: Double): OleVariant; safecall;
+    function Get_pdegtocomplex(magnitude: Double; angle: Double): OleVariant; safecall;
+    function Get_cmul(a1: Double; b1: Double; a2: Double; b2: Double): OleVariant; safecall;
+    function Get_cdiv(a1: Double; b1: Double; a2: Double; b2: Double): OleVariant; safecall;
+    property cmplx[RealPart: Double; ImagPart: Double]: OleVariant read Get_cmplx;
+    property cabs[realpart: Double; imagpart: Double]: Double read Get_cabs;
+    property cdang[RealPart: Double; ImagPart: Double]: Double read Get_cdang;
+    property ctopolardeg[RealPart: Double; ImagPart: Double]: OleVariant read Get_ctopolardeg;
+    property pdegtocomplex[magnitude: Double; angle: Double]: OleVariant read Get_pdegtocomplex;
+    property cmul[a1: Double; b1: Double; a2: Double; b2: Double]: OleVariant read Get_cmul;
+    property cdiv[a1: Double; b1: Double; a2: Double; b2: Double]: OleVariant read Get_cdiv;
+  end;
+
+// *********************************************************************//
+// DispIntf:  ICmathLibDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {2B649EC0-FA89-45ED-A937-E7CB47806A3A}
+// *********************************************************************//
+  ICmathLibDisp = dispinterface
+    ['{2B649EC0-FA89-45ED-A937-E7CB47806A3A}']
+    property cmplx[RealPart: Double; ImagPart: Double]: OleVariant readonly dispid 201;
+    property cabs[realpart: Double; imagpart: Double]: Double readonly dispid 202;
+    property cdang[RealPart: Double; ImagPart: Double]: Double readonly dispid 203;
+    property ctopolardeg[RealPart: Double; ImagPart: Double]: OleVariant readonly dispid 204;
+    property pdegtocomplex[magnitude: Double; angle: Double]: OleVariant readonly dispid 205;
+    property cmul[a1: Double; b1: Double; a2: Double; b2: Double]: OleVariant readonly dispid 206;
+    property cdiv[a1: Double; b1: Double; a2: Double; b2: Double]: OleVariant readonly dispid 207;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -3183,6 +3236,18 @@ type
     class function CreateRemote(const MachineName: string): IRelays;
   end;
 
+// *********************************************************************//
+// The Class CoCmathLib provides a Create and CreateRemote method to
+// create instances of the default interface ICmathLib exposed by
+// the CoClass CmathLib. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoCmathLib = class
+    class function Create: ICmathLib;
+    class function CreateRemote(const MachineName: string): ICmathLib;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -3495,6 +3560,16 @@ end;
 class function CoRelays.CreateRemote(const MachineName: string): IRelays;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_Relays) as IRelays;
+end;
+
+class function CoCmathLib.Create: ICmathLib;
+begin
+  Result := CreateComObject(CLASS_CmathLib) as ICmathLib;
+end;
+
+class function CoCmathLib.CreateRemote(const MachineName: string): ICmathLib;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_CmathLib) as ICmathLib;
 end;
 
 end.

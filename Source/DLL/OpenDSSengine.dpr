@@ -194,7 +194,8 @@ uses
   ImplXYCurves in 'ImplXYCurves.pas' {XYCurves: CoClass},
   ImplPDElements in 'ImplPDElements.pas' {PDElements: CoClass},
   ImplReclosers in 'ImplReclosers.pas' {Reclosers: CoClass},
-  ImplRelays in 'ImplRelays.pas' {Relays: CoClass};
+  ImplRelays in 'ImplRelays.pas' {Relays: CoClass},
+  ImplCmathLib in 'ImplCmathLib.pas' {CmathLib: CoClass};
 
 exports
   DllGetClassObject,
