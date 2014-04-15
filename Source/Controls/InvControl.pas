@@ -1397,6 +1397,8 @@ begin
             CASE ControlMode of
                 VOLTWATT:  // volt-watt control mode
                 begin
+                  if (ControlledElement[i].InverterON = FALSE) then exit;
+
                   if Length(Fvoltwatt_curvename) = 0 then
                     begin
                       DoSimpleMsg('XY Curve object representing voltwatt_curve does not exist or is not tied to InvControl.', 381);
@@ -1442,6 +1444,7 @@ begin
 
                 VOLTVAR: // volt-var control mode
                 begin
+                    if (ControlledElement[i].InverterON = FALSE) and (ControlledElement[i].VarFollowInverter = TRUE) then exit;
                     ControlledElement[i].VWmode := FALSE;
                     if Length(Fvvc_curvename) = 0 then
                       begin
@@ -1499,6 +1502,7 @@ begin
 
                 DYNAMICREACCURR: // dynamic reactive current control mode
                 begin
+                if (ControlledElement[i].InverterON = FALSE) and (ControlledElement[i].VarFollowInverter = TRUE) then exit;
                 ControlledElement[i].VWmode := FALSE;
                 if(priorRollAvgWindow[i] = 0.0) then
                   begin
