@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 4/12/2014 5:19:08 PM (- $Rev: 12980 $, 73066235).
+// File generated on 4/28/2014 11:49:21 AM (- $Rev: 12980 $, 169675205).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -85,6 +85,8 @@ library OpenDSSengine
   coclass Relays;
   interface ICmathLib;
   coclass CmathLib;
+  interface IParser;
+  coclass Parser;
 
 
   [
@@ -718,6 +720,8 @@ library OpenDSSengine
     HRESULT _stdcall Events([out, retval] IDSSEvents** Value);
     [propget, id(0x000000CC), helpstring("Returns an interface to the complex math library.")]
     HRESULT _stdcall CmathLib([out, retval] ICmathLib** Value);
+    [propget, id(0x000000CF), helpstring("Returns interface to the OpenDSS Parser library for use by user-written programs.")]
+    HRESULT _stdcall Parser([out, retval] IParser** Value);
   };
 
   [
@@ -2294,6 +2298,56 @@ library OpenDSSengine
   };
 
   [
+    uuid(9714FED4-9D39-4692-B76B-9A18F206A934),
+    helpstring("Dispatch interface for Parser Object"),
+    dual,
+    oleautomation
+  ]
+  interface IParser: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("String to be parsed. Loading this string resets the Parser to the beginning of the line. Then parse off the tokens in sequence.")]
+    HRESULT _stdcall CmdString([out, retval] BSTR* Value);
+    [propput, id(0x000000C9), helpstring("String to be parsed. Loading this string resets the Parser to the beginning of the line. Then parse off the tokens in sequence.")]
+    HRESULT _stdcall CmdString([in] BSTR Value);
+    [propget, id(0x000000CA), helpstring("Get next token and return tag name (before = sign) if any. See AutoIncrement.")]
+    HRESULT _stdcall NextParam([out, retval] BSTR* Value);
+    [propget, id(0x000000CB), helpstring("Default is FALSE. If TRUE parser automatically advances to next token after DblValue, IntValue, or StrValue. Simpler when you don't need to check for parameter names.")]
+    HRESULT _stdcall AutoIncrement([out, retval] VARIANT_BOOL* Value);
+    [propput, id(0x000000CB), helpstring("Default is FALSE. If TRUE parser automatically advances to next token after DblValue, IntValue, or StrValue. Simpler when you don't need to check for parameter names.")]
+    HRESULT _stdcall AutoIncrement([in] VARIANT_BOOL Value);
+    [propget, id(0x000000CC), helpstring("Return next parameter as a double.")]
+    HRESULT _stdcall DblValue([out, retval] double* Value);
+    [propget, id(0x000000CD), helpstring("Return next parameter as a long integer.")]
+    HRESULT _stdcall IntValue([out, retval] long* Value);
+    [propget, id(0x000000CE), helpstring("Return next parameter as a string")]
+    HRESULT _stdcall StrValue([out, retval] BSTR* Value);
+    [propget, id(0x000000CF), helpstring("Get the characters used for White space in the command string.  Default is blank and Tab.")]
+    HRESULT _stdcall WhiteSpace([out, retval] BSTR* Value);
+    [propput, id(0x000000CF), helpstring("Set the characters used for White space in the command string.  Default is blank and Tab.")]
+    HRESULT _stdcall WhiteSpace([in] BSTR Value);
+    [propget, id(0x000000D0), helpstring("Get String containing the the characters for Quoting in OpenDSS scripts. Matching pairs defined in EndQuote. Default is \"'([{.")]
+    HRESULT _stdcall BeginQuote([out, retval] BSTR* Value);
+    [propput, id(0x000000D0), helpstring("Set String containing the the characters for Quoting in OpenDSS scripts. Matching pairs defined in EndQuote. Default is \"'([{.")]
+    HRESULT _stdcall BeginQuote([in] BSTR Value);
+    [propget, id(0x000000D1), helpstring("String containing characters, in order, that match the beginning quote characters in BeginQuote. Default is \"')]}")]
+    HRESULT _stdcall EndQuote([out, retval] BSTR* Value);
+    [propput, id(0x000000D1), helpstring("String containing characters, in order, that match the beginning quote characters in BeginQuote. Default is \"')]}")]
+    HRESULT _stdcall EndQuote([in] BSTR Value);
+    [propget, id(0x000000D2), helpstring("String defining hard delimiters used to separate token on the command string. Default is , and =. The = separates token name from token value. These override whitesspace to separate tokens.")]
+    HRESULT _stdcall Delimiters([out, retval] BSTR* Value);
+    [propput, id(0x000000D2), helpstring("String defining hard delimiters used to separate token on the command string. Default is , and =. The = separates token name from token value. These override whitesspace to separate tokens.")]
+    HRESULT _stdcall Delimiters([in] BSTR Value);
+    [id(0x000000D3), helpstring("Reset delimiters to their default values.")]
+    HRESULT _stdcall ResetDelimiters(void);
+    [propget, id(0x000000D4), helpstring("Returns token as variant array of doubles. For parsing quoted array syntax.")]
+    HRESULT _stdcall Vector([in] long ExpectedSize, [out, retval] VARIANT* Value);
+    [propget, id(0x000000D5), helpstring("Use this property to parse a Matrix token in OpenDSS format.  Returns square matrix of order specified. Order same as default Fortran order: column by column.")]
+    HRESULT _stdcall Matrix([in] long ExpectedOrder, [out, retval] VARIANT* Value);
+    [propget, id(0x000000D6), helpstring("Use this property to parse a matrix token specified in lower triangle form. Symmetry is forced.")]
+    HRESULT _stdcall SymMatrix([in] long ExpectedOrder, [out, retval] VARIANT* Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -2621,6 +2675,15 @@ library OpenDSSengine
   coclass CmathLib
   {
     [default] interface ICmathLib;
+  };
+
+  [
+    uuid(2245AD88-CB0E-4426-9DF2-5B2F89B2A08D),
+    helpstring("Parser Object")
+  ]
+  coclass Parser
+  {
+    [default] interface IParser;
   };
 
 };

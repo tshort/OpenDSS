@@ -42,6 +42,7 @@ type
     function Get_Executive: IDSS_Executive; safecall;
     function Get_Events: IDSSEvents; safecall;
     function Get_CmathLib: ICmathLib; safecall;
+    function Get_Parser: IParser; safecall;
   end;
 
 implementation
@@ -274,6 +275,11 @@ end;
 function TDSS.Get_CmathLib: ICmathLib;
 begin
      Result := FCmathlib as ICmathLib;
+end;
+
+function TDSS.Get_Parser: IParser;
+begin
+     Result := Fparser as IParser;
 end;
 
 initialization

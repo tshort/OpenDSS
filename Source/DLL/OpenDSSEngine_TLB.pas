@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 4/12/2014 4:51:44 PM from Type Library described below.
+// File generated on 4/28/2014 11:49:11 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -117,6 +117,8 @@ const
   CLASS_Relays: TGUID = '{9D887EEA-7454-4214-BC56-AC42F5A3318E}';
   IID_ICmathLib: TGUID = '{2B649EC0-FA89-45ED-A937-E7CB47806A3A}';
   CLASS_CmathLib: TGUID = '{76847D49-B650-4850-9486-E08B48F87E39}';
+  IID_IParser: TGUID = '{9714FED4-9D39-4692-B76B-9A18F206A934}';
+  CLASS_Parser: TGUID = '{2245AD88-CB0E-4426-9DF2-5B2F89B2A08D}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -302,6 +304,8 @@ type
   IRelaysDisp = dispinterface;
   ICmathLib = interface;
   ICmathLibDisp = dispinterface;
+  IParser = interface;
+  IParserDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -339,6 +343,7 @@ type
   Reclosers = IReclosers;
   Relays = IRelays;
   CmathLib = ICmathLib;
+  Parser = IParser;
 
 
 // *********************************************************************//
@@ -896,6 +901,7 @@ type
     function Get_Executive: IDSS_Executive; safecall;
     function Get_Events: IDSSEvents; safecall;
     function Get_CmathLib: ICmathLib; safecall;
+    function Get_Parser: IParser; safecall;
     property NumCircuits: Integer read Get_NumCircuits;
     property Circuits[Idx: OleVariant]: ICircuit read Get_Circuits;
     property ActiveCircuit: ICircuit read Get_ActiveCircuit;
@@ -914,6 +920,7 @@ type
     property Executive: IDSS_Executive read Get_Executive;
     property Events: IDSSEvents read Get_Events;
     property CmathLib: ICmathLib read Get_CmathLib;
+    property Parser: IParser read Get_Parser;
   end;
 
 // *********************************************************************//
@@ -947,6 +954,7 @@ type
     property Executive: IDSS_Executive readonly dispid 205;
     property Events: IDSSEvents readonly dispid 206;
     property CmathLib: ICmathLib readonly dispid 204;
+    property Parser: IParser readonly dispid 207;
   end;
 
 // *********************************************************************//
@@ -2865,6 +2873,71 @@ type
   end;
 
 // *********************************************************************//
+// Interface: IParser
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {9714FED4-9D39-4692-B76B-9A18F206A934}
+// *********************************************************************//
+  IParser = interface(IDispatch)
+    ['{9714FED4-9D39-4692-B76B-9A18F206A934}']
+    function Get_CmdString: WideString; safecall;
+    procedure Set_CmdString(const Value: WideString); safecall;
+    function Get_NextParam: WideString; safecall;
+    function Get_AutoIncrement: WordBool; safecall;
+    procedure Set_AutoIncrement(Value: WordBool); safecall;
+    function Get_DblValue: Double; safecall;
+    function Get_IntValue: Integer; safecall;
+    function Get_StrValue: WideString; safecall;
+    function Get_WhiteSpace: WideString; safecall;
+    procedure Set_WhiteSpace(const Value: WideString); safecall;
+    function Get_BeginQuote: WideString; safecall;
+    procedure Set_BeginQuote(const Value: WideString); safecall;
+    function Get_EndQuote: WideString; safecall;
+    procedure Set_EndQuote(const Value: WideString); safecall;
+    function Get_Delimiters: WideString; safecall;
+    procedure Set_Delimiters(const Value: WideString); safecall;
+    procedure ResetDelimiters; safecall;
+    function Get_Vector(ExpectedSize: Integer): OleVariant; safecall;
+    function Get_Matrix(ExpectedOrder: Integer): OleVariant; safecall;
+    function Get_SymMatrix(ExpectedOrder: Integer): OleVariant; safecall;
+    property CmdString: WideString read Get_CmdString write Set_CmdString;
+    property NextParam: WideString read Get_NextParam;
+    property AutoIncrement: WordBool read Get_AutoIncrement write Set_AutoIncrement;
+    property DblValue: Double read Get_DblValue;
+    property IntValue: Integer read Get_IntValue;
+    property StrValue: WideString read Get_StrValue;
+    property WhiteSpace: WideString read Get_WhiteSpace write Set_WhiteSpace;
+    property BeginQuote: WideString read Get_BeginQuote write Set_BeginQuote;
+    property EndQuote: WideString read Get_EndQuote write Set_EndQuote;
+    property Delimiters: WideString read Get_Delimiters write Set_Delimiters;
+    property Vector[ExpectedSize: Integer]: OleVariant read Get_Vector;
+    property Matrix[ExpectedOrder: Integer]: OleVariant read Get_Matrix;
+    property SymMatrix[ExpectedOrder: Integer]: OleVariant read Get_SymMatrix;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IParserDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {9714FED4-9D39-4692-B76B-9A18F206A934}
+// *********************************************************************//
+  IParserDisp = dispinterface
+    ['{9714FED4-9D39-4692-B76B-9A18F206A934}']
+    property CmdString: WideString dispid 201;
+    property NextParam: WideString readonly dispid 202;
+    property AutoIncrement: WordBool dispid 203;
+    property DblValue: Double readonly dispid 204;
+    property IntValue: Integer readonly dispid 205;
+    property StrValue: WideString readonly dispid 206;
+    property WhiteSpace: WideString dispid 207;
+    property BeginQuote: WideString dispid 208;
+    property EndQuote: WideString dispid 209;
+    property Delimiters: WideString dispid 210;
+    procedure ResetDelimiters; dispid 211;
+    property Vector[ExpectedSize: Integer]: OleVariant readonly dispid 212;
+    property Matrix[ExpectedOrder: Integer]: OleVariant readonly dispid 213;
+    property SymMatrix[ExpectedOrder: Integer]: OleVariant readonly dispid 214;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -3248,6 +3321,18 @@ type
     class function CreateRemote(const MachineName: string): ICmathLib;
   end;
 
+// *********************************************************************//
+// The Class CoParser provides a Create and CreateRemote method to
+// create instances of the default interface IParser exposed by
+// the CoClass Parser. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoParser = class
+    class function Create: IParser;
+    class function CreateRemote(const MachineName: string): IParser;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -3570,6 +3655,16 @@ end;
 class function CoCmathLib.CreateRemote(const MachineName: string): ICmathLib;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_CmathLib) as ICmathLib;
+end;
+
+class function CoParser.Create: IParser;
+begin
+  Result := CreateComObject(CLASS_Parser) as IParser;
+end;
+
+class function CoParser.CreateRemote(const MachineName: string): IParser;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_Parser) as IParser;
 end;
 
 end.

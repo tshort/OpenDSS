@@ -195,7 +195,8 @@ uses
   ImplPDElements in 'ImplPDElements.pas' {PDElements: CoClass},
   ImplReclosers in 'ImplReclosers.pas' {Reclosers: CoClass},
   ImplRelays in 'ImplRelays.pas' {Relays: CoClass},
-  ImplCmathLib in 'ImplCmathLib.pas' {CmathLib: CoClass};
+  ImplCmathLib in 'ImplCmathLib.pas' {CmathLib: CoClass},
+  ImplParser in 'ImplParser.pas' {Parser: CoClass};
 
 exports
   DllGetClassObject,
