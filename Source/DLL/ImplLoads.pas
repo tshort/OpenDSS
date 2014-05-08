@@ -312,7 +312,7 @@ begin
          WITH ActiveCircuit.Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).kVLoadBase := Value;
-                  TLoadObj(Active).UpdateVoltageBases;  // side effectes
+                  TLoadObj(Active).UpdateVoltageBases;  // side effects
              End;
          End;
    End;
@@ -325,6 +325,7 @@ begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).kvarBase := Value;
                   TLoadObj(Active).LoadSpecType := 1;
+                  TLoadObj(Active).RecalcElementData ;
              End;
          End;
    End;
@@ -337,6 +338,7 @@ begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).kWBase := Value;
                   TLoadObj(Active).LoadSpecType := 0;
+                  TLoadObj(Active).RecalcElementData ;
              End;
          End;
    End;
@@ -348,6 +350,8 @@ begin
          WITH ActiveCircuit.Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).PFNominal := Value;
+                  TLoadObj(Active).LoadSpecType := 0;
+                  TLoadObj(Active).RecalcElementData ;
              End;
          End;
    End;
@@ -491,6 +495,7 @@ begin
       5: Result := dssLoadConstI;
       6: Result := dssLoadConstPFixedQ;
       7: Result := dssLoadConstPFixedX;
+      8: Result := dssLoadZIPV;
     end;
   end;
 end;
