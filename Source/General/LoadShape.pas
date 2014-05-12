@@ -98,7 +98,6 @@ TYPE
         Procedure SaveToDblFile;
         Procedure SaveToSngFile;
         Procedure CalcMeanandStdDev;
-        Procedure Normalize;
         function Get_Mean: Double;
         function Get_StdDev: Double;
         procedure Set_Mean(const Value: Double);
@@ -125,6 +124,7 @@ TYPE
         Function  GetMult(hr:double):Complex;  // Get multiplier at specified time
         Function  Mult(i:Integer):Double;  // get multiplier by index
         Function  Hour(i:Integer):Double;  // get hour corresponding to point index
+        Procedure Normalize;
 
 
 
