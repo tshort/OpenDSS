@@ -229,6 +229,7 @@ type
     OpenDSSWiki1: TMenuItem;
     NodeNames1: TMenuItem;
     Image2: TImage;
+    Taps1: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DSSHelp1Click(Sender: TObject);
     procedure AboutDSS1Click(Sender: TObject);
@@ -274,7 +275,6 @@ type
     procedure KeepList1Click(Sender: TObject);
     procedure Monitor1Click(Sender: TObject);
     procedure AutoAdded1Click(Sender: TObject);
-    procedure Taps1Click(Sender: TObject);
     procedure Overloads1Click(Sender: TObject);
     procedure Variables1Click(Sender: TObject);
     procedure Faults1Click(Sender: TObject);
@@ -388,6 +388,7 @@ type
     procedure TechNotes1Click(Sender: TObject);
     procedure NodeNames1Click(Sender: TObject);
     procedure TCCCurve1Click(Sender: TObject);
+    procedure Taps1Click(Sender: TObject);
   private
     { Private declarations }
     PlotOptionString:String;
@@ -1146,11 +1147,6 @@ begin
         ActiveScriptForm.ExecuteDSSCommand('Show autoadded');
 end;
 
-procedure TControlPanel.Taps1Click(Sender: TObject);
-begin
-        ActiveScriptForm.ExecuteDSSCommand('Show Taps');
-
-end;
 
 procedure TControlPanel.Overloads1Click(Sender: TObject);
 begin
@@ -1256,6 +1252,12 @@ begin
            Free;
         End;
 
+end;
+
+procedure TControlPanel.Taps1Click(Sender: TObject);
+begin
+      If ActiveCircuit <> Nil Then
+      ActiveScriptForm.ExecuteDSSCommand('Show Taps ');
 end;
 
 procedure TControlPanel.EditActive1Click(Sender: TObject);

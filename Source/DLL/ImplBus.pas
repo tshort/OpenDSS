@@ -44,6 +44,8 @@ type
     function Get_N_interrupts: Double; safecall;
     function Get_puVLL: OleVariant; safecall;
     function Get_VLL: OleVariant; safecall;
+    function Get_puVmagAngle: OleVariant; safecall;
+    function Get_VMagAngle: OleVariant; safecall;
   end;
 
 implementation
@@ -725,6 +727,93 @@ Begin
           Result := VarArrayCreate([0, 1], varDouble);  // just return -1's in array
           Result[0] := -99999.0;
           Result[1] := 0.0;
+      End;
+  End
+  ELSE Result := VarArrayCreate([0, 0], varDouble);  // just return null array
+
+end;
+
+function TBus.Get_puVmagAngle: OleVariant;
+// Return mag/angle for all nodes of voltages for Active Bus
+
+VAR
+  Nvalues,i,  iV, NodeIdx, jj : Integer;
+  Volts : polar;
+  pBus : TDSSBus;
+  Basefactor : Double;
+
+Begin
+
+   IF ActiveCircuit = nil Then Begin
+        Result := VarArrayCreate([0, 0], varDouble)
+   End
+   ELSE With ActiveCircuit Do
+   IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
+   Begin
+      pBus    := Buses^[ActiveBusIndex];
+      Nvalues := pBus.NumNodesThisBus;
+      Result  := VarArrayCreate( [0, 2*NValues -1], varDouble);
+      iV := 0;
+      jj := 1;
+      WITH pBus DO Begin
+          If kVBase>0.0 Then BaseFactor := 1000.0 * kVBase
+                        Else BaseFactor := 1.0;
+
+          FOR i := 1 to  NValues DO
+          Begin
+                // this code so nodes come out in order from smallest to larges
+                Repeat
+                      NodeIdx := FindIdx(jj);  // Get the index of the Node that matches jj
+                      inc(jj)
+                Until NodeIdx>0;
+
+                Volts      := ctopolardeg(Solution.NodeV^[GetRef(NodeIdx)]);  // referenced to pBus
+                Result[iV] := Volts.mag / BaseFactor;
+                Inc(iV);
+                Result[iV] := Volts.ang;
+                Inc(iV);
+          End;
+      End;
+  End
+  ELSE Result := VarArrayCreate([0, 0], varDouble);  // just return null array
+
+end;
+
+function TBus.Get_VMagAngle: OleVariant;
+// Return mag/angle for all nodes of voltages for Active Bus
+
+VAR
+  Nvalues,i,  iV, NodeIdx, jj : Integer;
+  Volts : polar;
+  pBus : TDSSBus;
+
+Begin
+
+   IF ActiveCircuit = nil Then Begin
+        Result := VarArrayCreate([0, 0], varDouble)
+   End
+   ELSE With ActiveCircuit Do
+   IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
+   Begin
+      pBus    := Buses^[ActiveBusIndex];
+      Nvalues := pBus.NumNodesThisBus;
+      Result  := VarArrayCreate( [0, 2*NValues -1], varDouble);
+      iV := 0;
+      jj := 1;
+      WITH pBus DO
+      FOR i := 1 to  NValues DO
+      Begin
+            // this code so nodes come out in order from smallest to larges
+            Repeat
+                 NodeIdx := FindIdx(jj);  // Get the index of the Node that matches jj
+                 inc(jj)
+            Until NodeIdx>0;
+
+            Volts      := ctopolardeg(Solution.NodeV^[GetRef(NodeIdx)]);  // referenced to pBus
+            Result[iV] := Volts.mag;
+            Inc(iV);
+            Result[iV] := Volts.ang;
+            Inc(iV);
       End;
   End
   ELSE Result := VarArrayCreate([0, 0], varDouble);  // just return null array

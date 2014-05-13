@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 4/28/2014 11:49:11 AM from Type Library described below.
+// File generated on 5/12/2014 4:23:08 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -119,6 +119,8 @@ const
   CLASS_CmathLib: TGUID = '{76847D49-B650-4850-9486-E08B48F87E39}';
   IID_IParser: TGUID = '{9714FED4-9D39-4692-B76B-9A18F206A934}';
   CLASS_Parser: TGUID = '{2245AD88-CB0E-4426-9DF2-5B2F89B2A08D}';
+  IID_ILoadShapes: TGUID = '{196861FB-38C6-4FB4-B8A5-B2DDA3DDA663}';
+  CLASS_LoadShapes: TGUID = '{4FCBE090-AA15-4E31-A8C7-E5F42D41C90C}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -306,6 +308,8 @@ type
   ICmathLibDisp = dispinterface;
   IParser = interface;
   IParserDisp = dispinterface;
+  ILoadShapes = interface;
+  ILoadShapesDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -344,6 +348,7 @@ type
   Relays = IRelays;
   CmathLib = ICmathLib;
   Parser = IParser;
+  LoadShapes = ILoadShapes;
 
 
 // *********************************************************************//
@@ -453,6 +458,8 @@ type
     function Get_NumControls: Integer; safecall;
     function Get_OCPDevIndex: Integer; safecall;
     function Get_OCPDevType: Integer; safecall;
+    function Get_CurrentsMagAng: OleVariant; safecall;
+    function Get_VoltagesMagAng: OleVariant; safecall;
     property Name: WideString read Get_Name;
     property NumTerminals: Integer read Get_NumTerminals;
     property NumConductors: Integer read Get_NumConductors;
@@ -492,6 +499,8 @@ type
     property NumControls: Integer read Get_NumControls;
     property OCPDevIndex: Integer read Get_OCPDevIndex;
     property OCPDevType: Integer read Get_OCPDevType;
+    property CurrentsMagAng: OleVariant read Get_CurrentsMagAng;
+    property VoltagesMagAng: OleVariant read Get_VoltagesMagAng;
   end;
 
 // *********************************************************************//
@@ -543,6 +552,8 @@ type
     property NumControls: Integer readonly dispid 216;
     property OCPDevIndex: Integer readonly dispid 217;
     property OCPDevType: Integer readonly dispid 218;
+    property CurrentsMagAng: OleVariant readonly dispid 219;
+    property VoltagesMagAng: OleVariant readonly dispid 220;
   end;
 
 // *********************************************************************//
@@ -641,6 +652,7 @@ type
     function Get_PDElements: IPDElements; safecall;
     function Get_Reclosers: IReclosers; safecall;
     function Get_Relays: IRelays; safecall;
+    function Get_LoadShapes: ILoadShapes; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -690,6 +702,7 @@ type
     property PDElements: IPDElements read Get_PDElements;
     property Reclosers: IReclosers read Get_Reclosers;
     property Relays: IRelays read Get_Relays;
+    property LoadShapes: ILoadShapes read Get_LoadShapes;
   end;
 
 // *********************************************************************//
@@ -764,6 +777,7 @@ type
     property PDElements: IPDElements readonly dispid 225;
     property Reclosers: IReclosers readonly dispid 226;
     property Relays: IRelays readonly dispid 227;
+    property LoadShapes: ILoadShapes readonly dispid 228;
   end;
 
 // *********************************************************************//
@@ -803,6 +817,8 @@ type
     function Get_N_Customers: Integer; safecall;
     function Get_VLL: OleVariant; safecall;
     function Get_puVLL: OleVariant; safecall;
+    function Get_VMagAngle: OleVariant; safecall;
+    function Get_puVmagAngle: OleVariant; safecall;
     property Name: WideString read Get_Name;
     property NumNodes: Integer read Get_NumNodes;
     property Voltages: OleVariant read Get_Voltages;
@@ -829,6 +845,8 @@ type
     property N_Customers: Integer read Get_N_Customers;
     property VLL: OleVariant read Get_VLL;
     property puVLL: OleVariant read Get_puVLL;
+    property VMagAngle: OleVariant read Get_VMagAngle;
+    property puVmagAngle: OleVariant read Get_puVmagAngle;
   end;
 
 // *********************************************************************//
@@ -866,6 +884,8 @@ type
     property N_Customers: Integer readonly dispid 212;
     property VLL: OleVariant readonly dispid 213;
     property puVLL: OleVariant readonly dispid 214;
+    property VMagAngle: OleVariant readonly dispid 215;
+    property puVmagAngle: OleVariant readonly dispid 216;
   end;
 
 // *********************************************************************//
@@ -2938,6 +2958,84 @@ type
   end;
 
 // *********************************************************************//
+// Interface: ILoadShapes
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {196861FB-38C6-4FB4-B8A5-B2DDA3DDA663}
+// *********************************************************************//
+  ILoadShapes = interface(IDispatch)
+    ['{196861FB-38C6-4FB4-B8A5-B2DDA3DDA663}']
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_AllNames: OleVariant; safecall;
+    function Get_Npts: Integer; safecall;
+    procedure Set_Npts(Value: Integer); safecall;
+    function Get_Pmult: OleVariant; safecall;
+    procedure Set_Pmult(Value: OleVariant); safecall;
+    function Get_Qmult: OleVariant; safecall;
+    procedure Set_Qmult(Value: OleVariant); safecall;
+    procedure Normalize; safecall;
+    function Get_TimeArray: OleVariant; safecall;
+    procedure Set_TimeArray(Value: OleVariant); safecall;
+    function Get_HrInterval: Double; safecall;
+    procedure Set_HrInterval(Value: Double); safecall;
+    function Get_MinInterval: Double; safecall;
+    procedure Set_MinInterval(Value: Double); safecall;
+    function New(const Name: WideString): Integer; stdcall;
+    function Get_Pbase: Double; safecall;
+    procedure Set_Pbase(Value: Double); safecall;
+    function Get_Qbase: Double; safecall;
+    procedure Set_Qbase(Value: Double); safecall;
+    function Get_UseActual: WordBool; safecall;
+    procedure Set_UseActual(Value: WordBool); safecall;
+    function Get_Sinterval: Double; safecall;
+    procedure Set_Sinterval(Value: Double); safecall;
+    property Name: WideString read Get_Name write Set_Name;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property AllNames: OleVariant read Get_AllNames;
+    property Npts: Integer read Get_Npts write Set_Npts;
+    property Pmult: OleVariant read Get_Pmult write Set_Pmult;
+    property Qmult: OleVariant read Get_Qmult write Set_Qmult;
+    property TimeArray: OleVariant read Get_TimeArray write Set_TimeArray;
+    property HrInterval: Double read Get_HrInterval write Set_HrInterval;
+    property MinInterval: Double read Get_MinInterval write Set_MinInterval;
+    property Pbase: Double read Get_Pbase write Set_Pbase;
+    property Qbase: Double read Get_Qbase write Set_Qbase;
+    property UseActual: WordBool read Get_UseActual write Set_UseActual;
+    property Sinterval: Double read Get_Sinterval write Set_Sinterval;
+  end;
+
+// *********************************************************************//
+// DispIntf:  ILoadShapesDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {196861FB-38C6-4FB4-B8A5-B2DDA3DDA663}
+// *********************************************************************//
+  ILoadShapesDisp = dispinterface
+    ['{196861FB-38C6-4FB4-B8A5-B2DDA3DDA663}']
+    property Name: WideString dispid 201;
+    property Count: Integer readonly dispid 202;
+    property First: Integer readonly dispid 203;
+    property Next: Integer readonly dispid 204;
+    property AllNames: OleVariant readonly dispid 205;
+    property Npts: Integer dispid 206;
+    property Pmult: OleVariant dispid 207;
+    property Qmult: OleVariant dispid 208;
+    procedure Normalize; dispid 209;
+    property TimeArray: OleVariant dispid 210;
+    property HrInterval: Double dispid 211;
+    property MinInterval: Double dispid 212;
+    function New(const Name: WideString): Integer; dispid 214;
+    property Pbase: Double dispid 215;
+    property Qbase: Double dispid 216;
+    property UseActual: WordBool dispid 217;
+    property Sinterval: Double dispid 213;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -3333,6 +3431,18 @@ type
     class function CreateRemote(const MachineName: string): IParser;
   end;
 
+// *********************************************************************//
+// The Class CoLoadShapes provides a Create and CreateRemote method to
+// create instances of the default interface ILoadShapes exposed by
+// the CoClass LoadShapes. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoLoadShapes = class
+    class function Create: ILoadShapes;
+    class function CreateRemote(const MachineName: string): ILoadShapes;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -3665,6 +3775,16 @@ end;
 class function CoParser.CreateRemote(const MachineName: string): IParser;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_Parser) as IParser;
+end;
+
+class function CoLoadShapes.Create: ILoadShapes;
+begin
+  Result := CreateComObject(CLASS_LoadShapes) as ILoadShapes;
+end;
+
+class function CoLoadShapes.CreateRemote(const MachineName: string): ILoadShapes;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_LoadShapes) as ILoadShapes;
 end;
 
 end.

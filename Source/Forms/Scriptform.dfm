@@ -2,8 +2,8 @@ object MainEditForm: TMainEditForm
   Left = 266
   Top = 205
   Caption = 'Main Script Window'
-  ClientHeight = 374
-  ClientWidth = 585
+  ClientHeight = 365
+  ClientWidth = 570
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -23,8 +23,8 @@ object MainEditForm: TMainEditForm
   object Editor: TRichEdit
     Left = 0
     Top = 27
-    Width = 585
-    Height = 347
+    Width = 570
+    Height = 338
     Align = alClient
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
@@ -41,14 +41,17 @@ object MainEditForm: TMainEditForm
     OnChange = EditorChange
     OnKeyDown = EditorKeyDown
     OnSelectionChange = EditorSelectionChange
+    ExplicitWidth = 585
+    ExplicitHeight = 347
   end
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 585
+    Width = 570
     Height = 27
     Caption = 'ToolBar1'
     TabOrder = 1
+    ExplicitWidth = 585
     object FontBtn: TButton
       Left = 0
       Top = 0

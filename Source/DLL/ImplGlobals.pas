@@ -47,6 +47,7 @@ Uses
        ImplRelays,
        ImplCmathLib,
        ImplParser,
+       ImplLoadShapes,
        DSSClass,
        DSSClassDefs,
        OpenDSSengine_TLB;
@@ -87,6 +88,7 @@ Var
    FRelays      :IRelays;
    FCmathLib    :ICmathLib;
    FParser      :IParser;
+   FLoadShapes  :ILoadShapes;
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
 
@@ -161,6 +163,7 @@ Begin
      FRelays      := TRelays.Create;
      FCmathLib    := TCmathLib.Create;
      FParser      := TParser.Create;
+     FLoadShapes  := TLoadShapes.Create;
      FPropIndex := 0;
      FPropClass := Nil;
 

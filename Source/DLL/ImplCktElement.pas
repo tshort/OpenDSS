@@ -67,6 +67,8 @@ type
     function Get_NumControls: Integer; safecall;
     function Get_OCPDevIndex: Integer; safecall;
     function Get_OCPDevType: Integer; safecall;
+    function Get_CurrentsMagAng: OleVariant; safecall;
+    function Get_VoltagesMagAng: OleVariant; safecall;
   end;
 
 implementation
@@ -1311,6 +1313,75 @@ begin
               inc(i);
          Until (i > pCktElement.ControlElementList.listSize) or (Result > 0);
      End;
+end;
+
+function TCktElement.Get_CurrentsMagAng: OleVariant;
+// return currents in magnitude, angle array
+VAR
+  cBuffer: pComplexArray;
+  CMagAng: polar;
+  NValues, iV ,i: Integer;
+
+Begin
+
+  If ActiveCircuit <> Nil Then
+     WITH ActiveCircuit.ActiveCktElement DO
+     Begin
+         NValues := NConds*NTerms;
+         Result := VarArrayCreate([0, 2*NValues-1], varDouble);
+         cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
+         GetCurrents(cBuffer);
+         iV :=0;
+         For i := 1 to  NValues DO
+         Begin
+            CMagAng := ctopolardeg(cBuffer^[i]); // convert to mag/angle
+            Result[iV] := CMagAng.mag ;
+            Inc(iV);
+            Result[iV] := CMagAng.ang ;
+            Inc(iV);
+         End;
+         Reallocmem(cBuffer,0);
+     End
+  Else
+     Result := VarArrayCreate([0, 0], varDouble);
+
+end;
+
+function TCktElement.Get_VoltagesMagAng: OleVariant;
+
+// Bus Voltages in magnitude, angle at all terminal
+
+VAR
+  numcond, i,n,iV:Integer;
+  Volts:Polar;
+
+Begin
+
+// Return voltages for all terminals
+
+     IF ActiveCircuit <> Nil THEN
+      WITH ActiveCircuit DO
+      Begin
+        If ActiveCktElement<>Nil THEN
+        WITH ActiveCktElement DO
+        Begin
+         numcond := NConds*Nterms;
+         Result := VarArrayCreate([0, 2*numcond-1], varDouble);
+         // k := (Terminal-1)*numcond;    // RCD 8-30-00 Changed
+         iV :=0;
+         FOR i := 1 to  numcond DO
+         Begin
+            n := ActiveCktElement.NodeRef^[i];
+            Volts := ctopolardeg(Solution.NodeV^[n]); // ok if =0
+            Result[iV] := Volts.mag;
+            Inc(iV);
+            Result[iV] := Volts.ang;
+            Inc(iV);
+         End;
+        End;
+      End
+    ELSE Result := VarArrayCreate([0, 0], varDouble);
+
 end;
 
 initialization

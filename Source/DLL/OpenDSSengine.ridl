@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 4/28/2014 11:49:21 AM (- $Rev: 12980 $, 169675205).
+// File generated on 5/12/2014 4:23:22 PM (- $Rev: 12980 $, 6377211).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -87,6 +87,8 @@ library OpenDSSengine
   coclass CmathLib;
   interface IParser;
   coclass Parser;
+  interface ILoadShapes;
+  coclass LoadShapes;
 
 
   [
@@ -426,6 +428,10 @@ library OpenDSSengine
     HRESULT _stdcall OCPDevIndex([out, retval] long* Value);
     [propget, id(0x000000DA), helpstring("0=None; 1=Fuse; 2=Recloser; 3=Relay;  Type of OCP controller device")]
     HRESULT _stdcall OCPDevType([out, retval] long* Value);
+    [propget, id(0x000000DB), helpstring("Currents in magnitude, angle format as a variant array of doubles.")]
+    HRESULT _stdcall CurrentsMagAng([out, retval] VARIANT* Value);
+    [propget, id(0x000000DC), helpstring("Voltages at each conductor in magnitude, angle form as variant array of doubles.")]
+    HRESULT _stdcall VoltagesMagAng([out, retval] VARIANT* Value);
   };
 
   [
@@ -584,6 +590,8 @@ library OpenDSSengine
     HRESULT _stdcall Reclosers([out, retval] IReclosers** Value);
     [propget, id(0x000000E3)]
     HRESULT _stdcall Relays([out, retval] IRelays** Value);
+    [propget, id(0x000000E4), helpstring("Interface to OpenDSS Load shapes currently defined.")]
+    HRESULT _stdcall LoadShapes([out, retval] ILoadShapes** Value);
   };
 
   [
@@ -656,6 +664,10 @@ library OpenDSSengine
     HRESULT _stdcall VLL([out, retval] VARIANT* Value);
     [propget, id(0x000000D6), helpstring("Returns Complex array of pu L-L voltages for 2- and 3-phase buses. Returns -1.0 for 1-phase bus. If more than 3 phases, returns only 3 phases.")]
     HRESULT _stdcall puVLL([out, retval] VARIANT* Value);
+    [propget, id(0x000000D7), helpstring("Variant Array of doubles containing voltages in Magnitude (VLN), angle (deg) ")]
+    HRESULT _stdcall VMagAngle([out, retval] VARIANT* Value);
+    [propget, id(0x000000D8), helpstring("Variant array of doubles containig voltage magnitude, angle pairs in per unit")]
+    HRESULT _stdcall puVmagAngle([out, retval] VARIANT* Value);
   };
 
   [
@@ -2348,6 +2360,72 @@ library OpenDSSengine
   };
 
   [
+    uuid(196861FB-38C6-4FB4-B8A5-B2DDA3DDA663),
+    helpstring("Dispatch interface for LoadShapes Object"),
+    dual,
+    oleautomation
+  ]
+  interface ILoadShapes: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Get the Name of the active Loadshape")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000C9), helpstring("Set the active Loadshape by name")]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000CA), helpstring("Number of Loadshape objects currently defined in Loadshape collection")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CB), helpstring("Set the first loadshape active and return integer index of the loadshape. Returns 0 if none.")]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CC), helpstring("Advance active Loadshape to the next on in the collection. Returns 0 if no more loadshapes.")]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CD), helpstring("Variant array of strings containing names of all Loadshape objects currently defined.")]
+    HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
+    [propget, id(0x000000CE), helpstring("Get Number of points in active Loadshape.")]
+    HRESULT _stdcall Npts([out, retval] long* Value);
+    [propput, id(0x000000CE), helpstring("Set number of points to allocate for active Loadshape.")]
+    HRESULT _stdcall Npts([in] long Value);
+    [propget, id(0x000000CF), helpstring("Variant array of Doubles for the P multiplier in the Loadshape.")]
+    HRESULT _stdcall Pmult([out, retval] VARIANT* Value);
+    [propput, id(0x000000CF), helpstring("Variant array of doubles containing the P array for the Loadshape.")]
+    HRESULT _stdcall Pmult([in] VARIANT Value);
+    [propget, id(0x000000D0), helpstring("Variant array of doubles containing the Q multipliers.")]
+    HRESULT _stdcall Qmult([out, retval] VARIANT* Value);
+    [propput, id(0x000000D0), helpstring("Variant array of doubles containing the Q multipliers.")]
+    HRESULT _stdcall Qmult([in] VARIANT Value);
+    [id(0x000000D1), helpstring("Normalize the P and Q curves based on either Pbase, Qbase or simply the peak value of the curve.")]
+    HRESULT _stdcall Normalize(void);
+    [propget, id(0x000000D2), helpstring("Time array in hours correscponding to P and Q multipliers when the Interval=0.")]
+    HRESULT _stdcall TimeArray([out, retval] VARIANT* Value);
+    [propput, id(0x000000D2), helpstring("Time array in hours correscponding to P and Q multipliers when the Interval=0.")]
+    HRESULT _stdcall TimeArray([in] VARIANT Value);
+    [propget, id(0x000000D3), helpstring("Fixed interval time value, hours")]
+    HRESULT _stdcall HrInterval([out, retval] double* Value);
+    [propput, id(0x000000D3), helpstring("Fixed interval time value, hours.")]
+    HRESULT _stdcall HrInterval([in] double Value);
+    [propget, id(0x000000D4), helpstring("Fixed Interval time value, in minutes")]
+    HRESULT _stdcall MinInterval([out, retval] double* Value);
+    [propput, id(0x000000D4), helpstring("Fixed Interval time value, in minutes")]
+    HRESULT _stdcall MinInterval([in] double Value);
+    [id(0x000000D6), helpstring("Make a new Loadshape")]
+    long _stdcall New([in] BSTR Name);
+    [propget, id(0x000000D7), helpstring("Base for normalizing P curve. If left at zero, the peak value is used.")]
+    HRESULT _stdcall Pbase([out, retval] double* Value);
+    [propput, id(0x000000D7), helpstring("Base for normalizing P curve. If left at zero, the peak value is used.")]
+    HRESULT _stdcall Pbase([in] double Value);
+    [propget, id(0x000000D8), helpstring("Base for normalizing Q curve. If left at zero, the peak value is used.")]
+    HRESULT _stdcall Qbase([out, retval] double* Value);
+    [propput, id(0x000000D8), helpstring("Base for normalizing Q curve. If left at zero, the peak value is used.")]
+    HRESULT _stdcall Qbase([in] double Value);
+    [propget, id(0x000000D9), helpstring("T/F flag to let Loads know to use the actual value in the curve rather than use the value as a multiplier.")]
+    HRESULT _stdcall UseActual([out, retval] VARIANT_BOOL* Value);
+    [propput, id(0x000000D9), helpstring("T/F flag to let Loads know to use the actual value in the curve rather than use the value as a multiplier.")]
+    HRESULT _stdcall UseActual([in] VARIANT_BOOL Value);
+    [propget, id(0x000000D5), helpstring("Fixed interval data time interval, seconds")]
+    HRESULT _stdcall Sinterval([out, retval] double* Value);
+    [propput, id(0x000000D5), helpstring("Fixed interval data time interval, seconds")]
+    HRESULT _stdcall Sinterval([in] double Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -2684,6 +2762,15 @@ library OpenDSSengine
   coclass Parser
   {
     [default] interface IParser;
+  };
+
+  [
+    uuid(4FCBE090-AA15-4E31-A8C7-E5F42D41C90C),
+    helpstring("LoadShapes Object")
+  ]
+  coclass LoadShapes
+  {
+    [default] interface ILoadShapes;
   };
 
 };
