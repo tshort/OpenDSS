@@ -86,6 +86,7 @@ type
     function Get_Reclosers: IReclosers; safecall;
     function Get_Relays: IRelays; safecall;
     function Get_LoadShapes: ILoadShapes; safecall;
+    function Get_Fuses: Fuses; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -1087,6 +1088,11 @@ end;
 function TCircuit.Get_LoadShapes: ILoadShapes;
 begin
     Result := FLoadShapes as ILoadShapes;     // Loadshapes interface
+end;
+
+function TCircuit.Get_Fuses: Fuses;
+begin
+
 end;
 
 initialization

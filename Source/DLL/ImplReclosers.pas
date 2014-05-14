@@ -39,6 +39,8 @@ type
     procedure Set_PhaseInst(Value: Double); safecall;
     procedure Close; safecall;
     procedure Open; safecall;
+    function Get_idx: Integer; safecall;
+    procedure Set_idx(Value: Integer); safecall;
 
   end;
 
@@ -359,6 +361,23 @@ var
 begin
   elem := RecloserClass.ElementList.Active  ;
   if elem <> nil then Set_parameter('Action', 'open');
+end;
+
+function TReclosers.Get_idx: Integer;
+begin
+    if ActiveCircuit <> Nil then
+       Result := RecloserClass.ElementList.ActiveIndex
+    else Result := 0;
+end;
+
+procedure TReclosers.Set_idx(Value: Integer);
+Var
+    pRecloser:TRecloserObj;
+begin
+    if ActiveCircuit <> Nil then   Begin
+        pRecloser := RecloserClass.Elementlist.Get(Value);
+        If pRecloser <> Nil Then ActiveCircuit.ActiveCktElement := pRecloser;
+    End;
 end;
 
 initialization

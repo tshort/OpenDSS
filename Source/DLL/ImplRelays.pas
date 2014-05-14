@@ -24,6 +24,8 @@ type
     procedure Set_SwitchedObj(const Value: WideString); safecall;
     function Get_SwitchedTerm: Integer; safecall;
     procedure Set_SwitchedTerm(Value: Integer); safecall;
+    function Get_idx: Integer; safecall;
+    procedure Set_idx(Value: Integer); safecall;
 
   end;
 
@@ -209,6 +211,23 @@ var
 begin
   elem := RelayClass.GetActiveObj ;
   if elem <> nil then Set_parameter('SwitchedTerm', IntToStr(Value));
+end;
+
+function TRelays.Get_idx: Integer;
+begin
+    if ActiveCircuit <> Nil then
+       Result := RelayClass.ElementList.ActiveIndex
+    else Result := 0;
+end;
+
+procedure TRelays.Set_idx(Value: Integer);
+Var
+    pRelay:TRelayObj;
+begin
+    if ActiveCircuit <> Nil then   Begin
+        pRelay := Relayclass.Elementlist.Get(Value);
+        If pRelay <> Nil Then ActiveCircuit.ActiveCktElement := pRelay;
+    End;
 end;
 
 initialization

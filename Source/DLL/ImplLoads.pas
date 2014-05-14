@@ -217,7 +217,6 @@ begin
         pLoad := ActiveCircuit.Loads.Get(Value);
         If pLoad <> Nil Then ActiveCircuit.ActiveCktElement := pLoad;
     End;
-
 end;
 
 procedure TLoads.Set_Name(const Value: WideString);
@@ -325,7 +324,7 @@ begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).kvarBase := Value;
                   TLoadObj(Active).LoadSpecType := 1;
-                  TLoadObj(Active).RecalcElementData ;
+                  TLoadObj(Active).RecalcElementData ;  // set power factor based on kW, kvar
              End;
          End;
    End;
@@ -338,7 +337,7 @@ begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).kWBase := Value;
                   TLoadObj(Active).LoadSpecType := 0;
-                  TLoadObj(Active).RecalcElementData ;
+                  TLoadObj(Active).RecalcElementData ; // sets kvar based on kW and pF
              End;
          End;
    End;
@@ -351,7 +350,7 @@ begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).PFNominal := Value;
                   TLoadObj(Active).LoadSpecType := 0;
-                  TLoadObj(Active).RecalcElementData ;
+                  TLoadObj(Active).RecalcElementData ; //  sets kvar based on kW and pF
              End;
          End;
    End;

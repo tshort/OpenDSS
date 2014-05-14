@@ -51,13 +51,7 @@ TYPE
    TFuseObj = class(TControlElem)
      private
 
-            FuseCurve :TTCC_CurveObj;
-
-            RatedCurrent : Double;
-
-            DelayTime  :Double;
-
-            MonitoredElement	     :TDSSCktElement;
+             MonitoredElement	     :TDSSCktElement;
 
             hAction         :Array[1..FUSEMAXDIM] of Integer;         // handle to control queue actions
             PresentState    :Array[1..FUSEMAXDIM] of EControlAction;  // 0 = open 1 = close
@@ -69,6 +63,10 @@ TYPE
             PROCEDURE InterpretFuseAction(const Action:String);
 
      public
+
+            FuseCurve : TTCC_CurveObj;
+            RatedCurrent : Double;
+            DelayTime  : Double;
 
             MonitoredElementName     :String;
             MonitoredElementTerminal :Integer;
@@ -96,6 +94,7 @@ TYPE
 
 VAR
     ActiveFuseObj:TFuseObj;
+    FuseClass : TFuse;
 
 {--------------------------------------------------------------------------}
 IMPLEMENTATION
@@ -139,6 +138,7 @@ Begin
      CommandList.Abbrev := TRUE;
 
      TCC_CurveClass := GetDSSClassPtr('TCC_Curve');
+     FuseClass := Self;
 End;
 
 {--------------------------------------------------------------------------}
@@ -603,8 +603,6 @@ Begin
           ControlledElement.ActiveTerminalIdx  := ElementTerminal;  // Set active terminal
           ControlledElement.Closed[0] := TRUE;             // Close all phases of active terminal
       End;
-
-
 end;
 
 procedure TFuseObj.InitPropertyValues(ArrayOffset: Integer);

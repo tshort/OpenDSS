@@ -48,6 +48,7 @@ Uses
        ImplCmathLib,
        ImplParser,
        ImplLoadShapes,
+       ImplFuses,
        DSSClass,
        DSSClassDefs,
        OpenDSSengine_TLB;
@@ -89,6 +90,9 @@ Var
    FCmathLib    :ICmathLib;
    FParser      :IParser;
    FLoadShapes  :ILoadShapes;
+   FFuses       :IFuses;
+
+
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
 
@@ -164,6 +168,8 @@ Begin
      FCmathLib    := TCmathLib.Create;
      FParser      := TParser.Create;
      FLoadShapes  := TLoadShapes.Create;
+     FFuses       := TFuses.Create;
+
      FPropIndex := 0;
      FPropClass := Nil;
 

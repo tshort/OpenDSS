@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 5/12/2014 4:23:08 PM from Type Library described below.
+// File generated on 5/13/2014 10:10:18 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -121,6 +121,8 @@ const
   CLASS_Parser: TGUID = '{2245AD88-CB0E-4426-9DF2-5B2F89B2A08D}';
   IID_ILoadShapes: TGUID = '{196861FB-38C6-4FB4-B8A5-B2DDA3DDA663}';
   CLASS_LoadShapes: TGUID = '{4FCBE090-AA15-4E31-A8C7-E5F42D41C90C}';
+  IID_IFuses: TGUID = '{AABE4DA8-3D5A-447F-AFFB-78946BA68DA5}';
+  CLASS_Fuses: TGUID = '{ABED90F5-3908-408A-87EF-D0582FD2FFD5}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -310,6 +312,8 @@ type
   IParserDisp = dispinterface;
   ILoadShapes = interface;
   ILoadShapesDisp = dispinterface;
+  IFuses = interface;
+  IFusesDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -349,6 +353,7 @@ type
   CmathLib = ICmathLib;
   Parser = IParser;
   LoadShapes = ILoadShapes;
+  Fuses = IFuses;
 
 
 // *********************************************************************//
@@ -653,6 +658,7 @@ type
     function Get_Reclosers: IReclosers; safecall;
     function Get_Relays: IRelays; safecall;
     function Get_LoadShapes: ILoadShapes; safecall;
+    function Get_Fuses: Fuses; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -703,6 +709,7 @@ type
     property Reclosers: IReclosers read Get_Reclosers;
     property Relays: IRelays read Get_Relays;
     property LoadShapes: ILoadShapes read Get_LoadShapes;
+    property Fuses: Fuses read Get_Fuses;
   end;
 
 // *********************************************************************//
@@ -778,6 +785,7 @@ type
     property Reclosers: IReclosers readonly dispid 226;
     property Relays: IRelays readonly dispid 227;
     property LoadShapes: ILoadShapes readonly dispid 228;
+    property Fuses: Fuses readonly dispid 229;
   end;
 
 // *********************************************************************//
@@ -1379,6 +1387,8 @@ type
     function Get_Phases: Integer; safecall;
     procedure Set_Phases(Value: Integer); safecall;
     function Get_Count: Integer; safecall;
+    function Get_idx: Integer; safecall;
+    procedure Set_idx(Value: Integer); safecall;
     property AllNames: OleVariant read Get_AllNames;
     property RegisterNames: OleVariant read Get_RegisterNames;
     property RegisterValues: OleVariant read Get_RegisterValues;
@@ -1392,6 +1402,7 @@ type
     property PF: Double read Get_PF write Set_PF;
     property Phases: Integer read Get_Phases write Set_Phases;
     property Count: Integer read Get_Count;
+    property idx: Integer read Get_idx write Set_idx;
   end;
 
 // *********************************************************************//
@@ -1414,6 +1425,7 @@ type
     property PF: Double dispid 204;
     property Phases: Integer dispid 205;
     property Count: Integer readonly dispid 206;
+    property idx: Integer dispid 207;
   end;
 
 // *********************************************************************//
@@ -2758,6 +2770,8 @@ type
     procedure Set_GroundInst(Value: Double); safecall;
     procedure Open; safecall;
     procedure Close; safecall;
+    function Get_idx: Integer; safecall;
+    procedure Set_idx(Value: Integer); safecall;
     property AllNames: OleVariant read Get_AllNames;
     property Count: Integer read Get_Count;
     property First: Integer read Get_First;
@@ -2774,6 +2788,7 @@ type
     property PhaseInst: Double read Get_PhaseInst write Set_PhaseInst;
     property GroundTrip: Double read Get_GroundTrip write Set_GroundTrip;
     property GroundInst: Double read Get_GroundInst write Set_GroundInst;
+    property idx: Integer read Get_idx write Set_idx;
   end;
 
 // *********************************************************************//
@@ -2801,6 +2816,7 @@ type
     property GroundInst: Double dispid 216;
     procedure Open; dispid 217;
     procedure Close; dispid 218;
+    property idx: Integer dispid 219;
   end;
 
 // *********************************************************************//
@@ -2824,6 +2840,8 @@ type
     procedure Set_SwitchedObj(const Value: WideString); safecall;
     function Get_SwitchedTerm: Integer; safecall;
     procedure Set_SwitchedTerm(Value: Integer); safecall;
+    function Get_idx: Integer; safecall;
+    procedure Set_idx(Value: Integer); safecall;
     property AllNames: OleVariant read Get_AllNames;
     property Count: Integer read Get_Count;
     property First: Integer read Get_First;
@@ -2833,6 +2851,7 @@ type
     property MonitoredTerm: Integer read Get_MonitoredTerm write Set_MonitoredTerm;
     property SwitchedObj: WideString read Get_SwitchedObj write Set_SwitchedObj;
     property SwitchedTerm: Integer read Get_SwitchedTerm write Set_SwitchedTerm;
+    property idx: Integer read Get_idx write Set_idx;
   end;
 
 // *********************************************************************//
@@ -2851,6 +2870,7 @@ type
     property MonitoredTerm: Integer dispid 207;
     property SwitchedObj: WideString dispid 208;
     property SwitchedTerm: Integer dispid 209;
+    property idx: Integer dispid 210;
   end;
 
 // *********************************************************************//
@@ -3033,6 +3053,81 @@ type
     property Qbase: Double dispid 216;
     property UseActual: WordBool dispid 217;
     property Sinterval: Double dispid 213;
+  end;
+
+// *********************************************************************//
+// Interface: IFuses
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {AABE4DA8-3D5A-447F-AFFB-78946BA68DA5}
+// *********************************************************************//
+  IFuses = interface(IDispatch)
+    ['{AABE4DA8-3D5A-447F-AFFB-78946BA68DA5}']
+    function Get_AllNames: OleVariant; safecall;
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_MonitoredObj: WideString; safecall;
+    procedure Set_MonitoredObj(const Value: WideString); safecall;
+    function Get_MonitoredTerm: Integer; safecall;
+    procedure Set_MonitoredTerm(Value: Integer); safecall;
+    function Get_SwitchedObj: WideString; safecall;
+    procedure Set_SwitchedObj(const Value: WideString); safecall;
+    function Get_SwitchedTerm: Integer; safecall;
+    procedure Set_SwitchedTerm(Value: Integer); safecall;
+    function Get_TCCcurve: WideString; safecall;
+    procedure Set_TCCcurve(const Value: WideString); safecall;
+    function Get_RatedCurrent: Double; safecall;
+    procedure Set_RatedCurrent(Value: Double); safecall;
+    function Get_Delay: Double; safecall;
+    procedure Set_Delay(Value: Double); safecall;
+    procedure Open; safecall;
+    procedure Close; safecall;
+    function IsBlown: WordBool; stdcall;
+    function Get_idx: Integer; safecall;
+    procedure Set_idx(Value: Integer); safecall;
+    function Get_NumPhases: Integer; safecall;
+    property AllNames: OleVariant read Get_AllNames;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property Name: WideString read Get_Name write Set_Name;
+    property MonitoredObj: WideString read Get_MonitoredObj write Set_MonitoredObj;
+    property MonitoredTerm: Integer read Get_MonitoredTerm write Set_MonitoredTerm;
+    property SwitchedObj: WideString read Get_SwitchedObj write Set_SwitchedObj;
+    property SwitchedTerm: Integer read Get_SwitchedTerm write Set_SwitchedTerm;
+    property TCCcurve: WideString read Get_TCCcurve write Set_TCCcurve;
+    property RatedCurrent: Double read Get_RatedCurrent write Set_RatedCurrent;
+    property Delay: Double read Get_Delay write Set_Delay;
+    property idx: Integer read Get_idx write Set_idx;
+    property NumPhases: Integer read Get_NumPhases;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IFusesDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {AABE4DA8-3D5A-447F-AFFB-78946BA68DA5}
+// *********************************************************************//
+  IFusesDisp = dispinterface
+    ['{AABE4DA8-3D5A-447F-AFFB-78946BA68DA5}']
+    property AllNames: OleVariant readonly dispid 201;
+    property Count: Integer readonly dispid 202;
+    property First: Integer readonly dispid 203;
+    property Next: Integer readonly dispid 204;
+    property Name: WideString dispid 205;
+    property MonitoredObj: WideString dispid 206;
+    property MonitoredTerm: Integer dispid 207;
+    property SwitchedObj: WideString dispid 208;
+    property SwitchedTerm: Integer dispid 209;
+    property TCCcurve: WideString dispid 210;
+    property RatedCurrent: Double dispid 211;
+    property Delay: Double dispid 212;
+    procedure Open; dispid 213;
+    procedure Close; dispid 214;
+    function IsBlown: WordBool; dispid 215;
+    property idx: Integer dispid 216;
+    property NumPhases: Integer readonly dispid 217;
   end;
 
 // *********************************************************************//
@@ -3443,6 +3538,18 @@ type
     class function CreateRemote(const MachineName: string): ILoadShapes;
   end;
 
+// *********************************************************************//
+// The Class CoFuses provides a Create and CreateRemote method to
+// create instances of the default interface IFuses exposed by
+// the CoClass Fuses. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoFuses = class
+    class function Create: IFuses;
+    class function CreateRemote(const MachineName: string): IFuses;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -3785,6 +3892,16 @@ end;
 class function CoLoadShapes.CreateRemote(const MachineName: string): ILoadShapes;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_LoadShapes) as ILoadShapes;
+end;
+
+class function CoFuses.Create: IFuses;
+begin
+  Result := CreateComObject(CLASS_Fuses) as IFuses;
+end;
+
+class function CoFuses.CreateRemote(const MachineName: string): IFuses;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_Fuses) as IFuses;
 end;
 
 end.

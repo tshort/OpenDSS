@@ -38,6 +38,8 @@ type
     procedure Set_PF(Value: Double); safecall;
     procedure Set_Phases(Value: Integer); safecall;
     function Get_Count: Integer; safecall;
+    function Get_idx: Integer; safecall;
+    procedure Set_idx(Value: Integer); safecall;
     { Protected declarations }
   end;
 
@@ -387,6 +389,24 @@ function TGenerators.Get_Count: Integer;
 begin
     If Assigned(Activecircuit) Then
           Result := ActiveCircuit.Generators.ListSize;
+end;
+
+function TGenerators.Get_idx: Integer;
+begin
+    if ActiveCircuit <> Nil then
+       Result := ActiveCircuit.Generators.ActiveIndex
+    else Result := 0;
+end;
+
+procedure TGenerators.Set_idx(Value: Integer);
+Var
+    pGen:TGeneratorObj;
+begin
+    if ActiveCircuit <> Nil then   Begin
+        pGen := ActiveCircuit.Generators.Get(Value);
+        If pGen <> Nil Then ActiveCircuit.ActiveCktElement := pGen;
+    End;
+
 end;
 
 initialization

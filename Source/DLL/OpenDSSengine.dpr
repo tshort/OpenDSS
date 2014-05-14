@@ -197,7 +197,8 @@ uses
   ImplRelays in 'ImplRelays.pas' {Relays: CoClass},
   ImplCmathLib in 'ImplCmathLib.pas' {CmathLib: CoClass},
   ImplParser in 'ImplParser.pas' {Parser: CoClass},
-  ImplLoadShapes in 'ImplLoadShapes.pas' {LoadShapes: CoClass};
+  ImplLoadShapes in 'ImplLoadShapes.pas' {LoadShapes: CoClass},
+  ImplFuses in 'ImplFuses.pas' {Fuses: CoClass};
 
 exports
   DllGetClassObject,

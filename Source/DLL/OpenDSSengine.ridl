@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 5/12/2014 4:23:22 PM (- $Rev: 12980 $, 6377211).
+// File generated on 5/13/2014 10:10:21 PM (- $Rev: 12980 $, 8701158).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -89,6 +89,8 @@ library OpenDSSengine
   coclass Parser;
   interface ILoadShapes;
   coclass LoadShapes;
+  interface IFuses;
+  coclass Fuses;
 
 
   [
@@ -592,6 +594,8 @@ library OpenDSSengine
     HRESULT _stdcall Relays([out, retval] IRelays** Value);
     [propget, id(0x000000E4), helpstring("Interface to OpenDSS Load shapes currently defined.")]
     HRESULT _stdcall LoadShapes([out, retval] ILoadShapes** Value);
+    [propget, id(0x000000E5), helpstring("Return interface to Fuses ")]
+    HRESULT _stdcall Fuses([out, retval] Fuses** Value);
   };
 
   [
@@ -1085,17 +1089,17 @@ library OpenDSSengine
     HRESULT _stdcall kV([out, retval] double* Value);
     [propput, id(0x000000C9), helpstring("Voltage base for the active generator, kV\0ON regardles of other dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall kV([in] double Value);
-    [propget, id(0x000000CA), helpstring("kW output for the active generator\0or, kV\0ON regardles of other dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x000000CA), helpstring("kW output for the active generator. kvar is updated for current power factor.")]
     HRESULT _stdcall kW([out, retval] double* Value);
-    [propput, id(0x000000CA), helpstring("kW output for the active generator\0or, kV\0ON regardles of other dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propput, id(0x000000CA), helpstring("kW output for the active generator. kvar is updated for current power factor")]
     HRESULT _stdcall kW([in] double Value);
-    [propget, id(0x000000CB), helpstring("kvar output for the active generator\0, kV\0ON regardles of other dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x000000CB), helpstring("kvar output for the active generator. Updates power factor based on present kW value.")]
     HRESULT _stdcall kvar([out, retval] double* Value);
-    [propput, id(0x000000CB), helpstring("kvar output for the active generator\0, kV\0ON regardles of other dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propput, id(0x000000CB), helpstring("kvar output for the active generator. Updates power factor based on present kW.")]
     HRESULT _stdcall kvar([in] double Value);
-    [propget, id(0x000000CC), helpstring("Power factor (pos. = producing vars)\0, kV\0ON regardles of other dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x000000CC), helpstring("Power factor (pos. = producing vars). Updates kvar based on present kW value.")]
     HRESULT _stdcall PF([out, retval] double* Value);
-    [propput, id(0x000000CC), helpstring("Power factor (pos. = producing vars)\0, kV\0ON regardles of other dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propput, id(0x000000CC), helpstring("Power factor (pos. = producing vars). Updates kvar based on present kW value.")]
     HRESULT _stdcall PF([in] double Value);
     [propget, id(0x000000CD), helpstring("Number of phases\0. = producing vars)\0, kV\0ON regardles of other dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Phases([out, retval] long* Value);
@@ -1103,6 +1107,10 @@ library OpenDSSengine
     HRESULT _stdcall Phases([in] long Value);
     [propget, id(0x000000CE), helpstring("Number of Generator Objects in Active Circuit\0egardles of other dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CF), helpstring("Get/Set active Generator by index into generators list.  1..Count")]
+    HRESULT _stdcall idx([out, retval] long* Value);
+    [propput, id(0x000000CF), helpstring("Get/Set active Generator by index into generators list. 1..Count")]
+    HRESULT _stdcall idx([in] long Value);
   };
 
   [
@@ -1378,25 +1386,25 @@ library OpenDSSengine
     HRESULT _stdcall Name([out, retval] BSTR* Value);
     [propput, id(0x000000CC), helpstring("Set active load by name.\0 be active; returns 0 of none else index of active load.\0r of actions remaining.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Name([in] BSTR Value);
-    [propget, id(0x000000CD), helpstring("Sets active load by index into load list.\0ns 0 of none else index of active load.\0r of actions remaining.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x000000CD), helpstring("Sets active load by index into load list. 1..Count")]
     HRESULT _stdcall Idx([out, retval] long* Value);
-    [propput, id(0x000000CD), helpstring("Sets active load by index into load list.\0ns 0 of none else index of active load.\0r of actions remaining.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propput, id(0x000000CD), helpstring("Sets active load by index into load list.  1..Count")]
     HRESULT _stdcall Idx([in] long Value);
-    [propget, id(0x000000CE), helpstring("Set kW for active Load\0ex into load list.\0ns 0 of none else index of active load.\0r of actions remaining.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x000000CE), helpstring("Set kW for active Load. Updates kvar based on present PF.")]
     HRESULT _stdcall kW([out, retval] double* Value);
-    [propput, id(0x000000CE), helpstring("Set kW for active Load\0ex into load list.\0ns 0 of none else index of active load.\0r of actions remaining.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propput, id(0x000000CE), helpstring("Set kW for active Load. Updates kvar based on present PF.")]
     HRESULT _stdcall kW([in] double Value);
     [propget, id(0x000000CF), helpstring("Set kV rating for active Load. For 2 or more phases set Line-Line kV. Else actual kV across terminals.\0g.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall kV([out, retval] double* Value);
     [propput, id(0x000000CF), helpstring("Set kV rating for active Load. For 2 or more phases set Line-Line kV. Else actual kV across terminals.\0g.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall kV([in] double Value);
-    [propget, id(0x000000D0), helpstring("Set kvar for active Load.\0oad. For 2 or more phases set Line-Line kV. Else actual kV across terminals.\0g.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x000000D0), helpstring("Set kvar for active Load. Updates PF based in present kW.")]
     HRESULT _stdcall kvar([out, retval] double* Value);
-    [propput, id(0x000000D0), helpstring("Set kvar for active Load.\0oad. For 2 or more phases set Line-Line kV. Else actual kV across terminals.\0g.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propput, id(0x000000D0), helpstring("Set kvar for active Load. Updates PF based on present kW.")]
     HRESULT _stdcall kvar([in] double Value);
-    [propget, id(0x000000D1), helpstring("Set Power Factor for Active Load. Specify leading PF as negative.\0kV. Else actual kV across terminals.\0g.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propget, id(0x000000D1), helpstring("Set Power Factor for Active Load. Specify leading PF as negative. Updates kvar based on kW value")]
     HRESULT _stdcall PF([out, retval] double* Value);
-    [propput, id(0x000000D1), helpstring("Set Power Factor for Active Load. Specify leading PF as negative.\0kV. Else actual kV across terminals.\0g.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [propput, id(0x000000D1), helpstring("Set Power Factor for Active Load. Specify leading PF as negative. Updates kvar based on present value of kW.")]
     HRESULT _stdcall PF([in] double Value);
     [propget, id(0x000000D2), helpstring("Number of Load objects in active circuit.\0leading PF as negative.\0kV. Else actual kV across terminals.\0g.\0eturns Control Queue handle.\0Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Count([out, retval] long* Value);
@@ -2245,6 +2253,10 @@ library OpenDSSengine
     HRESULT _stdcall Open(void);
     [id(0x000000DA), helpstring("Close the switched object controlled by the recloser. Resets recloser to first operation.")]
     HRESULT _stdcall Close(void);
+    [propget, id(0x000000DB), helpstring("Get/Set the active Recloser by index into the recloser list.  1..Count")]
+    HRESULT _stdcall idx([out, retval] long* Value);
+    [propput, id(0x000000DB), helpstring("Get/Set the Active Recloser by index into the recloser list. 1..Count")]
+    HRESULT _stdcall idx([in] long Value);
   };
 
   [
@@ -2283,6 +2295,10 @@ library OpenDSSengine
     HRESULT _stdcall SwitchedTerm([out, retval] long* Value);
     [propput, id(0x000000D1), helpstring("Terminal number of the switched object that will be opened when the relay trips.")]
     HRESULT _stdcall SwitchedTerm([in] long Value);
+    [propget, id(0x000000D2), helpstring("Get/Set active Relay by index into the Relay list. 1..Count")]
+    HRESULT _stdcall idx([out, retval] long* Value);
+    [propput, id(0x000000D2), helpstring("Get/Set Relay active by index into relay list. 1..Count")]
+    HRESULT _stdcall idx([in] long Value);
   };
 
   [
@@ -2423,6 +2439,68 @@ library OpenDSSengine
     HRESULT _stdcall Sinterval([out, retval] double* Value);
     [propput, id(0x000000D5), helpstring("Fixed interval data time interval, seconds")]
     HRESULT _stdcall Sinterval([in] double Value);
+  };
+
+  [
+    uuid(AABE4DA8-3D5A-447F-AFFB-78946BA68DA5),
+    helpstring("Dispatch interface for Fuses Object"),
+    dual,
+    oleautomation
+  ]
+  interface IFuses: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Variant array of strings containing names of all Fuses in the circuit")]
+    HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
+    [propget, id(0x000000CA), helpstring("Number of Fuse elements in the circuit")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CB), helpstring("Set the first Fuse to be the active fuse. Returns 0 if none.")]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CC), helpstring("Advance the active Fuse element pointer to the next fuse. Returns 0 if no more fuses.")]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CD), helpstring("Get the name of the active Fuse element")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000CD), helpstring("Set the active Fuse element by name.")]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000CE), helpstring("Full name of the circuit element to which the fuse is connected.")]
+    HRESULT _stdcall MonitoredObj([out, retval] BSTR* Value);
+    [propput, id(0x000000CE), helpstring("Full name of the circuit element to which the fuse is connected.")]
+    HRESULT _stdcall MonitoredObj([in] BSTR Value);
+    [propget, id(0x000000CF), helpstring("Terminal number to which the fuse is connected.")]
+    HRESULT _stdcall MonitoredTerm([out, retval] long* Value);
+    [propput, id(0x000000CF), helpstring("Number of the terminal to which the fuse is connected")]
+    HRESULT _stdcall MonitoredTerm([in] long Value);
+    [propget, id(0x000000D0), helpstring("Full name of the circuit element switch that the fuse controls. Defaults to the MonitoredObj.")]
+    HRESULT _stdcall SwitchedObj([out, retval] BSTR* Value);
+    [propput, id(0x000000D0), helpstring("Full name of the circuit element switch that the fuse controls. Defaults to MonitoredObj.")]
+    HRESULT _stdcall SwitchedObj([in] BSTR Value);
+    [propget, id(0x000000D1), helpstring("Number of the terminal containing the switch controlled by the fuse.")]
+    HRESULT _stdcall SwitchedTerm([out, retval] long* Value);
+    [propput, id(0x000000D1), helpstring("Number of the terminal of the controlled element containing the switch controlled by the fuse.")]
+    HRESULT _stdcall SwitchedTerm([in] long Value);
+    [propget, id(0x000000D2), helpstring("Name of the TCCcurve object that determines fuse blowing.")]
+    HRESULT _stdcall TCCcurve([out, retval] BSTR* Value);
+    [propput, id(0x000000D2), helpstring("Name of the TCCcurve object that determines fuse blowing.")]
+    HRESULT _stdcall TCCcurve([in] BSTR Value);
+    [propget, id(0x000000D3), helpstring("Multiplier or actual amps for the TCCcurve object. Defaults to 1.0.  Multipliy current values of TCC curve by this to get actual amps.")]
+    HRESULT _stdcall RatedCurrent([out, retval] double* Value);
+    [propput, id(0x000000D3), helpstring("Multiplier or actual fuse amps for the TCC curve. Defaults to 1.0. Has to correspond to the Current axis of TCCcurve object.")]
+    HRESULT _stdcall RatedCurrent([in] double Value);
+    [propget, id(0x000000D4), helpstring("A fixed delay time in seconds added to the fuse blowing time determined by the TCC curve. Default is 0.")]
+    HRESULT _stdcall Delay([out, retval] double* Value);
+    [propput, id(0x000000D4), helpstring("Fixed delay time in seconds added to the fuse blowing time to represent fuse clear or other delay.")]
+    HRESULT _stdcall Delay([in] double Value);
+    [id(0x000000D5), helpstring("Manual opening of fuse")]
+    HRESULT _stdcall Open(void);
+    [id(0x000000D6), helpstring("Close the fuse back in and reset.")]
+    HRESULT _stdcall Close(void);
+    [id(0x000000D7), helpstring("Current state of the fuses. TRUE if any fuse on any phase is blown. Else FALSE.")]
+    VARIANT_BOOL _stdcall IsBlown(void);
+    [propget, id(0x000000D8), helpstring("Get/set active fuse by index into the list of fuses. 1 based: 1..count")]
+    HRESULT _stdcall idx([out, retval] long* Value);
+    [propput, id(0x000000D8), helpstring("Set Fuse active by index into the list of fuses. 1..count")]
+    HRESULT _stdcall idx([in] long Value);
+    [propget, id(0x000000D9), helpstring("Number of phases, this fuse. ")]
+    HRESULT _stdcall NumPhases([out, retval] long* Value);
   };
 
   [
@@ -2771,6 +2849,15 @@ library OpenDSSengine
   coclass LoadShapes
   {
     [default] interface ILoadShapes;
+  };
+
+  [
+    uuid(ABED90F5-3908-408A-87EF-D0582FD2FFD5),
+    helpstring("Fuses Object")
+  ]
+  coclass Fuses
+  {
+    [default] interface IFuses;
   };
 
 };
