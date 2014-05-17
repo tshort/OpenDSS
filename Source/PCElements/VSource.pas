@@ -1167,7 +1167,7 @@ Begin
          ShapeFactor   := DailyShapeObj.GetMult(Hr);
          ShapeIsActual := DailyShapeObj.UseActual;
        End
-     ELSE ShapeFactor := CDOUBLEONE;  // Default to no daily variation
+     ELSE ShapeFactor := cmplx(PerUnit, 0.0); // CDOUBLEONE;  // Default to no daily variation
 End;
 
 
@@ -1192,8 +1192,7 @@ Begin
            ShapeFactor   := YearlyShapeObj.GetMult(Hr);
            ShapeIsActual := YearlyShapeObj.UseActual;
      End
-     ELSE ShapeFactor := CDOUBLEONE;
-                          // Defaults to no variation
+     ELSE ShapeFactor := cmplx(PerUnit, 0.0); // CDOUBLEONE;   // Defaults to no variation
 End;
 
 //=============================================================================
