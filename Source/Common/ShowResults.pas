@@ -2306,7 +2306,7 @@ Begin
 
         Write(F, Pad(FullName(PDelem), MaxDeviceNameLength+2));
         Write(F, Format('%10.5f, ', [kLosses.re]));
-        IF (TermPower.re > 0.0) and (kLosses.re>0.0009)
+        IF (TermPower.re <> 0.0) and (kLosses.re>0.0009)
           Then Write(F, (kLosses.re / Abs(TermPower.re)*100.0):8:2)
           ELSE Write(F, CZERO.RE:8:1);
         Write(F,Format('     %.6g', [kLosses.im]));
