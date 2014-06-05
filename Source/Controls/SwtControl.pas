@@ -99,7 +99,7 @@ Begin
                   '1 or 2, typically.  Default is 1.';
      PropertyHelp[3] := '{Open | Close}  simulates manual operation of the controlled switch to open or close, after a time delay. ' +
                   'Note: automatic operation requires use of the COM interface with an external control algorithm.';
-     PropertyHelp[4] := 'Controlled switch is locked in its present open / close state. ' +
+     PropertyHelp[4] := '{Yes | No} Controlled switch is locked in its present open / close state. ' +
                   'Switch will not respond to either manual (Action) or automatic (COM interface) control until this Lock is removed.';
      PropertyHelp[5] := 'Operating time delay (sec) of the switch. Defaults to 120.';
 
