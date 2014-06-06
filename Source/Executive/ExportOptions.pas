@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 39;
+        NumExportOptions = 40;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -63,6 +63,7 @@ Begin
       ExportOption[37] := 'BusReliability';
       ExportOption[38] := 'BranchReliability';
       ExportOption[39] := 'NodeNames';
+      ExportOption[40] := 'Taps';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -106,6 +107,7 @@ Begin
       ExportHelp[37] := '(Default file = EXP_BusReliability.CSV) Failure rate, number of interruptions and other reliability data at each bus.';
       ExportHelp[38] := '(Default file = EXP_BranchReliability.CSV) Failure rate, number of interruptions and other reliability data for each PD element.';
       ExportHelp[39] := '(Default file = EXP_NodeNames.CSV) Exports Single-column file of all node names in the active circuit. Useful for making scripts.';
+      ExportHelp[40] := '(Default file = EXP_Taps.CSV)  Exports the regulator tap report similar to Show Taps.';
 End;
 
 //----------------------------------------------------------------------------
@@ -236,6 +238,7 @@ Begin
          37: FileName := 'EXP_BusReliability.CSV';
          38: FileName := 'EXP_BranchReliability.CSV';
          39: FileName := 'EXP_NodeNames.CSV';
+         40: FileName := 'EXP_Taps.CSV';
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
        END;
@@ -287,6 +290,7 @@ Begin
      37: ExportBusReliability(FileName);
      38: ExportBranchReliability(FileName);
      39: ExportNodeNames(FileName);
+     40: ExportTaps(FileName);
    ELSE
          ExportVoltages(FileName);    // default
    END;
