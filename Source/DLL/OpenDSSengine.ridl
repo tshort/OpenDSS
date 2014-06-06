@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 5/13/2014 10:10:21 PM (- $Rev: 12980 $, 8701158).
+// File generated on 5/28/2014 12:05:02 PM (- $Rev: 12980 $, 9620207).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -100,19 +100,19 @@ library OpenDSSengine
   ]
   enum MonitorModes
   {
-    [helpstring("Monitor records Voltage and Current (Default)\0ress set to zero.\0dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [helpstring("Monitor records Voltage and Current at the terminal (Default)")]
     dssVI = 0,
-    [helpstring("Powers\0 records Voltage and Current (Default)\0ress set to zero.\0dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [helpstring("Monitor records kW, kvar or kVA, angle values, etc. at the terminal to which it is connected.")]
     dssPower = 1,
-    [helpstring("Reports sequence quantities\0Current (Default)\0ress set to zero.\0dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [helpstring("Reports the monitored quantities as sequence quantities")]
     dssSequence = 16,
-    [helpstring("Matnitude Only\0e quantities\0Current (Default)\0ress set to zero.\0dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [helpstring("Reports the monitored quantities in Magnitude Only")]
     dssMagnitude = 32,
-    [helpstring("Positive Seq only or avg of all phases\0fault)\0ress set to zero.\0dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [helpstring("Reports the Positive Seq only or avg of all phases")]
     dssPosOnly = 64,
-    [helpstring("Regulator and Transformer taps\0 phases\0fault)\0ress set to zero.\0dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [helpstring("For monitoring Regulator and Transformer taps")]
     dssTaps = 2,
-    [helpstring("State Variables (PC Elements only)\0ses\0fault)\0ress set to zero.\0dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
+    [helpstring("For monitoring State Variables (for PC Elements only)")]
     dssStates = 3
   };
 
