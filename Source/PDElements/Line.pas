@@ -574,7 +574,7 @@ Begin
                  {YPrimInvalid := True;}  // now set below
                  RecalcElementData;  // Reallocate Z, etc.
               End Else Begin
-                 DoSimpleMsg('Illegal change of number of phases for Line.'+Name, 181);
+                 DoSimpleMsg('Illegal change of number of phases for Line.'+Name, 18101);
               End;
           6..11, 26..27:
                  Begin
@@ -1493,7 +1493,7 @@ begin
     YPrimInvalid  := True;       // Force Rebuild of Y matrix
 
   end else
-    DoSimpleMsg ('Line Spacing object ' + Code + ' not found.', 181);
+    DoSimpleMsg ('Line Spacing object ' + Code + ' not found.(LINE.'+Name+')', 181011);
 end;
 
 procedure TLineObj.FetchWireList(const Code: string);
@@ -1501,7 +1501,7 @@ var
   i, istart: Integer;
 begin
   if not assigned (FLineSpacingObj) then
-    DoSimpleMsg ('Must assign the LineSpacing before wires.', 181);
+    DoSimpleMsg ('You must assign the LineSpacing before the Wires Property (LINE.'+name+').', 18102);
 
   if FPhaseChoice = Unknown then begin // it's an overhead line
     FLineCodeSpecified := False;
@@ -1520,7 +1520,7 @@ begin
     if Assigned(ActiveConductorDataObj) then
       FWireData^[i] := ActiveConductorDataObj
     else
-      DoSimpleMsg ('Wire ' + AuxParser.StrValue + ' was not defined first.', 181);
+      DoSimpleMsg ('Wire "' + AuxParser.StrValue + '" was not defined first (LINE.'+name+').', 18103);
   end;
 end;
 
@@ -1531,7 +1531,7 @@ begin
   FLineCodeSpecified := False;
   KillGeometrySpecified;
   if not assigned (FLineSpacingObj) then
-    DoSimpleMsg ('Must assign the LineSpacing before CN cables.', 181);
+    DoSimpleMsg ('Must assign the LineSpacing before CN cables.(LINE.'+Name+')', 18104);
 
   FPhaseChoice := ConcentricNeutral;
   FWireData := Allocmem(Sizeof(FWireData^[1]) * FLineSpacingObj.NWires);
@@ -1542,7 +1542,7 @@ begin
     if Assigned(ActiveConductorDataObj) then
       FWireData^[i] := ActiveConductorDataObj
     else
-      DoSimpleMsg ('CN cable ' + AuxParser.StrValue + ' was not defined first.', 181);
+      DoSimpleMsg ('CN cable ' + AuxParser.StrValue + ' was not defined first.(LINE.'+Name+')', 18105);
   end;
 end;
 
@@ -1553,7 +1553,7 @@ begin
   FLineCodeSpecified := False;
   KillGeometrySpecified;
   if not assigned (FLineSpacingObj) then
-    DoSimpleMsg ('Must assign the LineSpacing before TS cables.', 181);
+    DoSimpleMsg ('Must assign the LineSpacing before TS cables.(LINE.'+Name+')', 18106);
 
   FPhaseChoice := TapeShield;
   FWireData := Allocmem(Sizeof(FWireData^[1]) * FLineSpacingObj.NWires);
@@ -1564,7 +1564,7 @@ begin
     if Assigned(ActiveConductorDataObj) then
       FWireData^[i] := ActiveConductorDataObj
     else
-      DoSimpleMsg ('TS cable ' + AuxParser.StrValue + ' was not defined first.', 181);
+      DoSimpleMsg ('TS cable ' + AuxParser.StrValue + ' was not defined first. (LINE.'+Name+')', 18107);
   end;
 end;
 
@@ -1596,7 +1596,7 @@ Begin
 
    End
    ELSE
-      DoSimpleMsg('Line Geometry Object:' + Code + ' not found.', 181);
+      DoSimpleMsg('Line Geometry Object:' + Code + ' not found. (LINE.'+Name+')', 18108);
 
 end;
 
