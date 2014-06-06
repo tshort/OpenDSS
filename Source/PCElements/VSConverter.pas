@@ -2,7 +2,7 @@ unit VSConverter;
 
 {
   ----------------------------------------------------------
-  Copyright (c) 2013, University of Pittsburgh
+  Copyright (c) 2013-2014, University of Pittsburgh
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -395,10 +395,10 @@ end;
 
 procedure TVSConverterObj.GetInjCurrents(Curr:pComplexArray);
 var
-  Vscale, Idc: Complex;
-  Vdc, Ia, Ib, Ic, Va, Vb, Vc, Sa, Sb, Sc, Sac: Complex;
-  Pac : Double;
-  i: integer;
+  Vmag, Idc: Complex;
+  Vdc, Sphase, Stotal: Complex;
+  Pac, Qac, Deg : Double;
+  i, Nac: integer;
 begin
 
    { AC Voltage source injection currents given by this formula:
@@ -409,43 +409,42 @@ begin
      _     _           _         _
    }
 
-//  implement hard-wired fixed mode, 4 phases, ndc = 1
+  Nac := FNphases - FNdc;
 
   // obtain the terminal control quantities
-  GetTerminalCurrents (ITerminal);
-  Ia := Iterminal[1];
-  Ib := Iterminal[2];
-  Ic := Iterminal[3];
+  Stotal.re := 0.0;
+  Stotal.im := 0.0;
   for i := 1 to Yorder do Vterminal^[i] := ActiveCircuit.Solution.NodeV^[NodeRef^[i]];
-  Va := Vterminal^[1];
-  Vb := Vterminal^[2];
-  Vc := Vterminal^[3];
-  Sa := Cmul (Va, Conjg(Ia));
-  Sb := Cmul (Vb, Conjg(Ib));
-  Sc := Cmul (Vc, Conjg(Ic));
-  Sac := Cadd (Sa, Sb);
-  Sac := Cadd (Sac, Sc);
-  Pac := Sac.re;
+  GetTerminalCurrents (ITerminal);
+  for i := 1 to Nac do begin
+    Sphase := Cmul (Vterminal^[i], Conjg(Iterminal^[i]));
+    Stotal := Cadd (Stotal, Sphase);
+  end;
+  Pac := Stotal.re;
+  Qac := Stotal.im;
   if (Pac = 0.0) then Pac := 1.0;
-  Vdc := Vterminal^[4];
+
+  Vdc := Vterminal^[FNphases];
   if (Vdc.re = 0.0) and (Vdc.im = 0.0) then Vdc := CONE;
 
-  Vscale := CMulReal (Vdc, 0.353553 * Fm);
+  // set the control parameters
+  Vmag := CMulReal (Vdc, 0.353553 * Fm);
 
   // do the AC voltage source injection
-  RotatePhasorDeg(Vscale, 1.0, Fd);
-//  Vterminal^[1] := Vscale;
-  RotatePhasorDeg(Vscale, 1.0, -120.0);
-//  Vterminal^[2] := Vscale;
-  RotatePhasorDeg(Vscale, 1.0, -120.0);
-//  Vterminal^[3] := Vscale;
-//  Vterminal^[4] := CZERO;
+  RotatePhasorDeg(Vmag, 1.0, Fd);
+  Vterminal^[1] := Vmag;
+  Deg := -360.0 / Nac;
+  for i := 2 to Nac do begin
+    RotatePhasorDeg(Vmag, 1.0, Deg);
+    Vterminal^[i] := Vmag;
+  end;
   YPrim.MVMult(Curr, Vterminal);
 
   // do the DC current source injection
-  Idc := CdivReal (Vdc, Pac);
-  Idc := cmplx (160.0, 0.0);
-  Curr^[4] := Idc;
+  Idc := cmplx (Pac / Cabs(Vdc), 0.0);
+  Idc := cmplx (17.78, 0.0);
+  Curr^[FNphases] := Idc;
+  Curr^[2*FNphases] := cnegate(Idc);
   ITerminalUpdated := FALSE;
 end;
 
