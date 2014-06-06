@@ -1822,8 +1822,8 @@ Begin
      Writeln(F);
      Writeln(F,'BUSES AND NODES IN ACTIVE CIRCUIT: ' + ActiveCircuit.name);
      Writeln(F);
-     Writeln(F,Pad('     ', MaxBusNameLength), '                         Coord                        Number of     Nodes ');
-     Writeln(F,Pad('  Bus', MaxBusNameLength), '    Base kV             (x, y)            Keep?       Nodes      connected ...');
+     Writeln(F,Pad('     ', MaxBusNameLength), '                         Coord                                 Number of     Nodes');
+     Writeln(F,Pad('  Bus', MaxBusNameLength), '    Base kV             (x, y)                      Keep?       Nodes        connected ...');
      Writeln(F);
      WITH ActiveCircuit DO Begin
          FOR i := 1 to NumBuses DO Begin

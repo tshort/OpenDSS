@@ -43,14 +43,14 @@ Procedure ExportGICMvar(FileNm:String);
 Procedure ExportBusReliability(FileNm:String);
 Procedure ExportBranchReliability(FileNm:String);
 Procedure ExportNodeNames(FileNm:String);
-
+Procedure ExportTaps(FileNm:String);
 
 
 IMPLEMENTATION
 
 Uses uComplex,  Arraydef, System.sysutils,   Circuit, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution, CktElement, Utilities, Bus, MathUtil, DSSClass,
-     PDElement, PCElement, Generator, EnergyMeter, Sensor, Load, RegControl,
+     PDElement, PCElement, Generator, EnergyMeter, Sensor, Load, RegControl, Transformer,
      ParserDel, Math, Ymatrix, LineGeometry, WireData, LineCode, XfmrCode, NamedObject,
      GICTransformer;
 
@@ -2502,6 +2502,56 @@ Begin
        End;
 
      END;
+
+
+     GlobalResult := FileNm;
+
+  FINALLY
+
+     CloseFile(F);
+  End;
+
+End;
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+Function TapPosition(const Transformer:TTransfObj; iWind:Integer):Integer;
+
+{Assumes 0  is 1.0 per unit tap}
+
+Begin
+        With Transformer Do
+        Result :=   Round((PresentTap[iWind] - (Maxtap[iWind] + Mintap[iWind])/2.0 ) / TapIncrement[iWind]  );
+
+End;
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+Procedure ExportTaps(FileNm:String);
+Var
+   F : TextFile;
+   iWind :Integer;
+   pReg: TRegControlObj;
+Begin
+
+  Try
+
+         Assignfile(F,FileNm);
+         ReWrite(F);
+         Writeln(F, 'Name, Tap, Min, Max, Step, Position');
+
+         WITH ActiveCircuit Do
+         Begin
+             pReg := RegControls.First;
+             WHILE pReg <> NIL Do
+             Begin
+                  WITH pReg.Transformer Do
+                  Begin
+                       iWind := pReg.TrWinding;
+                       Write(F, Name );
+                       Writeln(F, Format(', %8.5f, %8.5f, %8.5f, %8.5f, %d' , [PresentTap[iWind], MinTap[iWind], MaxTap[iWind], TapIncrement[iWind], TapPosition(pREg.Transformer, iWind)]));
+                  End;
+                 pReg := RegControls.Next;
+             End;
+         End;
 
 
      GlobalResult := FileNm;
