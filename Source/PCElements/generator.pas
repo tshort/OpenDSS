@@ -1237,15 +1237,17 @@ Begin
 
          CASE Connection OF
 
-           0: With YMatrix Do Begin // WYE
+           0: With YMatrix Do
+              Begin // WYE
                      Yij := Cnegate(Y);
                      FOR i := 1 to Fnphases Do Begin
-                     SetElement(i, i, Y);
-                     AddElement(Fnconds, Fnconds, Y);
-                     SetElemsym(i, Fnconds, Yij);
-                 End;
+                       SetElement(i, i, Y);
+                       AddElement(Fnconds, Fnconds, Y);
+                       SetElemsym(i, Fnconds, Yij);
+                     End;
               End;
-           1: With YMatrix Do Begin  // Delta  or L-L
+           1: With YMatrix Do
+              Begin  // Delta  or L-L
                   Y    := CDivReal(Y, 3.0); // Convert to delta impedance
                   Yij  := Cnegate(Y);
                   FOR i := 1 to Fnphases Do Begin
@@ -1352,7 +1354,7 @@ Begin
       Begin
            Append(TraceFile);
            Write(TraceFile,Format('%-.g, %d, %-.g, ',
-                    [ActiveCircuit.Solution.DynaVars.t,
+                    [ActiveCircuit.Solution.DynaVars.t + ActiveCircuit.Solution.Dynavars.IntHour * 3600.0,
                     ActiveCircuit.Solution.Iteration,
                     ActiveCircuit.LoadMultiplier]),
                     GetSolutionModeID,', ',
@@ -1447,13 +1449,13 @@ Begin
             VMag := Cabs(V);
 
             CASE Connection of
-             0: Begin  {Wye}
+              0: Begin  {Wye}
                     IF   VMag <= VBase95
                     THEN Curr := Cmul(Yeq95, V)  // Below 95% use an impedance model
                     ELSE If VMag > VBase105
                     THEN Curr := Cmul(Yeq105, V)  // above 105% use an impedance model
                     ELSE With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Between 95% -105%, constant PQ
-                End;
+                 End;
               1: Begin  {Delta}
                     VMag := VMag/SQRT3;  // L-N magnitude
                     IF   VMag <= VBase95
@@ -1461,7 +1463,7 @@ Begin
                     ELSE If VMag > VBase105
                     THEN Curr := Cmul(CdivReal(Yeq105, 3.0), V)  // above 105% use an impedance model
                     ELSE With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Between 95% -105%, constant PQ
-                End;
+                 End;
              END;
 
             StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
