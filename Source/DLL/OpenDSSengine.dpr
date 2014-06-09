@@ -198,7 +198,8 @@ uses
   ImplCmathLib in 'ImplCmathLib.pas' {CmathLib: CoClass},
   ImplParser in 'ImplParser.pas' {Parser: CoClass},
   ImplLoadShapes in 'ImplLoadShapes.pas' {LoadShapes: CoClass},
-  ImplFuses in 'ImplFuses.pas' {Fuses: CoClass};
+  ImplFuses in 'ImplFuses.pas' {Fuses: CoClass},
+  ImplIsources in 'ImplIsources.pas' {ISource: CoClass};
 
 exports
   DllGetClassObject,

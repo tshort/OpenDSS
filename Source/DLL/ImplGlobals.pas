@@ -49,6 +49,7 @@ Uses
        ImplParser,
        ImplLoadShapes,
        ImplFuses,
+       ImplIsources,
        DSSClass,
        DSSClassDefs,
        OpenDSSengine_TLB;
@@ -91,7 +92,7 @@ Var
    FParser      :IParser;
    FLoadShapes  :ILoadShapes;
    FFuses       :IFuses;
-
+   FIsources    :IIsources;
 
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
@@ -169,10 +170,10 @@ Begin
      FParser      := TParser.Create;
      FLoadShapes  := TLoadShapes.Create;
      FFuses       := TFuses.Create;
+     FIsources    := TIsources.Create;
 
      FPropIndex := 0;
      FPropClass := Nil;
-
 
      {MessageDlg('Interfaces initialized', mtInformation, [mbOK], 0);}
      FIntfInitialized := True;

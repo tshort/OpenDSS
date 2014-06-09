@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 5/28/2014 12:04:56 PM from Type Library described below.
+// File generated on 6/9/2014 4:22:48 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -123,6 +123,8 @@ const
   CLASS_LoadShapes: TGUID = '{4FCBE090-AA15-4E31-A8C7-E5F42D41C90C}';
   IID_IFuses: TGUID = '{AABE4DA8-3D5A-447F-AFFB-78946BA68DA5}';
   CLASS_Fuses: TGUID = '{ABED90F5-3908-408A-87EF-D0582FD2FFD5}';
+  IID_IISources: TGUID = '{CB2C7310-1717-4C6E-A7B8-DA54CF1722CD}';
+  CLASS_ISources: TGUID = '{CE35EBD2-BDD4-4B01-AE88-1D90DC82F619}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -314,6 +316,8 @@ type
   ILoadShapesDisp = dispinterface;
   IFuses = interface;
   IFusesDisp = dispinterface;
+  IISources = interface;
+  IISourcesDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -354,6 +358,7 @@ type
   Parser = IParser;
   LoadShapes = ILoadShapes;
   Fuses = IFuses;
+  ISources = IISources;
 
 
 // *********************************************************************//
@@ -659,6 +664,7 @@ type
     function Get_Relays: IRelays; safecall;
     function Get_LoadShapes: ILoadShapes; safecall;
     function Get_Fuses: Fuses; safecall;
+    function Get_Isources: IISources; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -710,6 +716,7 @@ type
     property Relays: IRelays read Get_Relays;
     property LoadShapes: ILoadShapes read Get_LoadShapes;
     property Fuses: Fuses read Get_Fuses;
+    property Isources: IISources read Get_Isources;
   end;
 
 // *********************************************************************//
@@ -786,6 +793,7 @@ type
     property Relays: IRelays readonly dispid 227;
     property LoadShapes: ILoadShapes readonly dispid 228;
     property Fuses: Fuses readonly dispid 229;
+    property Isources: IISources readonly dispid 230;
   end;
 
 // *********************************************************************//
@@ -3131,6 +3139,52 @@ type
   end;
 
 // *********************************************************************//
+// Interface: IISources
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {CB2C7310-1717-4C6E-A7B8-DA54CF1722CD}
+// *********************************************************************//
+  IISources = interface(IDispatch)
+    ['{CB2C7310-1717-4C6E-A7B8-DA54CF1722CD}']
+    function Get_AllNames: OleVariant; safecall;
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_Amps: Double; safecall;
+    procedure Set_Amps(Value: Double); safecall;
+    function Get_AngleDeg: Double; safecall;
+    procedure Set_AngleDeg(Value: Double); safecall;
+    function Get_Frequency: Double; safecall;
+    procedure Set_Frequency(Value: Double); safecall;
+    property AllNames: OleVariant read Get_AllNames;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property Name: WideString read Get_Name write Set_Name;
+    property Amps: Double read Get_Amps write Set_Amps;
+    property AngleDeg: Double read Get_AngleDeg write Set_AngleDeg;
+    property Frequency: Double read Get_Frequency write Set_Frequency;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IISourcesDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {CB2C7310-1717-4C6E-A7B8-DA54CF1722CD}
+// *********************************************************************//
+  IISourcesDisp = dispinterface
+    ['{CB2C7310-1717-4C6E-A7B8-DA54CF1722CD}']
+    property AllNames: OleVariant readonly dispid 201;
+    property Count: Integer readonly dispid 202;
+    property First: Integer readonly dispid 203;
+    property Next: Integer readonly dispid 204;
+    property Name: WideString dispid 205;
+    property Amps: Double dispid 206;
+    property AngleDeg: Double dispid 207;
+    property Frequency: Double dispid 208;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -3550,6 +3604,18 @@ type
     class function CreateRemote(const MachineName: string): IFuses;
   end;
 
+// *********************************************************************//
+// The Class CoISources provides a Create and CreateRemote method to
+// create instances of the default interface IISources exposed by
+// the CoClass ISources. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoISources = class
+    class function Create: IISources;
+    class function CreateRemote(const MachineName: string): IISources;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -3902,6 +3968,16 @@ end;
 class function CoFuses.CreateRemote(const MachineName: string): IFuses;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_Fuses) as IFuses;
+end;
+
+class function CoISources.Create: IISources;
+begin
+  Result := CreateComObject(CLASS_ISources) as IISources;
+end;
+
+class function CoISources.CreateRemote(const MachineName: string): IISources;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_ISources) as IISources;
 end;
 
 end.

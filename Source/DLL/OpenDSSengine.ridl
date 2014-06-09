@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 5/28/2014 12:05:02 PM (- $Rev: 12980 $, 9620207).
+// File generated on 6/9/2014 4:22:59 PM (- $Rev: 12980 $, 16628068).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -91,6 +91,8 @@ library OpenDSSengine
   coclass LoadShapes;
   interface IFuses;
   coclass Fuses;
+  interface IISources;
+  coclass ISources;
 
 
   [
@@ -596,6 +598,8 @@ library OpenDSSengine
     HRESULT _stdcall LoadShapes([out, retval] ILoadShapes** Value);
     [propget, id(0x000000E5), helpstring("Return interface to Fuses ")]
     HRESULT _stdcall Fuses([out, retval] Fuses** Value);
+    [propget, id(0x000000E6), helpstring("Interface to ISOURCE devices")]
+    HRESULT _stdcall Isources([out, retval] IISources** Value);
   };
 
   [
@@ -2504,6 +2508,40 @@ library OpenDSSengine
   };
 
   [
+    uuid(CB2C7310-1717-4C6E-A7B8-DA54CF1722CD),
+    helpstring("Dispatch interface for ISources Object"),
+    dual,
+    oleautomation
+  ]
+  interface IISources: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Variant array of strings containing names of all ISOURCE elements.")]
+    HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
+    [propget, id(0x000000CA), helpstring("Count: Number of ISOURCE elements.")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CB), helpstring("Set the First ISOURCE to be active; returns Zero if none.")]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CC), helpstring("Sets the next ISOURCE element to be the active one. Returns Zero if no more.")]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CD), helpstring("Get name of active ISOURCE")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000CD), helpstring("Set Active ISOURCE by name")]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000CE), helpstring("Get the magnitude of the ISOURCE in amps")]
+    HRESULT _stdcall Amps([out, retval] double* Value);
+    [propput, id(0x000000CE), helpstring("Set the magnitude of the ISOURCE, amps")]
+    HRESULT _stdcall Amps([in] double Value);
+    [propget, id(0x000000CF), helpstring("Phase angle for ISOURCE, degrees")]
+    HRESULT _stdcall AngleDeg([out, retval] double* Value);
+    [propput, id(0x000000CF), helpstring("Phase angle for ISOURCE, degrees")]
+    HRESULT _stdcall AngleDeg([in] double Value);
+    [propget, id(0x000000D0), helpstring("The present frequency of the ISOURCE, Hz")]
+    HRESULT _stdcall Frequency([out, retval] double* Value);
+    [propput, id(0x000000D0), helpstring("Set the present frequency for the ISOURCE")]
+    HRESULT _stdcall Frequency([in] double Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -2858,6 +2896,15 @@ library OpenDSSengine
   coclass Fuses
   {
     [default] interface IFuses;
+  };
+
+  [
+    uuid(CE35EBD2-BDD4-4B01-AE88-1D90DC82F619),
+    helpstring("ISource Object")
+  ]
+  coclass ISources
+  {
+    [default] interface IISources;
   };
 
 };

@@ -22,10 +22,7 @@ unit Isource;
 
 interface
 
-USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum;
-
-
-
+USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum, StdVcl;
 
 TYPE
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -46,19 +43,18 @@ TYPE
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
    TIsourceObj = class(TPCElement)
      private
-        Amps:Double;
-
-        Angle:Double;
 
         FphaseShift  :Double;
-        ScanType,
-        SequenceType :Integer;
 
         Function GetBaseCurr:Complex;
 
       public
 
+        Amps:Double;
+        Angle:Double;
         SrcFrequency:Double;
+        ScanType,
+        SequenceType :Integer;
 
         constructor Create(ParClass:TDSSClass; const SourceName:String);
         destructor  Destroy; override;
@@ -79,6 +75,7 @@ TYPE
 
 VAR
     ActiveIsourceObj:TIsourceObj;
+    IsourceClass:TISource;
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 implementation
@@ -101,6 +98,8 @@ Begin
 
      CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
      CommandList.Abbrev := TRUE;
+
+     IsourceClass := Self;
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -225,8 +224,6 @@ Begin
          ELSE
             ClassEdit(ActiveIsourceObj, ParamPointer - NumPropsThisClass)
          End;
-
-
          ParamName := Parser.NextParam;
          Param     := Parser.StrValue;
      End;
@@ -371,11 +368,14 @@ Begin
 
       WITH ActiveCircuit.Solution Do
   {Get first Phase Current}
-       IF IsHarmonicModel THEN Begin
+       IF IsHarmonicModel THEN
+       Begin
             SrcHarmonic := Frequency/SrcFrequency;
             Result := CMulReal(SpectrumObj.GetMult(SrcHarmonic), Amps);  // Base current for this harmonic
             RotatePhasorDeg(Result, SrcHarmonic, Angle);
-       End ELSE Begin
+       End
+       ELSE
+       Begin
             IF abs(Frequency - SrcFrequency) < EPSILON2 THEN Result := pdegtocomplex(Amps, Angle)  Else Result := CZERO;
        End;
 
@@ -506,5 +506,7 @@ begin
   inherited;
 
 end;
+
+
 
 end.
