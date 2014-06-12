@@ -144,12 +144,14 @@ End;
 
 Procedure  WriteBusVoltages(var F:TextFile; i:Integer; LL:Boolean);
 
+// 6/11/14 Modified to write both LL and LN voltages out for LN case
+
 Var
   nref,j,k :Integer;
-  Volts : Complex;
-  Vmag, Vpu : Double;
+  Volts, VoltsLL : Complex;
+  Vmag, VmagLL, Vpu, VpuLL : Double;
   Bname : String;
-  NodeName : String;
+  NodeName, NodeNameLL : String;
   NodeIdx : Integer;
   jj, kk  : Integer;
 
@@ -165,11 +167,11 @@ Begin
              inc(jj)
          Until NodeIdx>0;
 
-         nref := GetRef(NodeIdx);   // Get the onverall node reference number
+         nref  := GetRef(NodeIdx);   // Get the onverall node reference number
          Volts := ActiveCircuit.Solution.NodeV^[nref];
 
          kk := 1; // keep compiler from complaining
-         IF LL and (jj <= 4) THEN
+         IF {LL and} (jj <= 4) THEN
          // Line-to-line voltages
            Begin         // Convert to Line-Line assuming no more than 3 phases
               // k is 1, 2, or 3
@@ -177,23 +179,34 @@ Begin
               kk := FindIdx(k);
               IF k <= NumNodesThisBus Then Begin
                   nref := Buses^[i].GetRef(kk); // reference for next phase in sequence
-                  Volts := Csub(Volts, ActiveCircuit.Solution.NodeV^[nref]);
+                  VoltsLL := Csub(Volts, ActiveCircuit.Solution.NodeV^[nref]);
               End;
            End;
 
          Vmag := Cabs(Volts)*0.001;
+         VmagLL := Cabs(VoltsLL)*0.001;
          If kvbase <> 0.0
-                Then Vpu := Vmag / kVBase
-                Else Vpu := 0.0;
-         IF LL and (jj <= 4) then Begin
-            Vpu := Vpu/SQRT3;
-            NodeName := Format('%d-%d',[GetNum(NodeIdx), GetNum(kk)]);
-         End
-         Else NodeName := Format('%d  ',[GetNum(NodeIdx)]);
+                Then Begin Vpu := Vmag / kVBase; VpuLL := VmagLL / kVBase/SQRT3; End
+                Else Begin Vpu := 0.0; VpuLL := 0.0; end;
+         IF {LL and} (jj <= 4) then Begin
+            // Vpu := Vpu/SQRT3;
+            NodeNameLL := Format('%d-%d',[GetNum(NodeIdx), GetNum(kk)]);
+         End;
+         NodeName := Format('%d  ',[GetNum(NodeIdx)]);
 
-         If j=1 Then Bname := Paddots(BusList.Get(i), MaxBusNameLength)
-                Else BName := Pad('   -', MaxBusNameLength);
-         Writeln(F, Format('%s %s %10.5g /_ %6.1f %9.5g %9.3f', [UpperCase(Bname), NodeName,  Vmag, cdang(Volts),Vpu, kvbase*SQRT3  ]));
+         If j=1 Then Bname := Paddots(BusList.Get(i), MaxBusNameLength);
+
+         If LL  Then Begin
+              If kk > 0 Then Begin
+                Writeln(F, Format('%s %s %10.5g /_ %6.1f %9.5g %9.3f', [UpperCase(Bname), NodeNameLL,  VmagLL, cdang(VoltsLL),VpuLL, kvbase*SQRT3  ]));
+                Bname := Pad('   -', MaxBusNameLength);
+              End;
+         End Else Begin
+              Write(F, Format('%s %s %10.5g /_ %6.1f %9.5g %9.3f', [UpperCase(Bname), NodeName,  Vmag, cdang(Volts), Vpu, kvbase*SQRT3  ]));
+              If (NumNodesThisBus > 1) and (kk > 0) and (jj <= 4) Then Write(F, Format('        %s %10.5g /_ %6.1f %9.5g', [ NodeNameLL, VmagLL, cdang(VoltsLL), VpuLL ]));
+              Writeln(F);
+              BName := Pad('   -', MaxBusNameLength);
+         End;
        End;
      End;
 End;
@@ -308,10 +321,11 @@ Begin
    1: Begin
 
      Writeln(F);
-     IF LL THEN  Writeln(F,'PHASE-PHASE VOLTAGES BY BUS & NODE')
-           ELSE  Writeln(F,'NODE-GROUND VOLTAGES BY BUS & NODE');
+     IF LL THEN  Writeln(F,'LINE-LINE VOLTAGES BY BUS & NODE')
+           ELSE  Writeln(F,'LINE-GROUND and LINE-LINE VOLTAGES BY BUS & NODE');
      Writeln(F);
-     Writeln(F, pad('Bus', MaxBusNameLength), ' Node    V (kV)    Angle      p.u.   Base kV');
+     If LL Then   Writeln(F, pad('Bus', MaxBusNameLength), ' Node    VLN (kV)   Angle      pu     Base kV ')
+           Else   Writeln(F, pad('Bus', MaxBusNameLength), ' Node    VLN (kV)   Angle      pu     Base kV    Node-Node   VLL (kV)  Angle      pu');
      Writeln(F);
 
      FOR i := 1 to ActiveCircuit.NumBuses DO WriteBusVoltages(F, i, LL);
