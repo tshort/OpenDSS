@@ -3181,7 +3181,7 @@ begin
        With Buses^[i] Do
        Begin
            BusCounted := FALSE;
-           If kVBase > 0.0 Then
+           If kVBase > 1.0 Then          // Primary Nodes first
            Begin
                For j := 1 to NumNodesThisBus Do
                Begin
@@ -3216,9 +3216,57 @@ begin
        End; {For i}
        With Solution Do Write(FVoltageFile, Format('%-.6g,',[DynaVars.dblHour]));
 
-       Writeln(FVoltageFile, Format(' %d, %-.6g, %d, %-.6g, %s, %s', [UnderCount, UnderVmin, OverCount, OverVmax, BusList.Get(minbus), Buslist.Get(maxbus) ]))
-    End;
+       Write(FVoltageFile, Format(' %d, %-.6g, %d, %-.6g, %s, %s', [UnderCount, UnderVmin, OverCount, OverVmax, BusList.Get(minbus), Buslist.Get(maxbus) ]));
 
+     // Klugy but it works
+     // now repeat for buses under 1 kV
+       OverCount  := 0;
+       UnderCount := 0;
+       MinBus := 0;
+       MaxBus := 0;
+
+       OverVmax   := NormalMinVolts;
+       UnderVmin  := NormalMaxVolts;
+       For i := 1 to NumBuses do
+       With Buses^[i] Do
+       Begin
+           BusCounted := FALSE;
+           If (kVBase > 0.0) and (kVBase <= 1.0) Then
+           Begin
+               For j := 1 to NumNodesThisBus Do
+               Begin
+                  Vmagpu := Cabs(Solution.NodeV^[GetRef(j)])/kvbase * 0.001;
+                  If Vmagpu > 0.1 then Begin // ignore neutral buses
+                     If Vmagpu < underVmin Then
+                     Begin
+                        UnderVmin := Vmagpu;
+                        MinBus := i;
+                     End;
+
+                     If Vmagpu > OverVMax Then
+                     Begin
+                        OverVMax := Vmagpu;
+                        MaxBus := i;
+                     End;
+
+                     If (Vmagpu < NormalMinVolts) Then Begin
+                         If Not BusCounted Then Begin     // Don't count more than once
+                             Inc(UnderCount);
+                             BusCounted := TRUE;
+                         End;
+                     End Else if (Vmagpu > NormalMaxVolts) then Begin
+                         If Not BusCounted Then Begin
+                             Inc(OverCount);
+                             BusCounted := TRUE;
+                         End;
+                     End;
+                  End;
+               End;
+           End;
+       End; {For i}
+
+       Writeln(FVoltageFile, Format(', %d, %-.6g, %d, %-.6g, %s, %s', [UnderCount, UnderVmin, OverCount, OverVmax, BusList.Get(minbus), Buslist.Get(maxbus) ]))
+    End;
 
 end;
 
@@ -3332,7 +3380,8 @@ begin
       AssignFile(FVoltageFile, EnergyMeterClass.DI_Dir+'\DI_VoltExceptions.CSV');
       Rewrite(FVoltageFile);
       VoltageFileIsOpen := TRUE;
-      Writeln(FVoltageFile,'"Hour", "Undervoltages", "Min Voltage", "Overvoltage", "Max Voltage", "Min Bus", "Max Bus"');
+      Write(FVoltageFile,'"Hour", "Undervoltages", "Min Voltage", "Overvoltage", "Max Voltage", "Min Bus", "Max Bus"');
+      Writeln(FVoltageFile,', "LV Undervoltages", "Min LV Voltage", "LV Overvoltage", "Max LV Voltage", "Min LV Bus", "Max LV Bus"');
 
   Except
       On E:Exception Do DosimpleMsg('Error opening demand interval file "'+EnergyMeterClass.DI_Dir+'\DI_VoltExceptions.CSV"  for writing.'+CRLF+E.Message, 541);
