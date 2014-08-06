@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 6/10/2014 9:36:31 AM (- $Rev: 12980 $, 2841823).
+// File generated on 7/9/2014 11:55:49 AM (- $Rev: 12980 $, 15195308).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -676,6 +676,8 @@ library OpenDSSengine
     HRESULT _stdcall VMagAngle([out, retval] VARIANT* Value);
     [propget, id(0x000000D8), helpstring("Variant array of doubles containig voltage magnitude, angle pairs in per unit")]
     HRESULT _stdcall puVmagAngle([out, retval] VARIANT* Value);
+    [propget, id(0x000000D9), helpstring("Total length of line downline from this bus, in miles. For recloser siting algorithm.")]
+    HRESULT _stdcall TotalMiles([out, retval] double* Value);
   };
 
   [
@@ -1060,6 +1062,8 @@ library OpenDSSengine
     HRESULT _stdcall DoReliabilityCalc(void);
     [propget, id(0x000000DC), helpstring("Size of Sequence List")]
     HRESULT _stdcall SeqListSize([out, retval] long* Value);
+    [propget, id(0x000000DD), helpstring("Total Number of customers in this zone (downline from the EnergyMeter)")]
+    HRESULT _stdcall TotalCustomers([out, retval] long* Value);
   };
 
   [
@@ -2189,6 +2193,8 @@ library OpenDSSengine
     HRESULT _stdcall ParentPDElement([out, retval] long* Value);
     [propget, id(0x000000D6), helpstring("Number of the terminal of active PD element that is on the \"from\" side. This is set after the meter zone is determined.")]
     HRESULT _stdcall FromTerminal([out, retval] long* Value);
+    [propget, id(0x000000D7), helpstring("Total miles of line from this element to the end of the zone. For recloser siting algorithm.")]
+    HRESULT _stdcall TotalMiles([out, retval] double* Value);
   };
 
   [

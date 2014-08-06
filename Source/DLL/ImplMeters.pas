@@ -57,6 +57,7 @@ type
     function Get_SAIFIKW: Double; safecall;
     procedure DoReliabilityCalc; safecall;
     function Get_SeqListSize: Integer; safecall;
+    function Get_TotalCustomers: Integer; safecall;
     { Protected declarations }
   end;
 
@@ -69,6 +70,7 @@ uses ComServ,
      ucomplex,
      Variants,
      CktElement,
+     PDElement,
      CktTree;
 
 function TMeters.Get_AllNames: OleVariant;
@@ -760,6 +762,24 @@ begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
              Result := pMeterObj.SequenceList.ListSize ;
+         End;
+     End;
+end;
+
+function TMeters.Get_TotalCustomers: Integer;
+Var
+  pMeterObj :TEnergyMeterObj;
+  PD_Element   :TPDElement;
+
+begin
+     Result := 0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+             PD_Element := pMeterObj.SequenceList.Get(1) ;
+             If Assigned (PD_Element) Then With PD_Element Do
+                 Result := Buses^[Terminals^[FromTerminal].BusRef].TotalNumCustomers;
          End;
      End;
 end;

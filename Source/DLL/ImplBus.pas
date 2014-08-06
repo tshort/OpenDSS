@@ -46,6 +46,7 @@ type
     function Get_VLL: OleVariant; safecall;
     function Get_puVmagAngle: OleVariant; safecall;
     function Get_VMagAngle: OleVariant; safecall;
+    function Get_TotalMiles: Double; safecall;
   end;
 
 implementation
@@ -818,6 +819,15 @@ Begin
   End
   ELSE Result := VarArrayCreate([0, 0], varDouble);  // just return null array
 
+end;
+
+function TBus.Get_TotalMiles: Double;
+begin
+  Result := 0.0;
+  if ActiveCircuit <> Nil then
+    With ActiveCircuit Do
+      if ActiveBusIndex > 0 then
+         Result := Buses^[ActiveBusIndex].TotalMiles  ;
 end;
 
 initialization

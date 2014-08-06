@@ -210,8 +210,8 @@ Begin
      If ActiveCircuit.ActiveCktElement is TPDElement
      Then Begin
         pDElem    := ActiveCircuit.ActiveCktElement as TPDElement;
-        NumCust   := pDElem.NumCustomers;
-        TotalCust := pDElem.TotalCustomers;
+        NumCust   := pDElem.BranchNumCustomers;
+        TotalCust := pDElem.BranchTotalCustomers;
      End
      Else Begin
         NumCust   := 0;

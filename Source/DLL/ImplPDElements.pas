@@ -35,12 +35,13 @@ type
     function Get_RepairTime: Double; safecall;
     function Get_Totalcustomers: Integer; safecall;
     function Get_FromTerminal: Integer; safecall;
+    function Get_TotalMiles: Double; safecall;
 
   end;
 
 implementation
 
-uses ComServ, DSSGlobals, PDElement, PDClass, SysUtils;
+uses ComServ, DSSGlobals, PDElement, PDClass, SysUtils, Bus;
 
 function TPDElements.Get_Count: Integer;
 begin
@@ -304,6 +305,23 @@ begin
           End;
       End;
 
+end;
+
+function TPDElements.Get_TotalMiles: Double;
+// Total miles of line from here on down to the end of the feeder
+
+Var
+   ActivePDElement : TPDElement;
+
+begin
+      Result := 0.0;
+      If Assigned(ActiveCircuit) Then
+      With ActiveCircuit Do Begin
+          If ActiveCktElement is TPDElement Then Begin
+              ActivePDElement := ActiveCktelement as TPDElement;
+              Result := ActivePDElement.AccumulatedMiles;
+          End;
+      End;
 end;
 
 initialization

@@ -46,12 +46,13 @@ TYPE
        IsRadialBus  :Boolean;  // Flag for general use in bus searches
 
        // ***** Reliability Variables
-       Lambda       : Double;  // Accumulated failure rate  downstream from this bus faults per year
-       Num_Interrupt: Double;  // Number of interruptions this bus per year
-       Int_Duration : Double; // Avg Annual Interruption duration for this bus
-       CustInterrupts : Double; // Accumulated Number of customer interruptions from this bus
-       CustDurations  : Double; // Accumulated Customer outage durations
-       TotalNumCustomers   : Integer;  // Total Number of customers served from this bus
+       BusLambda       : Double;  // Accumulated failure rate  downstream from this bus faults per year
+       Bus_Num_Interrupt: Double;  // Number of interruptions this bus per year
+       Bus_Int_Duration : Double; // Avg Annual Interruption duration for this bus
+       BusCustInterrupts : Double; // Accumulated Number of customer interruptions from this bus
+       BusCustDurations  : Double; // Accumulated Customer outage durations
+       BusTotalNumCustomers   : Integer;  // Total Number of customers served from this bus
+       BusTotalMiles  : Double;  // Total length of lines downstream from this bus for Duke siting algorithm
 
 
        constructor Create;
@@ -104,11 +105,12 @@ Begin
     x                := 0.0;
     y                := 0.0;
     DistFromMeter    := 0.0;
-    Lambda           := 0.0;  // accummulated failure rate
-    Int_Duration     := 0.0;
-    CustInterrupts   := 0.0; // Accumulated Number of customer interruptions from this bus
-    CustDurations    := 0.0; // Accumulated Customer outage durations
-    TotalNumCustomers     := 0;
+    BusLambda           := 0.0;  // accummulated failure rate
+    Bus_Int_Duration     := 0.0;
+    BusCustInterrupts   := 0.0; // Accumulated Number of customer interruptions from this bus
+    BusCustDurations    := 0.0; // Accumulated Customer outage durations
+    BusTotalNumCustomers     := 0;
+    BusTotalMiles            := 0.0;  // total length of line downstream
     CoordDefined     := FALSE;
     Keep             := FALSE;
     IsRadialBus      := FALSE;

@@ -2489,6 +2489,7 @@ Begin
           End;
 
       Except
+      {**CHANGE THIS ERROR MESSAGE**}
           ON E:Exception Do DoSimpleMsg('Bus Coordinate file: "' + Param + '" not found.', 275);
       End;
 
@@ -3751,8 +3752,8 @@ Begin
        With ActiveCircuit Do
        For i := 1 to NumBuses Do
          With Buses^[i] Do Begin
-            Lambda        := 0.0;
-            Num_Interrupt := 0.0;
+            BusLambda        := 0.0;
+            Bus_Num_Interrupt := 0.0;
          End;
 
       while pMeter <> Nil do Begin

@@ -1524,7 +1524,7 @@ begin
     CktElem := SequenceList.First;
     While CktElem <> Nil do  Begin
         CktElem.Checked        := FALSE;
-        CktElem.TotalCustomers := 0;
+        CktElem.BranchTotalCustomers := 0;
         CktElem := SequenceList.Next;
     End;
 
@@ -1566,9 +1566,9 @@ begin
             WITH CktElem Do
             Begin
                  Checked := TRUE;
-                 Inc(TotalCustomers, NumCustomers);
+                 Inc(BranchTotalCustomers, BranchNumCustomers);
                  If ParentPDElement <> Nil Then
-                    Inc(ParentPDElement.TotalCustomers, TotalCustomers);
+                    Inc(ParentPDElement.BranchTotalCustomers, BranchTotalCustomers);
             End;
      End;  {For i}
 
@@ -1693,7 +1693,7 @@ Begin
         VoltBaseIndex := AddToVoltBaseList(FromBusReference);
     End;
 
-    TPDElement(ActiveBranch).NumCustomers := 0;   // Init counter
+    TPDElement(ActiveBranch).BranchNumCustomers := 0;   // Init counter
 
     FOR iTerm := 1 to ActiveBranch.Nterms Do Begin
       IF NOT ActiveBranch.Terminals^[iTerm].Checked Then WITH ActiveCircuit Do Begin
@@ -1727,7 +1727,7 @@ Begin
                       {Totalize Number of Customers if Load Type}
                       If (pPCelem is TLoadObj) then Begin
                           pLoad := pPCelem As TLoadObj;
-                          Inc(TPDElement(ActiveBranch).NumCustomers, pLoad.NumCustomers);
+                          Inc(TPDElement(ActiveBranch).BranchNumCustomers, pLoad.NumCustomers);
                           LoadList.Add(pPCElem);  // Add to list of loads in this zone.)
                       End;
                       {If object does not have a sensor attached, it acquires the sensor of its parent branch}
@@ -2327,9 +2327,9 @@ begin
        // Initialize number of interruptions and Duration
        PD_Elem := SequenceList.Get(1);
        pBus    := ActiveCircuit.Buses^[PD_Elem.Terminals^[PD_Elem.FromTerminal].BusRef];
-       pBus.Num_Interrupt  := Source_NumInterruptions;
-       pBus.CustInterrupts := Source_NumInterruptions * pBus.TotalNumCustomers;
-       pBus.Int_Duration   := Source_IntDuration;
+       pBus.Bus_Num_Interrupt  := Source_NumInterruptions;
+       pBus.BusCustInterrupts := Source_NumInterruptions * pBus.BusTotalNumCustomers;
+       pBus.Bus_Int_Duration   := Source_IntDuration;
 
        For idx := 1 to SequenceList.ListSize Do
        Begin
@@ -2351,18 +2351,19 @@ begin
 
        {Compute SAIFI based on numcustomers and load kW}
        {SAIFI is weighted by specified load weights}
+       {SAIFI is for the EnergyMeter Zone}
        SAIFI     := 0.0;
        SAIFIKW   := 0.0;
        dblNcusts := 0.0;
        dblkW     := 0.0;
        WITH ActiveCircuit do
-       For idx := 1 to LoadList.ListSize Do
+       For idx := 1 to LoadList.ListSize Do  // all loads in meter zone
        Begin
             pLoad := TLoadObj(LoadList.Get(idx));
             WITH  pLoad Do Begin
                  pBus := Buses^[Terminals^[1].BusRef];  // pointer to bus
-                 SAIFI   := SAIFI   + NumCustomers * RelWeighting * pBus.Num_Interrupt;
-                 SAIFIkW := SAIFIkW + kWBase       * RelWeighting * pBus.Num_Interrupt;
+                 SAIFI   := SAIFI   + NumCustomers * RelWeighting * pBus.Bus_Num_Interrupt;
+                 SAIFIkW := SAIFIkW + kWBase       * RelWeighting * pBus.Bus_Num_Interrupt;
                  DblInc(dblNcusts, NumCustomers * RelWeighting);   // total up weighted numcustomers
                  DblInc(dblkW,     kWBase       * RelWeighting);   // total up weighted kW
             End ;

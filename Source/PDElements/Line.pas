@@ -565,6 +565,9 @@ Begin
               if GeometrySpecified = True then KillGeometrySpecified;
               GeometrySpecified := False;
              End;
+          4,20:     // for Reliability calcs -- see PDElement.Pas
+             MilesThisLine := len * ConvertLineUnits(LengthUnits, UNITS_MILES);
+
           5: {Change the number of phases ... only valid if SymComponentsModel=TRUE}
              IF Fnphases <> Parser.IntValue THEN
               If (Not GeometrySpecified) and SymComponentsModel Then Begin  // ignore change of nphases if geometry used
@@ -844,6 +847,7 @@ Begin
 
     SymComponentsChanged := False;
 
+
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -852,7 +856,7 @@ begin
   // inherited;
 
   // Assume Faultrate specified in same units as length
-  Lambda := Faultrate * pctperm * 0.01 * Len;
+  BranchLambda := Faultrate * pctperm * 0.01 * Len;
 end;
 
 PROCEDURE TLineObj.CalcYPrim;

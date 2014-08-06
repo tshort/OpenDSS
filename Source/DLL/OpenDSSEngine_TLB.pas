@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 6/10/2014 9:36:19 AM from Type Library described below.
+// File generated on 7/9/2014 11:35:47 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -835,6 +835,7 @@ type
     function Get_puVLL: OleVariant; safecall;
     function Get_VMagAngle: OleVariant; safecall;
     function Get_puVmagAngle: OleVariant; safecall;
+    function Get_TotalMiles: Double; safecall;
     property Name: WideString read Get_Name;
     property NumNodes: Integer read Get_NumNodes;
     property Voltages: OleVariant read Get_Voltages;
@@ -863,6 +864,7 @@ type
     property puVLL: OleVariant read Get_puVLL;
     property VMagAngle: OleVariant read Get_VMagAngle;
     property puVmagAngle: OleVariant read Get_puVmagAngle;
+    property TotalMiles: Double read Get_TotalMiles;
   end;
 
 // *********************************************************************//
@@ -902,6 +904,7 @@ type
     property puVLL: OleVariant readonly dispid 214;
     property VMagAngle: OleVariant readonly dispid 215;
     property puVmagAngle: OleVariant readonly dispid 216;
+    property TotalMiles: Double readonly dispid 217;
   end;
 
 // *********************************************************************//
@@ -1304,6 +1307,7 @@ type
     function Get_SAIFIKW: Double; safecall;
     procedure DoReliabilityCalc; safecall;
     function Get_SeqListSize: Integer; safecall;
+    function Get_TotalCustomers: Integer; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1326,6 +1330,7 @@ type
     property SequenceIndex: Integer read Get_SequenceIndex write Set_SequenceIndex;
     property SAIFIKW: Double read Get_SAIFIKW;
     property SeqListSize: Integer read Get_SeqListSize;
+    property TotalCustomers: Integer read Get_TotalCustomers;
   end;
 
 // *********************************************************************//
@@ -1366,6 +1371,7 @@ type
     property SAIFIKW: Double readonly dispid 218;
     procedure DoReliabilityCalc; dispid 219;
     property SeqListSize: Integer readonly dispid 220;
+    property TotalCustomers: Integer readonly dispid 221;
   end;
 
 // *********************************************************************//
@@ -2703,6 +2709,7 @@ type
     function Get_Totalcustomers: Integer; safecall;
     function Get_ParentPDElement: Integer; safecall;
     function Get_FromTerminal: Integer; safecall;
+    function Get_TotalMiles: Double; safecall;
     property Count: Integer read Get_Count;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -2717,6 +2724,7 @@ type
     property Totalcustomers: Integer read Get_Totalcustomers;
     property ParentPDElement: Integer read Get_ParentPDElement;
     property FromTerminal: Integer read Get_FromTerminal;
+    property TotalMiles: Double read Get_TotalMiles;
   end;
 
 // *********************************************************************//
@@ -2740,6 +2748,7 @@ type
     property Totalcustomers: Integer readonly dispid 212;
     property ParentPDElement: Integer readonly dispid 213;
     property FromTerminal: Integer readonly dispid 214;
+    property TotalMiles: Double readonly dispid 215;
   end;
 
 // *********************************************************************//

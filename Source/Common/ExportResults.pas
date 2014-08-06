@@ -475,7 +475,7 @@ Begin
     If (pElem.NormAmps=0.0) or (pElem.EmergAmps=0.0) then
          Write(F,Format(', %10.6g, %8.2f, %8.2f',  [MaxCurrent, 0.0 , 0.0]))
     Else Write(F,Format(', %10.6g, %8.2f, %8.2f',  [MaxCurrent, MaxCurrent/pElem.NormAmps*100.0 , MaxCurrent/pElem.Emergamps*100.0]));
-    Write(F, Format(', %10.6g, %10.6g, %d, %d, %d', [Localpower.re, Localpower.im, pElem.NumCustomers, pElem.TotalCustomers, pElem.NPhases   ]));
+    Write(F, Format(', %10.6g, %10.6g, %d, %d, %d', [Localpower.re, Localpower.im, pElem.BranchNumCustomers, pElem.BranchTotalCustomers, pElem.NPhases   ]));
     With ActiveCircuit Do Write(F, Format(', %-.3g ', [Buses^[MapNodeToBus^[PElem.NodeRef^[1]].BusRef].kVBase ]));
     Writeln(F);
 End;
@@ -2413,13 +2413,13 @@ Begin
   Try
      Assignfile(F, FileNm);
      ReWrite(F);
-     Writeln(F, 'Bus, Lambda, Num-Interruptions, Num-Customers, Cust-Interruptions');
+     Writeln(F, 'Bus, Lambda, Num-Interruptions, Num-Customers, Cust-Interruptions, Total-Miles');
      With ActiveCircuit Do
      For i := 1 to NumBuses Do
        With Buses^[i] Do
        Begin
-           Writeln(F, Format('%s, %-.11g, %-.11g, %d, %-.11g',
-              [CheckForBlanks(Uppercase(BusList.Get(i))), Lambda, Num_Interrupt, TotalNumCustomers, CustInterrupts ]));
+           Writeln(F, Format('%s, %-.11g, %-.11g, %d, %-.11g, %-.11g',
+              [CheckForBlanks(Uppercase(BusList.Get(i))), BusLambda, Bus_Num_Interrupt, BusTotalNumCustomers, BusCustInterrupts, BusTotalMiles ]));
        End;
 
      GlobalResult := FileNm;
@@ -2438,27 +2438,43 @@ Var
    pElem : TPDElement;
    pBus  : TDSSBus;
    SAIFI : Double;
+   MaxCustomers : Integer;
 
 Begin
 
   Try
      Assignfile(F, FileNm);
      ReWrite(F);
-     Writeln(F, 'Element, Lambda, "Accumulated-Lambda", Num-Customers, Total-Customers, Num-Interrupts, Cust-Interruptions, Cust-Durations, SAIFI');
+     Writeln(F, 'Element, Lambda, "Accumulated-Lambda", Num-Customers, Total-Customers, Num-Interrupts, Cust-Interruptions, Cust-Durations, Total-Miles, Cust-Miles, SAIFI');
      With ActiveCircuit Do
      Begin
 
-     // PDELEMENTS only
+     // Find Maxcustomers of any PDElement for Duke Recloser siting algorithm
+       MaxCustomers := 0;
        pElem := ActiveCircuit.PDElements.First;
        WHILE pElem <> nil DO
        BEGIN
          IF pElem.Enabled THEN WITH pElem Do
             BEGIN
                 pBus := Buses^[Terminals^[FromTerminal].BusRef] ;
-                With pBus Do If TotalNumCustomers>0 Then SAIFI := CustInterrupts/TotalNumCustomers Else SAIFI := 0.0 ;
+                With pBus Do If BusTotalNumCustomers > MaxCustomers Then
+                     MaxCustomers := BusTotalNumCustomers;
+            END;
+         pElem := ActiveCircuit.PDElements.Next;
+       END;
 
-                Writeln(F, Format('%s.%s, %-.11g, %-.11g, %d, %d, %-.11g, %-.11g, %-.11g, %-.11g',
-                [ParentClass.Name, Name, Lambda, AccumulatedLambda, NumCustomers, TotalCustomers, pBus.Num_Interrupt, TotalCustomers*pBus.Num_Interrupt, pBus.CustDurations, SAIFI ]));
+
+     // write report for PDELEMENTS only
+       pElem := ActiveCircuit.PDElements.First;
+       WHILE pElem <> nil DO
+       BEGIN
+         IF pElem.Enabled THEN WITH pElem Do
+            BEGIN
+                pBus := Buses^[Terminals^[FromTerminal].BusRef] ;
+                With pBus Do If BusTotalNumCustomers>0 Then SAIFI := BusCustInterrupts/BusTotalNumCustomers Else SAIFI := 0.0 ;
+
+                Writeln(F, Format('%s.%s, %-.11g, %-.11g, %d, %d, %-.11g, %-.11g, %-.11g, %-.11g, %-.11g, %-.11g',
+                [ParentClass.Name, Name, BranchLambda, AccumulatedBranchLambda, BranchNumCustomers, BranchTotalCustomers, pBus.Bus_Num_Interrupt, BranchTotalCustomers*pBus.Bus_Num_Interrupt, pBus.BusCustDurations, AccumulatedMilesDownStream, (MaxCustomers - BranchTotalCustomers) * AccumulatedMilesDownStream, SAIFI ]));
             END;
          pElem := ActiveCircuit.PDElements.Next;
        END;

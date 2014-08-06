@@ -30,16 +30,18 @@ TYPE
        EmergAmps,
        FaultRate,  // annual faults per year
        PctPerm,    // percent of faults that are permanent in this element
-       Lambda,    // net failure rate for this branch
-       AccumulatedLambda,  // accumulated failure rate for this branch
+       BranchLambda,    // net failure rate for this branch
+       AccumulatedBranchLambda,  // accumulated failure rate for this branch
+       MilesThisLine,  // length in miles if line
+       AccumulatedMilesDownStream, // total miles downstream
        HrsToRepair       : Double;
        FromTerminal,
        ToTerminal        : Integer;  // Set by Meter zone for radial feeder
        IsShunt           : Boolean;
 
-       NumCustomers      : Integer;
-       TotalCustomers    : Integer;
-       CustWeight        : Double; // Weighting factor for customers on this elemebt
+       BranchNumCustomers      : Integer;
+       BranchTotalCustomers    : Integer;
+       BranchCustWeight        : Double; // Weighting factor for customers on this elemebt
 
        ParentPDElement   : TPDElement;
 
@@ -81,6 +83,7 @@ procedure TPDElement.AccumLambda;
 
 Var
     FromBus : TDSSBus;
+    ToBus   : TDSSBus;
 
 begin
 
@@ -88,13 +91,18 @@ begin
         If FromTerminal = 2 Then Toterminal := 1 Else ToTerminal := 2;
 
         {Get Lambda for TO bus and add it to this section failure rate}
-        AccumulatedLambda := Buses^[Terminals^[ToTerminal].BusRef].Lambda + Lambda;
+        ToBus :=  Buses^[Terminals^[ToTerminal].BusRef];
+        AccumulatedBranchLambda := ToBus.BusLambda + BranchLambda;
         FromBus :=   Buses^[Terminals^[FromTerminal].BusRef];
-        FromBus.TotalNumCustomers :=  FromBus.TotalNumCustomers + TotalCustomers;
+        FromBus.BusTotalNumCustomers :=  FromBus.BusTotalNumCustomers + BranchTotalCustomers;
+
+        AccumulatedMilesDownStream :=  ToBus.BusTotalMiles + MilesThisLine;
+        accumsum(FromBus.BusTotalMiles, AccumulatedMilesDownStream);
+
         {Compute accumulated to FROM Bus; if a fault interrupter, assume it isolates all downline faults}
         If NOT HasOcpDevice Then Begin
             // accumlate it to FROM bus
-            accumsum(FromBus.Lambda, AccumulatedLambda);
+            accumsum(FromBus.BusLambda, AccumulatedBranchLambda);
         End;
     End;
 
@@ -106,7 +114,7 @@ begin
       {Default base algorithm for radial fault rate calculation}
       {May be overridden by specific device class behavior}
 
-      Lambda := Faultrate * pctperm * 0.01;
+      BranchLambda := Faultrate * pctperm * 0.01;
 
 end;
 
@@ -116,7 +124,7 @@ Var
 begin
      FromBus := ActiveCircuit.Buses^[Terminals^[FromTerminal].BusRef];
      WITH  FromBus Do Begin
-         accumsum(CustInterrupts, Num_Interrupt * TotalCustomers);
+         accumsum(BusCustInterrupts, Bus_Num_Interrupt * BranchTotalCustomers);
 (****
      WriteDLLDebugfile(Format('%s.%s, Bus = %s, CustInterrupt= %.11g, Num_Interrupt= %.11g, TotalCustomers= %d, TotalNumCustomers= %d ',
                               [Self.ParentClass.Name, Self.Name, ActiveCircuit.Buslist.Get(Terminals^[FromTerminal].BusRef), CustInterrupts, Num_Interrupt, TotalCustomers, TotalNumCustomers  ]));
@@ -132,11 +140,11 @@ begin
         If FromTerminal = 2 Then Toterminal := 1 Else ToTerminal := 2;
         // If no interrupting device then the downline bus will have the same num of interruptions
         With Buses^[Terminals^[ToTerminal].BusRef] Do Begin
-            Num_Interrupt  :=  Buses^[Terminals^[FromTerminal].BusRef].Num_Interrupt;
+            Bus_Num_Interrupt  :=  Buses^[Terminals^[FromTerminal].BusRef].Bus_Num_Interrupt;
 
             // If Interrupting device (on FROM side)then downline will have additional interruptions
             If HasOCPDevice Then Begin
-                accumsum(Num_Interrupt, AccumulatedLambda);
+                accumsum(Bus_Num_Interrupt, AccumulatedBranchLambda);
             End;
         End;
     End;
@@ -150,9 +158,10 @@ Begin
     IsShunt          := FALSE;
 
     FromTerminal     := 1;
-    NumCustomers     := 0;
-    TotalCustomers   := 0;
-    AccumulatedLambda := 0.0;
+    BranchNumCustomers     := 0;
+    BranchTotalCustomers   := 0;
+    AccumulatedBranchLambda := 0.0;
+    MilesThisLine     := 0.0;
     SensorObj         := NIL;
     MeterObj          := NIL;
     ParentPDElement   := NIL;
@@ -269,11 +278,12 @@ Var
 begin
      FromBus := ActiveCircuit.Buses^[Terminals^[FromTerminal].BusRef];
      WITH  FromBus Do Begin
-          CustInterrupts := 0.0;
-          Lambda         := 0.0;
-          TotalNumCustomers   := 0;
-          CustDurations  := 0.0;
-          Num_Interrupt  := 0.0;
+          BusCustInterrupts := 0.0;
+          BusLambda         := 0.0;
+          BusTotalNumCustomers   := 0;
+          BusTotalMiles          := 0.0;
+          BusCustDurations  := 0.0;
+          Bus_Num_Interrupt  := 0.0;
      End;
 
 end;
