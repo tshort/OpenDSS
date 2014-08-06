@@ -231,6 +231,8 @@ begin
   BusCapList := nil;
 end;
 
+{$R+}
+
 constructor TBankObject.Create(MaxWdg: Integer);
 begin
   maxWindings:=MaxWdg;
@@ -371,6 +373,8 @@ begin
     Result := GuidList[ref-1]
   end;
 end;
+
+{$R-}
 
 function GetBaseVName (val: double): String;
 begin
@@ -1314,9 +1318,9 @@ Begin
     SetLength (WdgList, maxWdg);
     SetLength (CoreList, maxWdg);
     SetLength (MeshList, (maxWdg-1)*maxWdg div 2);
-    for i:=1 to maxWdg do WdgList[i]:=TNamedObject.Create('dummy');
-    CoreList[1]:=TNamedObject.Create('dummy');
-    for i:=1 to ((maxWdg-1)*maxWdg div 2) do MeshList[i]:=TNamedObject.Create('dummy');
+    for i:=1 to maxWdg do WdgList[i-1]:=TNamedObject.Create('dummy');
+    CoreList[0]:=TNamedObject.Create('dummy');
+    for i:=1 to ((maxWdg-1)*maxWdg div 2) do MeshList[i-1]:=TNamedObject.Create('dummy');
 
     pXf := ActiveCircuit.Transformers.First;
     while pXf <> nil do begin
@@ -1356,20 +1360,20 @@ Begin
 
         // make the winding name objects for easy reference
         for i:=1 to NumberOfWindings do begin
-          WdgList[i].localName := pXf.Name + '_End_' + IntToStr(i);
-          WdgList[i].GUID := GetDevGuid (Wdg, pXf.Name, i);
+          WdgList[i-1].localName := pXf.Name + '_End_' + IntToStr(i);
+          WdgList[i-1].GUID := GetDevGuid (Wdg, pXf.Name, i);
         end;
-        CoreList[1].LocalName := pXf.Name + '_Yc';
-        CoreList[1].GUID := GetDevGuid (XfCore, pXf.Name, 1);
+        CoreList[0].LocalName := pXf.Name + '_Yc';
+        CoreList[0].GUID := GetDevGuid (XfCore, pXf.Name, 1);
         for i:=1 to ((maxWdg-1)*maxWdg div 2) do begin
-          MeshList[i].localName := pXf.Name + '_Zsc_' + IntToStr(i);
-          MeshList[i].GUID := GetDevGuid (XfMesh, pXf.Name, i);
+          MeshList[i-1].localName := pXf.Name + '_Zsc_' + IntToStr(i);
+          MeshList[i-1].GUID := GetDevGuid (XfMesh, pXf.Name, i);
         end;
 
         if length (pXf.XfmrCode) < 1 then begin // write the impedances first, if no XfmrCode
           val := BaseVoltage[1];  // write core Y
           zbase := val * val / baseVA;
-          StartInstance (F, 'TransformerCoreAdmittance', CoreList[1]);
+          StartInstance (F, 'TransformerCoreAdmittance', CoreList[0]);
           val := pXf.noLoadLossPct / 100.0 / zbase;
           DoubleNode (F, 'TransformerCoreAdmittance.g', val);
           DoubleNode (F, 'TransformerCoreAdmittance.g0', val);
@@ -1382,7 +1386,7 @@ Begin
             for k := i+1 to NumberOfWindings do begin
               val := BaseVoltage[i];
               zbase := val * val / (1000.0 * WdgKva[i]);
-              StartInstance (F, 'TransformerMeshImpedance', MeshList[seq]);
+              StartInstance (F, 'TransformerMeshImpedance', MeshList[seq-1]);
               val := zbase * (WdgResistance[i] + WdgResistance[k]);
               DoubleNode (F, 'TransformerMeshImpedance.r', val);
               DoubleNode (F, 'TransformerMeshImpedance.r0', val);
@@ -1397,17 +1401,17 @@ Begin
 
         // write the Ends, and a Terminal for each End
         for i:=1 to NumberOfWindings do begin
-          StartInstance (F, 'TransformerTankEnd', WdgList[i]);
+          StartInstance (F, 'TransformerTankEnd', WdgList[i-1]);
           IntegerNode (F, 'TransformerEnd.endNumber', i);
           XfmrPhasesEnum (F, pXf, i);
           if length (pXf.XfmrCode) < 1 then begin // wire in the Yc and Z exported above
-            if i=1 then RefNode (F, 'TransformerEnd.CoreAdmittance', CoreList[1]);
+            if i=1 then RefNode (F, 'TransformerEnd.CoreAdmittance', CoreList[0]);
             i3 := (NumberOfWindings-1)*NumberOfWindings div 2;
             i1 := 1;
             i2 := i1 + 1;
             for seq:=1 to i3 do begin
-              if i1=i then RefNode (F, 'TransformerEnd.FromMeshImpedance', MeshList[seq]);
-              if i2=i then RefNode (F, 'TransformerEnd.ToMeshImpedance', MeshList[seq]);
+              if i1=i then RefNode (F, 'TransformerEnd.FromMeshImpedance', MeshList[seq-1]);
+              if i2=i then RefNode (F, 'TransformerEnd.ToMeshImpedance', MeshList[seq-1]);
               inc(i2);
               if i2 > NumberOfWindings then begin
                 inc(i1);
