@@ -100,8 +100,8 @@ BusCoords IEEE37_BusXY.csv
 set maxiterations=100
 solve
 
-show voltages LL Nodes
+! show voltages LL Nodes
 ! show currents residual=y elements
-show powers kva elements
-show taps
+! show powers kva elements
+! show taps
 
