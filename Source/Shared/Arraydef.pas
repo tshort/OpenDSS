@@ -30,7 +30,7 @@ Type
     pDouble = ^Double;
     pSingle = ^Single;
     pSmallInt = ^SmallInt;
-    pLongIng = ^LongInt;
+    pLongInt = ^LongInt;
 
 Function AllocStringArray(Size:Integer):pStringArray;
 Procedure FreeStringArray(var pS:pStringArray; Size:Integer);
