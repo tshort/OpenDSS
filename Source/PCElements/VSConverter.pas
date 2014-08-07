@@ -26,6 +26,9 @@ TYPE
 
   TVSConverterObj = class(TPCElement)
     Private
+      FkVac:        Double;
+      FkVdc:        Double;
+      FkW:          Double;
       Fm:           Double;
       Fd:           Double;
       FRac:         Double;
@@ -66,7 +69,7 @@ implementation
 uses
   ParserDel, MyDSSClassDefs, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, MathUtil, Utilities, StrUtils;
 
-Const NumPropsthisclass = 16;
+Const NumPropsthisclass = 19;
   VSC_FIXED  = 0;
   VSC_PACVAC = 1;
   VSC_PACQAC = 2;
@@ -99,45 +102,51 @@ begin
   CountProperties;
   AllocatePropertyArrays;
 
-  PropertyName^[1]  := 'Bus1';
-  PropertyName^[2]  := 'phases';
-  PropertyName^[3]  := 'Ndc';
-  PropertyName^[4]  := 'Rac';
-  PropertyName^[5]  := 'Xac';
-  PropertyName^[6]  := 'm0';
-  PropertyName^[7]  := 'd0';
-  PropertyName^[8]  := 'Mmin';
-  PropertyName^[9]  := 'Mmax';
-  PropertyName^[10] := 'Iacmax';
-  PropertyName^[11] := 'Idcmax';
-  PropertyName^[12] := 'Vacref';
-  PropertyName^[13] := 'Pacref';
-  PropertyName^[14] := 'Qacref';
-  PropertyName^[15] := 'Vdcref';
-  PropertyName^[16] := 'VscMode';
+  PropertyName^[1]  := 'phases';
+  PropertyName^[2]  := 'Bus1';
+  PropertyName^[3]  := 'kVac';
+  PropertyName^[4]  := 'kVdc';
+  PropertyName^[5]  := 'kW';
+  PropertyName^[6]  := 'Ndc';
+  PropertyName^[7]  := 'Rac';
+  PropertyName^[8]  := 'Xac';
+  PropertyName^[9]  := 'm0';
+  PropertyName^[10] := 'd0';
+  PropertyName^[11] := 'Mmin';
+  PropertyName^[12] := 'Mmax';
+  PropertyName^[13] := 'Iacmax';
+  PropertyName^[14] := 'Idcmax';
+  PropertyName^[15] := 'Vacref';
+  PropertyName^[16] := 'Pacref';
+  PropertyName^[17] := 'Qacref';
+  PropertyName^[18] := 'Vdcref';
+  PropertyName^[19] := 'VscMode';
 
-  PropertyHelp[1]  := 'Name of converter bus, containing both AC and DC conductors. Bus2 is always ground.';
-  PropertyHelp[2]  := 'Number of AC plus DC conductors. Default is 4. AC phases numbered before DC conductors.';
-  PropertyHelp[3]  := 'Number of DC conductors. Default is 1. DC conductors numbered after AC phases.';
-  PropertyHelp[4]  := 'AC resistance (ohms) for the converter transformer, plus any series reactors. Default is 0.' + CRLF +
+  PropertyHelp[1]  := 'Number of AC plus DC conductors. Default is 4. AC phases numbered before DC conductors.';
+  PropertyHelp[2]  := 'Name of converter bus, containing both AC and DC conductors. Bus2 is always ground.';
+  PropertyHelp[3]  := 'Nominal AC line-neutral voltage in kV. Must be specified > 0.';
+  PropertyHelp[4]  := 'Nominal DC voltage in kV. Must be specified > 0.';
+  PropertyHelp[5]  := 'Nominal converter power in kW. Must be specified > 0.';
+  PropertyHelp[6]  := 'Number of DC conductors. Default is 1. DC conductors numbered after AC phases.';
+  PropertyHelp[7]  := 'AC resistance (ohms) for the converter transformer, plus any series reactors. Default is 0.' + CRLF +
                       'Must be 0 for Vac control mode.';
-  PropertyHelp[5]  := 'AC reactance (ohms) for the converter transformer, plus any series reactors. Default is 0.' + CRLF +
+  PropertyHelp[8]  := 'AC reactance (ohms) for the converter transformer, plus any series reactors. Default is 0.' + CRLF +
                       'Must be 0 for Vac control mode. Must be >0 for PacVac, PacQac or VacVdc control mode.';
-  PropertyHelp[6]  := 'Fixed or initial value of the modulation index. Default is 0.5.';
-  PropertyHelp[7]  := 'Fixed or initial value of the power angle in degrees. Default is 0.';
-  PropertyHelp[8]  := 'Minimum value of modulation index. Default is 0.1.';
-  PropertyHelp[9]  := 'Maximum value of modulation index. Default is 0.9.';
-  PropertyHelp[10] := 'Maximum value of AC line current, RMS Amps. Default is 0, for no limit.';
-  PropertyHelp[11] := 'Maximum value of DC current, Amps. Default is 0, for no limit.';
-  PropertyHelp[12] := 'Reference AC line-to-neutral voltage, RMS Volts. Default is 0.' + CRLF +
+  PropertyHelp[9]  := 'Fixed or initial value of the modulation index. Default is 0.5.';
+  PropertyHelp[10]  := 'Fixed or initial value of the power angle in degrees. Default is 0.';
+  PropertyHelp[11]  := 'Minimum value of modulation index. Default is 0.1.';
+  PropertyHelp[12]  := 'Maximum value of modulation index. Default is 0.9.';
+  PropertyHelp[13] := 'Maximum value of AC line current, RMS Amps. Default is 0, for no limit.';
+  PropertyHelp[14] := 'Maximum value of DC current, Amps. Default is 0, for no limit.';
+  PropertyHelp[15] := 'Reference AC line-to-neutral voltage, RMS Volts. Default is 0.' + CRLF +
                       'Applies to PacVac and VdcVac control modes, influencing m.';
-  PropertyHelp[13] := 'Reference total AC real power, Watts. Default is 0.' + CRLF +
+  PropertyHelp[16] := 'Reference total AC real power, Watts. Default is 0.' + CRLF +
                       'Applies to PacVac and PacQac control modes, influencing d.';
-  PropertyHelp[14] := 'Reference total AC reactive power, Vars. Default is 0.' + CRLF +
+  PropertyHelp[17] := 'Reference total AC reactive power, Vars. Default is 0.' + CRLF +
                       'Applies to PacQac and VdcQac control modes, influencing m.';
-  PropertyHelp[15] := 'Reference DC voltage, Volts. Default is 0.' + CRLF +
+  PropertyHelp[18] := 'Reference DC voltage, Volts. Default is 0.' + CRLF +
                       'Applies to VdcVac control mode, influencing d.';
-  PropertyHelp[16] := 'Control Mode (Fixed|PacVac|PacQac|VdcVac|VdcQac). Default is Fixed.';
+  PropertyHelp[19] := 'Control Mode (Fixed|PacVac|PacQac|VdcVac|VdcQac). Default is Fixed.';
 
   ActiveProperty := NumPropsThisClass;
   inherited DefineProperties;
@@ -189,26 +198,29 @@ begin
       if (ParamPointer>0) and (ParamPointer<=NumProperties) then PropertyValue[ParamPointer]:= Param;
       case ParamPointer of
         0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 350);
-        1: VscSetBus1(param);
-        2: if Fnphases <> Parser.IntValue then begin
+        1: if Fnphases <> Parser.IntValue then begin
              Nphases := Parser.IntValue ;
              NConds := Fnphases;
              ActiveCircuit.BusNameRedefined := True;
           end;
-        3: FNdc := Parser.IntValue;
-        4: FRac := Parser.DblValue;
-        5: FXac := Parser.DblValue;
-        6: Fm := Parser.DblValue;
-        7: Fd := Parser.DblValue;
-        8: FMinM := Parser.DblValue;
-        9: FMaxM := Parser.DblValue;
-        10: FMaxIac := Parser.DblValue;
-        11: FMaxIdc := Parser.DblValue;
-        12: FRefVac := Parser.DblValue;
-        13: FRefPac := Parser.DblValue;
-        14: FRefQac := Parser.DblValue;
-        15: FRefVdc := Parser.DblValue;
-        16: begin
+        2: VscSetBus1(param);
+        3: FkVac := Parser.DblValue;
+        4: FkVdc := Parser.DblValue;
+        5: FkW := Parser.DblValue;
+        6: FNdc := Parser.IntValue;
+        7: FRac := Parser.DblValue;
+        8: FXac := Parser.DblValue;
+        9: Fm := Parser.DblValue;
+        10: Fd := Parser.DblValue;
+        11: FMinM := Parser.DblValue;
+        12: FMaxM := Parser.DblValue;
+        13: FMaxIac := Parser.DblValue;
+        14: FMaxIdc := Parser.DblValue;
+        15: FRefVac := Parser.DblValue;
+        16: FRefPac := Parser.DblValue;
+        17: FRefQac := Parser.DblValue;
+        18: FRefVdc := Parser.DblValue;
+        19: begin
             Tok := Uppercase (LeftStr (param, 4));
             if CompareStr (LeftStr(Tok, 1), 'F') = 0 then
               Fmode := VSC_FIXED
@@ -255,6 +267,9 @@ begin
         FNdc := OtherVSC.FNdc;
         Yorder := FnConds * FnTerms;
         YPrimInvalid := True;
+        FkVac := OtherVSC.FkVac;
+        FkVdc := OtherVSC.FkVdc;
+        FkW := OtherVSC.FkW;
         FRac := OtherVSC.FRac;
         FXac := OtherVSC.FXac;
         Fm := OtherVSC.Fm;
@@ -299,6 +314,10 @@ begin
   Fnconds := 4;
   Nterms := 2; // two-terminal device, like the voltage source
   FNdc := 1;
+
+  FkVac := 1.0;
+  FkVdc := 1.0;
+  FkW := 1.0;
 
   Fmode := VSC_FIXED;
   FRac := EPSILON;
@@ -422,10 +441,10 @@ begin
   end;
   Pac := Stotal.re;
   Qac := Stotal.im;
-  if (Pac = 0.0) then Pac := 1.0;
+  if (Pac = 0.0) then Pac := 1000.0 * FkW;
 
   Vdc := Vterminal^[FNphases];
-  if (Vdc.re = 0.0) and (Vdc.im = 0.0) then Vdc := CONE;
+  if (Vdc.re = 0.0) and (Vdc.im = 0.0) then Vdc.re := 1000.0 * FkVdc;
 
   // set the control parameters
   Vmag := CMulReal (Vdc, 0.353553 * Fm);
@@ -454,27 +473,30 @@ var
 begin
   inherited DumpProperties(F, complete);
   with ParentClass do begin
-    Writeln(F,'~ ',PropertyName^[1],'=',firstbus);
-    Writeln(F,'~ ',PropertyName^[2],'=',Fnphases:0);
-    Writeln(F,'~ ',PropertyName^[3],'=',FNdc:0);
-    Writeln(F,'~ ',PropertyName^[4],'=',FRac:0:4);
-    Writeln(F,'~ ',PropertyName^[5],'=',FXac:0:4);
-    Writeln(F,'~ ',PropertyName^[6],'=',Fm:0:4);
-    Writeln(F,'~ ',PropertyName^[7],'=',Fd:0:4);
-    Writeln(F,'~ ',PropertyName^[8],'=',FMinM:0:4);
-    Writeln(F,'~ ',PropertyName^[9],'=',FMaxM:0:4);
-    Writeln(F,'~ ',PropertyName^[10],'=',FMaxIac:0:4);
-    Writeln(F,'~ ',PropertyName^[11],'=',FMaxIdc:0:4);
-    Writeln(F,'~ ',PropertyName^[12],'=',FRefVac:0:4);
-    Writeln(F,'~ ',PropertyName^[13],'=',FRefPac:0:4);
-    Writeln(F,'~ ',PropertyName^[14],'=',FRefQac:0:4);
-    Writeln(F,'~ ',PropertyName^[15],'=',FRefVdc:0:4);
+    Writeln(F,'~ ',PropertyName^[1],'=',Fnphases:0);
+    Writeln(F,'~ ',PropertyName^[2],'=',firstbus);
+    Writeln(F,'~ ',PropertyName^[3],'=',FkVac:8:1);
+    Writeln(F,'~ ',PropertyName^[4],'=',FkVdc:8:1);
+    Writeln(F,'~ ',PropertyName^[5],'=',FkW:8:1);
+    Writeln(F,'~ ',PropertyName^[6],'=',FNdc:0);
+    Writeln(F,'~ ',PropertyName^[7],'=',FRac:0:4);
+    Writeln(F,'~ ',PropertyName^[8],'=',FXac:0:4);
+    Writeln(F,'~ ',PropertyName^[9],'=',Fm:0:4);
+    Writeln(F,'~ ',PropertyName^[10],'=',Fd:0:4);
+    Writeln(F,'~ ',PropertyName^[11],'=',FMinM:0:4);
+    Writeln(F,'~ ',PropertyName^[12],'=',FMaxM:0:4);
+    Writeln(F,'~ ',PropertyName^[13],'=',FMaxIac:0:4);
+    Writeln(F,'~ ',PropertyName^[14],'=',FMaxIdc:0:4);
+    Writeln(F,'~ ',PropertyName^[15],'=',FRefVac:0:4);
+    Writeln(F,'~ ',PropertyName^[16],'=',FRefPac:0:4);
+    Writeln(F,'~ ',PropertyName^[17],'=',FRefQac:0:4);
+    Writeln(F,'~ ',PropertyName^[18],'=',FRefVdc:0:4);
     case Fmode of
-      VSC_FIXED:   Writeln(F, '~ ', PropertyName^[16], '= Fixed');
-      VSC_PACVAC:  Writeln(F, '~ ', PropertyName^[16], '= PacVac');
-      VSC_PACQAC:  Writeln(F, '~ ', PropertyName^[16], '= PacQac');
-      VSC_VDCVAC:  Writeln(F, '~ ', PropertyName^[16], '= VdcVac');
-      VSC_VDCQAC:  Writeln(F, '~ ', PropertyName^[16], '= VdcQac');
+      VSC_FIXED:   Writeln(F, '~ ', PropertyName^[19], '= Fixed');
+      VSC_PACVAC:  Writeln(F, '~ ', PropertyName^[19], '= PacVac');
+      VSC_PACQAC:  Writeln(F, '~ ', PropertyName^[19], '= PacQac');
+      VSC_VDCVAC:  Writeln(F, '~ ', PropertyName^[19], '= VdcVac');
+      VSC_VDCQAC:  Writeln(F, '~ ', PropertyName^[19], '= VdcQac');
     end;
     for i := NumPropsthisClass+1 to NumProperties do begin
       Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
@@ -484,22 +506,25 @@ end;
 
 procedure TVSConverterObj.InitPropertyValues(ArrayOffset: Integer);
 begin
-  PropertyValue[1] := getbus(1);
-  PropertyValue[2] := '4';
+  PropertyValue[1] := '4';
+  PropertyValue[2] := getbus(1);
   PropertyValue[3] := '1';
-  PropertyValue[4] := '0';
-  PropertyValue[5] := '0';
-  PropertyValue[6] := '0.5';
+  PropertyValue[4] := '1';
+  PropertyValue[5] := '1';
+  PropertyValue[6] := '1';
   PropertyValue[7] := '0';
-  PropertyValue[8] := '0.1';
-  PropertyValue[9] := '0.9';
+  PropertyValue[8] := '0';
+  PropertyValue[9] := '0.5';
   PropertyValue[10] := '0';
-  PropertyValue[11] := '0';
-  PropertyValue[12] := '0';
+  PropertyValue[11] := '0.1';
+  PropertyValue[12] := '0.9';
   PropertyValue[13] := '0';
   PropertyValue[14] := '0';
   PropertyValue[15] := '0';
-  PropertyValue[16] := 'FIXED';
+  PropertyValue[16] := '0';
+  PropertyValue[17] := '0';
+  PropertyValue[18] := '0';
+  PropertyValue[19] := 'FIXED';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 end;
@@ -507,22 +532,25 @@ end;
 function TVSConverterObj.GetPropertyValue(Index: Integer): String;
 begin
   case Index of
-    1: Result := GetBus(1);
-    2: Result := Format('%d', [Nphases]);
-    3: Result := Format('%d', [FNdc]);
-    4: Result := Format('%.8g', [FRac]);
-    5: Result := Format('%.8g', [FXac]);
-    6: Result := Format('%.8g', [Fm]);
-    7: Result := Format('%.8g', [Fd]);
-    8: Result := Format('%.8g', [FMinM]);
-    9: Result := Format('%.8g', [FMaxM]);
-    10: Result := Format('%.8g', [FMaxIac]);
-    11: Result := Format('%.8g', [FMaxIdc]);
-    12: Result := Format('%.8g', [FRefVac]);
-    13: Result := Format('%.8g', [FRefPac]);
-    14: Result := Format('%.8g', [FRefQac]);
-    15: Result := Format('%.8g', [FRefVdc]);
-    16: case Fmode of
+    1: Result := Format('%d', [Nphases]);
+    2: Result := GetBus(1);
+    3: Result := Format('%.8g', [FkVac]);
+    4: Result := Format('%.8g', [FkVdc]);
+    5: Result := Format('%.8g', [FkW]);
+    6: Result := Format('%d', [FNdc]);
+    7: Result := Format('%.8g', [FRac]);
+    8: Result := Format('%.8g', [FXac]);
+    9: Result := Format('%.8g', [Fm]);
+    10: Result := Format('%.8g', [Fd]);
+    11: Result := Format('%.8g', [FMinM]);
+    12: Result := Format('%.8g', [FMaxM]);
+    13: Result := Format('%.8g', [FMaxIac]);
+    14: Result := Format('%.8g', [FMaxIdc]);
+    15: Result := Format('%.8g', [FRefVac]);
+    16: Result := Format('%.8g', [FRefPac]);
+    17: Result := Format('%.8g', [FRefQac]);
+    18: Result := Format('%.8g', [FRefVdc]);
+    19: case Fmode of
       VSC_FIXED:   Result := 'Fixed';
       VSC_PACVAC:  Result := 'PacVac';
       VSC_PACQAC:  Result := 'PacQac';
