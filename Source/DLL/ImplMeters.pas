@@ -779,7 +779,7 @@ begin
          If pMeterObj <> Nil Then Begin
              PD_Element := pMeterObj.SequenceList.Get(1) ;
              If Assigned (PD_Element) Then With PD_Element Do
-                 Result := Buses^[Terminals^[FromTerminal].BusRef].TotalNumCustomers;
+                 Result := Buses^[Terminals^[FromTerminal].BusRef].BusTotalNumCustomers;
          End;
      End;
 end;

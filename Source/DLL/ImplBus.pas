@@ -580,7 +580,7 @@ begin
   if ActiveCircuit <> Nil then
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
-         Result := Buses^[ActiveBusIndex].Int_Duration;
+         Result := Buses^[ActiveBusIndex].Bus_Int_Duration;
 end;
 
 function TBus.Get_Lambda: Double;
@@ -589,7 +589,7 @@ begin
   if ActiveCircuit <> Nil then
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
-         Result := Buses^[ActiveBusIndex].Lambda;
+         Result := Buses^[ActiveBusIndex].BusLambda;
 end;
 
 function TBus.Get_Cust_Duration: Double;
@@ -598,7 +598,7 @@ begin
   if ActiveCircuit <> Nil then
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
-         Result := Buses^[ActiveBusIndex].CustDurations ;
+         Result := Buses^[ActiveBusIndex].BusCustDurations ;
 end;
 
 function TBus.Get_Cust_Interrupts: Double;
@@ -607,7 +607,7 @@ begin
   if ActiveCircuit <> Nil then
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
-         Result := Buses^[ActiveBusIndex].CustDurations ;
+         Result := Buses^[ActiveBusIndex].BusCustDurations ;
 end;
 
 function TBus.Get_N_Customers: Integer;
@@ -616,7 +616,7 @@ begin
   if ActiveCircuit <> Nil then
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
-         Result := Buses^[ActiveBusIndex].TotalNumCustomers  ;
+         Result := Buses^[ActiveBusIndex].BusTotalNumCustomers  ;
 end;
 
 function TBus.Get_N_interrupts: Double;
@@ -625,7 +625,7 @@ begin
   if ActiveCircuit <> Nil then
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
-         Result := Buses^[ActiveBusIndex].Num_Interrupt ;
+         Result := Buses^[ActiveBusIndex].Bus_Num_Interrupt ;
 end;
 
 
@@ -827,7 +827,7 @@ begin
   if ActiveCircuit <> Nil then
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
-         Result := Buses^[ActiveBusIndex].TotalMiles  ;
+         Result := Buses^[ActiveBusIndex].BusTotalMiles  ;
 end;
 
 initialization

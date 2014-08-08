@@ -212,7 +212,7 @@ begin
       With ActiveCircuit Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
-              Result := ActivePDElement.AccumulatedLambda ;
+              Result := ActivePDElement.AccumulatedBranchLambda ;
           End;
       End;
 
@@ -227,7 +227,7 @@ begin
       With ActiveCircuit Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
-              Result := ActivePDElement.Lambda;
+              Result := ActivePDElement.BranchLambda;
           End;
       End;
 
@@ -242,7 +242,7 @@ begin
       With ActiveCircuit Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
-              Result := ActivePDElement.NumCustomers;
+              Result := ActivePDElement.BranchNumCustomers;
           End;
       End;
 
@@ -287,7 +287,7 @@ begin
       With ActiveCircuit Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
-              Result := ActivePDElement.TotalCustomers;
+              Result := ActivePDElement.BranchTotalCustomers;
           End;
       End;
 end;
@@ -319,7 +319,7 @@ begin
       With ActiveCircuit Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
-              Result := ActivePDElement.AccumulatedMiles;
+              Result := ActivePDElement.AccumulatedMilesDownStream;
           End;
       End;
 end;

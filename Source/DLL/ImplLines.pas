@@ -840,7 +840,7 @@ begin
   IF ActiveCircuit <> NIL
   THEN If IsLine(ActiveCircuit.ActiveCktElement)
   THEN Begin
-       Result := TLineObj(ActiveCircuit.ActiveCktElement).NumCustomers ;
+       Result := TLineObj(ActiveCircuit.ActiveCktElement).BranchNumCustomers  ;
   End
 end;
 
@@ -850,7 +850,7 @@ begin
   IF ActiveCircuit <> NIL
   THEN If IsLine(ActiveCircuit.ActiveCktElement)
   THEN Begin
-       Result := TLineObj(ActiveCircuit.ActiveCktElement).TotalCustomers  ;
+       Result := TLineObj(ActiveCircuit.ActiveCktElement).BranchTotalCustomers  ;
   End
 end;
 
