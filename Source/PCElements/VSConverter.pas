@@ -136,8 +136,8 @@ begin
   PropertyHelp[10]  := 'Fixed or initial value of the power angle in degrees. Default is 0.';
   PropertyHelp[11]  := 'Minimum value of modulation index. Default is 0.1.';
   PropertyHelp[12]  := 'Maximum value of modulation index. Default is 0.9.';
-  PropertyHelp[13] := 'Maximum value of AC line current, RMS Amps. Default is 0, for no limit.';
-  PropertyHelp[14] := 'Maximum value of DC current, Amps. Default is 0, for no limit.';
+  PropertyHelp[13] := 'Maximum value of AC line current, per-unit of nominal. Default is 2.';
+  PropertyHelp[14] := 'Maximum value of DC current, per-unit of nominal. Default is 2.';
   PropertyHelp[15] := 'Reference AC line-to-neutral voltage, RMS Volts. Default is 0.' + CRLF +
                       'Applies to PacVac and VdcVac control modes, influencing m.';
   PropertyHelp[16] := 'Reference total AC real power, Watts. Default is 0.' + CRLF +
@@ -330,8 +330,8 @@ begin
   FrefVdc := 0.0;
   FminM := 0.1;
   FmaxM := 0.9;
-  FmaxIac := 0.0;
-  FmaxIdc := 0.0;
+  FmaxIac := 2.0;
+  FmaxIdc := 2.0;
 
   InitPropertyValues(0);
   Yorder := Fnterms * Fnconds;
@@ -414,9 +414,9 @@ end;
 
 procedure TVSConverterObj.GetInjCurrents(Curr:pComplexArray);
 var
-  Vmag, Idc: Complex;
+  Vmag: Complex;
   Vdc, Sphase, Stotal: Complex;
-  Pac, Qac, Deg : Double;
+  Pac, Qac, Deg, Idc, Ilim : Double;
   i, Nac: integer;
 begin
 
@@ -429,41 +429,44 @@ begin
    }
 
   Nac := FNphases - FNdc;
+  Ilim := FMaxIdc * Fkw / FkVdc;
 
   // obtain the terminal control quantities
+  ComputeVterminal;
+  ITerminalUpdated := FALSE;
+  GetTerminalCurrents (ITerminal);
+
+  // do the AC voltage source injection - dependent voltage sources kept in ComplexBuffer
+  Vdc := Vterminal^[FNphases];
+  if (Vdc.re = 0.0) and (Vdc.im = 0.0) then Vdc.re := 1000.0 * FkVdc;
+  Vmag := CMulReal (Vdc, 0.353553 * Fm);
+  RotatePhasorDeg(Vmag, 1.0, Fd);
+  ComplexBuffer^[1] := Vmag;
+  Deg := -360.0 / Nac;
+  for i := 2 to Nac do begin
+    RotatePhasorDeg(Vmag, 1.0, Deg);
+    ComplexBuffer^[i] := Vmag;
+  end;
+  ComplexBuffer^[FNPhases] := CZERO;
+  YPrim.MVMult(Curr, ComplexBuffer);
+
+  // calculate the converter AC power, exclusive of the losses
   Stotal.re := 0.0;
   Stotal.im := 0.0;
-  for i := 1 to Yorder do Vterminal^[i] := ActiveCircuit.Solution.NodeV^[NodeRef^[i]];
-  GetTerminalCurrents (ITerminal);
   for i := 1 to Nac do begin
-    Sphase := Cmul (Vterminal^[i], Conjg(Iterminal^[i]));
+    Sphase := Cmul (ComplexBuffer^[i], Conjg(Iterminal^[i]));
     Stotal := Cadd (Stotal, Sphase);
   end;
   Pac := Stotal.re;
   Qac := Stotal.im;
   if (Pac = 0.0) then Pac := 1000.0 * FkW;
 
-  Vdc := Vterminal^[FNphases];
-  if (Vdc.re = 0.0) and (Vdc.im = 0.0) then Vdc.re := 1000.0 * FkVdc;
-
-  // set the control parameters
-  Vmag := CMulReal (Vdc, 0.353553 * Fm);
-
-  // do the AC voltage source injection
-  RotatePhasorDeg(Vmag, 1.0, Fd);
-  Vterminal^[1] := Vmag;
-  Deg := -360.0 / Nac;
-  for i := 2 to Nac do begin
-    RotatePhasorDeg(Vmag, 1.0, Deg);
-    Vterminal^[i] := Vmag;
-  end;
-  YPrim.MVMult(Curr, Vterminal);
-
   // do the DC current source injection
-  Idc := cmplx (Pac / Cabs(Vdc), 0.0);
-  Idc := cmplx (17.78, 0.0);
-  Curr^[FNphases] := Idc;
-  Curr^[2*FNphases] := cnegate(Idc);
+  Idc := Pac / Cabs(Vdc);
+  if Idc > Ilim then Idc := Ilim;
+  if Idc < -Ilim then Idc := -Ilim;
+  Curr^[FNphases] := cmplx (Idc, 0.0);
+  Curr^[2*FNphases] := cmplx (-Idc, 0.0);
   ITerminalUpdated := FALSE;
 end;
 
