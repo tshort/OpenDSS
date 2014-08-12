@@ -2452,9 +2452,12 @@ FUNCTION DoBusCoordsCmd(SwapXY:Boolean):Integer;
 
 Var
 
-   F:TextFile;
-   ParamName, Param, S, BusName:String;
-   iB:Integer;
+   F : TextFile;
+   ParamName, Param,
+   S,
+   BusName : String;
+   iB      : Integer;
+   iLine   : Integer;
 
 Begin
     Result := 0;
@@ -2465,14 +2468,16 @@ Begin
     Param := Parser.StrValue;
 
     Try
-
+      iLine := -1;
       Try
          AssignFile(F, Param);
          Reset(F);
-
+         iLine := 0;
          While not EOF(F) Do
           Begin
+             Inc(iLine);
              Readln(F, S);      // Read line in from file
+
              With AuxParser Do Begin      // User Auxparser to parse line
                    CmdString := S;
                    NextParam;  BusName := StrValue;
@@ -2490,7 +2495,10 @@ Begin
 
       Except
       {**CHANGE THIS ERROR MESSAGE**}
-          ON E:Exception Do DoSimpleMsg('Bus Coordinate file: "' + Param + '" not found.', 275);
+          ON E:Exception Do Begin
+              If iLine = -1 Then DoSimpleMsg('Bus Coordinate file: "' + Param + '" not found; ' + E.Message , 275)
+              Else DoSimpleMsg('Bus Coordinate file: Error Reading Line ' + InttoStr(Iline)+'; ' + E.Message , 275);
+          End;
       End;
 
     Finally
