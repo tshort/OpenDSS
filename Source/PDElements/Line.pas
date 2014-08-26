@@ -288,7 +288,9 @@ Begin
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
-     PropertyHelp[NumPropsThisClass + 3] := 'Failure rate PER UNIT LENGTH per year. Length must be same units as LENGTH property.' ;
+     PropertyHelp[NumPropsThisClass + 3] := 'Failure rate PER UNIT LENGTH per year. Length must be same units as LENGTH property. Default is 0.1 fault per unit length per year.' ;
+     PropertyHelp[NumPropsThisClass + 4] := PropertyHelp[NumPropsThisClass + 4] + ' Default is 20.';
+     PropertyHelp[NumPropsThisClass + 5] := PropertyHelp[NumPropsThisClass + 5] + ' Default is 3 hr.';
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -306,9 +308,10 @@ procedure TLineObj.UpdatePDProperties;
 begin
   PropertyValue[NumPropsThisClass + 1] := Format('%-g', [Normamps]);
   PropertyValue[NumPropsThisClass + 2] := Format('%-g', [EmergAmps]);
-  PropertyValue[NumPropsThisClass + 3] := Format('%-g', [FaultRate]);
-  PropertyValue[NumPropsThisClass + 4] := Format('%-g', [PctPerm]);
-  PropertyValue[NumPropsThisClass + 5] := Format('%-g', [HrsToRepair]);
+  // commented out 8/26/2014
+  // PropertyValue[NumPropsThisClass + 3] := Format('%-g', [FaultRate]);
+  // PropertyValue[NumPropsThisClass + 4] := Format('%-g', [PctPerm]);
+  // PropertyValue[NumPropsThisClass + 5] := Format('%-g', [HrsToRepair]);
 end;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -356,9 +359,15 @@ Begin
 
        NormAmps  := LineCodeObj.NormAmps;
        EmergAmps := LineCodeObj.EmergAmps;
-       FaultRate := LineCodeObj.FaultRate;
-       PctPerm   := LineCodeObj.PctPerm;
-       HrsToRepair := LineCodeObj.HrsToRepair;
+
+       // These three properties should not come from the Linecode
+       //   But can vary from line section to line section
+       // commented out 8/26/2014
+       // FaultRate := LineCodeObj.FaultRate;
+       // PctPerm   := LineCodeObj.PctPerm;
+       // HrsToRepair := LineCodeObj.HrsToRepair;
+
+
        UpdatePDProperties;
 
 
