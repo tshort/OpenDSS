@@ -315,13 +315,23 @@ procedure TMainEditForm.FormClose(Sender: TObject;
 begin
     IF Self <> MainEditForm Then Begin
        If HasBeenModified Then
-       Case MessageDlg('File '+Caption+' has changed.  Save ?', mtConfirmation, [mbYes, mbNo], 0) of
-            mrYes: SaveEditorContents;
+         Case MessageDlg('File '+Caption+' has changed.  Save ?', mtConfirmation, [mbYes, mbNo], 0) of
+              mrYes: Begin
+                        SaveEditorContents;
+                     End;
+         Else    {no}
+         End;
+
+       Case MessageDlg('Do you want to close file '+Caption+'  ?', mtConfirmation, [mbYes, mbNo], 0) of
+            mrYes: Begin
+                    ScriptWindowList.Remove(Self);
+                    Action := caFree;
+                   End
        Else
+          Action := caNone; {do Nothing}
        End;
 
-       ScriptWindowList.Remove(Self);
-       Action := caFree;
+
     End;
 end;
 

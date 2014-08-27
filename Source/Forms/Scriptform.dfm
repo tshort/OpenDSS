@@ -41,8 +41,6 @@ object MainEditForm: TMainEditForm
     OnChange = EditorChange
     OnKeyDown = EditorKeyDown
     OnSelectionChange = EditorSelectionChange
-    ExplicitWidth = 585
-    ExplicitHeight = 347
   end
   object ToolBar1: TToolBar
     Left = 0
@@ -51,7 +49,6 @@ object MainEditForm: TMainEditForm
     Height = 27
     Caption = 'ToolBar1'
     TabOrder = 1
-    ExplicitWidth = 585
     object FontBtn: TButton
       Left = 0
       Top = 0
