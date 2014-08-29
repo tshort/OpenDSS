@@ -47,6 +47,7 @@ type
     function Get_puVmagAngle: OleVariant; safecall;
     function Get_VMagAngle: OleVariant; safecall;
     function Get_TotalMiles: Double; safecall;
+    function Get_SectionID: Integer; safecall;
   end;
 
 implementation
@@ -589,7 +590,7 @@ begin
   if ActiveCircuit <> Nil then
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
-         Result := Buses^[ActiveBusIndex].BusLambda;
+         Result := Buses^[ActiveBusIndex].BusFltRate;
 end;
 
 function TBus.Get_Cust_Duration: Double;
@@ -828,6 +829,15 @@ begin
     With ActiveCircuit Do
       if ActiveBusIndex > 0 then
          Result := Buses^[ActiveBusIndex].BusTotalMiles  ;
+end;
+
+function TBus.Get_SectionID: Integer;
+begin
+  Result := 0;
+  if ActiveCircuit <> Nil then
+    With ActiveCircuit Do
+      if ActiveBusIndex > 0 then
+         Result := Buses^[ActiveBusIndex].BusSectionID  ;
 end;
 
 initialization

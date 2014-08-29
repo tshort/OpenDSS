@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 7/9/2014 11:55:49 AM (- $Rev: 12980 $, 15195308).
+// File generated on 8/8/2014 11:09:45 AM (- $Rev: 12980 $, 5643445).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -678,6 +678,8 @@ library OpenDSSengine
     HRESULT _stdcall puVmagAngle([out, retval] VARIANT* Value);
     [propget, id(0x000000D9), helpstring("Total length of line downline from this bus, in miles. For recloser siting algorithm.")]
     HRESULT _stdcall TotalMiles([out, retval] double* Value);
+    [propget, id(0x000000DA), helpstring("Integer ID of the feeder section in which this bus is located.")]
+    HRESULT _stdcall SectionID([out, retval] long* Value);
   };
 
   [
@@ -2195,6 +2197,8 @@ library OpenDSSengine
     HRESULT _stdcall FromTerminal([out, retval] long* Value);
     [propget, id(0x000000D7), helpstring("Total miles of line from this element to the end of the zone. For recloser siting algorithm.")]
     HRESULT _stdcall TotalMiles([out, retval] double* Value);
+    [propget, id(0x000000D8), helpstring("Integer ID of the feeder section that this PDElement branch is part of")]
+    HRESULT _stdcall SectionID([out, retval] long* Value);
   };
 
   [

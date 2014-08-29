@@ -38,6 +38,7 @@ TYPE
     pCktElementDefArray = ^CktElementDefArray;
     CktElementDefArray = Array[1..1] of CktElementDef;
 
+
      // for adding markers to Plot
     TBusMarker = class(TObject)
     // Must be defined before calling circuit plot
@@ -73,6 +74,8 @@ TYPE
 
           Branch_List: TCktTree; // topology from the first source, lazy evaluation
           BusAdjPC, BusAdjPD: TAdjArray; // bus adjacency lists of PD and PC elements
+
+
 
           Procedure AddDeviceHandle(Handle:Integer);
           Procedure AddABus;
@@ -241,6 +244,7 @@ TYPE
           {---------------------------------}
 
           ActiveLoadShapeClass: Integer;
+
 
           Constructor Create(const aName:String);
           Destructor Destroy; Override;
@@ -465,6 +469,8 @@ BEGIN
    Branch_List := nil;
    BusAdjPC    := nil;
    BusAdjPD    := nil;
+
+
 END;
 
 //----------------------------------------------------------------------------

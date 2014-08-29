@@ -18,10 +18,36 @@ unit ParserDel;
 interface
 
 Uses
-    Arraydef, classes,{controls,} DSSForms, Sysutils, RPN;
+    Arraydef, classes,{controls,} DSSForms, Sysutils, RPN, HashList;
 
 Type
      EParserProblem = class(Exception);
+
+     {Class for keeping a list of variablel and associate values}
+     TParserVar = class(Tobject)
+       private
+            ActiveVariable : Cardinal;
+            StringArraySize: Cardinal;
+            FsizeIncrement : Cardinal;
+
+            VarNames  : THashList;
+            VarValues : pStringArray;
+            function get_value: String;
+            procedure set_value(const Value: String);
+            function Get_VarString(Idx: Cardinal): String;
+       public
+
+       NumVariables   : Cardinal;
+
+       constructor Create(InitSize:Cardinal);
+       destructor Destroy; override;
+
+       Function Add(Const VarName, VarValue:String):Integer;      // returns number of variables
+       Function Lookup(Const VarName:String):Integer;                  // returns index or 0
+       Property Value:String read get_value write set_value;
+       Property VarString[Idx:Cardinal]:String Read Get_VarString;
+
+     end;
 
      TParser = class(TObject)
      private
@@ -77,7 +103,9 @@ Type
        Property AutoIncrement:Boolean   read FAutoIncrement   write FAutoIncrement;
      end;
 
-     Var  Parser:TParser;
+     Var  Parser : TParser;
+          ParserVars : TParserVar;
+
 
 implementation
 
@@ -85,6 +113,7 @@ Uses  Dialogs;
 
 CONST
   Commentchar = '!';
+  VariableDelimiter = '@';  // first character of a variable
 
 {=======================================================================================================================}
 
@@ -150,6 +179,8 @@ Begin
      MatrixRowTerminator := '|';
      FAutoIncrement      := FALSE;
      RPNCalculator       := TRPNCalc.Create;
+
+
 End;
 
 {=======================================================================================================================}
@@ -349,6 +380,12 @@ Begin
        ParameterBuffer := '';
        TokenBuffer := '';
    End;
+
+   {Replace TokenBuffer with Variable value if first character is VariableDelimiter character}
+   If Length(TokenBuffer)>1 Then
+      If TokenBuffer[1]=VariableDelimiter Then
+            If ParserVars.Lookup(TokenBuffer) > 0 then TokenBuffer := ParserVars.Value;
+
    Result := ParameterBuffer;
 
 End;
@@ -652,8 +689,118 @@ BEGIN
 
 end;
 
-{=======================================================================================================================}
+{===================================== Variable Support =============================================================}
+
+{ TParserVar }
+
+Procedure ReallocStr(Var S:pStringArray; oldSize, NewSize:Integer);
+// Make a bigger block to hold the pointers to the strings
+VAR
+    X:pStringArray;
+BEGIN
+    X := Allocmem(NewSize);   // Zero fills new string pointer array (important!)
+    IF OldSize>0 THEN BEGIN
+      Move(S^, X^, OldSize);
+      Freemem(S,Oldsize);
+    END;
+    S := X;
+END;
+
+function TParserVar.Add(const VarName, VarValue: String): Integer;
+Var
+   idx : Cardinal;
+
+begin
+
+    // First, check to see if the varname already exists
+    // if so, just change the value
+    idx := Varnames.Find(lowercase(Varname));
+
+    If idx = 0 Then  Begin
+         idx := VarNames.Add(VarName);  // Hashlist will take care of itself
+         If idx > StringArraySize Then  Begin
+            // resize String array
+            ReallocStr(VarValues, Sizeof(VarValues^[1])*StringArraySize, Sizeof(VarValues^[1])*(StringArraySize + FsizeIncrement));
+            inc(StringArraySize, FsizeIncrement);
+         End;
+    End;
+
+    VarValues^[idx] := VarValue;
+    NumVariables := VarNames.ListSize;
+    Result := idx;
+
+end;
+
+constructor TParserVar.Create(InitSize: Cardinal);
+begin
+
+     VarNames := THashList.Create(InitSize);
+     VarValues := AllocStringArray(InitSize);
+     StringArraySize := InitSize;
+     FsizeIncrement  := InitSize;
+
+     // Intrinsic Variables go here...
+     ActiveVariable:= VarNames.Add('@lastfile');
+     VarValues^[ActiveVariable] := 'null';  // null value
+     ActiveVariable:= VarNames.Add('@lastexportfile');
+     VarValues^[ActiveVariable] := 'null';  // null value
+     ActiveVariable:= VarNames.Add('@lastshowfile');
+     VarValues^[ActiveVariable] := 'null';  // null value
+     ActiveVariable:= VarNames.Add('@lastplotfile');
+     VarValues^[ActiveVariable] := 'null';  // null value
+
+     NumVariables := Varnames.ListSize;
+
+end;
+
+destructor TParserVar.Destroy;
+begin
+  VarNames.Free;
+  FreeStringArray(VarValues, StringArraySize);
+
+  inherited;
+end;
+
+function TParserVar.get_value: String;
+begin
+      If ActiveVariable > 0  Then Result := VarValues^[ActiveVariable]
+      Else Result := '';
+end;
+
+function TParserVar.Get_VarString(Idx: Cardinal): String;
+   function TestEmpty(const s:String):String;
+   Begin
+        If Length(s)=0 Then Result := 'null'
+        Else Result := S;
+   End;
+begin
+     If (idx>0) and (idx<=NumVariables) Then
+        Result := Format('%s. %s',[Varnames.Get(idx), TestEmpty(VarValues^[idx])])
+     Else
+        Result := 'Variable index out of range';
+end;
+
+function TParserVar.Lookup(const VarName:String): Integer;
+begin
+     ActiveVariable := VarNames.Find(VarName);
+     Result := ActiveVariable;
+end;
+
+procedure TParserVar.set_value(const Value: String);
+begin
+     If   (ActiveVariable > 0)
+     and  (ActiveVariable <= NumVariables)
+     Then VarValues^[ActiveVariable] := Value;
+
+end;
 
 initialization
+
+    // Variables
+     ParserVars := TParserVar.Create(100);  // start with space for 100 variables
+
+Finalization
+
+     ParserVars.Free;
 
 end.

@@ -80,7 +80,8 @@ Uses
     Utilities,
     ShellAPI,
     Math,
-    PDElement;
+    PDElement,
+    ParserDel;
 
 VAR
    ActiveDSSGraphFile :TextFile;
@@ -395,7 +396,8 @@ Begin
                                         PChar(DSSViewFile),
                                         PChar(EncloseQuotes(ActiveFileName)),
                                          Nil, SW_SHOW);
-                 LastResultFile := ActiveFileName;
+
+                 ParserVars.Add( '@LastPlotFile', ActiveFileName);
 
                  Case Retval of
                      0: DoSimpleMsg('System out of memory. ', 45700);

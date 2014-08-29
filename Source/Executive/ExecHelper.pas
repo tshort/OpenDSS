@@ -112,8 +112,10 @@ interface
          FUNCTION DoPstCalc:Integer;
          FUNCTION DoValVarCmd:Integer;
          FUNCTION DoLambdaCalcs:Integer;
+         FUNCTION DoVarCmd:Integer;
 
          PROCEDURE DoSetNormal(pctNormal:Double);
+
 
          PROCEDURE Set_Time;
 
@@ -573,7 +575,7 @@ Begin
      WriteClassFile(DSSClass, SaveFile, FALSE); // just write the class with no checks
    End;
 
-   LastResultFile := SaveFile;
+   SetLastResultFile( SaveFile);
    GlobalResult := SaveFile;
 
 End;
@@ -3760,7 +3762,7 @@ Begin
        With ActiveCircuit Do
        For i := 1 to NumBuses Do
          With Buses^[i] Do Begin
-            BusLambda        := 0.0;
+            BusFltRate        := 0.0;
             Bus_Num_Interrupt := 0.0;
          End;
 
@@ -3768,6 +3770,52 @@ Begin
          pMeter.CalcReliabilityIndices;
          pMeter := ActiveCircuit.EnergyMeters.Next;
       End;
+End;
+
+FUNCTION DoVarCmd:Integer;
+{Process Script variables}
+
+VAR
+   ParamName:String;
+   Param:String;
+   iVar : Integer;
+   MsgStrings : TStringList;
+
+Begin
+
+     Result := 0;
+
+     ParamName := Parser.NextParam;
+     Param := Parser.StrValue;
+
+      If Length(Param)=0 Then  // show all vars
+      Begin
+          If NoFormsAllowed Then Exit;
+          MsgStrings := TStringList.Create;
+          MsgStrings.Add('Variable, Value');
+          for iVar := 1 to ParserVars.NumVariables  do
+              MsgStrings.Add(ParserVars.VarString[iVar] );
+          ShowMessageForm(MsgStrings);
+          MsgStrings.Free;
+      End Else if Length(ParamName)=0 then   // show value of this var
+      Begin
+           GlobalResult := Param;
+      End
+      Else Begin
+           WHILE Length(ParamName)>0 Do Begin
+               case ParamName[1] of
+                  '@': ParserVars.Add(ParamName, Param);
+               else
+                   DosimpleMsg('Illegal Variable Name: ' + ParamName + '; Must begin with "@"', 28725);
+                   Exit;
+               end;
+               ParamName := Parser.NextParam;
+               Param := Parser.StrValue;
+           End;
+
+      End;
+
+
 End;
 
 

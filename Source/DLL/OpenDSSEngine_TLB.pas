@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 7/9/2014 11:35:47 AM from Type Library described below.
+// File generated on 8/8/2014 11:09:38 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -836,6 +836,7 @@ type
     function Get_VMagAngle: OleVariant; safecall;
     function Get_puVmagAngle: OleVariant; safecall;
     function Get_TotalMiles: Double; safecall;
+    function Get_SectionID: Integer; safecall;
     property Name: WideString read Get_Name;
     property NumNodes: Integer read Get_NumNodes;
     property Voltages: OleVariant read Get_Voltages;
@@ -865,6 +866,7 @@ type
     property VMagAngle: OleVariant read Get_VMagAngle;
     property puVmagAngle: OleVariant read Get_puVmagAngle;
     property TotalMiles: Double read Get_TotalMiles;
+    property SectionID: Integer read Get_SectionID;
   end;
 
 // *********************************************************************//
@@ -905,6 +907,7 @@ type
     property VMagAngle: OleVariant readonly dispid 215;
     property puVmagAngle: OleVariant readonly dispid 216;
     property TotalMiles: Double readonly dispid 217;
+    property SectionID: Integer readonly dispid 218;
   end;
 
 // *********************************************************************//
@@ -2710,6 +2713,7 @@ type
     function Get_ParentPDElement: Integer; safecall;
     function Get_FromTerminal: Integer; safecall;
     function Get_TotalMiles: Double; safecall;
+    function Get_SectionID: Integer; safecall;
     property Count: Integer read Get_Count;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -2725,6 +2729,7 @@ type
     property ParentPDElement: Integer read Get_ParentPDElement;
     property FromTerminal: Integer read Get_FromTerminal;
     property TotalMiles: Double read Get_TotalMiles;
+    property SectionID: Integer read Get_SectionID;
   end;
 
 // *********************************************************************//
@@ -2749,6 +2754,7 @@ type
     property ParentPDElement: Integer readonly dispid 213;
     property FromTerminal: Integer readonly dispid 214;
     property TotalMiles: Double readonly dispid 215;
+    property SectionID: Integer readonly dispid 216;
   end;
 
 // *********************************************************************//

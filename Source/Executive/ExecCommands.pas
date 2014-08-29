@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 100;
+     NumExecCommands = 101;
 
 Var
 
@@ -136,6 +136,7 @@ Begin
      ExecCommand[98] := 'ReprocessBuses';
      ExecCommand[99] := 'ClearBusMarkers';
      ExecCommand[100] := 'RelCalc';
+     ExecCommand[101] := 'var';
 
 
 
@@ -440,6 +441,13 @@ Begin
                         'when a line length changes, for example or some other event that would not normally trigger an update to the bus list.';
      CommandHelp[99] := 'Clear all bus markers created with the AddBusMarker command.';
      CommandHelp[100] := 'Perform first part of reliability calcs: Failure rates and number of interruptions.';
+     CommandHelp[101] :=  'Define and view script variables.  Variable names begin with "@"' + CRLF+CRLF+
+                          'Usage:' + CRLF+CRLF+
+                          'var @varname1=values  @varname2=value2    ...' +CRLF+
+                          'var @varname1  (shows the value of @varname1)' +CRLF+
+                          'var            (displays all variabiles and values)'+ CRLF+CRLF+
+                          'Example of using a variable:'+ CRLF+CRLF+
+                          'FileEdit @LastFile';
 End;
 
 //----------------------------------------------------------------------------
@@ -523,6 +531,8 @@ Begin
            End;
        75: DoADosCmd;
        88: DoCvrtLoadshapesCmd;
+
+       101: DoVarCmd;
 
 
 

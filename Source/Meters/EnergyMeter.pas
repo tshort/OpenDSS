@@ -133,6 +133,19 @@ Const
 Type
    TRegisterArray = Array[1..NumEMregisters] of Double;
 
+    //  --------- Feeder Section Definition -----------
+    TFeederSection=Record
+        NCustomers           : Integer;
+        NBranches            : Integer;
+        AverageRepairTime    : double;
+        SumFltRatesXRepairHrs : double;
+        SumBranchFltRates    : double;
+    End;
+
+    pFeederSections = ^FeederSectionArray;
+    FeederSectionArray = Array[1..1] of TFeederSection;
+    //  --------- Feeder Section Definition -----------
+
    TSystemMeter = Class(Tobject)
      private
         kWh, dkWh,
@@ -178,6 +191,8 @@ Type
         FDI_Verbose         :Boolean;
         FOverLoadFile       :Textfile;
         FVoltageFile        :TextFile;
+
+
         PROCEDURE ProcessOptions(Const Opts:String);
         procedure Set_SaveDemandInterval(const Value: Boolean);
         Procedure CreateMeterTotals;
@@ -277,6 +292,8 @@ Type
        DI_File                 :TextFile;
        This_Meter_DIFileIsOpen :Boolean;
 
+       FFeederSections : pFeederSections;
+
        Procedure Integrate(Reg:Integer; const Deriv:Double; Const Interval:Double);
        Procedure SetDragHandRegister( Reg:Integer; const Value:Double);
        Function  Accumulate_Load(pLoad:TLoadObj; var TotalZonekW, TotalZonekvar, TotalLoad_EEN, TotalLoad_UE:Double):double;
@@ -313,8 +330,13 @@ Type
         SAIFI   : Double;     // For this Zone - based on number of customers
         SAIFIkW : Double;     // For this Zone - based on kW load
         SAIDI   : Double;
+        CAIDI   : Double;
+
+        // Source reliability
         Source_NumInterruptions     : Double; // Annual interruptions for upline circuit
-        Source_IntDuration : Double; // Aver interruption duration of upline circuit
+        Source_IntDuration          : Double; // Aver interruption duration of upline circuit
+
+        SectionCount : Integer;
 
         constructor Create(ParClass:TDSSClass; const EnergyMeterName:String);
         destructor Destroy; override;
@@ -356,7 +378,9 @@ USES  ParserDel, DSSClassDefs, DSSGlobals, Bus, Sysutils, MathUtil,  UCMatrix,
       Classes, ReduceAlgs, Windows, Math;
 
 
-Const NumPropsThisClass = 21;
+Const NumPropsThisClass = 23;
+
+
 
 VAR
 
@@ -443,6 +467,8 @@ Begin
      PropertyName^[19] := 'Int_Duration';
      PropertyName^[20] := 'SAIFI';    // Read only
      PropertyName^[21] := 'SAIFIkW';    // Read only
+     PropertyName^[22] := 'SAIDI';    // Read only
+     PropertyName^[23] := 'CAIDI';    // Read only
 
 {     PropertyName^[11] := 'Feeder';  **** removed - not used}
 
@@ -497,6 +523,8 @@ Begin
       PropertyHelp[19]:= 'Average annual duration, in hr, of interruptions for head of the meter zone (source side of zone or feeder).';
       PropertyHelp[20]:= '(Read only) Makes SAIFI result available via return on query (? energymeter.myMeter.SAIFI.';
       PropertyHelp[21]:= '(Read only) Makes SAIFIkW result available via return on query (? energymeter.myMeter.SAIFIkW.';
+      PropertyHelp[22]:= '(Read only) Makes SAIDI result available via return on query (? energymeter.myMeter.SAIDI.';
+      PropertyHelp[22]:= '(Read only) Makes CAIDI result available via return on query (? energymeter.myMeter.CAIDI.';
       (**** Not used in present version      PropertyHelp[11]:= '{Yes/True | No/False}  Default is NO. If set to Yes, a Feeder object is created corresponding to ' +
                          'the energymeter.  Feeder is enabled if Radial=Yes; diabled if Radial=No.  Feeder is ' +
                          'synched automatically with the meter zone.  Do not create feeders for zones in meshed transmission systems.';
@@ -588,6 +616,8 @@ Begin
            19: Source_IntDuration       := Parser.dblValue; // hours
            20: PropertyValue[20] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
            21: PropertyValue[21] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
+           22: PropertyValue[22] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
+           23: PropertyValue[23] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
            (****11: HasFeeder := InterpretYesNo(Param); ***)
          ELSE
            ClassEdit(ActiveEnergyMeterObj, ParamPointer - NumPropsthisClass)
@@ -873,6 +903,7 @@ Begin
      SAIFI   := 0.0;     // For this Zone
      SAIFIkW := 0.0;
      SAIDI   := 0.0;
+     CAIDI   := 0.0;
      Source_NumInterruptions  := 0.0; // Annual interruptions for upline circuit
      Source_IntDuration       := 0.0; // Aver interruption duration of upline circuit
 
@@ -960,6 +991,8 @@ Begin
 
      FOR i := 1 to Fnphases Do SensorCurrent^[i] := 400.0;
 
+     FFeederSections := Nil;
+
 
     // RecalcElementData;
 End;
@@ -986,6 +1019,9 @@ Begin
     If Assigned(SequenceList) Then SequenceList.Free;
     If Assigned(LoadList)     Then LoadList.Free;
     FreeStringArray(DefinedZoneList, DefinedZoneListSize);
+
+    If Assigned (FFeederSections) Then Reallocmem(FFeederSections, 0);
+
     Inherited destroy;
 End;
 
@@ -1110,6 +1146,8 @@ Begin
        AssignFile(F, GetOutputDirectory + CSVName);
        Rewrite(F);
        GlobalResult := CSVName;
+       SetLastResultFile(CSVName);
+
   Except
       On E: Exception DO  Begin
        DoSimpleMsg('Error opening Meter File "' + CRLF + CSVName + '": ' + E.Message, 526);
@@ -1852,6 +1890,7 @@ Begin
        Rewrite(F);
 
        GlobalResult := CSVName;
+       SetLastResultFile(CSVName);
 
      EXCEPT
 
@@ -2312,63 +2351,109 @@ begin
 
     // Zero reliability accumulators
        For idx := SequenceList.ListSize downto 1 Do
-       TPDElement(SequenceList.Get(idx)).ZeroReliabilityAccums ;
+           TPDElement(SequenceList.Get(idx)).ZeroReliabilityAccums ;
 
     // Backward sweep calculating failure rates
        For idx := SequenceList.ListSize downto 1 Do
-       Begin
-           With TPDElement(SequenceList.Get(idx)) do Begin
-               CalcLambda;
-               AccumLambda;
+           Begin
+               With TPDElement(SequenceList.Get(idx)) do Begin
+                   CalcFltRate;    // Calc failure rate for this element
+                   AccumFltRate;
+               End;
            End;
-       End;
 
     // Forward sweep to get number of interruptions
        // Initialize number of interruptions and Duration
-       PD_Elem := SequenceList.Get(1);
+       PD_Elem := TPDElement(SequenceList.Get(1));
        pBus    := ActiveCircuit.Buses^[PD_Elem.Terminals^[PD_Elem.FromTerminal].BusRef];
        pBus.Bus_Num_Interrupt  := Source_NumInterruptions;
-       pBus.BusCustInterrupts := Source_NumInterruptions * pBus.BusTotalNumCustomers;
+       pBus.BusCustInterrupts  := Source_NumInterruptions * pBus.BusTotalNumCustomers;
        pBus.Bus_Int_Duration   := Source_IntDuration;
 
-       For idx := 1 to SequenceList.ListSize Do
-       Begin
-            TPDElement(SequenceList.Get(idx)).CalcNum_Int;
-       End;
+       // init for defining sections
+       SectionCount := 0;
+       pBus.BusSectionID := SectionCount; // section before 1st OCP device is zero
 
-    // Now do Backward sweep calculating N*Lambda
+       For idx := 1 to SequenceList.ListSize Do  TPDElement(SequenceList.Get(idx)).CalcNum_Int(SectionCount);
+
+       // Now have number of sections  so allocate FFeederSections array
+       Reallocmem(FFeederSections, Sizeof(FFeederSections^[1])*SectionCount);
+       for idx := 1 to SectionCount do
+            With FFeederSections^[idx] Do Begin
+                AverageRepairTime    := 0.0;
+                SumFltRatesXRepairHrs := 0.0;
+                SumBranchFltRates           := 0.0;
+                NCustomers           := 0;
+                NBranches            := 0;
+            End;
+
+
+    // Now do Backward sweep calculating N*Fault rates
        For idx := SequenceList.ListSize downto 1 Do
-       Begin
-         PD_Elem := SequenceList.Get(idx);
-         PD_Elem.CalcN_Lambda;
-(* ****   Debug
-   With PD_Elem Do Begin
-        Bref :=  Terminals^[FromTerminal].BusRef;
-        WriteDLLDebugFile(Format('%s.%s, %.11g, %.11g, %.11g ', [ParentClass.Name, Name, Lambda, AccumulatedLambda, ActiveCircuit.Buses^[Bref].CustInterrupts     ]));
-   End;
-**** End Debug *)
-       End;
+           Begin
+               PD_Elem := SequenceList.Get(idx);
+               PD_Elem.CalcCustInterrupts;
+
+               With FFeederSections^[PD_Elem.BranchSectionID] Do Begin
+                       Inc(NCustomers, PD_Elem.BranchNumCustomers); // Sum up num Customers on this Section
+                       Inc(NBranches, 1); // Sum up num branches on this Section
+                    dblInc(SumBranchFltRates,  PD_Elem.BranchFltRate);
+                    dblInc(SumFltRatesXRepairHrs, (PD_Elem.BranchFltRate * PD_Elem.HrsToRepair));
+               End;
+(*
+{**DEBUG**}
+        If idx=SequenceList.ListSize then WriteDLLDebugFile('Meter, SectionID, BranchName, YrlyFaultRate, RepairHrs, NCustomers');
+            With FFeederSections^[PD_Elem.BranchSectionID] Do
+               WriteDLLDebugFile(Format('%s.%s, %d, %s.%s, %.11g, %.11g, %d ',
+               [ParentClass.Name, Name, PD_Elem.BranchSectionID, PD_Elem.ParentClass.Name, PD_Elem.Name,
+               PD_Elem.BranchLambda, PD_Elem.HrsToRepair,
+               PD_Elem.BranchNumCustomers   ]));
+{**DEBUG**}
+*)
+           End;
+
+        {Compute Avg Interruption duration of each Section }
+        for idx := 1 to SectionCount do
+            With FFeederSections^[idx] Do AverageRepairTime    := SumFltRatesXRepairHrs / SumBranchFltRates;
+{**DEBUG**}
+        WriteDLLDebugFile('Meter, SectionID, NBranches, NCustomers, AvgRepairHrs, AvgRepairMins, FailureRate*RepairtimeHrs, SumFailureRates');
+        for idx := 1 to SectionCount do
+            With FFeederSections^[idx] Do
+               WriteDLLDebugFile(Format('%s.%s, %d, %d, %d, %.11g, %.11g, %.11g, %.11g ',
+               [ParentClass.Name, Name, idx, NBranches, nCustomers, AverageRepairTime, AverageRepairTime * 60.0, SumFltRatesXRepairHrs, SumBranchFltRates    ]));
+{**DEBUG**}
 
        {Compute SAIFI based on numcustomers and load kW}
        {SAIFI is weighted by specified load weights}
        {SAIFI is for the EnergyMeter Zone}
        SAIFI     := 0.0;
+       SAIDI     := 0.0;
+       CAIDI     := 0.0;
        SAIFIKW   := 0.0;
        dblNcusts := 0.0;
        dblkW     := 0.0;
        WITH ActiveCircuit do
        For idx := 1 to LoadList.ListSize Do  // all loads in meter zone
-       Begin
-            pLoad := TLoadObj(LoadList.Get(idx));
-            WITH  pLoad Do Begin
-                 pBus := Buses^[Terminals^[1].BusRef];  // pointer to bus
-                 SAIFI   := SAIFI   + NumCustomers * RelWeighting * pBus.Bus_Num_Interrupt;
-                 SAIFIkW := SAIFIkW + kWBase       * RelWeighting * pBus.Bus_Num_Interrupt;
-                 DblInc(dblNcusts, NumCustomers * RelWeighting);   // total up weighted numcustomers
-                 DblInc(dblkW,     kWBase       * RelWeighting);   // total up weighted kW
-            End ;
+           Begin
+                pLoad := TLoadObj(LoadList.Get(idx));
+                WITH pLoad Do
+                  Begin
+                       pBus := Buses^[Terminals^[1].BusRef];  // pointer to bus
+                       SAIFI   := SAIFI + NumCustomers * RelWeighting * pBus.Bus_Num_Interrupt;
+                       SAIFIkW := SAIFIkW + kWBase     * RelWeighting * pBus.Bus_Num_Interrupt;
+                       DblInc(dblNcusts, NumCustomers * RelWeighting);   // total up weighted numcustomers
+                       DblInc(dblkW,     kWBase       * RelWeighting);   // total up weighted kW
+                       // Set BusCustDurations for Branch reliability export
+                       pBus.BusCustDurations :=  NumCustomers * RelWeighting * FFeederSections^[pBus.BusSectionID].SumFltRatesXRepairHrs;
+                       SAIDI := SAIDI + pBus.BusCustDurations;
+                  End ;
+           End;
+       If dblNcusts>0.0  Then  Begin
+           SAIFI   := SAIFI / dblNcusts; // Normalize to total number of customers
+           SAIDI   := SAIDI / dblNcusts; // Normalize to total number of customers
        End;
-       If dblNcusts>0.0  Then  SAIFI   := SAIFI / dblNcusts; // Normalize to total number of customers
+       If SAIFI > 0.0 Then CAIDI := SAIDI/SAIFI;
+
        If dblkW>0.0      Then  SAIFIkW := SAIFIkW / dblkW; // Normalize to total number of customers
 
 end;
@@ -2390,6 +2475,8 @@ begin
               End;
            20: Result := Format('%.11g',[SAIFI]);
            21: Result := Format('%.11g',[SAIFIkW]);
+           22: Result := Format('%.11g',[SAIDI]);
+           23: Result := Format('%.11g',[CAIDI]);
         ELSE
            Result := Result + Inherited GetPropertyValue(index);
         END;
@@ -3018,6 +3105,8 @@ begin
        AssignFile(F, Folder + CSVName);
        Rewrite(F);
        GlobalResult := CSVName;
+       SetLastResultFile(CSVName);
+
   Except
       On E: Exception DO
       Begin

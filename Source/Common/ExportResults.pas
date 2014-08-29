@@ -2413,13 +2413,13 @@ Begin
   Try
      Assignfile(F, FileNm);
      ReWrite(F);
-     Writeln(F, 'Bus, Lambda, Num-Interruptions, Num-Customers, Cust-Interruptions, Total-Miles');
+     Writeln(F, 'Bus, Lambda, Num-Interruptions, Num-Customers, Cust-Interruptions, Duration, Total-Miles');
      With ActiveCircuit Do
      For i := 1 to NumBuses Do
        With Buses^[i] Do
        Begin
            Writeln(F, Format('%s, %-.11g, %-.11g, %d, %-.11g, %-.11g',
-              [CheckForBlanks(Uppercase(BusList.Get(i))), BusLambda, Bus_Num_Interrupt, BusTotalNumCustomers, BusCustInterrupts, BusTotalMiles ]));
+              [CheckForBlanks(Uppercase(BusList.Get(i))), BusFltRate, Bus_Num_Interrupt, BusTotalNumCustomers, BusCustInterrupts, Bus_Int_Duration, BusTotalMiles ]));
        End;
 
      GlobalResult := FileNm;
@@ -2471,10 +2471,13 @@ Begin
          IF pElem.Enabled THEN WITH pElem Do
             BEGIN
                 pBus := Buses^[Terminals^[FromTerminal].BusRef] ;
-                With pBus Do If BusTotalNumCustomers>0 Then SAIFI := BusCustInterrupts/BusTotalNumCustomers Else SAIFI := 0.0 ;
+                With pBus Do If BusTotalNumCustomers>0 Then
+                     SAIFI := BusCustInterrupts/BusTotalNumCustomers Else SAIFI := 0.0 ;
 
                 Writeln(F, Format('%s.%s, %-.11g, %-.11g, %d, %d, %-.11g, %-.11g, %-.11g, %-.11g, %-.11g, %-.11g',
-                [ParentClass.Name, Name, BranchLambda, AccumulatedBranchLambda, BranchNumCustomers, BranchTotalCustomers, pBus.Bus_Num_Interrupt, BranchTotalCustomers*pBus.Bus_Num_Interrupt, pBus.BusCustDurations, AccumulatedMilesDownStream, (MaxCustomers - BranchTotalCustomers) * AccumulatedMilesDownStream, SAIFI ]));
+                [ParentClass.Name, Name, BranchFltRate, AccumulatedBrFltRate, BranchNumCustomers, BranchTotalCustomers,
+                 pBus.Bus_Num_Interrupt, BranchTotalCustomers*pBus.Bus_Num_Interrupt, pBus.BusCustDurations,
+                 AccumulatedMilesDownStream, (MaxCustomers - BranchTotalCustomers) * AccumulatedMilesDownStream, SAIFI ]));
             END;
          pElem := ActiveCircuit.PDElements.Next;
        END;

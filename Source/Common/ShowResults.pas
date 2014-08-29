@@ -386,6 +386,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -692,6 +693,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -1083,6 +1085,8 @@ Begin
      If Assigned(C_buffer) then Freemem(c_Buffer);
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
+
 
   End;
 End;
@@ -1533,6 +1537,7 @@ Begin
      If Assigned(C_buffer) then Freemem(c_Buffer);
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 End;
@@ -1673,6 +1678,7 @@ Begin
 
        CloseFile(F);
        FireOffEditor(FileNm);
+       ParserVars.Add('@lastshowfile', FileNm);
   End;
 End;
 
@@ -1809,6 +1815,7 @@ Begin
        FireOffEditor(DisabledFileNm);
        CloseFile(F);
        FireOffEditor(FileNm);
+       ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -1862,6 +1869,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -1922,6 +1930,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -1969,6 +1978,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -2021,6 +2031,7 @@ Begin
      FINALLY
        CloseFile(F);
        FireOffEditor(FileNm);
+       ParserVars.Add('@lastshowfile', FileNm);
      End;
 
 End;
@@ -2107,6 +2118,7 @@ Begin
      Else
         ShowTreeView(FileNm);
      END;
+     ParserVars.Add('@lastshowfile', FileNm);
      //
   End;
 
@@ -2203,6 +2215,7 @@ Begin
      If Assigned(C_buffer) then Freemem(c_Buffer);
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -2260,6 +2273,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -2356,6 +2370,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -2403,6 +2418,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 
@@ -2566,6 +2582,7 @@ Finally
      CloseFile(F);
      Branch_List.Free;
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 End;
 
 End;
@@ -2598,6 +2615,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
    End;
 
 End;
@@ -2646,6 +2664,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
    End;
 End;
 
@@ -2789,6 +2808,7 @@ Begin
     CloseFile(F);
     CloseFile(Ftree);
     FireOffEditor(FileNm);
+    ParserVars.Add('@lastshowfile', FileNm);
     ShowTreeView(TreeNm);
   End;
 End;
@@ -3010,6 +3030,7 @@ Begin
      CloseFile(F2);
      FireOffEditor(FileNm);
      FireOffEditor(LineCodesFileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
    End;
 End;
 
@@ -3061,6 +3082,7 @@ Begin
 
          CloseFile(F);
          FireOffEditor(FileNm);
+         ParserVars.Add('@lastshowfile', FileNm);
       End;
 
 
@@ -3122,6 +3144,7 @@ Begin
   Finally
     CloseFile(F);
     FireOffEditor(FileNm);
+    ParserVars.Add('@lastshowfile', FileNm);
   End;
 
 End;
@@ -3214,6 +3237,7 @@ Begin
      Finally
         CloseFile(F);
         FireOffEditor(FileNm);
+        ParserVars.Add('@lastshowfile', FileNm);
         ReallocMem(MaxNodeCurrent,0); // Dispose of temp memory
      End;
 End;
@@ -3308,6 +3332,7 @@ Begin
      Finally
         CloseFile(F);
         FireOffEditor(FileNm);
+        ParserVars.Add('@lastshowfile', FileNm);
      End;
 End;
 
@@ -3389,6 +3414,7 @@ Begin
      Finally
         CloseFile(F);
         FireOffEditor(FileNm);
+        ParserVars.Add('@lastshowfile', FileNm);
      End;
 
 End;
@@ -3427,6 +3453,7 @@ Begin
 
      CloseFile(F);
      FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
 
   End;
 

@@ -226,6 +226,10 @@ begin
           CreateDefaultDSSItems;
           RebuildHelpForm := True; // because class strings have changed
          End;
+
+       {Prepare for new variables}
+       ParserVars.Free;
+       ParserVars := TParserVar.Create(100);  // start with space for 100 variables
 end;
 
 procedure TExecutive.Set_RecorderOn(const Value: Boolean);

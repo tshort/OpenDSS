@@ -36,6 +36,7 @@ type
     function Get_Totalcustomers: Integer; safecall;
     function Get_FromTerminal: Integer; safecall;
     function Get_TotalMiles: Double; safecall;
+    function Get_SectionID: Integer; safecall;
 
   end;
 
@@ -212,7 +213,7 @@ begin
       With ActiveCircuit Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
-              Result := ActivePDElement.AccumulatedBranchLambda ;
+              Result := ActivePDElement.AccumulatedBrFltRate ;
           End;
       End;
 
@@ -227,7 +228,7 @@ begin
       With ActiveCircuit Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
-              Result := ActivePDElement.BranchLambda;
+              Result := ActivePDElement.BranchFltRate;
           End;
       End;
 
@@ -322,6 +323,22 @@ begin
               Result := ActivePDElement.AccumulatedMilesDownStream;
           End;
       End;
+end;
+
+function TPDElements.Get_SectionID: Integer;
+Var
+   ActivePDElement : TPDElement;
+
+begin
+      Result := 0;
+      If Assigned(ActiveCircuit) Then
+      With ActiveCircuit Do Begin
+          If ActiveCktElement is TPDElement Then Begin
+              ActivePDElement := ActiveCktelement as TPDElement;
+              Result := ActivePDElement.BranchSectionID ;
+          End;
+      End;
+
 end;
 
 initialization

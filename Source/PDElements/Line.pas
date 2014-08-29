@@ -120,7 +120,7 @@ TYPE
         PROCEDURE FetchTSCableList(Const Code:String);
 
         // Reliability calcs
-        PROCEDURE CalcLambda; Override;  // Calc failure rates for section and buses
+        PROCEDURE CalcFltRate; Override;  // Calc failure rates for section and buses
 
         // CIM XML access
         property LineCodeSpecified: Boolean read FLineCodeSpecified;
@@ -860,12 +860,12 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-procedure TLineObj.CalcLambda;
+procedure TLineObj.CalcFltRate;
 begin
   // inherited;
 
   // Assume Faultrate specified in same units as length
-  BranchLambda := Faultrate * pctperm * 0.01 * Len;
+  BranchFltRate := Faultrate * pctperm * 0.01 * Len;
 end;
 
 PROCEDURE TLineObj.CalcYPrim;

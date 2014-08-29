@@ -239,7 +239,7 @@ Begin
   If FileExists(FileNm) Then
   Begin
       retval := ShellExecute (0, Nil, PChar(encloseQuotes(DefaultEditor)), PChar(encloseQuotes(FileNm)), Nil, SW_SHOW);
-      LastResultFile := FileNm;
+      SetLastResultFile( FileNm);
 
       Case Retval of
           0: DoSimpleMsg('System out of memory. Cannot start Editor.', 700);
@@ -583,6 +583,10 @@ FUNCTION InterpretDblArray(const s: string; MaxValues:Integer; ResultArray :pDou
 
           file= must be first
           the %result% variable implies the last result file
+
+          or
+
+          Use the Array=@lastfile variable syntax and the parser will automativally replace with last file name
 
 }
 

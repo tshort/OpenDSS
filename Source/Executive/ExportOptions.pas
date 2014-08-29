@@ -298,7 +298,8 @@ Begin
    Result := 0;
    InShowResults := False;
 
-   LastResultFile := FileName;
+   SetLastResultFile( FileName);
+   ParserVars.Add('@lastexportfile', FileName);
    If AutoShowExport then  FireOffEditor(FileName);
 
 End;

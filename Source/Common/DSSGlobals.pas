@@ -209,6 +209,7 @@ VAR
    UpdateRegistry     :Boolean;  // update on program exit
 
 
+
 PROCEDURE DoErrorMsg(Const S, Emsg, ProbCause :String; ErrNum:Integer);
 PROCEDURE DoSimpleMsg(Const S :String; ErrNum:Integer);
 
@@ -217,6 +218,8 @@ PROCEDURE ClearAllCircuits;
 PROCEDURE SetObject(const param :string);
 FUNCTION  SetActiveBus(const BusName:String):Integer;
 PROCEDURE SetDataPath(const PathName:String);
+
+PROCEDURE SetLastResultFile(Const Fname:String);
 
 PROCEDURE MakeNewCircuit(Const Name:String);
 
@@ -654,6 +657,13 @@ Begin
         On E:Exception Do DoSimpleMsg('Error writing Query Log file: ' + E.Message, 908);
   END;
 
+End;
+
+PROCEDURE SetLastResultFile(Const Fname:String);
+
+Begin
+      LastResultfile := Fname;
+      ParserVars.Add('@lastfile', Fname);
 End;
 
 initialization
