@@ -129,19 +129,30 @@ End;
 
 
 FUNCTION DSSMessageDlg(const Msg:String;err:boolean):Integer;
+
+Var  Str:String;
+
        Function IntResult(R:Integer):Integer;
        Begin
            If R = mrAbort then IntResult := -1
            Else IntResult := 0;
        End;
 Begin
-     If Err Then Result := MessageDlg(Msg, mtError , [mbOK], 0)
-     Else Result := IntResult(MessageDlg(Msg, mtInformation , [mbAbort, mbIgnore], 0));
+     If Length(msg) > 1024 Then
+        Str := 'Message too long; See Result Form.'
+     Else Str := msg;
+
+     If Err Then Result := MessageDlg(Str, mtError , [mbOK], 0)
+     Else Result := IntResult(MessageDlg(Str, mtInformation , [mbAbort, mbIgnore], 0));
 End;
 
 Procedure DSSInfoMessageDlg(const Msg:String);
+
 Begin
-    MessageDlg(Msg, mtInformation , [mbOK], 0)
+    If length(msg)<=1024 Then MessageDlg(Msg, mtInformation , [mbOK], 0)
+    Else  MessageDlg('Message too long; See Result Form.', mtInformation , [mbOK], 0)
+
+
 End;
 
 
