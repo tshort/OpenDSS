@@ -748,6 +748,10 @@ begin
      VarValues^[ActiveVariable] := 'null';  // null value
      ActiveVariable:= VarNames.Add('@lastplotfile');
      VarValues^[ActiveVariable] := 'null';  // null value
+     ActiveVariable:= VarNames.Add('@lastredirectfile');
+     VarValues^[ActiveVariable] := 'null';  // null value
+     ActiveVariable:= VarNames.Add('@lastcompilefile');
+     VarValues^[ActiveVariable] := 'null';  // null value
 
      NumVariables := Varnames.ListSize;
 

@@ -309,7 +309,8 @@ FUNCTION DoRedirect(IsCompile:Boolean):Integer;
 
 VAR
     Fin:TextFile;
-    ParamName,  InputLine, CurrDir, SaveDir:String;
+    ParamName,  InputLine, CurrDir, SaveDir : String;
+    LocalCompFileName  : String;
     InBlockComment : Boolean;
 
 Begin
@@ -330,8 +331,10 @@ Begin
       TRY
           AssignFile(Fin, ReDirFile);
           Reset(Fin);
-          If IsCompile Then LastFileCompiled := ReDirFile;
-
+          If IsCompile Then Begin
+             LastFileCompiled := ReDirFile;
+             LocalCompFileName:= ReDirFile;
+          End;
       EXCEPT
 
          // Couldn't find file  Try appending a '.dss' to the file name
@@ -402,11 +405,17 @@ Begin
       FINALLY
         CloseFile(Fin);
         In_Redirect := False;
+        ParserVars.Add('@lastfile', ReDirFile) ;
+
         If  IsCompile Then   Begin
           SetDataPath(CurrDir); // change datadirectory
           LastCommandWasCompile := True;
+          ParserVars.Add('@lastcompilefile', LocalCompFileName); // will be last one off the stack
         End
-        Else SetCurrentDir(SaveDir);    // set back to where we were for redirect, but not compile
+        Else Begin
+            SetCurrentDir(SaveDir);    // set back to where we were for redirect, but not compile
+            ParserVars.Add('@lastredirectfile', ReDirFile);
+        End;
       END;
 
     End;  // ELSE ignore altogether IF null filename
