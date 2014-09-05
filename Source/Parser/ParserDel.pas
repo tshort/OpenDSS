@@ -752,6 +752,8 @@ begin
      VarValues^[ActiveVariable] := 'null';  // null value
      ActiveVariable:= VarNames.Add('@lastcompilefile');
      VarValues^[ActiveVariable] := 'null';  // null value
+     ActiveVariable:= VarNames.Add('@result');
+     VarValues^[ActiveVariable] := 'null';  // null value
 
      NumVariables := Varnames.ListSize;
 

@@ -318,23 +318,24 @@ Type
       Public
         RegisterNames  :Array[1..NumEMregisters] of String;
 
-        BranchList     :TCktTree;      // Pointers to all circuit elements in meter's zone
-        SequenceList   :TPointerList;  // Pointers to branches in sequence from meter to ends
-        LoadList       :TPointerList;  // Pointers to Loads in the Meter zone to aid reliability calcs
+        BranchList   : TCktTree;      // Pointers to all circuit elements in meter's zone
+        SequenceList : TPointerList;  // Pointers to branches in sequence from meter to ends
+        LoadList     : TPointerList;  // Pointers to Loads in the Meter zone to aid reliability calcs
 
-        Registers      :TRegisterArray;
-        Derivatives    :TRegisterArray;
-        TotalsMask     :TRegisterArray;
+        Registers    :TRegisterArray;
+        Derivatives  :TRegisterArray;
+        TotalsMask   :TRegisterArray;
 
         // Reliability data for Head of Zone
         SAIFI   : Double;     // For this Zone - based on number of customers
         SAIFIkW : Double;     // For this Zone - based on kW load
         SAIDI   : Double;
         CAIDI   : Double;
+        CustInterrupts : Double;
 
         // Source reliability
-        Source_NumInterruptions     : Double; // Annual interruptions for upline circuit
-        Source_IntDuration          : Double; // Aver interruption duration of upline circuit
+        Source_NumInterruptions : Double; // Annual interruptions for upline circuit
+        Source_IntDuration      : Double; // Aver interruption duration of upline circuit
 
         SectionCount : Integer;
 
@@ -378,7 +379,7 @@ USES  ParserDel, DSSClassDefs, DSSGlobals, Bus, Sysutils, MathUtil,  UCMatrix,
       Classes, ReduceAlgs, Windows, Math;
 
 
-Const NumPropsThisClass = 23;
+Const NumPropsThisClass = 24;
 
 
 
@@ -469,6 +470,7 @@ Begin
      PropertyName^[21] := 'SAIFIkW';    // Read only
      PropertyName^[22] := 'SAIDI';    // Read only
      PropertyName^[23] := 'CAIDI';    // Read only
+     PropertyName^[24] := 'CustInterrupts';    // Read only
 
 {     PropertyName^[11] := 'Feeder';  **** removed - not used}
 
@@ -524,7 +526,8 @@ Begin
       PropertyHelp[20]:= '(Read only) Makes SAIFI result available via return on query (? energymeter.myMeter.SAIFI.';
       PropertyHelp[21]:= '(Read only) Makes SAIFIkW result available via return on query (? energymeter.myMeter.SAIFIkW.';
       PropertyHelp[22]:= '(Read only) Makes SAIDI result available via return on query (? energymeter.myMeter.SAIDI.';
-      PropertyHelp[22]:= '(Read only) Makes CAIDI result available via return on query (? energymeter.myMeter.CAIDI.';
+      PropertyHelp[23]:= '(Read only) Makes CAIDI result available via return on query (? energymeter.myMeter.CAIDI.';
+      PropertyHelp[24]:= '(Read only) Makes Total Customer Interrupts value result available via return on query (? energymeter.myMeter.CustInterrupts.';
       (**** Not used in present version      PropertyHelp[11]:= '{Yes/True | No/False}  Default is NO. If set to Yes, a Feeder object is created corresponding to ' +
                          'the energymeter.  Feeder is enabled if Radial=Yes; diabled if Radial=No.  Feeder is ' +
                          'synched automatically with the meter zone.  Do not create feeders for zones in meshed transmission systems.';
@@ -618,6 +621,7 @@ Begin
            21: PropertyValue[21] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
            22: PropertyValue[22] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
            23: PropertyValue[23] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
+           24: PropertyValue[24] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
            (****11: HasFeeder := InterpretYesNo(Param); ***)
          ELSE
            ClassEdit(ActiveEnergyMeterObj, ParamPointer - NumPropsthisClass)
@@ -904,6 +908,7 @@ Begin
      SAIFIkW := 0.0;
      SAIDI   := 0.0;
      CAIDI   := 0.0;
+     CustInterrupts := 0.0;
      Source_NumInterruptions  := 0.0; // Annual interruptions for upline circuit
      Source_IntDuration       := 0.0; // Aver interruption duration of upline circuit
 
@@ -2119,6 +2124,9 @@ begin
      PropertyValue[19] := '0';
      PropertyValue[20] := '0';
      PropertyValue[21] := '0';
+     PropertyValue[22] := '0';
+     PropertyValue[23] := '0';
+     PropertyValue[24] := '0';
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -2415,6 +2423,7 @@ begin
         {Compute Avg Interruption duration of each Section }
         for idx := 1 to SectionCount do
             With FFeederSections^[idx] Do AverageRepairTime    := SumFltRatesXRepairHrs / SumBranchFltRates;
+(*
 {**DEBUG**}
         WriteDLLDebugFile('Meter, SectionID, NBranches, NCustomers, AvgRepairHrs, AvgRepairMins, FailureRate*RepairtimeHrs, SumFailureRates');
         for idx := 1 to SectionCount do
@@ -2422,7 +2431,7 @@ begin
                WriteDLLDebugFile(Format('%s.%s, %d, %d, %d, %.11g, %.11g, %.11g, %.11g ',
                [ParentClass.Name, Name, idx, NBranches, nCustomers, AverageRepairTime, AverageRepairTime * 60.0, SumFltRatesXRepairHrs, SumBranchFltRates    ]));
 {**DEBUG**}
-
+*)
        {Compute SAIFI based on numcustomers and load kW}
        {SAIFI is weighted by specified load weights}
        {SAIFI is for the EnergyMeter Zone}
@@ -2430,6 +2439,7 @@ begin
        SAIDI     := 0.0;
        CAIDI     := 0.0;
        SAIFIKW   := 0.0;
+       CustInterrupts := 0.0;
        dblNcusts := 0.0;
        dblkW     := 0.0;
        WITH ActiveCircuit do
@@ -2439,7 +2449,7 @@ begin
                 WITH pLoad Do
                   Begin
                        pBus := Buses^[Terminals^[1].BusRef];  // pointer to bus
-                       SAIFI   := SAIFI + NumCustomers * RelWeighting * pBus.Bus_Num_Interrupt;
+                       CustInterrupts   := CustInterrupts + NumCustomers * RelWeighting * pBus.Bus_Num_Interrupt;
                        SAIFIkW := SAIFIkW + kWBase     * RelWeighting * pBus.Bus_Num_Interrupt;
                        DblInc(dblNcusts, NumCustomers * RelWeighting);   // total up weighted numcustomers
                        DblInc(dblkW,     kWBase       * RelWeighting);   // total up weighted kW
@@ -2449,12 +2459,12 @@ begin
                   End ;
            End;
        If dblNcusts>0.0  Then  Begin
-           SAIFI   := SAIFI / dblNcusts; // Normalize to total number of customers
+           SAIFI   := CustInterrupts / dblNcusts; // Normalize to total number of customers
            SAIDI   := SAIDI / dblNcusts; // Normalize to total number of customers
        End;
        If SAIFI > 0.0 Then CAIDI := SAIDI/SAIFI;
 
-       If dblkW>0.0      Then  SAIFIkW := SAIFIkW / dblkW; // Normalize to total number of customers
+       If dblkW>0.0      Then  SAIFIkW := SAIFIkW / dblkW; // Normalize to total kW
 
 end;
 
@@ -2477,6 +2487,7 @@ begin
            21: Result := Format('%.11g',[SAIFIkW]);
            22: Result := Format('%.11g',[SAIDI]);
            23: Result := Format('%.11g',[CAIDI]);
+           24: Result := Format('%.11g',[CustInterrupts]);
         ELSE
            Result := Result + Inherited GetPropertyValue(index);
         END;

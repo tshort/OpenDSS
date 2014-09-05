@@ -676,6 +676,8 @@ Begin
                       'Error in command string or circuit data.' , 303);
   End;
 
+  ParserVars.Add('@result', GlobalResult)
+
 End;
 
 Procedure DisposeStrings;
