@@ -1017,9 +1017,10 @@ procedure TControlPanel.UpdateElementBox;
 VAr
         idx:Integer;
 begin
+      ElementBox.Clear ;
       If ActiveCircuit <> Nil Then
       Begin
-        ElementBox.Clear ;
+
         IF SetObjectClass(Classbox.Items[Classbox.ItemIndex]) Then
         Begin
            ActiveDSSClass := DSSClassList.Get(LastClassReferenced);

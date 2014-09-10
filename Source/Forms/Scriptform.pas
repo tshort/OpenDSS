@@ -176,7 +176,10 @@ begin
   for i := 0 to imax do begin
     If Not SolutionAbort Then Begin  // If script involves step that gets aborted, just flush the script
       DSSExecutive.Command := ActiveScriptForm.cmdList.Strings[i];
-      If LastCommandWasCompile and Not IsDLL Then ControlPanel.AddCompiledFile(LastFileCompiled);
+      If LastCommandWasCompile and Not IsDLL Then Begin
+         ControlPanel.AddCompiledFile(LastFileCompiled);
+         ControlPanel.UpdateElementBox;
+      End;
     End;
   end;
   Screen.Cursor := crDefault;
@@ -185,7 +188,7 @@ begin
   Begin
         UpdateResultForm;
         UpdateSummaryForm;
-        With ActiveCircuit Do
+        If Assigned(ActiveCircuit) Then With ActiveCircuit Do
         if (SolutionWasAttempted) and (Not IsSolved) then Begin
             Beep;
             SummaryForm.Show;
