@@ -216,7 +216,8 @@ end;
 procedure TExecutive.Clear;
 begin
        IF   (NumCircuits > 0)  THEN
-        Begin
+       Begin
+
           {First get rid of all existing stuff}
           ClearAllCircuits;
           DisposeDSSClasses;
@@ -225,7 +226,9 @@ begin
           CreateDSSClasses;
           CreateDefaultDSSItems;
           RebuildHelpForm := True; // because class strings have changed
-         End;
+       End;
+
+       If Not IsDLL Then ControlPanel.UpdateElementBox ;
 
        {Prepare for new variables}
        ParserVars.Free;
