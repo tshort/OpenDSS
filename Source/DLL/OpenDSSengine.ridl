@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 8/8/2014 11:09:45 AM (- $Rev: 12980 $, 5643445).
+// File generated on 9/6/2014 10:26:26 AM (- $Rev: 12980 $, 9021444).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -1061,11 +1061,15 @@ library OpenDSSengine
     [propget, id(0x000000DA), helpstring("SAIFI based on kW rather than number of customers. Get after reliability calcs.")]
     HRESULT _stdcall SAIFIKW([out, retval] double* Value);
     [id(0x000000DB), helpstring("Calculate SAIFI, etc.")]
-    HRESULT _stdcall DoReliabilityCalc(void);
+    HRESULT _stdcall DoReliabilityCalc([in] VARIANT_BOOL AssumeRestoration);
     [propget, id(0x000000DC), helpstring("Size of Sequence List")]
     HRESULT _stdcall SeqListSize([out, retval] long* Value);
     [propget, id(0x000000DD), helpstring("Total Number of customers in this zone (downline from the EnergyMeter)")]
     HRESULT _stdcall TotalCustomers([out, retval] long* Value);
+    [propget, id(0x000000DE), helpstring("SAIDI for this meter's zone. Execute DoReliabilityCalc first.")]
+    HRESULT _stdcall SAIDI([out, retval] double* Value);
+    [propget, id(0x000000DF), helpstring("Total customer interruptions for this Meter zone based on reliability calcs.")]
+    HRESULT _stdcall CustInterrupts([out, retval] double* Value);
   };
 
   [

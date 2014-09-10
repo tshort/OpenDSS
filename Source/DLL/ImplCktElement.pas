@@ -1268,25 +1268,26 @@ end;
 
 function TCktElement.Get_OCPDevIndex: Integer;
 Var
-   i : integer;
+   iControl : integer;
    pCktElement : TDSSCktElement;
 begin
      Result := 0;
      If ActiveCircuit <> Nil Then  With ActiveCircuit Do
      Begin
-         i := 1;
+         iControl := 1;
          Repeat
-              pCktElement :=  ActiveCktElement.ControlElementList.Get(i);
+           // cycle through the list of controls until we find a fuse, recloser, or relay
+              pCktElement :=  ActiveCktElement.ControlElementList.Get(iControl);
               If pCktElement <> Nil Then
               Case (pCktElement.DSSObjType and CLASSMASK) of
 
-                FUSE_CONTROL     : Result := i;
-                RECLOSER_CONTROL : Result := i;
-                RELAY_CONTROL    : Result := i;
+                FUSE_CONTROL     : Result := iControl;
+                RECLOSER_CONTROL : Result := iControl;
+                RELAY_CONTROL    : Result := iControl;
 
               End;
-              inc(i);
-         Until (i > pCktElement.ControlElementList.listSize) or (Result > 0);
+              inc(iControl);
+         Until (iControl > pCktElement.ControlElementList.listSize) or (Result > 0);
      End;
 
 end;

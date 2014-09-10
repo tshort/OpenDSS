@@ -440,7 +440,8 @@ Begin
      CommandHelp[98] := 'Forces reprocessing of bus definitions whether there has been a change or not. Use for rebuilding meter zone lists ' +
                         'when a line length changes, for example or some other event that would not normally trigger an update to the bus list.';
      CommandHelp[99] := 'Clear all bus markers created with the AddBusMarker command.';
-     CommandHelp[100] := 'Perform first part of reliability calcs: Failure rates and number of interruptions.';
+     CommandHelp[100] := '[restore=Y/N]Perform reliability calcs: Failure rates and number of interruptions. '+CRLF+CRLF+
+                         'Optional parameter:'+CRLF+CRLF+'If restore=y automatic restoration of unfaulted section is assumed.';
      CommandHelp[101] :=  'Define and view script variables.  Variable names begin with "@"' + CRLF+CRLF+
                           'Usage:' + CRLF+CRLF+
                           'var @varname1=values  @varname2=value2    ...' +CRLF+
@@ -665,7 +666,7 @@ Begin
        97: CmdResult := DoValVarCmd;
        98: ActiveCircuit.ReprocessBusDefs;
        99: Activecircuit.ClearBusMarkers;
-      100: CmdResult := DoLambdaCalcs;
+      100: CmdResult := DoLambdaCalcs;   // Option: Assume Restoration
      ELSE
        // Ignore excess parameters
      End;

@@ -81,6 +81,7 @@ TYPE
       IsPartofFeeder    : Boolean;  // Flag used in tree searches etc
 
       HasOCPDevice      : Boolean; // Fuse, Relay, or Recloser
+      HasAutoOCPDevice  : Boolean; // Relay or Recloser only
       HasSwtControl     : Boolean; // Has a remotely-controlled Switch
       ControlElementList: TPointerList; //Pointer to control for this device
 
@@ -182,6 +183,7 @@ Begin
      HasEnergyMeter := FALSE;
      HasSensorObj   := FALSE;
      HasOCPDevice   := FALSE;
+     HasAutoOCPDevice  := FALSE;
      HasSwtControl  := FALSE;
      HasControl     := FALSE;
      IsPartofFeeder := False;

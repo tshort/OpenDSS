@@ -360,7 +360,7 @@ Type
         Procedure ReduceZone;  // Reduce Zone by eliminating buses and merging lines
         Procedure SaveZone(const dirname:String);
 
-        Procedure CalcReliabilityIndices;
+        Procedure CalcReliabilityIndices(AssumeRestoration:Boolean);
 
         FUNCTION  GetPropertyValue(Index:Integer):String;Override;
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
@@ -2341,7 +2341,7 @@ end;
 
 
 {-------------------------------------------------------------------------------}
-procedure TEnergyMeterObj.CalcReliabilityIndices;
+procedure TEnergyMeterObj.CalcReliabilityIndices(AssumeRestoration:Boolean);
 Var
     PD_Elem : TPDElement;
     pLoad   : TLoadObj;
@@ -2382,7 +2382,8 @@ begin
        SectionCount := 0;
        pBus.BusSectionID := SectionCount; // section before 1st OCP device is zero
 
-       For idx := 1 to SequenceList.ListSize Do  TPDElement(SequenceList.Get(idx)).CalcNum_Int(SectionCount);
+       For idx := 1 to SequenceList.ListSize Do
+           TPDElement(SequenceList.Get(idx)).CalcNum_Int(SectionCount, AssumeRestoration);
 
        // Now have number of sections  so allocate FFeederSections array
        Reallocmem(FFeederSections, Sizeof(FFeederSections^[1])*SectionCount);

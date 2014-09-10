@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 8/8/2014 11:09:38 AM from Type Library described below.
+// File generated on 9/5/2014 4:09:09 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -1308,9 +1308,11 @@ type
     function Get_SequenceIndex: Integer; safecall;
     procedure Set_SequenceIndex(Value: Integer); safecall;
     function Get_SAIFIKW: Double; safecall;
-    procedure DoReliabilityCalc; safecall;
+    procedure DoReliabilityCalc(AssumeRestoration: WordBool); safecall;
     function Get_SeqListSize: Integer; safecall;
     function Get_TotalCustomers: Integer; safecall;
+    function Get_SAIDI: Double; safecall;
+    function Get_CustInterrupts: Double; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1334,6 +1336,8 @@ type
     property SAIFIKW: Double read Get_SAIFIKW;
     property SeqListSize: Integer read Get_SeqListSize;
     property TotalCustomers: Integer read Get_TotalCustomers;
+    property SAIDI: Double read Get_SAIDI;
+    property CustInterrupts: Double read Get_CustInterrupts;
   end;
 
 // *********************************************************************//
@@ -1372,9 +1376,11 @@ type
     property SAIFI: Double readonly dispid 216;
     property SequenceIndex: Integer dispid 217;
     property SAIFIKW: Double readonly dispid 218;
-    procedure DoReliabilityCalc; dispid 219;
+    procedure DoReliabilityCalc(AssumeRestoration: WordBool); dispid 219;
     property SeqListSize: Integer readonly dispid 220;
     property TotalCustomers: Integer readonly dispid 221;
+    property SAIDI: Double readonly dispid 222;
+    property CustInterrupts: Double readonly dispid 223;
   end;
 
 // *********************************************************************//

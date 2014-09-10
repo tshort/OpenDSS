@@ -55,9 +55,11 @@ type
     function Get_SequenceIndex: Integer; safecall;
     procedure Set_SequenceIndex(Value: Integer); safecall;
     function Get_SAIFIKW: Double; safecall;
-    procedure DoReliabilityCalc; safecall;
+    procedure DoReliabilityCalc(AssumeRestoration: WordBool); safecall;
     function Get_SeqListSize: Integer; safecall;
     function Get_TotalCustomers: Integer; safecall;
+    function Get_SAIDI: Double; safecall;
+    function Get_CustInterrupts: Double; safecall;
     { Protected declarations }
   end;
 
@@ -735,7 +737,7 @@ begin
 end;
 
 
-procedure TMeters.DoReliabilityCalc;
+procedure TMeters.DoReliabilityCalc(AssumeRestoration: WordBool);
 Var
   pMeterObj :TEnergyMeterObj;
 
@@ -745,7 +747,7 @@ begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
 
-                pMeterObj.CalcReliabilityIndices;
+                pMeterObj.CalcReliabilityIndices(AssumeRestoration);
 
          End;
      End;
@@ -780,6 +782,36 @@ begin
              PD_Element := pMeterObj.SequenceList.Get(1) ;
              If Assigned (PD_Element) Then With PD_Element Do
                  Result := Buses^[Terminals^[FromTerminal].BusRef].BusTotalNumCustomers;
+         End;
+     End;
+end;
+
+function TMeters.Get_SAIDI: Double;
+Var
+  pMeterObj :TEnergyMeterObj;
+
+begin
+     Result := 0.0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+             Result := pMeterObj.SAIDI;
+         End;
+     End;
+end;
+
+function TMeters.Get_CustInterrupts: Double;
+Var
+  pMeterObj :TEnergyMeterObj;
+
+begin
+     Result := 0.0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+             Result := pMeterObj.CustInterrupts;
          End;
      End;
 end;

@@ -62,7 +62,7 @@ TYPE
 
        PROCEDURE CalcFltRate; virtual;  // Calc failure rates for section and buses
        PROCEDURE AccumFltRate;
-       PROCEDURE CalcNum_Int(Var SectionCount:Integer);  // Calc Number of Interruptions in forward sweep
+       PROCEDURE CalcNum_Int(Var SectionCount:Integer; AssumeRestoration:Boolean);  // Calc Number of Interruptions in forward sweep
        PROCEDURE CalcCustInterrupts;
        PROCEDURE ZeroReliabilityAccums; // Zero out reliability accumulators
 
@@ -129,14 +129,10 @@ begin
      FromBus := ActiveCircuit.Buses^[Terminals^[FromTerminal].BusRef];
      WITH  FromBus Do Begin
          accumsum(BusCustInterrupts, Bus_Num_Interrupt * BranchTotalCustomers);
-(****
-     WriteDLLDebugfile(Format('%s.%s, Bus = %s, CustInterrupt= %.11g, Num_Interrupt= %.11g, TotalCustomers= %d, TotalNumCustomers= %d ',
-                              [Self.ParentClass.Name, Self.Name, ActiveCircuit.Buslist.Get(Terminals^[FromTerminal].BusRef), CustInterrupts, Num_Interrupt, TotalCustomers, TotalNumCustomers  ]));
-*)
-    End;
+     End;
 end;
 
-procedure TPDElement.CalcNum_Int(Var SectionCount:Integer);
+procedure TPDElement.CalcNum_Int(Var SectionCount:Integer; AssumeRestoration:Boolean);
 Var
    FromBus : TDSSBus;
    ToBus   : TDSSBus;
@@ -152,8 +148,15 @@ begin
         ToBus.Bus_Num_Interrupt  :=  FromBus.Bus_Num_Interrupt;
 
         // If Interrupting device (on FROM side)then downline will have additional interruptions
+        //    ---- including for fused lateral
+        // If assuming restoration and the device is an automatic device, the To bus will be
+        // interrupted only for  faults on the main section, not including fused sections.
         If HasOCPDevice Then Begin
-            accumsum(ToBus.Bus_Num_Interrupt, AccumulatedBrFltRate);
+            If AssumeRestoration and HasAutoOCPDevice Then
+                ToBus.Bus_Num_Interrupt := AccumulatedBrFltRate
+            Else
+                accumsum(ToBus.Bus_Num_Interrupt, AccumulatedBrFltRate);
+
             inc(SectionCount);
             ToBus.BusSectionID := SectionCount; // It's in a different section
         End
@@ -234,10 +237,7 @@ Begin
          OverLoad_EEN := 0.0;
          Result := cZero;
      End;
-{**********DEBUG CODE: Use DLL Debug file  ***}
-{****    WriteDLLDebugFile(Format('%s.%s: Terminal=%u Factor=%.7g kW=%.7g kvar=%.7g Normamps=%.7g Overload_EEN=%.7g Result=%.7g +j %.7g ',
-    [parentclass.Name, name, ActiveTerminalIdx, Factor, kVA.re, kVA.im, NormAmps, Overload_EEN, Result.re, Result.im ]));
-*}
+
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - -

@@ -642,7 +642,10 @@ Begin
 {Check for existence of Controlled Element}
 
          // If previously assigned, reset HasOCPDevice flag in case this is a move
-         If Assigned(ControlledElement) Then  ControlledElement.HasOCPDevice := FALSE;
+         If Assigned(ControlledElement) Then Begin
+            ControlledElement.HasOCPDevice := FALSE;
+            ControlledElement.HasAutoOCPDevice := FALSE;
+         End;
 
          Devindex := GetCktElementIndex(ElementName); // Global function
          IF   DevIndex>0   THEN
@@ -650,7 +653,8 @@ Begin
              ControlledElement := ActiveCircuit.CktElements.Get(DevIndex);
              ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Make the 1 st terminal active
 
-             ControlledElement.HasOCPDevice := TRUE;  // For Reliability calcs
+             ControlledElement.HasOCPDevice     := TRUE;  // For Reliability calcs
+             ControlledElement.HasAutoOCPDevice := TRUE;  // For Reliability calcs
 
              IF  ControlledElement.Closed [0]  THEN    // Check state of phases of active terminal
                Begin

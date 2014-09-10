@@ -3756,6 +3756,9 @@ FUNCTION DoLambdaCalcs:Integer;
 
 Var pMeter : TEnergyMeterObj;
     i      : Integer;
+    ParamName,
+    Param  : String;
+    AssumeRestoration : Boolean;
 
 Begin
       Result := 0;
@@ -3767,6 +3770,14 @@ Begin
         Exit;
       End;
 
+      ParamName := Parser.NextParam;
+      Param := Parser.StrValue ;
+
+      If Length(Param)>0 Then
+          Assumerestoration := InterpretYesNo(param)
+      Else
+          Assumerestoration := False;
+
        // initialize bus quantities
        With ActiveCircuit Do
        For i := 1 to NumBuses Do
@@ -3776,7 +3787,7 @@ Begin
          End;
 
       while pMeter <> Nil do Begin
-         pMeter.CalcReliabilityIndices;
+         pMeter.CalcReliabilityIndices(AssumeRestoration);
          pMeter := ActiveCircuit.EnergyMeters.Next;
       End;
 End;
