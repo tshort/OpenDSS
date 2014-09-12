@@ -77,6 +77,7 @@ Type
        Function IsCommentChar(Const LineBuffer:String; Var LinePos:Integer):Boolean;
        Function GetToken(Const LineBuffer:String; Var LinePos:Integer):String;
        Function InterpretRPNString(var Code:Integer):Double;
+       PROCEDURE CheckforVar(var TokenBuffer:String);
      protected
 
      public
@@ -166,6 +167,14 @@ Begin
 End;
 
 {=======================================================================================================================}
+
+PROCEDURE TParser.CheckforVar(var TokenBuffer: String);
+begin
+   {Replace TokenBuffer with Variable value if first character is VariableDelimiter character}
+   If Length(TokenBuffer) > 1 Then
+      If TokenBuffer[1]=VariableDelimiter Then
+            If ParserVars.Lookup(TokenBuffer) > 0 then TokenBuffer := ParserVars.Value;
+end;
 
 constructor TParser.Create;
 Begin
@@ -381,10 +390,7 @@ Begin
        TokenBuffer := '';
    End;
 
-   {Replace TokenBuffer with Variable value if first character is VariableDelimiter character}
-   If Length(TokenBuffer)>1 Then
-      If TokenBuffer[1]=VariableDelimiter Then
-            If ParserVars.Lookup(TokenBuffer) > 0 then TokenBuffer := ParserVars.Value;
+   CheckForVar(TokenBuffer);
 
    Result := ParameterBuffer;
 
@@ -459,11 +465,13 @@ BEGIN
 
      SkipWhiteSpace(ParseBuffer, ParseBufferPos);
      TokenBuffer := GetToken(ParseBuffer,ParseBufferPos);
+     CheckForVar(TokenBuffer);
      WHILE Length(TokenBuffer)>0 Do BEGIN
         inc(NumElements);
         IF NumElements <= ExpectedSize THEN VectorBuffer^[NumElements] := MakeDouble;
         IF LastDelimiter = MatrixRowTerminator THEN BREAK;
         TokenBuffer := GetToken(ParseBuffer,ParseBufferPos);
+        CheckForVar(TokenBuffer);
      END;
 
      Result := NumElements;
@@ -674,6 +682,7 @@ BEGIN
 
    SkipWhiteSpace(ParseBuffer, ParseBufferPos);
    TokenBuffer := GetToken(ParseBuffer,ParseBufferPos);
+   CheckForVar(TokenBuffer);
 
    WHILE Length(TokenBuffer) > 0 Do BEGIN
 
@@ -681,6 +690,7 @@ BEGIN
       If Code>0 Then Break;  // Stop on any floating point error
 
       TokenBuffer := GetToken(ParseBuffer,ParseBufferPos);
+      CheckForVar(TokenBuffer);
    END;
 
    Result := RPNCalculator.X;
