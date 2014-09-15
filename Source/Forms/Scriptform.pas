@@ -324,7 +324,7 @@ begin
                      End;
          Else    {no}
          End;
-
+(*
        Case MessageDlg('Do you want to close file '+Caption+'  ?', mtConfirmation, [mbYes, mbNo], 0) of
             mrYes: Begin
                     ScriptWindowList.Remove(Self);
@@ -333,7 +333,7 @@ begin
        Else
           Action := caNone; {do Nothing}
        End;
-
+*)
 
     End;
 end;

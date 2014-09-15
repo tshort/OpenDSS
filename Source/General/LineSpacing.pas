@@ -297,10 +297,12 @@ END;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 destructor TLineSpacingObj.Destroy;
 BEGIN
-    Inherited destroy;
 
     Reallocmem(FY, 0);
     Reallocmem(FX, 0);
+
+    Inherited destroy;
+
 END;
 
 

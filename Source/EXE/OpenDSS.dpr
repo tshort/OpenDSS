@@ -1,6 +1,6 @@
 program OpenDSS;
 { ----------------------------------------------------------
-  Copyright (c) 2008-2010, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2014, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 
@@ -146,12 +146,7 @@ uses
   VSource in '..\PCElements\VSource.pas',
   WireData in '..\General\WireData.pas',
   XfmrCode in '..\General\XfmrCode.pas',
-  Ymatrix in '..\Common\Ymatrix.pas' {,
-  TempShape in '..\General\TempShape.pas',
-  XYcurve in '..\General\XYcurve.pas',
-  PriceShape in '..\General\PriceShape.pas';
-
-{$R *.RES},
+  Ymatrix in '..\Common\Ymatrix.pas',
   TempShape in '..\General\TempShape.pas',
   XYcurve in '..\General\XYcurve.pas',
   PriceShape in '..\General\PriceShape.pas',

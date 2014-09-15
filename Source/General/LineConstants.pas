@@ -1,7 +1,7 @@
 unit LineConstants;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2014, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -277,7 +277,6 @@ end;
 
 destructor TLineConstants.Destroy;
 begin
-  inherited;
 
   If assigned(FZmatrix)  then FZmatrix.Free ;
   If assigned(FYCmatrix) then FYCmatrix.Free ;
@@ -290,6 +289,9 @@ begin
   Reallocmem(Fradius, 0);
   Reallocmem(FRdc, 0);
   Reallocmem(FRac, 0);
+
+
+  inherited;
 
 end;
 

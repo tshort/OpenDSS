@@ -99,13 +99,14 @@ end;
 
 destructor TCapUserControl.Destroy;
 begin
-  inherited;
 
   If FID <> 0 Then
     Begin
           FDelete(FID);       // Clean up all memory associated with this instance
           FreeLibrary(FHandle);
     End;
+
+inherited;
 
 end;
 

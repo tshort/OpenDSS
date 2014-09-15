@@ -48,6 +48,7 @@ TYPE
         FLineGeometryObj   :TLineGeometryObj;
         FLineSpacingObj    :TLineSpacingObj;
         FWireData          :pConductorDataArray;
+        FWireDataSize      :Integer;
         FPhaseChoice       :ConductorChoice;
         FrhoSpecified      :Boolean;
         FLineCodeSpecified :Boolean;
@@ -83,6 +84,7 @@ TYPE
         C0    :Double;
         Len   :Double;
         LengthUnits         :Integer;
+
         Rg, Xg, KXg, rho    :Double;
         GeneralPlotQuantity :Double;  // For general circuit plotting
         CondCode            :String;
@@ -166,7 +168,6 @@ End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Destructor TLine.Destroy;
-
 
 Begin
 
@@ -757,6 +758,7 @@ Begin
      SpacingSpecified := False;
      FLineSpacingObj := Nil;
      FWireData := Nil;
+     FWireDataSize := 0;
      FPhaseChoice := Unknown;
      SpacingCode := '';
 
@@ -774,6 +776,7 @@ End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 destructor TLineObj.Destroy;
+
 Begin
     If Assigned(Z) Then Z.Free;
     If Assigned(Zinv) Then Zinv.Free;
@@ -1519,7 +1522,8 @@ begin
   if FPhaseChoice = Unknown then begin // it's an overhead line
     FLineCodeSpecified := False;
     KillGeometrySpecified;
-    FWireData := Allocmem(Sizeof(FWireData^[1]) * FLineSpacingObj.NWires);
+    FWireDataSize := FLineSpacingObj.NWires ;
+    FWireData := Allocmem(Sizeof(FWireData^[1]) * FWireDataSize);
     istart := 1;
     FPhaseChoice := Overhead;
   end else begin // adding bare neutrals to an underground line - TODO what about repeat invocation?
@@ -1535,6 +1539,7 @@ begin
     else
       DoSimpleMsg ('Wire "' + AuxParser.StrValue + '" was not defined first (LINE.'+name+').', 18103);
   end;
+
 end;
 
 procedure TLineObj.FetchCNCableList(const Code: string);

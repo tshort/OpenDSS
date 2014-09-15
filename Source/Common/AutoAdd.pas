@@ -125,6 +125,7 @@ End;
 destructor TAutoAdd.Destroy;
 Begin
      If BusIdxListCreated THEN ReallocMem(BusIdxList,0);
+     Inherited;
 End;
 
 PROCEDURE TAutoAdd.MakeBusList;
