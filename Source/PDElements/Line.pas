@@ -47,7 +47,7 @@ TYPE
         FUnitsConvert      :Double; // conversion factor
         FLineGeometryObj   :TLineGeometryObj;
         FLineSpacingObj    :TLineSpacingObj;
-        FWireData          :pConductorDataArray;
+        FLineWireData      :pConductorDataArray;
         FWireDataSize      :Integer;
         FPhaseChoice       :ConductorChoice;
         FrhoSpecified      :Boolean;
@@ -611,7 +611,7 @@ Begin
           17..18: Kxg := Xg/ln(658.5*sqrt(rho/BaseFrequency));
           19: Begin GeometrySpecified := TRUE; SymComponentsModel := FALSE; SymComponentsChanged := FALSE; End;
           21..22,24..25: Begin
-              if Assigned (FLineSpacingObj) and Assigned (FWireData) then begin
+              if Assigned (FLineSpacingObj) and Assigned (FLineWireData) then begin
                 SpacingSpecified := True;
                 SymComponentsModel := False;
                 SymComponentsChanged := False;
@@ -757,7 +757,7 @@ Begin
 
      SpacingSpecified := False;
      FLineSpacingObj := Nil;
-     FWireData := Nil;
+     FLineWireData := Nil;
      FWireDataSize := 0;
      FPhaseChoice := Unknown;
      SpacingCode := '';
@@ -781,7 +781,7 @@ Begin
     If Assigned(Z) Then Z.Free;
     If Assigned(Zinv) Then Zinv.Free;
     If Assigned(Yc) Then Yc.Free;
-    Reallocmem (FWireData, 0);
+    Reallocmem (FLineWireData, 0);
     Inherited destroy;
 End;
 
@@ -1523,7 +1523,7 @@ begin
     FLineCodeSpecified := False;
     KillGeometrySpecified;
     FWireDataSize := FLineSpacingObj.NWires ;
-    FWireData := Allocmem(Sizeof(FWireData^[1]) * FWireDataSize);
+    FLineWireData := Allocmem(Sizeof(FLineWireData^[1]) * FWireDataSize);
     istart := 1;
     FPhaseChoice := Overhead;
   end else begin // adding bare neutrals to an underground line - TODO what about repeat invocation?
@@ -1535,7 +1535,7 @@ begin
     AuxParser.NextParam; // ignore any parameter name  not expecting any
     WireDataClass.code := AuxParser.StrValue;
     if Assigned(ActiveConductorDataObj) then
-      FWireData^[i] := ActiveConductorDataObj
+      FLineWireData^[i] := ActiveConductorDataObj
     else
       DoSimpleMsg ('Wire "' + AuxParser.StrValue + '" was not defined first (LINE.'+name+').', 18103);
   end;
@@ -1552,13 +1552,13 @@ begin
     DoSimpleMsg ('Must assign the LineSpacing before CN cables.(LINE.'+Name+')', 18104);
 
   FPhaseChoice := ConcentricNeutral;
-  FWireData := Allocmem(Sizeof(FWireData^[1]) * FLineSpacingObj.NWires);
+  FLineWireData := Allocmem(Sizeof(FLineWireData^[1]) * FLineSpacingObj.NWires);
   AuxParser.CmdString := Code;
   for i := 1 to FLineSpacingObj.NPhases do begin // fill extra neutrals later
     AuxParser.NextParam; // ignore any parameter name  not expecting any
     CNDataClass.code := AuxParser.StrValue;
     if Assigned(ActiveConductorDataObj) then
-      FWireData^[i] := ActiveConductorDataObj
+      FLineWireData^[i] := ActiveConductorDataObj
     else
       DoSimpleMsg ('CN cable ' + AuxParser.StrValue + ' was not defined first.(LINE.'+Name+')', 18105);
   end;
@@ -1574,13 +1574,13 @@ begin
     DoSimpleMsg ('Must assign the LineSpacing before TS cables.(LINE.'+Name+')', 18106);
 
   FPhaseChoice := TapeShield;
-  FWireData := Allocmem(Sizeof(FWireData^[1]) * FLineSpacingObj.NWires);
+  FLineWireData := Allocmem(Sizeof(FLineWireData^[1]) * FLineSpacingObj.NWires);
   AuxParser.CmdString := Code;
   for i := 1 to FLineSpacingObj.NPhases do begin // fill extra neutrals later
     AuxParser.NextParam; // ignore any parameter name  not expecting any
     TSDataClass.code := AuxParser.StrValue;
     if Assigned(ActiveConductorDataObj) then
-      FWireData^[i] := ActiveConductorDataObj
+      FLineWireData^[i] := ActiveConductorDataObj
     else
       DoSimpleMsg ('TS cable ' + AuxParser.StrValue + ' was not defined first. (LINE.'+Name+')', 18107);
   end;
@@ -1657,8 +1657,8 @@ Begin
 
   // make a temporary LineGeometry to calculate line constants
   IF LineGeometryClass=Nil THEN LineGeometryClass := DSSClassList.Get(ClassNames.Find('LineGeometry'));
-  pGeo := TLineGeometryObj.Create(LineGeometryClass, '==');
-  pGeo.LoadSpacingAndWires (FLineSpacingObj, FWireData); // this sets OH, CN, or TS
+  pGeo := TLineGeometryObj.Create(LineGeometryClass, Name);
+  pGeo.LoadSpacingAndWires (FLineSpacingObj, FLineWireData); // this sets OH, CN, or TS
 
   If FrhoSpecified Then pGeo.rhoearth := rho;
   NormAmps      := pGeo.NormAmps;
@@ -1692,7 +1692,7 @@ procedure TLineObj.KillSpacingSpecified;
 begin
       If SpacingSpecified Then Begin
           FLineSpacingObj := Nil;
-          Reallocmem (FWireData, 0);
+          Reallocmem (FLineWireData, 0);
           FPhaseChoice := Unknown;
           FZFrequency       := -1.0;
           SpacingSpecified := FALSE;
@@ -1728,15 +1728,15 @@ end;
 function TLineObj.NumConductorData:Integer;
 begin
   Result := 0;
-  if Assigned(FWireData) then Result := FLineSpacingObj.NWires;
+  if Assigned(FLineWireData) then Result := FLineSpacingObj.NWires;
   if Assigned(FLineGeometryObj) then Result := FLineGeometryObj.NWires;
 end;
 
 function TLineObj.FetchConductorData(i:Integer):TConductorDataObj;
 begin
   Result := nil;
-  if Assigned(FWireData) then begin
-    if i <= FLineSpacingObj.Nwires then Result := FWireData[i];
+  if Assigned(FLineWireData) then begin
+    if i <= FLineSpacingObj.Nwires then Result := FLineWireData[i];
   end else if Assigned(FLineGeometryObj) then begin
     if i <= FLineGeometryObj.Nwires then Result := FLineGeometryObj.ConductorData[i];
   end;
