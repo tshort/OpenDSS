@@ -238,6 +238,10 @@ FUNCTION IsDSSDLL(Fname:String):Boolean;
 
 Function GetOutputDirectory:String;
 
+Procedure MyReallocMem(Var p:Pointer; newsize:integer);
+Function MyAllocMem(nbytes:Cardinal):Pointer;
+
+
 
 implementation
 
@@ -664,6 +668,19 @@ PROCEDURE SetLastResultFile(Const Fname:String);
 Begin
       LastResultfile := Fname;
       ParserVars.Add('@lastfile', Fname);
+End;
+
+Function MyAllocMem(nbytes:Cardinal):Pointer;
+Begin
+    Result := AllocMem(Nbytes);
+    WriteDLLDebugFile(Format('Allocating %d bytes @ %p',[nbytes, Result]));
+End;
+
+Procedure MyReallocMem(Var p:Pointer; newsize:Integer);
+
+Begin
+     WriteDLLDebugFile(Format('Reallocating @ %p, new size= %d', [p, newsize]));
+     ReallocMem(p, newsize);
 End;
 
 initialization
