@@ -470,8 +470,12 @@ BEGIN
       FLineData   := Nil;
       FSpacingType := '';
 
+(* was causing unnecessary allocations (was leaving dangling memory)
       Nconds      := 3;  // Allocates terminals
       FNphases    := 3;
+*)
+      FNconds     := 0;
+      FNPhases    := 0;
       ActiveCond  := 1;
       FLastUnit   := UNITS_FT;
       Normamps    := 0.0;
@@ -485,7 +489,6 @@ END;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 destructor TLineGeometryObj.Destroy;
 BEGIN
-    Inherited destroy;
 
     FLineData.Free;
     FreeStringArray(FCondName, FnConds);
@@ -493,6 +496,8 @@ BEGIN
     Reallocmem(FY, 0);
     Reallocmem(FX, 0);
     Reallocmem(Funits, 0);
+
+    Inherited destroy;
 END;
 
 
@@ -701,16 +706,24 @@ end;
 procedure TLineGeometryObj.set_Nconds(const Value: Integer);
 Var i:Integer;
 begin
+  If Assigned(FCondName) Then  FreestringArray(FCondName, FNConds);  // dispose of old allocation
+
   FNconds := Value;
   If Assigned(FLineData) Then FreeAndNil(FLineData);
+
   ChangeLineConstantsType(FPhaseChoice);
   FCondName := AllocStringArray(FNconds);
 
   {Allocations}
-  FWireData := Allocmem(Sizeof(FWireData^[1]) *FNconds);
-  FX        := Allocmem(Sizeof(FX^[1])        *FNconds);
-  FY        := Allocmem(Sizeof(FY^[1])        *FNconds);
-  FUnits    := Allocmem(Sizeof(Funits^[1])    *FNconds);
+    Reallocmem( FWireData, Sizeof(FWireData^[1]) *FNconds);
+    Reallocmem( FX,        Sizeof(FX^[1])        *FNconds);
+    Reallocmem( FY,        Sizeof(FY^[1])        *FNconds);
+    Reallocmem( FUnits,    Sizeof(Funits^[1])    *FNconds);
+
+{Initialize Allocations}
+  For i := 1 to FNconds Do FWireData^[i] := Nil;
+  For i := 1 to FNconds Do FX^[i] := 0.0;
+  For i := 1 to FNconds Do FY^[i] := 0.0;
   For i := 1 to FNconds Do FUnits^[i] := -1;  // default to ft
   FLastUnit := UNITS_FT;
 

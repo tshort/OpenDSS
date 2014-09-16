@@ -249,7 +249,6 @@ begin
 
      FNumConds := NumConductors;
      NPhases := FNumConds;
-
      FX      := Allocmem(Sizeof(FX^[1])*FNumConds);
      FY      := Allocmem(Sizeof(Fy^[1])*FNumConds);
      FGMR    := Allocmem(Sizeof(FGMR^[1])*FNumConds);
@@ -289,7 +288,6 @@ begin
   Reallocmem(Fradius, 0);
   Reallocmem(FRdc, 0);
   Reallocmem(FRac, 0);
-
 
   inherited;
 
@@ -331,10 +329,11 @@ function TLineConstants.Get_YCmatrix(f, Lngth: double;
 {Uses the reduced Zmatrix by default if it exists}
 
 Var
-   Newsize, i:Integer;
-   UnitLengthConversion:Double;
-   YC       :TCMatrix;
-   YCValues :pComplexArray;
+   Newsize, i : Integer;
+   UnitLengthConversion : Double;
+   YC       : TCMatrix;
+   YCValues : pComplexArray;
+
 begin
     If assigned(FYCreduced) Then Begin
        YC := FYCReduced;
