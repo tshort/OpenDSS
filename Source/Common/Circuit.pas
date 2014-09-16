@@ -481,7 +481,7 @@ VAR
     ElemName :String;
 
 BEGIN
-       For i := 1 to NumDevices Do Begin
+     For i := 1 to NumDevices Do Begin
            TRY
               pCktElem := TDSSCktElement(CktElements.Get(i));
               ElemName := pCktElem.ParentClass.name + '.' + pCktElem.Name;
@@ -491,7 +491,7 @@ BEGIN
              ON E: Exception Do
                DoSimpleMsg('Exception Freeing Circuit Element:'  + ElemName + CRLF + E.Message, 423);
            END;
-       End;
+     End;
 
      FOR i := 1 to NumBuses Do Buses^[i].Free;  // added 10-29-00
 
