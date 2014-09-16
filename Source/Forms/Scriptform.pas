@@ -327,8 +327,10 @@ begin
 (*
        Case MessageDlg('Do you want to close file '+Caption+'  ?', mtConfirmation, [mbYes, mbNo], 0) of
             mrYes: Begin
+*)
                     ScriptWindowList.Remove(Self);
                     Action := caFree;
+(*
                    End
        Else
           Action := caNone; {do Nothing}
@@ -336,6 +338,8 @@ begin
 *)
 
     End;
+
+
 end;
 
 procedure TMainEditForm.SetFormColor;
