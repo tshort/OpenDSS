@@ -169,12 +169,23 @@ End;
 {=======================================================================================================================}
 
 PROCEDURE TParser.CheckforVar(var TokenBuffer: String);
+Var Temp : String;
 begin
    {Replace TokenBuffer with Variable value if first character is VariableDelimiter character}
    If Length(TokenBuffer) > 1 Then
-      If TokenBuffer[1]=VariableDelimiter Then
-            If ParserVars.Lookup(TokenBuffer) > 0 then TokenBuffer := ParserVars.Value;
+      If TokenBuffer[1] = VariableDelimiter Then
+            If ParserVars.Lookup(TokenBuffer) > 0 then
+            Begin
+               Temp := ParserVars.Value;
+               If Temp[1] = '{' Then Begin
+                  TokenBuffer := Copy(Temp, 2, length(Temp)-2);    // get rid of closed brace added by parservar
+                  IsQuotedString := True;  // force RPN parser to handle
+               End
+               Else TokenBuffer := Temp;
+            End;
 end;
+
+{=======================================================================================================================}
 
 constructor TParser.Create;
 Begin
@@ -716,9 +727,17 @@ BEGIN
     S := X;
 END;
 
+{=======================================================================}
+
 function TParserVar.Add(const VarName, VarValue: String): Integer;
 Var
    idx : Cardinal;
+   VarDefinition : String;
+
+   Function EncloseQuotes(Const s:String):String;
+    Begin
+        Result := '{' + s + '}';
+    End;
 
 begin
 
@@ -735,11 +754,19 @@ begin
          End;
     End;
 
-    VarValues^[idx] := VarValue;
-    NumVariables := VarNames.ListSize;
+    {If a variable used in the definition of a variable, enclose in quotes.}
+
+    If pos('@', VarValue) > 0 Then
+         VarDefinition := EncloseQuotes(VarValue)
+    Else VarDefinition := VarValue;
+
+    VarValues^[idx] := VarDefinition;
+    NumVariables    := VarNames.ListSize;
     Result := idx;
 
 end;
+
+{=======================================================================}
 
 constructor TParserVar.Create(InitSize: Cardinal);
 begin
@@ -769,6 +796,8 @@ begin
 
 end;
 
+{=======================================================================}
+
 destructor TParserVar.Destroy;
 begin
   VarNames.Free;
@@ -776,6 +805,8 @@ begin
 
   inherited;
 end;
+
+{=======================================================================}
 
 function TParserVar.get_value: String;
 begin

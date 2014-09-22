@@ -3819,7 +3819,7 @@ Begin
           MsgStrings.Free;
       End Else if Length(ParamName)=0 then   // show value of this var
       Begin
-           GlobalResult := Param;
+           GlobalResult := Param;  // Parser substitutes @var with value
       End
       Else Begin
            WHILE Length(ParamName)>0 Do Begin
