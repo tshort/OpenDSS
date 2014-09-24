@@ -38,6 +38,7 @@ program OpenDSS;
 
 uses
   Forms,
+  System.SysUtils,
   About in '..\Forms\About.pas' {AboutBox},
   Arraydef in '..\Shared\Arraydef.pas',
   AutoAdd in '..\Common\AutoAdd.pas',
@@ -181,22 +182,31 @@ begin
   {Create default loadshapes, Growthshapes, etc.}
   DSSExecutive.CreateDefaultDSSItems;
 
-  {Instantiate basic forms}
-  Application.CreateForm(TControlPanel, ControlPanel);
-  Application.CreateForm(TMessageForm1, MessageForm1);
-  Application.CreateForm(TTViewForm, TViewForm);
-  Application.CreateForm(TMainEditForm, MainEditForm);
-  Application.CreateForm(TProgress, Progress);
-  Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
-  Application.CreateForm(TListBoxForm, ListBoxForm);
-  Application.CreateForm(TDoDSSCommandForm, DoDSSCommandForm);
-  Application.CreateForm(TRPNForm, RPNForm);
-  Application.CreateForm(TChannelSelectForm, ChannelSelectForm);
-  ControlPanelCreated := TRUE;
-      ControlPanel.InitializeForm;
-      MessageForm1.Editor.Clear;
-      MessageForm1.WindowState := wsMinimized;
-      ControlPanel.Show;
-      Application.Run;
-
+  if (ParamCount > 0) and FindCmdLineSwitch ('nogui') then begin
+    // Application.MessageBox(CmdLine, PChar(Application.Title), MB_ICONINFORMATION or MB_OK);
+    Application.ShowMainForm := False;
+    NoFormsAllowed := True;
+    DataDirectory := StartupDirectory;
+    OutputDirectory := StartupDirectory;
+    DSSExecutive.Command := 'compile ' + ParamStr(1);
+    ExitCode := DSSExecutive.Error;
+  end else begin
+    {Instantiate basic forms}
+    Application.CreateForm(TControlPanel, ControlPanel);
+    Application.CreateForm(TMessageForm1, MessageForm1);
+    Application.CreateForm(TTViewForm, TViewForm);
+    Application.CreateForm(TMainEditForm, MainEditForm);
+    Application.CreateForm(TProgress, Progress);
+    Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
+    Application.CreateForm(TListBoxForm, ListBoxForm);
+    Application.CreateForm(TDoDSSCommandForm, DoDSSCommandForm);
+    Application.CreateForm(TRPNForm, RPNForm);
+    Application.CreateForm(TChannelSelectForm, ChannelSelectForm);
+    ControlPanelCreated := TRUE;
+    ControlPanel.InitializeForm;
+    MessageForm1.Editor.Clear;
+    MessageForm1.WindowState := wsMinimized;
+    ControlPanel.Show;
+    Application.Run;
+  end;
 end.
