@@ -24,6 +24,7 @@ welcome.dfm.miaf
 wizard.dfm
 wizard.dfm.miaf
 $
+icon.ico
 license.rtf
 readme.rtf
 $
@@ -340,13 +341,13 @@ Electric Power Research Institute
 OpenDSS
 {9B35A034-B82A-4C5C-B426-A8525A7EBDD9}
 {10708DC9-5A13-4E32-BDEB-2A073F5388CC}
-7.6.3
+7.6.4
 English
 OpenDSS
 OpenDSS Installation
 Electric Power Research Institute
 All rights reserved
-{A3A7B386-95FF-4DD6-8F2A-AE4DCA17110F}
+{77101EBA-77CB-4743-95A4-A9CEB0BA478F}
 Electric Power Research Institute
 Electric Power Research Institute
 http://sourceforge.net/projects/electricdss/
