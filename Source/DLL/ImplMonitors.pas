@@ -585,6 +585,7 @@ Var  Header : THeaderRec;
      k : Integer;
      ListSize : Integer;
      SaveDelims : String;
+     SaveWhiteSpace : String;
 begin
 
     Result := VarArrayCreate([0, 0], varOleStr);
@@ -600,6 +601,8 @@ begin
              k:=0;
              SaveDelims := AuxParser.Delimiters;
              AuxParser.Delimiters := ',';
+             SaveWhiteSpace := AuxParser.Whitespace;
+             AuxParser.Whitespace := '';
              AuxParser.CmdString := String(Header.StrBuffer);
              AuxParser.AutoIncrement := TRUE;
              AuxParser.StrValue;  // Get rid of first two columns
@@ -610,6 +613,7 @@ begin
              End;
              AuxParser.AutoIncrement := FALSE; // be a good citizen
              AuxParser.Delimiters := SaveDelims;
+             AuxParser.Whitespace := SaveWhiteSpace;
          End;
      End;
 
