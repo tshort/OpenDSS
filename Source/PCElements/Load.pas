@@ -70,6 +70,7 @@ TYPE
         FkWhDays                :Double;
         FCFactor                :Double;   // For kWh billed spec
         FAvgkW                  :Double;
+        FPhaseCurr              :pComplexArray; // this is the intermediate current computed in each power flow mode.
         HarmAng                 :pDoubleArray;  // References for Harmonics mode
         HarmMag                 :pDoubleArray;
         LastGrowthFactor        :Double;
@@ -821,6 +822,8 @@ Begin
      puSeriesRL := 0.50;
      ZIPV := nil;
      SetZIPVSize(0);
+     FPhaseCurr  := Nil;  // storage for intermediate current computation
+                          // allocated in Recalcelementdata
 
      InitPropertyValues(0);
 
@@ -836,6 +839,8 @@ Begin
     ReallocMem(HarmMag, 0);
     ReallocMem(HarmAng, 0);
     ReallocMem(ZIPV, 0);
+    Reallocmem(FPhaseCurr, 0);
+
     Inherited Destroy;
 End;
 
@@ -1109,6 +1114,7 @@ Begin
     YQFixed := -varBase/ Sqr(VBase);
 
     Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
+    Reallocmem(FPhaseCurr, SizeOf(FPhaseCurr^[1])*FNphases);
 
     PFChanged := FALSE;
     
@@ -1304,6 +1310,9 @@ Begin
       ELSE IF VMag > VBase105  THEN Curr := Cmul(Yeq105, V)  // above 105% use an impedance model
       ELSE Curr := Conjg(Cdiv(Cmplx(WNominal,varNominal), V));  // Above 95%, constant PQ
 
+      // Save this value in case the Load value is different than the terminal value (see InitHarmonics)
+      FPhaseCurr^[i] := Curr;
+
       StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
       IterminalUpdated := TRUE;
       StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
@@ -1327,6 +1336,10 @@ Begin
 
      FOR i := 1 to Fnphases DO Begin
         Curr := Cmul(Yeq, Vterminal^[i]);
+
+        // Save this value in case the Load value is different than the terminal value (see InitHarmonics)
+        FPhaseCurr^[i] := Curr;
+
         StickCurrInTerminalArray(ITerminal,  Cnegate(Curr), i);  // Put into Terminal array taking into account connection
         IterminalUpdated := TRUE;
         StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
@@ -1359,6 +1372,10 @@ Begin
             Curr := Conjg(Cdiv(Cmplx(WNominal, 0.0), V));  // Above 95%, constant P
             Caccum(Curr, Cmul(Cmplx(0.0, Yeq.im), V));  // add in Q component of current
         End;
+
+      // Save this value in case the Load value is different than the terminal value (see InitHarmonics)
+      FPhaseCurr^[i] := Curr;
+
       StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
       IterminalUpdated := TRUE;
       StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
@@ -1400,6 +1417,9 @@ Begin
         ELSE Begin
                 Curr := Conjg( Cdiv( Cmplx(WNominal,varNominal), CMulReal( CDivReal(V, Vmag), Vbase) ));
              End;
+
+        // Save this value in case the Load value is different than the terminal value (see InitHarmonics)
+        FPhaseCurr^[i] := Curr;
 
         StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
         IterminalUpdated := TRUE;
@@ -1444,6 +1464,9 @@ begin
       Curr := CMulReal (Curr, yv);
     end;
 
+    // Save this value in case the Load value is different than the terminal value (see InitHarmonics)
+    FPhaseCurr^[i] := Curr;
+
     StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
     IterminalUpdated := TRUE;
     StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
@@ -1482,7 +1505,6 @@ Begin
         ELSE Begin
               VRatio := Vmag/VBase;    // vbase is l-n FOR wye and l-l FOR delta
 
-      {****        WriteDLLDebugFile(Format('Iter=%d, Name="%s", V=%.6g +j %.6g, Vmag=%.6g',[ActiveCircuit.Solution.iteration, Name, V.re, V.im, Vmag]));}
 
               // Linear factor adjustment does not converge for some reason while power adjust does easily
                  // WattFactor := (1.0 + FCVRwattFactor*(Vmag/VBase - 1.0));
@@ -1497,7 +1519,6 @@ Begin
                    Cvar := Cmul(Cmplx(0.0, Yeq.im), V); // 2 is same as Constant impedance
               End Else If FCVRvarFactor = 3.0 Then Begin
                    VarFactor := math.intpower(VRatio, 3);
-      {****    WriteDLLDebugFile(Format('%s, V=%.6g +j %.6g',[Name, V.re, V.im]));  }
                    Cvar      := Conjg(Cdiv(Cmplx(0.0, VarNominal * VarFactor), V));
               End Else Begin
                   {Other Var factor code here if not squared or cubed}
@@ -1506,7 +1527,10 @@ Begin
               End;
               Caccum(Curr, Cvar);  // add in Q component of current
         End;
-{****  WriteDLLDebugFile(Format('%s, %d, %-.5g, %-.5g, %-.5g, %-.5g, %-.5g, %-.5g, %-.5g, %-.5g ', [Name, i, Vmag, VRatio, Wnominal, WattFactor, VarNominal, VarFactor, Cabs(Curr), Cmul(V, Conjg(Curr)).re]));}
+
+        // Save this value in case the Load value is different than the terminal value (see InitHarmonics)
+        FPhaseCurr^[i] := Curr;
+
         StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
         IterminalUpdated := TRUE;
         StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
@@ -1544,6 +1568,10 @@ Begin
         ELSE Begin
                 Curr := Conjg(Cdiv(Cmplx(WNominal, varBase), V));
              End;
+
+        // Save this value in case the Load value is different than the terminal value (see InitHarmonics)
+        FPhaseCurr^[i] := Curr;
+
         StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
         IterminalUpdated := TRUE;
         StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
@@ -1576,6 +1604,9 @@ Begin
               Caccum(Curr, Cmul(Cmplx(0.0, YQFixed ), V));  // add in Q component of current
              End;
 
+        // Save this value in case the Load value is different than the terminal value (see InitHarmonics)
+        FPhaseCurr^[i] := Curr;
+
         StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
         IterminalUpdated := TRUE;
         StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
@@ -1603,6 +1634,7 @@ Begin
        FOR i := 1 to FNphases Do Begin
           Curr := CmulReal(Mult, HarmMag^[i]); // Get base harmonic magnitude
           RotatePhasorDeg(Curr, LoadHarmonic, HarmAng^[i]);   // Time shift by fundamental
+          // don't need to save Curr here like we do in Power Flow modes
           StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
           StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
           IterminalUpdated := TRUE;
@@ -2042,7 +2074,7 @@ case LoadSpecType of
      4: Begin
             FavgkW := FkWh / (FkWhDays * 24);
             kWBase := FavgkW * FCfactor;
-            kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
+            kvarBase := kWBase * sqrt(1.0/Sqr(PFNominal) - 1.0);
             IF   PFNominal < 0.0
             THEN kvarBase := -kvarBase;
         End;
@@ -2056,26 +2088,28 @@ PROCEDURE TLoadObj.InitHarmonics;
    Get the present terminal currents and store for harmonics base reference;
 }
 Var
-     Currents:pComplexArray;
+     {Currents:pComplexArray;}
      i  :Integer;
 begin
      {Make Sure there's enuff memory}
      ReallocMem(HarmMag, Sizeof(HarmMag^[1]) * FNphases);
      ReallocMem(HarmAng, Sizeof(HarmAng^[1]) * FNphases);
-     Currents := AllocMem(Sizeof(Currents^[1])*Yorder);   // to hold currents
+
+     // Currents := AllocMem(Sizeof(Currents^[1])*Yorder);   // to hold currents
 
      LoadFundamental := ActiveCircuit.Solution.Frequency;
 
-     GetCurrents(Currents);
+     // GetCurrents(Currents); // Use FPhaseCurr from most recent pflow solution
      {Store the currents at fundamental frequency.
       The spectrum is applied to these.
      }
+
      FOR i := 1 to Fnphases Do Begin
-         HarmMag^[i] := Cabs(Currents^[i]);
-         HarmAng^[i] := Cdang(Currents^[i]);
+         HarmMag^[i] := Cabs(FPhaseCurr^[i]);
+         HarmAng^[i] := Cdang(FPhaseCurr^[i]);
      End;
 
-     ReallocMem(Currents, 0);  // get rid of temp space
+     // ReallocMem(Currents, 0);  // get rid of temp space
 end;
 
 
