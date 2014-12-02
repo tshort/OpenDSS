@@ -1,9 +1,9 @@
 The Open Distribution System Simulator, OpenDSS
 
-Copyright (c) 2008-2013, Electric Power Research Institute, Inc.
+Copyright (c) 2008-2014, Electric Power Research Institute, Inc.
 All rights reserved.
 
-Version 7.6.3
+Version 7.6.4
 
 The 7.6 version is the first to be delivered in both 32-bit (X86) and 
 64-bit (X64) versions.  The OpenDSSInstaller download includes both, along 
@@ -120,11 +120,11 @@ http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=Getting_Starte
 
 Latest Tech Notes in Wiki
 
-http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=List_of_DSS_tech_notes
+***Currently unavailable***
 
 Questions and Answers
 
-http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=Questions_and_Answers
+***Currently unavailable***
 
 OpenDSS Forum
 
@@ -132,11 +132,11 @@ http://sourceforge.net/p/electricdss/discussion/861976/
 
 What is Unique About OpenDSS?
 
-http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=OpenDSS_Uniqueness
+***Currently unavailable***
 
 Main Page in Wiki
 
-http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=Main_Page
+***Currently unavailable***
 
 IEEE Test Cases
 

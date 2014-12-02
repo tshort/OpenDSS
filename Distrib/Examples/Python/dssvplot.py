@@ -340,7 +340,7 @@ class Branch:
 
 
 if __name__ == '__main__':
-    d = DSS(r"C:\OpenDSS\code\Distrib\IEEETestCases\123Bus\IEEE123Master.dss")
+    d = DSS(r"C:\users\prdu001\OpenDSS\Distrib\IEEETestCases\123Bus\IEEE123Master.dss")
     d.plots()
 
     

@@ -28,6 +28,10 @@ Plot Loadshape Object=Loadshape4
 Redirect Loadshape5.DSS  
 Plot Loadshape Object=Loadshape5   
 
+! this one has both P and Q, each is normalized, loaded from P, Q pairs
+Redirect Loadshape5a.DSS  
+Plot Loadshape Object=Loadshape5a 
+
 ! this one has P and Q in actual kW values
 Redirect LoadShape5_Actual.DSS  !  Note: UseActual=Yes
 plot Loadshape Object=Loadshape5_Actual
@@ -36,5 +40,7 @@ plot Loadshape Object=Loadshape5_Actual
 Redirect PVLoadShape.DSS
 plot Loadshape Object=PVLoadshape
 
+New "LoadShape.PV_1-Day" npts=100000 sinterval=1.0 mult=(File=1-day-1-s-Solar-2.csv) Action=Normalize
+plot Loadshape Object=PV_1-Day
 
 
