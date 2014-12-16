@@ -461,7 +461,7 @@ begin
   Qac := Stotal.im;
   if (Pac = 0.0) then Pac := 1000.0 * FkW;
 
-  // do the DC current source injection
+  // DC current source injection
   Idc := Pac / Cabs(Vdc);
   if Idc > Ilim then Idc := Ilim;
   if Idc < -Ilim then Idc := -Ilim;
