@@ -20,7 +20,7 @@ Notes:
   element is un-used (except for Strings) in this unit.
   All dynamic arrays are set to length numberelements+1 in the appropriate dimension.
   All dynamic arrays are Finalize'd in the destroy procedure.
-  End
+  
 }
 
 INTERFACE
