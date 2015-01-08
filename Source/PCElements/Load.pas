@@ -34,6 +34,7 @@ unit Load;
     9-23-08 Added CVR Factors
     10-14-08 Added kWh and Cfactor. Modified behavior of AllocationFactor to simplify State Estimation
     4/1/14 Added Vlowpu property to make solution converge better at very low voltages
+    1/7/15 Added puXHarm and XRHarm properties to help model motor load for harmonic studies
 }
 
 interface
@@ -93,6 +94,8 @@ TYPE
         Yneut                   :Complex;
         YPrimOpenCond           :TCmatrix;  // To handle cases where one conductor of load is open
         YQFixed                 :Double;   // Fixed value of y FOR type 7 load
+        FpuXHarm                :Double;   // puX for harmonics solution.
+        FXRHarmRatio            :Double;   // X/R at fundamental
 
         // formerly private, now read-only properties for COM access
         FpuMean                 :Double;
@@ -250,7 +253,7 @@ implementation
 
 USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, Command, Math, MathUtil, Utilities;
 
-Const  NumPropsThisClass = 36;
+Const  NumPropsThisClass = 38;
 
 Var  CDOUBLEONE:Complex;
 
@@ -325,7 +328,13 @@ Begin
      PropertyName[34] := '%SeriesRL';      // pct of Load that is series R-L
      PropertyName[35] := 'RelWeight';      // Weighting factor for reliability
      PropertyName[36] := 'Vlowpu';      // Below this value resort to constant Z model = Yeq
-
+     PropertyName[37] := 'puXharm';      // pu Reactance for Harmonics, if specifies
+     PropertyName[38] := 'XRharm';      // X/R at fundamental for series R-L model for hamonics
+(*
+  Typical Motor Parameters for motor
+      Xpu = 0.20
+      X/r typically 3-6 for normal motors; higher for high-eff motors
+*)
 
      // define Property help values
      PropertyHelp[1] := 'Number of Phases, this load.  Load is evenly divided among phases.';
@@ -437,11 +446,18 @@ Begin
                          ' Last 1 is cut-off voltage in p.u. of base kV; load is 0 below this cut-off' + CRLF +
                          ' No defaults; all coefficients must be specified if using model=8.';
      PropertyHelp[34] := 'Percent of load that is series R-L for Harmonic studies. Default is 50. Remainder is assumed to be parallel R and L. ' +
-                         'This has a significant impact on the amount of damping observed in Harmonics solutions.';
+                         'This can have a significant impact on the amount of damping observed in Harmonics solutions.';
      PropertyHelp[35] := 'Relative weighting factor for reliability calcs. Default = 1. Used to designate high priority loads such as hospitals, etc. ' + CRLF + CRLF +
                          'Is multiplied by number of customers and load kW during reliability calcs.';
      PropertyHelp[36] := 'Default = 0.50.  Per unit voltage at which the model switches to same as constant Z model (model=2). ' +
                          'This allows more consistent convergence at very low voltaes due to opening switches or solving for fault situations.';
+     PropertyHelp[37] := 'Special reactance, pu (based on kVA, kV properties), for the series impedance branch in the load model for HARMONICS analysis. '+
+                         'Generally used to represent motor load blocked rotor reactance. ' +
+                         'If not specified (that is, set =0, the default value), the series branch is computed from the percentage of the ' +
+                         'nominal load at fundamental frequency specified by the %SERIESRL property. '+CRLF+CRLF+
+                         'Applies to load model in HARMONICS mode only.'+CRLF+CRLF+
+                         'A typical value would be approximately 0.20 pu based on kVA * %SeriesRL / 100.0.';
+     PropertyHelp[38] := 'X/R ratio of the special harmonics mode reactance specified by the puXHARM property at fundamental frequency. Default is 6. ';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -588,7 +604,9 @@ Begin
                End;
            34: puSeriesRL    := Parser.DblValue / 100.0;
            35: RelWeighting  := Parser.DblValue;
-           36: VLowpu          := Parser.DblValue;
+           36: VLowpu        := Parser.DblValue;
+           37: FpuXHarm      := Parser.DblValue;  // 0 means not set
+           38: FXRharmRatio  := Parser.DblValue;
 
          ELSE
            // Inherited edits
@@ -811,6 +829,10 @@ Begin
      RandomMult     := 1.0 ;
      Fixed          := FALSE;
      ExemptFromLDCurve := FALSE;
+
+     FpuXHarm       := 0.0;  // zero signifies not specified.
+     FXRHarmRatio   := 6.0;
+
 
      FpuMean    := 0.5;
      FpuStdDev  := 0.1;
@@ -1125,10 +1147,10 @@ PROCEDURE TLoadObj.CalcYPrimMatrix(Ymatrix:TcMatrix);
 
 Var
    Y, Yij,
-   YParallel,
-   ZSeries   :Complex;
+   ZSeries     : Complex;
    i, j :Integer;
-   FreqMultiplier :Double;
+   FreqMultiplier : Double;
+   XseriesOhms : Double;
 
 Begin
 
@@ -1137,7 +1159,7 @@ Begin
 
      With ActiveCircuit.Solution Do
      If IsHarmonicModel and (Frequency <> ActiveCircuit.Fundamental) Then
-         Begin     // Harmonic Mode
+         Begin     // Harmonic Mode  and other than fundamental frequency
              If ActiveCircuit.NeglectLoadY  Then
                  Begin
                      {Just a small value so things don't die and we get the actual injection current out the terminal}
@@ -1146,16 +1168,25 @@ Begin
              Else
                 // compute equivalent Y assuming some of the load is series R-L and the rest is parallel R-L
                  Begin
-                      YParallel := CmulReal(Yeq, (1.0 - puSeriesRL));
-                      YParallel.im  :=  YParallel.im / FreqMultiplier;  {Correct reactive part for frequency}
+                   // Parallel R-L part of the Load model for harmonics mode
+                   // Based in equivalent Y at 100% voltage
+                      Y := CmulReal(Yeq, (1.0 - puSeriesRL));
+                      Y.im  :=  Y.im / FreqMultiplier;  {Correct reactive part for frequency}
 
-                      Y := YParallel;
-
+                   // Series-connected R-L part
                       If puSeriesRL <> 0.0 Then
                       Begin
-                          Zseries := Cinv(CmulReal(Yeq, puSeriesRL));
+                          If FpuXharm > 0.0  then
+                          Begin   // compute Zseries from special harmonic reactance for representing motors.
+                             // the series branch is assumed to represent the motor
+                             XseriesOhms := SQR(kVLoadBase) * 1000.0 / (kVABase * puSeriesRL) * FpuXharm;
+                             Zseries     := cmplx(XseriesOhms / FXRharmRatio, XSeriesOhms);
+                          End
+                          Else    // Compute Zseries from nominal load value
+                             Zseries := Cinv(CmulReal(Yeq, puSeriesRL));
+
                           Zseries.im  :=  Zseries.im * FreqMultiplier;  {Correct reactive part for frequency}
-                          Y := Cadd(Cinv(ZSeries), Y);
+                          Y := Cadd(Cinv(ZSeries), Y); // convert to admittance and add into Y
                       End;
 
                  End;
@@ -1635,8 +1666,9 @@ Begin
           Curr := CmulReal(Mult, HarmMag^[i]); // Get base harmonic magnitude
           RotatePhasorDeg(Curr, LoadHarmonic, HarmAng^[i]);   // Time shift by fundamental
           // don't need to save Curr here like we do in Power Flow modes
-          StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into Terminal array taking into account connection
+          StickCurrInTerminalArray(InjCurrent, Curr, i);  // Put into InjCurrent array taking into account connection
           StickCurrInTerminalArray(ITerminal, Cnegate(Curr), i);  // Put into Terminal array taking into account connection
+          // NOTE: This is the value of ITerminal a Monitor will capture in Harmonics mode .. it captures the harmonic injection
           IterminalUpdated := TRUE;
        End;
        
@@ -2154,6 +2186,8 @@ begin
      PropertyValue[34] := '50';  // %SeriesRL
      PropertyValue[35] := '1';  // RelWeighting
      PropertyValue[36] := '0.5';  // VZpu
+     PropertyValue[37] := '0.0';  // puXharm
+     PropertyValue[38] := '6.0';  // XRHarm
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -2212,6 +2246,8 @@ begin
          34: Result := Format('%-g',   [puSeriesRL*100.0]);
          35: Result := Format('%-g',   [RelWeighting]);
          36: Result := Format('%-g',   [VLowpu]);
+         37: Result := Format('%-g',   [FpuXHarm]);
+         38: Result := Format('%-g',   [FXRHarmRatio]);
      ELSE
          Result := Inherited GetPropertyValue(index);
      End;
