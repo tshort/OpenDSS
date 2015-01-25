@@ -321,7 +321,10 @@ Begin
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 661);
-            1: ElementName := lowercase(param);
+            1: Begin
+                 ElementName := ConstructElemName(lowercase(param));   // subtitute @var values if any
+                 PropertyValue[1] := ElementName;
+               End;
             2: MeteredTerminal := Parser.IntValue;
             3: Mode := Parser.IntValue;
             4: Begin

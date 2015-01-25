@@ -20,6 +20,8 @@ interface
 Uses
     Arraydef, classes,{controls,} DSSForms, Sysutils, RPN, HashList;
 
+
+
 Type
      EParserProblem = class(Exception);
 
@@ -77,7 +79,6 @@ Type
        Function IsCommentChar(Const LineBuffer:String; Var LinePos:Integer):Boolean;
        Function GetToken(Const LineBuffer:String; Var LinePos:Integer):String;
        Function InterpretRPNString(var Code:Integer):Double;
-       PROCEDURE CheckforVar(var TokenBuffer:String);
      protected
 
      public
@@ -94,6 +95,7 @@ Type
        Function ParseAsMatrix(ExpectedOrder:Integer; MatrixBuffer:pDoubleArray):Integer;
        Function ParseAsSymMatrix(ExpectedOrder:Integer; MatrixBuffer:pDoubleArray):Integer;
        Procedure ResetDelims;   // resets delimiters to default
+       PROCEDURE CheckforVar(var TokenBuffer:String);
      published
        Property CmdString:String        read CmdBuffer        write SetCmdString;
        Property Position:Integer        read FPosition        write FPosition; // to save and restore
@@ -168,20 +170,54 @@ End;
 
 {=======================================================================================================================}
 
+Function StriptoDotPos(Dotpos:Integer; var S:String):String;
+
+{Strips off everything up to a period.}
+
+BEGIN
+
+    If dotpos=0 THEN Result := S;
+    Result := Copy(S, 1, dotpos-1);
+END;
+
+{=======================================================================================================================}
+
 PROCEDURE TParser.CheckforVar(var TokenBuffer: String);
-Var Temp : String;
+Var
+   VariableValue,
+   VariableName, Temp : String;
+   DotPos,
+   CaratPos : Integer;
+
+   {-------------------------------------}
+   Procedure ReplaceToDotPos(const S:String);
+   Begin
+        If DotPos > 0 Then
+             TokenBuffer := S + Copy(TokenBuffer, Dotpos, Length(TokenBuffer) - DotPos + 1)
+        Else TokenBuffer := S;
+   End;
+   {-------------------------------------}
+
 begin
+
    {Replace TokenBuffer with Variable value if first character is VariableDelimiter character}
    If Length(TokenBuffer) > 1 Then
-      If TokenBuffer[1] = VariableDelimiter Then
-            If ParserVars.Lookup(TokenBuffer) > 0 then
+      If TokenBuffer[1] = VariableDelimiter Then  // looking for '@'
+            Dotpos   := pos('.', TokenBuffer);
+            CaratPos := pos('^', TokenBuffer);
+            If CaratPos > 0 Then  DotPos := CaratPos;   // Carat takes precedence
+
+            If Dotpos > 0 Then VariableName := StripToDotPos(DotPos, TokenBuffer)
+                          Else VariableName := TokenBuffer;
+
+            If ParserVars.Lookup(VariableName) > 0 then
             Begin
-               Temp := ParserVars.Value;
-               If Temp[1] = '{' Then Begin
-                  TokenBuffer := Copy(Temp, 2, length(Temp)-2);    // get rid of closed brace added by parservar
+               VariableValue := ParserVars.Value; // Retrieve the value of the variable
+               If VariableValue[1] = '{' Then Begin
+                  ReplaceToDotPos(Copy(VariableValue, 2, length(VariableValue)-2));    // get rid of closed brace added by parservar
                   IsQuotedString := True;  // force RPN parser to handle
                End
-               Else TokenBuffer := Temp;
+               Else ReplaceToDotPos(VariableValue);
             End;
 end;
 
@@ -389,14 +425,14 @@ Begin
       LastDelimiter := ' ';
       TokenBuffer := GetToken(CmdBuffer, FPosition); // Get entire token and put in token Buffer
       If (LastDelimiter = '=') Then Begin
-        Parameterbuffer := tokenBuffer;
-        TokenBuffer := Gettoken(CmdBuffer, FPosition);
+        Parameterbuffer := tokenBuffer;     // put first token in Parameterbuffer
+        TokenBuffer := Gettoken(CmdBuffer, FPosition);   // get token value after the =
       End
       Else begin
         ParameterBuffer := '';  //init to null string
       End;
    End
-   Else Begin
+   Else Begin    // return null strings if none left
        ParameterBuffer := '';
        TokenBuffer := '';
    End;

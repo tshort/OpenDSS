@@ -222,7 +222,9 @@ Begin
             ClearEventLog;      // Start the event log in the current directory
           End
      ELSE    // Everything else must be a circuit element or DSS Object
+        Begin
           Handle := AddObject(ObjClass, ObjName);
+        End;
 
      IF Handle=0 THEN Result := 1;
      
@@ -1418,6 +1420,7 @@ End;
 //----------------------------------------------------------------------------
 FUNCTION AddObject(const ObjType, Name:String):Integer;
 
+
 Begin
 
    Result :=0;
@@ -1446,7 +1449,8 @@ Begin
             Exit;
         End;
 
-   // now let's make a new object or set an existing one active, whatever the CASE
+
+   // now let's make a new object or set an existing one active, whatever the case
         CASE  ActiveDSSClass.DSSClassType Of
             // These can be added WITHout having an active circuit
             // Duplicates not allowed in general DSS objects;

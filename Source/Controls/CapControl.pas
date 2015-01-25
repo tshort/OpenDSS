@@ -291,9 +291,9 @@ Begin
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 352);
-            1: ElementName     := lowercase(param);
+            1: ElementName     := ConstructElemName(lowercase(param));  // substitute @var value if any
             2: ElementTerminal := Parser.IntValue;
-            3: CapacitorName   := 'capacitor.'+ param;
+            3: CapacitorName   := 'capacitor.'+ param;   // will automatically substitute @var value
             4: CASE lowercase(param)[1] of
                     'c': ControlType := CURRENTCONTROL;
                     'v': ControlType := VOLTAGECONTROL;
@@ -340,7 +340,7 @@ Begin
          If ControlType=PFCONTROL then
          With ControlVars Do
          Case ParamPointer of
-
+            1: PropertyValue[1]:= ElementName;  // Synch up with change
             4: Begin
                     PFON_Value := 0.95;     // defaults
                     PFOFF_Value := 1.05;

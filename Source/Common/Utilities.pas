@@ -53,6 +53,7 @@ FUNCTION  InterpretLoadShapeClass(const s:string):Integer;
 FUNCTION  InterpretEarthModel(const s:string):Integer;
 FUNCTION  InterpretColorName(const s:string):Integer;
 FUNCTION  InterpretComplex(const s:String):Complex;
+FUNCTION  ConstructElemName(const Param:string):string;
 
 FUNCTION GetSolutionModeID:String;
 FUNCTION GetSolutionModeIDName(idx:Integer):String;
@@ -1003,6 +1004,9 @@ Begin
              ObjName   := Copy(FullObjName, dotpos+1, Length(FullObjName));
          End;
       End;
+
+      // Check object name in case it is a variable
+      Parser.CheckforVar(ObjName);
 
 End;
 
@@ -2793,6 +2797,18 @@ Function MakeNewCktElemName(const oldname:string):string;
 Begin
      SetObject(OldName);  // set opject active
      With ActiveDSSObject Do Result := Format('%s.%s%d',[ParentClass.Name, copy(ParentClass.Name, 1, 4), ClassIndex]);
+End;
+
+Function ConstructElemName(const Param:string):string;
+{Construct an element name, sustituting @var values if any}
+
+Var      FClassName, FObjName: String;
+
+Begin
+
+       ParseObjectClassandName(lowercase(param), FClassName, FObjName);  // insert @var test
+       result := Format('%s.%s',[FClassName, FObjName]);
+
 End;
 
 Procedure Obfuscate;
