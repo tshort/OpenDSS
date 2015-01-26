@@ -1,0 +1,26 @@
+/****** BLOCK COMMENT *******
+
+   Nice compact Zigzag definition with 3 single-phase transformers.
+
+   This example uses the @var feature.  Requires Version 7.6.4.38 or later.
+
+   Set the following variables before redirecting to this file
+
+var @ZZ=MyZZName
+var @B1=MyZZBus
+var @kV=16.4
+var @kva=920.4
+var @ZZXHL=0.468
+var @ZZNR=23.8
+var @ZZNX=0
+
+NOTE: Use the carat (^) to separate variable name from a suffix
+
+****** END BLOCK COMMENT ********/
+
+New Transformer.@ZZ^A phases=1 buses=[@B1.1.5  @B1.4.7] conns=[delta delta] kVs=[@kV @kV] kvas=[@kva @kva] XHL=@ZZXHL
+New Transformer.@ZZ^B phases=1 buses=[@B1.2.6  @B1.4.5] conns=[delta delta] kVs=[@kV @kV] kvas=[@kva @kva] XHL=@ZZXHL
+New Transformer.@ZZ^C phases=1 buses=[@B1.3.7  @B1.4.6] conns=[delta delta] kVs=[@kV @kV] kvas=[@kva @kva] XHL=@ZZXHL
+
+! ZZ1 Neutral
+New Reactor.@ZZ^N phases=1 bus1=@B1.4  R=@ZZNR  X=@ZZNX   
