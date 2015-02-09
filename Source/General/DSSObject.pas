@@ -136,8 +136,10 @@ begin
    iProp := GetNextPropertySet(0); // Works on ActiveDSSObject
    While iProp >0 Do
      Begin
-      With ParentClass Do Write(F,' ', PropertyName^[RevPropertyIdxMap[iProp]]);
-      Write(F,'=',CheckForBlanks(PropertyValue[iProp]));
+      if Length(PropertyValue[iProp])>0 then  Begin
+          With ParentClass Do Write(F,' ', PropertyName^[RevPropertyIdxMap[iProp]]);
+          Write(F, '=', CheckForBlanks(PropertyValue[iProp]));
+      End;
       iProp := GetNextPropertySet(iProp);
      End;
 end;
