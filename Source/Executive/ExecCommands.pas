@@ -672,7 +672,7 @@ Begin
      End;
 
   EXCEPT
-    On E:Exception DO DoErrorMsg(('ProcessCommand'+CRLF+'Exception Raised WHILE Processing DSS Command:'+ CRLF + parser.CmdString),
+    On E:Exception DO DoErrorMsg(('ProcessCommand'+CRLF+'Exception Raised While Processing DSS Command:'+ CRLF + parser.CmdString),
                       E.Message,
                       'Error in command string or circuit data.' , 303);
   End;
