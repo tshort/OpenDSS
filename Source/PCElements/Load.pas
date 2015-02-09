@@ -674,9 +674,11 @@ Begin
    IF OtherLoad<>Nil THEN
      WITH ActiveLoadObj DO Begin
 
+       Connection     := OtherLoad.Connection;
+
        IF Fnphases <> OtherLoad.Fnphases THEN Begin
          Nphases := OtherLoad.Fnphases;
-         NConds  := Fnphases;  // Forces reallocation of terminal stuff
+         SetNcondsForConnection; // Forces reallocation of terminal stuff
          Yorder  := Fnconds*Fnterms;
          YPrimInvalid := TRUE;
        End;
@@ -696,7 +698,6 @@ Begin
        WNominal       := OtherLoad.WNominal;
        PFNominal      := OtherLoad.PFNominal;
        varNominal     := OtherLoad.varNominal;
-       Connection     := OtherLoad.Connection;
        Rneut          := OtherLoad.Rneut;
        Xneut          := OtherLoad.Xneut;
        CVRshape       := OtherLoad.CVRshape;
