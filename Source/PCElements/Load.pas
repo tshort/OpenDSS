@@ -2232,14 +2232,14 @@ begin
          2:  Result := GetBus(1);
          3:  Result := Format('%-g',   [kVLoadBase]);
          4:  Result := Format('%-g',   [kwBase]);
-         5:  Result := Format('%-.3g', [PFNominal]);
+         5:  Result := Format('%-.4g', [PFNominal]);
          7:  Result := Yearlyshape;
          8:  Result := Dailyshape;
          9:  Result := Dutyshape;
-         12: Result := Format('%-.3g', [kvarbase]);
-         22: Result := Format('%-.3g', [FkVAAllocationFactor]);
+         12: Result := Format('%-g',   [kvarbase]);
+         22: Result := Format('%-g', [FkVAAllocationFactor]);
          23: Result := Format('%-g',   [kVABase]);
-         30: Result := Format('%-.3g', [FCFactor]);
+         30: Result := Format('%-.4g', [FCFactor]);
          33: begin
                   Result := '';
                   for i := 1 to nZIPV do Result := Result + Format(' %-g', [ZIPV^[i]]);
