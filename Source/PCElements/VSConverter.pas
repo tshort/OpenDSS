@@ -416,7 +416,7 @@ procedure TVSConverterObj.GetInjCurrents(Curr:pComplexArray);
 var
   Vmag: Complex;
   Vdc, Sphase, Stotal: Complex;
-  Pac, Qac, Deg, Idc, Ilim : Double;
+  Pac, Qac, Deg, Idc, Idclim, Iaclim, Itmag : Double;
   i, Nac: integer;
 begin
 
@@ -429,17 +429,27 @@ begin
    }
 
   Nac := FNphases - FNdc;
-  Ilim := FMaxIdc * Fkw / FkVdc;
+  Idclim := FMaxIdc * Fkw / FkVdc;
+  Iaclim := FMaxIac * Fkw / FkVac / Nac;
 
   // obtain the terminal control quantities
   ComputeVterminal;
   ITerminalUpdated := FALSE;
   GetTerminalCurrents (ITerminal);
+  for i := 1 to Nac do begin
+    Itmag := cabs(Iterminal^[i]);
+    if Itmag > Iaclim then begin
+      Itmag := Iaclim / Itmag;
+      Iterminal^[i].re := Iterminal^[i].re * Itmag;
+      Iterminal^[i].im := Iterminal^[i].im * Itmag;
+    end;
+  end;
 
   // do the AC voltage source injection - dependent voltage sources kept in ComplexBuffer
   Vdc := Vterminal^[FNphases];
   if (Vdc.re = 0.0) and (Vdc.im = 0.0) then Vdc.re := 1000.0 * FkVdc;
   Vmag := CMulReal (Vdc, 0.353553 * Fm);
+//  Vmag := cmplx (8000, 0);
   RotatePhasorDeg(Vmag, 1.0, Fd);
   ComplexBuffer^[1] := Vmag;
   Deg := -360.0 / Nac;
@@ -463,8 +473,9 @@ begin
 
   // DC current source injection
   Idc := Pac / Cabs(Vdc);
-  if Idc > Ilim then Idc := Ilim;
-  if Idc < -Ilim then Idc := -Ilim;
+  if Idc > Idclim then Idc := Idclim;
+  if Idc < -Idclim then Idc := -Idclim;
+//  Idc := 17.7781;
   Curr^[FNphases] := cmplx (Idc, 0.0);
   Curr^[2*FNphases] := cmplx (-Idc, 0.0);
   ITerminalUpdated := FALSE;
