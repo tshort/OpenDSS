@@ -34,7 +34,8 @@ TYPE
   EInvControlMode = (
     VOLTVAR,
     VOLTWATT,
-    DYNAMICREACCURR
+    DYNAMICREACCURR,
+    DYNAMICVREG
   );
 
   ERateofChangeMode = (
@@ -142,6 +143,8 @@ end;
             LPFWattspu : Double;
             FPendingChange: Array of Integer;
 
+            FVregs: Array of Double; // for DYNAMICVREG
+
             QDeliver: Array of Double;
             QNew: Array of Double;
             QOld: Array of Double;
@@ -155,6 +158,9 @@ end;
             FVpuSolutionIdx: Integer;
             FdeltaQ_factor: Double;
             FdeltaP_factor: Double;
+
+            // following for dynamic vreg mode
+            FVregTau: Double;
 
             //following for dynamic reactive current mode
             FDbVMin, FDbVMax,FArGraLowV,FArGraHiV: Double;
@@ -193,7 +199,7 @@ end;
             PROCEDURE   Reset; Override;  // Reset to initial defined state
 
             PROCEDURE   GetCurrents(Curr: pComplexArray); Override; // Get present value of terminal Curr
-            PROCEDURE   GetInjCurrents(Curr: pComplexArray); Override;   // Returns Injextion currents
+            PROCEDURE   GetInjCurrents(Curr: pComplexArray); Override;   // Returns Injection currents
 
             PROCEDURE   InitPropertyValues(ArrayOffset:Integer);Override;
             PROCEDURE   DumpProperties(Var F:TextFile; Complete:Boolean);Override;
@@ -218,7 +224,7 @@ USES
 
 CONST
 
-    NumPropsThisClass = 21;
+    NumPropsThisClass = 22;
 
     NONE = 0;
     CHANGEVARLEVEL = 1;
@@ -285,17 +291,22 @@ Begin
      PropertyName[20] := 'DeltaP_factor';
      PropertyName[21] := 'EventLog';
 
+     // following for dynamic Vreg mode
+     PropertyName[22] := 'VregTau';
+
      PropertyHelp[1] := 'Array list of PVSystems to be controlled.  Usually only one PVSystem is controlled by one InvControl. '+CRLF+CRLF+
                         'If not specified, all PVSystems in the circuit are assumed to be controlled by this control, only. ' +CRLF+CRLF+
                         ' No capability of hierarchical control between two controls for a single PVSystem is implemented at this time.';
 
      PropertyHelp[2] := 'Mode with which the InvControl will control the PVSystem(s) specified in PVSystemList. '+CRLF+CRLF+
-                        'Must be one of: {VOLTVAR* | VOLTWATT | DYNAMICREACCURR} ' +
+                        'Must be one of: {VOLTVAR* | VOLTWATT | DYNAMICREACCURR | DYNAMICVREG} ' +
                          CRLF+CRLF+'In volt-var mode (Default), the control attempts to dispatch the vars according to one or two volt-var curves, depending on the local terminal voltage, present active power output, and the capabilities of the PVSystem. ' +
                          CRLF+CRLF+'In volt-watt mode , the control attempts to dispatch the watts according to one defined volt-watt curve, depending on the local terminal voltage and the capabilities of the PVSystem. '+
-                         CRLF+CRLF+'In dynamic reactive current mode, the control attempts to increasingly counter deviations outside the deadband (around nominal, or average) by injecting increasing amounts of inductive or capacitive vars, within the capabilities of the PVSystem.';
+                         CRLF+CRLF+'In dynamic reactive current mode, the control attempts to increasingly counter deviations outside the deadband (around nominal, or average) by injecting increasing amounts of inductive or capacitive vars, within the capabilities of the PVSystem.' +
+                         CRLF+CRLF+'In dynamic Vreg mode, the control dispatches reactive power as in volt-var mode, but with Vreg adapting to grid conditions. Vreg is defined as the Q=0 crossing of vvc_curve1.' +
+                         CRLF+'Requires vvc_curve1 and VregTau; avgwindowlen and hysteresis_offset are not supported in this mode.';
 
-     PropertyHelp[3] := 'Required for VOLTVAR mode. '+CRLF+CRLF+
+     PropertyHelp[3] := 'Required for VOLTVAR and DYNAMICVREG modes. '+CRLF+CRLF+
                         'The name of an XYCurve object that describes the variation in var output (as per unit of available vars, given present active power output and the capabilities of the PVSystem). '+CRLF+CRLF+
                         'Units for the x-axis are per-unit voltage, which may be in per unit of the rated voltage for the PVSystem, or may be in per unit of the average voltage at the terminals over a user-defined number of prior solutions. '+CRLF+CRLF+
                         'Units for the y-axis are in per-unit available desired vars, corresponding to the terminal voltage (x-axis value in per unit).  The per-unit available vars depends on the kva rating of the PVSystem as well as the present '+
@@ -420,11 +431,12 @@ Begin
                          'If the maximum control iterations are exceeded, and no numerical instability is seen in the EventLog of via monitors, then try increasing the value of this parameter to reduce the number '+
                          'of control iterations needed to achieve the control criteria, and move to the power flow solution.';
 
+     PropertyHelp[21] := '{Yes/True* | No/False} Default is YES for InvControl. Log control actions to Eventlog.';
 
-     PropertyHelp[21] :=  '{Yes/True* | No/False} Default is YES for InvControl. Log control actions to Eventlog.';
-
-
-
+     PropertyHelp[22] := 'Required for DYNAMICVREG mode. Defaults to 1200 seconds.'+CRLF+CRLF+
+                         'When the control injects or absorbs reactive power due to a voltage deviation from the Q=0 crossing of vvc_curve1,'+CRLF+
+                         'the Q=0 crossing will move toward the actual terminal voltage with this time constant.'+CRLF+
+                         'Over time, the effect is to gradually bring inverter reactive power to zero as the grid voltage changes due to non-solar effects.';
 
      ActiveProperty  := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -476,7 +488,8 @@ Begin
             2: Begin
                    If      CompareTextShortest(Parser.StrValue, 'voltvar')= 0         Then  ControlMode := VOLTVAR
                    Else If CompareTextShortest(Parser.StrValue, 'voltwatt')= 0        Then  ControlMode := VOLTWATT
-                   Else If CompareTextShortest(Parser.StrValue, 'dynamicreaccurr')= 0 Then  ControlMode := DYNAMICREACCURR;
+                   Else If CompareTextShortest(Parser.StrValue, 'dynamicreaccurr')= 0 Then  ControlMode := DYNAMICREACCURR
+                   Else If CompareTextShortest(Parser.StrValue, 'dynamicvreg')= 0 Then  ControlMode := DYNAMICVREG;
                End;
             3: Begin
                   Fvvc_curvename := Parser.StrValue;
@@ -540,7 +553,6 @@ Begin
             18: Begin
                   If Parser.DblValue > 0 then FLPFTau := Parser.DblValue
                   else RateofChangeMode := INACTIVE;
-
                 End;
             19: Begin
                   If Parser.DblValue > 0 then FRiseFallLimit := Parser.DblValue
@@ -548,7 +560,9 @@ Begin
                 End;
             20: FdeltaP_factor := Parser.DblValue;
             21: ShowEventLog := InterpretYesNo(param);
-
+            22: Begin
+                  If Parser.DblValue > 0 then FVregTau := Parser.DblValue;
+                End;
          ELSE
            // Inherited parameters
            ClassEdit( ActiveInvControlObj, ParamPointer - NumPropsthisClass)
@@ -631,6 +645,7 @@ Begin
       RateofChangeMode           := OtherInvControl.RateofChangeMode;
       FLPFTau                    := OtherInvControl.FLPFTau;
       FRiseFallLimit             := OtherInvControl.FRiseFallLimit;
+      FVregTau                   := OtherInvControl.FVregTau;
       For j := 1 to ParentClass.NumProperties Do PropertyValue[j] := OtherInvControl.PropertyValue[j];
 
    End
@@ -736,13 +751,14 @@ Begin
      deltaVDynReac          := nil;
      priorRollAvgWindow     := nil;
 
+     // following for dynamic vreg mode
+     FVregTau := 1200.0;
+     FVregs := nil;
+
      //generic for control
      FPendingChange         := nil;
 
      InitPropertyValues(0);
-
-
-
    //  RecalcElementData;
 
 End;
@@ -786,6 +802,8 @@ Begin
      Finalize(FLPFTime);
      Finalize(FWithinTol);
      Finalize(FROCEvaluated);
+
+     Finalize(FVregs);
 
      Inherited Destroy;
 End;
@@ -874,11 +892,6 @@ Begin
   //  IF YPrim=nil THEN YPrim := TcMatrix.CreateMatrix(Yorder);
 End;
 
-
-
-
-
-
 {--------------------------------------------------------------------------}
 PROCEDURE TInvControlObj.GetCurrents(Curr: pComplexArray);
 VAR
@@ -935,6 +948,7 @@ VAR
   DeltaQ,basekV,alpha,Pdesiredpu_temp,
   LPFvarspu,Qdesiredpu_temp,DeltaP          :Double;
   SMonitoredElement                         :Complex;
+  VregCurve, VpuAdjusted                    :Double;  // for DYNAMICVREG
 
  // local pointer to current PVSystem element
   PVSys                                     :TPVSystemObj;
@@ -1062,7 +1076,7 @@ BEGIN
       end; // end if PendingChange = CHANGEWATTLEVEL
 
 
-      CHANGEVARLEVEL:  // volt var mode
+      CHANGEVARLEVEL:  // volt var mode OR dynamic vreg mode
       begin
           PVSys.VWmode := FALSE;
           PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
@@ -1086,7 +1100,22 @@ BEGIN
           // from the volt-var curve
           if (FWithinTol[i]=False) then
           begin
-          if Fvvc_curveOffset = 0.0 then Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i])
+          if Fvvc_curveOffset = 0.0 then begin  // no hysteresis
+            if ControlMode = DYNAMICVREG then begin
+              // VregCurve := Fvvc_curve.GetXValue(0.0); // Volt/Var curve zero crossing
+              VregCurve := 0.5 * (Fvvc_curve.XValue_pt[2]+Fvvc_curve.XValue_pt[3]);
+              // TODO - why doesn't the preceeding line work?
+              if FVregs[i] <= 0.0 then FVregs[i] := VregCurve; // initialize if needed
+              // look up Q from the curve, but enter with a voltage adjusted for moving Vreg
+              VpuAdjusted := FPresentVpu[i] + VregCurve - FVregs[i];
+              If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
+                Format('  **VREG mode VregCurve= %.5g, FVreg= %.5g, Vpu= %.5g, VpuAdj= %.5g',
+                  [VregCurve,FVregs[i],FPresentVpu[i],VpuAdjusted]));
+              Qdesiredpu[i] := Fvvc_curve.GetYValue(VpuAdjusted)
+            end else begin  // simple look-up
+              Qdesiredpu[i] := Fvvc_curve.GetYValue(FPresentVpu[i])
+            end
+          end // end of logic for the no-hysteresis case
 
           // else if we're going in the positive direction and on curve 1, stay
           // with curve 1
@@ -1180,8 +1209,8 @@ BEGIN
               If PVSys.Presentkvar <> Qnew[i] Then PVSys.Presentkvar := Qnew[i];
               Qoutputpu[i] := PVSys.Presentkvar / QHeadroom[i];
               If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name +','+ PVSys.Name+',',
-                             Format('**VOLTVAR mode set PVSystem output var level to**, kvar= %.5g', [PVSys.Presentkvar,FPresentVpu[i]]));
-
+                             Format('**%s mode set PVSystem output var level to**, kvar= %.5g',
+                             [GetPropertyValue(2), PVSys.Presentkvar,FPresentVpu[i]]));
               FAvgpVuPrior[i] := FPresentVpu[i];
               QOld[i] := QNew[i];
               ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
@@ -1391,8 +1420,7 @@ begin
             // convert to per-unit on bus' kvbase, or
             // if using averaging window values, then set prior voltage to averaging window
             if(FVoltage_CurveX_ref <> 0) and (FRollAvgWindow[i].Get_AvgVal <> 0.0) then FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (FRollAvgWindow[i].Get_AvgVal)
-            else                              FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (basekV * 1000.0);;
-
+            else                              FPresentVpu[i] := (Vpresent / ControlledElement[i].NPhases) / (basekV * 1000.0);
 
             CASE ControlMode of
                 VOLTWATT:  // volt-watt control mode
@@ -1442,6 +1470,7 @@ begin
                  end;
 
 
+                DYNAMICVREG,
                 VOLTVAR: // volt-var control mode
                 begin
                     if (ControlledElement[i].InverterON = FALSE) and (ControlledElement[i].VarFollowInverter = TRUE) then exit;
@@ -1466,9 +1495,9 @@ begin
                               (intHour, t + TimeDelay, PendingChange[i], 0, Self);
 
                           If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
-                            ('**Ready to change var output due in VOLTVAR mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
-
-                        end
+                            ('**Ready to change var output due in %s mode**, Vavgpu= %.5g, VPriorpu=%.5g',
+                              [GetPropertyValue(2), FPresentVpu[i],FAvgpVuPrior[i]]));
+                        end
                       else
                       begin
                         if ((Abs(FPresentVpu[i] - FAvgpVuPrior[i]) <= FVoltageChangeTolerance) and
@@ -1572,6 +1601,8 @@ begin
      PropertyValue[21] := '1.0'; // deltaP_factor
      PropertyValue[21] := 'yes'; // show event log?
 
+     PropertyValue[22] := '1200.0'; // VregTau
+
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -1634,6 +1665,8 @@ begin
        SetLength(FWithinTol, FListSize+1);
        SetLength(FROCEvaluated, FListSize+1);
 
+       SetLength(FVregs, FListSize+1);
+
        For i := 1 to FListSize Do Begin
            PVSys := PVSysClass.Find(FPVSystemNameList.Strings[i-1]);
            If Assigned(PVSys) and PVSys.Enabled Then FPVSystemPointerList.New := PVSys;
@@ -1690,6 +1723,8 @@ begin
          SetLength(FWithinTol, FListSize+1);
          SetLength(FROCEvaluated, FListSize+1);
 
+         SetLength(FVregs, FListSize+1);
+
     End;  {Else}
 
 
@@ -1736,6 +1771,8 @@ begin
            FWithinTol[i]                            := False;
            FROCEvaluated[i]                         := False;
            for j := 1 to 2 do  FVpuSolution[i,j]    :=0.0;
+
+           FVregs[i] := 0.0; // this should later initialize from the volt/var curve zero crossing
 
            FPendingChange[i]                        := NONE;
 
@@ -1861,6 +1898,7 @@ Begin
                             if ControlMode = VOLTVAR then Result := 'VOLTVAR';
                             if ControlMode = VOLTWATT then Result := 'VOLTWATT';
                             if ControlMode = DYNAMICREACCURR then Result := 'DYNAMICREACCURR';
+                            if ControlMode = DYNAMICVREG then Result := 'DYNAMICVREG';
                          End;
 
           3              : Result := Format ('%s',[Fvvc_curvename]);
@@ -1876,7 +1914,7 @@ Begin
           9              : Result := Format('%.6g', [FDbVMax]);
           10             : Result := Format('%.6g', [FArGraLowV]);
           11             : Result := Format('%.6g', [FArGraHiV]);
-          12              : Result := Format('%d', [FRollAvgWindowLength,FRollAvgWindowLengthIntervalUnit]);
+          12             : Result := Format('%d', [FRollAvgWindowLength,FRollAvgWindowLengthIntervalUnit]);
           13             : Result := Format('%.6g', [FdeltaQ_factor]);
           14             : Result := Format('%.6g', [FVoltageChangeTolerance]);
           15             : Result := Format('%.6g', [FVarChangeTolerance]);
@@ -1894,6 +1932,8 @@ Begin
 
                          end;
           20            : Result := Format('%.6g', [FdeltaP_factor]);
+          // 21 skipped, EventLog always went to the default handler
+          22            : Result := Format('%.6g', [FVregTau]);
 
       ELSE  // take the generic handler
            Result := Inherited GetPropertyValue(index);
@@ -1947,6 +1987,7 @@ VAR
    localControlledElement     : TDSSCktElement;
    tempVbuffer                : pComplexArray;
    PVSys                      : TPVSystemObj;
+   dt, Verr: Double; // for DYNAMICVREG
 Begin
 
      tempVbuffer := Nil;   // Initialize for Reallocmem
@@ -1974,8 +2015,11 @@ Begin
              FWithinTol[j] := False;
              FROCEvaluated[j] := False;
 
-
-
+             dt :=  ActiveCircuit.Solution.Dynavars.h;
+             Verr := FPresentVpu[j] - FVregs[i];
+             FVregs[j] := FVregs[j] + Verr * Exp (dt / FVregTau);
+             If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
+                Format('  **VREG mode new FVreg= %.5g', [FVregs[i]]));
 
              // allocated enough memory to buffer to hold voltages and initialize to cZERO
              Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * localControlledElement.NConds);
