@@ -24,6 +24,13 @@ type
     procedure Set_Name(const Value: WideString); safecall;
     procedure Set_NumSteps(Value: Integer); safecall;
     function Get_Count: Integer; safecall;
+    function AddStep: WordBool; safecall;
+    function SubtractStep: WordBool; safecall;
+    function Get_AvailableSteps: Integer; safecall;
+    function Get_States: OleVariant; safecall;
+    procedure Set_States(Value: OleVariant); safecall;
+    procedure Open; safecall;
+    procedure Close; safecall;
 
   end;
 
@@ -215,6 +222,123 @@ function TCapacitors.Get_Count: Integer;
 begin
      If Assigned(ActiveCircuit) Then
           Result := ActiveCircuit.ShuntCapacitors.ListSize;
+end;
+
+function TCapacitors.AddStep: WordBool;
+var
+  elem: TCapacitorObj;
+begin
+  elem := ActiveCapacitor;
+  if elem <> nil then Result := elem.AddStep;
+end;
+
+function TCapacitors.SubtractStep: WordBool;
+var
+  elem: TCapacitorObj;
+begin
+  elem := ActiveCapacitor;
+  if elem <> nil then Result := elem.SubtractStep;
+
+end;
+
+function TCapacitors.Get_AvailableSteps: Integer;
+var
+  elem: TCapacitorObj;
+begin
+  elem := ActiveCapacitor;
+  if elem <> nil then Result := elem.AvailableSteps ;
+end;
+
+function TCapacitors.Get_States: OleVariant;
+Var
+  elem: TCapacitorObj;
+  i, k: Integer;
+Begin
+  Result := VarArrayCreate([0, 0], varInteger);
+  Result[0] := -1;     // error code
+  IF ActiveCircuit <> Nil THEN
+  Begin
+      Elem := ActiveCapacitor;
+      If Elem <> nil Then
+      Begin
+        VarArrayRedim(Result, elem.NumSteps  -1);
+        k:=0;
+        for i:= 1 to elem.Numsteps DO Begin
+            Result[k] := elem.States[i];
+            Inc(k);
+        End;
+      End;
+  End;
+
+end;
+
+procedure TCapacitors.Set_States(Value: OleVariant);
+Var
+  elem:TCapacitorObj;
+  i, k, LoopLimit: Integer;
+
+begin
+    elem := ActiveCapacitor;
+    If elem <> nil Then
+    Begin
+         // allocate space based on present value of NumSteps
+         // setting NumSteps allocates the memory
+         // only put as many elements as proviced up to nZIPV
+
+         LoopLimit := VarArrayHighBound(Value,1);
+         If (LoopLimit - VarArrayLowBound(Value,1) + 1) > elem.NumSteps  Then   LoopLimit :=  VarArrayLowBound(Value,1) + elem.NumSteps -1;
+
+         k := 1;
+         for i := VarArrayLowBound(Value,1) to LoopLimit do
+         Begin
+             elem.States[k] := Value[i];
+             inc(k);
+         End;
+
+         elem.SetLastStepInService;
+    End;
+
+end;
+
+procedure TCapacitors.Open;
+// Open all steps of capacitor
+Var
+    elem:TCapacitorObj;
+    i : Integer;
+Begin
+
+  IF ActiveCircuit <> Nil THEN
+   WITH ActiveCircuit DO
+   Begin
+      elem := ActiveCapacitor;
+      If elem <> nil THEN
+      WITH elem DO
+      Begin
+        for i := 1 to NumSteps  do  States[i] := 0;   // open all steps
+      End;
+   End;
+
+end;
+
+procedure TCapacitors.Close;
+Var
+    elem:TCapacitorObj;
+    i : Integer;
+Begin
+
+  IF ActiveCircuit <> Nil THEN
+   WITH ActiveCircuit DO
+   Begin
+      elem := ActiveCapacitor;
+      If elem <> nil THEN
+      WITH elem DO
+      Begin
+        ActiveTerminal := Terminals^[1];  // make sure terminal 1 is closed
+        Closed[0] := TRUE;    // closes all phases
+        for i := 1 to NumSteps  do  States[i] := 1;
+      End;
+   End;
+
 end;
 
 initialization

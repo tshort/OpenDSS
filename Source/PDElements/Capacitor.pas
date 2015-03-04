@@ -109,12 +109,13 @@ TYPE
         PROCEDURE MakePosSequence;Override;  // Make a positive Sequence Model
 
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
-        Procedure DumpProperties(Var F:TextFile;Complete:Boolean);Override;
+        PROCEDURE DumpProperties(Var F:TextFile;Complete:Boolean);Override;
         FUNCTION  GetPropertyValue(Index:Integer):String;Override;
 
         FUNCTION AddStep:Boolean;
         FUNCTION SubtractStep:Boolean;
         FUNCTION AvailableSteps:Integer;
+        PROCEDURE SetLastStepInService;
         Property NumSteps:Integer  Read FNumSteps write set_NumSteps;
         Property States[Idx:Integer]:Integer Read get_States write set_States;
         Property Totalkvar:Double Read FTotalkvar;
@@ -124,6 +125,7 @@ TYPE
 
 VAR
    ActiveCapacitorObj:TCapacitorObj;
+   CapacitorClass : TCapacitor;
 
 implementation
 
@@ -144,6 +146,7 @@ BEGIN
 
      CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
      CommandList.Abbrev := TRUE;
+     CapacitorClass := Self;
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -895,11 +898,9 @@ begin
      DoHarmonicRecalc := TRUE;
 end;
 
-procedure TCapacitorObj.ProcessStatesSpec(const Param: String);
+procedure TCapacitorObj.SetLastStepInService;
 Var i:Integer;
-begin
-     InterpretIntArray(Param, FNumsteps, FStates);
-
+Begin
      LastStepInService := 0;
 
      For i := FNumsteps downto 1 Do Begin
@@ -908,6 +909,13 @@ begin
             Break;
          End;
      End;
+End;
+
+procedure TCapacitorObj.ProcessStatesSpec(const Param: String);
+
+begin
+     InterpretIntArray(Param, FNumsteps, FStates);
+     SetLastStepInService;
 end;
 
 procedure TCapacitorObj.MakeYprimWork(YprimWork: TcMatrix; iStep:Integer);

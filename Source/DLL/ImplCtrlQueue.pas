@@ -174,9 +174,8 @@ end;
 
 function TCtrlQueue.Get_PopAction: Integer;
 begin
-     Result := 0;
-     COMControlProxyObj.PopAction;
      Result := COMControlProxyObj.ActionList.Count;
+     COMControlProxyObj.PopAction;
 end;
 
 procedure TCtrlQueue.Set_Action(Param1: Integer);

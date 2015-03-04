@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/5/2014 4:09:09 PM from Type Library described below.
+// File generated on 3/3/2015 4:50:40 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -2013,6 +2013,13 @@ type
     function Get_Name: WideString; safecall;
     procedure Set_Name(const Value: WideString); safecall;
     function Get_Count: Integer; safecall;
+    function AddStep: WordBool; safecall;
+    function SubtractStep: WordBool; safecall;
+    function Get_AvailableSteps: Integer; safecall;
+    function Get_States: OleVariant; safecall;
+    procedure Set_States(Value: OleVariant); safecall;
+    procedure Open; safecall;
+    procedure Close; safecall;
     property kV: Double read Get_kV write Set_kV;
     property kvar: Double read Get_kvar write Set_kvar;
     property NumSteps: Integer read Get_NumSteps write Set_NumSteps;
@@ -2022,6 +2029,8 @@ type
     property Next: Integer read Get_Next;
     property Name: WideString read Get_Name write Set_Name;
     property Count: Integer read Get_Count;
+    property AvailableSteps: Integer read Get_AvailableSteps;
+    property States: OleVariant read Get_States write Set_States;
   end;
 
 // *********************************************************************//
@@ -2040,6 +2049,12 @@ type
     property Next: Integer readonly dispid 207;
     property Name: WideString dispid 208;
     property Count: Integer readonly dispid 209;
+    function AddStep: WordBool; dispid 210;
+    function SubtractStep: WordBool; dispid 211;
+    property AvailableSteps: Integer readonly dispid 212;
+    property States: OleVariant dispid 213;
+    procedure Open; dispid 214;
+    procedure Close; dispid 215;
   end;
 
 // *********************************************************************//
