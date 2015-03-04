@@ -13,7 +13,7 @@ set mode=yearly number= 168    ! one week simulation (omit "number=168' for whol
 
 Set overloadreport=true  ! TURN OVERLOAD REPORT ON
 Set voltexcept=true      ! voltage exception report
-set demand=true          ! demand interval ON
+set demandinterval=true          ! demand interval ON
 set DIVerbose=true       ! verbose mode is ON
 
 

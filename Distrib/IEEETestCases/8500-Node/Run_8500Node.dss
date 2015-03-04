@@ -40,6 +40,9 @@ Plot Circuit voltage Max=0 dots=n n  C1=Blue C2=$FF00FF  1ph=3
 
 plot circuit Losses Max=50 dots=n labels=n subs=y C1=Blue
 
+plot profile ph=all
+plot profile ph=1
+
 summary
 
 show taps

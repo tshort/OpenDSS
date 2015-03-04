@@ -37,6 +37,7 @@ class DSS:
         self.text.Command = "clear"
         self.circuit = self.engine.ActiveCircuit
 
+
 # if filename is not empty, then compile the .dss file specified
 # note:  filename includes the path and the .dss file name
 # note:  the .dss file compiled is usually the master.dss file
@@ -63,10 +64,10 @@ class DSS:
     def plots(self):
         self.plot_voltage()
         self.plot_map()
-        show()  
+        show()
 
 
-# method displays (prints) line name, number of phases, 
+# method displays (prints) line name, number of phases,
 # voltages in actual volts and volts on a 120V basis,
 # displays currents, and calculates real power, reactive
 # power, and pf (displacement)
@@ -99,7 +100,7 @@ class DSS:
 
         x = self.branch.distance
         y = t(t(abs(self.branch.Vto)) * scalefactor)
-        plot(x, y, 'o', markersize=5, picker=5)
+        plot(x, y, '*', markersize=5, picker=5)
 
 #       # the following code will scale the size dot by the number of phases
 #       # it's nice, but it makes the code slow
@@ -116,7 +117,7 @@ class DSS:
         connect('pick_event', self.highlight_voltage_plot)
         connect('pick_event', self.highlight_map)
         connect('pick_event', self.print_branch_info)
-        
+
         self.fig = fig
         self.selected, = plot(x[0:3], y[0], 'o', ms=12, alpha=0.7,
             color='yellow', visible=False)
@@ -154,14 +155,14 @@ class DSS:
 # get x and y coordinates of the branch to be drawn
 # the branch is a line so it is defined with pairs of
 # from and to coordinates
-        x1 = self.branch.x 
-        y1 = self.branch.y 
+        x1 = self.branch.x
+        y1 = self.branch.y
         x2 = self.branch.xto
-        y2 = self.branch.yto 
+        y2 = self.branch.yto
         axes().set_aspect('equal', 'datalim')
-        
+
 # don't want to see any ticks on the x-axis or the y-axis
-        xticks([])                        
+        xticks([])
         yticks([])
 
 # set the limits of the map plot
@@ -174,7 +175,7 @@ class DSS:
 
 # make a LineCollection of the segments, with width indicating the number
 # of phases
-        line_segments = LineCollection(segments, 
+        line_segments = LineCollection(segments,
                                        linewidths    = self.branch.nphases*1.5,
                                        linestyle = 'solid', picker = 5)
         gca().add_collection(line_segments)
@@ -243,7 +244,7 @@ class Bus:
             v = array(bus.Voltages)
             nodes = array(bus.nodes)
 
-# we're only interested in the first three nodes 
+# we're only interested in the first three nodes
 # (also called terminals) on the bus
             if nodes.size > 3: nodes = nodes[0:3]
             cidx = 2 * array(range(0, min(v.size / 2, 3)))
@@ -306,15 +307,15 @@ class Branch:
             nphases[i] = nodes.size
             if nodes.size > 3: nodes = nodes[0:3]
             cidx = 2 * array(range(0, min(v.size / 2, 3)))
-                      
+
             bus1 = circuit.Buses(re.sub(r"\..*","", el.BusNames[0]))
 
-            if bus1.x == 0 or bus1.y == 0: 
+            if bus1.x == 0 or bus1.y == 0:
                 continue # skip lines without proper bus coordinates
 
             busname[i] = bus1.Name
 
-            Vto[i, nodes-1] = v[cidx] + 1j * v[cidx + 1]  
+            Vto[i, nodes-1] = v[cidx] + 1j * v[cidx + 1]
             x[i] = bus1.x
             y[i] = bus1.y
             v = array(bus1.Voltages)
@@ -343,5 +344,4 @@ if __name__ == '__main__':
     d = DSS(r"C:\users\prdu001\OpenDSS\Distrib\IEEETestCases\123Bus\IEEE123Master.dss")
     d.plots()
 
-    
-   
+

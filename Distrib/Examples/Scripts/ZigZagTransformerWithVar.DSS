@@ -14,7 +14,7 @@ var @ZZXHL=0.468
 var @ZZNR=23.8
 var @ZZNX=0
 
-NOTE: Use the carat (^) to separate variable name from a suffix
+NOTE: Use the carat (^) to separate variable name from a suffix. This is convenient when naming devices where 3 1-phase devices are used to define a 3-phase device, for example.
 
 ****** END BLOCK COMMENT ********/
 

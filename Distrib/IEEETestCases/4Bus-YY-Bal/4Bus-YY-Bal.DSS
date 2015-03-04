@@ -7,6 +7,8 @@ new circuit.4BusYYbal basekV=12.47 phases=3
 ! **** HAVE TO STIFFEN THE SOURCE UP A LITTLE; THE TEST CASE ASSUMES AN INFINITE BUS
 ~ mvasc3=200000 200000
 
+set earthmodel=carson
+
 ! **** DEFINE WIRE DATA 
 new wiredata.conductor Runits=mi Rac=0.306 GMRunits=ft GMRac=0.0244  Radunits=in Diam=0.721 
 new wiredata.neutral   Runits=mi Rac=0.592 GMRunits=ft GMRac=0.00814 Radunits=in Diam=0.563 

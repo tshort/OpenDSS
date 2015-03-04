@@ -140,10 +140,11 @@ BusCoords IEEE13Node_BusXY.csv
 ! Alternate Solution Script
 ! To force the taps to be same as published results, set the transformer taps manually and disable the controls
 !---------------------------------------------------------------------------------------------------------------------------------------------------
-
+/*
 Transformer.Reg1.Taps=[1.0 1.0625]
 Transformer.Reg2.Taps=[1.0 1.0500]
 Transformer.Reg3.Taps=[1.0 1.06875]
 Set Controlmode=OFF
 
 Solve
+*/

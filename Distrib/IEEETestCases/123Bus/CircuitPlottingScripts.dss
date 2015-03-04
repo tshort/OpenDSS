@@ -3,7 +3,7 @@
 !------------------------------------------------------------------------------
 ! Labels and Dots are on
 
-plot circuit Power  max=10000 dots=n labels=n C1=$00FF0000    ! Max Thickness is at 1000 kW
+plot circuit Power  max=1000 dots=n labels=n C1=$00FF0000  1ph=3  ! Max Thickness is at 1000 kW
 plot circuit Losses max=10      dots=y labels=n C1=$00FF0000    ! losses per unit length
 
 !------------------------------------------------------------------------------
