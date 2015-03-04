@@ -1,0 +1,33 @@
+Clear
+
+New Circuit.CapInterface 
+~ basekv=161 pu=1.05 angle=0.0 freq=60.0 phases=3 
+
+!************** Begin Transformers **************!
+new transformer.TR1 phases=3 windings=2 buses=(genbus,feedbus) conns=(delta,wye)
+~ kvs=(161,26) kvas=(42000,42000) XHL=9.049 %r=0.2961
+new transformer.TR2 phases=3 windings=2 buses=(genbus,feedbus) conns=(delta,wye)
+~ kvs=(161,26) kvas=(42000,42000) XHL=8.26 %r=0.2877
+!************** End Transformers **************!
+
+!************** Begin Lines **************!
+! R and X are real values Base V=161kV
+! Assumed zero sequence R and X is 3X positive sequence
+NEW line.line1 bus1=sourcebus bus2=genbus R1=0.9357 X1=6.9987 R0=2.8071 X0=20.9961
+!************** End Lines **************!
+
+!************** Begin Capacitors **************!
+New Capacitor.Cap Bus1=feedbus phases=3 kv=26 numsteps=4 kvar=[5400 5400 5400 5400]
+// New CapControl.CapCtrl element=transformer.TR2 terminal=2 capacitor=Cap 
+// ~ PT=125.09 Type=voltage onsetting=118.8 offsetting=121.2
+!************** End Capacitors **************!
+
+!************** Begin Loads **************!
+!2006 Med. Summer Extreme Pk Forecast, updated PF to match PSS/E data
+New Load.Load_TH_Summer bus1=feedbus phases=3 kv=26 kw=57000 pf=0.95 model=1 
+!************** End Loads **************!
+
+Set voltagebases=[161  26]
+Calcv
+
+
