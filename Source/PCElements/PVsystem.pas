@@ -34,7 +34,7 @@ USES  PVsystemUserModel, DSSClass,  PCClass, PCElement, ucmatrix, ucomplex,
       LoadShape, TempShape, XYCurve, Spectrum, ArrayDef, Dynamics;
 
 Const  NumPVSystemRegisters = 5;    // Number of energy meter registers
-       NumPVSystemVariables = 4;    // No state variables that need integrating.
+       NumPVSystemVariables = 5;    // No state variables that need integrating.
        VARMODEPF   = 0;
        VARMODEKVAR = 1;
 
@@ -61,6 +61,7 @@ TYPE
         FpuPmpp         :Double;
         FIrradiance     :Double;
         MaxDynPhaseCurrent   :Double;
+        Vreg: Double; // will be set from InvControl
 
         {32-bit integers}
         NumPhases       :Integer;   {Number of phases}
@@ -970,6 +971,7 @@ Begin
          FkVArating    := 500.0;
          FPmpp         := 500.0;
          FpuPmpp       := 1.0;    // full on
+         Vreg := 1.0;
      End;
 
      FpctCutIn         := 20.0;
@@ -2381,6 +2383,7 @@ Begin
        2: Result := PanelkW;
        3: Result := TempFactor;
        4: Result := EffFactor;
+       5: Result := Vreg;
      ELSE Begin
              If UserModel.Exists
              Then Begin
@@ -2466,6 +2469,7 @@ Begin
        2: ; // Setting this has no effect Read only
        3: ; // Setting this has no effect Read only
        4: ; // Setting this has no effect Read only
+       5: Vreg := Value; // the InvControl will do this
      ELSE
        Begin
          If UserModel.Exists
@@ -2545,6 +2549,7 @@ Begin
           2:Result := 'PanelkW';
           3:Result := 'P_TFactor';
           4:Result := 'Efficiency';
+          5:Result := 'Vreg';
       ELSE
           Begin
             If UserModel.Exists

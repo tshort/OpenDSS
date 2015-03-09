@@ -1105,7 +1105,10 @@ BEGIN
               // VregCurve := Fvvc_curve.GetXValue(0.0); // Volt/Var curve zero crossing
               VregCurve := 0.5 * (Fvvc_curve.XValue_pt[2]+Fvvc_curve.XValue_pt[3]);
               // TODO - why doesn't the preceeding line work?
-              if FVregs[i] <= 0.0 then FVregs[i] := VregCurve; // initialize if needed
+              if FVregs[i] <= 0.0 then begin // initialize if needed
+                FVregs[i] := VregCurve;
+                PVSys.Set_Variable(5,FVregs[i]);
+              end;
               // look up Q from the curve, but enter with a voltage adjusted for moving Vreg
               VpuAdjusted := FPresentVpu[i] + VregCurve - FVregs[i];
               If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
@@ -2018,8 +2021,9 @@ Begin
              dt :=  ActiveCircuit.Solution.Dynavars.h;
              Verr := FPresentVpu[j] - FVregs[i];
              FVregs[j] := FVregs[j] + Verr * Exp (dt / FVregTau);
+             PVSys.Set_Variable(5,FVregs[j]);
              If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
-                Format('  **VREG mode new FVreg= %.5g', [FVregs[i]]));
+                Format('  **VREG mode new FVreg= %.5g', [FVregs[j]]));
 
              // allocated enough memory to buffer to hold voltages and initialize to cZERO
              Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * localControlledElement.NConds);
