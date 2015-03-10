@@ -2019,11 +2019,12 @@ Begin
              FROCEvaluated[j] := False;
 
              dt :=  ActiveCircuit.Solution.Dynavars.h;
-             Verr := FPresentVpu[j] - FVregs[i];
-             FVregs[j] := FVregs[j] + Verr * Exp (dt / FVregTau);
+             Verr := FPresentVpu[j] - FVregs[j];
+             FVregs[j] := FVregs[j] + Verr * (1 - Exp (-dt / FVregTau));
              PVSys.Set_Variable(5,FVregs[j]);
              If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
-                Format('  **VREG mode new FVreg= %.5g', [FVregs[j]]));
+                Format('  **VREG set new FVreg= %.5g Vpu=%.5g Verr=%.5g Dec=%.5g',
+                [FVregs[j], FPresentVpu[j], Verr, (1 - Exp (-dt/FVregTau))]));
 
              // allocated enough memory to buffer to hold voltages and initialize to cZERO
              Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * localControlledElement.NConds);
