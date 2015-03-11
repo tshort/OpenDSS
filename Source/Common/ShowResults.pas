@@ -147,7 +147,7 @@ Procedure  WriteBusVoltages(var F:TextFile; i:Integer; LL:Boolean);
 // 6/11/14 Modified to write both LL and LN voltages out for LN case
 
 Var
-  nref,j,k :Integer;
+  nref1, nref2,j,k :Integer;
   Volts, VoltsLL : Complex;
   Vmag, VmagLL, Vpu, VpuLL : Double;
   Bname : String;
@@ -167,8 +167,8 @@ Begin
              inc(jj)
          Until NodeIdx>0;
 
-         nref  := GetRef(NodeIdx);   // Get the onverall node reference number
-         Volts := ActiveCircuit.Solution.NodeV^[nref];
+         nref1  := GetRef(NodeIdx);   // Get the onverall node reference number
+         Volts := ActiveCircuit.Solution.NodeV^[nref1];
 
          kk := 1; // keep compiler from complaining
          IF {LL and} (jj <= 4) THEN
@@ -177,9 +177,9 @@ Begin
               // k is 1, 2, or 3
               k := jj; IF k > 3 Then k := 1;
               kk := FindIdx(k);
-              IF k <= NumNodesThisBus Then Begin
-                  nref := Buses^[i].GetRef(kk); // reference for next phase in sequence
-                  VoltsLL := Csub(Volts, ActiveCircuit.Solution.NodeV^[nref]);
+              IF kk <= NumNodesThisBus Then Begin
+                  nref2 := Buses^[i].GetRef(kk); // reference for next phase in sequence
+                  VoltsLL := Csub(Volts, ActiveCircuit.Solution.NodeV^[nref2]);
               End;
            End;
 
