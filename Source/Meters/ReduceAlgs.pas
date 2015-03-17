@@ -25,7 +25,7 @@ Uses CktTree;
   
 implementation
 
-Uses Line, Utilities, DSSGlobals, Load, uComplex, ParserDel, CktElement;
+Uses Line, Utilities, DSSGlobals, Load, uComplex, ParserDel, CktElement, sysutils;
 
 procedure DoMergeParallelLines(var BranchList:TCktTree);
 {Merge all lines in this zone that are marked in parallel}
@@ -256,27 +256,29 @@ begin
      LineElement1 := BranchList.First;
      LineElement1 := BranchList.GoForward; // Always keep the first element
      WHILE LineElement1 <> NIL Do
-     Begin
+       Begin
 
-         If IsLineElement(LineElement1) Then
-         If Not LineElement1.IsSwitch Then
-         If LineElement1.Enabled Then   // maybe we threw it away already
-         With BranchList.PresentBranch Do
-           Begin
-             {see if eligble for merging}
-             IF NumChildBranches = 1 Then
-             IF NumShuntObjects = 0 Then
-             IF Not ActiveCircuit.Buses^[ToBusReference].Keep then
-               Begin
-                 {Let's consider merging}
-                  LineElement2 := FirstChildBranch.CktObject;
-                  If IsLineElement(LineElement2) Then
-                  If Not LineElement2.IsSwitch then LineElement2.MergeWith(LineElement1, TRUE){Series Merge}
-               End;
-           End;
+           If IsLineElement(LineElement1) Then
+           If Not LineElement1.IsSwitch Then
+           If LineElement1.Enabled Then   // maybe we threw it away already
+           With BranchList.PresentBranch Do
+             Begin
+                 {see if eligble for merging}
+                 IF NumChildBranches = 1 Then
+                 IF NumShuntObjects = 0 Then
+                 IF Not ActiveCircuit.Buses^[ToBusReference].Keep then
+                   Begin
+                     {Let's consider merging}
+                      LineElement2 := FirstChildBranch.CktObject;
 
-       LineElement1 := BranchList.GoForward;
-     End;
+                      If IsLineElement(LineElement2) Then
+                      If Not LineElement2.IsSwitch then LineElement2.MergeWith(LineElement1, TRUE){Series Merge}
+                   End;
+
+             End;
+
+         LineElement1 := BranchList.GoForward;
+       End;
    End;
 
 end;

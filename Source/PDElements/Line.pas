@@ -68,6 +68,8 @@ TYPE
         function NumConductorData:Integer;
         function FetchConductorData(i:Integer):TConductorDataObj;
 
+        Procedure ReallocZandYcMatrices;
+
       Protected
         Zinv               :TCMatrix;
 
@@ -335,15 +337,15 @@ Begin
        {Copy impedances from line code, but do not recalc because symmetrical
         component z's may not match what's in matrix}
        If LineCodeObj.SymComponentsModel Then
-       Begin
-         R1 := LineCodeObj.R1;
-         X1 := LineCodeObj.X1;
-         R0 := LineCodeObj.R0;
-         X0 := LineCodeObj.X0;
-         C1 := LineCodeObj.C1;
-         C0 := LineCodeObj.C0;
-         SymComponentsModel := True;
-       End
+         Begin
+             R1 := LineCodeObj.R1;
+             X1 := LineCodeObj.X1;
+             R0 := LineCodeObj.R0;
+             X0 := LineCodeObj.X0;
+             C1 := LineCodeObj.C1;
+             C0 := LineCodeObj.C0;
+             SymComponentsModel := True;
+         End
        Else SymComponentsModel := False;
 
 
@@ -374,17 +376,9 @@ Begin
 
        IF Fnphases <> LineCodeObj.FNphases THEN
          Begin
-            IF Z<>nil    THEN Z.Free;
-            IF Zinv<>nil THEN Zinv.Free;
-
-            IF Yc<>nil   THEN Yc.Free;
-
-
             NPhases := LineCodeObj.FNPhases;
-            // For a line, nphases = ncond, for now
-            Z    := TCmatrix.CreateMatrix(Fnphases);
-            Zinv := TCMatrix.CreateMatrix(Fnphases);
-            Yc   := TCMatrix.CreateMatrix(Fnphases);
+
+            ReallocZandYcMatrices;
          End;
 
        If Not SymComponentsModel Then
@@ -407,52 +401,59 @@ Begin
 
 End;
 
+
+
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROCEDURE TLine.DoRmatrix;
 VAR
-    OrderFound, Norder, j :Integer;
-    MatBuffer :pDoubleArray;
-    Zvalues   :pComplexArray;
+    OrderFound, Norder, j : Integer;
+    MatBuffer : pDoubleArray;
+    Zvalues   : pComplexArray;
 
 Begin
    WITH ActiveLineObj DO
-   Begin
-     MatBuffer  := Allocmem(Sizeof(double) * Fnphases * Fnphases);
-     OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+     Begin
+       {Added 3-17-15 in case Z and Yc do not get allocated to the proper value}
+       If Z.Order <> Fnphases  Then ReallocZandYcMatrices;
 
-     If OrderFound > 0 THEN    // Parse was successful
-     Begin    {R}
-            ZValues := Z.GetValuesArrayPtr(Norder);
-            IF Norder = Fnphases THEN
-            FOR j := 1 to Fnphases * Fnphases DO ZValues^[j].Re := MatBuffer^[j];
+       MatBuffer  := Allocmem(Sizeof(double) * Fnphases * Fnphases);
+       OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+
+       If OrderFound > 0 THEN    // Parse was successful
+         Begin    {R}
+                ZValues := Z.GetValuesArrayPtr(Norder);
+                IF Norder = Fnphases THEN
+                FOR j := 1 to Fnphases * Fnphases DO ZValues^[j].Re := MatBuffer^[j];
+         End;
+
+       Freemem(MatBuffer, Sizeof(double) * Fnphases * Fnphases);
      End;
-
-     Freemem(MatBuffer, Sizeof(double) * Fnphases * Fnphases);
-   End;
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROCEDURE TLine.DoXmatrix;
 VAR
-    OrderFound, Norder,j:Integer;
-    MatBuffer:pDoubleArray;
-    Zvalues:pComplexArray;
+    OrderFound, Norder,j : Integer;
+    MatBuffer : pDoubleArray;
+    Zvalues   : pComplexArray;
 
 Begin
    WITH ActiveLineObj DO
-   Begin
-     MatBuffer := Allocmem(Sizeof(double) * Fnphases * Fnphases);
-     OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+     Begin
+       If Z.Order <> Fnphases  Then ReallocZandYcMatrices;
 
-     If OrderFound > 0 THEN    // Parse was successful
-     Begin    {X}
-        ZValues := Z.GetValuesArrayPtr(Norder);
-        IF Norder = Fnphases THEN
-        FOR j := 1 to Fnphases * Fnphases DO ZValues^[j].im := MatBuffer^[j];
+       MatBuffer := Allocmem(Sizeof(double) * Fnphases * Fnphases);
+       OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+
+       If OrderFound > 0 THEN    // Parse was successful
+         Begin    {X}
+            ZValues := Z.GetValuesArrayPtr(Norder);
+            IF Norder = Fnphases THEN
+            FOR j := 1 to Fnphases * Fnphases DO ZValues^[j].im := MatBuffer^[j];
+         End;
+
+       Freemem(MatBuffer, Sizeof(double) * Fnphases * Fnphases);
      End;
-
-     Freemem(MatBuffer, Sizeof(double) * Fnphases * Fnphases);
-   End;
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -460,27 +461,29 @@ PROCEDURE TLine.DoCmatrix;
 VAR
     OrderFound,
     Norder,
-    j          :Integer;
-    MatBuffer  :pDoubleArray;
-    Yvalues    :pComplexArray;
-    Factor     :Double;
+    j          : Integer;
+    MatBuffer  : pDoubleArray;
+    Yvalues    : pComplexArray;
+    Factor     : Double;
 
 Begin
    WITH ActiveLineObj DO
-   Begin
-     MatBuffer  := Allocmem(Sizeof(double) * Fnphases * Fnphases);
-     OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+     Begin
+       If Z.Order <> Fnphases  Then ReallocZandYcMatrices;
 
-     If OrderFound > 0 THEN    // Parse was successful
-     Begin    {X}
-        Factor  := TwoPi * BaseFrequency  * 1.0e-9;
-        YValues := YC.GetValuesArrayPtr(Norder);
-        IF Norder = Fnphases THEN
-        FOR j := 1 to Fnphases * Fnphases DO YValues^[j].im := Factor * MatBuffer^[j];
+       MatBuffer  := Allocmem(Sizeof(double) * Fnphases * Fnphases);
+       OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+
+       If OrderFound > 0 THEN    // Parse was successful
+         Begin    {X}
+            Factor  := TwoPi * BaseFrequency  * 1.0e-9;
+            YValues := YC.GetValuesArrayPtr(Norder);
+            IF Norder = Fnphases THEN
+            FOR j := 1 to Fnphases * Fnphases DO YValues^[j].im := Factor * MatBuffer^[j];
+         End;
+
+       Freemem(MatBuffer, Sizeof(double) * Fnphases * Fnphases);
      End;
-
-     Freemem(MatBuffer, Sizeof(double) * Fnphases * Fnphases);
-   End;
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -711,6 +714,7 @@ constructor TLineObj.Create(ParClass:TDSSClass; const LineName:String);
 
 Begin
      Inherited Create(ParClass);
+
      Name := LowerCase(LineName);
      DSSObjType := ParClass.DSSClassType; // DSSObjType + LINESECTION; // in both PDElement list and Linesection lists
 
@@ -738,9 +742,9 @@ Begin
      FCapSpecified := FALSE;
 
      {Basefrequency := 60.0;}  // set in base class
-     Normamps := 400.0;
+     Normamps  := 400.0;
      EmergAmps := 600.0;
-     PctPerm := 20.0;
+     PctPerm   := 20.0;
      FaultRate := 0.1; // per mile per year
      HrsToRepair := 3.0;
 
@@ -756,13 +760,13 @@ Begin
      FEarthModel        := DefaultEarthModel;
 
      SpacingSpecified := False;
-     FLineSpacingObj := Nil;
-     FLineWireData := Nil;
-     FWireDataSize := 0;
-     FPhaseChoice := Unknown;
-     SpacingCode := '';
+     FLineSpacingObj  := Nil;
+     FLineWireData    := Nil;
+     FWireDataSize    := 0;
+     FPhaseChoice     := Unknown;
+     SpacingCode      := '';
 
-     FZFrequency := -1.0; // indicate Z not computed.
+     FZFrequency      := -1.0; // indicate Z not computed.
      FLineGeometryObj := Nil;
 
      InitPropertyValues(0);
@@ -786,14 +790,8 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROCEDURE TLineObj.RecalcElementData;
-VAR
-   Zs, Zm, Ys, Ym, Ztemp: Complex;
-   i, j: Integer;
-   Yc1, Yc0, OneThird: double;
-   GammaL, ExpP, ExpM, Exp2P, Exp2M, SinhGL, Tanh2GL: Complex;
-
-Begin
+procedure TLineObj.ReallocZandYcMatrices;
+begin
     IF Z<>nil    THEN Z.Free;
     IF Zinv<>nil THEN Zinv.Free;
     IF Yc<>nil   THEN Yc.Free;
@@ -802,6 +800,25 @@ Begin
     Z    := TCmatrix.CreateMatrix(Fnphases);
     Zinv := TCMatrix.CreateMatrix(Fnphases);
     Yc   := TCMatrix.CreateMatrix(Fnphases);
+end;
+
+PROCEDURE TLineObj.RecalcElementData;
+
+{
+  This routine is only called when the symmetrical component data have changed
+  It computes the values for Z and Yc in ohms per unit length
+
+  Can also compute long line correction for 1-phase pos sequence line models
+}
+VAR
+   Zs, Zm, Ys, Ym, Ztemp : Complex;
+   i, j : Integer;
+   Yc1, Yc0, OneThird : double;
+   GammaL, ExpP, ExpM, Exp2P, Exp2M, SinhGL, Tanh2GL : Complex;
+
+Begin
+
+    ReallocZandYcMatrices;
 
     OneThird := 1.0/3.0;  // Do this to get more precision in next few statements
 
@@ -809,20 +826,22 @@ Begin
 
     Ztemp := CmulReal(cmplx(R1,X1),2.0);
     {Handle special case for 1-phase line and/or pos seq model }
-    If (FnPhases =1) or ActiveCircuit.PositiveSequence Then Begin
+    If (FnPhases =1) or ActiveCircuit.PositiveSequence Then
+    Begin
       // long-line equivalent PI, but only for CktModel=Positive
-      if ActiveCircuit.PositiveSequence and (C1 > 0) then begin
-        // nominal PI parameters per unit length
+      if ActiveCircuit.PositiveSequence and (C1 > 0) then
+      begin
+        // nominal PI parameters per unit length but Len variable is used here
         Zs := cmplx (R1, X1);
         Ys := cmplx (0.0, TwoPi * BaseFrequency * C1);
         // apply the long-line correction to obtain Zm and Ym
-        GammaL := Csqrt (Cmul(Zs, Ys));
-        GammaL := CmulReal (GammaL, Len);
-        ExpP := CmulReal (cmplx(cos(GammaL.im), sin(GammaL.im)), exp(GammaL.re));
-        Exp2P := CmulReal (cmplx(cos(0.5 * GammaL.im), sin(0.5 * GammaL.im)), exp(0.5 * GammaL.re));
-        ExpM := Cinv(ExpP);
-        Exp2M := Cinv(Exp2P);
-        SinhGL := CmulReal (Csub (ExpP, ExpM), 0.5);
+        GammaL  := Csqrt (Cmul(Zs, Ys));
+        GammaL  := CmulReal (GammaL, Len);
+        ExpP    := CmulReal (cmplx(cos(GammaL.im), sin(GammaL.im)), exp(GammaL.re));
+        Exp2P   := CmulReal (cmplx(cos(0.5 * GammaL.im), sin(0.5 * GammaL.im)), exp(0.5 * GammaL.re));
+        ExpM    := Cinv(ExpP);
+        Exp2M   := Cinv(Exp2P);
+        SinhGL  := CmulReal (Csub (ExpP, ExpM), 0.5);
         Tanh2GL := Cdiv (Csub (Exp2P, Exp2M), Cadd (Exp2P, Exp2M));
         Zm := Cdiv (Cmul (CMulReal (Zs, Len), SinhGL), GammaL);
         Ym := Cdiv (Cmul (CMulReal (Ys, Len), Tanh2GL), CmulReal (GammaL, 0.5));
@@ -836,15 +855,15 @@ Begin
       X0 := X1;
       C0 := C1;
     End;
-    Zs := CmulReal(CAdd(Ztemp, Cmplx(R0, X0)), OneThird);
-    Zm := CmulReal(Csub(cmplx(R0, X0), Cmplx(R1, X1)), OneThird);
 
+    Zs  := CmulReal(CAdd(Ztemp, Cmplx(R0, X0)), OneThird);
+    Zm  := CmulReal(Csub(cmplx(R0, X0), Cmplx(R1, X1)), OneThird);
 
     Yc1 := TwoPi * BaseFrequency * C1;
     Yc0 := TwoPi * BaseFrequency * C0;
 
-    Ys := CMulReal(Cadd(CMulReal(Cmplx(0.0, Yc1), 2.0), Cmplx(0.0, Yc0)), OneThird);
-    Ym := CmulReal(Csub(cmplx(0.0, Yc0), Cmplx(0.0, Yc1)), OneThird);
+    Ys  := CMulReal(Cadd(CMulReal(Cmplx(0.0, Yc1), 2.0), Cmplx(0.0, Yc0)), OneThird);
+    Ym  := CmulReal(Csub(cmplx(0.0, Yc0), Cmplx(0.0, Yc1)), OneThird);
 
     FOR i := 1 to Fnphases DO
     Begin
@@ -859,6 +878,7 @@ Begin
 
     SymComponentsChanged := False;
 
+    // values in ohms per unit length
 
 End;
 
@@ -874,19 +894,19 @@ end;
 PROCEDURE TLineObj.CalcYPrim;
 
 VAR
-   Value         :Complex;
-   ZinvValues    :pComplexArray;
-   ZValues       :pComplexArray;
-   YValues       :pComplexArray;
+   Value         : Complex;
+   ZinvValues    : pComplexArray;
+   ZValues       : pComplexArray;
+   YValues       : pComplexArray;
 
-   FreqMultiplier     :Double;
-   XgMod              :Double;
-   LengthMultiplier   :Double;
+   FreqMultiplier     : Double;
+   XgMod              : Double;
+   LengthMultiplier   : Double;
 
-   i,j, k, Norder     :Integer;
+   i,j, k, Norder     : Integer;
 
 Begin
-    FreqMultiplier := 1.0;
+    FreqMultiplier   := 1.0;
     LengthMultiplier := 1.0;
 
     IF SymComponentsChanged  THEN BEGIN
@@ -908,56 +928,63 @@ Begin
     WITH YPrim_Series DO Begin
 
          {Build Zmatrix}
-         If GeometrySpecified Then Begin
+         If GeometrySpecified Then
+           Begin
 
-             FMakeZFromGeometry(ActiveCircuit.Solution.Frequency); // Includes length in proper units
-             if SolutionAbort then  Exit;
+               FMakeZFromGeometry(ActiveCircuit.Solution.Frequency); // Includes length in proper units
+               if SolutionAbort then  Exit;
 
-         End Else If SpacingSpecified Then Begin
+           End
+         Else If SpacingSpecified Then
+           Begin
 
-             FMakeZFromSpacing(ActiveCircuit.Solution.Frequency);
-             if SolutionAbort then  Exit;
+               FMakeZFromSpacing(ActiveCircuit.Solution.Frequency); // Includes length in proper units
+               if SolutionAbort then  Exit;
 
-         End Else Begin  // Z is from line code or specified in line data
+           End
+         Else
+           Begin  // Z is from line code or specified in line data
+               // In this section Z is assumed in ohms per unit length
+               LengthMultiplier := Len / FUnitsConvert;   // convert to per unit length
+               FYprimFreq       := ActiveCircuit.Solution.Frequency ;
+               FreqMultiplier   := FYprimFreq/BaseFrequency;
 
-             LengthMultiplier := Len / FUnitsConvert;   // convert to per unit length
-             FYprimFreq       := ActiveCircuit.Solution.Frequency ;
-             FreqMultiplier   := FYprimFreq/BaseFrequency;
+               { Put in Series RL }
+               ZValues    := Z.GetValuesArrayPtr(Norder);
+               ZinvValues := Zinv.GetValuesArrayPtr(Norder);
+               // Correct the impedances for length and frequency
+               // Rg increases with frequency
+               // Xg modified by ln of sqrt(1/f)
+               if Xg <> 0.0 Then Xgmod := 0.5 * KXg * ln(FreqMultiplier)
+                            Else Xgmod := 0.0;
 
-             { Put in Series RL }
-             ZValues    := Z.GetValuesArrayPtr(Norder);
-             ZinvValues := Zinv.GetValuesArrayPtr(Norder);
-             // Correct the impedances for length and frequency
-             // Rg increases with frequency
-             // Xg modified by ln of sqrt(1/f)
-             if Xg <> 0.0 Then Xgmod :=  0.5 * KXg * ln(FreqMultiplier)
-                          Else Xgmod := 0.0;
-
-             FOR i := 1 to Norder*Norder Do
-                ZinvValues^[i] := Cmplx((ZValues^[i].re + Rg * (FreqMultiplier - 1.0) )*LengthMultiplier, (ZValues^[i].im - Xgmod)* LengthMultiplier * FreqMultiplier);
-
-         End;
+               FOR i := 1 to Norder*Norder Do
+                  ZinvValues^[i] := Cmplx((ZValues^[i].re + Rg * (FreqMultiplier - 1.0) )*LengthMultiplier, (ZValues^[i].im - Xgmod)* LengthMultiplier * FreqMultiplier);
+           End;
 
          Zinv.Invert;  {Invert in place}
-         If Zinv.Inverterror>0 Then  Begin
+         If Zinv.Inverterror>0 Then
+           Begin
                  {If error, put in tiny series conductance}
 // TEMc - shut this up for the CDPSM connectivity profile test, or whenever else it gets annoying
-            DoErrorMsg('TLineObj.CalcYPrim', 'Matrix Inversion Error for Line "' + Name + '"',
-                       'Invalid impedance specified. Replaced with tiny conductance.', 183);
-            Zinv.Clear;
-            For i := 1 to Fnphases Do Zinv.SetElement(i, i, Cmplx(epsilon, 0.0));
-          End
+              DoErrorMsg('TLineObj.CalcYPrim', 'Matrix Inversion Error for Line "' + Name + '"',
+                         'Invalid impedance specified. Replaced with tiny conductance.', 183);
+              Zinv.Clear;
+              For i := 1 to Fnphases Do Zinv.SetElement(i, i, Cmplx(epsilon, 0.0));
+           End
          Else
            { Now, Put in Yprim_Series matrix }
-           FOR i := 1 to Fnphases Do Begin
-               FOR j := 1 to Fnphases Do Begin
-                   Value := Zinv.GetElement(i,j);
-                   SetElement(i,j,Value);
-                   SetElement(i+Fnphases,j+Fnphases,Value);
-                   Value := cnegate(Value);
-                   SetElemSym(i, j+Fnphases, Value);
-               End;
-           End;
+           FOR i := 1 to Fnphases Do
+             Begin
+                 FOR j := 1 to Fnphases Do
+                   Begin
+                       Value := Zinv.GetElement(i,j);
+                       SetElement(i,j,Value);
+                       SetElement(i+Fnphases,j+Fnphases,Value);
+                       Value := cnegate(Value);
+                       SetElemSym(i, j+Fnphases, Value);
+                   End;
+             End;
 
            
      End;
@@ -981,23 +1008,25 @@ Begin
             {Values are already compensated for length and frequency}
              k := 0;
              FOR j := 1 to Fnphases Do
-               FOR i := 1 to Fnphases DO Begin
-                  Inc(k);    // Assume matrix in col order (1,1  2,1  3,1 ...)
-                  Value := CDivReal(YValues^[k], 2.0);  // half at each end ...
-                  AddElement(i, j, Value);
-                  AddElement(i+Fnphases, j+Fnphases, Value);
-               End;
+               FOR i := 1 to Fnphases DO
+                 Begin
+                    Inc(k);    // Assume matrix in col order (1,1  2,1  3,1 ...)
+                    Value := CDivReal(YValues^[k], 2.0);  // half at each end ...
+                    AddElement(i, j, Value);
+                    AddElement(i+Fnphases, j+Fnphases, Value);
+                 End;
 
          End Else Begin
              {Regular line model - values computed per unit length at base frequency}
              k := 0;
              FOR j := 1 to Fnphases Do
-             FOR i := 1 to Fnphases DO Begin
-                  Inc(k);    // Assume matrix in col order (1,1  2,1  3,1 ...)
-                  Value := Cmplx(0.0, YValues^[k].im*LengthMultiplier * FreqMultiplier/2.0);
-                  AddElement(i,j,Value);
-                  AddElement(i+Fnphases, j+Fnphases, Value);
-             End;
+             FOR i := 1 to Fnphases DO
+               Begin
+                    Inc(k);    // Assume matrix in col order (1,1  2,1  3,1 ...)
+                    Value := Cmplx(0.0, YValues^[k].im*LengthMultiplier * FreqMultiplier/2.0);
+                    AddElement(i, j, Value);
+                    AddElement(i+Fnphases, j+Fnphases, Value);
+               End;
 
          End;
 
@@ -1110,36 +1139,36 @@ begin
            11: If SymComponentsModel Then Result := Format('%-.7g', [C0*1.0e9/FUnitsConvert]) else Result := '----';
 
            12: FOR i := 1 to FNconds Do   // R matrix
-               Begin
-                   For j := 1 to i Do
-                   Begin  // report in per unit Length in length units
-                       If GeometrySpecified Or SpacingSpecified Then  Result := Result + Format('%-.7g',[Z.GetElement(i,j).re/len]) + ' '
-                       Else Result := Result + Format('%-.7g',[Z.GetElement(i,j).re/FUnitsConvert]) + ' ';
-                   End;
-                   IF i < FNconds Then Result := Result + '|';
-               End;
+                 Begin
+                     For j := 1 to i Do
+                       Begin  // report in per unit Length in length units
+                           If GeometrySpecified Or SpacingSpecified Then  Result := Result + Format('%-.7g',[Z.GetElement(i,j).re/len]) + ' '
+                           Else Result := Result + Format('%-.7g',[Z.GetElement(i,j).re/FUnitsConvert]) + ' ';
+                       End;
+                     IF i < FNconds Then Result := Result + '|';
+                 End;
 
            13: FOR i := 1 to FNconds Do      // X matrix
-               Begin
-                   For j := 1 to i Do
-                   Begin
-                       If GeometrySpecified Or SpacingSpecified Then  Result := Result + Format('%-.7g',[Z.GetElement(i,j).im/Len]) + ' '
-                       Else Result := Result + Format('%-.7g',[Z.GetElement(i,j).im/FUnitsConvert]) + ' ';
-                   End;
-                   IF i < FNconds Then Result := Result + '|';
-               End;
+                 Begin
+                     For j := 1 to i Do
+                       Begin
+                           If GeometrySpecified Or SpacingSpecified Then  Result := Result + Format('%-.7g',[Z.GetElement(i,j).im/Len]) + ' '
+                           Else Result := Result + Format('%-.7g',[Z.GetElement(i,j).im/FUnitsConvert]) + ' ';
+                       End;
+                     IF i < FNconds Then Result := Result + '|';
+                 End;
 
            14: Begin  // CMatrix  nf
                  Factor  := TwoPi * BaseFrequency  * 1.0e-9;
                  FOR i := 1 to FNconds Do
-                 Begin
-                     For j := 1 to i Do
-                     Begin
-                         If GeometrySpecified Or SpacingSpecified Then Result := Result + Format('%-.7g',[YC.GetElement(i,j).im/Factor/Len]) + ' '
-                         Else Result := Result + Format('%-.7g',[YC.GetElement(i,j).im/Factor/FUnitsConvert]) + ' ';
-                     End;
-                     IF i < FNconds Then Result := Result + '|';
-                 End;
+                   Begin
+                       For j := 1 to i Do
+                         Begin
+                             If GeometrySpecified Or SpacingSpecified Then Result := Result + Format('%-.7g',[YC.GetElement(i,j).im/Factor/Len]) + ' '
+                             Else Result := Result + Format('%-.7g',[YC.GetElement(i,j).im/Factor/FUnitsConvert]) + ' ';
+                         End;
+                       IF i < FNconds Then Result := Result + '|';
+                   End;
                End;
            15: If IsSwitch Then Result := 'True' else Result := 'False';
            16: Result := Format('%-g', [Rg]);
@@ -1184,15 +1213,16 @@ begin
 
     If Fnphases=3 then Begin   {3-phase lines only}
        ComputeIterminal;
-       For i := 1 to 2 do Begin
-         k := (i-1)*Fnphases + 1;
-         For j := 0 to 2 DO  Vph[j] := ActiveCircuit.Solution.NodeV^[NodeRef^[k+j]] ;
-         Phase2SymComp(@Vph, @V012);
-         Phase2SymComp(@Iterminal^[k], @I012);
-         Caccum(PosSeqLosses,  Cmul(V012[1], Conjg(I012[1])));
-         Caccum(NegSeqLosses,  Cmul(V012[2], Conjg(I012[2]))); // accumulate both line modes
-         Caccum(ZeroSeqLosses, Cmul(V012[0], Conjg(I012[0])));
-       End;
+       For i := 1 to 2 do
+         Begin
+             k := (i-1)*Fnphases + 1;
+             For j := 0 to 2 DO  Vph[j] := ActiveCircuit.Solution.NodeV^[NodeRef^[k+j]] ;
+             Phase2SymComp(@Vph, @V012);
+             Phase2SymComp(@Iterminal^[k], @I012);
+             Caccum(PosSeqLosses,  Cmul(V012[1], Conjg(I012[1])));
+             Caccum(NegSeqLosses,  Cmul(V012[2], Conjg(I012[2]))); // accumulate both line modes
+             Caccum(ZeroSeqLosses, Cmul(V012[0], Conjg(I012[0])));
+         End;
        cmulrealaccum(PosSeqLosses,  3.0);
        cmulrealaccum(NegSeqLosses,  3.0);
        cmulrealaccum(ZeroSeqLosses, 3.0);
@@ -1297,20 +1327,23 @@ end;
 
 function TLineObj.MergeWith(var OtherLine: TLineObj; Series:Boolean): Boolean;
 
+// Cleaned up and corrected 3-17-15
+
 // Merge this line with another line and disble the other line.
 Var
-    Values1, Values2 : pComplexArray;
-    Order1, Order2, i, j,
-    Common1, Common2:Integer;
-    TotalLen, wnano:Double;
-    S, NewName:String;
-    TestBusNum:Integer;
-    LenUnitsSaved:Integer;
-    NewZ:Complex;
-    LenSelf, LenOther :Double;
+    Values1, Values2    : pComplexArray;
+    Order1, Order2,
+    i, j,
+    Common1, Common2    : Integer;
+    TotalLen, wnano     : Double;
+    S, NewName          : String;
+    TestBusNum          : Integer;
+    LenUnitsSaved       : Integer;
+    NewZ                : Complex;
+    LenSelf, LenOther   : Double;
 
 begin
-   Result := FALSE;
+   Result := FALSE;     // initialize the result
    IF OtherLine <> Nil THEN
    Begin
       IF Fnphases <> OtherLine.Fnphases THEN  Exit;  // Can't merge
@@ -1327,7 +1360,7 @@ begin
       Begin
            { redefine the bus connections}
 
-           // Find bus in common between the two lines
+           // Find the bus in common between the two lines
            Common1 := 0;
            Common2 := 0;
            i := 1;
@@ -1335,20 +1368,20 @@ begin
             Begin
               TestBusNum := ActiveCircuit.MapNodeToBus^[NodeRef^[1+(i-1)*Fnconds]].BusRef;
               For j := 1 to 2 Do
-              Begin
-                 If ActiveCircuit.MapNodeToBus^[OtherLine.NodeRef^[1+(j-1)*OtherLine.Nconds]].BusRef  = TestBusNum Then
-                 Begin
-                    Common1 := i;
-                    Common2 := j;
-                    Break;
-                 End;
-              End;
+                Begin
+                   If ActiveCircuit.MapNodeToBus^[OtherLine.NodeRef^[1+(j-1)*OtherLine.Nconds]].BusRef  = TestBusNum Then
+                     Begin
+                        Common1 := i;
+                        Common2 := j;
+                        Break;
+                     End;
+                End;
               inc(i);
             End;
 
            If Common1=0 Then Exit;  // There's been an error; didn't find anything in common
 
-           {Redefine the bus connections}
+           {Redefine the bus connections, eliminating the common bus}
            Case Common1 of
              1: Case Common2 of
                   1: S := 'Bus1="'+OtherLine.GetBus(2)+'"';
@@ -1378,10 +1411,12 @@ begin
 
        {Now Do the impedances}
 
-       LenSelf := Len/FunitsConvert;  // in units of R X Data
+       LenSelf  := Len/FunitsConvert;  // in units of the R X Data
        LenOther := OtherLine.Len/OtherLine.FunitsConvert;
 
-       If SymComponentsModel Then
+       { If both lines are Symmmetrical Components, just merge the R1..C0 values}
+       { This will catch many 3-phase lines since this is a common way to define lines}
+       If SymComponentsModel and OtherLine.SymComponentsModel  and (nphases=3) Then
        Begin   {------------------------- Sym Component Model ----------------------------------}
          If Series Then
          Begin
@@ -1406,10 +1441,20 @@ begin
               S := S + Format(' %-g',[(C0*Len + OtherLine.C0*OtherLine.Len)/TotalLen*1.0e9]);
              End;
          End;
-          Parser.cmdstring := S;   // This reset the length units
-          Edit;
+
+         Parser.cmdstring := S;   // This reset the length units
+         Edit;
+
+          // update length units
+         Parser.cmdstring := Format(' Length=%-g  Units=%s',[TotalLen, LineUnitsStr(LenUnitsSaved)]);
+         Edit;
+
+          // Update symmetrical Components computation
+          // (Only time this function is called is for sym comp update -- computes Z and Yc)
+         RecalcelementData;
+
        End
-       Else  {------------------------- Matrix Model ----------------------------------}
+       Else  {------------- Matrix Model for anything other than Symmetrical Components -------------------------}
            If Not Series Then  TotalLen := Len /2.0 {We'll assume lines are equal for now}
            Else
              Begin  {Matrices were defined}
@@ -1419,6 +1464,10 @@ begin
                Values2 := OtherLine.Z.GetValuesArrayPtr(Order2);
 
                If Order1 <> Order2 Then Exit;  // OOps.  Lines not same size for some reason
+
+               // If Geometry specified, length is already included; so reset to 1.0
+               If GeometrySpecified Or SpacingSpecified Then LenSelf := 1.0;
+               If OtherLine.GeometrySpecified Or OtherLine.SpacingSpecified Then LenOther := 1.0;
 
                // Z <= (Z1 + Z2 )/TotalLen   to get equiv ohms per unit length
                For i := 1 to Order1*Order1 Do
@@ -1435,20 +1484,20 @@ begin
 
                {R Matrix}
                S := 'Rmatrix=[';
-               For i := 1 to 3 Do
-               Begin
-                For j := 1 to i Do
-                  S := S + Format(' %-g',[Z.GetElement(i,j).Re]);
-                S := S + ' | ';
-               End;
+               For i := 1 to Order1 Do
+                 Begin
+                  For j := 1 to i Do
+                    S := S + Format(' %-g',[Z.GetElement(i,j).Re]);
+                  S := S + ' | ';
+                 End;
                S := S + '] Xmatrix=[';
                {X Matrix}
-               For i := 1 to 3 Do
-               Begin
-                For j := 1 to i Do
-                  S := S + Format(' %-g',[Z.GetElement(i,j).im]);
-                S := S + ' | ';
-               End;
+               For i := 1 to Order1 Do
+                 Begin
+                  For j := 1 to i Do
+                    S := S + Format(' %-g',[Z.GetElement(i,j).im]);
+                  S := S + ' | ';
+                 End;
                S := S + ']';
                Parser.cmdstring := S;
                Edit;
@@ -1456,19 +1505,21 @@ begin
                {C Matrix}
                wnano := TwoPi * BaseFrequency/1.0e9;
                S := 'Cmatrix=[';
-               For i := 1 to 3 Do
-               Begin
-                For j := 1 to i Do
-                  S := S + Format(' %-g',[(Yc.GetElement(i,j).im/wnano)]);   // convert from mhos to nanofs
-                S := S + ' | ';
-               End;
+               For i := 1 to Order1 Do
+                 Begin
+                  For j := 1 to i Do
+                    S := S + Format(' %-g',[(Yc.GetElement(i,j).im/wnano)]);   // convert from mhos to nanofs
+                  S := S + ' | ';
+                 End;
                S := S + '] ';
                Parser.cmdstring := S;
                Edit;
-           End;  {Matrix definition}
 
-       Parser.cmdstring := Format(' Length=%-g  Units=%s',[TotalLen, LineUnitsStr(LenUnitsSaved)]);
-       Edit;
+               // update length units
+               Parser.cmdstring := Format(' Length=%-g  Units=%s',[TotalLen, LineUnitsStr(LenUnitsSaved)]);
+               Edit;
+          End;  {Matrix definition}
+
 
        OtherLine.Enabled := FALSE;  // Disable the Other Line
        Result := TRUE;
@@ -1485,31 +1536,35 @@ Var
 begin
 
      pControlElem := ActiveCircuit.DSSControls.First;
-     While pControlElem <> Nil Do Begin
-         If CompareText(OldName, pControlElem.ElementName)=0 Then Begin
-             Parser.cmdstring := ' Element=' + NewName;  // Change name of the property
-             pControlElem.Edit;
-         End;
-         pControlElem := ActiveCircuit.DSSControls.Next;
-     End;
+     While pControlElem <> Nil Do
+       Begin
+           If CompareText(OldName, pControlElem.ElementName)=0 Then
+             Begin
+                 Parser.cmdstring := ' Element=' + NewName;  // Change name of the property
+                 pControlElem.Edit;
+             End;
+           pControlElem := ActiveCircuit.DSSControls.Next;
+       End;
 end;
 
 procedure TLineObj.FetchLineSpacing(const Code: string);
 begin
-  if LineSpacingClass.SetActive(Code) then begin
-    FLineSpacingObj := LineSpacingClass.GetActiveObj;
-    FLineCodeSpecified := False;
-    KillGeometrySpecified;
-    SpacingCode := LowerCase(Code);
+  if LineSpacingClass.SetActive(Code) then
+    begin
 
-    // need to establish Yorder before FMakeZFromSpacing
-    NPhases       := FLineSpacingObj.NPhases;
-    Nconds        := FNPhases;  // Force Reallocation of terminal info
-    Yorder        := Fnconds * Fnterms;
-    YPrimInvalid  := True;       // Force Rebuild of Y matrix
+      FLineSpacingObj    := LineSpacingClass.GetActiveObj;
+      FLineCodeSpecified := False;
+      KillGeometrySpecified;
+      SpacingCode        := LowerCase(Code);
 
-  end else
-    DoSimpleMsg ('Line Spacing object ' + Code + ' not found.(LINE.'+Name+')', 181011);
+      // need to establish Yorder before FMakeZFromSpacing
+      NPhases       := FLineSpacingObj.NPhases;
+      Nconds        := FNPhases;  // Force Reallocation of terminal info
+      Yorder        := Fnconds * Fnterms;
+      YPrimInvalid  := True;       // Force Rebuild of Y matrix
+
+    end
+    else  DoSimpleMsg ('Line Spacing object ' + Code + ' not found.(LINE.'+Name+')', 181011);
 end;
 
 procedure TLineObj.FetchWireList(const Code: string);
@@ -1519,26 +1574,30 @@ begin
   if not assigned (FLineSpacingObj) then
     DoSimpleMsg ('You must assign the LineSpacing before the Wires Property (LINE.'+name+').', 18102);
 
-  if FPhaseChoice = Unknown then begin // it's an overhead line
-    FLineCodeSpecified := False;
-    KillGeometrySpecified;
-    FWireDataSize := FLineSpacingObj.NWires ;
-    FLineWireData := Allocmem(Sizeof(FLineWireData^[1]) * FWireDataSize);
-    istart := 1;
-    FPhaseChoice := Overhead;
-  end else begin // adding bare neutrals to an underground line - TODO what about repeat invocation?
-    istart := FLineSpacingObj.NPhases + 1;
-  end;
+  if FPhaseChoice = Unknown then
+    begin // it's an overhead line
+      FLineCodeSpecified := False;
+      KillGeometrySpecified;
+      FWireDataSize := FLineSpacingObj.NWires ;
+      FLineWireData := Allocmem(Sizeof(FLineWireData^[1]) * FWireDataSize);
+      istart := 1;
+      FPhaseChoice := Overhead;
+    end
+  else
+    begin // adding bare neutrals to an underground line - TODO what about repeat invocation?
+      istart := FLineSpacingObj.NPhases + 1;
+    end;
 
   AuxParser.CmdString := Code;
-  for i := istart to FLineSpacingObj.NWires do begin
-    AuxParser.NextParam; // ignore any parameter name  not expecting any
-    WireDataClass.code := AuxParser.StrValue;
-    if Assigned(ActiveConductorDataObj) then
-      FLineWireData^[i] := ActiveConductorDataObj
-    else
-      DoSimpleMsg ('Wire "' + AuxParser.StrValue + '" was not defined first (LINE.'+name+').', 18103);
-  end;
+  for i := istart to FLineSpacingObj.NWires do
+    begin
+      AuxParser.NextParam; // ignore any parameter name  not expecting any
+      WireDataClass.code := AuxParser.StrValue;
+      if Assigned(ActiveConductorDataObj) then
+        FLineWireData^[i] := ActiveConductorDataObj
+      else
+        DoSimpleMsg ('Wire "' + AuxParser.StrValue + '" was not defined first (LINE.'+name+').', 18103);
+    end;
 
 end;
 
@@ -1554,14 +1613,15 @@ begin
   FPhaseChoice := ConcentricNeutral;
   FLineWireData := Allocmem(Sizeof(FLineWireData^[1]) * FLineSpacingObj.NWires);
   AuxParser.CmdString := Code;
-  for i := 1 to FLineSpacingObj.NPhases do begin // fill extra neutrals later
-    AuxParser.NextParam; // ignore any parameter name  not expecting any
-    CNDataClass.code := AuxParser.StrValue;
-    if Assigned(ActiveConductorDataObj) then
-      FLineWireData^[i] := ActiveConductorDataObj
-    else
-      DoSimpleMsg ('CN cable ' + AuxParser.StrValue + ' was not defined first.(LINE.'+Name+')', 18105);
-  end;
+  for i := 1 to FLineSpacingObj.NPhases do
+    begin // fill extra neutrals later
+      AuxParser.NextParam; // ignore any parameter name  not expecting any
+      CNDataClass.code := AuxParser.StrValue;
+      if Assigned(ActiveConductorDataObj) then
+        FLineWireData^[i] := ActiveConductorDataObj
+      else
+        DoSimpleMsg ('CN cable ' + AuxParser.StrValue + ' was not defined first.(LINE.'+Name+')', 18105);
+    end;
 end;
 
 procedure TLineObj.FetchTSCableList(const Code: string);
@@ -1576,14 +1636,15 @@ begin
   FPhaseChoice := TapeShield;
   FLineWireData := Allocmem(Sizeof(FLineWireData^[1]) * FLineSpacingObj.NWires);
   AuxParser.CmdString := Code;
-  for i := 1 to FLineSpacingObj.NPhases do begin // fill extra neutrals later
-    AuxParser.NextParam; // ignore any parameter name  not expecting any
-    TSDataClass.code := AuxParser.StrValue;
-    if Assigned(ActiveConductorDataObj) then
-      FLineWireData^[i] := ActiveConductorDataObj
-    else
-      DoSimpleMsg ('TS cable ' + AuxParser.StrValue + ' was not defined first. (LINE.'+Name+')', 18107);
-  end;
+  for i := 1 to FLineSpacingObj.NPhases do
+    begin // fill extra neutrals later
+      AuxParser.NextParam; // ignore any parameter name  not expecting any
+      TSDataClass.code := AuxParser.StrValue;
+      if Assigned(ActiveConductorDataObj) then
+        FLineWireData^[i] := ActiveConductorDataObj
+      else
+        DoSimpleMsg ('TS cable ' + AuxParser.StrValue + ' was not defined first. (LINE.'+Name+')', 18107);
+    end;
 end;
 
 procedure TLineObj.FetchGeometryCode(const Code: String);
@@ -1592,27 +1653,27 @@ Begin
    IF LineGeometryClass=Nil THEN LineGeometryClass := DSSClassList.Get(ClassNames.Find('LineGeometry'));
 
    IF LineGeometryClass.SetActive(Code) THEN
-   Begin
-       FLineCodeSpecified := FALSE;  // Cancel this flag
-       SpacingSpecified := False;
+     Begin
+         FLineCodeSpecified := FALSE;  // Cancel this flag
+         SpacingSpecified := False;
 
-       FLineGeometryObj := LineGeometryClass.GetActiveObj;
-       FZFrequency      := -1.0;  // Init to signify not computed
+         FLineGeometryObj := LineGeometryClass.GetActiveObj;
+         FZFrequency      := -1.0;  // Init to signify not computed
 
-       GeometryCode     := LowerCase(Code);
+         GeometryCode     := LowerCase(Code);
 
-       If FrhoSpecified Then FlineGeometryObj.rhoearth := rho;
+         If FrhoSpecified Then FlineGeometryObj.rhoearth := rho;
 
-       NormAmps      := FLineGeometryObj.NormAmps;
-       EmergAmps     := FLineGeometryObj.EmergAmps;
-       UpdatePDProperties;
+         NormAmps      := FLineGeometryObj.NormAmps;
+         EmergAmps     := FLineGeometryObj.EmergAmps;
+         UpdatePDProperties;
 
-       NPhases       := FLineGeometryObj.Nconds;
-       Nconds        := FNPhases;  // Force Reallocation of terminal info
-       Yorder        := Fnconds * Fnterms;
-       YPrimInvalid  := True;       // Force Rebuild of Y matrix
+         NPhases       := FLineGeometryObj.Nconds;
+         Nconds        := FNPhases;  // Force Reallocation of terminal info
+         Yorder        := Fnconds * Fnterms;
+         YPrimInvalid  := True;       // Force Rebuild of Y matrix
 
-   End
+     End
    ELSE
       DoSimpleMsg('Line Geometry Object:' + Code + ' not found. (LINE.'+Name+')', 18108);
 
@@ -1622,27 +1683,29 @@ Procedure TLineObj.FMakeZFromGeometry(f:Double); // make new Z, Zinv, Yc, etc
 Begin
      If f = FZFrequency Then exit;  // Already Done for this frequency, no need to do anything
 
-     IF Assigned(FLineGeometryObj) Then Begin
-       {This will make a New Z; Throw away present allocations}
+     IF Assigned(FLineGeometryObj) Then
+       Begin
+         {This will make a New Z; Throw away present allocations}
 
-        IF assigned(Z)    THEN Begin Z.Free;    Z    := nil; End;
-        IF assigned(Zinv) THEN Begin Zinv.Free; Zinv := nil; End;
-        IF assigned(Yc)   THEN Begin Yc.Free;   Yc   := nil; End;
+          IF assigned(Z)    THEN Begin Z.Free;    Z    := nil; End;
+          IF assigned(Zinv) THEN Begin Zinv.Free; Zinv := nil; End;
+          IF assigned(Yc)   THEN Begin Yc.Free;   Yc   := nil; End;
 
-        ActiveEarthModel := FEarthModel;
+          ActiveEarthModel := FEarthModel;
 
-        Z    := FLineGeometryObj.Zmatrix[ f, len, LengthUnits];
-        Yc   := FLineGeometryObj.YCmatrix[f, len, LengthUnits];
-        {Init Zinv}
-        if Assigned(Z) then  Begin
-            Zinv := TCMatrix.CreateMatrix(Z.order);  // Either no. phases or no. conductors
-            Zinv.CopyFrom(Z);
-        End;
+          Z    := FLineGeometryObj.Zmatrix[ f, len, LengthUnits];
+          Yc   := FLineGeometryObj.YCmatrix[f, len, LengthUnits];
+          {Init Zinv}
+          if Assigned(Z) then
+            Begin
+                Zinv := TCMatrix.CreateMatrix(Z.order);  // Either no. phases or no. conductors
+                Zinv.CopyFrom(Z);
+            End;
 
-        // Z and YC are actual total impedance for the line;
+          // Z and YC are actual total impedance for the line;
 
-        FZFrequency := f;
-     End;
+          FZFrequency := f;
+       End;
 End;
 
 Procedure TLineObj.FMakeZFromSpacing(f:Double); // make new Z, Zinv, Yc, etc
@@ -1669,10 +1732,11 @@ Begin
 
   Z    := pGeo.Zmatrix[ f, len, LengthUnits];
   Yc   := pGeo.YCmatrix[f, len, LengthUnits];
-  if Assigned(Z) then begin
-    Zinv := TCMatrix.CreateMatrix(Z.order);  // Either no. phases or no. conductors
-    Zinv.CopyFrom(Z);
-  end;
+  if Assigned(Z) then
+    begin
+      Zinv := TCMatrix.CreateMatrix(Z.order);  // Either no. phases or no. conductors
+      Zinv.CopyFrom(Z);
+    end;
   pGeo.Free;
 
   FZFrequency := f;
@@ -1681,41 +1745,45 @@ End;
 procedure TLineObj.KillGeometrySpecified;
 begin
 {Indicate No Line Geometry specification if this is called}
-      If GeometrySpecified Then Begin
-          FLineGeometryObj  := Nil;
-          FZFrequency       := -1.0;
-          GeometrySpecified := FALSE;
-      End;
+      If GeometrySpecified Then
+        Begin
+            FLineGeometryObj  := Nil;
+            FZFrequency       := -1.0;
+            GeometrySpecified := FALSE;
+        End;
 end;
 
 procedure TLineObj.KillSpacingSpecified;
 begin
-      If SpacingSpecified Then Begin
-          FLineSpacingObj := Nil;
-          Reallocmem (FLineWireData, 0);
-          FPhaseChoice := Unknown;
-          FZFrequency       := -1.0;
-          SpacingSpecified := FALSE;
-      End;
+      If SpacingSpecified Then
+        Begin
+            FLineSpacingObj := Nil;
+            Reallocmem (FLineWireData, 0);
+            FPhaseChoice := Unknown;
+            FZFrequency       := -1.0;
+            SpacingSpecified := FALSE;
+        End;
 end;
 
 procedure TLineObj.ClearYPrim;
 begin
  // Line Object needs both Series and Shunt YPrims built
-    IF YPrimInvalid THEN Begin // Reallocate YPrim if something has invalidated old allocation
-       IF YPrim_Series <> nil THEN  YPrim_Series.Free;
-       IF YPrim_Shunt  <> nil THEN  YPrim_Shunt.Free;
-       IF YPrim        <> nil THEN  YPrim.Free;
+    IF YPrimInvalid THEN
+      Begin // Reallocate YPrim if something has invalidated old allocation
+         IF YPrim_Series <> nil THEN  YPrim_Series.Free;
+         IF YPrim_Shunt  <> nil THEN  YPrim_Shunt.Free;
+         IF YPrim        <> nil THEN  YPrim.Free;
 
-       YPrim_Series := TcMatrix.CreateMatrix(Yorder);
-       YPrim_Shunt  := TcMatrix.CreateMatrix(Yorder);
-       YPrim        := TcMatrix.CreateMatrix(Yorder);
-    End
-    ELSE Begin
-        YPrim_Series.Clear;   // zero out YPrim Series
-        YPrim_Shunt.Clear;    // zero out YPrim Shunt
-        YPrim.Clear;          // zero out YPrim
-    End;
+         YPrim_Series := TcMatrix.CreateMatrix(Yorder);
+         YPrim_Shunt  := TcMatrix.CreateMatrix(Yorder);
+         YPrim        := TcMatrix.CreateMatrix(Yorder);
+      End
+    ELSE
+      Begin
+          YPrim_Series.Clear;   // zero out YPrim Series
+          YPrim_Shunt.Clear;    // zero out YPrim Shunt
+          YPrim.Clear;          // zero out YPrim
+      End;
 end;
 
 procedure TLineObj.ResetLengthUnits;
@@ -1728,18 +1796,21 @@ end;
 function TLineObj.NumConductorData:Integer;
 begin
   Result := 0;
-  if Assigned(FLineWireData) then Result := FLineSpacingObj.NWires;
+  if Assigned(FLineWireData)    then Result := FLineSpacingObj.NWires;
   if Assigned(FLineGeometryObj) then Result := FLineGeometryObj.NWires;
 end;
 
 function TLineObj.FetchConductorData(i:Integer):TConductorDataObj;
 begin
   Result := nil;
-  if Assigned(FLineWireData) then begin
-    if i <= FLineSpacingObj.Nwires then Result := FLineWireData[i];
-  end else if Assigned(FLineGeometryObj) then begin
-    if i <= FLineGeometryObj.Nwires then Result := FLineGeometryObj.ConductorData[i];
-  end;
+  if Assigned(FLineWireData) then
+    begin
+      if i <= FLineSpacingObj.Nwires then Result := FLineWireData[i];
+    end
+  else if Assigned(FLineGeometryObj) then
+    begin
+      if i <= FLineGeometryObj.Nwires then Result := FLineGeometryObj.ConductorData[i];
+    end;
 end;
 
 initialization
