@@ -603,6 +603,7 @@ BEGIN
 END;
 
 PROCEDURE ReadDSS_Registry;
+Var  TestDataDirectory:string;
 Begin
   DSS_Registry.Section := 'MainSect';
   DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
@@ -613,7 +614,9 @@ Begin
   If DSS_Registry.ReadBool('ScriptFontItalic', FALSE) Then DefaultFontStyles := DefaultFontStyles + [fsItalic];
   DefaultBaseFreq  := StrToInt(DSS_Registry.ReadString('BaseFrequency', '60' ));
   LastFileCompiled := DSS_Registry.ReadString('LastFile', '' );
-  SetDataPath (DSS_Registry.ReadString('DataPath', DataDirectory));
+  TestDataDirectory :=   DSS_Registry.ReadString('DataPath', DataDirectory);
+  If system.SysUtils.DirectoryExists (TestDataDirectory) Then SetDataPath (TestDataDirectory)
+                                        Else SetDataPath (DataDirectory);
 End;
 
 
