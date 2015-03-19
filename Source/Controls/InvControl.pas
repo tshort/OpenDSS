@@ -182,6 +182,8 @@ end;
             FUNCTION  InterpretAvgVWindowLen(const s:string):Integer;
             FUNCTION  ReturnElementsList:String;
             PROCEDURE UpdateInvControl(i:integer);
+     protected
+            PROCEDURE Set_Enabled(Value:Boolean);Override;
      public
 
             constructor Create(ParClass:TDSSClass; const InvControlName:String);
@@ -1969,6 +1971,15 @@ End;
 
 
 
+
+procedure TInvControlObj.Set_Enabled(Value: Boolean);
+begin
+  inherited;
+
+  {Reset controlled PVSystems to original PF}
+
+
+end;
 
 procedure TInvControlObj.Set_PendingChange(Value: Integer;DevIndex: Integer);
 begin

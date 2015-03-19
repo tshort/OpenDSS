@@ -34,7 +34,6 @@ TYPE
 
       PROCEDURE Set_Nconds(Value:Integer);
       PROCEDURE Set_NPhases(Value:Integer);
-      PROCEDURE Set_Enabled(Value:Boolean);
       PROCEDURE Set_ActiveTerminal(value:Integer);
       FUNCTION  Get_ConductorClosed(Index:Integer):Boolean;
       PROCEDURE Set_YprimInvalid(Value:Boolean);
@@ -62,6 +61,7 @@ TYPE
       YPrim          :TCMatrix;   // Order will be NTerms * Ncond
       FYprimFreq     :double;     // Frequency at which YPrim has been computed
 
+      PROCEDURE Set_Enabled(Value:Boolean);Virtual;
       PROCEDURE Set_ConductorClosed(Index:Integer; Value:Boolean); Virtual;
       PROCEDURE Set_NTerms(Value:Integer); Virtual;
       PROCEDURE Set_Handle(Value:Integer);
