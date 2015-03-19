@@ -1,7 +1,7 @@
 unit InvControl;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -181,6 +181,7 @@ end;
             FUNCTION  Get_PendingChange(DevIndex: Integer):Integer;
             FUNCTION  InterpretAvgVWindowLen(const s:string):Integer;
             FUNCTION  ReturnElementsList:String;
+            PROCEDURE UpdateInvControl(i:integer);
      public
 
             constructor Create(ParClass:TDSSClass; const InvControlName:String);
@@ -1975,45 +1976,32 @@ begin
   DblTraceParameter := Value;
 end;
 
-FUNCTION TInvControlObj.Get_PendingChange(DevIndex: Integer):Integer;
-begin
-  Result := FPendingChange[DevIndex];
-end;
-
-
-//Called at end of main power flow solution loop
-PROCEDURE TInvControl.UpdateAll;
-VAR
-
-   i,j,k                      : Integer;
+procedure TInvControlObj.UpdateInvControl(i:integer);
+Var
+   j,k                      : Integer;
    solnvoltage                : Double;
    localControlledElement     : TDSSCktElement;
    tempVbuffer                : pComplexArray;
    PVSys                      : TPVSystemObj;
    dt, Verr: Double; // for DYNAMICVREG
-Begin
 
+begin
      tempVbuffer := Nil;   // Initialize for Reallocmem
 
-
-     For i := 1 to ElementList.ListSize  Do
-        With TInvControlObj(ElementList.Get(i)) Do
-        begin
-           for j := 1 to FPVSystemPointerList.ListSize do
-            begin
+       for j := 1 to FPVSystemPointerList.ListSize do
+          begin
              // only update solution idx one time through this routine
-             if (j = 1) and (i=1) then
+             if (j = 1) and (i = 1) then
                begin
                  //update solution voltage in per-unit for hysteresis
                  if FVpuSolutionIdx = 2 then FVpuSolutionIdx := 1
-                 else FVpuSolutionIdx :=FVpuSolutionIdx+1;
-
-               end;
+                 else FVpuSolutionIdx := FVpuSolutionIdx+1;
+               end;
 
              localControlledElement := ControlledElement[j];
              PVSys := localControlledElement as TPVSystemObj;
              FPriorWattspu[j] := PVSys.PresentkW/PVSys.PVSystemVars.FPmpp;
-             FPriorvarspu[j] := PVSys.Presentkvar/SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW));
+             FPriorvarspu[j]  := PVSys.Presentkvar/SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW));
 
              FWithinTol[j] := False;
              FROCEvaluated[j] := False;
@@ -2034,8 +2022,8 @@ Begin
              // compute the present terminal voltage
              localControlledElement.ComputeVterminal;
 
-
              for k := 1 to localControlledElement.Yorder do tempVbuffer[k] := localControlledElement.Vterminal^[k];
+
              solnvoltage := 0.0;
              for k := 1 to localControlledElement.Nphases do solnvoltage := solnvoltage + Cabs(tempVbuffer[k]);
              solnvoltage := solnvoltage / (localControlledElement.Nphases*1.0); // average of voltages if more than one phase
@@ -2043,16 +2031,31 @@ Begin
              // add present power flow solution voltage to the rolling average window
              FRollAvgWindow[j].Add(solnvoltage,ActiveCircuit.Solution.DynaVars.h,FVAvgWindowLengthSec);
 
-
-
              FVpuSolution[j,FVpuSolutionIdx] := solnvoltage/((ActiveCircuit.Buses^[ localcontrolledelement.terminals^[1].busRef].kVBase)*1000.0);
-
 
              Reallocmem(tempVbuffer, 0);   // Clean up memory
 
-            end;
+          end;
 
-        end;
+end;
+
+FUNCTION TInvControlObj.Get_PendingChange(DevIndex: Integer):Integer;
+begin
+  Result := FPendingChange[DevIndex];
+end;
+
+
+//Called at end of main power flow solution loop
+PROCEDURE TInvControl.UpdateAll;
+VAR
+   i : Integer;
+
+Begin
+
+     For i := 1 to ElementList.ListSize  Do
+        With TInvControlObj(ElementList.Get(i)) Do
+        If Enabled Then UpdateInvControl(i);
+
 End;
 
 
