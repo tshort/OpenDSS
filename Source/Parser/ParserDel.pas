@@ -185,7 +185,7 @@ END;
 PROCEDURE TParser.CheckforVar(var TokenBuffer: String);
 Var
    VariableValue,
-   VariableName, Temp : String;
+   VariableName : String;
    DotPos,
    CaratPos : Integer;
 

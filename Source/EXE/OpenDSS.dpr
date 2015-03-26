@@ -147,7 +147,12 @@ uses
   VSource in '..\PCElements\VSource.pas',
   WireData in '..\General\WireData.pas',
   XfmrCode in '..\General\XfmrCode.pas',
-  Ymatrix in '..\Common\Ymatrix.pas',
+  Ymatrix in '..\Common\Ymatrix.pas' {,
+  TempShape in '..\General\TempShape.pas',
+  XYcurve in '..\General\XYcurve.pas',
+  PriceShape in '..\General\PriceShape.pas';
+
+{$R *.RES},
   TempShape in '..\General\TempShape.pas',
   XYcurve in '..\General\XYcurve.pas',
   PriceShape in '..\General\PriceShape.pas',
@@ -168,7 +173,8 @@ uses
   GeneratorVars in '..\PCElements\GeneratorVars.pas',
   CapControlVars in '..\Controls\CapControlVars.pas',
   InvControl in '..\Controls\InvControl.pas',
-  GICTransformer in '..\PDElements\GICTransformer.pas';
+  GICTransformer in '..\PDElements\GICTransformer.pas',
+  ExpControl in '..\Controls\ExpControl.pas';
 
 {$R *.RES}
 
@@ -193,16 +199,16 @@ begin
   end else begin
     {Instantiate basic forms}
     Application.CreateForm(TControlPanel, ControlPanel);
-    Application.CreateForm(TMessageForm1, MessageForm1);
-    Application.CreateForm(TTViewForm, TViewForm);
-    Application.CreateForm(TMainEditForm, MainEditForm);
-    Application.CreateForm(TProgress, Progress);
-    Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
-    Application.CreateForm(TListBoxForm, ListBoxForm);
-    Application.CreateForm(TDoDSSCommandForm, DoDSSCommandForm);
-    Application.CreateForm(TRPNForm, RPNForm);
-    Application.CreateForm(TChannelSelectForm, ChannelSelectForm);
-    ControlPanelCreated := TRUE;
+  Application.CreateForm(TMessageForm1, MessageForm1);
+  Application.CreateForm(TTViewForm, TViewForm);
+  Application.CreateForm(TMainEditForm, MainEditForm);
+  Application.CreateForm(TProgress, Progress);
+  Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
+  Application.CreateForm(TListBoxForm, ListBoxForm);
+  Application.CreateForm(TDoDSSCommandForm, DoDSSCommandForm);
+  Application.CreateForm(TRPNForm, RPNForm);
+  Application.CreateForm(TChannelSelectForm, ChannelSelectForm);
+  ControlPanelCreated := TRUE;
     ControlPanel.InitializeForm;
     MessageForm1.Editor.Clear;
     MessageForm1.WindowState := wsMinimized;

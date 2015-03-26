@@ -53,6 +53,7 @@ PROCEDURE EndOfTimeStepCleanup;
 Begin
     StorageClass.UpdateAll;
     InvControlClass.UpdateAll;
+    ExpControlClass.UpdateAll;
 End;
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

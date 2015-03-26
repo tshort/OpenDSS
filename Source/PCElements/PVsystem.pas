@@ -61,7 +61,7 @@ TYPE
         FpuPmpp         :Double;
         FIrradiance     :Double;
         MaxDynPhaseCurrent   :Double;
-        Vreg: Double; // will be set from InvControl
+        Vreg: Double; // will be set from InvControl or ExpControl
 
         {32-bit integers}
         NumPhases       :Integer;   {Number of phases}
@@ -160,7 +160,7 @@ TYPE
         Vminpu          :Double;
         YPrimOpenCond   :TCmatrix;
 
-        FVWMode         :Boolean; //boolean indicating if under volt-watt control mode from InvControl
+        FVWMode         :Boolean; //boolean indicating if under volt-watt control mode from InvControl (not ExpControl)
         FVWYAxis        :Integer;  // integer value indicating that whether y-axis of watts is in %Pmpp or %PAvailable
                                   // 1 = %Pmpp, 0=%PAvailable.  Default is 1 such that pctPmpp user-settable
                                   // property will correctly operate on Pmpp (NOT PAvailable)
@@ -2416,7 +2416,7 @@ end;
 function TPVsystemObj.Get_VWmode: Boolean;
 begin
       If FVWmode Then Result := TRUE else Result := FALSE;    // TRUE if volt-watt mode
-                                                              //  engaged from InvControl
+                                                              //  engaged from InvControl (not ExpControl)
 end;
 
 // ============================================================Get_VWYAxis===============================
@@ -2424,7 +2424,7 @@ end;
 function TPVsystemObj.Get_VWYAxis: Integer;
 begin
       If FVWYAxis = 1 Then Result := 1 else Result := 0;    // TRUE if volt-watt mode
-                                                              //  engaged from InvControl
+                                                              //  engaged from InvControl (not ExpControl)
 end;
 
 // ============================================================kWOut_Calc===============================
@@ -2469,7 +2469,7 @@ Begin
        2: ; // Setting this has no effect Read only
        3: ; // Setting this has no effect Read only
        4: ; // Setting this has no effect Read only
-       5: Vreg := Value; // the InvControl will do this
+       5: Vreg := Value; // the InvControl or ExpControl will do this
      ELSE
        Begin
          If UserModel.Exists

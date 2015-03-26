@@ -51,6 +51,7 @@ CONST
       GIC_Transformer  = 27 * 8;
       INV_CONTROL      = 28 * 8;
       VS_CONVERTER     = 29 * 8;
+      EXP_CONTROL      = 30 * 8;
 
 VAR
    NumIntrinsicClasses,
@@ -113,7 +114,8 @@ USES
      InvControl,
      GICLine,
      GICTransformer,
-     VSConverter
+     VSConverter,
+     ExpControl
 ;
 
 
@@ -192,6 +194,9 @@ Begin
 
      InvControlClass := TInvControl.Create;
      DSSClasses.New := InvControlClass;
+
+     ExpControlClass := TExpControl.Create;
+     DSSClasses.New := ExpControlClass;
 
      DSSClasses.New := TGICLine.Create;
      DSSClasses.New := TGICTransformer.Create;

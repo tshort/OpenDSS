@@ -199,7 +199,8 @@ uses
   ImplParser in 'ImplParser.pas' {Parser: CoClass},
   ImplLoadShapes in 'ImplLoadShapes.pas' {LoadShapes: CoClass},
   ImplFuses in 'ImplFuses.pas' {Fuses: CoClass},
-  ImplIsources in 'ImplIsources.pas' {ISource: CoClass};
+  ImplIsources in 'ImplIsources.pas' {ISource: CoClass},
+  ExpControl in '..\Controls\ExpControl.pas';
 
 exports
   DllGetClassObject,
