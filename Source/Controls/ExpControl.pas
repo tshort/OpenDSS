@@ -120,15 +120,12 @@ CONST
 {--------------------------------------------------------------------------}
 constructor TExpControl.Create;  // Creates superstructure for all ExpControl objects
 Begin
-     Inherited Create;
-
-     Class_name   := 'ExpControl';
-     DSSClassType := DSSClassType + EXP_CONTROL;
-
-     DefineProperties;
-
-     CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
-     CommandList.Abbrev := TRUE;
+  Inherited Create;
+  Class_name   := 'ExpControl';
+  DSSClassType := DSSClassType + EXP_CONTROL;
+  DefineProperties;
+  CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
+  CommandList.Abbrev := TRUE;
 End;
 
 {--------------------------------------------------------------------------}
@@ -301,6 +298,8 @@ Begin
      DSSObjType               := ParClass.DSSClassType;
 
      ElementName              := '';
+
+     ShowEventLog       := FALSE;
 
      ControlledElement        := nil;
      FPVSystemNameList        := nil;
@@ -646,18 +645,21 @@ Var
   dt, Verr: Double; // for DYNAMICVREG
 begin
   for j := 1 to FPVSystemPointerList.ListSize do begin
-    // only update solution idx one time through this routine
     PVSys := ControlledElement[j];
     FWithinTol[j] := False;
-    dt :=  ActiveCircuit.Solution.Dynavars.h;
-    Verr := FPresentVpu[j] - FVregs[j];
-    FVregs[j] := FVregs[j] + Verr * (1 - Exp (-dt / FVregTau));
+    if FVregTau > 0.0 then begin
+      dt :=  ActiveCircuit.Solution.Dynavars.h;
+      Verr := FPresentVpu[j] - FVregs[j];
+      FVregs[j] := FVregs[j] + Verr * (1 - Exp (-dt / FVregTau));
+    end else begin
+      Verr := 0.0;
+    end;
     if FVregs[j] < FVregMin then FVregs[j] := FVregMin;
     if FVregs[j] > FVregMax then FVregs[j] := FVregMax;
     PVSys.Set_Variable(5,FVregs[j]);
     If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+','+PVSys.Name+',',
-      Format('  **VREG set new FVreg= %.5g Vpu=%.5g Verr=%.5g Dec=%.5g',
-      [FVregs[j], FPresentVpu[j], Verr, (1 - Exp (-dt/FVregTau))]));
+      Format('  **VREG set new FVreg= %.5g Vpu=%.5g Verr=%.5g',
+      [FVregs[j], FPresentVpu[j], Verr]));
   end;
 end;
 
