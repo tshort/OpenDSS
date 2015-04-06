@@ -1946,6 +1946,7 @@ begin
     pctNoLoadLoss    := Obj.pctNoLoadLoss;
     NormMaxHkVA      := Obj.NormMaxHkVA;
     EmergMaxHkVA     := Obj.EmergMaxHkVA;
+    ppm_FloatFactor  := Obj.ppm_FloatFactor;
     Yorder := fNConds*fNTerms;
     YPrimInvalid := True;
     Y_Terminal_FreqMult := 0.0;
