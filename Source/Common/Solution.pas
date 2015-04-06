@@ -1248,15 +1248,15 @@ Var
    pelem :TDSSCktElement;
 
 begin
-     WITH  ActiveCircuit
-     Do Begin
+     WITH  ActiveCircuit Do
+       Begin
           pelem := CktElements.First;
-          WHILE pelem <> nil
-          Do Begin
+          WHILE pelem <> nil Do
+          Begin
               pelem.SumCurrents ;   // sum terminal currents into system Currents Array
               pelem := CktElements.Next;
           End;
-     End;
+       End;
 end;
 
 // =========================================================================================== =
@@ -1265,28 +1265,30 @@ VAR
    XHour:Integer;
    XSec :Double;
 Begin
-    With ActiveCircuit Do Begin
-        CASE ControlMode of
-            //  execute the nearest set of control actions time-wise
-            CTRLSTATIC:
-               Begin
-                  IF   ControlQueue.IsEmpty
-                  THEN ControlActionsDone := TRUE
-                  ELSE ControlQueue.DoNearestActions(xHour, XSec); // ignore time advancement
-               End;
-            EVENTDRIVEN:
-               Begin
-                 IF NOT ControlQueue.DoNearestActions(DynaVars.intHour, DynaVars.t)
-                 THEN ControlActionsDone := TRUE;// Advances time
-               End;
-            TIMEDRIVEN:
-               Begin
-                 IF NOT ControlQueue.DoActions (DynaVars.intHour, DynaVars.t)
-                 THEN ControlActionsDone := TRUE;
-               End;
+    With ActiveCircuit Do
+      Begin
+          CASE ControlMode of
+
+              CTRLSTATIC:
+                 Begin  //  execute the nearest set of control actions but leaves time where it is
+                      IF   ControlQueue.IsEmpty
+                      THEN ControlActionsDone := TRUE
+                      ELSE ControlQueue.DoNearestActions(xHour, XSec); // ignore time advancement
+                 End;
+              EVENTDRIVEN:
+                 Begin  //  execute the nearest set of control actions and advance time to that time
+                 // **** Need to update this to set the "Intervalhrs" variable for EnergyMeters for Event-Driven Simulation ****
+                      IF NOT ControlQueue.DoNearestActions(DynaVars.intHour, DynaVars.t) // these arguments are var type
+                      THEN ControlActionsDone := TRUE;// Advances time to the next event
+                 End;
+              TIMEDRIVEN:
+                 Begin   // Do all actions having an action time <= specified time
+                      IF NOT ControlQueue.DoActions (DynaVars.intHour, DynaVars.t)
+                      THEN ControlActionsDone := TRUE;
+                 End;
 
           END;
-    End;
+      End;
 
 End;
 
