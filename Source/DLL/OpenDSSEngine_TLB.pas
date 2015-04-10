@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 3/3/2015 4:50:40 PM from Type Library described below.
+// File generated on 4/10/2015 5:34:49 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -180,6 +180,7 @@ const
   dssLogNormal = $00000003;
   dssAddGen = $00000001;
   dssAddCap = $00000002;
+  dssControlOFF = $FFFFFFFF;
 
 // Constants for enum CapControlModes
 type

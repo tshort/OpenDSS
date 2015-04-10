@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 3/3/2015 10:25:05 PM (- $Rev: 12980 $, 85719382).
+// File generated on 4/10/2015 5:35:00 PM (- $Rev: 12980 $, 72406912).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -191,7 +191,9 @@ library OpenDSSengine
     [helpstring("Add generators in AutoAdd mode (AddType)\0only\0de\0s set to zero.\0dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     dssAddGen = 1,
     [helpstring("Add capacitors in AutoAdd mode (Addtype)\0only\0de\0s set to zero.\0dispatch criteria.\0 opened.\0n) for the Meter to force some behavior on Load Allocation\0ion or AllElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
-    dssAddCap = 2
+    dssAddCap = 2,
+    [helpstring("Control Mode OFF = -1")]
+    dssControlOFF = -1
   };
 
   [
