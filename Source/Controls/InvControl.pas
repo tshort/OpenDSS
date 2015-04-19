@@ -1350,15 +1350,15 @@ BEGIN
         // if below the lower deadband and deltaV quantity is non-zero then
         // calculate desired pu var output. In per-unit of kva rating (also
         // ampere rating), per report specifications.
-        if (deltaVDynReac[i] <>0) and (deltaVDynReac[i] < FDbVMin) then
-            QDesiredpu[i] := deltaVDynReac[i]*FArGraLowV
+        if (deltaVDynReac[i] <>0) and (FPresentVpu[i] < FDbVMin) then
+            QDesiredpu[i] := -deltaVDynReac[i]*FArGraLowV
 
         // if above the upper deadband and deltaV quantity is non-zero then
         // calculate desired pu var output. In per-unit of kva rating (also
         // ampere rating), per report specifications.
 
-        else if (deltaVDynReac[i] <>0) and (deltaVDynReac[i] > FDbVMax) then
-            QDesiredpu[i] := deltaVDynReac[i]*FArGraHiV
+        else if (deltaVDynReac[i] <>0) and (FPresentVpu[i] > FDbVMax) then
+            QDesiredpu[i] := -deltaVDynReac[i]*FArGraHiV
 
         else if deltaVDynReac[i] = 0.0 then
              QDesiredpu[i] := 0.0;
@@ -1368,7 +1368,7 @@ BEGIN
         if(Abs(QDesiredpu[i]*PVSys.kVARating) > QHeadroom[i]) then QDesiredpu[i] := sign(QDesiredpu[i])*QHeadroom[i]/PVSys.kVARating;
         DeltaQ        := QDesiredpu[i]*PVSys.kVARating - Qold[i];
         QNew[i]       := QOld[i] + (DeltaQ * FdeltaQ_factor);
-        PVSys.Presentkvar := -1.0*QNew[i];
+        PVSys.Presentkvar := QNew[i];
         Qoutputpu[i] := PVSys.Presentkvar / PVSys.kVARating;
 
         If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
@@ -2021,9 +2021,6 @@ begin
              Verr := FPresentVpu[j] - FVregs[j];
              FVregs[j] := FVregs[j] + Verr * (1 - Exp (-dt / FVregTau));
              PVSys.Set_Variable(5,FVregs[j]);
-             If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
-                Format('  **VREG set new FVreg= %.5g Vpu=%.5g Verr=%.5g Dec=%.5g',
-                [FVregs[j], FPresentVpu[j], Verr, (1 - Exp (-dt/FVregTau))]));
 
              // allocated enough memory to buffer to hold voltages and initialize to cZERO
              Reallocmem(tempVbuffer, Sizeof(tempVbuffer^[1]) * localControlledElement.NConds);
