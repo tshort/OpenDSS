@@ -430,10 +430,6 @@ BEGIN
       Qpu := PVSys.Presentkvar / Qbase; // no change for now
 
       if (FWithinTol[i]=False) then begin
-        if FVregs[i] <= 0.0 then begin // initialize this PVSystem's Vreg if needed
-          FVregs[i] := FVregInit;
-          PVSys.Set_Variable(5,FVregs[i]);
-        end;
         // look up Qpu from the slope crossing at Vreg, and add the bias
         Qpu := -FSlope * (FPresentVpu[i] - FVregs[i]) + FQbias;
         If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+','+PVSys.Name+',',
@@ -447,9 +443,10 @@ BEGIN
       if Qpu > FQmaxLag then Qpu := FQmaxLag;
       FTargetQ[i] := Qbase * Qpu;
 
-      // only move by deltaQ_factor in this control iteration
+      // only move the non-bias component by deltaQ_factor in this control iteration
       DeltaQ := FTargetQ[i] - FPriorQ[i];
       Qset := FPriorQ[i] + DeltaQ * FdeltaQ_factor;
+ //     Qset := FQbias * Qbase;
       If PVSys.Presentkvar <> Qset Then PVSys.Presentkvar := Qset;
       If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name +','+ PVSys.Name+',',
                              Format('**%s mode set PVSystem output var level to**, kvar= %.5g',
@@ -490,7 +487,10 @@ begin
       Qerr := Abs(PVSys.Presentkvar - FTargetQ[i]) / PVSys.kVARating;
 
       // process the sample
-      if (PVSys.InverterON = FALSE) and (PVSys.VarFollowInverter = TRUE) then exit;
+      if (PVSys.InverterON = FALSE) and (PVSys.VarFollowInverter = TRUE) then begin
+        FVregs[i] := FPresentVpu[i];
+        exit;
+      end;
       PVSys.VWmode := FALSE;
       if (FWithinTol[i] = False) then begin
         if ((Verr > FVoltageChangeTolerance) or (Qerr > FVarChangeTolerance) or
@@ -579,7 +579,7 @@ begin
     FPriorQ[i] := -1.0;
     FTargetQ[i] :=0.0;
     FWithinTol[i] := False;
-    FVregs[i] := 0.0; // this should later initialize from the volt/var curve zero crossing
+    FVregs[i] := FVregInit;
     FPendingChange[i] := NONE;
   end; {For}
   RecalcElementData;
