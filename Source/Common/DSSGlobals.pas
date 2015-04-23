@@ -617,7 +617,7 @@ Begin
   DefaultBaseFreq  := StrToInt(DSS_Registry.ReadString('BaseFrequency', '60' ));
   LastFileCompiled := DSS_Registry.ReadString('LastFile', '' );
   TestDataDirectory :=   DSS_Registry.ReadString('DataPath', DataDirectory);
-  If system.SysUtils.DirectoryExists (TestDataDirectory) Then SetDataPath (TestDataDirectory)
+  If SysUtils.DirectoryExists (TestDataDirectory) Then SetDataPath (TestDataDirectory)
                                         Else SetDataPath (DataDirectory);
 End;
 
@@ -769,4 +769,5 @@ Finalization
 
 
 End.
+
 
