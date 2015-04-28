@@ -90,6 +90,9 @@ INTERFACE
 
             PROCEDURE   Reset; Override;  // Reset to initial defined state
 
+            PROCEDURE   GetInjCurrents(Curr: pComplexArray); Override;
+            PROCEDURE   GetCurrents(Curr: pComplexArray); Override;
+
             PROCEDURE   InitPropertyValues(ArrayOffset:Integer);Override;
             PROCEDURE   DumpProperties(Var F:TextFile; Complete:Boolean);Override;
 
@@ -362,7 +365,7 @@ Begin
     IF FPVSystemPointerList.ListSize > 0  Then begin
     {Setting the terminal of the ExpControl device to same as the 1st PVSystem element}
          MonitoredElement :=  TDSSCktElement(FPVSystemPointerList.Get(1));   // Set MonitoredElement to 1st PVSystem in lise
-         Setbus(1, MonitoredElement.Firstbus);
+//         Setbus(1, MonitoredElement.Firstbus);
     End;
 
     maxord := 0; // will be the size of cBuffer
@@ -388,9 +391,14 @@ end;
 
 PROCEDURE TExpControlObj.CalcYPrim;
 Begin
-  // leave YPrims as nil and they will be ignored
-  // Yprim is zeroed when created.  Leave it as is.
-  //  IF YPrim=nil THEN YPrim := TcMatrix.CreateMatrix(Yorder);
+End;
+
+PROCEDURE TExpControlObj.GetCurrents(Curr: pComplexArray);
+Begin
+End;
+
+PROCEDURE TExpControlObj.GetInjCurrents(Curr: pComplexArray);
+Begin
 End;
 
 PROCEDURE TExpControlObj.DumpProperties(Var F:TextFile; Complete:Boolean);
@@ -489,7 +497,7 @@ begin
       // process the sample
       if (PVSys.InverterON = FALSE) and (PVSys.VarFollowInverter = TRUE) then begin
         FVregs[i] := FPresentVpu[i];
-        exit;
+        continue;
       end;
       PVSys.VWmode := FALSE;
       if (FWithinTol[i] = False) then begin
@@ -573,7 +581,7 @@ begin
   //Initialize arrays
   For i := 1 to FlistSize Do begin
     PVSys := PVSysClass.Find(FPVSystemNameList.Strings[i-1]);
-    Set_NTerms(PVSys.NTerms); // TODO - what is this for?
+//    Set_NTerms(PVSys.NTerms); // TODO - what is this for?
     FPriorVpu[i] := 0.0;
     FPresentVpu[i] := 0.0;
     FPriorQ[i] := -1.0;

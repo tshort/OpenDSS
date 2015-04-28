@@ -2372,6 +2372,9 @@ begin
       With TMonitorObj(MonitorClass.GetActiveObj) Do
       Begin
 
+        // make sure ActiveCktElement can respond to GetCurrent
+        ActiveCircuit.ActiveCktElement:=MeteredElement;
+
          Save; // Save present buffer
          CloseMonitorStream;
 
