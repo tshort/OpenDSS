@@ -113,8 +113,14 @@ end;
 procedure TCapUserControl.DoPending(const Code, ProxyHdl: integer);
 
 // do the pending control Action
+Var
+    varCode, varProxyHdl: Integer;
 begin
-
+     If FID <> 0 Then Begin
+        varCode := Code; // Can't pass a const
+        varProxyHdl := ProxyHdl;
+        FDoPending(varCode, varProxyHdl);
+     End;
 end;
 
 function TCapUserControl.Get_Exists: Boolean;

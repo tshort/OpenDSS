@@ -3,7 +3,7 @@ unit About;
 interface
 
 uses Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
-  Buttons, ExtCtrls, jpeg, ComCtrls;
+  Buttons, ExtCtrls, jpeg, ComCtrls, Vcl.Imaging.pngimage;
 
 type
   TAboutBox = class(TForm)
@@ -14,10 +14,9 @@ type
     Comments: TLabel;
     OKButton: TButton;
     EPRILogo: TImage;
-    Image1: TImage;
-    ProgramIcon: TImage;
     Label1: TLabel;
     LicenseText: TRichEdit;
+    ProgramIcon: TImage;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }

@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 4/10/2015 5:35:00 PM (- $Rev: 12980 $, 72406912).
+// File generated on 4/29/2015 10:41:25 PM (- $Rev: 12980 $, 131667636).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -979,6 +979,14 @@ library OpenDSSengine
     HRESULT _stdcall Channel([in] long Index, [out, retval] VARIANT* Value);
     [propget, id(0x000000D4), helpstring("Number of Channels in the active Monitor")]
     HRESULT _stdcall NumChannels([out, retval] long* Value);
+    [propget, id(0x000000D5), helpstring("Full object name of element being monitored.")]
+    HRESULT _stdcall Element([out, retval] BSTR* Value);
+    [propput, id(0x000000D5), helpstring("Full object name of element being monitored.")]
+    HRESULT _stdcall Element([in] BSTR Value);
+    [propget, id(0x000000D6), helpstring("Terminal number of element being monitored")]
+    HRESULT _stdcall Terminal([out, retval] long* Value);
+    [propput, id(0x000000D6), helpstring("Terminal number of element being monitored.")]
+    HRESULT _stdcall Terminal([in] long Value);
   };
 
   [

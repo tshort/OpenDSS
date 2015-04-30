@@ -78,7 +78,7 @@ TYPE
         Ftotalkvar,
         kvrating:Double;
         FNumSteps,
-        LastStepInService :Integer;
+        FLastStepInService :Integer;
         Cmatrix  :pDoubleArray;  // If not nil then overrides C
 
         DoHarmonicRecalc:Boolean;
@@ -88,6 +88,7 @@ TYPE
 
         function  get_States(Idx: Integer): Integer;
         procedure set_States(Idx: Integer; const Value: Integer);
+        procedure set_LastStepInService(const Value: Integer);
 
         Procedure ProcessHarmonicSpec(const Param:String);
         Procedure ProcessStatesSpec(const Param:String);
@@ -115,11 +116,12 @@ TYPE
         FUNCTION AddStep:Boolean;
         FUNCTION SubtractStep:Boolean;
         FUNCTION AvailableSteps:Integer;
-        PROCEDURE SetLastStepInService;
+        PROCEDURE FindLastStepInService;
         Property NumSteps:Integer  Read FNumSteps write set_NumSteps;
         Property States[Idx:Integer]:Integer Read get_States write set_States;
         Property Totalkvar:Double Read FTotalkvar;
         Property NomKV:Double Read kvrating;
+        Property LastStepInService:Integer Read FLastStepInService Write set_LastStepInService;
 
    end;
 
@@ -898,24 +900,40 @@ begin
      DoHarmonicRecalc := TRUE;
 end;
 
-procedure TCapacitorObj.SetLastStepInService;
+procedure TCapacitorObj.FindLastStepInService;
+// Find the last step energized
 Var i:Integer;
 Begin
-     LastStepInService := 0;
+     FLastStepInService := 0;
 
      For i := FNumsteps downto 1 Do Begin
          If Fstates^[i]=1 then Begin
-            LastStepInService := i;
+            FLastStepInService := i;
             Break;
          End;
      End;
+End;
+
+procedure TCapacitorObj.set_LastStepInService(const Value: Integer);
+// force the last step in service to be a certain value
+Var i:integer;
+Begin
+
+     for i := 1 to Value do FStates^[i] := 1;
+     // set remainder steps, if any, to 0
+     for i := Value+1 to FNumSteps do  FStates^[i] := 0;
+
+     // Force rebuild of YPrims if necessary.
+     If Value <> FLastStepInService Then YprimInvalid := TRUE;
+
+     FLastStepInService := Value;
 End;
 
 procedure TCapacitorObj.ProcessStatesSpec(const Param: String);
 
 begin
      InterpretIntArray(Param, FNumsteps, FStates);
-     SetLastStepInService;
+     FindLastStepInService;
 end;
 
 procedure TCapacitorObj.MakeYprimWork(YprimWork: TcMatrix; iStep:Integer);
@@ -1059,8 +1077,8 @@ begin
      If LastStepInService=FNumSteps Then
         Result := FALSE
      ELSE Begin
-         Inc(LastStepInService);
-         States[LastStepInService] := 1;
+         Inc(FLastStepInService);
+         States[FLastStepInService] := 1;
          Result := TRUE;
      END;
 end;
@@ -1070,8 +1088,8 @@ begin
      If LastStepInService=0 Then
         Result := FALSE
      ELSE Begin
-         States[LastStepInService] := 0;
-         Dec(LastStepInService);
+         States[FLastStepInService] := 0;
+         Dec(FLastStepInService);
          IF LastStepInService=0 Then Result := FALSE Else Result := TRUE;   // signify bank OPEN
      END;
 

@@ -47,6 +47,10 @@ type
     function Get_Header: OleVariant; safecall;
     function Get_NumChannels: Integer; safecall;
     function Get_RecordSize: Integer; safecall;
+    function Get_Element: WideString; safecall;
+    procedure Set_Element(const Value: WideString); safecall;
+    function Get_Terminal: Integer; safecall;
+    procedure Set_Terminal(Value: Integer); safecall;
     { Protected declarations }
   end;
 
@@ -637,6 +641,55 @@ begin
         ReadMonitorHeader(Header, TRUE);
         Result := Header.RecordSize;
     End;
+end;
+
+function TMonitors.Get_Element: WideString;
+var
+  pMon:TMonitorObj;
+begin
+  if ActiveCircuit <> Nil then begin
+    pMon := ActiveCircuit.Monitors.Active;
+    if PMon <> Nil then Result := pMon.ElementName ;
+  end;
+end;
+
+procedure TMonitors.Set_Element(const Value: WideString);
+var
+  pMon:TMonitorObj;
+begin
+  if ActiveCircuit <> Nil then begin
+    pMon := ActiveCircuit.Monitors.Active;
+    if PMon <> Nil then Begin
+       pMon.ElementName := Value ;
+       pMon.PropertyValue [1] := Value;
+       pMon.RecalcElementData ;
+    End;
+  end;
+
+end;
+
+function TMonitors.Get_Terminal: Integer;
+var
+  pMon:TMonitorObj;
+begin
+  if ActiveCircuit <> Nil then begin
+    pMon := ActiveCircuit.Monitors.Active;
+    if PMon <> Nil then Result := pMon.MeteredTerminal ;
+  end;
+end;
+
+procedure TMonitors.Set_Terminal(Value: Integer);
+var
+  pMon:TMonitorObj;
+begin
+  if ActiveCircuit <> Nil then begin
+    pMon := ActiveCircuit.Monitors.Active;
+    if PMon <> Nil then Begin
+       pMon.MeteredTerminal  := Value ;
+       pMon.RecalcElementData ;
+    End;
+  end;
+
 end;
 
 initialization

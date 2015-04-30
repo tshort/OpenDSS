@@ -61,12 +61,9 @@ TYPE
             ControlType      : ECapControlType;
 
             ControlVars      : TCapControlVars;
-            VOverrideBusName : String;
-            CapacitorName    : String;
+
             MonitoredElement : TDSSCktElement;
             ControlledCapacitor : TCapacitorObj;
-            ControlActionHandle : Integer;
-            CondOffset          : Integer; // Offset for monitored terminal
 
             cBuffer : pComplexArray;    // Complexarray buffer
 
@@ -293,7 +290,7 @@ Begin
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 352);
             1: ElementName     := ConstructElemName(lowercase(param));  // substitute @var value if any
             2: ElementTerminal := Parser.IntValue;
-            3: CapacitorName   := 'capacitor.'+ param;   // will automatically substitute @var value
+            3: ControlVars.CapacitorName   := 'capacitor.'+ param;   // will automatically substitute @var value
             4: CASE lowercase(param)[1] of
                     'c': ControlType := CURRENTCONTROL;
                     'v': ControlType := VOLTAGECONTROL;
@@ -323,7 +320,7 @@ Begin
                                                              Else ControlVars.FPTPhase := max(1, Parser.IntValue);
            17: Begin
                  ControlVars.VoverrideBusSpecified := TRUE;
-                 VOverrideBusName := Param;
+                 ControlVars.VOverrideBusName := Param;
                End;
            18: ShowEventLog := InterpretYesNo(param);
            19: UserModel.Name := Parser.StrValue;  // Connect to user written model
@@ -404,7 +401,7 @@ Begin
         NConds  := OtherCapControl.Fnconds; // Force Reallocation of terminal stuff
 
         ElementName       := OtherCapControl.ElementName;
-        CapacitorName     := OtherCapControl.CapacitorName;
+        ControlVars.CapacitorName     := OtherCapControl.ControlVars.CapacitorName;
         ControlledElement := OtherCapControl.ControlledElement;  // Pointer to target circuit element
         MonitoredElement  := OtherCapControl.MonitoredElement;  // Pointer to target circuit element
 
@@ -416,7 +413,7 @@ Begin
               ControlType       := OtherCapControl.ControlType;
               PresentState      := OtherCapControl.ControlVars.PresentState;
               ShouldSwitch     := OtherCapControl.ControlVars.ShouldSwitch;
-              CondOffset        := OtherCapControl.CondOffset;
+              CondOffset        := OtherCapControl.ControlVars.CondOffset;
 
               ON_Value          := OtherCapControl.ControlVars.ON_Value;
               OFF_Value         := OtherCapControl.ControlVars.OFF_Value;
@@ -428,7 +425,7 @@ Begin
 
               Voverride              := OtherCapControl.ControlVars.Voverride;
               VoverrideBusSpecified  := OtherCapControl.ControlVars.VoverrideBusSpecified;     // Added 8-11-11
-              VOverrideBusName       := OtherCapControl.VOverrideBusName;
+              VOverrideBusName       := OtherCapControl.ControlVars.VOverrideBusName;
         End;
 
         UserModel.Name   := OtherCapControl.UserModel.Name;  // Connect to user written models
@@ -503,7 +500,7 @@ Begin
      ElementName       := '';
      ControlledElement := nil;
      ElementTerminal   := 1;
-     CapacitorName     := '';
+     ControlVars.CapacitorName     := '';
      MonitoredElement  := Nil;
 
      FpctMinkvar := 50.0;
@@ -512,7 +509,7 @@ Begin
      UserModel  := TCapUserControl.Create;
 
 
-     ControlActionHandle := 0;
+     ControlVars.ControlActionHandle := 0;
 
      cBuffer := Nil; // Complex buffer
 
@@ -529,7 +526,7 @@ End;
 destructor TCapControlObj.Destroy;
 Begin
      ElementName := '';
-     CapacitorName := '';
+     ControlVars.CapacitorName := '';
      if Assigned(cBuffer) then ReallocMem (cBuffer, 0);
      UserModel.Free;
      Inherited Destroy;
@@ -548,7 +545,7 @@ Begin
 
 // 5-21-01 RCD moved this section ahead of monitored element so Nphases gets defined first
 
-         Devindex := GetCktElementIndex(CapacitorName); // Global function
+         Devindex := GetCktElementIndex(ControlVars.CapacitorName); // Global function
          IF   DevIndex>0
          THEN
            Begin  // Both capacitor and monitored element must already exist
@@ -559,17 +556,17 @@ Begin
                  ControlledElement.ActiveTerminalIdx := 1;  // Make the 1 st terminal active
                  // Get control synched up with capacitor
                  With ControlledCapacitor Do
-                   If AvailableSteps = Numsteps
+                   If ControlVars.AvailableSteps = Numsteps
                      Then ControlledElement.Closed[0] := FALSE
                      Else ControlledElement.Closed[0] := TRUE;
-                 IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
+                   IF ControlledElement.Closed [0]      // Check state of phases of active terminal
                      THEN ControlVars.PresentState := CTRL_CLOSE
                      ELSE ControlVars.PresentState := CTRL_OPEN;
            End
          ELSE
            Begin
                 ControlledElement := nil;   // element not found
-                DoErrorMsg('CapControl: "' + Self.Name + '"', 'Capacitor Element "'+ CapacitorName + '" Not Found.',
+                DoErrorMsg('CapControl: "' + Self.Name + '"', 'Capacitor Element "'+ ControlVars.CapacitorName + '" Not Found.',
                               ' Element must be defined previously.', 361);
            End;
 
@@ -591,7 +588,7 @@ Begin
                  Setbus(1, MonitoredElement.GetBus(ElementTerminal));
                // Allocate a buffer bigenough to hold everything from the monitored element
                  ReAllocMem(cBuffer, SizeOF(cbuffer^[1]) * MonitoredElement.Yorder );
-                 CondOffset := (ElementTerminal-1) * MonitoredElement.NConds; // for speedy sampling
+                 ControlVars.CondOffset := (ElementTerminal-1) * MonitoredElement.NConds; // for speedy sampling
              End;
          End
          ELSE DoSimpleMsg('Monitored Element in CapControl.'+Name+ ' does not exist:"'+ElementName+'"', 363);
@@ -624,7 +621,7 @@ begin
     Setbus(1, MonitoredElement.GetBus(ElementTerminal));
     // Allocate a buffer bigenough to hold everything from the monitored element
     ReAllocMem(cBuffer, SizeOF(cbuffer^[1]) * MonitoredElement.Yorder );
-    CondOffset := (ElementTerminal-1) * MonitoredElement.NConds; // for speedy sampling
+    ControlVars.CondOffset := (ElementTerminal-1) * MonitoredElement.NConds; // for speedy sampling
   end;
   inherited;
 end;
@@ -734,7 +731,13 @@ begin
 
         {Allow user control to do something}
          case ControlType of
-            USERCONTROL: If UserModel.Exists Then UserModel.DoPending(Code, ProxyHdl);
+            USERCONTROL: If UserModel.Exists Then
+                         Begin
+                              UserModel.DoPending(Code, ProxyHdl);
+                              // If control action changes last step in service, force update of Yprim and Fstates array
+                              ControlledCapacitor.LastStepInService :=  ControlVars.LastStepInService;
+                              // Usermodel could override Pending change so the rest of this procedure is ignored.
+                         End;
          end;
 
 
@@ -994,7 +997,7 @@ begin
               {User Control}
                USERCONTROL: If UserModel.Exists  Then   // selects the model associated with this control
                   Begin
-                     // Load up test data into the public data
+                     // Load up test data into the public data record
                        SampleP := CmulReal(MonitoredElement.Power[ElementTerminal], 0.001);  // kW kvar
 
                        MonitoredElement.GetTermVoltages(ElementTerminal, cBuffer);
@@ -1003,7 +1006,9 @@ begin
                        MonitoredElement.GetCurrents(cBuffer);
                        GetControlCurrent(SampleCurr);
 
-                       AvailableSteps := ControlledCapacitor.AvailableSteps;
+                       NumCapSteps       := ControlledCapacitor.NumSteps;
+                       AvailableSteps    := ControlledCapacitor.AvailableSteps;
+                       LastStepInService := ControlledCapacitor.LastStepInService;
 
                        UserModel.Sample;   // Sets the switching flags
 

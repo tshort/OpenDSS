@@ -295,7 +295,7 @@ begin
              inc(k);
          End;
 
-         elem.SetLastStepInService;
+         elem.FindLastStepInService;
     End;
 
 end;

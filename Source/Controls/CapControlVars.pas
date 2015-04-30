@@ -11,7 +11,7 @@ interface
 Uses ucomplex;
 {$INCLUDE ControlActionDefs.txt}
 {$ELSE}
-Uses ucomplex,ControlElem;
+Uses ucomplex, ControlElem;
 {$ENDIF}
 
 Type
@@ -32,7 +32,6 @@ Type
 
             FCTPhase,
             FPTPhase  :Integer;   // "ALL" is -1
-            AvailableSteps :Integer;   // available steps in controlled capacitor
 
             ON_Value,
             OFF_Value,
@@ -63,6 +62,14 @@ Type
             SampleV    :Double;
             SampleCurr :Double;
 
+            NumCapSteps       : Integer;
+            AvailableSteps    : Integer;   // available steps in controlled capacitor
+            LastStepInService : Integer;   // Change this to force an update of cap states
+
+            VOverrideBusName : String;
+            CapacitorName    : String;
+            ControlActionHandle : Integer;
+            CondOffset          : Integer; // Offset for monitored terminal
    End;
 
    implementation

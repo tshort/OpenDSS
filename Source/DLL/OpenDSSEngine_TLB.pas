@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 4/10/2015 5:34:49 PM from Type Library described below.
+// File generated on 4/29/2015 10:41:06 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -24,8 +24,6 @@ unit OpenDSSengine_TLB;
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
 // SYS_KIND: SYS_WIN32
-// Errors:
-//   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
 {$TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers.
 {$WARN SYMBOL_PLATFORM OFF}
@@ -1214,6 +1212,10 @@ type
     function Get_dblFreq: OleVariant; safecall;
     function Get_Channel(Index: Integer): OleVariant; safecall;
     function Get_NumChannels: Integer; safecall;
+    function Get_Element: WideString; safecall;
+    procedure Set_Element(const Value: WideString); safecall;
+    function Get_Terminal: Integer; safecall;
+    procedure Set_Terminal(Value: Integer); safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1230,6 +1232,8 @@ type
     property dblFreq: OleVariant read Get_dblFreq;
     property Channel[Index: Integer]: OleVariant read Get_Channel;
     property NumChannels: Integer read Get_NumChannels;
+    property Element: WideString read Get_Element write Set_Element;
+    property Terminal: Integer read Get_Terminal write Set_Terminal;
   end;
 
 // *********************************************************************//
@@ -1264,6 +1268,8 @@ type
     property dblFreq: OleVariant readonly dispid 210;
     property Channel[Index: Integer]: OleVariant readonly dispid 211;
     property NumChannels: Integer readonly dispid 212;
+    property Element: WideString dispid 213;
+    property Terminal: Integer dispid 214;
   end;
 
 // *********************************************************************//
