@@ -1,0 +1,17 @@
+Clear
+
+New circuit.LineCodeTest
+
+Redirect "C:\Users\prdu001\OpenDSS\Distrib\Examples\Scripts\WireData.txt"
+
+New LineGeometry.2/0Triplex nconds=3 nphases=2
+Cond=1 Wire=SAC2/0 x=0      h= 300 units=in
+Cond=2 Wire=SAC2/0 x=0.267  h= 300.4625 units=in
+Cond=3 Wire=SAC2/0 x=0.534  h= 300 units=in
+
+New LineGeometry.4/0Triplex nconds=3 nphases=2
+Cond=1 Wire=SAC4/0 x=0      h= 300 units=in
+Cond=2 Wire=SAC4/0 x=0.267  h= 300.5 units=in
+Cond=3 Wire=SAC4/0 x=0.534  h= 300 units=in
+
+Show LineConstants 60 kft 100.0
