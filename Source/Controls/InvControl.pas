@@ -602,6 +602,10 @@ Begin
    OtherInvControl := Find(InvControlName);
    IF OtherInvControl<>Nil THEN
    WITH ActiveInvControlObj Do Begin
+
+      NPhases := OtherInvControl.Fnphases;
+      NConds  := OtherInvControl.Fnconds; // Force Reallocation of terminal stuff
+
       for i := 1 to FPVSystemPointerList.ListSize DO
       begin
 
@@ -674,6 +678,17 @@ Begin
 
      ElementName              := '';
 
+     {
+       Control elements are zero current sources that attach to a terminal of a
+       power-carrying device, but do not alter voltage or current flow.
+       Define a default number of phases and conductors here and update in
+       RecalcElementData  routine if necessary. This allocates arrays for voltages
+       and currents and gives more direct access to the values,if needed
+     }
+     NPhases := 3;  // Directly set conds and phases
+     Fnconds := 3;
+     Nterms  := 1;  // this forces allocation of terminals and conductors
+                         // in base class
      ControlledElement        := nil;
      FkWLimit                 := nil;
      FkvarLimit               := nil;
@@ -823,6 +838,7 @@ Begin
 
     IF FPVSystemPointerList.ListSize > 0  Then
     {Setting the terminal of the InvControl device to same as the 1st PVSystem element}
+    { This sets it to a realistic value to avoid crashes later }
     Begin
          MonitoredElement :=  TDSSCktElement(FPVSystemPointerList.Get(1));   // Set MonitoredElement to 1st PVSystem in lise
          Setbus(1, MonitoredElement.Firstbus);
@@ -898,23 +914,21 @@ End;
 {--------------------------------------------------------------------------}
 PROCEDURE TInvControlObj.GetCurrents(Curr: pComplexArray);
 VAR
-   i,j:Integer;
+   i:Integer;
 Begin
+// Control is a zero current source
+  For i := 1 to Fnconds Do Curr^[i] := CZERO;
 
-  for j := 1 to FPVSystemPointerList.ListSize do
-  begin
-      For i := 1 to NCondsPVSys[j] Do Curr^[i + j*NCondsPVSys[j]] := CZERO;
-  end;
 
 End;
 
 PROCEDURE TInvControlObj.GetInjCurrents(Curr: pComplexArray);
-Var i,j:Integer;
+VAR
+   i:Integer;
 Begin
-  for j := 1 to FPVSystemPointerList.ListSize do
-  begin
-     FOR i := 1 to NCondsPVSys[j] Do Curr^[i + j*NCondsPVSys[j]] := CZERO;
-  end;
+// Control is a zero current source
+  For i := 1 to Fnconds Do Curr^[i] := CZERO;
+
 End;
 
 {--------------------------------------------------------------------------}
