@@ -2373,7 +2373,7 @@ begin
       Begin
 
         // make sure ActiveCktElement can respond to GetCurrent
-        ActiveCircuit.ActiveCktElement:=MeteredElement;
+//        ActiveCircuit.ActiveCktElement:=MeteredElement;
 
          Save; // Save present buffer
          CloseMonitorStream;

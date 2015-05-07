@@ -302,6 +302,19 @@ Begin
 
      ElementName              := '';
 
+     {
+       Control elements are zero current sources that attach to a terminal of a
+       power-carrying device, but do not alter voltage or current flow.
+       Define a default number of phases and conductors here and update in
+       RecalcElementData routine if necessary. This allocates arrays for voltages
+       and currents and gives more direct access to the values, if needed
+     }
+     NPhases := 3;  // Directly set conds and phases
+     Fnconds := 3;
+     Nterms  := 1;  // this forces allocation of terminals and conductors
+     // This general feature should not be used for ExpControl,
+     // because it controls more than one PVSystem
+
      ShowEventLog       := FALSE;
 
      ControlledElement        := nil;
@@ -365,7 +378,7 @@ Begin
     IF FPVSystemPointerList.ListSize > 0  Then begin
     {Setting the terminal of the ExpControl device to same as the 1st PVSystem element}
          MonitoredElement :=  TDSSCktElement(FPVSystemPointerList.Get(1));   // Set MonitoredElement to 1st PVSystem in lise
-//         Setbus(1, MonitoredElement.Firstbus);
+         Setbus(1, MonitoredElement.Firstbus);
     End;
 
     maxord := 0; // will be the size of cBuffer
@@ -394,11 +407,19 @@ Begin
 End;
 
 PROCEDURE TExpControlObj.GetCurrents(Curr: pComplexArray);
+Var
+   i:Integer;
 Begin
+// Control is a zero current source
+  For i := 1 to Fnconds Do Curr^[i] := CZERO;
 End;
 
 PROCEDURE TExpControlObj.GetInjCurrents(Curr: pComplexArray);
+Var
+   i:Integer;
 Begin
+// Control is a zero current source
+  For i := 1 to Fnconds Do Curr^[i] := CZERO;
 End;
 
 PROCEDURE TExpControlObj.DumpProperties(Var F:TextFile; Complete:Boolean);
