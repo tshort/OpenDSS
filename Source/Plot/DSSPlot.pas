@@ -2917,6 +2917,7 @@ begin
          If pTransf.IsSubstation Then
          Begin
             Bus2Idx := pTransf.Terminals^[2].BusRef;
+            If Bus2Idx > 0 Then
             If ActiveCircuit.Buses^[Bus2Idx].CoordDefined Then
             Begin
                AddNewMarker(ActiveCircuit.Buses^[Bus2Idx].X,
@@ -2945,6 +2946,7 @@ begin
       If pCapacitor.Enabled Then
          Begin
             BusIdx := pCapacitor.Terminals^[1].BusRef;
+            If BusIdx > 0 Then
             With ActiveCircuit Do  Begin
                MyBus :=  Buses^[BusIdx];
                If MyBus.CoordDefined Then
@@ -2972,6 +2974,7 @@ begin
       If pFuse.Enabled Then
          Begin
             BusIdx := pFuse.ControlledElement.Terminals^[pFuse.ElementTerminal ].BusRef;
+            If BusIdx > 0 Then
             With ActiveCircuit Do  Begin
                MyBus :=  Buses^[BusIdx];
                If MyBus.CoordDefined Then
@@ -3000,6 +3003,7 @@ begin
       If pRecloser.Enabled Then
          Begin
             BusIdx := pRecloser.ControlledElement.Terminals^[pRecloser.ElementTerminal ].BusRef;
+            If BusIdx > 0 Then
             With ActiveCircuit Do  Begin
                MyBus :=  Buses^[BusIdx];
                If MyBus.CoordDefined Then
@@ -3026,6 +3030,7 @@ begin
       If pPVSystem.Enabled Then
          Begin
             BusIdx := pPVSystem.Terminals^[1].BusRef;
+            If BusIdx > 0 Then
             With ActiveCircuit Do  Begin
                MyBus :=  Buses^[BusIdx];
                If MyBus.CoordDefined Then
@@ -3051,6 +3056,7 @@ begin
       If pStorage.Enabled Then
          Begin
             BusIdx := pStorage.Terminals^[1].BusRef;
+            If BusIdx > 0 Then
             With ActiveCircuit Do  Begin
                MyBus :=  Buses^[BusIdx];
                If MyBus.CoordDefined Then
@@ -3078,6 +3084,7 @@ begin
          Begin
             pXfmr := pRegControl.Transformer;
             BusIdx := pXfmr.Terminals^[pRegControl.TrWinding].BusRef;
+            If BusIdx > 0 Then
             With ActiveCircuit Do  Begin
                MyBus :=  Buses^[BusIdx];
                If MyBus.CoordDefined Then
@@ -3108,6 +3115,7 @@ begin
          Begin
             Bus1Idx := pTransf.Terminals^[1].BusRef;
             Bus2Idx := pTransf.Terminals^[2].BusRef;
+            If (Bus1Idx > 0) and (Bus2Idx > 0) Then
             With ActiveCircuit Do
                If Buses^[Bus1Idx].CoordDefined OR Buses^[Bus2Idx]
                  .CoordDefined Then
