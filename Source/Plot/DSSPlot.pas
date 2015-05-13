@@ -770,7 +770,7 @@ Var
       Begin
          AddNewLine(ActiveCircuit.Buses^[Idx1].X, ActiveCircuit.Buses^[Idx1].Y,
             ActiveCircuit.Buses^[Idx2].X, ActiveCircuit.Buses^[Idx2].Y, Clr,
-            Thickness, LineStyleType, Dots, Nam, FALSE, 0, 0, 0);
+            Thickness, LineStyleType, Dots, 'Line.'+ Nam, FALSE, 0, 0, 0);
          If Labels Then
             DoBusLabels(Idx1, Idx2);
       End;
