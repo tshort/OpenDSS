@@ -2353,16 +2353,19 @@ Var
    Fversion, FSignature, iMode: Integer;
    hr, S: single;
    i, Nread, RecordSize, RecordBytes: Cardinal;
-   sngBuffer: Array [1 .. 100] of single;
+   sngBuffer: Array [1 .. 100] of single;      // a big buffer
    StrBuffer: TMonitorStrBuffer;
    pStrBuffer: PAnsichar;
    time: Double;
    FirstRecord, Hours: Boolean;
-   Time1: Double;
-   HoldArray: Array of Double;
    ChannelNames: Array of String;
    Str: String;
    ItsAFreqScan: Boolean;
+   NumberofRecords : Cardinal;
+   Xarray : pDoubleArray;
+   Yarray : Array[0..100] of pDoubleArray;
+   iCount : Integer;
+   iChannel : Integer;
 
 begin
    { Plot designated channels in monitor designated by ObjectName }
@@ -2372,15 +2375,11 @@ begin
       With TMonitorObj(MonitorClass.GetActiveObj) Do
       Begin
 
-        // make sure ActiveCktElement can respond to GetCurrent
-//        ActiveCircuit.ActiveCktElement:=MeteredElement;
-
          Save; // Save present buffer
          CloseMonitorStream;
 
          FirstRecord := TRUE;
          Hours := TRUE;
-         SetLength(HoldArray, high(Channels) + 1);
          pStrBuffer := @StrBuffer;
          With MonitorStream Do
          Begin
@@ -2400,7 +2399,7 @@ begin
             AuxParser.NextParam;
             ChannelNames[i] := AuxParser.StrValue;
          End;
-         AuxParser.ResetDelims;
+         AuxParser.ResetDelims;   // restore original delimiters
 
          if CompareText(ChannelNames[0], 'Freq') = 0 then
             ItsAFreqScan := TRUE
@@ -2409,7 +2408,13 @@ begin
 
          // pStr := @StrBuffer;
          RecordBytes := Sizeof(sngBuffer[1]) * RecordSize;
-         Time1 := 0.0;
+         NumberofRecords := (MonitorStream.Size - MonitorStream.Position) div RecordBytes;
+
+         // Allocate arrays for plotting
+         Xarray := Allocmem(Sizeof(Xarray^[1])*NumberofRecords);
+         for i := 0 to High(Channels) do Yarray[i] := Allocmem(Sizeof(Xarray^[1])*NumberofRecords);
+
+         iCount := 0;  // Loop count
          WHILE Not(MonitorStream.Position >= MonitorStream.Size) DO
          Begin
             With MonitorStream Do
@@ -2420,6 +2425,8 @@ begin
             End;
             If Nread < RecordBytes then
                Break;
+
+            Inc(iCount);
 
             If FirstRecord Then
             Begin
@@ -2432,28 +2439,32 @@ begin
                time := hr + S / 3600.0 // in hrs
             Else
                time := hr * 3600.0 + S; // in sec
-            ActiveColorIdx := 0;
+
+            Xarray^[iCount] := Time;
+
             FOR i := 0 to high(Channels) DO
             Begin
-               If Channels[i] <= RecordSize Then
-               // check for legal channel number
-                  If FirstRecord Then
+               iChannel := Channels[i];
+               If iChannel <= RecordSize Then  // check for legal channel number
                   Begin
-                     Time1 := time;
-                  End
-                  Else
-                  Begin
-                     AddNewLine(Time1, HoldArray[i], time,
-                        sngBuffer[Channels[i]] / Bases[i], NextColor, 2,
-                        psSolid, FALSE, '', FALSE, 0, 0, 0);
+                     Yarray[i]^[iCount] := sngBuffer[iChannel]/Bases[i];
                   End;
-               HoldArray[i] := sngBuffer[Channels[i]] / Bases[i];
             End;
-            Time1 := time;
             FirstRecord := FALSE;
          End;
 
          CloseMonitorStream;
+
+     // Add the curves to the plot
+        ActiveColorIdx := 0;
+        FOR i := 0 to high(Channels) DO
+            Begin
+
+              AddNewCurve(Xarray, Yarray[i], iCount,
+                 NextColor, 2, psSolid, FALSE, 1, ChannelNames[Channels[i]]);
+
+            End;
+
          if ItsAFreqScan then
             Str := 'Frequency, Hz'
          Else If Hours Then
@@ -2470,11 +2481,15 @@ begin
             If Channels[i] <= RecordSize Then
                Str := Str + Format(', %s', [ChannelNames[Channels[i] + 1]]);
          Set_ChartCaption(Str);
+
       End; { With }
 
       Set_Autorange(2.0); // 2% rim
 //***      ShowGraph;
 
+  // de-Allocate arrays used for plotting
+      Freemem(Xarray,Sizeof(Xarray^[1])*NumberofRecords);
+      for i := 0 to High(Channels) do Freemem(Yarray[i], Sizeof(Xarray^[1])*NumberofRecords);
    End
    Else
       DoSimpleMsg('Monitor "' + ObjectName + '" not found.', 200);
