@@ -88,6 +88,7 @@ type
     function Get_LoadShapes: ILoadShapes; safecall;
     function Get_Fuses: Fuses; safecall;
     function Get_Isources: IISources; safecall;
+    function Get_NodeVarray: OleVariant; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -1099,6 +1100,31 @@ end;
 function TCircuit.Get_Isources: IISources;
 begin
     Result := FIsources as IISources;
+end;
+
+function TCircuit.Get_NodeVarray: OleVariant;
+// return actual NodeV array
+VAR
+   i,k:Integer;
+   Volts:Complex;
+
+Begin
+    IF ActiveCircuit <> Nil THEN
+     WITH ActiveCircuit DO
+     Begin
+       Result := VarArrayCreate([0, 2*NumNodes-1], varDouble);
+       k:=0;
+       FOR i := 1 to NumNodes DO
+       Begin
+             Volts := ActiveCircuit.Solution.NodeV^[i];
+             Result[k] := Volts.re;
+             Inc(k);
+             Result[k] := Volts.im;
+             Inc(k);
+       End;
+     End
+    ELSE Result := VarArrayCreate([0, 0], varDouble);
+
 end;
 
 initialization

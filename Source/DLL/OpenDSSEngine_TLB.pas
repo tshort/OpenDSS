@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 4/29/2015 10:41:06 PM from Type Library described below.
+// File generated on 5/30/2015 4:43:22 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -24,6 +24,8 @@ unit OpenDSSengine_TLB;
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
 // SYS_KIND: SYS_WIN32
+// Errors:
+//   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
 {$TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers.
 {$WARN SYMBOL_PLATFORM OFF}
@@ -664,6 +666,7 @@ type
     function Get_LoadShapes: ILoadShapes; safecall;
     function Get_Fuses: Fuses; safecall;
     function Get_Isources: IISources; safecall;
+    function Get_NodeVarray: OleVariant; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -716,6 +719,7 @@ type
     property LoadShapes: ILoadShapes read Get_LoadShapes;
     property Fuses: Fuses read Get_Fuses;
     property Isources: IISources read Get_Isources;
+    property NodeVarray: OleVariant read Get_NodeVarray;
   end;
 
 // *********************************************************************//
@@ -793,6 +797,7 @@ type
     property LoadShapes: ILoadShapes readonly dispid 228;
     property Fuses: Fuses readonly dispid 229;
     property Isources: IISources readonly dispid 230;
+    property NodeVarray: OleVariant readonly dispid 231;
   end;
 
 // *********************************************************************//
