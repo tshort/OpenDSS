@@ -653,6 +653,8 @@ Begin
       FLPFTau                    := OtherInvControl.FLPFTau;
       FRiseFallLimit             := OtherInvControl.FRiseFallLimit;
       FVregTau                   := OtherInvControl.FVregTau;
+
+      TimeDelay                  := OtherInvControl.TimeDelay;
       For j := 1 to ParentClass.NumProperties Do PropertyValue[j] := OtherInvControl.PropertyValue[j];
 
    End

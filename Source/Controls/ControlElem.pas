@@ -57,8 +57,9 @@ Begin
     Inherited Create(ParClass);
     DSSObjType := CTRL_ELEMENT;
     DblTraceParameter := 0.0;
-    MonitorVariable := '';
-    MonitorVarIndex := 0;
+    TimeDelay         := 0.0;
+    MonitorVariable   := '';
+    MonitorVarIndex   := 0;
     FControlledElement := Nil;
     ShowEventLog       := TRUE;
 End;
