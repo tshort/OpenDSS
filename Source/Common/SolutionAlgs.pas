@@ -35,6 +35,7 @@ interface
   PROCEDURE ComputeYsc(iB:integer);
   PROCEDURE ComputeAllYsc;
   Procedure IntegratePCStates;
+  PROCEDURE EndOfTimeStepCleanup;
 
 implementation
 
