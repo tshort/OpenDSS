@@ -91,11 +91,13 @@ type
     function Get_MostIterationsDone: Integer; safecall;
     function Get_ControlActionsDone: WordBool; safecall;
     procedure Set_ControlActionsDone(Value: WordBool); safecall;
+    procedure Cleanup; safecall;
+    procedure FinishTimeStep; safecall;
   end;
 
 implementation
 
-uses ComServ, DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants;
+uses ComServ, DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants, SolutionAlgs;
 
 function TSolution.Get_Frequency: Double;
 begin
@@ -633,6 +635,27 @@ end;
 procedure TSolution.Set_ControlActionsDone(Value: WordBool);
 begin
      If ActiveCircuit <> Nil Then ActiveCircuit.Solution.ControlActionsDone := Value;
+end;
+
+procedure TSolution.Cleanup;
+begin
+    If ActiveCircuit <> Nil Then
+    WITH ActiveCircuit, ActiveCircuit.Solution Do
+      Begin
+                EndOfTimeStepCleanup;
+    End;
+end;
+
+procedure TSolution.FinishTimeStep;
+begin
+    If ActiveCircuit <> Nil Then
+    WITH ActiveCircuit, ActiveCircuit.Solution Do
+      Begin
+                MonitorClass.SampleAll;  // Make all monitors take a sample
+                EndOfTimeStepCleanup;
+                Increment_time;
+ //               DefaultHourMult := DefaultDailyShapeObj.getmult(TDynamicsrec.dblHour);
+    End;
 end;
 
 initialization

@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 6/10/2015 6:09:49 PM (- $Rev: 12980 $, 160472066).
+// File generated on 6/26/2015 2:17:08 PM (- $Rev: 12980 $, 4916340).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -918,6 +918,10 @@ library OpenDSSengine
     HRESULT _stdcall ControlActionsDone([out, retval] VARIANT_BOOL* Value);
     [propput, id(0x000000DE)]
     HRESULT _stdcall ControlActionsDone([in] VARIANT_BOOL Value);
+    [id(0x000000DF), helpstring("Call Cleanup, sample monitors, and increment time at end of time step.")]
+    HRESULT _stdcall FinishTimeStep(void);
+    [id(0x000000E0), helpstring("Update storage, invcontrol, etc at end of time step")]
+    HRESULT _stdcall Cleanup(void);
   };
 
   [

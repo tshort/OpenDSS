@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 101;
+     NumExecCommands = 103;
 
 Var
 
@@ -28,7 +28,7 @@ PROCEDURE ProcessCommand(Const CmdLine:String);
 implementation
 
 Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions,  PlotOptions,
-     ExportOptions, ParserDel, LoadShape, DSSForms, sysutils, Utilities;
+     ExportOptions, ParserDel, LoadShape, DSSForms, sysutils, Utilities, SolutionAlgs;
 
 
 PROCEDURE DefineCommands;
@@ -137,6 +137,8 @@ Begin
      ExecCommand[99] := 'ClearBusMarkers';
      ExecCommand[100] := 'RelCalc';
      ExecCommand[101] := 'var';
+     ExecCommand[102] := 'Cleanup';
+     ExecCommand[103] := 'FinishTimeStep';
 
 
 
@@ -449,6 +451,9 @@ Begin
                           'var            (displays all variabiles and values)'+ CRLF+CRLF+
                           'Example of using a variable:'+ CRLF+CRLF+
                           'FileEdit @LastFile';
+     CommandHelp[102] := 'Force execution of the end-of-time-step cleanup functions that samples/saves meters and updates selected state variables such as storage level';
+     CommandHelp[103] := 'Do Cleanup, sample monitors, and increment time.';
+
 End;
 
 //----------------------------------------------------------------------------
@@ -667,6 +672,8 @@ Begin
        98: ActiveCircuit.ReprocessBusDefs;
        99: Activecircuit.ClearBusMarkers;
       100: CmdResult := DoLambdaCalcs;   // Option: Assume Restoration
+      102: EndofTimeStepCleanup;
+      103: FinishTimeStep;
      ELSE
        // Ignore excess parameters
      End;

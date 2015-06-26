@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 6/10/2015 6:08:31 PM from Type Library described below.
+// File generated on 6/26/2015 2:17:01 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -1089,6 +1089,8 @@ type
     function Get_MostIterationsDone: Integer; safecall;
     function Get_ControlActionsDone: WordBool; safecall;
     procedure Set_ControlActionsDone(Value: WordBool); safecall;
+    procedure FinishTimeStep; safecall;
+    procedure Cleanup; safecall;
     property Mode: Integer read Get_Mode write Set_Mode;
     property Frequency: Double read Get_Frequency write Set_Frequency;
     property Hour: Integer read Get_Hour write Set_Hour;
@@ -1183,6 +1185,8 @@ type
     property Totaliterations: Integer readonly dispid 220;
     property MostIterationsDone: Integer readonly dispid 221;
     property ControlActionsDone: WordBool dispid 222;
+    procedure FinishTimeStep; dispid 223;
+    procedure Cleanup; dispid 224;
   end;
 
 // *********************************************************************//

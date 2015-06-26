@@ -36,6 +36,7 @@ interface
   PROCEDURE ComputeAllYsc;
   Procedure IntegratePCStates;
   PROCEDURE EndOfTimeStepCleanup;
+  PROCEDURE FinishTimeStep ;
 
 implementation
 
@@ -43,6 +44,21 @@ Uses ArrayDef, DSSGlobals, DSSForms,  Utilities, SysUtils, MathUtil, Math, Fault
      PCElement, Spectrum, Vsource, Isource;
 
 VAR ProgressCount:Integer;
+
+
+//= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+PROCEDURE FinishTimeStep;
+{
+   Cample Cleanup and increment time
+
+   For custom solutions.
+
+}
+Begin
+    MonitorClass.SampleAll;
+    EndOfTimeStepCleanup;
+    ActiveCircuit.Solution.Increment_time;
+End;
 
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -266,11 +282,9 @@ Begin
                 DefaultHourMult := DefaultDailyShapeObj.getmult(dblHour);
 
                 SolveSnap;
-                MonitorClass.SampleAll;  // Make all monitors take a sample
 
-                EndOfTimeStepCleanup;
-
-                Increment_time;
+                FinishTimeStep;
+  
           End;
     End;
 End;
