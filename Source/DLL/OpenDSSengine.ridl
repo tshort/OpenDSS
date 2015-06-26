@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 5/30/2015 4:43:35 PM (- $Rev: 12980 $, 7573193).
+// File generated on 6/10/2015 6:09:49 PM (- $Rev: 12980 $, 160472066).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -604,6 +604,8 @@ library OpenDSSengine
     HRESULT _stdcall Isources([out, retval] IISources** Value);
     [propget, id(0x000000E7), helpstring("Complex array of actual node voltages in same order as SystemY matrix.")]
     HRESULT _stdcall NodeVarray([out, retval] VARIANT* Value);
+    [id(0x000000E8), helpstring("Calls EndOfTimeStepCleanup in SolutionAlgs")]
+    HRESULT _stdcall EndOfTimeStepUpdate(void);
   };
 
   [

@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 5/30/2015 4:43:22 PM from Type Library described below.
+// File generated on 6/10/2015 6:08:31 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -667,6 +667,7 @@ type
     function Get_Fuses: Fuses; safecall;
     function Get_Isources: IISources; safecall;
     function Get_NodeVarray: OleVariant; safecall;
+    procedure EndOfTimeStepUpdate; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -798,6 +799,7 @@ type
     property Fuses: Fuses readonly dispid 229;
     property Isources: IISources readonly dispid 230;
     property NodeVarray: OleVariant readonly dispid 231;
+    procedure EndOfTimeStepUpdate; dispid 232;
   end;
 
 // *********************************************************************//

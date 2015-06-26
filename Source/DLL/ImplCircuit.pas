@@ -89,6 +89,7 @@ type
     function Get_Fuses: Fuses; safecall;
     function Get_Isources: IISources; safecall;
     function Get_NodeVarray: OleVariant; safecall;
+    procedure EndOfTimeStepUpdate; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -116,7 +117,8 @@ uses ComServ,
      YMatrix,
      Variants,
      arrayDef,
-     Utilities;
+     Utilities,
+     SolutionAlgs;
 
 function TCircuit.Get_Buses(Index: OleVariant): IBus;
 
@@ -1125,6 +1127,11 @@ Begin
      End
     ELSE Result := VarArrayCreate([0, 0], varDouble);
 
+end;
+
+procedure TCircuit.EndOfTimeStepUpdate;
+begin
+      EndOfTimeStepCleanup;
 end;
 
 initialization
