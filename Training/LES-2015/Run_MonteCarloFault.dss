@@ -1,0 +1,70 @@
+! This script runs a monte carlo fault study on the 123-bus test feeder and capture the L-L voltage observed for 
+
+// set 123-bus folder as the home folder
+CD  "C:\Users\prdu001\OpenDSS\Distrib\IEEETestCases\123Bus"
+
+
+Compile (IEEE123Master.dss)
+
+! add an energy meter at the first line
+New EnergyMeter.Feeder Line.L115 1
+
+! Solve executes the solution for the present solution mode, which is "snapshot".
+
+solve
+Buscoords Buscoords.dat   ! load in bus coordinates
+
+/* 
+plot circuit Power  max=1000 dots=n labels=n C1=$00FF0000    ! Max Thickness is at 1000 kW
+*/
+
+// prepare for Monte Carlo Fault calcs
+
+! Define a SLG fault at every node
+Redirect FaultAtEveryNode.DSS
+
+// make bus 67 the test bus
+// define different kinds of transformers there
+// inverters assumed connected to 208-V side
+
+New Transformer.DY phases=3 windings=2 Buses=[67  67DY] conns=[Delta wye]  kVs=[4160 208] kVAs=[500 500]
+New Transformer.YY phases=3 windings=2 Buses=[67  67YY] conns=[wye wye]  kVs=[4160 208] kVAs=[500 500]
+New Transformer.DD phases=3 windings=2 Buses=[67  67DD] conns=[Delta Delta]  kVs=[4160 208] kVAs=[500 500]
+
+
+// now add D-Y metering transformer for monitors.
+// L-N voltages on Y side represent L-L voltages on primary
+New Transformer.DYBus phases=3 windings=2 Buses=[67DY  DYBus] conns=[Delta wye]  kVs=[208 208] kVAs=[500 500]
+New Transformer.YYBus phases=3 windings=2 Buses=[67YY  YYBus] conns=[Delta wye]  kVs=[208 208] kVAs=[500 500]
+New Transformer.DDBus phases=3 windings=2 Buses=[67DD  DDBus] conns=[Delta wye]  kVs=[208 208] kVAs=[500 500]
+
+// Monitors
+New Monitor.DY Transformer.DYBus 2
+New Monitor.YY Transformer.YYBus 2
+New Monitor.DD Transformer.DDBus 2
+
+Solve mode=MF Number=1000
+
+/*
+Show Mon DY
+Show Mon YY
+Show Mon DD
+*/
+
+// We'll do YD separately because that changes the ground fault
+/*
+New Transformer.YD phases=3 windings=2 Buses=[67  67YD] conns=[wye Delta ]  kVs=[4160 208] kVAs=[500 500]
+New Transformer.YDBus phases=3 windings=2 Buses=[67YD  YDBus] conns=[Delta wye]  kVs=[208 208] kVAs=[500 500]
+New Monitor.YD Transformer.YDBus 2
+
+Solve mode=MF Number=1000
+
+Show Mon YD
+*/
+
+
+
+
+
+
+
