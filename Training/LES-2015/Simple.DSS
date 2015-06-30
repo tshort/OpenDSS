@@ -1,0 +1,66 @@
+Clear
+set defaultbasefreq=60
+
+New Circuit.Simple     ! Creates voltage source  (Vsource.Source)
+solve
+
+
+! comment
+// comment
+
+set basefreq=60
+
+Edit Vsource.Source BasekV=115 pu=1.05  ISC3=3000  ISC1=2500  R1=0.5 X1=3  !Define source V and Z
+/*  Other Equivalent Ways to define the Source impedance for this Source
+
+~ R1=5.3677403  X1=21.470961  R0=11.216231  X0=33.648693 
+~ Z1=[5.3677403, 21.470961] Z0=[11.216231, 33.648693] Z2=[5.3677403, 21.470961]
+~ baseMVA=100 puZ1=[0.040587828, 0.162351312] puZ0=[0.08481082 0.254432461]  ! Z2 = Z1
+~ MVAsc3=597.56  MVAsc1=497.96
+
+*/
+
+
+
+
+
+Var @MV1=12.47
+
+
+New Transformer.TR1 Buses=[SourceBus.1.2.3, Sub_Bus.1.2.3.0] Conns=[Delta Wye] kVs=[115 @MV1]
+~ kVAs=[20000 20000] XHL=10 %Rs=[0.5,0.5] 
+
+set voltagebases=[115 @MV1]
+calcvoltagebases
+
+Solve
+
+
+
+
+
+
+New Linecode.336ACSR R1=0.058 X1=.1206 R0=.1784 X0=.4047 C1=3.4 C0=1.6 Units=kft
+
+
+New Line.LINE1 Bus1=Sub_Bus Bus2=LoadBus Linecode=336ACSR Length=1 Units=Mi 
+
+
+
+New Load.LOAD1 Bus1=LoadBus kV=@MV1 kW=1000 PF=.95
+
+set voltagebases=[115 @MV1]
+calcvoltagebases
+
+Solve
+
+
+Show Voltages LN Nodes
+Show Currents
+Show Powers kVA elements
+Show Voltage LN Elements
+
+var
+
+
+Fileedit @lastshowfile
