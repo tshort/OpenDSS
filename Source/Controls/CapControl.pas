@@ -746,7 +746,10 @@ begin
             CTRL_OPEN: CASE ControlledCapacitor.NumSteps of
                     1: Begin
                         IF PresentState=CTRL_CLOSE Then Begin
-                          ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
+
+                          ControlledElement.Closed[0] := FALSE;  // Open all phases of active terminal
+                          ControlledCapacitor.SubtractStep;
+
                           If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Opened**');
                           PresentState := CTRL_OPEN;
                           With ActiveCircuit.Solution Do LastOpenTime := DynaVars.t + 3600.0*DynaVars.intHour;
