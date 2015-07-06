@@ -110,6 +110,7 @@ TYPE
 
 VAR
     ActiveUPFCObj:TUPFCObj;
+    UPFC_class:TUPFC;
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 implementation
@@ -134,6 +135,7 @@ Begin
 
      CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
      CommandList.Abbrev := TRUE;
+     UPFC_class := Self;
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

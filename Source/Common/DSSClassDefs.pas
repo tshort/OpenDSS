@@ -116,7 +116,8 @@ USES
      GICLine,
      GICTransformer,
      VSConverter,
-     ExpControl
+     ExpControl,
+     UPFC
 ;
 
 
@@ -188,6 +189,7 @@ Begin
      DSSClasses.New := TSwtControl.Create;
      PVSystemClass  := TPVSystem.Create;
      DSSClasses.New := PVSystemClass;
+     DSSClasses.New := TUPFC.Create;
 
 // Deleted ---     VVControlClass := TVVControl.Create;
 // Deleted ---        DSSClasses.New := VVControlClass;
