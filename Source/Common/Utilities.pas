@@ -362,7 +362,11 @@ Begin
              Result := DAILYMODE;
            End;
       'f': Result := FAULTSTUDY;
-      'h': Result := HARMONICMODE;
+      'h': CASE SLC[9] of                   //Modification added by Davis Montenegro 25/06/2014
+           't':Result := HARMONICMODET;     // For adding the harmoncis mode in time domain
+           ELSE
+           Result := HARMONICMODE;
+           END;
       'y': Result := YEARLYMODE;
       'm': CASE SLC[2] of
             '1': Result := MONTECARLO1;
@@ -1031,6 +1035,7 @@ Begin
       FAULTSTUDY:   Result := 'Faultstudy';
       AUTOADDFLAG:  Result := 'Autoadd';
       HARMONICMODE: Result := 'Harmonic';
+      HARMONICMODET:Result :='HarmonicT';
       GENERALTIME:  Result := 'Time';
     ELSE
                     Result := 'UNKNOWN'
