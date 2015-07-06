@@ -200,7 +200,8 @@ uses
   ImplLoadShapes in 'ImplLoadShapes.pas' {LoadShapes: CoClass},
   ImplFuses in 'ImplFuses.pas' {Fuses: CoClass},
   ImplIsources in 'ImplIsources.pas' {ISource: CoClass},
-  ExpControl in '..\Controls\ExpControl.pas';
+  ExpControl in '..\Controls\ExpControl.pas',
+  UPFC in '..\PCElements\UPFC.pas';
 
 exports
   DllGetClassObject,

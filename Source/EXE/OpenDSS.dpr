@@ -174,7 +174,8 @@ uses
   CapControlVars in '..\Controls\CapControlVars.pas',
   InvControl in '..\Controls\InvControl.pas',
   GICTransformer in '..\PDElements\GICTransformer.pas',
-  ExpControl in '..\Controls\ExpControl.pas';
+  ExpControl in '..\Controls\ExpControl.pas',
+  UPFC in '..\PCElements\UPFC.pas';
 
 {$R *.RES}
 
