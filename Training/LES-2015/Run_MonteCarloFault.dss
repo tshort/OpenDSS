@@ -1,10 +1,6 @@
 ! This script runs a monte carlo fault study on the 123-bus test feeder and capture the L-L voltage observed for 
 
-// set 123-bus folder as the home folder
-CD  "C:\Users\prdu001\OpenDSS\Distrib\IEEETestCases\123Bus"
-
-
-Compile (IEEE123Master.dss)
+Redirect (C:\Users\prdu001\OpenDSS\Distrib\IEEETestCases\123Bus\IEEE123Master.dss)
 
 ! add an energy meter at the first line
 New EnergyMeter.Feeder Line.L115 1
