@@ -463,6 +463,7 @@ Try
          AUTOADDFLAG:  ActiveCircuit.AutoAddObj.Solve;
          HARMONICMODE: SolveHarmonic;
          GENERALTIME:  SolveGeneralTime;
+         HARMONICMODET:SolveHarmonicT;  //Declares the Hsequential-time harmonics
 
      Else
          DosimpleMsg('Unknown solution mode.', 481);
@@ -588,7 +589,7 @@ Begin
          MONTEFAULT:   GeneratorDispatchReference := 1.0;  // Monte Carlo Fault Cases solve  at peak load only base case
          FAULTSTUDY:   GeneratorDispatchReference := 1.0;
          AUTOADDFLAG:  GeneratorDispatchReference := DefaultGrowthFactor;   // peak load only
-
+         HARMONICMODET: GeneratorDispatchReference := LoadMultiplier * DefaultGrowthFactor * DefaultHourMult.re;
      Else
          DosimpleMsg('Unknown solution mode.', 483);
      End;
@@ -1420,6 +1421,15 @@ begin
                           LoadModel       := ADMITTANCE;
                           PreserveNodeVoltages := TRUE;  // need to do this in case Y changes during this mode
                       End;
+       HARMONICMODET: Begin
+                          IntervalHrs   := 1.0;
+                          DynaVars.h    := 3600.0;
+                          NumberOfTimes := 1;
+                          ControlMode     := CONTROLSOFF;
+                          IsHarmonicModel := TRUE;
+                          LoadModel       := ADMITTANCE;
+                          PreserveNodeVoltages := TRUE;  // need to do this in case Y changes during this mode
+       End;
    End;
 
    {Moved here 9-8-2007 so that mode is changed before reseting monitors, etc.}
@@ -1537,13 +1547,13 @@ begin
 
    Result := TRUE;
 
-   If IsHarmonicModel and NOT (Value=HARMONICMODE)
+   If IsHarmonicModel and NOT ((Value=HARMONICMODE)or(Value=HARMONICMODET))
    THEN Begin
        InvalidateAllPCELEMENTS;  // Force Recomp of YPrims when we leave Harmonics mode
        Frequency := ActiveCircuit.Fundamental;   // Resets everything to norm
    End;
 
-   IF NOT IsHarmonicModel and (Value=HARMONICMODE)
+   IF NOT IsHarmonicModel and ((Value=HARMONICMODE)or(Value=HARMONICMODET))
    THEN Begin   // see if conditions right for going into Harmonics
 
        IF (ActiveCircuit.IsSolved) and (Frequency = ActiveCircuit.Fundamental)

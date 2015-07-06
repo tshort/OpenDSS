@@ -30,6 +30,8 @@ interface
  FUNCTION SolveLD1:Integer;      // solve Load-Duration Curve, 1
  FUNCTION SolveLD2:Integer;      // solve Load-Duration Curve, 2
  FUNCTION SolveHarmonic:Integer;
+ FUNCTION SolveHarmonicT:Integer;  // Sequential-Time Harmonics, Added 07-06-2015
+ FUNCTION SolveHarmTime:Integer;  // solve harmonics vs time (like general time mode) created by Davis Montenegro 25/06/2014
  FUNCTION SolveGeneralTime:Integer;
 
   PROCEDURE ComputeYsc(iB:integer);
@@ -1047,6 +1049,76 @@ Begin
    End;
 
 End;
+//========================================================================================
+FUNCTION SolveHarmTime:Integer;     // It is based in SolveGeneralTime routine
 
+Begin
+   Result := 0;
 
+   WITH ActiveCircuit, ActiveCircuit.Solution Do
+   Begin
+        IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage devices
+          IF Not SolutionAbort Then With DynaVars Do
+          Begin
+              {Compute basic multiplier from Default loadshape to use in generator dispatch, if any}
+                DefaultHourMult := DefaultDailyShapeObj.getmult(dblHour);
+
+                SolveSnap;
+          //      Increment_time;  // This function is handeled from SolveHarmonics (04-10-2013)
+          End;
+    End;
+End;
+//=============================================================================
+FUNCTION SolveHarmonicT:Integer;
+Var
+    FrequencyList :pDoubleArray;
+   i, NFreq:Integer;
+
+Begin
+   Result := 0;
+
+   FrequencyList := NIL;   // Set up for Reallocmem
+
+   With ActiveCircuit, ActiveCircuit.solution Do
+   Begin
+     IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage devices
+     Try
+        IF Frequency <> Fundamental Then Begin     // Last solution was something other than fundamental
+           Frequency := Fundamental;
+           IF Not RetrieveSavedVoltages THEN Exit;  {Get Saved fundamental frequency solution}
+       End;
+//     DefaultHourMult := DefaultDailyShapeObj.getmult(DynaVars.dblHour);
+//     IF Load_Changed THEN Begin    //Added to update the current sources of all frequencies any time
+            InitializeForHarmonics;  //the value of a load changes in a proportional way
+//            Load_Changed:=FALSE;     // Added 05 dec 2013 - D. Montenegro
+//     End;
+       SolveSnap;
+       MonitorClass.SampleAll;   // Store the fundamental frequency in the monitors
+       { Get the list of Harmonic Frequencies to solve at}
+       IF DoAllHarmonics THEN CollectAllFrequencies(FrequencyList, NFreq)   // Allocates FrequencyList
+       ELSE Begin
+                Reallocmem(FrequencyList, Sizeof(FrequencyList^[1])*HarmonicListSize);
+                NFreq := HarmonicListSize;
+                For i := 1 to NFreq Do FrequencyList^[i] := Fundamental * HarmonicList^[i];
+            End;
+
+       FOR i := 1 to NFreq Do Begin
+
+           Frequency := FrequencyList^[i];
+           If Abs(Harmonic - 1.0) > EPSILON THEN Begin    // Skip fundamental
+//               DefaultHourMult := DefaultDailyShapeObj.getmult(DynaVars.dblHour);
+               SolveHarmTime;
+               MonitorClass.SampleAll;
+               EndOfTimeStepCleanup;
+              // Storage devices are assumed to stay the same since there is no time variation in this mode  (Not necessarelly now)
+           End;
+       End; {FOR}
+     Increment_time;
+     Finally
+       MonitorClass.SaveAll;
+       ReallocMem(FrequencyList, 0);
+     End;
+  End;
+
+End;
 end.
