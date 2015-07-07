@@ -52,7 +52,9 @@ Uses
        ImplIsources,
        DSSClass,
        DSSClassDefs,
+     	 ImplDSSimComs,//Declares the existance of the class
        OpenDSSengine_TLB;
+
 
 Var
 
@@ -93,11 +95,13 @@ Var
    FLoadShapes  :ILoadShapes;
    FFuses       :IFuses;
    FIsources    :IIsources;
+   FDSSim_Coms  :IDSSimComs; //Added 09-12-2013 DM
 
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
 
    FIntfInitialized :Boolean;
+
 
 Procedure InitializeInterfaces;
 
@@ -171,7 +175,7 @@ Begin
      FLoadShapes  := TLoadShapes.Create;
      FFuses       := TFuses.Create;
      FIsources    := TIsources.Create;
-
+     FDSSim_Coms  := TDSSimComs.Create;//Self create class
      FPropIndex := 0;
      FPropClass := Nil;
 

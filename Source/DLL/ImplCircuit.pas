@@ -90,9 +90,12 @@ type
     function Get_Isources: IISources; safecall;
     function Get_NodeVarray: OleVariant; safecall;
     procedure EndOfTimeStepUpdate; safecall;
+    function Get_DSSim_Coms: IDSSimComs; safecall; //Declares DSSim_Coms
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
+
+
   end;
 
 implementation
@@ -1092,6 +1095,11 @@ end;
 function TCircuit.Get_LoadShapes: ILoadShapes;
 begin
     Result := FLoadShapes as ILoadShapes;     // Loadshapes interface
+end;
+
+function TCircuit.Get_DSSim_Coms: IDSSimComs; //Points to the class
+begin
+    Result := FDSSim_Coms as IDSSimComs;
 end;
 
 function TCircuit.Get_Fuses: Fuses;

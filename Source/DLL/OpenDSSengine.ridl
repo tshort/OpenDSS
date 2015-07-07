@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 7/4/2015 8:23:42 AM (- $Rev: 12980 $, 563016406).
+// File generated on 07/07/2015 5:13:43 p. m. (- $Rev: 12980 $, 88559234).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -93,6 +93,8 @@ library OpenDSSengine
   coclass Fuses;
   interface IISources;
   coclass ISources;
+  interface IDSSimComs;
+  coclass DSSimComs;
 
 
   [
@@ -606,6 +608,8 @@ library OpenDSSengine
     HRESULT _stdcall NodeVarray([out, retval] VARIANT* Value);
     [id(0x000000E8), helpstring("Calls EndOfTimeStepCleanup in SolutionAlgs")]
     HRESULT _stdcall EndOfTimeStepUpdate(void);
+    [propget, id(0x000000E9)]
+    HRESULT _stdcall DSSim_Coms([out, retval] IDSSimComs** Value);
   };
 
   [
@@ -752,6 +756,8 @@ library OpenDSSengine
     HRESULT _stdcall CmathLib([out, retval] ICmathLib** Value);
     [propget, id(0x000000CF), helpstring("Returns interface to the OpenDSS Parser library for use by user-written programs.")]
     HRESULT _stdcall Parser([out, retval] IParser** Value);
+    [propget, id(0x000000D0)]
+    HRESULT _stdcall DSSim_Coms([out, retval] IDSSimComs** Value);
   };
 
   [
@@ -2588,6 +2594,20 @@ library OpenDSSengine
   };
 
   [
+    uuid(25C5373D-5888-4A0C-974B-77EBD57ED0D1),
+    helpstring("Used for communicating directly with DSSim and to extract some specific info"),
+    dual,
+    oleautomation
+  ]
+  interface IDSSimComs: IDispatch
+  {
+    [id(0x000000CA), helpstring("This method delivers the voltage pu of the specified bus, this specification must be with a number (index)")]
+    HRESULT _stdcall BusVoltagepu([in] unsigned int Index, [out, retval] VARIANT* Vpu);
+    [id(0x000000CB), helpstring("This method delivers the voltage (complex) of the specified bus, this specification must be with a number (index)")]
+    HRESULT _stdcall BusVoltage([in] unsigned int Index, [out, retval] VARIANT* Voltages);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -2951,6 +2971,15 @@ library OpenDSSengine
   coclass ISources
   {
     [default] interface IISources;
+  };
+
+  [
+    uuid(2104B607-8D58-4BBD-85B8-4E5F1C8BD6BE),
+    helpstring("DSSimComs Object")
+  ]
+  coclass DSSimComs
+  {
+    [default] interface IDSSimComs;
   };
 
 };

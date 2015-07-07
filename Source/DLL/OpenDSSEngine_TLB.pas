@@ -11,11 +11,11 @@ unit OpenDSSengine_TLB;
 // manual modifications will be lost.
 // ************************************************************************ //
 
-// $Rev: 45604 $
-// File generated on 6/26/2015 2:17:01 PM from Type Library described below.
+// $Rev: 52393 $
+// File generated on 07/07/2015 5:13:18 p. m. from Type Library described below.
 
 // ************************************************************************  //
-// Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
+// Type Lib: D:\OpenDSS\Source\DLL\OpenDSSengine (1)
 // LIBID: {8BFDE413-245A-4514-B151-B16DCC243796}
 // LCID: 0
 // Helpfile:
@@ -24,8 +24,6 @@ unit OpenDSSengine_TLB;
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
 // SYS_KIND: SYS_WIN32
-// Errors:
-//   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
 {$TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers.
 {$WARN SYMBOL_PLATFORM OFF}
@@ -125,6 +123,8 @@ const
   CLASS_Fuses: TGUID = '{ABED90F5-3908-408A-87EF-D0582FD2FFD5}';
   IID_IISources: TGUID = '{CB2C7310-1717-4C6E-A7B8-DA54CF1722CD}';
   CLASS_ISources: TGUID = '{CE35EBD2-BDD4-4B01-AE88-1D90DC82F619}';
+  IID_IDSSimComs: TGUID = '{25C5373D-5888-4A0C-974B-77EBD57ED0D1}';
+  CLASS_DSSimComs: TGUID = '{2104B607-8D58-4BBD-85B8-4E5F1C8BD6BE}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -319,6 +319,8 @@ type
   IFusesDisp = dispinterface;
   IISources = interface;
   IISourcesDisp = dispinterface;
+  IDSSimComs = interface;
+  IDSSimComsDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -360,6 +362,7 @@ type
   LoadShapes = ILoadShapes;
   Fuses = IFuses;
   ISources = IISources;
+  DSSimComs = IDSSimComs;
 
 
 // *********************************************************************//
@@ -668,6 +671,7 @@ type
     function Get_Isources: IISources; safecall;
     function Get_NodeVarray: OleVariant; safecall;
     procedure EndOfTimeStepUpdate; safecall;
+    function Get_DSSim_Coms: IDSSimComs; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -721,6 +725,7 @@ type
     property Fuses: Fuses read Get_Fuses;
     property Isources: IISources read Get_Isources;
     property NodeVarray: OleVariant read Get_NodeVarray;
+    property DSSim_Coms: IDSSimComs read Get_DSSim_Coms;
   end;
 
 // *********************************************************************//
@@ -800,6 +805,7 @@ type
     property Isources: IISources readonly dispid 230;
     property NodeVarray: OleVariant readonly dispid 231;
     procedure EndOfTimeStepUpdate; dispid 232;
+    property DSSim_Coms: IDSSimComs readonly dispid 233;
   end;
 
 // *********************************************************************//
@@ -950,6 +956,7 @@ type
     function Get_Events: IDSSEvents; safecall;
     function Get_CmathLib: ICmathLib; safecall;
     function Get_Parser: IParser; safecall;
+    function Get_DSSim_Coms: IDSSimComs; safecall;
     property NumCircuits: Integer read Get_NumCircuits;
     property Circuits[Idx: OleVariant]: ICircuit read Get_Circuits;
     property ActiveCircuit: ICircuit read Get_ActiveCircuit;
@@ -969,6 +976,7 @@ type
     property Events: IDSSEvents read Get_Events;
     property CmathLib: ICmathLib read Get_CmathLib;
     property Parser: IParser read Get_Parser;
+    property DSSim_Coms: IDSSimComs read Get_DSSim_Coms;
   end;
 
 // *********************************************************************//
@@ -1003,6 +1011,7 @@ type
     property Events: IDSSEvents readonly dispid 206;
     property CmathLib: ICmathLib readonly dispid 204;
     property Parser: IParser readonly dispid 207;
+    property DSSim_Coms: IDSSimComs readonly dispid 208;
   end;
 
 // *********************************************************************//
@@ -3239,6 +3248,28 @@ type
   end;
 
 // *********************************************************************//
+// Interface: IDSSimComs
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {25C5373D-5888-4A0C-974B-77EBD57ED0D1}
+// *********************************************************************//
+  IDSSimComs = interface(IDispatch)
+    ['{25C5373D-5888-4A0C-974B-77EBD57ED0D1}']
+    function BusVoltagepu(Index: SYSUINT): OleVariant; safecall;
+    function BusVoltage(Index: SYSUINT): OleVariant; safecall;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IDSSimComsDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {25C5373D-5888-4A0C-974B-77EBD57ED0D1}
+// *********************************************************************//
+  IDSSimComsDisp = dispinterface
+    ['{25C5373D-5888-4A0C-974B-77EBD57ED0D1}']
+    function BusVoltagepu(Index: SYSUINT): OleVariant; dispid 202;
+    function BusVoltage(Index: SYSUINT): OleVariant; dispid 203;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -3670,6 +3701,18 @@ type
     class function CreateRemote(const MachineName: string): IISources;
   end;
 
+// *********************************************************************//
+// The Class CoDSSimComs provides a Create and CreateRemote method to
+// create instances of the default interface IDSSimComs exposed by
+// the CoClass DSSimComs. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoDSSimComs = class
+    class function Create: IDSSimComs;
+    class function CreateRemote(const MachineName: string): IDSSimComs;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -4032,6 +4075,16 @@ end;
 class function CoISources.CreateRemote(const MachineName: string): IISources;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_ISources) as IISources;
+end;
+
+class function CoDSSimComs.Create: IDSSimComs;
+begin
+  Result := CreateComObject(CLASS_DSSimComs) as IDSSimComs;
+end;
+
+class function CoDSSimComs.CreateRemote(const MachineName: string): IDSSimComs;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_DSSimComs) as IDSSimComs;
 end;
 
 end.

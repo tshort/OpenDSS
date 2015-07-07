@@ -43,6 +43,7 @@ type
     function Get_Events: IDSSEvents; safecall;
     function Get_CmathLib: ICmathLib; safecall;
     function Get_Parser: IParser; safecall;
+    function Get_DSSim_Coms: IDSSimComs; safecall;
   end;
 
 implementation
@@ -270,6 +271,11 @@ end;
 function TDSS.Get_Events: IDSSEvents;
 begin
      Result := FEvents as IDSSEvents;
+end;
+
+function TDSS.Get_DSSim_Coms: IDSSimComs;
+begin
+     Result := FDSSim_Coms as IDSSimComs;
 end;
 
 function TDSS.Get_CmathLib: ICmathLib;
