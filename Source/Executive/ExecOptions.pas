@@ -160,6 +160,7 @@ Begin
                     CRLF+'  Time, ( see LoadShapeClass option)' +
                     CRLF+'  DYnamic,  ( see LoadShapeClass option)'+
                     CRLF+'  Harmonic,'+
+                    CRLF+'  HarmonicT,  (sequential Harmonic Mode)'+
                     CRLF+'  M1 (Monte Carlo 1),'+
                     CRLF+'  M2 (Monte Carlo 2),'+
                     CRLF+'  M3 (Monte Carlo 3),'+
