@@ -1313,7 +1313,7 @@ Begin
 
           EXCEPT
              On E: Exception DO  Begin
-             DoSimpleMsg('Error Sampling Control Device "'+ControlDevice.Name+'"'+CRLF+'Error = '+E.message, 484);
+             DoSimpleMsg(Format('Error Sampling Control Device "%s.%s" %s  Error = %s',[ControlDevice.ParentClass.Name, ControlDevice.Name, CRLF, E.message]), 484);
              Raise EControlProblem.Create('Solution aborted.');
              End;
           END;
