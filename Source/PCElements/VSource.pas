@@ -444,12 +444,12 @@ Begin
          end;
          // Set the Z spec type switch depending on which was specified.
          CASE ParamPointer OF
-             7, 8   :ZSpecType := 1;
-             11, 12 :ZSpecType := 2;
+             7, 8   :ZSpecType := 1;  // MVAsc
+             11, 12 :ZSpecType := 2;  // Isc
 
-             13 .. 16 : ZSpecType := 3;
+             13 .. 16 : ZSpecType := 3; // Specified in Ohms
              19: Bus2Defined := TRUE;
-             20, 23: Zspectype := 3;
+             20..25: Zspectype := 3;
          END;
 
          CASE ParamPointer OF
@@ -705,7 +705,7 @@ Begin
 
         3:Begin  // Z1, Z2, Z0    Specified
 
-            // Compute Z1, Z2, Z0 in ohms if specified in pu
+            // Compute Z1, Z2, Z0 in ohms if Z1 is specified in pu
             If puZ1Specified Then  Begin
                 R1 := puZ1.re * Zbase;
                 X1 := puZ1.im * Zbase;
@@ -797,6 +797,16 @@ Begin
 
          End;
 
+    End;
+
+  // if not specified, compute a value for for puZ1 for display in formedit
+    If not (puZ1Specified or puZ0Specified or puZ2Specified) and (Zbase>0.0) Then  Begin
+        puZ1.re :=  R1 / Zbase;
+        puZ1.im :=  X1 / Zbase;
+        puZ2.re :=  R2 / Zbase;
+        puZ2.im :=  X2 / Zbase;
+        puZ0.re :=  R0 / Zbase;
+        puZ0.im :=  X0 / Zbase;
     End;
 
    CASE Fnphases OF
@@ -1149,8 +1159,8 @@ begin
           21 : Result := Format('[%-.8g, %-.8g]',[ R0 , X0 ]);
           22 : Result := Format('[%-.8g, %-.8g]',[ R2 , X2 ]);
           23 : Result := Format('[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
-          24 : Result := Format('[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
-          25 : Result := Format('[%-.8g, %-.8g]',[ puZ1.re , puZ1.im ]);
+          24 : Result := Format('[%-.8g, %-.8g]',[ puZ0.re , puZ0.im ]);
+          25 : Result := Format('[%-.8g, %-.8g]',[ puZ2.re , puZ2.im ]);
           26 : Result := Format('%-.5g',[BaseMVA]);
         Else
           Result := Inherited GetPropertyValue(Index);
