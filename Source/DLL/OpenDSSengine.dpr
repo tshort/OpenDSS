@@ -68,7 +68,7 @@ uses
   Frm_RPNcalc in '..\Parser\Frm_RPNcalc.pas' {RPNForm},
   FrmDoDSSCommand in '..\Forms\FrmDoDSSCommand.pas' {DoDSSCommandForm},
   fuse in '..\PDElements\fuse.pas',
-  GenDispatcher in '..\Controls\GenDispatcher.pas',
+  UPFCControl in '..\Controls\UPFCControl.pas',
   generator in '..\PCElements\generator.pas',
   GenUserModel in '..\PCElements\GenUserModel.pas',
   GrowthShape in '..\General\GrowthShape.pas',
@@ -202,7 +202,8 @@ uses
   ImplIsources in 'ImplIsources.pas' {ISource: CoClass},
   ExpControl in '..\Controls\ExpControl.pas',
   UPFC in '..\PCElements\UPFC.pas',
-  ImplDSSimComs in 'ImplDSSimComs.pas';
+  ImplDSSimComs in 'ImplDSSimComs.pas',
+  GenDispatcher in '..\Controls\GenDispatcher.pas';
 
 exports
   DllGetClassObject,
