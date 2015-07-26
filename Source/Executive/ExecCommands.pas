@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 103;
+     NumExecCommands = 104;
 
 Var
 
@@ -139,6 +139,7 @@ Begin
      ExecCommand[101] := 'var';
      ExecCommand[102] := 'Cleanup';
      ExecCommand[103] := 'FinishTimeStep';
+     ExecCommand[104] := 'NodeList';
 
 
 
@@ -453,6 +454,10 @@ Begin
                           'FileEdit @LastFile';
      CommandHelp[102] := 'Force execution of the end-of-time-step cleanup functions that samples/saves meters and updates selected state variables such as storage level';
      CommandHelp[103] := 'Do Cleanup, sample monitors, and increment time.';
+     CommandHelp[104] := '[Circuit element name] (Optional) Returns a list of node numbers for all conductors of all terminals of the active circuit element in the Result window or interface.'+
+                         'If the optional circuit element name is supplied, the program makes it the active element. Usage:' +CRLF+CRLF+
+                         'NodeList' + CRLF +
+                         'NodeList Line.Myline';
 
 End;
 
@@ -674,6 +679,7 @@ Begin
       100: CmdResult := DoLambdaCalcs;   // Option: Assume Restoration
       102: EndofTimeStepCleanup;
       103: FinishTimeStep;
+      104: CmdResult := DoNodeListCmd;
      ELSE
        // Ignore excess parameters
      End;

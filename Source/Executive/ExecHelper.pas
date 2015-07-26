@@ -113,6 +113,7 @@ interface
          FUNCTION DoValVarCmd:Integer;
          FUNCTION DoLambdaCalcs:Integer;
          FUNCTION DoVarCmd:Integer;
+         FUNCTION DoNodeListCmd:Integer;
 
          PROCEDURE DoSetNormal(pctNormal:Double);
 
@@ -1742,6 +1743,47 @@ Begin
 
 
 end;
+
+FUNCTION DoNodeListCmd: Integer;
+VAR
+  NValues, i: Integer;
+  CktElementName, S : String;
+
+
+Begin
+
+  Result := 0;
+
+  S := Parser.NextParam;
+  CktElementName := Parser.StrValue ;
+
+  If Length(CktElementName) > 0  Then  SetObject(CktElementName);
+
+
+  If ActiveCircuit <> Nil Then
+  Begin
+    S := Parser.NextParam;
+    CktElementName := Parser.StrValue ;
+
+    If Length(CktElementName) > 0  Then  SetObject(CktElementName);
+
+    If Assigned(ActiveCircuit.ActiveCktElement) Then
+     WITH ActiveCircuit.ActiveCktElement DO
+     Begin
+         NValues := NConds*Nterms;
+         GlobalResult := '';
+         For i := 1 to  NValues DO
+         Begin
+            GlobalResult := GlobalResult + Format('%d, ',[GetNodeNum(NodeRef^[i]) ]);
+         End;
+     End
+  Else
+     GlobalResult := 'No Active Circuit.';
+  End;
+
+
+end;
+
 
 FUNCTION DolossesCmd: Integer;
 Var
