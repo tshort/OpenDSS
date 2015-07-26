@@ -2,7 +2,7 @@ unit ShowResults;
 
 {
   ----------------------------------------------------------
-  Copyright (c) 2008, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -183,7 +183,7 @@ Begin
               End;
            End;
 
-         Vmag := Cabs(Volts)*0.001;
+         Vmag   := Cabs(Volts)*0.001;
          VmagLL := Cabs(VoltsLL)*0.001;
          If kvbase <> 0.0
                 Then Begin Vpu := Vmag / kVBase; VpuLL := VmagLL / kVBase/SQRT3; End
@@ -333,48 +333,48 @@ Begin
    End; {ShowOptionCode Case 1}
 
    2: Begin
-     Writeln(F);
-     Writeln(F,'NODE-GROUND VOLTAGES BY CIRCUIT ELEMENT');
-     Writeln(F);
-     Writeln(F, 'Power Delivery Elements');
-     Writeln(F);
-     Writeln(F, pad('Bus', MaxBusNameLength), ' (node ref)  Phase    Magnitude, kV (pu)    Angle');
-     Writeln(F);
+       Writeln(F);
+       Writeln(F,'NODE-GROUND VOLTAGES BY CIRCUIT ELEMENT');
+       Writeln(F);
+       Writeln(F, 'Power Delivery Elements');
+       Writeln(F);
+       Writeln(F, pad('Bus', MaxBusNameLength), ' (node ref)  Phase    Magnitude, kV (pu)    Angle');
+       Writeln(F);
 
 
-     // SOURCES first
-     pElem := ActiveCircuit.sources.First;
+       // SOURCES first
+       pElem := ActiveCircuit.sources.First;
 
-     WHILE pElem<>nil DO Begin
-      IF pElem.Enabled THEN WriteElementVoltages(F, pElem, LL);
-      Writeln(F);
-      pElem := ActiveCircuit.sources.Next;
-     End;
-
-     // PDELEMENTS first
-     pElem := ActiveCircuit.PDElements.First;
-
-     WHILE pElem<>nil DO Begin
-      IF pElem.Enabled THEN WriteElementVoltages(F, pElem, LL);
-      Writeln(F);
-      pElem := ActiveCircuit.PDElements.Next;
-     End;
-
-     Writeln(F,'= = = = = = = = = = = = = = = = = = =  = = = = = = = = = = =  = =');
-     Writeln(F);
-     Writeln(F, 'Power Conversion Elements');
-     Writeln(F);
-     Writeln(F, pad('Bus', MaxBusNameLength), ' (node ref)  Phase    Magnitude, kV (pu)    Angle');
-     Writeln(F);
-
-     // PCELEMENTS next
-     pElem := ActiveCircuit.PCElements.First;
-
-     WHILE pElem<>nil DO Begin
-       IF pElem.Enabled THEN WriteElementVoltages(F, pElem, LL);
-        pElem := ActiveCircuit.PCElements.Next;
+       WHILE pElem<>nil DO Begin
+        IF pElem.Enabled THEN WriteElementVoltages(F, pElem, LL);
         Writeln(F);
-     End;
+        pElem := ActiveCircuit.sources.Next;
+       End;
+
+       // PDELEMENTS first
+       pElem := ActiveCircuit.PDElements.First;
+
+       WHILE pElem<>nil DO Begin
+        IF pElem.Enabled THEN WriteElementVoltages(F, pElem, LL);
+        Writeln(F);
+        pElem := ActiveCircuit.PDElements.Next;
+       End;
+
+       Writeln(F,'= = = = = = = = = = = = = = = = = = =  = = = = = = = = = = =  = =');
+       Writeln(F);
+       Writeln(F, 'Power Conversion Elements');
+       Writeln(F);
+       Writeln(F, pad('Bus', MaxBusNameLength), ' (node ref)  Phase    Magnitude, kV (pu)    Angle');
+       Writeln(F);
+
+       // PCELEMENTS next
+       pElem := ActiveCircuit.PCElements.First;
+
+       WHILE pElem<>nil DO Begin
+         IF pElem.Enabled THEN WriteElementVoltages(F, pElem, LL);
+          pElem := ActiveCircuit.PCElements.Next;
+          Writeln(F);
+       End;
 
    End; {ShowOptionCode Case 2}
    ELSE
@@ -1714,12 +1714,20 @@ Begin
   SetMaxDeviceNameLength;
 
   Try
-   Assignfile(F,FileNm);
-   ReWrite(F);
+   Try
+     Assignfile(F,FileNm);
+     ReWrite(F);
+   Except
+       On E:Exception Do DoSimpleMsg('Error Trying to open element file "' + FileNm + '" file:' + E.message, 219000);
+   End;
 
-   DisabledFileNm := StripExtension(FileNm)+'_Disabled.txt';
-   AssignFile(FDisabled, DisabledFilenm);
-   ReWrite(FDisabled);
+   Try
+       DisabledFileNm := StripExtension(FileNm)+'_Disabled.txt';
+       AssignFile(FDisabled, DisabledFilenm);
+       ReWrite(FDisabled);
+   Except
+       On E:Exception Do DoSimpleMsg('Error Trying to open disabled element file "' + DisabledFilenm + '" file:' + E.message, 219000);
+   End;
 
    IF Length(ClassName) > 0
    THEN  Begin  // Just give a list of Active elements of a particular Class
