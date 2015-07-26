@@ -81,7 +81,7 @@ uses
   FrmCSVchannelSelect in '..\Forms\FrmCSVchannelSelect.pas' {ChannelSelectForm},
   FrmDoDSSCommand in '..\Forms\FrmDoDSSCommand.pas' {DoDSSCommandForm},
   fuse in '..\PDElements\fuse.pas',
-  GenDispatcher in '..\Controls\GenDispatcher.pas',
+  UPFCControl in '..\Controls\UPFCControl.pas',
   generator in '..\PCElements\generator.pas',
   GenUserModel in '..\PCElements\GenUserModel.pas',
   GrowthShape in '..\General\GrowthShape.pas',
@@ -175,7 +175,8 @@ uses
   InvControl in '..\Controls\InvControl.pas',
   GICTransformer in '..\PDElements\GICTransformer.pas',
   ExpControl in '..\Controls\ExpControl.pas',
-  UPFC in '..\PCElements\UPFC.pas';
+  UPFC in '..\PCElements\UPFC.pas',
+  GenDispatcher in '..\Controls\GenDispatcher.pas';
 
 {$R *.RES}
 
