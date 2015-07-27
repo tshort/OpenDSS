@@ -1754,12 +1754,6 @@ Begin
 
   Result := 0;
 
-  S := Parser.NextParam;
-  CktElementName := Parser.StrValue ;
-
-  If Length(CktElementName) > 0  Then  SetObject(CktElementName);
-
-
   If ActiveCircuit <> Nil Then
   Begin
     S := Parser.NextParam;

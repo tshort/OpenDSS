@@ -44,6 +44,7 @@ Procedure ExportBusReliability(FileNm:String);
 Procedure ExportBranchReliability(FileNm:String);
 Procedure ExportNodeNames(FileNm:String);
 Procedure ExportTaps(FileNm:String);
+Procedure ExportNodeOrder(FileNm:String);
 
 
 IMPLEMENTATION
@@ -566,6 +567,121 @@ Begin
 
   FINALLY
      If Assigned(cBuffer) Then Freemem(cBuffer);
+     CloseFile(F);
+
+  End;
+
+End;
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+PROCEDURE WriteNodeList(Var F:TextFile; const CktElementName:String);
+VAR
+  NValues, i: Integer;
+
+
+Begin
+
+
+  If ActiveCircuit <> nil Then
+  If Not ActiveCircuit.Issolved  Then
+  Begin
+      DoSimpleMsg('Circuit must be solved for this command to execute properly.', 222001);
+      Exit;
+  End;
+
+
+  If Length(CktElementName) > 0  Then
+  Begin
+    SetObject(CktElementName);
+
+
+
+      If Assigned(ActiveCircuit.ActiveCktElement) Then
+       WITH ActiveCircuit.ActiveCktElement DO
+       Begin
+           Write(F, Format('%s, ',[CktElementName ]));
+           NValues := NConds*Nterms;
+           For i := 1 to  NValues DO
+           Begin
+              Write(F, Format('%d, ',[GetNodeNum(NodeRef^[i]) ]));
+           End;
+           Writeln(F);
+       End
+  End;
+
+
+end;
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+Procedure ExportNodeOrder(FileNm:String);
+
+{ Writes NodeLists in same order as Export Currents function
+}
+
+Var
+    F          :TextFile;
+    pElem      :TDSSCktElement;
+    i,j        :Integer;
+    strName    :String;
+
+Begin
+
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+
+     {Header Record}
+     Write(F,'Element, Cond 1, Cond 2, ...');
+     Writeln(F);
+
+
+     // Sources first
+     pElem := ActiveCircuit.Sources.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteNodeList(F, strName);
+       END;
+        pElem := ActiveCircuit.Sources.Next;
+     END;
+
+
+     // PDELEMENTS first
+     pElem := ActiveCircuit.PDElements.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteNodeList(F, strName);
+       END;
+        pElem := ActiveCircuit.PDElements.Next;
+     END;
+
+     // Faults
+     pElem := ActiveCircuit.Faults.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteNodeList(F, strName);
+       END;
+        pElem := ActiveCircuit.Faults.Next;
+     END;
+
+     // PCELEMENTS next
+     pElem := ActiveCircuit.PCElements.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteNodeList(F, strName);
+       END;
+        pElem := ActiveCircuit.PCElements.Next;
+     END;
+
+     GlobalResult := FileNm;
+
+
+  FINALLY
      CloseFile(F);
 
   End;

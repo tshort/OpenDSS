@@ -230,6 +230,7 @@ type
     NodeNames1: TMenuItem;
     Image2: TImage;
     Taps1: TMenuItem;
+    NodeOrder1: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DSSHelp1Click(Sender: TObject);
     procedure AboutDSS1Click(Sender: TObject);
@@ -389,6 +390,7 @@ type
     procedure NodeNames1Click(Sender: TObject);
     procedure TCCCurve1Click(Sender: TObject);
     procedure Taps1Click(Sender: TObject);
+    procedure NodeOrder1Click(Sender: TObject);
   private
     { Private declarations }
     PlotOptionString:String;
@@ -1560,6 +1562,11 @@ end;
 procedure TControlPanel.NodeNames1Click(Sender: TObject);
 begin
     ActiveScriptForm.ExecuteDSSCommand('Export NodeNames');
+end;
+
+procedure TControlPanel.NodeOrder1Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Export NodeOrder');
 end;
 
 procedure TControlPanel.Selection1Click(Sender: TObject);
