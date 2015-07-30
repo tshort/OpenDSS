@@ -45,6 +45,9 @@ Procedure ExportBranchReliability(FileNm:String);
 Procedure ExportNodeNames(FileNm:String);
 Procedure ExportTaps(FileNm:String);
 Procedure ExportNodeOrder(FileNm:String);
+Procedure ExportElemCurrents(FileNm:String);
+Procedure ExportElemVoltages(FileNm:String);
+Procedure ExportElemPowers(FileNm:String);
 
 
 IMPLEMENTATION
@@ -600,11 +603,11 @@ Begin
       If Assigned(ActiveCircuit.ActiveCktElement) Then
        WITH ActiveCircuit.ActiveCktElement DO
        Begin
-           Write(F, Format('%s, ',[CktElementName ]));
+           Write(F, Format('"%s", %d, %d',[CktElementName, Nterms, Nconds ]));
            NValues := NConds*Nterms;
            For i := 1 to  NValues DO
            Begin
-              Write(F, Format('%d, ',[GetNodeNum(NodeRef^[i]) ]));
+              Write(F, Format(', %d',[GetNodeNum(NodeRef^[i]) ]));
            End;
            Writeln(F);
        End
@@ -622,7 +625,6 @@ Procedure ExportNodeOrder(FileNm:String);
 Var
     F          :TextFile;
     pElem      :TDSSCktElement;
-    i,j        :Integer;
     strName    :String;
 
 Begin
@@ -633,7 +635,7 @@ Begin
      ReWrite(F);
 
      {Header Record}
-     Write(F,'Element, Cond 1, Cond 2, ...');
+     Write(F,'Element, Nterminals, Nconductors, Node-1, Node-2, Node-3, ...');
      Writeln(F);
 
 
@@ -687,6 +689,349 @@ Begin
   End;
 
 End;
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+PROCEDURE WriteElemCurrents(Var F:TextFile; const CktElementName:String);
+VAR
+  NValues, i: Integer;
+
+
+
+Begin
+
+
+  If ActiveCircuit <> nil Then
+  If Not ActiveCircuit.Issolved  Then
+  Begin
+      DoSimpleMsg('Circuit must be solved for this command to execute properly.', 222001);
+      Exit;
+  End;
+
+
+  If Length(CktElementName) > 0  Then
+  Begin
+    SetObject(CktElementName);
+
+      If Assigned(ActiveCircuit.ActiveCktElement) Then
+       WITH ActiveCircuit.ActiveCktElement DO
+       Begin
+           ComputeIterminal;
+           Write(F, Format('"%s", %d, %d',[CktElementName, Nterms, Nconds ]));
+           NValues := NConds*Nterms;
+           For i := 1 to  NValues DO
+           Begin
+              Write(F, Format(', %10.6g, %8.2f',  [Cabs(Iterminal^[i]), cdang(Iterminal^[i])]));
+           End;
+           Writeln(F);
+       End
+  End;
+
+
+end;
+
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+Procedure ExportElemCurrents(FileNm:String);
+
+{ Export currents in same order as NodeOrder export
+}
+Var
+    F          :TextFile;
+    pElem      :TDSSCktElement;
+    strName    :String;
+
+Begin
+
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+
+     {Header Record}
+     Write(F,'Element, Nterminals, Nconductors, I_1, Ang_1, ...');
+     Writeln(F);
+
+
+     // Sources first
+     pElem := ActiveCircuit.Sources.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemCurrents(F, strName);
+       END;
+        pElem := ActiveCircuit.Sources.Next;
+     END;
+
+
+     // PDELEMENTS first
+     pElem := ActiveCircuit.PDElements.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemCurrents(F, strName);
+       END;
+        pElem := ActiveCircuit.PDElements.Next;
+     END;
+
+     // Faults
+     pElem := ActiveCircuit.Faults.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemCurrents(F, strName);
+       END;
+        pElem := ActiveCircuit.Faults.Next;
+     END;
+
+     // PCELEMENTS next
+     pElem := ActiveCircuit.PCElements.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemCurrents(F, strName);
+       END;
+        pElem := ActiveCircuit.PCElements.Next;
+     END;
+
+     GlobalResult := FileNm;
+
+
+  FINALLY
+     CloseFile(F);
+
+  End;
+End;
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+PROCEDURE WriteElemVoltages(Var F:TextFile; const CktElementName:String);
+VAR
+  NValues, i: Integer;
+
+
+
+Begin
+
+
+  If ActiveCircuit <> nil Then
+  If Not ActiveCircuit.Issolved  Then
+  Begin
+      DoSimpleMsg('Circuit must be solved for this command to execute properly.', 222001);
+      Exit;
+  End;
+
+
+  If Length(CktElementName) > 0  Then
+  Begin
+    SetObject(CktElementName);
+
+      If Assigned(ActiveCircuit.ActiveCktElement) Then
+       WITH ActiveCircuit.ActiveCktElement DO
+       Begin
+           ComputeVterminal;
+           Write(F, Format('"%s", %d, %d',[CktElementName, Nterms, Nconds ]));
+           NValues := NConds*Nterms;
+           For i := 1 to  NValues DO
+           Begin
+              Write(F, Format(', %10.6g, %8.2f',  [Cabs(Vterminal^[i]), cdang(Vterminal^[i])]));
+           End;
+           Writeln(F);
+       End
+  End;
+
+
+end;
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+Procedure ExportElemVoltages(FileNm:String);
+{ Export conductor voltages in same order as NodeOrder export
+}
+Var
+    F          :TextFile;
+    pElem      :TDSSCktElement;
+    strName    :String;
+
+Begin
+
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+
+     {Header Record}
+     Write(F,'Element, Nterminals, Nconductors, V_1, Ang_1, ...');
+     Writeln(F);
+
+
+     // Sources first
+     pElem := ActiveCircuit.Sources.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemVoltages(F, strName);
+       END;
+        pElem := ActiveCircuit.Sources.Next;
+     END;
+
+
+     // PDELEMENTS first
+     pElem := ActiveCircuit.PDElements.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemVoltages(F, strName);
+       END;
+        pElem := ActiveCircuit.PDElements.Next;
+     END;
+
+     // Faults
+     pElem := ActiveCircuit.Faults.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemVoltages(F, strName);
+       END;
+        pElem := ActiveCircuit.Faults.Next;
+     END;
+
+     // PCELEMENTS next
+     pElem := ActiveCircuit.PCElements.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemVoltages(F, strName);
+       END;
+        pElem := ActiveCircuit.PCElements.Next;
+     END;
+
+     GlobalResult := FileNm;
+
+
+  FINALLY
+     CloseFile(F);
+
+  End;
+
+End;
+
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+PROCEDURE WriteElemPowers(Var F:TextFile; const CktElementName:String);
+VAR
+  NValues, i: Integer;
+  S : Complex;
+
+Begin
+
+
+  If ActiveCircuit <> nil Then
+  If Not ActiveCircuit.Issolved  Then
+  Begin
+      DoSimpleMsg('Circuit must be solved for this command to execute properly.', 222001);
+      Exit;
+  End;
+
+
+  If Length(CktElementName) > 0  Then
+  Begin
+    SetObject(CktElementName);
+
+      If Assigned(ActiveCircuit.ActiveCktElement) Then
+       WITH ActiveCircuit.ActiveCktElement DO
+       Begin
+           ComputeVterminal;
+           ComputeIterminal;
+           Write(F, Format('"%s", %d, %d',[CktElementName, Nterms, Nconds ]));
+           NValues := NConds*Nterms;
+           For i := 1 to  NValues DO
+           Begin
+              S := Cmul(Vterminal^[i], Conjg( Iterminal^[i]));
+              Write(F, Format(', %10.6g, %10.6g',  [S.re * 0.001, S.im * 0.001]));
+           End;
+           Writeln(F);
+       End
+  End;
+
+
+end;
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+Procedure ExportElemPowers(FileNm:String);
+
+{ Export conductor powers in same order as NodeOrder export
+}
+Var
+    F          :TextFile;
+    pElem      :TDSSCktElement;
+    strName    :String;
+
+Begin
+
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+
+     {Header Record}
+     Write(F,'Element, Nterminals, Nconductors, P_1, Q_1, ...');
+     Writeln(F);
+
+
+     // Sources first
+     pElem := ActiveCircuit.Sources.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemPowers(F, strName);
+       END;
+        pElem := ActiveCircuit.Sources.Next;
+     END;
+
+
+     // PDELEMENTS first
+     pElem := ActiveCircuit.PDElements.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemPowers(F, strName);
+       END;
+        pElem := ActiveCircuit.PDElements.Next;
+     END;
+
+     // Faults
+     pElem := ActiveCircuit.Faults.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemPowers(F, strName);
+       END;
+        pElem := ActiveCircuit.Faults.Next;
+     END;
+
+     // PCELEMENTS next
+     pElem := ActiveCircuit.PCElements.First;
+     WHILE pElem<>nil DO BEGIN
+       IF pElem.Enabled THEN BEGIN
+           strName := pElem.ParentClass.Name + '.' + pElem.Name;
+           WriteElemPowers(F, strName);
+       END;
+        pElem := ActiveCircuit.PCElements.Next;
+     END;
+
+     GlobalResult := FileNm;
+
+
+  FINALLY
+     CloseFile(F);
+
+  End;
+
+End;
+
+
+
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 Procedure ExportPowers(FileNm:String; opt :Integer);

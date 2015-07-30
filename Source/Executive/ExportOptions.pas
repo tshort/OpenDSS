@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 41;
+        NumExportOptions = 44;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -65,6 +65,9 @@ Begin
       ExportOption[39] := 'NodeNames';
       ExportOption[40] := 'Taps';
       ExportOption[41] := 'NodeOrder';
+      ExportOption[42] := 'ElemCurrents';
+      ExportOption[43] := 'ElemVoltages';
+      ExportOption[44] := 'ElemPowers';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -110,6 +113,9 @@ Begin
       ExportHelp[39] := '(Default file = EXP_NodeNames.CSV) Exports Single-column file of all node names in the active circuit. Useful for making scripts.';
       ExportHelp[40] := '(Default file = EXP_Taps.CSV)  Exports the regulator tap report similar to Show Taps.';
       ExportHelp[41] := '(Default file = EXP_NodeOrder.CSV)  Exports the present node order for all conductors of all circuit elements';
+      ExportHelp[42] := '(Default file = EXP_ElemCurrents.CSV)  Exports the current into all conductors of all circuit elements';
+      ExportHelp[43] := '(Default file = EXP_ElemVoltages.CSV)  Exports the voltages to ground at all conductors of all circuit elements';
+      ExportHelp[44] := '(Default file = EXP_elemPowers.CSV)  Exports the powers into all conductors of all circuit elements';
 End;
 
 //----------------------------------------------------------------------------
@@ -242,6 +248,9 @@ Begin
          39: FileName := 'EXP_NodeNames.CSV';
          40: FileName := 'EXP_Taps.CSV';
          41: FileName := 'EXP_NodeOrder.CSV';
+         42: FileName := 'EXP_ElemCurrents.CSV';
+         43: FileName := 'EXP_ElemVoltages.CSV';
+         44: FileName := 'EXP_ElemPowers.CSV';
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
        END;
@@ -295,6 +304,9 @@ Begin
      39: ExportNodeNames(FileName);
      40: ExportTaps(FileName);
      41: ExportNodeOrder(FileName);
+     42: ExportElemCurrents(FileName);
+     43: ExportElemVoltages(FileName);
+     44: ExportElemPowers(FileName);
    ELSE
          ExportVoltages(FileName);    // default
    END;
