@@ -38,10 +38,11 @@ TYPE
         pf      : Double; //Expected power factor (under revision)
         Xs      : Double; //Impedance of the series Xfmr
         Sr0     : ComplexArray; //Shift register for controller 1
+        Sr1     : ComplexArray; //Shift register for controller 2
         Vbin    : Complex; // Voltage at the input of the device
         Vbout   : Complex; // Voltage at the output of the device
         Tol1    : Double;   //Tolerance (dead band) specified for the controller 1
-        ERR0    : Double;   //Error controller 1
+        ERR0    : array[1..6] of Double; //Error controller 1 for Dual mode
         ZBase   : Double;
         Freq    : Double;
         Amps    : Double;
@@ -51,6 +52,7 @@ TYPE
         ModeUPFC    : Integer;
         kWLoad  : Double;
         kVArLoad: Double;
+        SyncFlag: Boolean;   // Flags used to synchronize both controllers in Dual mode
 
         ScanType     : Integer;
         SequenceType : Integer;
@@ -339,6 +341,8 @@ Begin
      kVArLoad := 10;     // From the data provided
 
      for i:=1 to Nphases do Sr0[i] := Cmplx(0,0); //For multiphase model
+     for i:=1 to Nphases do Sr1[i] := Cmplx(0,0); //For multiphase model
+     for i:=1 to Nphases do ERR0[i] := 0; //For multiphase model
 
      InitPropertyValues(0);
 
@@ -506,6 +510,12 @@ End;
          |           |
  I input ^           ^ I output
          |           |
+
+  4 modes of operation:
+  mode 0: UPFC Off
+  mode 1: UPFC in voltage regulation mode
+  mode 2: UPFC in reactive power compensation mode
+  mode 3: Mode 1 and 2 working together
 }
 
 Function TUPFCObj.GetoutputCurr(Cond:integer):Complex;
@@ -543,6 +553,27 @@ Begin
                 else ITemp:=SR0[Cond];
             end;
         2:  Itemp:=cmplx(0,0); //UPFC as a phase angle regulator
+        3:  Begin              //UPFC in Dual mode Voltage and Phase angle regulator
+              Vpolar:=ctopolar(Vbout);
+              Error:=1-abs(Vpolar.mag/(VRef*1000));
+              if Error > Tol1 then
+                Begin
+                  VTemp   :=  csub(Vbout,Vbin);
+                  Vpolar  :=  ctopolar(Vbin);
+                  TError  :=  (VRef*1000)-Vpolar.mag;
+                  if TError > 24.0 then TError:=24
+                  else if TError < -24.0 then TError:=-24;
+                  Vpolar   :=  topolar(TError,Vpolar.ang);
+                  VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
+                  Itemp    :=  cdiv(VTemp,cmplx(0,Xs));
+                  SR0[Cond]:=  ITemp;
+                  SyncFlag:=False;
+                End
+                else begin
+                  ITemp:=SR0[Cond];
+                  SyncFlag:=True;
+                end;
+            end;
     end;
     Result := Itemp;
   EXCEPT
@@ -574,7 +605,6 @@ End;
 }
 
 Function TUPFCObj.GetinputCurr(Cond: integer):Complex;
-
 VAr
    Power,Currin:complex;
    S,QIdeal:double;
@@ -588,12 +618,24 @@ Begin
           1:  begin
                   CurrIn:=cnegate(SR0[Cond]);
               end;
-          2: Begin
+          2:  Begin
                   Power:=CalcUPFCPowers;
                   S:=abs(Power.re)/pf;
                   QIdeal:=Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
                   CurrIn:=conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
-            End;
+              End;
+          3:  Begin
+                  Power:=CalcUPFCPowers;
+                  S:=abs(Power.re)/pf;
+                  QIdeal:=Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
+                  CurrIn:=conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
+                  if ERR0[Cond] < Power.im then ERR0[Cond]:=Power.im;
+                  if (power.im <= ERR0[Cond])And(SyncFlag) then CurrIn:=SR1[Cond]
+                  else begin
+                    SR1[Cond]:=csub(CurrIn,SR0[Cond]);
+                    CurrIn:=SR1[Cond];
+                  end;
+              End;
       end;
       Result := CurrIn;
   EXCEPT
