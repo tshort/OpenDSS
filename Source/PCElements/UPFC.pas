@@ -37,7 +37,7 @@ TYPE
         VRef    : Double; //Expected vooltage in the output (only magnitude)
         pf      : Double; //Expected power factor (under revision)
         Xs      : Double; //Impedance of the series Xfmr
-        Sr0     : Complex; //Shift register for controller 1
+        Sr0     : ComplexArray; //Shift register for controller 1
         Vbin    : Complex; // Voltage at the input of the device
         Vbout   : Complex; // Voltage at the output of the device
         Tol1    : Double;   //Tolerance (dead band) specified for the controller 1
@@ -49,6 +49,8 @@ TYPE
         SrcFrequency:Double;
         FphaseShift  :Double;
         ModeUPFC    : Integer;
+        kWLoad  : Double;
+        kVArLoad: Double;
 
         ScanType     : Integer;
         SequenceType : Integer;
@@ -60,9 +62,10 @@ TYPE
         PROCEDURE CalcDailyMult(Hr:double);
         PROCEDURE CalcDutyMult(Hr:double);
         PROCEDURE CalcYearlyMult(Hr:double);
-        Function GetinputCurr:Complex;
-        Function GetOutputCurr:Complex;
+        Function GetinputCurr(Cond: integer):Complex;
+        Function GetOutputCurr(Cond:integer):Complex;
         Function CalcUPFCPowers:Complex;
+        Function CalcUPFCLosses:Double;
 
       public
 
@@ -100,7 +103,7 @@ implementation
 
 USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Utilities, Sysutils, Command;
 
-Const NumPropsThisClass = 12;
+Const NumPropsThisClass = 13;
 
 Var CDOUBLEONE: Complex;
 
@@ -149,6 +152,8 @@ Begin
      PropertyName[9] := 'Tol1';
      PropertyName[10]:= 'Enabled';
      PropertyName[11]:= 'Mode';
+     PropertyName[12]:= 'kW';
+     PropertyName[13]:= 'kVAr';
 
      // define Property help values
      PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3' +CRLF+CRLF+
@@ -167,7 +172,8 @@ Begin
                         'Tol0=0.02 is the format used to define 2% tolerance (Default)';
      PropertyHelp[10]:= 'Inherited property from ActiveObject';
      PropertyHelp[11]:= 'Integer used to define the control mode of the UPFC: 0=Off, 1=Voltage regulator, 2=Phase angle regulator';
-
+     PropertyHelp[12]:= 'Load rating in kW, this parameter is used to calculate the losses';
+     PropertyHelp[13]:= 'Load rating in kVAr, this parameter is used to calculate the losses';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -233,6 +239,8 @@ Begin
             9: Tol1     := Parser.DblValue; // Tolerance Ctrl 2
             10:enabled  := InterpretYesNo(Param);
             11:ModeUPFC := Parser.IntValue;
+            12:kWLoad   := Parser.DblValue;
+            13:kVArLoad := Parser.DblValue;
 
          ELSE
             ClassEdit(ActiveUPFCObj, ParamPointer - NumPropsThisClass)
@@ -285,6 +293,8 @@ Begin
        Freq      := OtherUPFC.Freq;
        Enabled   := OtherUPFC.Enabled;
        ModeUPFC  := OtherUPFC.ModeUPFC;
+       kWLoad    := OtherUPFC.kWLoad;
+       kVArLoad  := OtherUPFC.kVArLoad;
 
        ClassMakeLike(OtherUPFC);
 
@@ -305,6 +315,8 @@ End;
 
 //=============================================================================
 Constructor TUPFCObj.Create(ParClass:TDSSClass; const SourceName:String);
+var
+    i:integer;
 Begin
      Inherited create(ParClass);
      Name := LowerCase(SourceName);
@@ -319,11 +331,14 @@ Begin
      VRef     := 0.24;
      pf       := 1.0;
      Xs       := 0.7540; // Xfmr series inductace 2e-3 H
-     Sr0      := Cmplx(0,0);
      Tol1     := 0.02;
      Freq     := 60.0;
      enabled  := True;
      ModeUPFC := 1;
+     kWLoad   := 50;     // From the data provided
+     kVArLoad := 10;     // From the data provided
+
+     for i:=1 to Nphases do Sr0[i] := Cmplx(0,0); //For multiphase model
 
      InitPropertyValues(0);
 
@@ -346,18 +361,19 @@ End;
 //=============================================================================
 Procedure TUPFCObj.RecalcElementData;
 VAR
-   Zs, Zm, Z1, Z2, Z0     : Complex;
-   Value, Value1, Value2 : Complex;
+   Zs, Zm, Z1, Z2, Z0    : Complex;
+   Value                 : Complex;
    Calpha1, Calpha2      : Complex;
-   i, j    : Integer;
-
-   Factor : Double;
+   i, j                  : Integer;
+   Factor                : Double;
 
 //   Rs, Xs, Rm, Xm : Double;
 
    Begin
     IF Z    <> nil THEN Z.Free;
     IF Zinv <> nil THEN Zinv.Free;
+
+
 
     // For a Source, nphases = ncond, for now
     Z    := TCmatrix.CreateMatrix(Fnphases);
@@ -370,9 +386,6 @@ VAR
      { Don't change a specified value; only computed ones}
 
          Z1 := Cmplx(0, Xs);
- {        Z2 := Cmplx(0, Xs); //We will see if these are necessary later
-         Z0 := Cmplx(0, Xs);
- }
          // Diagonals  (all the same)
          Value  := Z1;   // Z1 + Z2 + Z0
          FOR i := 1 to Fnphases  Do Z.SetElement(i, i, Value);
@@ -389,10 +402,12 @@ Procedure TUPFCObj.CalcYPrim;
 Var
    Value :Complex;
    i, j  :Integer;
-   FreqMultiplier:Double;
+   FreqMultiplier,ZLosses:Double;
 
 Begin
 
+// Calc UPFC Losses
+    ZLosses:=CalcUPFCLosses;
  // Build only YPrim Series
      IF YPrimInvalid THEN Begin
        IF YPrim_Series <> nil Then YPrim_Series.Free;
@@ -432,7 +447,7 @@ Begin
      For i := 1 to FNPhases do Begin
        For j := 1 to FNPhases do Begin
           Value := Zinv.GetElement(i, j);
-          YPrim_series.SetElement(i, j, Value);
+          YPrim_series.SetElement(i, j, cadd(Value,cmplx(1/ZLosses,0)));
           YPrim_series.SetElement(i + FNPhases, j + FNPhases, Value);
           //YPrim_series.SetElemsym(i + FNPhases, j, CNegate(Value))
           YPrim_series.SetElement(i, j+Fnphases, Cnegate(Value));
@@ -451,6 +466,21 @@ Begin
 End;
 
 //=============================================================================
+
+Function TUPFCObj.CalcUPFCLosses:Double;
+Var
+    LPower,Losses : Double;
+Begin
+
+//  Calculates the Active power losses at the input of the device
+//  By using the Load powers, the approach is based in the data provided
+//  Apparently, the behavior is like Ax+B=Y
+
+    LPower:=sqrt(sqr(kWLoad)+sqr(kVArLoad));
+    Losses:=2.3388*LPower+278.8746;
+    Result:=sqr(VRef*1000)/Losses;
+End;
+
 
 //===========================================================================
 
@@ -478,7 +508,7 @@ End;
          |           |
 }
 
-Function TUPFCObj.GetoutputCurr:Complex;
+Function TUPFCObj.GetoutputCurr(Cond:integer):Complex;
 
 VAr
    Error:Double;
@@ -503,15 +533,16 @@ Begin
                   VTemp   :=  csub(Vbout,Vbin);
                   Vpolar  :=  ctopolar(Vbin);
                   TError  :=  (VRef*1000)-Vpolar.mag;
-                  if TError >= 24.0 then TError:=24;
-                  Vpolar  :=  topolar(TError,Vpolar.ang);
-                  VTemp   :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
-                  Itemp   :=  cdiv(VTemp,cmplx(0,Xs));
-                  SR0     :=  ITemp;
+                  if TError > 24.0 then TError:=24
+                  else if TError < -24.0 then TError:=-24;
+                  Vpolar   :=  topolar(TError,Vpolar.ang);
+                  VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
+                  Itemp    :=  cdiv(VTemp,cmplx(0,Xs));
+                  SR0[Cond]:=  ITemp;
                 End
-                else ITemp:=SR0;
+                else ITemp:=SR0[Cond];
             end;
-        2:  Itemp:=cmplx(0,0); //UPFC phase angle regulator
+        2:  Itemp:=cmplx(0,0); //UPFC as a phase angle regulator
     end;
     Result := Itemp;
   EXCEPT
@@ -542,7 +573,7 @@ End;
          |           |
 }
 
-Function TUPFCObj.GetinputCurr:Complex;
+Function TUPFCObj.GetinputCurr(Cond: integer):Complex;
 
 VAr
    Power,Currin:complex;
@@ -555,7 +586,7 @@ Begin
       case ModeUPFC of
           0:  CurrIn:=cmplx(0,0);
           1:  begin
-                  CurrIn:=cnegate(SR0);
+                  CurrIn:=cnegate(SR0[Cond]);
               end;
           2: Begin
                   Power:=CalcUPFCPowers;
@@ -563,12 +594,6 @@ Begin
                   QIdeal:=Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
                   CurrIn:=conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
             End;
-      end;
-      if True then begin  // The UPFC is active and the control action takes place
-
-      end
-      else begin
-        CurrIn:=cmplx(0,0);
       end;
       Result := CurrIn;
   EXCEPT
@@ -593,8 +618,8 @@ Begin
         Vbout :=  NodeV^[NodeRef^[i+fnphases]]; //Gets voltage at the output of UPFC Cond i
 //      these functions were modified to follow the UPFC Dynamic
 //      (Different from VSource)
-        Curr^[i+fnphases]:= GetoutputCurr;
-        Curr^[i] := GetinputCurr;
+        Curr^[i+fnphases]:= GetoutputCurr(i);
+        Curr^[i] := GetinputCurr(i);
         end;
      End;
 End;
@@ -616,9 +641,9 @@ Begin
 //       YPrim.MVMult(Curr, Vterminal);  // Current from Elements in System Y
 
        GetInjCurrents(ComplexBuffer);  // Get present value of inj currents
-      // Add Together  with yprim currents
+//       Add Together  with yprim currents
 //       FOR i := 1 TO Yorder DO Curr^[i] := Csub(Curr^[i], ComplexBuffer^[i]);
-//       Alternative for incorporating the calculated currents
+//       Alternative to incorporate the calculated currents
         FOR i := 1 TO Yorder DO Curr^[i] := ComplexBuffer^[i];
    End;  {With}
   EXCEPT
@@ -678,7 +703,7 @@ begin
      PropertyValue[8]  := '0.02';
      PropertyValue[9]  := '0.02';
      PropertyValue[10] := 'True';
-     PropertyValue[11] := 'False';
+     PropertyValue[11] := '1';
 
      inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -696,6 +721,7 @@ begin
           7 : Result := Format('%-.5g',[Xs]);
           9 : Result := Format('%-.5g',[Tol1]);
           10: If Enabled  Then Result:='True' Else Result := 'False';
+          11: Result := Format('%d',[ModeUPFC]);
 
         Else
           Result := Inherited GetPropertyValue(Index);
