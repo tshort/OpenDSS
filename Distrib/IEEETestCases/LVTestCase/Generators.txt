@@ -1,0 +1,1 @@
+Edit Vsource.Source BasekV=11 pu=1 ISC3=3000 ISC1=1500

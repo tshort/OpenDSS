@@ -1,0 +1,52 @@
+clear
+
+Set DefaultBaseFrequency=50  ! for European system
+
+New circuit.LVTest
+Edit Vsource.Source BasekV=11 pu=1.05  ISC3=3000  ISC1=5
+Redirect LineCode.txt
+Redirect LoadShapes.txt
+batchedit loadshape..* useactual=no
+Redirect Lines.txt
+Redirect Transformers.txt
+Redirect Loads.txt
+Redirect Monitors.txt
+
+
+New energymeter.m1 LINE.LINE1 1
+
+Set voltagebases=[11  .416]
+Calcvoltagebases
+
+buscoords buscoords.txt
+solve
+
+set mode=yearly number= 1440 stepsize=1m    ! one day simulation 
+
+! Set "DemandInterval" to true so that energy quantities recorded by energy meters are recorded for 
+! each time step and set "casename" to define a directory under default directory in which all of the 
+! demand interval data is recorded.  (NOTE: Setting Demand=true resets all energymeters.)
+
+Set overloadreport=true  ! TURN OVERLOAD REPORT ON
+Set voltexcept=true      ! voltage exception report
+set demand=true          ! demand interval ON
+set DIVerbose=true       ! verbose mode is ON
+
+Set Year=1        ! This statement resets all meters
+solve 
+
+closedi     ! close demand interval files at end of run
+
+//=======================================
+/*
+
+Show mon LINE558_VI_vs_Time 
+Show mon LINE825_VI_vs_Time 
+plot circuit Power Max=30 dots=y labels=n subs=y C1=$00FF0000
+
+plot profile ph=all
+
+
+Plot monitor object= line558_vi_vs_time channels=(1 3 5 ) bases=[240 240 240]
+Plot monitor object= line825_vi_vs_time channels=(1 3 5 ) bases=[240 240 240]
+*/
