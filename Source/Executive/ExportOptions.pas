@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 44;
+        NumExportOptions = 45;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -68,6 +68,7 @@ Begin
       ExportOption[42] := 'ElemCurrents';
       ExportOption[43] := 'ElemVoltages';
       ExportOption[44] := 'ElemPowers';
+      ExportOption[45] := 'Result';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -116,6 +117,7 @@ Begin
       ExportHelp[42] := '(Default file = EXP_ElemCurrents.CSV)  Exports the current into all conductors of all circuit elements';
       ExportHelp[43] := '(Default file = EXP_ElemVoltages.CSV)  Exports the voltages to ground at all conductors of all circuit elements';
       ExportHelp[44] := '(Default file = EXP_elemPowers.CSV)  Exports the powers into all conductors of all circuit elements';
+      ExportHelp[45] := '(Default file = EXP_Result.CSV)  Exports the result of the most recent command.';
 End;
 
 //----------------------------------------------------------------------------
@@ -251,6 +253,7 @@ Begin
          42: FileName := 'EXP_ElemCurrents.CSV';
          43: FileName := 'EXP_ElemVoltages.CSV';
          44: FileName := 'EXP_ElemPowers.CSV';
+         45: FileName := 'EXP_Result.CSV';
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
        END;
@@ -307,6 +310,7 @@ Begin
      42: ExportElemCurrents(FileName);
      43: ExportElemVoltages(FileName);
      44: ExportElemPowers(FileName);
+     45: ExportResult(FileName);
    ELSE
          ExportVoltages(FileName);    // default
    END;

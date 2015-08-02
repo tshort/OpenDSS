@@ -48,6 +48,7 @@ Procedure ExportNodeOrder(FileNm:String);
 Procedure ExportElemCurrents(FileNm:String);
 Procedure ExportElemVoltages(FileNm:String);
 Procedure ExportElemPowers(FileNm:String);
+Procedure ExportResult(FileNm:String);
 
 
 IMPLEMENTATION
@@ -3040,6 +3041,29 @@ Begin
 
      CloseFile(F);
   End;
+
+End;
+
+Procedure ExportResult(FileNm:String);
+
+Var
+   F : TextFile;
+
+Begin
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+     Parservars.Lookup('@result');
+     Writeln(F, Parservars.Value );
+
+     GlobalResult := FileNm;
+
+  FINALLY
+
+     CloseFile(F);
+  End;
+
 
 End;
 

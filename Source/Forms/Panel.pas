@@ -188,9 +188,7 @@ type
     LineConstants1: TMenuItem;
     Export1: TMenuItem;
     Voltages2: TMenuItem;
-    SeqVoltages1: TMenuItem;
     Currents3: TMenuItem;
-    SeqCurrents1: TMenuItem;
     Powers2: TMenuItem;
     FaultCurrents1: TMenuItem;
     Overloads1: TMenuItem;
@@ -209,7 +207,6 @@ type
     ToolButton25: TToolButton;
     CurrentsElemResid1: TMenuItem;
     RPNEvaluator1: TMenuItem;
-    SeqPowers1: TMenuItem;
     Yprims1: TMenuItem;
     Y1: TMenuItem;
     ToolButton20: TToolButton;
@@ -217,7 +214,6 @@ type
     Edit_Result: TEdit;
     Capacity1: TMenuItem;
     SeqZ1: TMenuItem;
-    PowersByPhase1: TMenuItem;
     Estimation1: TMenuItem;
     Buscoords1: TMenuItem;
     Sort1: TMenuItem;
@@ -231,6 +227,17 @@ type
     Image2: TImage;
     Taps1: TMenuItem;
     NodeOrder1: TMenuItem;
+    Result1: TMenuItem;
+    Phase1: TMenuItem;
+    Sequence1: TMenuItem;
+    Element1: TMenuItem;
+    Phase2: TMenuItem;
+    Sequence2: TMenuItem;
+    Element2: TMenuItem;
+    erminal1: TMenuItem;
+    ByOhase1: TMenuItem;
+    Sequence3: TMenuItem;
+    Element3: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DSSHelp1Click(Sender: TObject);
     procedure AboutDSS1Click(Sender: TObject);
@@ -354,11 +361,7 @@ type
     procedure Converged1Click(Sender: TObject);
     procedure BusFlow1Click(Sender: TObject);
     procedure LineConstants1Click(Sender: TObject);
-    procedure Voltages2Click(Sender: TObject);
     procedure SeqVoltages1Click(Sender: TObject);
-    procedure Currents3Click(Sender: TObject);
-    procedure SeqCurrents1Click(Sender: TObject);
-    procedure Powers2Click(Sender: TObject);
     procedure FaultCurrents1Click(Sender: TObject);
     procedure Unserved1Click(Sender: TObject);
     procedure Generators2Click(Sender: TObject);
@@ -371,7 +374,6 @@ type
     procedure PowersElement1Click(Sender: TObject);
     procedure CurrentsElemResid1Click(Sender: TObject);
     procedure RPNEvaluator1Click(Sender: TObject);
-    procedure SeqPowers1Click(Sender: TObject);
     procedure Yprims1Click(Sender: TObject);
     procedure Y1Click(Sender: TObject);
     procedure Capacity1Click(Sender: TObject);
@@ -391,6 +393,17 @@ type
     procedure TCCCurve1Click(Sender: TObject);
     procedure Taps1Click(Sender: TObject);
     procedure NodeOrder1Click(Sender: TObject);
+    procedure Result1Click(Sender: TObject);
+    procedure Phase1Click(Sender: TObject);
+    procedure Sequence1Click(Sender: TObject);
+    procedure Element1Click(Sender: TObject);
+    procedure Phase2Click(Sender: TObject);
+    procedure Sequence2Click(Sender: TObject);
+    procedure Element2Click(Sender: TObject);
+    procedure erminal1Click(Sender: TObject);
+    procedure ByOhase1Click(Sender: TObject);
+    procedure Sequence3Click(Sender: TObject);
+    procedure Element3Click(Sender: TObject);
   private
     { Private declarations }
     PlotOptionString:String;
@@ -716,6 +729,11 @@ end;
 procedure TControlPanel.Interpolate1Click(Sender: TObject);
 begin
     ActiveScriptForm.ExecuteDSSCommand('interpolate');
+end;
+
+procedure TControlPanel.Result1Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Export Result');
 end;
 
 procedure TControlPanel.ResultFile1Click(Sender: TObject);
@@ -1108,6 +1126,11 @@ end;
 
 
 
+procedure TControlPanel.erminal1Click(Sender: TObject);
+begin
+  ActiveScriptForm.ExecuteDSSCommand('Export Powers');
+end;
+
 procedure TControlPanel.Zones1Click(Sender: TObject);
 begin
   ActiveScriptForm.ExecuteDSSCommand('Reset faults');
@@ -1273,6 +1296,21 @@ procedure TControlPanel.SelectActive1Click(Sender: TObject);
 begin
       If ActiveCircuit <> Nil Then
       ActiveScriptForm.ExecuteDSSCommand('select '+classbox.text+'.'+elementbox.text);
+end;
+
+procedure TControlPanel.Element1Click(Sender: TObject);
+begin
+     ActiveScriptForm.ExecuteDSSCommand('Export ElemVoltages');
+end;
+
+procedure TControlPanel.Element2Click(Sender: TObject);
+begin
+     ActiveScriptForm.ExecuteDSSCommand('Export Elemcurrents');
+end;
+
+procedure TControlPanel.Element3Click(Sender: TObject);
+begin
+     ActiveScriptForm.ExecuteDSSCommand('Export Elempowers');
 end;
 
 procedure TControlPanel.ElementBoxChange(Sender: TObject);
@@ -1544,6 +1582,11 @@ end;
 procedure TControlPanel.BusList1Click(Sender: TObject);
 begin
     MakeBusList1Click(Sender);
+end;
+
+procedure TControlPanel.ByOhase1Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Export p_byphase');
 end;
 
 procedure TControlPanel.PosSeqEquiv1Click(Sender: TObject);
@@ -2111,6 +2154,17 @@ begin
 
 end;
 
+procedure TControlPanel.Phase1Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Export Voltages');
+end;
+
+procedure TControlPanel.Phase2Click(Sender: TObject);
+begin
+     ActiveScriptForm.ExecuteDSSCommand('Export Currents');
+
+end;
+
 procedure TControlPanel.PopUp1ChDirClick(Sender: TObject);
 begin
      If CompileCombo.ItemIndex >=0 Then Begin
@@ -2361,11 +2415,6 @@ end;
 
 
 
-procedure TControlPanel.Voltages2Click(Sender: TObject);
-begin
-   ActiveScriptForm.ExecuteDSSCommand('Export Voltages');
-end;
-
 procedure TControlPanel.SeqVoltages1Click(Sender: TObject);
 begin
      ActiveScriptForm.ExecuteDSSCommand('Export seqVoltages');
@@ -2382,24 +2431,19 @@ begin
      CompileCombo.Sorted := FALSE; // set back to unsorted (last in first out)
 end;
 
-procedure TControlPanel.Currents3Click(Sender: TObject);
+procedure TControlPanel.Sequence1Click(Sender: TObject);
 begin
-    ActiveScriptForm.ExecuteDSSCommand('Export Currents');
+     ActiveScriptForm.ExecuteDSSCommand('Export seqVoltages');
 end;
 
-procedure TControlPanel.SeqCurrents1Click(Sender: TObject);
+procedure TControlPanel.Sequence2Click(Sender: TObject);
 begin
      ActiveScriptForm.ExecuteDSSCommand('Export seqcurrents');
 end;
 
-procedure TControlPanel.SeqPowers1Click(Sender: TObject);
+procedure TControlPanel.Sequence3Click(Sender: TObject);
 begin
      ActiveScriptForm.ExecuteDSSCommand('Export seqpowers');
-end;
-
-procedure TControlPanel.Powers2Click(Sender: TObject);
-begin
-     ActiveScriptForm.ExecuteDSSCommand('Export powers');
 end;
 
 procedure TControlPanel.PowersByPhase1Click(Sender: TObject);

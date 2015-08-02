@@ -38,6 +38,7 @@ Procedure ShowNodeCurrentSum(FileNm:String);
 Procedure ShowkVBaseMismatch(FileNm:String);
 Procedure ShowDeltaV(FileNm:String);
 Procedure ShowControlledElements(FileNm:String);
+Procedure ShowResult(FileNm:String);
 
 implementation
 
@@ -3466,6 +3467,32 @@ Begin
   End;
 
 End;
+
+Procedure ShowResult(FileNm:String);
+
+Var
+   F : TextFile;
+
+Begin
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+     Parservars.Lookup('@result');
+     Writeln(F, Parservars.Value );
+
+     GlobalResult := FileNm;
+
+  FINALLY
+
+     CloseFile(F);
+     FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
+  End;
+
+
+End;
+
 
 Initialization
 

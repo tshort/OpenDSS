@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumShowOptions = 33;
+        NumShowOptions = 34;
 
 FUNCTION DoShowCmd:Integer;
 
@@ -59,6 +59,7 @@ Begin
     ShowOption[31] := 'deltaV';
     ShowOption[32] := 'QueryLog';
     ShowOption[33] := 'Controlled';
+    ShowOption[34] := 'Result';
 
 
 
@@ -132,6 +133,7 @@ Begin
     ShowHelp[31] := 'Show voltages ACROSS each 2-terminal element, phase-by-phase. ';
     ShowHelp[32] := 'Show Query Log file. ';
     ShowHelp[33] := 'Show Controlled elements and the names of the controls connected to them in CSV format.';
+    ShowHelp[34] := 'Show last result (in @result variable).';
 
 End;
 
@@ -348,6 +350,7 @@ Begin
       31: ShowDeltaV(GetOutputDirectory + CircuitName_ + 'DeltaV.Txt');
       32: FireOffEditor(QueryLogFileName);
       33: ShowControlledElements(GetOutputDirectory + CircuitName_ + 'ControlledElements.CSV');
+      34: ShowResult(GetOutputDirectory + CircuitName_ + 'Result.CSV');
    ELSE
    End;
 
