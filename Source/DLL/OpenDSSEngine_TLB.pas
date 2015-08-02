@@ -11,11 +11,11 @@ unit OpenDSSengine_TLB;
 // manual modifications will be lost.
 // ************************************************************************ //
 
-// $Rev: 52393 $
-// File generated on 07/07/2015 5:13:18 p. m. from Type Library described below.
+// $Rev: 45604 $
+// File generated on 8/2/2015 3:28:53 PM from Type Library described below.
 
 // ************************************************************************  //
-// Type Lib: D:\OpenDSS\Source\DLL\OpenDSSengine (1)
+// Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
 // LIBID: {8BFDE413-245A-4514-B151-B16DCC243796}
 // LCID: 0
 // Helpfile:
@@ -24,6 +24,8 @@ unit OpenDSSengine_TLB;
 //   (1) v2.0 stdole, (C:\Windows\SysWOW64\stdole2.tlb)
 //   (2) v1.0 stdole, (stdole32.tlb)
 // SYS_KIND: SYS_WIN32
+// Errors:
+//   Hint: Member 'Class' of 'ILoads' changed to 'Class_'
 // ************************************************************************ //
 {$TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers.
 {$WARN SYMBOL_PLATFORM OFF}
@@ -669,9 +671,11 @@ type
     function Get_LoadShapes: ILoadShapes; safecall;
     function Get_Fuses: Fuses; safecall;
     function Get_Isources: IISources; safecall;
-    function Get_NodeVarray: OleVariant; safecall;
+    function Get_YNodeVarray: OleVariant; safecall;
     procedure EndOfTimeStepUpdate; safecall;
     function Get_DSSim_Coms: IDSSimComs; safecall;
+    function Get_YNodeOrder: OleVariant; safecall;
+    function Get_YCurrents: OleVariant; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -724,8 +728,10 @@ type
     property LoadShapes: ILoadShapes read Get_LoadShapes;
     property Fuses: Fuses read Get_Fuses;
     property Isources: IISources read Get_Isources;
-    property NodeVarray: OleVariant read Get_NodeVarray;
+    property YNodeVarray: OleVariant read Get_YNodeVarray;
     property DSSim_Coms: IDSSimComs read Get_DSSim_Coms;
+    property YNodeOrder: OleVariant read Get_YNodeOrder;
+    property YCurrents: OleVariant read Get_YCurrents;
   end;
 
 // *********************************************************************//
@@ -803,9 +809,11 @@ type
     property LoadShapes: ILoadShapes readonly dispid 228;
     property Fuses: Fuses readonly dispid 229;
     property Isources: IISources readonly dispid 230;
-    property NodeVarray: OleVariant readonly dispid 231;
+    property YNodeVarray: OleVariant readonly dispid 231;
     procedure EndOfTimeStepUpdate; dispid 232;
     property DSSim_Coms: IDSSimComs readonly dispid 233;
+    property YNodeOrder: OleVariant readonly dispid 234;
+    property YCurrents: OleVariant readonly dispid 235;
   end;
 
 // *********************************************************************//

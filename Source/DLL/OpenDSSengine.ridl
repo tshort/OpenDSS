@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 7/31/2015 3:02:02 PM (- $Rev: 12980 $, 92931402).
+// File generated on 8/2/2015 3:28:59 PM (- $Rev: 12980 $, 4500441).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -605,11 +605,15 @@ library OpenDSSengine
     [propget, id(0x000000E6), helpstring("Interface to ISOURCE devices")]
     HRESULT _stdcall Isources([out, retval] IISources** Value);
     [propget, id(0x000000E7), helpstring("Complex array of actual node voltages in same order as SystemY matrix.")]
-    HRESULT _stdcall NodeVarray([out, retval] VARIANT* Value);
+    HRESULT _stdcall YNodeVarray([out, retval] VARIANT* Value);
     [id(0x000000E8), helpstring("Calls EndOfTimeStepCleanup in SolutionAlgs")]
     HRESULT _stdcall EndOfTimeStepUpdate(void);
     [propget, id(0x000000E9)]
     HRESULT _stdcall DSSim_Coms([out, retval] IDSSimComs** Value);
+    [propget, id(0x000000EA), helpstring("Variant array of strings containing the names of the nodes in the same order as the Y matrix")]
+    HRESULT _stdcall YNodeOrder([out, retval] VARIANT* Value);
+    [propget, id(0x000000EB), helpstring("Variant array of doubles containing complex injection currents for the present solution. Is is the \"I\" vector of I=YV")]
+    HRESULT _stdcall YCurrents([out, retval] VARIANT* Value);
   };
 
   [

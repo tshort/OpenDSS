@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 45;
+        NumExportOptions = 48;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -69,6 +69,9 @@ Begin
       ExportOption[43] := 'ElemVoltages';
       ExportOption[44] := 'ElemPowers';
       ExportOption[45] := 'Result';
+      ExportOption[46] := 'YNodeList';
+      ExportOption[47] := 'YVoltages';
+      ExportOption[48] := 'YCurrents';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -118,6 +121,9 @@ Begin
       ExportHelp[43] := '(Default file = EXP_ElemVoltages.CSV)  Exports the voltages to ground at all conductors of all circuit elements';
       ExportHelp[44] := '(Default file = EXP_elemPowers.CSV)  Exports the powers into all conductors of all circuit elements';
       ExportHelp[45] := '(Default file = EXP_Result.CSV)  Exports the result of the most recent command.';
+      ExportHelp[46] := '(Default file = EXP_YNodeList.CSV)  Exports a list of nodes in the same order as the System Y matrix.';
+      ExportHelp[47] := '(Default file = EXP_YVoltages.CSV)  Exports the present solution complex Voltage array in same order as YNodeList.';
+      ExportHelp[48] := '(Default file = EXP_YCurrents.CSV)  Exports the present solution complex Current array in same order as YNodeList. This is generally the injection current array';
 End;
 
 //----------------------------------------------------------------------------
@@ -254,6 +260,10 @@ Begin
          43: FileName := 'EXP_ElemVoltages.CSV';
          44: FileName := 'EXP_ElemPowers.CSV';
          45: FileName := 'EXP_Result.CSV';
+         46: FileName := 'EXP_YNodeList.CSV';
+         47: FileName := 'EXP_YVoltages.CSV';
+         48: FileName := 'EXP_YCurrents.CSV';
+
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
        END;
@@ -311,6 +321,9 @@ Begin
      43: ExportElemVoltages(FileName);
      44: ExportElemPowers(FileName);
      45: ExportResult(FileName);
+     46: ExportYNodeList(FileName);
+     47: ExportYVoltages(FileName);
+     48: ExportYCurrents(FileName);
    ELSE
          ExportVoltages(FileName);    // default
    END;

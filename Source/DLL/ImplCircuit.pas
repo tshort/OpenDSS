@@ -88,9 +88,11 @@ type
     function Get_LoadShapes: ILoadShapes; safecall;
     function Get_Fuses: Fuses; safecall;
     function Get_Isources: IISources; safecall;
-    function Get_NodeVarray: OleVariant; safecall;
     procedure EndOfTimeStepUpdate; safecall;
-    function Get_DSSim_Coms: IDSSimComs; safecall; //Declares DSSim_Coms
+    function Get_DSSim_Coms: IDSSimComs; safecall;
+    function Get_YNodeOrder: OleVariant; safecall;
+    function Get_YCurrents: OleVariant; safecall;
+    function Get_YNodeVarray: OleVariant; safecall; //Declares DSSim_Coms
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -1112,8 +1114,60 @@ begin
     Result := FIsources as IISources;
 end;
 
-function TCircuit.Get_NodeVarray: OleVariant;
-// return actual NodeV array
+
+
+procedure TCircuit.EndOfTimeStepUpdate;
+begin
+      EndOfTimeStepCleanup;
+end;
+
+function TCircuit.Get_YNodeOrder: OleVariant;
+VAR
+   i, k:Integer;
+
+Begin
+    IF ActiveCircuit <> Nil THEN
+     WITH ActiveCircuit DO
+     Begin
+       Result := VarArrayCreate([0, NumNodes-1], varOleStr);
+       k:=0;
+       FOR i := 1 to NumNodes DO
+       Begin
+             With MapNodeToBus^[i] do
+             Result[k] := Format('%s.%-d',[Uppercase(BusList.Get(Busref)), NodeNum]);
+             Inc(k);
+       End;
+     End
+    ELSE Result := VarArrayCreate([0, 0], varOleStr);
+
+end;
+
+
+function TCircuit.Get_YCurrents: OleVariant;
+VAR
+   i,k:Integer;
+   Curr:Complex;
+
+Begin
+    IF ActiveCircuit <> Nil THEN
+     WITH ActiveCircuit DO
+     Begin
+       Result := VarArrayCreate([0, 2*NumNodes-1], varDouble);
+       k:=0;
+       FOR i := 1 to NumNodes DO
+       Begin
+             Curr := ActiveCircuit.Solution.Currents^[i];
+             Result[k] := Curr.re;
+             Inc(k);
+             Result[k] := Curr.im;
+             Inc(k);
+       End;
+     End
+    ELSE Result := VarArrayCreate([0, 0], varDouble);
+
+end;
+
+function TCircuit.Get_YNodeVarray: OleVariant;
 VAR
    i,k:Integer;
    Volts:Complex;
@@ -1135,11 +1189,6 @@ Begin
      End
     ELSE Result := VarArrayCreate([0, 0], varDouble);
 
-end;
-
-procedure TCircuit.EndOfTimeStepUpdate;
-begin
-      EndOfTimeStepCleanup;
 end;
 
 initialization

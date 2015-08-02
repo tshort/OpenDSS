@@ -49,6 +49,9 @@ Procedure ExportElemCurrents(FileNm:String);
 Procedure ExportElemVoltages(FileNm:String);
 Procedure ExportElemPowers(FileNm:String);
 Procedure ExportResult(FileNm:String);
+Procedure ExportYNodeList(FileNM:String);
+Procedure ExportYVoltages(FileNM:String);
+Procedure ExportYCurrents(FileNM:String);
 
 
 IMPLEMENTATION
@@ -2306,7 +2309,7 @@ Begin
 *)
         For i := 1 to NumNodes Do Begin
            j :=  MapNodeToBus^[i].BusRef;
-           Write(F, Format('%s.%-d, ',[Uppercase(BusList.Get(j)), MapNodeToBus^[i].NodeNum]));
+           Write(F, Format('"%s.%-d", ',[Uppercase(BusList.Get(j)), MapNodeToBus^[i].NodeNum]));
            For j := 1 to NumNodes Do Begin
               re := 0.0;
               im := 0.0;
@@ -3064,6 +3067,94 @@ Begin
      CloseFile(F);
   End;
 
+
+End;
+
+Procedure ExportYNodeList(FileNM:String);
+VAR
+   i : Integer;
+   F : TextFile;
+
+Begin
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+
+    IF ActiveCircuit <> Nil THEN
+     WITH ActiveCircuit DO
+     Begin
+       FOR i := 1 to NumNodes DO
+       Begin
+             With MapNodeToBus^[i] do
+             Writeln(F, Format('"%s.%-d"',[Uppercase(BusList.Get(Busref)), NodeNum]));
+       End;
+     End;
+
+    GlobalResult := FileNm;
+
+  Finally
+      CloseFile(F);
+  End;
+
+End;
+
+Procedure ExportYVoltages(FileNM:String);
+VAR
+   i : Integer;
+   F : TextFile;
+
+Begin
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+
+    IF ActiveCircuit <> Nil THEN
+     WITH ActiveCircuit DO
+     Begin
+       FOR i := 1 to NumNodes DO
+       Begin
+            With solution.NodeV^[i] Do
+             Writeln(F, Format('%10.6g, %10.6g',[re, im]));
+       End;
+     End;
+
+    GlobalResult := FileNm;
+
+  Finally
+      CloseFile(F);
+  End;
+
+
+End;
+
+Procedure ExportYCurrents(FileNM:String);
+VAR
+   i : Integer;
+   F : TextFile;
+
+Begin
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+
+    IF ActiveCircuit <> Nil THEN
+     WITH ActiveCircuit DO
+     Begin
+       FOR i := 1 to NumNodes DO
+       Begin
+            With solution.Currents^[i] Do
+             Writeln(F, Format('%10.6g, %10.6g',[re, im]));
+       End;
+     End;
+
+    GlobalResult := FileNm;
+
+  Finally
+      CloseFile(F);
+  End;
 
 End;
 

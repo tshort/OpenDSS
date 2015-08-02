@@ -99,7 +99,6 @@ type
     LoadModel1: TMenuItem;
     Editor1: TMenuItem;
     Datapath1: TMenuItem;
-    LDCurve1: TMenuItem;
     DefaultDaily1: TMenuItem;
     Number1: TMenuItem;
     Growth1: TMenuItem;
@@ -238,6 +237,13 @@ type
     ByOhase1: TMenuItem;
     Sequence3: TMenuItem;
     Element3: TMenuItem;
+    BaseClassCombo: TComboBox;
+    BaseFrequency1: TMenuItem;
+    BaseFrequcney501: TMenuItem;
+    YMatrix1: TMenuItem;
+    NodeList1: TMenuItem;
+    VoltArray1: TMenuItem;
+    CurrArray1: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DSSHelp1Click(Sender: TObject);
     procedure AboutDSS1Click(Sender: TObject);
@@ -375,7 +381,6 @@ type
     procedure CurrentsElemResid1Click(Sender: TObject);
     procedure RPNEvaluator1Click(Sender: TObject);
     procedure Yprims1Click(Sender: TObject);
-    procedure Y1Click(Sender: TObject);
     procedure Capacity1Click(Sender: TObject);
     procedure SeqZ1Click(Sender: TObject);
     procedure PowersByPhase1Click(Sender: TObject);
@@ -404,6 +409,13 @@ type
     procedure ByOhase1Click(Sender: TObject);
     procedure Sequence3Click(Sender: TObject);
     procedure Element3Click(Sender: TObject);
+    procedure BaseClassComboChange(Sender: TObject);
+    procedure BaseFrequency1Click(Sender: TObject);
+    procedure BaseFrequcney501Click(Sender: TObject);
+    procedure YMatrix1Click(Sender: TObject);
+    procedure NodeList1Click(Sender: TObject);
+    procedure VoltArray1Click(Sender: TObject);
+    procedure CurrArray1Click(Sender: TObject);
   private
     { Private declarations }
     PlotOptionString:String;
@@ -418,6 +430,8 @@ type
     Procedure UpdateStatus;
     Procedure UpdateClassBox;
     Procedure UpdateElementBox;
+    Procedure MakeBaseClassBox;
+    Procedure PopulateClassList(BaseClass: WORD);
   end;
 
 
@@ -619,6 +633,11 @@ begin
   ActiveScriptForm.ExecuteDSSCommand('Show Voltage LL');
 end;
 
+procedure TControlPanel.CurrArray1Click(Sender: TObject);
+begin
+ActiveScriptForm.ExecuteDSSCommand('Export YCurrents');
+end;
+
 procedure TControlPanel.Currents1Click(Sender: TObject);
 begin
      ActiveScriptForm.ExecuteDSSCommand('Show current');
@@ -667,6 +686,8 @@ begin
   if Not ActiveCircuit.IsSolved then SummaryForm.Show;
   Screen.Cursor := crDefault;
 end;
+
+
 
 procedure TControlPanel.ToolButton2Click(Sender: TObject);
 begin
@@ -937,6 +958,7 @@ begin
   {Tile;}
   UpdateStatus;
   Recordcommands := False;
+  MakeBaseClassBox;
   UpdateClassBox;
 end;
 
@@ -997,7 +1019,7 @@ begin
        TraceLog1.Checked          := ControlQueue.TraceLog;
        Trapezoidal1.checked       := TrapezoidalIntegration;
      End;
-     LBL_DefaultFreq.Caption := Format('Base Frequency = %d Hz ', [Round(DefaultBaseFreq) ]);
+     LBL_DefaultFreq.Caption := Format(' Base Frequency = %d Hz', [Round(DefaultBaseFreq) ]);
 end;
 
 procedure TControlPanel.RecordScript1Click(Sender: TObject);
@@ -1025,8 +1047,16 @@ Var
         i:Integer;
 begin
         ClassBox.Clear;
-        For i := 1 to ClassNames.ListSize Do
-          ClassBox.Items.Add(ClassNames.Get(i));
+        case BaseClassCombo.ItemIndex  of
+
+             0: PopulateClassList(NON_PCPD_ELEM);
+             1: PopulateClassList(PD_ELEMENT);
+             2: PopulateClassList(PC_ELEMENT);
+             3: PopulateClassList(CTRL_ELEMENT);
+             4: PopulateClassList(METER_ELEMENT);
+             5: PopulateClassList(0);
+
+        end;
 
         Classbox.sorted := TRUE;
         ClassBox.ItemIndex := 0;
@@ -1348,11 +1378,6 @@ begin
         End;
 end;
 
-procedure TControlPanel.Y1Click(Sender: TObject);
-begin
-     ActiveScriptForm.ExecuteDSSCommand('Export Y');
-end;
-
 procedure TControlPanel.Year1Click(Sender: TObject);
 begin
         With TValueEntryForm.Create(Nil) Do
@@ -1366,6 +1391,11 @@ begin
            Free;
         End;
 
+end;
+
+procedure TControlPanel.YMatrix1Click(Sender: TObject);
+begin
+ActiveScriptForm.ExecuteDSSCommand('Export Y');
 end;
 
 procedure TControlPanel.Yprims1Click(Sender: TObject);
@@ -1409,6 +1439,24 @@ begin
 
 {Export Bus Coordinates}
    ActiveScriptForm.ExecuteDSSCommand('Export buscoords');
+end;
+
+procedure TControlPanel.MakeBaseClassBox;
+begin
+
+     BaseClassCombo.Clear;
+
+     With BaseClassCombo.Items Do Begin
+           Add('Source/Fault');
+           Add('PDelements');
+           Add('PCelements');
+           Add('Controls');
+           Add('Meters');
+           Add('General');
+     End;
+     BaseClassCombo.ItemIndex := 0;
+     UpdateClassBox;
+
 end;
 
 procedure TControlPanel.MakeBusList1Click(Sender: TObject);
@@ -1602,6 +1650,11 @@ begin
       ActiveScriptForm.ExecuteDSSCommand('buildy');
 end;
 
+procedure TControlPanel.NodeList1Click(Sender: TObject);
+begin
+ActiveScriptForm.ExecuteDSSCommand('Export YNodeList');
+end;
+
 procedure TControlPanel.NodeNames1Click(Sender: TObject);
 begin
     ActiveScriptForm.ExecuteDSSCommand('Export NodeNames');
@@ -1688,6 +1741,25 @@ end;
 procedure TControlPanel.TCCCurve1Click(Sender: TObject);
 begin
      DoSimpleMsg('This function currently inactive.', 999123);
+end;
+
+procedure TControlPanel.BaseClassComboChange(Sender: TObject);
+begin
+
+      UpdateClassBox;
+
+end;
+
+procedure TControlPanel.BaseFrequcney501Click(Sender: TObject);
+begin
+      ActiveScriptForm.ExecuteDSSCommand('Set DefaultBaseFrequency=50');
+end;
+
+procedure TControlPanel.BaseFrequency1Click(Sender: TObject);
+begin
+
+     ActiveScriptForm.ExecuteDSSCommand('Set DefaultBaseFrequency=60');
+
 end;
 
 procedure TControlPanel.BreakLoops1Click(Sender: TObject);
@@ -2062,6 +2134,11 @@ begin
        ActiveScriptForm.ExecuteDSSCommand('Show Voltage LN Nodes');
 end;
 
+procedure TControlPanel.VoltArray1Click(Sender: TObject);
+begin
+ActiveScriptForm.ExecuteDSSCommand('Export Yvoltages');
+end;
+
 procedure TControlPanel.VoltagesLNElements1Click(Sender: TObject);
 begin
        ActiveScriptForm.ExecuteDSSCommand('Show Voltage LN Elements');
@@ -2162,6 +2239,30 @@ end;
 procedure TControlPanel.Phase2Click(Sender: TObject);
 begin
      ActiveScriptForm.ExecuteDSSCommand('Export Currents');
+
+end;
+
+procedure TControlPanel.PopulateClassList(BaseClass: WORD);
+Var
+    pDSSClass :TDSSClass;
+begin
+
+     ClassBox.Items.clear ;
+
+     WITH ClassBox DO
+     Begin
+
+ // put the  DSS Classes in alphabetical order within Base Class
+        pDSSClass := DSSClassList.First;
+        WHILE pDSSClass<>Nil DO Begin
+          If (pDSSClass.DSSClassType AND BASECLASSMASK) = BaseClass
+           Then     Items.Add(pDSSClass.Name );
+          pDSSClass := DSSClassList.Next;
+        End;
+
+        ClassBox.Sorted := TRUE;
+
+      End
 
 end;
 
