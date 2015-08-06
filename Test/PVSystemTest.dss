@@ -33,8 +33,12 @@ new monitor.m2 PVSystem.PV  1
 
 new monitor.mvars PVSystem.PV  1  mode=3
 
+
 solve
-solve mode=daily
+solve mode=daily  trapezoidal=yes
+
+Export pvsystem /m
+show mon m1
 
 show mon m1
 show mon m2
