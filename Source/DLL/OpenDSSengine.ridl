@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 8/2/2015 3:28:59 PM (- $Rev: 12980 $, 4500441).
+// File generated on 8/6/2015 1:10:17 PM (- $Rev: 12980 $, 11762412).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -95,6 +95,8 @@ library OpenDSSengine
   coclass ISources;
   interface IDSSimComs;
   coclass DSSimComs;
+  interface IPVSystems;
+  coclass PVSystems;
 
 
   [
@@ -2612,6 +2614,40 @@ library OpenDSSengine
   };
 
   [
+    uuid(FAF19717-5887-43F6-8DC3-D0337E1081AD),
+    helpstring("Dispatch interface for PVSystems Object"),
+    dual,
+    oleautomation
+  ]
+  interface IPVSystems: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Vairant array of strings with all PVSystem names")]
+    HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
+    [propget, id(0x000000CA), helpstring("Variant Array of PVSYSTEM energy meter register names")]
+    HRESULT _stdcall RegisterNames([out, retval] VARIANT* Value);
+    [propget, id(0x000000CB), helpstring("Variant array of doubles containing values in PVSystem registers.")]
+    HRESULT _stdcall RegisterValues([out, retval] VARIANT* Value);
+    [propget, id(0x000000CC), helpstring("Set first PVSystem active; returns 0 if none.")]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CD), helpstring("Sets next PVSystem active; returns 0 if no more.")]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CE), helpstring("Number of PVSystems")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CF), helpstring("Get/set active PVSystem by index;  1..Count")]
+    HRESULT _stdcall idx([out, retval] long* Value);
+    [propput, id(0x000000CF), helpstring("Get/Set Active PVSystem by index:  1.. Count")]
+    HRESULT _stdcall idx([in] long Value);
+    [propget, id(0x000000D0), helpstring("Get the name of the active PVSystem")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000D0), helpstring("Set the name of the active PVSystem")]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000D1), helpstring("Get the present value of the Irradiance property in W/sq-m")]
+    HRESULT _stdcall Irradiance([out, retval] double* Value);
+    [propput, id(0x000000D1), helpstring("Set the present Irradiance value in W/sq-m")]
+    HRESULT _stdcall Irradiance([in] double Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -2984,6 +3020,15 @@ library OpenDSSengine
   coclass DSSimComs
   {
     [default] interface IDSSimComs;
+  };
+
+  [
+    uuid(D8D7592D-D5CD-4E27-870D-00D654DF2D3C),
+    helpstring("PVSystems Object")
+  ]
+  coclass PVSystems
+  {
+    [default] interface IPVSystems;
   };
 
 };

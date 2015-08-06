@@ -203,7 +203,8 @@ uses
   ExpControl in '..\Controls\ExpControl.pas',
   UPFC in '..\PCElements\UPFC.pas',
   ImplDSSimComs in 'ImplDSSimComs.pas',
-  GenDispatcher in '..\Controls\GenDispatcher.pas';
+  GenDispatcher in '..\Controls\GenDispatcher.pas',
+  ImplPVSystems in 'ImplPVSystems.pas' {PVSystems: CoClass};
 
 exports
   DllGetClassObject,

@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 8/2/2015 3:28:53 PM from Type Library described below.
+// File generated on 8/6/2015 1:10:13 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -127,6 +127,8 @@ const
   CLASS_ISources: TGUID = '{CE35EBD2-BDD4-4B01-AE88-1D90DC82F619}';
   IID_IDSSimComs: TGUID = '{25C5373D-5888-4A0C-974B-77EBD57ED0D1}';
   CLASS_DSSimComs: TGUID = '{2104B607-8D58-4BBD-85B8-4E5F1C8BD6BE}';
+  IID_IPVSystems: TGUID = '{FAF19717-5887-43F6-8DC3-D0337E1081AD}';
+  CLASS_PVSystems: TGUID = '{D8D7592D-D5CD-4E27-870D-00D654DF2D3C}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -323,6 +325,8 @@ type
   IISourcesDisp = dispinterface;
   IDSSimComs = interface;
   IDSSimComsDisp = dispinterface;
+  IPVSystems = interface;
+  IPVSystemsDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -365,6 +369,7 @@ type
   Fuses = IFuses;
   ISources = IISources;
   DSSimComs = IDSSimComs;
+  PVSystems = IPVSystems;
 
 
 // *********************************************************************//
@@ -3278,6 +3283,54 @@ type
   end;
 
 // *********************************************************************//
+// Interface: IPVSystems
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {FAF19717-5887-43F6-8DC3-D0337E1081AD}
+// *********************************************************************//
+  IPVSystems = interface(IDispatch)
+    ['{FAF19717-5887-43F6-8DC3-D0337E1081AD}']
+    function Get_AllNames: OleVariant; safecall;
+    function Get_RegisterNames: OleVariant; safecall;
+    function Get_RegisterValues: OleVariant; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_Count: Integer; safecall;
+    function Get_idx: Integer; safecall;
+    procedure Set_idx(Value: Integer); safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_Irradiance: Double; safecall;
+    procedure Set_Irradiance(Value: Double); safecall;
+    property AllNames: OleVariant read Get_AllNames;
+    property RegisterNames: OleVariant read Get_RegisterNames;
+    property RegisterValues: OleVariant read Get_RegisterValues;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property Count: Integer read Get_Count;
+    property idx: Integer read Get_idx write Set_idx;
+    property Name: WideString read Get_Name write Set_Name;
+    property Irradiance: Double read Get_Irradiance write Set_Irradiance;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IPVSystemsDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {FAF19717-5887-43F6-8DC3-D0337E1081AD}
+// *********************************************************************//
+  IPVSystemsDisp = dispinterface
+    ['{FAF19717-5887-43F6-8DC3-D0337E1081AD}']
+    property AllNames: OleVariant readonly dispid 201;
+    property RegisterNames: OleVariant readonly dispid 202;
+    property RegisterValues: OleVariant readonly dispid 203;
+    property First: Integer readonly dispid 204;
+    property Next: Integer readonly dispid 205;
+    property Count: Integer readonly dispid 206;
+    property idx: Integer dispid 207;
+    property Name: WideString dispid 208;
+    property Irradiance: Double dispid 209;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -3721,6 +3774,18 @@ type
     class function CreateRemote(const MachineName: string): IDSSimComs;
   end;
 
+// *********************************************************************//
+// The Class CoPVSystems provides a Create and CreateRemote method to
+// create instances of the default interface IPVSystems exposed by
+// the CoClass PVSystems. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoPVSystems = class
+    class function Create: IPVSystems;
+    class function CreateRemote(const MachineName: string): IPVSystems;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -4093,6 +4158,16 @@ end;
 class function CoDSSimComs.CreateRemote(const MachineName: string): IDSSimComs;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_DSSimComs) as IDSSimComs;
+end;
+
+class function CoPVSystems.Create: IPVSystems;
+begin
+  Result := CreateComObject(CLASS_PVSystems) as IPVSystems;
+end;
+
+class function CoPVSystems.CreateRemote(const MachineName: string): IPVSystems;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_PVSystems) as IPVSystems;
 end;
 
 end.
