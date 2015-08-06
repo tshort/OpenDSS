@@ -815,6 +815,7 @@ Begin
       // Reset Generator Objects, too
       GeneratorClass.ResetRegistersAll;
       StorageClass.ResetRegistersAll;
+      PVSystemClass.ResetRegistersAll;
 
 
 End;
@@ -848,6 +849,7 @@ Begin
       // Sample Generator ans Storage Objects, too
       GeneratorClass.SampleAll;
       StorageClass.SampleAll;  // samples energymeter part of storage elements (not update)
+      PVSystemClass.SampleAll;
 
 End;
 
@@ -1186,6 +1188,8 @@ Begin
 { Set the derivatives so that the proper value shows up in Demand Interval Files
   and prepare for next time step in Trapezoidal integration }
      Derivatives[Reg] := Deriv;
+
+
 
 End;
 

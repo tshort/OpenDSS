@@ -244,6 +244,10 @@ type
     NodeList1: TMenuItem;
     VoltArray1: TMenuItem;
     CurrArray1: TMenuItem;
+    EnergyMeters2: TMenuItem;
+    Generators3: TMenuItem;
+    PVSystems1: TMenuItem;
+    Storage1: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DSSHelp1Click(Sender: TObject);
     procedure AboutDSS1Click(Sender: TObject);
@@ -372,7 +376,6 @@ type
     procedure Unserved1Click(Sender: TObject);
     procedure Generators2Click(Sender: TObject);
     procedure Loads1Click(Sender: TObject);
-    procedure Meters2Click(Sender: TObject);
     procedure Monitors2Click(Sender: TObject);
     procedure ToolButton21Click(Sender: TObject);
     procedure CurrentsElem2Click(Sender: TObject);
@@ -416,6 +419,10 @@ type
     procedure NodeList1Click(Sender: TObject);
     procedure VoltArray1Click(Sender: TObject);
     procedure CurrArray1Click(Sender: TObject);
+    procedure EnergyMeters2Click(Sender: TObject);
+    procedure Generators3Click(Sender: TObject);
+    procedure PVSystems1Click(Sender: TObject);
+    procedure Storage1Click(Sender: TObject);
   private
     { Private declarations }
     PlotOptionString:String;
@@ -1156,6 +1163,11 @@ end;
 
 
 
+procedure TControlPanel.EnergyMeters2Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Export meters');
+end;
+
 procedure TControlPanel.erminal1Click(Sender: TObject);
 begin
   ActiveScriptForm.ExecuteDSSCommand('Export Powers');
@@ -1721,6 +1733,11 @@ begin
     End;
 end;
 
+procedure TControlPanel.Storage1Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Export Storage_Meters');
+end;
+
 procedure TControlPanel.Stubs1Click(Sender: TObject);
 begin
     If ActiveCircuit <> Nil Then Begin
@@ -2159,6 +2176,11 @@ begin
        ActiveScriptForm.ExecuteDSSCommand('Show Powers MVA Elements');
 end;
 
+procedure TControlPanel.PVSystems1Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Export PVSystem_Meters');
+end;
+
 procedure TControlPanel.CurrentsElem1Click(Sender: TObject);
 begin
      ActiveScriptForm.ExecuteDSSCommand('Show Currents Elements');
@@ -2572,14 +2594,14 @@ begin
      ActiveScriptForm.ExecuteDSSCommand('Export generators');
 end;
 
+procedure TControlPanel.Generators3Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Export generators');
+end;
+
 procedure TControlPanel.Loads1Click(Sender: TObject);
 begin
      ActiveScriptForm.ExecuteDSSCommand('Export loads');
-end;
-
-procedure TControlPanel.Meters2Click(Sender: TObject);
-begin
-    ActiveScriptForm.ExecuteDSSCommand('Export meters');
 end;
 
 procedure TControlPanel.Mismatch1Click(Sender: TObject);

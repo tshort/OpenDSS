@@ -33,7 +33,7 @@ interface
 USES  PVsystemUserModel, DSSClass,  PCClass, PCElement, ucmatrix, ucomplex,
       LoadShape, TempShape, XYCurve, Spectrum, ArrayDef, Dynamics;
 
-Const  NumPVSystemRegisters = 5;    // Number of energy meter registers
+Const  NumPVSystemRegisters = 6;    // Number of energy meter registers
        NumPVSystemVariables = 5;    // No state variables that need integrating.
        VARMODEPF   = 0;
        VARMODEKVAR = 1;
@@ -388,6 +388,7 @@ Begin
      RegisterNames[3]  := 'Max kW';
      RegisterNames[4]  := 'Max kVA';
      RegisterNames[5]  := 'Hours';
+     RegisterNames[6]  := 'Price($)';
 
      DefineProperties;
 
@@ -2097,6 +2098,7 @@ End;
 PROCEDURE TPVsystemObj.Integrate(Reg:Integer; const Deriv:Double; Const Interval:Double);
 
 Begin
+
      IF ActiveCircuit.TrapezoidalIntegration
      THEN Begin
         {Trapezoidal Rule Integration}
@@ -2106,6 +2108,7 @@ Begin
          Registers[Reg] := Registers[Reg] + Interval * Deriv;
 
      Derivatives[Reg] := Deriv;
+
 End;
 
 // ===========================================================================================
@@ -2126,13 +2129,12 @@ Begin
           Smag := Cabs(S);
           HourValue := 1.0;
 
-        IF  ActiveCircuit.TrapezoidalIntegration THEN
-        {Make sure we always integrate for Trapezoidal case
-         Don't need to for Gen Off and normal integration}
+
         WITH ActiveCircuit.Solution
         Do Begin
              IF ActiveCircuit.PositiveSequence
-             THEN Begin
+             THEN
+             Begin
                 S    := CmulReal(S, 3.0);
                 Smag := 3.0*Smag;
              End;
@@ -2141,7 +2143,7 @@ Begin
              SetDragHandRegister  (Reg_MaxkW, abs(S.re));
              SetDragHandRegister  (Reg_MaxkVA, Smag);
              Integrate            (Reg_Hours, HourValue, IntervalHrs);  // Accumulate Hours in operation
-             Integrate            (Reg_Price, S.re*ActiveCircuit.PriceSignal , IntervalHrs);  // Accumulate Hours in operation
+             Integrate            (Reg_Price, S.re*ActiveCircuit.PriceSignal * 0.001 , IntervalHrs);  //
              FirstSampleAfterReset := False;
           End;
      End;

@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 48;
+        NumExportOptions = 50;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -72,6 +72,8 @@ Begin
       ExportOption[46] := 'YNodeList';
       ExportOption[47] := 'YVoltages';
       ExportOption[48] := 'YCurrents';
+      ExportOption[49] := 'PVSystem_Meters';
+      ExportOption[50] := 'Storage_Meters';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -124,6 +126,10 @@ Begin
       ExportHelp[46] := '(Default file = EXP_YNodeList.CSV)  Exports a list of nodes in the same order as the System Y matrix.';
       ExportHelp[47] := '(Default file = EXP_YVoltages.CSV)  Exports the present solution complex Voltage array in same order as YNodeList.';
       ExportHelp[48] := '(Default file = EXP_YCurrents.CSV)  Exports the present solution complex Current array in same order as YNodeList. This is generally the injection current array';
+      ExportHelp[49] := '(Default file = EXP_PVMETERS.CSV) Present values of PVSystem meters. Adding the switch "/multiple" or "/m" will ' +
+                        ' cause a separate file to be written for each PVSystem.';
+      ExportHelp[50] := '(Default file = EXP_STORAGEMETERS.CSV) Present values of Storage meters. Adding the switch "/multiple" or "/m" will ' +
+                        ' cause a separate file to be written for each Storage device.';
 End;
 
 //----------------------------------------------------------------------------
@@ -263,6 +269,8 @@ Begin
          46: FileName := 'EXP_YNodeList.CSV';
          47: FileName := 'EXP_YVoltages.CSV';
          48: FileName := 'EXP_YCurrents.CSV';
+         49: FileName := 'EXP_PVMeters.CSV';
+         50: FileName := 'EXP_STORAGEMeters.CSV';
 
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
@@ -324,6 +332,9 @@ Begin
      46: ExportYNodeList(FileName);
      47: ExportYVoltages(FileName);
      48: ExportYCurrents(FileName);
+     49: ExportPVSystemMeters(FileName);
+     50: ExportStorageMeters(FileName);
+
    ELSE
          ExportVoltages(FileName);    // default
    END;
