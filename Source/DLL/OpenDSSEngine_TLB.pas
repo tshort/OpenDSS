@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 8/6/2015 1:10:13 PM from Type Library described below.
+// File generated on 8/8/2015 10:01:15 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -681,6 +681,7 @@ type
     function Get_DSSim_Coms: IDSSimComs; safecall;
     function Get_YNodeOrder: OleVariant; safecall;
     function Get_YCurrents: OleVariant; safecall;
+    function Get_PVSystems: IPVSystems; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -737,6 +738,7 @@ type
     property DSSim_Coms: IDSSimComs read Get_DSSim_Coms;
     property YNodeOrder: OleVariant read Get_YNodeOrder;
     property YCurrents: OleVariant read Get_YCurrents;
+    property PVSystems: IPVSystems read Get_PVSystems;
   end;
 
 // *********************************************************************//
@@ -819,6 +821,7 @@ type
     property DSSim_Coms: IDSSimComs readonly dispid 233;
     property YNodeOrder: OleVariant readonly dispid 234;
     property YCurrents: OleVariant readonly dispid 235;
+    property PVSystems: IPVSystems readonly dispid 236;
   end;
 
 // *********************************************************************//

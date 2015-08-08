@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 8/6/2015 1:10:17 PM (- $Rev: 12980 $, 11762412).
+// File generated on 8/8/2015 10:01:28 AM (- $Rev: 12980 $, 173233525).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -616,6 +616,8 @@ library OpenDSSengine
     HRESULT _stdcall YNodeOrder([out, retval] VARIANT* Value);
     [propget, id(0x000000EB), helpstring("Variant array of doubles containing complex injection currents for the present solution. Is is the \"I\" vector of I=YV")]
     HRESULT _stdcall YCurrents([out, retval] VARIANT* Value);
+    [propget, id(0x000000EC), helpstring("Interface to PVSystems collection")]
+    HRESULT _stdcall PVSystems([out, retval] IPVSystems** Value);
   };
 
   [

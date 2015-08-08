@@ -27,7 +27,7 @@ type
 
 implementation
 
-uses ComServ, DSSGlobals, PVSystem, Variants;
+uses ComServ, DSSGlobals, PVSystem, Variants, SysUtils;
 
 function TPVSystems.Get_AllNames: OleVariant;
 Var
@@ -153,7 +153,6 @@ end;
 
 function TPVSystems.Get_idx: Integer;
 begin
- begin
     if ActiveCircuit <> Nil then
        Result := ActiveCircuit.PVSystems.ActiveIndex
     else Result := 0;

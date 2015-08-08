@@ -92,7 +92,8 @@ type
     function Get_DSSim_Coms: IDSSimComs; safecall;
     function Get_YNodeOrder: OleVariant; safecall;
     function Get_YCurrents: OleVariant; safecall;
-    function Get_YNodeVarray: OleVariant; safecall; //Declares DSSim_Coms
+    function Get_YNodeVarray: OleVariant; safecall;
+    function Get_PVSystems: IPVSystems; safecall; //Declares DSSim_Coms
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -1189,6 +1190,11 @@ Begin
      End
     ELSE Result := VarArrayCreate([0, 0], varDouble);
 
+end;
+
+function TCircuit.Get_PVSystems: IPVSystems;
+begin
+      Result := FPVSystems as IPVSystems;
 end;
 
 initialization
