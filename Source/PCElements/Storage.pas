@@ -2186,7 +2186,7 @@ Begin
              SetDragHandRegister  (Reg_MaxkW, abs(S.re));
              SetDragHandRegister  (Reg_MaxkVA, Smag);
              Integrate            (Reg_Hours, HourValue, IntervalHrs);  // Accumulate Hours in operation
-             Integrate            (Reg_Price, S.re*ActiveCircuit.PriceSignal * 0.001 , IntervalHrs);  // Accumulate Hours in operation
+             Integrate            (Reg_Price, S.re*ActiveCircuit.PriceSignal*0.001 , IntervalHrs);  // Accumulate Hours in operation
              FirstSampleAfterReset := False;
           End;
      End;

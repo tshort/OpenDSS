@@ -1050,10 +1050,7 @@ begin
 end;
 
 procedure TControlPanel.UpdateClassBox;
-Var
-        i:Integer;
 begin
-        ClassBox.Clear;
         case BaseClassCombo.ItemIndex  of
 
              0: PopulateClassList(NON_PCPD_ELEM);
@@ -1065,7 +1062,6 @@ begin
 
         end;
 
-        Classbox.sorted := TRUE;
         ClassBox.ItemIndex := 0;
         UpdateElementBox;
 end;
@@ -2270,19 +2266,20 @@ Var
 begin
 
      ClassBox.Items.clear ;
+     ClassBox.Sorted := FALSE;
 
      WITH ClassBox DO
      Begin
 
  // put the  DSS Classes in alphabetical order within Base Class
-        pDSSClass := DSSClassList.First;
-        WHILE pDSSClass<>Nil DO Begin
-          If (pDSSClass.DSSClassType AND BASECLASSMASK) = BaseClass
-           Then     Items.Add(pDSSClass.Name );
-          pDSSClass := DSSClassList.Next;
-        End;
+          pDSSClass := DSSClassList.First;
+          WHILE pDSSClass<>Nil DO Begin
+            If (pDSSClass.DSSClassType AND BASECLASSMASK) = BaseClass
+             Then     Items.Add(pDSSClass.Name );
+            pDSSClass := DSSClassList.Next;
+          End;
 
-        ClassBox.Sorted := TRUE;
+          If BaseClass <> NON_PCPD_ELEM Then ClassBox.Sorted := TRUE;
 
       End
 
@@ -2700,6 +2697,7 @@ procedure TControlPanel.RPNEvaluator1Click(Sender: TObject);
 begin
      RPNform.ShowModal;
 end;
+
 
 Initialization
     SelectedMonitor :=  '';
