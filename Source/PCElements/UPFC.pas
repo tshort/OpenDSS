@@ -13,7 +13,7 @@ unit UPFC;
 
 interface
 
-USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum, Loadshape;
+USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum, Loadshape, XYCurve;
 
 TYPE
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -50,9 +50,10 @@ TYPE
         SrcFrequency:Double;
         FphaseShift  :Double;
         ModeUPFC    : Integer;
-        kWLoad  : Double;
-        kVArLoad: Double;
+        Vpqmax  : Double;
         SyncFlag: Boolean;   // Flags used to synchronize both controllers in Dual mode
+        LossCurve           :String;      //Losses curve name
+        UPFCLossCurveObj    :TXYCurveObj; //Losses curve reference
 
         ScanType     : Integer;
         SequenceType : Integer;
@@ -66,8 +67,8 @@ TYPE
         PROCEDURE CalcYearlyMult(Hr:double);
         Function GetinputCurr(Cond: integer):Complex;
         Function GetOutputCurr(Cond:integer):Complex;
-        Function CalcUPFCPowers:Complex;
-        Function CalcUPFCLosses:Double;
+        Function CalcUPFCPowers(ModeUP, Cond:integer):Complex;
+        Function CalcUPFCLosses(Vpu:Double):Double;
 
       public
 
@@ -99,13 +100,16 @@ VAR
     ActiveUPFCObj:TUPFCObj;
     UPFC_class:TUPFC;
 
+
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 implementation
 
 
-USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Utilities, Sysutils, Command;
+USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Utilities, Sysutils, Command, solution, YMatrix;
 
-Const NumPropsThisClass = 13;
+Const
+    propLossCurve= 12;
+    NumPropsThisClass = 12;
 
 Var CDOUBLEONE: Complex;
 
@@ -150,12 +154,11 @@ Begin
      PropertyName[5] := 'frequency';
      PropertyName[6] := 'phases';
      PropertyName[7] := 'Xs';
-     PropertyName[8] := 'Tol0';
-     PropertyName[9] := 'Tol1';
-     PropertyName[10]:= 'Enabled';
-     PropertyName[11]:= 'Mode';
-     PropertyName[12]:= 'kW';
-     PropertyName[13]:= 'kVAr';
+     PropertyName[8] := 'Tol1';
+     PropertyName[9]:= 'Enabled';
+     PropertyName[10]:= 'Mode';
+     PropertyName[11]:= 'VpqMax';
+     PropertyName[12]:= 'LossCurve';
 
      // define Property help values
      PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3' +CRLF+CRLF+
@@ -170,12 +173,10 @@ Begin
      PropertyHelp[7] := 'Impedance of the series transformer of the UPFC';
      PropertyHelp[8] := 'Tolerance in percentage for the series PI controller'+CRLF+
                         'Tol0=0.02 is the format used to define 2% tolerance (Default)';
-     PropertyHelp[9] := 'Tolerance in percentage for the shunt PI controller'+CRLF+
-                        'Tol0=0.02 is the format used to define 2% tolerance (Default)';
-     PropertyHelp[10]:= 'Inherited property from ActiveObject';
-     PropertyHelp[11]:= 'Integer used to define the control mode of the UPFC: 0=Off, 1=Voltage regulator, 2=Phase angle regulator';
-     PropertyHelp[12]:= 'Load rating in kW, this parameter is used to calculate the losses';
-     PropertyHelp[13]:= 'Load rating in kVAr, this parameter is used to calculate the losses';
+     PropertyHelp[9]  := 'Inherited property from ActiveObject';
+     PropertyHelp[10]:= 'Integer used to define the control mode of the UPFC: 0=Off, 1=Voltage regulator, 2=Phase angle regulator, 3=Dual mode';
+     PropertyHelp[11]:= 'Maximum voltage (in volts) delivered by the series voltage source (Default=24V)';
+     PropertyHelp[12]:= 'Name of the XYCurve for describing the losses behavior as a function of the voltage at the input of the UPFC';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -238,16 +239,18 @@ Begin
                  NConds    := Fnphases;  // Force Reallocation of terminal info
                End;
             7: Xs       := Parser.DblValue; // Xs
-            9: Tol1     := Parser.DblValue; // Tolerance Ctrl 2
-            10:enabled  := InterpretYesNo(Param);
-            11:ModeUPFC := Parser.IntValue;
-            12:kWLoad   := Parser.DblValue;
-            13:kVArLoad := Parser.DblValue;
+            8: Tol1     := Parser.DblValue; // Tolerance Ctrl 2
+            9: enabled  := InterpretYesNo(Param);
+            10:ModeUPFC := Parser.IntValue;
+            11:VpqMax   := Parser.DblValue;
+            propLossCurve:LossCurve:= Param;
 
          ELSE
             ClassEdit(ActiveUPFCObj, ParamPointer - NumPropsThisClass)
          End;
-
+         CASE ParamPointer OF
+            propLossCurve:UPFCLossCurveObj:= XYCurveClass.Find(LossCurve);
+         END;
          ParamName := Parser.NextParam;
          Param     := Parser.StrValue;
      End;
@@ -295,8 +298,9 @@ Begin
        Freq      := OtherUPFC.Freq;
        Enabled   := OtherUPFC.Enabled;
        ModeUPFC  := OtherUPFC.ModeUPFC;
-       kWLoad    := OtherUPFC.kWLoad;
-       kVArLoad  := OtherUPFC.kVArLoad;
+       VpqMax    := OtherUPFC.VpqMax;
+       LossCurve := OtherUPFC.LossCurve;
+       UPFCLossCurveObj:=UPFCLossCurveObj;
 
        ClassMakeLike(OtherUPFC);
 
@@ -337,8 +341,9 @@ Begin
      Freq     := 60.0;
      enabled  := True;
      ModeUPFC := 1;
-     kWLoad   := 50;     // From the data provided
-     kVArLoad := 10;     // From the data provided
+     VpqMax   := 24;     // From the data provided
+     LossCurve:= '';
+     UPFCLossCurveObj:=Nil;
 
      for i:=1 to Nphases do Sr0[i] := Cmplx(0,0); //For multiphase model
      for i:=1 to Nphases do Sr1[i] := Cmplx(0,0); //For multiphase model
@@ -406,12 +411,11 @@ Procedure TUPFCObj.CalcYPrim;
 Var
    Value :Complex;
    i, j  :Integer;
-   FreqMultiplier,ZLosses:Double;
+   FreqMultiplier:Double;
 
 Begin
 
 // Calc UPFC Losses
-    ZLosses:=CalcUPFCLosses;
  // Build only YPrim Series
      IF YPrimInvalid THEN Begin
        IF YPrim_Series <> nil Then YPrim_Series.Free;
@@ -451,7 +455,7 @@ Begin
      For i := 1 to FNPhases do Begin
        For j := 1 to FNPhases do Begin
           Value := Zinv.GetElement(i, j);
-          YPrim_series.SetElement(i, j, cadd(Value,cmplx(1/ZLosses,0)));
+          YPrim_series.SetElement(i, j, Value);
           YPrim_series.SetElement(i + FNPhases, j + FNPhases, Value);
           //YPrim_series.SetElemsym(i + FNPhases, j, CNegate(Value))
           YPrim_series.SetElement(i, j+Fnphases, Cnegate(Value));
@@ -471,18 +475,15 @@ End;
 
 //=============================================================================
 
-Function TUPFCObj.CalcUPFCLosses:Double;
+Function TUPFCObj.CalcUPFCLosses(Vpu:double):Double;
 Var
     LPower,Losses : Double;
 Begin
 
 //  Calculates the Active power losses at the input of the device
 //  By using the Load powers, the approach is based in the data provided
-//  Apparently, the behavior is like Ax+B=Y
 
-    LPower:=sqrt(sqr(kWLoad)+sqr(kVArLoad));
-    Losses:=2.3388*LPower+278.8746;
-    Result:=sqr(VRef*1000)/Losses;
+    Result:=UPFCLossCurveObj.GetYValue(Vpu);
 End;
 
 
@@ -537,17 +538,17 @@ Begin
         0:  Itemp:=cmplx(0,0); //UPFC off
         1:  Begin              //UPFC as a voltage regulator
               Vpolar:=ctopolar(Vbout);
-              Error:=1-abs(Vpolar.mag/(VRef*1000));
+              Error:=abs(1-abs(Vpolar.mag/(VRef*1000)));
               if Error > Tol1 then
                 Begin
-                  VTemp   :=  csub(Vbout,Vbin);
+                  Vtemp   :=  csub(Vbout,Vbin);
                   Vpolar  :=  ctopolar(Vbin);
                   TError  :=  (VRef*1000)-Vpolar.mag;
-                  if TError > 24.0 then TError:=24
-                  else if TError < -24.0 then TError:=-24;
+                  if TError > VpqMax then TError:=VpqMax
+                  else if TError < -VpqMax then TError:=-VpqMax;
                   Vpolar   :=  topolar(TError,Vpolar.ang);
                   VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
-                  Itemp    :=  cdiv(VTemp,cmplx(0,Xs));
+                  Itemp    :=  cadd(SR0[Cond],cdiv(VTemp,cmplx(0,Xs)));
                   SR0[Cond]:=  ITemp;
                 End
                 else ITemp:=SR0[Cond];
@@ -555,17 +556,17 @@ Begin
         2:  Itemp:=cmplx(0,0); //UPFC as a phase angle regulator
         3:  Begin              //UPFC in Dual mode Voltage and Phase angle regulator
               Vpolar:=ctopolar(Vbout);
-              Error:=1-abs(Vpolar.mag/(VRef*1000));
+              Error:=abs(1-abs(Vpolar.mag/(VRef*1000)));
               if Error > Tol1 then
                 Begin
-                  VTemp   :=  csub(Vbout,Vbin);
+                  Vtemp   :=  csub(Vbout,Vbin);
                   Vpolar  :=  ctopolar(Vbin);
                   TError  :=  (VRef*1000)-Vpolar.mag;
-                  if TError > 24.0 then TError:=24
-                  else if TError < -24.0 then TError:=-24;
+                  if TError > VpqMax then TError:=VpqMax
+                  else if TError < -VpqMax then TError:=-VpqMax;
                   Vpolar   :=  topolar(TError,Vpolar.ang);
                   VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
-                  Itemp    :=  cdiv(VTemp,cmplx(0,Xs));
+                  Itemp    :=  cadd(SR0[Cond],cdiv(VTemp,cmplx(0,Xs)));
                   SR0[Cond]:=  ITemp;
                   SyncFlag:=False;
                 End
@@ -583,14 +584,32 @@ Begin
 End;
 //============================================================================
 
-Function TUPFCObj.CalcUPFCPowers:Complex;
+Function TUPFCObj.CalcUPFCPowers(ModeUP,Cond:integer):Complex;
 
 VAr
-   IUPFC:complex;
+   IUPFC  : complex;
+   VoutNC : complex; //Variable to put the output voltage without control
+   Vpolar : polar;
+   TError : double;
 
 Begin
-      IUPFC:=cdiv(csub(Vbin,Vbout),cmplx(0,Xs));
-      Result := cmul(Vbin,conjg(IUPFC));
+      case ModeUP of
+        1: Begin                                                   //Dual mode
+                Vpolar:=ctopolar(Vbin);
+                TError:=Vref*1000-Vpolar.mag;
+                if TError > VpqMax then TError:=VpqMax
+                else if TError < (-VpqMax) then TError:=-VpqMax;
+                VoutNC:=ptocomplex(topolar(TError,Vpolar.ang)); //Calculates the Reference
+                VoutNC:=cadd(VoutNC,Vbin);   //Calculates Vbout without voltage control
+                VoutNC:=csub(VoutNC,cmul(SR0[Cond],cmplx(0,Xs)));
+                IUPFC:=cdiv(csub(Vbin,VoutNC),cmplx(0,Xs));
+                Result := cmul(Vbin,conjg(IUPFC));
+          end;
+        2: Begin                                              //StatCOM
+              IUPFC:=cdiv(csub(Vbin,Vbout),cmplx(0,Xs));
+              Result := cmul(Vbin,conjg(IUPFC));
+          end;
+      end;
 End;
 
 
@@ -606,8 +625,9 @@ End;
 
 Function TUPFCObj.GetinputCurr(Cond: integer):Complex;
 VAr
-   Power,Currin:complex;
-   S,QIdeal:double;
+   Power,Currin,Ctemp:complex;
+   PTemp:polar;
+   S,QIdeal,Losses:double;
 Begin
 
   TRY
@@ -615,26 +635,31 @@ Begin
   {Get first Phase Current}
       case ModeUPFC of
           0:  CurrIn:=cmplx(0,0);
-          1:  begin
-                  CurrIn:=cnegate(SR0[Cond]);
+          1:  begin                     // Voltage regulation mode
+                  Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0[Cond]))); //Balancing powers
+                  PTemp:=ctopolar(Vbin);
+                  Losses:=CalcUPFCLosses(PTemp.mag/VRef);
+                  CurrIn:=cmul(cnegate(Ctemp),cmplx(Losses,0));
               end;
-          2:  Begin
-                  Power:=CalcUPFCPowers;
+          2:  Begin                    // Reactive compensation mode
+                  Power:=CalcUPFCPowers(2,0);
                   S:=abs(Power.re)/pf;
                   QIdeal:=Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
                   CurrIn:=conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
               End;
-          3:  Begin
-                  Power:=CalcUPFCPowers;
+          3:  Begin                    // Dual mode
+                  Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0[Cond]))); //Balancing powers
+                  Power:=CalcUPFCPowers(1,Cond);
                   S:=abs(Power.re)/pf;
                   QIdeal:=Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
                   CurrIn:=conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
-                  if ERR0[Cond] < Power.im then ERR0[Cond]:=Power.im;
                   if (power.im <= ERR0[Cond])And(SyncFlag) then CurrIn:=SR1[Cond]
-                  else begin
-                    SR1[Cond]:=csub(CurrIn,SR0[Cond]);
-                    CurrIn:=SR1[Cond];
-                  end;
+                  else SR1[Cond]:=CurrIn;
+                  PTemp:=ctopolar(Vbin);
+                  Losses:=CalcUPFCLosses(PTemp.mag/(VRef*1000));
+                  Ctemp:=cmul(Ctemp,cmplx(Losses,0));
+                  CurrIn:=csub(CurrIn,Ctemp);
+                  if ERR0[Cond] < Power.im then ERR0[Cond]:=Power.im;
               End;
       end;
       Result := CurrIn;
@@ -658,6 +683,7 @@ Begin
         begin
         Vbin  :=  NodeV^[NodeRef^[i]];           //Gets voltage at the input of UPFC Cond i
         Vbout :=  NodeV^[NodeRef^[i+fnphases]]; //Gets voltage at the output of UPFC Cond i
+
 //      these functions were modified to follow the UPFC Dynamic
 //      (Different from VSource)
         Curr^[i+fnphases]:= GetoutputCurr(i);
@@ -680,12 +706,8 @@ Begin
      // This is safer    12/7/99
        FOR     i := 1 TO Yorder DO  Vterminal^[i] := NodeV^[NodeRef^[i]];
 
-//       YPrim.MVMult(Curr, Vterminal);  // Current from Elements in System Y
-
-       GetInjCurrents(ComplexBuffer);  // Get present value of inj currents
+        GetInjCurrents(ComplexBuffer);  // Get present value of inj currents
 //       Add Together  with yprim currents
-//       FOR i := 1 TO Yorder DO Curr^[i] := Csub(Curr^[i], ComplexBuffer^[i]);
-//       Alternative to incorporate the calculated currents
         FOR i := 1 TO Yorder DO Curr^[i] := ComplexBuffer^[i];
    End;  {With}
   EXCEPT
@@ -743,9 +765,10 @@ begin
      PropertyValue[6]  := '3';
      PropertyValue[7]  := '0.7540';  // 2mH inductance
      PropertyValue[8]  := '0.02';
-     PropertyValue[9]  := '0.02';
-     PropertyValue[10] := 'True';
-     PropertyValue[11] := '1';
+     PropertyValue[9] := 'True';
+     PropertyValue[10] := '1';
+     PropertyValue[11] := '24';
+     PropertyValue[12] := '';
 
      inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -761,9 +784,11 @@ begin
           4 : Result  := Format('%-.5g',[pf]);
           5 : Result := Format('%-.5g',[Freq]);
           7 : Result := Format('%-.5g',[Xs]);
-          9 : Result := Format('%-.5g',[Tol1]);
-          10: If Enabled  Then Result:='True' Else Result := 'False';
-          11: Result := Format('%d',[ModeUPFC]);
+          8 : Result := Format('%-.5g',[Tol1]);
+          9 : If Enabled  Then Result:='True' Else Result := 'False';
+          10: Result := Format('%d',[ModeUPFC]);
+          11: Result := Format('%d',[VpqMax]);
+          propLossCurve: Result:=LossCurve;
 
         Else
           Result := Inherited GetPropertyValue(Index);
