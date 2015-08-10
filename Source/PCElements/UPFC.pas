@@ -45,26 +45,13 @@ TYPE
         ERR0    : array[1..6] of Double; //Error controller 1 for Dual mode
         ZBase   : Double;
         Freq    : Double;
-        Amps    : Double;
-        Angle   : Double;
-        SrcFrequency:Double;
-        FphaseShift  :Double;
+
         ModeUPFC    : Integer;
         Vpqmax  : Double;
-        SyncFlag: Boolean;   // Flags used to synchronize both controllers in Dual mode
+        SyncFlag: Boolean;   // Flag used to synchronize controllers in Dual mode
         LossCurve           :String;      //Losses curve name
         UPFCLossCurveObj    :TXYCurveObj; //Losses curve reference
 
-        ScanType     : Integer;
-        SequenceType : Integer;
-
-        ShapeFactor  : Complex;
-        ShapeIsActual: Boolean;
-//        Procedure GetVterminalForSource;
-
-        PROCEDURE CalcDailyMult(Hr:double);
-        PROCEDURE CalcDutyMult(Hr:double);
-        PROCEDURE CalcYearlyMult(Hr:double);
         Function GetinputCurr(Cond: integer):Complex;
         Function GetOutputCurr(Cond:integer):Complex;
         Function CalcUPFCPowers(ModeUP, Cond:integer):Complex;
@@ -84,7 +71,7 @@ TYPE
 
         Function  InjCurrents:Integer; Override;
         Procedure GetInjCurrents(Curr:pComplexArray); Override;
-       Procedure GetCurrents(Curr: pComplexArray);Override;
+        Procedure GetCurrents(Curr: pComplexArray);Override;
 
         PROCEDURE MakePosSequence;Override;  // Make a positive Sequence Model
 
@@ -108,8 +95,8 @@ implementation
 USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Utilities, Sysutils, Command, solution, YMatrix;
 
 Const
-    propLossCurve= 12;
-    NumPropsThisClass = 12;
+    propLossCurve= 11;
+    NumPropsThisClass = 11;
 
 Var CDOUBLEONE: Complex;
 
@@ -155,10 +142,9 @@ Begin
      PropertyName[6] := 'phases';
      PropertyName[7] := 'Xs';
      PropertyName[8] := 'Tol1';
-     PropertyName[9]:= 'Enabled';
-     PropertyName[10]:= 'Mode';
-     PropertyName[11]:= 'VpqMax';
-     PropertyName[12]:= 'LossCurve';
+     PropertyName[9]:= 'Mode';
+     PropertyName[10]:= 'VpqMax';
+     PropertyName[11]:= 'LossCurve';
 
      // define Property help values
      PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3' +CRLF+CRLF+
@@ -173,10 +159,9 @@ Begin
      PropertyHelp[7] := 'Impedance of the series transformer of the UPFC';
      PropertyHelp[8] := 'Tolerance in percentage for the series PI controller'+CRLF+
                         'Tol0=0.02 is the format used to define 2% tolerance (Default)';
-     PropertyHelp[9]  := 'Inherited property from ActiveObject';
-     PropertyHelp[10]:= 'Integer used to define the control mode of the UPFC: 0=Off, 1=Voltage regulator, 2=Phase angle regulator, 3=Dual mode';
-     PropertyHelp[11]:= 'Maximum voltage (in volts) delivered by the series voltage source (Default=24V)';
-     PropertyHelp[12]:= 'Name of the XYCurve for describing the losses behavior as a function of the voltage at the input of the UPFC';
+     PropertyHelp[9]:= 'Integer used to define the control mode of the UPFC: 0=Off, 1=Voltage regulator, 2=Phase angle regulator, 3=Dual mode';
+     PropertyHelp[10]:= 'Maximum voltage (in volts) delivered by the series voltage source (Default=24V)';
+     PropertyHelp[11]:= 'Name of the XYCurve for describing the losses behavior as a function of the voltage at the input of the UPFC';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -207,7 +192,7 @@ VAR
    ParamPointer : Integer;
    ParamName,
    Param        : String;
-   ZTemp        : Complex;
+//>>>   ZTemp        : Complex;
 
 Begin
   // continue parsing with contents of Parser
@@ -240,17 +225,18 @@ Begin
                End;
             7: Xs       := Parser.DblValue; // Xs
             8: Tol1     := Parser.DblValue; // Tolerance Ctrl 2
-            9: enabled  := InterpretYesNo(Param);
-            10:ModeUPFC := Parser.IntValue;
-            11:VpqMax   := Parser.DblValue;
+            9: ModeUPFC := Parser.IntValue;
+            10:VpqMax   := Parser.DblValue;
             propLossCurve:LossCurve:= Param;
 
          ELSE
             ClassEdit(ActiveUPFCObj, ParamPointer - NumPropsThisClass)
          End;
+
          CASE ParamPointer OF
-            propLossCurve:UPFCLossCurveObj:= XYCurveClass.Find(LossCurve);
+            propLossCurve:UPFCLossCurveObj := XYCurveClass.Find(LossCurve);
          END;
+
          ParamName := Parser.NextParam;
          Param     := Parser.StrValue;
      End;
@@ -289,14 +275,12 @@ Begin
        End;
 
        Z.CopyFrom(OtherUPFC.Z);
-       // Zinv.CopyFrom(OtherLine.Zinv);
        VRef      := OtherUPFC.VRef;
        pf        := OtherUPFC.pf;
        Xs        := OtherUPFC.Xs;
        Tol1      := OtherUPFC.Tol1;
        ZBase     := OtherUPFC.ZBase;
        Freq      := OtherUPFC.Freq;
-       Enabled   := OtherUPFC.Enabled;
        ModeUPFC  := OtherUPFC.ModeUPFC;
        VpqMax    := OtherUPFC.VpqMax;
        LossCurve := OtherUPFC.LossCurve;
@@ -333,7 +317,6 @@ Begin
      Nterms   := 2;   // A 2-terminal device
      Z        := nil;
      Zinv     := nil;
-     {Basefrequency := 60.0;} // set in base class
      VRef     := 0.24;
      pf       := 1.0;
      Xs       := 0.7540; // Xfmr series inductace 2e-3 H
@@ -370,13 +353,10 @@ End;
 //=============================================================================
 Procedure TUPFCObj.RecalcElementData;
 VAR
-   Zs, Zm, Z1, Z2, Z0    : Complex;
+   Z1 : Complex;
    Value                 : Complex;
-   Calpha1, Calpha2      : Complex;
-   i, j                  : Integer;
-   Factor                : Double;
+   i{, j}                  : Integer;
 
-//   Rs, Xs, Rm, Xm : Double;
 
    Begin
     IF Z    <> nil THEN Z.Free;
@@ -388,9 +368,6 @@ VAR
     Z    := TCmatrix.CreateMatrix(Fnphases);
     Zinv := TCMatrix.CreateMatrix(Fnphases);
 
-    If   FNPhases = 1 THEN Factor := 1.0 ELSE Factor := SQRT3;
-
-
     {Update property Value array}
      { Don't change a specified value; only computed ones}
 
@@ -398,8 +375,6 @@ VAR
          // Diagonals  (all the same)
          Value  := Z1;   // Z1 + Z2 + Z0
          FOR i := 1 to Fnphases  Do Z.SetElement(i, i, Value);
-
-         // Off-Diagonals - Apparently there are no off-Diagonals
 
    Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
 
@@ -476,8 +451,8 @@ End;
 //=============================================================================
 
 Function TUPFCObj.CalcUPFCLosses(Vpu:double):Double;
-Var
-    LPower,Losses : Double;
+//>>> Var
+//>>>    LPower,Losses : Double;
 Begin
 
 //  Calculates the Active power losses at the input of the device
@@ -525,7 +500,7 @@ VAr
    Error:Double;
    TError:Double;
    Vpolar:polar;
-   Ipolar:polar;
+//>>>   Ipolar:polar;
    VTemp:complex;
    Itemp:complex;
 
@@ -594,7 +569,7 @@ VAr
 
 Begin
       case ModeUP of
-        1: Begin                                                   //Dual mode
+        1: Begin                                                //Dual mode
                 Vpolar:=ctopolar(Vbin);
                 TError:=Vref*1000-Vpolar.mag;
                 if TError > VpqMax then TError:=VpqMax
@@ -702,8 +677,6 @@ Begin
   TRY
    WITH    ActiveCircuit.Solution
    DO Begin
-     //FOR i := 1 TO (Nterms * NConds) DO Vtemp^[i] := V^[NodeRef^[i]];
-     // This is safer    12/7/99
        FOR     i := 1 TO Yorder DO  Vterminal^[i] := NodeV^[NodeRef^[i]];
 
         GetInjCurrents(ComplexBuffer);  // Get present value of inj currents
@@ -765,10 +738,10 @@ begin
      PropertyValue[6]  := '3';
      PropertyValue[7]  := '0.7540';  // 2mH inductance
      PropertyValue[8]  := '0.02';
-     PropertyValue[9] := 'True';
-     PropertyValue[10] := '1';
-     PropertyValue[11] := '24';
-     PropertyValue[12] := '';
+//>>>     PropertyValue[9] := 'True';
+     PropertyValue[9] := '1';
+     PropertyValue[10] := '24';
+     PropertyValue[11] := '';
 
      inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -785,9 +758,8 @@ begin
           5 : Result := Format('%-.5g',[Freq]);
           7 : Result := Format('%-.5g',[Xs]);
           8 : Result := Format('%-.5g',[Tol1]);
-          9 : If Enabled  Then Result:='True' Else Result := 'False';
-          10: Result := Format('%d',[ModeUPFC]);
-          11: Result := Format('%d',[VpqMax]);
+          9: Result := Format('%d',[ModeUPFC]);
+          10: Result := Format('%-.5g',[VpqMax]);
           propLossCurve: Result:=LossCurve;
 
         Else
@@ -795,49 +767,11 @@ begin
         End;
 end;
 
-
-//----------------------------------------------------------------------------
-Procedure TUPFCObj.CalcDailyMult(Hr:Double);
-
-Begin
-{     IF DailyShapeObj <> Nil THEN
-       Begin
-         ShapeFactor   := DailyShapeObj.GetMult(Hr);
-         ShapeIsActual := DailyShapeObj.UseActual;
-       End
-     ELSE ShapeFactor := cmplx(PerUnit, 0.0); // CDOUBLEONE;  // Default to no daily variation}
-End;
-
-
-//----------------------------------------------------------------------------
-Procedure TUPFCObj.CalcDutyMult(Hr:double);
-
-Begin
-{     IF DutyShapeObj <> Nil THEN
-       Begin
-           ShapeFactor   := DutyShapeObj.GetMult(Hr);
-           ShapeIsActual := DutyShapeObj.UseActual;
-       End
-     ELSE CalcDailyMult(Hr);  // Default to Daily Mult IF no duty curve specified}
-End;
-
-//----------------------------------------------------------------------------
-Procedure TUPFCObj.CalcYearlyMult(Hr:double);
-
-Begin
-{Yearly curve is assumed to be hourly only}
-{     IF   YearlyShapeObj<>Nil THEN Begin
-           ShapeFactor   := YearlyShapeObj.GetMult(Hr);
-           ShapeIsActual := YearlyShapeObj.UseActual;
-     End
-     ELSE ShapeFactor := cmplx(PerUnit, 0.0); // CDOUBLEONE;   // Defaults to no variation}
-End;
-
-//=============================================================================
 procedure TUPFCObj.MakePosSequence;
 
-Var
+{Var
         S:String;
+}
 begin
  {
         S :='Phases=1 ';
@@ -851,8 +785,6 @@ begin
         inherited;
  }
 end;
-
-
 
 initialization
 
