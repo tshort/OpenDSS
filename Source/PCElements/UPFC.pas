@@ -147,18 +147,19 @@ Begin
      PropertyName[11]:= 'LossCurve';
 
      // define Property help values
-     PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3';                        ;
-     PropertyHelp[2] := 'Name of bus to which the output terminal (2) is connected.'+CRLF+'bus2=busname'+CRLF+'bus2=busname.1.2.3' ;
-     PropertyHelp[3] := 'Base Voltage expected at the output of the UPFC'+ CRLF +
+     PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname.1.3'+CRLF+'bus1=busname.1.2.3';                        ;
+     PropertyHelp[2] := 'Name of bus to which the output terminal (2) is connected.'+CRLF+'bus2=busname.1.2'+CRLF+'bus2=busname.1.2.3' ;
+     PropertyHelp[3] := 'Base Voltage expected at the output of the UPFC'+ CRLF+CRLF +
                         '"refkv=0.24"';
      PropertyHelp[4] := 'Power factor target at the input terminal.';
      PropertyHelp[5] := 'UPFC working frequency.  Defaults to system default base frequency.';
-     PropertyHelp[6] := 'Number of phases.  Defaults to 1.';
-     PropertyHelp[7] := 'Impedance of the series transformer of the UPFC, ohms';
+     PropertyHelp[6] := 'Number of phases.  Defaults to 1 phase (2 terminals, 2 conductors per terminal).';
+     PropertyHelp[7] := 'Reactance of the series transformer of the UPFC, ohms (default=0.7540 ... 2 mH)';
      PropertyHelp[8] := 'Tolerance in pu for the series PI controller'+CRLF+
-                        'Tol1=0.02 is the format used to define 2% tolerance (Default)';
-     PropertyHelp[9] := 'Integer used to define the control mode of the UPFC: 0=Off, 1=Voltage regulator, 2=Phase angle regulator, 3=Dual mode';
-     PropertyHelp[10]:= 'Maximum voltage (in volts) delivered by the series voltage source (Default=24V)';
+                        'Tol1=0.02 is the format used to define 2% tolerance (Default=2%)';
+     PropertyHelp[9] := 'Integer used to define the control mode of the UPFC: '+CRLF+CRLF+'0 = Off, '+CRLF+
+                        '1 = Voltage regulator, '+CRLF+'2 = Phase angle regulator, '+CRLF+'3 = Dual mode';
+     PropertyHelp[10]:= 'Maximum voltage (in volts) delivered by the series voltage source (Default = 24 V)';
      PropertyHelp[11]:= 'Name of the XYCurve for describing the losses behavior as a function of the voltage at the input of the UPFC';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
