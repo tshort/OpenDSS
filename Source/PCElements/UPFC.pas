@@ -142,24 +142,22 @@ Begin
      PropertyName[6] := 'phases';
      PropertyName[7] := 'Xs';
      PropertyName[8] := 'Tol1';
-     PropertyName[9]:= 'Mode';
+     PropertyName[9] := 'Mode';
      PropertyName[10]:= 'VpqMax';
      PropertyName[11]:= 'LossCurve';
 
      // define Property help values
-     PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3' +CRLF+CRLF+
-                        'The UPFC object is a two-terminal voltage source (thevenin equivalent).';
-     PropertyHelp[2] := 'Name of bus to which the output terminal (2) is connected.'+CRLF+'bus2=busname'+CRLF+'bus2=busname.1.2.3' +CRLF+CRLF+
-                        'The UPFC object is a two-terminal voltage source (thevenin equivalent).' ;
+     PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3';                        ;
+     PropertyHelp[2] := 'Name of bus to which the output terminal (2) is connected.'+CRLF+'bus2=busname'+CRLF+'bus2=busname.1.2.3' ;
      PropertyHelp[3] := 'Base Voltage expected at the output of the UPFC'+ CRLF +
                         '"refkv=0.24"';
-     PropertyHelp[4] := 'Power factor expected';
+     PropertyHelp[4] := 'Power factor target at the input terminal.';
      PropertyHelp[5] := 'UPFC working frequency.  Defaults to system default base frequency.';
-     PropertyHelp[6] := 'Number of phases.  Defaults to 3.';
-     PropertyHelp[7] := 'Impedance of the series transformer of the UPFC';
-     PropertyHelp[8] := 'Tolerance in percentage for the series PI controller'+CRLF+
-                        'Tol0=0.02 is the format used to define 2% tolerance (Default)';
-     PropertyHelp[9]:= 'Integer used to define the control mode of the UPFC: 0=Off, 1=Voltage regulator, 2=Phase angle regulator, 3=Dual mode';
+     PropertyHelp[6] := 'Number of phases.  Defaults to 1.';
+     PropertyHelp[7] := 'Impedance of the series transformer of the UPFC, ohms';
+     PropertyHelp[8] := 'Tolerance in pu for the series PI controller'+CRLF+
+                        'Tol1=0.02 is the format used to define 2% tolerance (Default)';
+     PropertyHelp[9] := 'Integer used to define the control mode of the UPFC: 0=Off, 1=Voltage regulator, 2=Phase angle regulator, 3=Dual mode';
      PropertyHelp[10]:= 'Maximum voltage (in volts) delivered by the series voltage source (Default=24V)';
      PropertyHelp[11]:= 'Name of the XYCurve for describing the losses behavior as a function of the voltage at the input of the UPFC';
      ActiveProperty := NumPropsThisClass;
@@ -217,7 +215,7 @@ Begin
             1: SetBus(1,param);  // special handling of Bus 1
             2: SetBus(2,param);     // special handling of Bus 2
             3: VRef     := Parser.DblValue; // kv Output reference
-            4: pf       := Parser.DblValue; // pu
+            4: pf       := Parser.DblValue; // power factor
             5: Freq     := Parser.DblValue; // Freq
             6: Begin
                  Nphases   := Parser.Intvalue; // num phases
@@ -313,7 +311,7 @@ Begin
      DSSObjType := ParClass.DSSClassType; //SOURCE + NON_PCPD_ELEM;  // Don't want this in PC Element List
 
      Nphases  := 1;
-     Fnconds  := 2;
+     Fnconds  := 2;   // number conductors per terminal
      Nterms   := 2;   // A 2-terminal device
      Z        := nil;
      Zinv     := nil;
@@ -355,7 +353,7 @@ Procedure TUPFCObj.RecalcElementData;
 VAR
    Z1 : Complex;
    Value                 : Complex;
-   i{, j}                  : Integer;
+   i                     : Integer;
 
 
    Begin
@@ -371,12 +369,12 @@ VAR
     {Update property Value array}
      { Don't change a specified value; only computed ones}
 
-         Z1 := Cmplx(0, Xs);
-         // Diagonals  (all the same)
-         Value  := Z1;   // Z1 + Z2 + Z0
-         FOR i := 1 to Fnphases  Do Z.SetElement(i, i, Value);
+     Z1 := Cmplx(0, Xs);
+     // Diagonals  (all the same)
+     Value  := Z1;
+     FOR i := 1 to Fnphases  Do Z.SetElement(i, i, Value);
 
-   Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
+    Reallocmem(InjCurrent, SizeOf(InjCurrent^[1]) * Yorder);
 
 End;
 
@@ -738,7 +736,6 @@ begin
      PropertyValue[6]  := '3';
      PropertyValue[7]  := '0.7540';  // 2mH inductance
      PropertyValue[8]  := '0.02';
-//>>>     PropertyValue[9] := 'True';
      PropertyValue[9] := '1';
      PropertyValue[10] := '24';
      PropertyValue[11] := '';
