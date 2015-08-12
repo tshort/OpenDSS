@@ -89,11 +89,11 @@ type
     function Get_Fuses: Fuses; safecall;
     function Get_Isources: IISources; safecall;
     procedure EndOfTimeStepUpdate; safecall;
-    function Get_DSSim_Coms: IDSSimComs; safecall;
+    function Get_DSSim_Coms: IDSSimComs; safecall;  //Declares DSSim_Coms
     function Get_YNodeOrder: OleVariant; safecall;
     function Get_YCurrents: OleVariant; safecall;
     function Get_YNodeVarray: OleVariant; safecall;
-    function Get_PVSystems: IPVSystems; safecall; //Declares DSSim_Coms
+    function Get_PVSystems: IPVSystems; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;

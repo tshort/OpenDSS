@@ -97,7 +97,7 @@ Var
    FFuses       :IFuses;
    FIsources    :IIsources;
    FDSSim_Coms  :IDSSimComs; //Added 07-2015 DM
-   FPVSystems   :IPVSystems;
+   FPVSystems   :IPVSystems; // Added 08-2015
 
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
