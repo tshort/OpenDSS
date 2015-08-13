@@ -648,7 +648,7 @@ Begin
           1:  begin                     // Voltage regulation mode
                   Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
                 //>>>  PTemp:=ctopolar(Vbin);
-                  Losses:=CalcUPFCLosses({PTemp.mag}Cabs(Vbin)/VRef);
+                  Losses:=CalcUPFCLosses({PTemp.mag}Cabs(Vbin)/(VRef*1000));
                   CurrIn:=cmul(cnegate(Ctemp),cmplx(Losses,0));
                   UPFC_Power:=CalcUPFCPowers(2,Cond);
               end;
