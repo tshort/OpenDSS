@@ -72,7 +72,6 @@ TYPE
         function Get_Variable(i: Integer): Double; override;
         procedure Set_Variable(i: Integer;  Value: Double);  override;
 
-
       public
 
         Z     : TCmatrix;  // Base Frequency Series Z matrix
@@ -633,7 +632,6 @@ End;
 Function TUPFCObj.GetinputCurr(Cond: integer):Complex;
 VAr
    Currin,Ctemp:complex;
-   //>>>PTemp:polar;
    S:double;
 Begin
 
@@ -647,8 +645,7 @@ Begin
               end;
           1:  begin                     // Voltage regulation mode
                   Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
-                //>>>  PTemp:=ctopolar(Vbin);
-                  Losses:=CalcUPFCLosses({PTemp.mag}Cabs(Vbin)/(VRef*1000));
+                  Losses:=CalcUPFCLosses(Cabs(Vbin)/(VRef*1000));
                   CurrIn:=cmul(cnegate(Ctemp),cmplx(Losses,0));
                   UPFC_Power:=CalcUPFCPowers(2,Cond);
               end;
@@ -666,8 +663,7 @@ Begin
                   CurrIn:=conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
                   if (UPFC_Power.im <= ERR0[Cond])And(SyncFlag) then CurrIn:=SR1[Cond]
                   else SR1[Cond]:=CurrIn;
-                 //>>> PTemp:=ctopolar(Vbin);
-                  Losses:=CalcUPFCLosses({PTemp.mag}Cabs(Vbin)/(VRef*1000));
+                  Losses:=CalcUPFCLosses(Cabs(Vbin)/(VRef*1000));
                   Ctemp:=cmul(Ctemp,cmplx(Losses,0));
                   CurrIn:=csub(CurrIn,Ctemp);
                   if ERR0[Cond] < UPFC_Power.im then ERR0[Cond]:=UPFC_Power.im;

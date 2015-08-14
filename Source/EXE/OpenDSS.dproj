@@ -103,13 +103,13 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
 			<Icon_MainIcon>OpenDSS_Icon.ico</Icon_MainIcon>
-			<VerInfo_Build>64</VerInfo_Build>
+			<VerInfo_Build>65</VerInfo_Build>
 			<VerInfo_Release>4</VerInfo_Release>
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
 			<VerInfo_MinorVer>6</VerInfo_MinorVer>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<DCC_ExeOutput>..\x64</DCC_ExeOutput>
-			<VerInfo_Keys>CompanyName=EPRI;FileDescription=X64 Release Version OpenDSS;FileVersion=7.6.4.64;InternalName=;LegalCopyright=Copyright (C) 2008-2015 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.4;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=X64 Release Version OpenDSS;FileVersion=7.6.4.65;InternalName=;LegalCopyright=Copyright (C) 2008-2015 EPRI. All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=7.6.4;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
@@ -117,12 +117,12 @@
 			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
 			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
 			<Icon_MainIcon>OpenDSS_Icon2.ico</Icon_MainIcon>
-			<VerInfo_Build>64</VerInfo_Build>
+			<VerInfo_Build>65</VerInfo_Build>
 			<VerInfo_Release>4</VerInfo_Release>
 			<VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
 			<VerInfo_MinorVer>6</VerInfo_MinorVer>
 			<DCC_ExeOutput>..\x86</DCC_ExeOutput>
-			<VerInfo_Keys>CompanyName=EPRI;FileDescription=X86 Release Version Distribution System Simulator;FileVersion=7.6.4.64;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2015 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.4;Comments=</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=EPRI;FileDescription=X86 Release Version Distribution System Simulator;FileVersion=7.6.4.65;InternalName=OpenDSS;LegalCopyright=Copyright (C) 2008-2015 EPRI, All Rights Reserved.;LegalTrademarks=;OriginalFilename=;ProductName=OpenDSS;ProductVersion=7.6.4;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
 			<DCC_DependencyCheckOutputName>..\OpenDSS.exe</DCC_DependencyCheckOutputName>
@@ -175,7 +175,7 @@
 						<VersionInfo Name="MajorVer">7</VersionInfo>
 						<VersionInfo Name="MinorVer">5</VersionInfo>
 						<VersionInfo Name="Release">1</VersionInfo>
-						<VersionInfo Name="Build">412</VersionInfo>
+						<VersionInfo Name="Build">421</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -187,7 +187,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">EPRI</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">Distribution System Simulator</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">7.5.1.412</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">7.5.1.421</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName">OpenDSS</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 2008-2012  EPRI, All Rights Reserved.</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
