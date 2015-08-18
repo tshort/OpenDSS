@@ -17,6 +17,7 @@ unit Monitor;
    12-18-02 Added Monitor Stream
    2-19-08 Added SampleCount
    01-19-13 Added flicker meter mode
+   08-18-15 Added Solution monitor mode
 }
 
 {
@@ -69,6 +70,8 @@ unit Monitor;
    2: Transformer Tap
    3: State Variables
    4: Flicker level and severity index by phase (no modifiers apply)
+   5: Solution Variables (Iteration count, etc.)
+
    +16: Sequence components: V012, I012
    +32: Magnitude Only
    +64: Pos Seq only or Average of phases
@@ -125,6 +128,7 @@ TYPE
        FlickerBuffer   :pComplexArray; // store phase voltages in polar form
                                        // then convert to re=flicker level, update every time step
                                        //             and im=Pst, update every 10 minutes
+       SolutionBuffer  :pDoubleArray;
 
        IncludeResidual :Boolean;
        VIpolar         :Boolean;
@@ -199,6 +203,7 @@ CONST
     MODEMASK = 15;
 
     NumPropsThisClass = 7;
+    NumSolutionVars = 10;
 
 VAR
     StrBuffer:TMonitorStrBuffer;
@@ -251,7 +256,8 @@ Begin
                     '2 = Tap Position (Transformers only)'+CRLF+
                     '3 = State Variables (PCElements only)' +CRLF+
                     '4 = Flicker level and severity index (Pst) for voltages. No adders apply.' +CRLF+
-                    '    Flicker level at simulation time step, Pst at 10-minute time step.' +CRLF +CRLF+
+                    '    Flicker level at simulation time step, Pst at 10-minute time step.' +CRLF+
+                    '5 = Solution variables (Iterations, etc).' +CRLF+CRLF+
                     'Normally, these would be actual phasor quantities from solution.' + CRLF+
                     'Combine with adders below to achieve other results for terminal quantities:' + CRLF+
                     '+16 = Sequence quantities' + CRLF+
@@ -486,6 +492,7 @@ Begin
      VoltageBuffer := Nil;
      StateBuffer   := Nil;
      FlickerBuffer := Nil;
+     SolutionBuffer:= Nil;
 
      Basefrequency := 60.0;
      Hour          := 0;
@@ -529,6 +536,7 @@ Begin
      ReAllocMem(CurrentBuffer,0);
      ReAllocMem(VoltageBuffer,0);
      ReAllocMem(FlickerBuffer,0);
+     ReAllocMem(SolutionBuffer,0);
      Inherited Destroy;
 End;
 
@@ -601,6 +609,9 @@ Begin
                       4: Begin
                              ReallocMem(FlickerBuffer, Sizeof(FlickerBuffer^[1])*Nphases);
                          End;
+                      5: Begin
+                             ReallocMem(SolutionBuffer, Sizeof(SolutionBuffer^[1])*NumSolutionVars);
+                         End;
                  Else
                      ReallocMem(CurrentBuffer, SizeOf(CurrentBuffer^[1])*MeteredElement.Yorder);
                      ReallocMem(VoltageBuffer, SizeOf(VoltageBuffer^[1])*MeteredElement.NConds);
@@ -628,11 +639,14 @@ begin
     Nconds  := MeteredElement.Nconds;
     Case (Mode and MODEMASK) of
       3: Begin
-         NumStateVars := TPCElement(MeteredElement).Numvariables;
-         ReallocMem(StateBuffer, Sizeof(StateBuffer^[1])*NumStatevars);
+             NumStateVars := TPCElement(MeteredElement).Numvariables;
+             ReallocMem(StateBuffer, Sizeof(StateBuffer^[1])*NumStatevars);
          End;
       4: Begin
-         ReallocMem(FlickerBuffer, Sizeof(FlickerBuffer^[1])*Nphases);
+              ReallocMem(FlickerBuffer, Sizeof(FlickerBuffer^[1])*Nphases);
+         End;
+      5: Begin
+             ReallocMem(SolutionBuffer, Sizeof(SolutionBuffer^[1])*NumSolutionVars);
          End;
       Else
          ReallocMem(CurrentBuffer, SizeOf(CurrentBuffer^[1])*MeteredElement.Yorder);
@@ -701,6 +715,19 @@ Begin
                 if i < FnPhases then strLcat(strPtr, pAnsichar(', '), Sizeof(TMonitorStrBuffer));
               End;
         End;
+     5: Begin
+             RecordSize := NumSolutionVars;
+             strLcat(strPtr, pAnsichar('Iteration, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('ControlIteration, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('MaxIterations, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('MaxControlIterations, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('Converged, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('IntervalHrs, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('SolutionCount, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('Mode, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('Frequency, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('Year, '), Sizeof(TMonitorStrBuffer));
+        End
      Else Begin
          // Compute RecordSize
          // Use same logic as in TakeSample Method
@@ -999,6 +1026,23 @@ Begin
             END;
         End;
 
+     5: Begin
+            (* Capture Solution Variables *)
+            With ActiveCircuit.Solution Do Begin
+             SolutionBuffer^[1] := Iteration;
+             SolutionBuffer^[2] := ControlIteration;
+             SolutionBuffer^[3] := MaxIterations;
+             SolutionBuffer^[4] := MaxControlIterations;
+             If ConvergedFlag then SolutionBuffer^[5] := 1 else SolutionBuffer^[3] := 0;
+             SolutionBuffer^[6] := IntervalHrs;
+             SolutionBuffer^[7] := SolutionCount;
+             SolutionBuffer^[8] := Mode;
+             SolutionBuffer^[9] := Frequency;
+             SolutionBuffer^[10] := Year;
+            End;
+
+        End;
+
      Else Exit  // Ignore invalid mask
 
    End;
@@ -1104,16 +1148,18 @@ Begin
        End ;
 
    ELSE
-     if Mode=4 then begin
-       AddDblsToBuffer(@FlickerBuffer^[1].re, Fnphases*2);
-     end else begin
-       AddDblsToBuffer(@VoltageBuffer^[1].re, NumVI*2);
-       IF Not IsPower THEN Begin
-          IF IncludeResidual THEN AddDblsToBuffer(@ResidualVolt, 2);
-          AddDblsToBuffer(@CurrentBuffer^[Offset + 1].re, NumVI*2);
-          IF IncludeResidual THEN AddDblsToBuffer(@ResidualCurr, 2);
-       End;
+     CASE Mode of
+        4:   AddDblsToBuffer(@FlickerBuffer^[1].re, Fnphases*2);
+        5:   AddDblsToBuffer(@SolutionBuffer^[1], NumSolutionVars);
+       else begin
+         AddDblsToBuffer(@VoltageBuffer^[1].re, NumVI*2);
+         IF Not IsPower THEN Begin
+            IF IncludeResidual THEN AddDblsToBuffer(@ResidualVolt, 2);
+            AddDblsToBuffer(@CurrentBuffer^[Offset + 1].re, NumVI*2);
+            IF IncludeResidual THEN AddDblsToBuffer(@ResidualCurr, 2);
+         End;
      End;
+     END;
    END;
 End;
 
