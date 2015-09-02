@@ -115,6 +115,7 @@ TYPE
 
 VAR
     ActiveVsourceObj:TVsourceObj;
+    VSourceClass : TVsource;
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 implementation
@@ -139,6 +140,8 @@ Begin
 
      CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
      CommandList.Abbrev := TRUE;
+
+     VsourceClass := Self;
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
