@@ -54,6 +54,7 @@ Uses
        DSSClassDefs,
      	 ImplDSSimComs,//Declares the existance of the class
        ImplPVSystems,
+       ImplVsources,
        OpenDSSengine_TLB;
 
 
@@ -98,6 +99,7 @@ Var
    FIsources    :IIsources;
    FDSSim_Coms  :IDSSimComs; //Added 07-2015 DM
    FPVSystems   :IPVSystems; // Added 08-2015
+   FVsources    :IVsources;
 
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
@@ -179,6 +181,7 @@ Begin
      FIsources    := TIsources.Create;
      FDSSim_Coms  := TDSSimComs.Create;//Self create class
      FPVSystems   := TPVSystems.Create;
+     FVsources    := TVsources.Create;
      FPropIndex := 0;
      FPropClass := Nil;
 

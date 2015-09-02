@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 8/8/2015 10:01:15 AM from Type Library described below.
+// File generated on 9/1/2015 11:19:08 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -129,6 +129,8 @@ const
   CLASS_DSSimComs: TGUID = '{2104B607-8D58-4BBD-85B8-4E5F1C8BD6BE}';
   IID_IPVSystems: TGUID = '{FAF19717-5887-43F6-8DC3-D0337E1081AD}';
   CLASS_PVSystems: TGUID = '{D8D7592D-D5CD-4E27-870D-00D654DF2D3C}';
+  IID_IVsources: TGUID = '{8DCD1962-268B-40E1-B49E-B7C01C3E07CD}';
+  CLASS_Vsources: TGUID = '{0823B8BD-AD34-452B-974A-F46BA25D49EA}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -327,6 +329,8 @@ type
   IDSSimComsDisp = dispinterface;
   IPVSystems = interface;
   IPVSystemsDisp = dispinterface;
+  IVsources = interface;
+  IVsourcesDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -370,6 +374,7 @@ type
   ISources = IISources;
   DSSimComs = IDSSimComs;
   PVSystems = IPVSystems;
+  Vsources = IVsources;
 
 
 // *********************************************************************//
@@ -682,6 +687,7 @@ type
     function Get_YNodeOrder: OleVariant; safecall;
     function Get_YCurrents: OleVariant; safecall;
     function Get_PVSystems: IPVSystems; safecall;
+    function Get_Vsources: IVsources; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -739,6 +745,7 @@ type
     property YNodeOrder: OleVariant read Get_YNodeOrder;
     property YCurrents: OleVariant read Get_YCurrents;
     property PVSystems: IPVSystems read Get_PVSystems;
+    property Vsources: IVsources read Get_Vsources;
   end;
 
 // *********************************************************************//
@@ -822,6 +829,7 @@ type
     property YNodeOrder: OleVariant readonly dispid 234;
     property YCurrents: OleVariant readonly dispid 235;
     property PVSystems: IPVSystems readonly dispid 236;
+    property Vsources: IVsources readonly dispid 237;
   end;
 
 // *********************************************************************//
@@ -3334,6 +3342,60 @@ type
   end;
 
 // *********************************************************************//
+// Interface: IVsources
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {8DCD1962-268B-40E1-B49E-B7C01C3E07CD}
+// *********************************************************************//
+  IVsources = interface(IDispatch)
+    ['{8DCD1962-268B-40E1-B49E-B7C01C3E07CD}']
+    function Get_AllNames: OleVariant; safecall;
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_BasekV: Double; safecall;
+    procedure Set_BasekV(Value: Double); safecall;
+    function Get_pu: Double; safecall;
+    procedure Set_pu(Value: Double); safecall;
+    function Get_AngleDeg: Double; safecall;
+    procedure Set_AngleDeg(Value: Double); safecall;
+    function Get_Frequency: Double; safecall;
+    procedure Set_Frequency(Value: Double); safecall;
+    function Get_Phases: Integer; safecall;
+    procedure Set_Phases(Value: Integer); safecall;
+    property AllNames: OleVariant read Get_AllNames;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property Name: WideString read Get_Name write Set_Name;
+    property BasekV: Double read Get_BasekV write Set_BasekV;
+    property pu: Double read Get_pu write Set_pu;
+    property AngleDeg: Double read Get_AngleDeg write Set_AngleDeg;
+    property Frequency: Double read Get_Frequency write Set_Frequency;
+    property Phases: Integer read Get_Phases write Set_Phases;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IVsourcesDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {8DCD1962-268B-40E1-B49E-B7C01C3E07CD}
+// *********************************************************************//
+  IVsourcesDisp = dispinterface
+    ['{8DCD1962-268B-40E1-B49E-B7C01C3E07CD}']
+    property AllNames: OleVariant readonly dispid 201;
+    property Count: Integer readonly dispid 202;
+    property First: Integer readonly dispid 203;
+    property Next: Integer readonly dispid 204;
+    property Name: WideString dispid 205;
+    property BasekV: Double dispid 206;
+    property pu: Double dispid 207;
+    property AngleDeg: Double dispid 208;
+    property Frequency: Double dispid 209;
+    property Phases: Integer dispid 210;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -3789,6 +3851,18 @@ type
     class function CreateRemote(const MachineName: string): IPVSystems;
   end;
 
+// *********************************************************************//
+// The Class CoVsources provides a Create and CreateRemote method to
+// create instances of the default interface IVsources exposed by
+// the CoClass Vsources. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoVsources = class
+    class function Create: IVsources;
+    class function CreateRemote(const MachineName: string): IVsources;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -4171,6 +4245,16 @@ end;
 class function CoPVSystems.CreateRemote(const MachineName: string): IPVSystems;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_PVSystems) as IPVSystems;
+end;
+
+class function CoVsources.Create: IVsources;
+begin
+  Result := CreateComObject(CLASS_Vsources) as IVsources;
+end;
+
+class function CoVsources.CreateRemote(const MachineName: string): IVsources;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_Vsources) as IVsources;
 end;
 
 end.

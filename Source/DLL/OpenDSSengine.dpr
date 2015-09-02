@@ -204,7 +204,8 @@ uses
   UPFC in '..\PCElements\UPFC.pas',
   ImplDSSimComs in 'ImplDSSimComs.pas',
   GenDispatcher in '..\Controls\GenDispatcher.pas',
-  ImplPVSystems in 'ImplPVSystems.pas' {PVSystems: CoClass};
+  ImplPVSystems in 'ImplPVSystems.pas' {PVSystems: CoClass},
+  ImplVsources in 'ImplVsources.pas' {Vsources: CoClass};
 
 exports
   DllGetClassObject,

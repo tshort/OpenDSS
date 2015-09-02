@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 8/12/2015 11:56:51 AM (- $Rev: 12980 $, 180294863).
+// File generated on 9/1/2015 11:24:33 PM (- $Rev: 12980 $, 134541252).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -97,6 +97,8 @@ library OpenDSSengine
   coclass DSSimComs;
   interface IPVSystems;
   coclass PVSystems;
+  interface IVsources;
+  coclass Vsources;
 
 
   [
@@ -618,6 +620,8 @@ library OpenDSSengine
     HRESULT _stdcall YCurrents([out, retval] VARIANT* Value);
     [propget, id(0x000000EC), helpstring("Interface to PVSystems collection")]
     HRESULT _stdcall PVSystems([out, retval] IPVSystems** Value);
+    [propget, id(0x000000ED), helpstring("Vsources object collection")]
+    HRESULT _stdcall Vsources([out, retval] IVsources** Value);
   };
 
   [
@@ -2650,6 +2654,48 @@ library OpenDSSengine
   };
 
   [
+    uuid(8DCD1962-268B-40E1-B49E-B7C01C3E07CD),
+    helpstring("Dispatch interface for Vsources Object"),
+    dual,
+    oleautomation
+  ]
+  interface IVsources: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Names of all Vsource objects in the circuit")]
+    HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
+    [propget, id(0x000000CA), helpstring("Number of Vsource Object")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CB), helpstring("Sets the first VSOURCE to be active; Returns 0 if none")]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CC), helpstring("Sets the next VSOURCE object to be active; returns zero if no more")]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CD), helpstring("Get Active VSOURCE name")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000CD), helpstring("Set Active VSOURCE by Name")]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000CE), helpstring("Source Voltage in kV")]
+    HRESULT _stdcall BasekV([out, retval] double* Value);
+    [propput, id(0x000000CE), helpstring("Source voltage in kV")]
+    HRESULT _stdcall BasekV([in] double Value);
+    [propget, id(0x000000CF), helpstring("Source pu voltage.")]
+    HRESULT _stdcall pu([out, retval] double* Value);
+    [propput, id(0x000000CF), helpstring("Per-unit value of source voltage based on kV")]
+    HRESULT _stdcall pu([in] double Value);
+    [propget, id(0x000000D0), helpstring("Phase angle of first phase in degrees")]
+    HRESULT _stdcall AngleDeg([out, retval] double* Value);
+    [propput, id(0x000000D0), helpstring("phase angle in degrees")]
+    HRESULT _stdcall AngleDeg([in] double Value);
+    [propget, id(0x000000D1), helpstring("Source Frequency in Hz")]
+    HRESULT _stdcall Frequency([out, retval] double* Value);
+    [propput, id(0x000000D1), helpstring("Source frequency in Hz")]
+    HRESULT _stdcall Frequency([in] double Value);
+    [propget, id(0x000000D2), helpstring("Number of Phases")]
+    HRESULT _stdcall Phases([out, retval] long* Value);
+    [propput, id(0x000000D2), helpstring("Number of phases")]
+    HRESULT _stdcall Phases([in] long Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -3031,6 +3077,15 @@ library OpenDSSengine
   coclass PVSystems
   {
     [default] interface IPVSystems;
+  };
+
+  [
+    uuid(0823B8BD-AD34-452B-974A-F46BA25D49EA),
+    helpstring("Vsources Object")
+  ]
+  coclass Vsources
+  {
+    [default] interface IVsources;
   };
 
 };
