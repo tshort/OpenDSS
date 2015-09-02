@@ -60,6 +60,14 @@ type
     function Get_TotalCustomers: Integer; safecall;
     function Get_SAIDI: Double; safecall;
     function Get_CustInterrupts: Double; safecall;
+    function Get_NumSections: Integer; safecall;
+    procedure SetActiveSection(SectIdx: Integer); safecall;
+    function Get_AvgRepairTime: Double; safecall;
+    function Get_FaultRateXRepairHrs: Double; safecall;
+    function Get_NumSectionBranches: Integer; safecall;
+    function Get_NumSectionCustomers: Integer; safecall;
+    function Get_OCPDeviceType: Integer; safecall;
+    function Get_SumBranchFltRates: Double; safecall;
     { Protected declarations }
   end;
 
@@ -814,6 +822,121 @@ begin
              Result := pMeterObj.CustInterrupts;
          End;
      End;
+end;
+
+function TMeters.Get_NumSections: Integer;
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     Result := 0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+             Result := pMeterObj.SectionCount ;
+         End;
+     End;
+end;
+
+procedure TMeters.SetActiveSection(SectIdx: Integer);
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then Begin
+             If (SectIdx > 0) and (SectIdx < pMeterObj.SectionCount) Then
+                pMeterObj.ActiveSection := SectIdx
+             Else pMeterObj.ActiveSection := 0;
+         End;
+     End;
+
+end;
+
+function TMeters.Get_AvgRepairTime: Double;
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     Result := 0.0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then With pMeterObj Do Begin
+             If ActiveSection>0 then Result := FeederSections^[ActiveSection].AverageRepairTime ;
+         End;
+     End;
+end;
+
+function TMeters.Get_FaultRateXRepairHrs: Double;
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     Result := 0.0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then With pMeterObj Do Begin
+             If ActiveSection>0 then Result := FeederSections^[ActiveSection].SumFltRatesXRepairHrs  ;
+         End;
+     End;
+end;
+
+function TMeters.Get_NumSectionBranches: Integer;
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     Result := 0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then With pMeterObj Do Begin
+             If ActiveSection>0 then Result := FeederSections^[ActiveSection].NBranches  ;
+         End;
+     End;
+end;
+
+function TMeters.Get_NumSectionCustomers: Integer;
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     Result := 0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then With pMeterObj Do Begin
+             If ActiveSection>0 then Result := FeederSections^[ActiveSection].NCustomers   ;
+         End;
+     End;
+end;
+
+function TMeters.Get_OCPDeviceType: Integer;
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     Result := 0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then With pMeterObj Do Begin
+             If ActiveSection>0 then Result := FeederSections^[ActiveSection].OCPDeviceType ;
+         End;
+     End;
+end;
+
+function TMeters.Get_SumBranchFltRates: Double;
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     Result := 0.0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then With pMeterObj Do Begin
+             If ActiveSection>0 then Result := FeederSections^[ActiveSection].SumBranchFltRates ;
+         End;
+     End;
+
 end;
 
 initialization

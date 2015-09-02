@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/1/2015 11:19:08 PM from Type Library described below.
+// File generated on 9/2/2015 5:18:39 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -1364,6 +1364,14 @@ type
     function Get_TotalCustomers: Integer; safecall;
     function Get_SAIDI: Double; safecall;
     function Get_CustInterrupts: Double; safecall;
+    function Get_NumSections: Integer; safecall;
+    procedure SetActiveSection(SectIdx: Integer); safecall;
+    function Get_OCPDeviceType: Integer; safecall;
+    function Get_NumSectionCustomers: Integer; safecall;
+    function Get_NumSectionBranches: Integer; safecall;
+    function Get_AvgRepairTime: Double; safecall;
+    function Get_FaultRateXRepairHrs: Double; safecall;
+    function Get_SumBranchFltRates: Double; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1389,6 +1397,13 @@ type
     property TotalCustomers: Integer read Get_TotalCustomers;
     property SAIDI: Double read Get_SAIDI;
     property CustInterrupts: Double read Get_CustInterrupts;
+    property NumSections: Integer read Get_NumSections;
+    property OCPDeviceType: Integer read Get_OCPDeviceType;
+    property NumSectionCustomers: Integer read Get_NumSectionCustomers;
+    property NumSectionBranches: Integer read Get_NumSectionBranches;
+    property AvgRepairTime: Double read Get_AvgRepairTime;
+    property FaultRateXRepairHrs: Double read Get_FaultRateXRepairHrs;
+    property SumBranchFltRates: Double read Get_SumBranchFltRates;
   end;
 
 // *********************************************************************//
@@ -1432,6 +1447,14 @@ type
     property TotalCustomers: Integer readonly dispid 221;
     property SAIDI: Double readonly dispid 222;
     property CustInterrupts: Double readonly dispid 223;
+    property NumSections: Integer readonly dispid 224;
+    procedure SetActiveSection(SectIdx: Integer); dispid 225;
+    property OCPDeviceType: Integer readonly dispid 226;
+    property NumSectionCustomers: Integer readonly dispid 227;
+    property NumSectionBranches: Integer readonly dispid 228;
+    property AvgRepairTime: Double readonly dispid 229;
+    property FaultRateXRepairHrs: Double readonly dispid 230;
+    property SumBranchFltRates: Double readonly dispid 231;
   end;
 
 // *********************************************************************//

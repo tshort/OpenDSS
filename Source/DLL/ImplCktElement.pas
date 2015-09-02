@@ -1270,6 +1270,7 @@ function TCktElement.Get_OCPDevIndex: Integer;
 Var
    iControl : integer;
    pCktElement : TDSSCktElement;
+
 begin
      Result := 0;
      If ActiveCircuit <> Nil Then  With ActiveCircuit Do
@@ -1281,39 +1282,21 @@ begin
               If pCktElement <> Nil Then
               Case (pCktElement.DSSObjType and CLASSMASK) of
 
-                FUSE_CONTROL     : Result := iControl;
-                RECLOSER_CONTROL : Result := iControl;
-                RELAY_CONTROL    : Result := iControl;
+                  FUSE_CONTROL     : Result := iControl;
+                  RECLOSER_CONTROL : Result := iControl;
+                  RELAY_CONTROL    : Result := iControl;
 
               End;
               inc(iControl);
          Until (iControl > pCktElement.ControlElementList.listSize) or (Result > 0);
      End;
-
 end;
 
 function TCktElement.Get_OCPDevType: Integer;
-Var
-   i : integer;
-   pCktElement : TDSSCktElement;
 begin
      Result := 0;
      If ActiveCircuit <> Nil Then  With ActiveCircuit Do
-     Begin
-         i := 1;
-         Repeat
-              pCktElement :=  ActiveCktElement.ControlElementList.Get(i);
-              If pCktElement <> Nil Then
-              Case (pCktElement.DSSObjType and CLASSMASK) of
-
-                FUSE_CONTROL     : Result := 1;
-                RECLOSER_CONTROL : Result := 2;
-                RELAY_CONTROL    : Result := 3;
-
-              End;
-              inc(i);
-         Until (i > pCktElement.ControlElementList.listSize) or (Result > 0);
-     End;
+         Result := GetOCPDeviceType(ActiveCktElement);     // see Utilities.pas
 end;
 
 function TCktElement.Get_CurrentsMagAng: OleVariant;

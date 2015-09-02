@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 9/1/2015 11:24:33 PM (- $Rev: 12980 $, 134541252).
+// File generated on 9/2/2015 5:36:40 PM (- $Rev: 12980 $, 5920815).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -1106,6 +1106,22 @@ library OpenDSSengine
     HRESULT _stdcall SAIDI([out, retval] double* Value);
     [propget, id(0x000000DF), helpstring("Total customer interruptions for this Meter zone based on reliability calcs.")]
     HRESULT _stdcall CustInterrupts([out, retval] double* Value);
+    [propget, id(0x000000E0), helpstring("Number of feeder sections in this meter's zone")]
+    HRESULT _stdcall NumSections([out, retval] long* Value);
+    [id(0x000000E1), helpstring("Sets the designated section active if the index is valiid.")]
+    HRESULT _stdcall SetActiveSection([in] long SectIdx);
+    [propget, id(0x000000E2), helpstring("Type of OCP device. 1=Fuse; 2=Recloser; 3=Relay")]
+    HRESULT _stdcall OCPDeviceType([out, retval] long* Value);
+    [propget, id(0x000000E3), helpstring("Number of Customers in the active section.")]
+    HRESULT _stdcall NumSectionCustomers([out, retval] long* Value);
+    [propget, id(0x000000E4), helpstring("Number of branches (lines) in this section")]
+    HRESULT _stdcall NumSectionBranches([out, retval] long* Value);
+    [propget, id(0x000000E5), helpstring("Average Repair time in this section of the meter zone")]
+    HRESULT _stdcall AvgRepairTime([out, retval] double* Value);
+    [propget, id(0x000000E6), helpstring("Sum of Fault Rate time Repair Hrs in this section of the meter zone")]
+    HRESULT _stdcall FaultRateXRepairHrs([out, retval] double* Value);
+    [propget, id(0x000000E7), helpstring("Sum of the branch fault rates in this section of the meter's zone")]
+    HRESULT _stdcall SumBranchFltRates([out, retval] double* Value);
   };
 
   [

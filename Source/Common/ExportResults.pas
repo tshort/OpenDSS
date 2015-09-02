@@ -13,6 +13,8 @@ unit ExportResults;
 
 INTERFACE
 
+Uses EnergyMeter;
+
 Procedure ExportVoltages(FileNm:String);
 Procedure ExportSeqVoltages(FileNm:String);
 Procedure ExportCurrents(FileNm:String);
@@ -54,13 +56,14 @@ Procedure ExportResult(FileNm:String);
 Procedure ExportYNodeList(FileNM:String);
 Procedure ExportYVoltages(FileNM:String);
 Procedure ExportYCurrents(FileNM:String);
+Procedure ExportSections(FileNM:String; pMeter:TEnergyMeterObj);
 
 
 IMPLEMENTATION
 
 Uses uComplex,  Arraydef, System.sysutils,   Circuit, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution, CktElement, Utilities, Bus, MathUtil, DSSClass,
-     PDElement, PCElement, Generator, EnergyMeter, Sensor, Load, RegControl, Transformer,
+     PDElement, PCElement, Generator,  Sensor, Load, RegControl, Transformer,
      ParserDel, Math, Ymatrix, LineGeometry, WireData, LineCode, XfmrCode, NamedObject,
      GICTransformer, PVSystem, Storage;
 
@@ -3459,6 +3462,57 @@ Begin
 
   Finally
       CloseFile(F);
+  End;
+
+End;
+
+
+Procedure ExportSections(FileNM:String; pMeter:TEnergyMeterObj);
+
+Var
+   MyMeterPtr:TEnergyMeterObj;
+   iMeter, i : Integer;
+   F : TextFile;
+
+
+Begin
+
+  Try
+     Assignfile(F, FileNm);
+     ReWrite(F);
+
+     // Write Header
+     Writeln(F, 'Meter, SectionID, DeviceType, NumCustomers, NumBranches, AvgRepairHrs ');
+
+   If Assigned(pMeter) Then
+     // If a meter is specified, export that meter only
+     With pMeter Do
+     Begin
+         for i  := 1 to SectionCount  do
+           With FeederSections^[i] Do
+              Writeln(F, format('%s, %d, %s, %d, %d, %-.6g', [Name, i, GetOCPDeviceTypeString(OCPDeviceType), NCustomers, NBranches, AverageRepairTime ]));
+     End
+   Else    // export sections for all meters
+     Begin
+
+        iMeter := EnergyMeterClass.First;
+        while iMeter>0 do
+          Begin
+             MyMeterPtr:=EnergyMeterClass.GetActiveObj;
+             With MyMeterPtr Do
+             Begin
+                 for i  := 1 to SectionCount  do
+                   With FeederSections^[i] Do
+                      Writeln(F, format('%s, %d, %s, %d, %d, %-.6g', [Name, i, GetOCPDeviceTypeString(OCPDeviceType), NCustomers, NBranches, AverageRepairTime ]));
+             End;
+             iMeter := EnergyMeterClass.Next;
+          End;
+
+     End;
+
+
+  Finally
+     CloseFile(F);
   End;
 
 End;

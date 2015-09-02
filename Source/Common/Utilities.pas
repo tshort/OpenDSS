@@ -64,6 +64,8 @@ FUNCTION GetActiveLoadShapeClass:String;
 FUNCTION GetDSSArray_Real(n:Integer; dbls:pDoubleArray):String;
 FUNCTION GetDSSArray_Integer(n:Integer; ints:pIntegerArray):String;
 FUNCTION GetEarthModel(n:Integer):String;
+FUNCTION GetOCPDeviceType(pElem:TDSSCktElement) : Integer;
+FUNCTION GetOCPDeviceTypeString(icode:integer):String;
 
 
 {misc functions}
@@ -3016,6 +3018,39 @@ Begin
         Else  Result := Ans2;
     End;
 
+End;
+
+{-------------------------------------------------------------------------------}
+function GetOCPDeviceType(pElem:TDSSCktElement): Integer;
+Var
+   i : integer;
+   pCktElement : TDSSCktElement;
+begin
+     Result := 0;
+     i := 1;
+     Repeat
+          pCktElement :=  pElem.ControlElementList.Get(i);
+          If pCktElement <> Nil Then
+          Case (pCktElement.DSSObjType and CLASSMASK) of
+
+            FUSE_CONTROL     : Result := 1;
+            RECLOSER_CONTROL : Result := 2;
+            RELAY_CONTROL    : Result := 3;
+
+          End;
+          inc(i);
+     Until (i > pCktElement.ControlElementList.listSize) or (Result > 0);
+end;
+
+Function GetOCPDeviceTypeString(icode:integer):String;
+Begin
+     case iCode of
+          1: Result := 'FUSE';
+          2: Result := 'RECLOSER';
+          3: Result := 'RELAY';
+     Else
+         Result := 'Unknown';
+     end;
 End;
 
 initialization

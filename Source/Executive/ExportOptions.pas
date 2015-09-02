@@ -5,7 +5,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 50;
+        NumExportOptions = 51;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -17,7 +17,7 @@ VAR
 
 implementation
 
-Uses ExportResults, Monitor, ParserDel, sysutils, DSSGlobals, ExportCIMXML, Utilities;
+Uses ExportResults, Monitor, EnergyMeter, ParserDel, sysutils, DSSGlobals, ExportCIMXML, Utilities;
 
 
 Procedure DefineOptions;
@@ -74,6 +74,7 @@ Begin
       ExportOption[48] := 'YCurrents';
       ExportOption[49] := 'PVSystem_Meters';
       ExportOption[50] := 'Storage_Meters';
+      ExportOption[51] := 'Sections';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -82,8 +83,8 @@ Begin
       ExportHelp[ 5] := '(Default file = EXP_ESTIMATION.CSV) Results of last estimation.';
       ExportHelp[ 6] := '(Default file = EXP_CAPACITY.CSV) Capacity report.';
       ExportHelp[ 7] := '(Default file = EXP_OVERLOADS.CSV) Overloaded elements report.';
-      ExportHelp[ 8] := '(Default file = EXP_UNSERVED.CSV) Report on elements that are served in violation of ratings.';
-      ExportHelp[ 9] := '(Default file = EXP_POWERS.CSV) Powers into each terminal of each element.';
+      ExportHelp[ 8] := '(Default file = EXP_UNSERVED.CSV) [UEonly] [Filename] Report on elements that are unserved due to violation of ratings.';
+      ExportHelp[ 9] := '(Default file = EXP_POWERS.CSV) [MVA] [Filename] Powers (kVA by default) into each terminal of each element.';
       ExportHelp[10] := '(Default file = EXP_SEQPOWERS.CSV) Sequence powers into each terminal of 3-phase elements.';
       ExportHelp[11] := '(Default file = EXP_FAULTS.CSV) results of a fault study.';
       ExportHelp[12] := '(Default file = EXP_GENMETERS.CSV) Present values of generator meters. Adding the switch "/multiple" or "/m" will ' +
@@ -95,7 +96,7 @@ Begin
       ExportHelp[16] := '(Default file = EXP_YPRIMS.CSV) All primitive Y matrices.';
       ExportHelp[17] := '(Default file = EXP_Y.CSV) System Y matrix.';
       ExportHelp[18] := '(Default file = EXP_SEQZ.CSV) Equivalent sequence Z1, Z0 to each bus.';
-      ExportHelp[19] := '(Default file = EXP_P_BYPHASE.CSV) Power by phase.';
+      ExportHelp[19] := '(Default file = EXP_P_BYPHASE.CSV) [MVA] [Filename] Power by phase. Default is kVA.';
       ExportHelp[20] := '(Default file = CDPSM_Combined.XML) (IEC 61968-13, CDPSM Combined (unbalanced load flow) profile)';
       ExportHelp[21] := '(Default file = CDPSM_Functional.XML) (IEC 61968-13, CDPSM Functional profile)';
       ExportHelp[22] := '(Default file = CDPSM_Asset.XML) (IEC 61968-13, CDPSM Asset profile)';
@@ -130,6 +131,8 @@ Begin
                         ' cause a separate file to be written for each PVSystem.';
       ExportHelp[50] := '(Default file = EXP_STORAGEMETERS.CSV) Present values of Storage meters. Adding the switch "/multiple" or "/m" will ' +
                         ' cause a separate file to be written for each Storage device.';
+      ExportHelp[51] := '(Default file = EXP_SECTIONS.CSV) Data for each section between overcurrent protection devices. ' +CRLF+CRLF+
+                        'Examples: ' + CRLF + '  Export Sections [optional filename]' + CRLF + 'Export Sections meter=M1 [optional filename]';
 End;
 
 //----------------------------------------------------------------------------
@@ -141,9 +144,10 @@ VAR
    Parm2,
    FileName :String;
 
-   MVAopt :Integer;
-   UEonlyOpt:Boolean;
-   pMon      :TMonitorObj;
+   MVAopt       :Integer;
+   UEonlyOpt    :Boolean;
+   pMon         :TMonitorObj;
+   pMeter       :TEnergyMeterObj;
    ParamPointer :Integer;
    PhasesToPlot :Integer;
 
@@ -156,7 +160,7 @@ Begin
 
    {Check commands requiring a solution and abort if no solution or circuit}
    CASE ParamPointer of
-         1..24,28..32,35:
+         1..24,28..32,35, 46..51:
          Begin
              If not assigned(ActiveCircuit) Then
              Begin
@@ -175,6 +179,7 @@ Begin
    MVAOpt := 0;
    UEonlyOpt := FALSE;
    PhasesToPlot := PROFILE3PH;  // init this to get rid of compiler warning
+   pMeter := Nil;
 
    CASE ParamPointer OF
       9, 19: Begin { Trap export powers command and look for MVA/kVA option }
@@ -203,16 +208,24 @@ Begin
              if      CompareTextShortest(Parm2, 'default')=0 then PhasesToPlot := PROFILE3PH
              Else if CompareTextShortest(Parm2, 'all')=0     then PhasesToPlot := PROFILEALL
              Else if CompareTextShortest(Parm2, 'primary')=0 then PhasesToPlot := PROFILEALLPRI
-             Else if CompareTextShortest(Parm2, 'll3ph')=0      then PhasesToPlot := PROFILELL
+             Else if CompareTextShortest(Parm2, 'll3ph')=0   then PhasesToPlot := PROFILELL
              Else if CompareTextShortest(Parm2, 'llall')=0   then PhasesToPlot := PROFILELLALL
              Else if CompareTextShortest(Parm2, 'llprimary')=0 then PhasesToPlot := PROFILELLPRI
              Else If Length(Parm2)=1 then PhasesToPlot := Parser.IntValue;
 
           End;
 
+      51: Begin {Sections}
+             ParamName := Parser.NextParam;
+             Parm2 := Parser.StrValue;
+
+             If CompareTextShortest(ParamName, 'meter')=0 Then
+                pMeter := EnergyMeterClass.Find(Parm2);
+          End;
+
    End;
 
-   {Pick up last parameter on line, alternate file name, if any}
+   {Pick up next parameter on line, alternate file name, if any}
    ParamName := Parser.NextParam;
    FileName := LowerCase(Parser.StrValue);    // should be full path name to work universally
 
@@ -271,6 +284,7 @@ Begin
          48: FileName := 'EXP_YCurrents.CSV';
          49: FileName := 'EXP_PVMeters.CSV';
          50: FileName := 'EXP_STORAGEMeters.CSV';
+         51: FileName := 'EXP_SECTIONS.CSV';
 
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
@@ -334,6 +348,7 @@ Begin
      48: ExportYCurrents(FileName);
      49: ExportPVSystemMeters(FileName);
      50: ExportStorageMeters(FileName);
+     51: ExportSections(FileName, pMeter);
 
    ELSE
          ExportVoltages(FileName);    // default
