@@ -47,7 +47,12 @@ TYPE
         ERR0    : array[1..6] of Double; //Error controller 1 for Dual mode
         ZBase   : Double;
         Freq    : Double;
-
+        tolS    : boolean;  // Defines the sign of the error
+        TolSim  : Double;   // Tolerance used for the simulation
+        VHLimit : Double;   // High limit for the input voltage in volts (default 300V)
+        VLLimit : Double;   // Low limit for the input voltage in volts (default 125V)
+        CLimit  : Double;   // Limit for the maximum current in amperes
+        UPFCON  : boolean;   // Flag to indicate when the UPFC operation is out of boundaries
 
         // some state vars for reporting
         Losses  : Double;
@@ -114,7 +119,7 @@ USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Utilities, Sysutil
 
 Const
     propLossCurve= 11;
-    NumPropsThisClass = 11;
+    NumPropsThisClass = 14;
     NumUPFCVariables = 12;
 
 
@@ -165,6 +170,9 @@ Begin
      PropertyName[9] := 'Mode';
      PropertyName[10]:= 'VpqMax';
      PropertyName[11]:= 'LossCurve';
+     PropertyName[12]:= 'VHLimit';
+     PropertyName[13]:= 'VLLimit';
+     PropertyName[14]:= 'CLimit';
 
      // define Property help values
      PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname.1.3'+CRLF+'bus1=busname.1.2.3';                        ;
@@ -181,6 +189,9 @@ Begin
                         '1 = Voltage regulator, '+CRLF+'2 = Phase angle regulator, '+CRLF+'3 = Dual mode';
      PropertyHelp[10]:= 'Maximum voltage (in volts) delivered by the series voltage source (Default = 24 V)';
      PropertyHelp[11]:= 'Name of the XYCurve for describing the losses behavior as a function of the voltage at the input of the UPFC';
+     PropertyHelp[12]:= 'High limit for the voltage at the input of the UPFC, if the voltage is above this value the UPFC turns off. This value is specified in Volts (default 300 V)';
+     PropertyHelp[13]:= 'low limit for the voltage at the input of the UPFC, if voltage is below this value the UPFC turns off. This value is specified in Volts (default 125 V)';
+     PropertyHelp[14]:= 'Current Limit for the UPFC, if the current passing trough the UPFC is higher than this value the UPFC turns off. This value is specified in Amps (Default 236 A)';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -247,6 +258,9 @@ Begin
             9: ModeUPFC := Parser.IntValue;
             10:VpqMax   := Parser.DblValue;
             propLossCurve:LossCurve:= Param;
+            12: VHLimit := Parser.DblValue;
+            13: VLLimit := Parser.DblValue;
+            14: CLimit := Parser.DblValue;
 
          ELSE
             ClassEdit(ActiveUPFCObj, ParamPointer - NumPropsThisClass)
@@ -304,6 +318,9 @@ Begin
        VpqMax    := OtherUPFC.VpqMax;
        LossCurve := OtherUPFC.LossCurve;
        UPFCLossCurveObj:=UPFCLossCurveObj;
+       VHLimit:=OtherUPFC.VHLimit;
+       VLLimit:=OtherUPFC.VLLimit;
+       CLimit:=OtherUPFC.CLimit;
 
        ClassMakeLike(OtherUPFC);
 
@@ -344,9 +361,13 @@ Begin
      Freq     := 60.0;
      enabled  := True;
      ModeUPFC := 1;
-     VpqMax   := 24;     // From the data provided
+     VpqMax   := 24.0;     // From the data provided
      LossCurve:= '';
      UPFCLossCurveObj:=Nil;
+     VHLimit  := 300.0;
+     VLLimit  := 125.0;
+     CLimit   := 265.0;
+     UPFCON   := True;
      Sr0 := Nil;
      Sr1 := Nil;
 
@@ -531,6 +552,7 @@ Function TUPFCObj.GetoutputCurr(Cond:integer):Complex;
 VAr
    Error:Double;
    TError:Double;
+   VinMag:Double;
    Vpolar:polar;
    VTemp:complex;
    Itemp:complex;
@@ -539,25 +561,37 @@ Begin
 
   TRY
     WITH ActiveCircuit.Solution Do
-
-    case ModeUPFC of
+   UPFCON:=True;
+   VinMag:=cabs(Vbin);
+   if (VinMag>VHLimit) or (VinMag<VLLimit) then
+      begin   // Check Limits (Voltage)
+        UPFCON:=False;
+        ITemp:=cmplx(0,0);
+      end
+   else                                                       // Limits OK
+      begin
+        case ModeUPFC of
         0:  Itemp:=cmplx(0,0); //UPFC off
         1:  Begin              //UPFC as a voltage regulator
               Vpolar:=ctopolar(Vbout);
-              Error:=abs(1-abs(Vpolar.mag/(VRef*1000)));
-              if Error > Tol1 then
-                Begin
-                  Vtemp   :=  csub(Vbout,Vbin);
-                  Vpolar  :=  ctopolar(Vbin);
-                  TError  :=  (VRef*1000)-Vpolar.mag;
-                  if TError > VpqMax then TError:=VpqMax
-                  else if TError < -VpqMax then TError:=-VpqMax;
-                  Vpolar   :=  topolar(TError, Vpolar.ang);
-                  VTemp    :=  csub(ptocomplex(Vpolar), VTemp); //Calculates Vpq
-                  Itemp    :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
-                  SR0^[Cond]:=  ITemp;
-                End
-                else ITemp:=SR0^[Cond];
+                  Error:=1-abs(Vpolar.mag/(VRef*1000));
+                 Error:=abs(Error);
+                 if Error > Tol1 then
+                   Begin
+                     Vtemp   :=  csub(Vbout,Vbin);
+                     Vpolar  :=  ctopolar(Vbin);
+                     TError  :=  (VRef*1000)-Vpolar.mag;
+                     if TError > VpqMax then TError:=VpqMax
+                     else if TError < -VpqMax then TError:=-VpqMax;
+                      Vpolar   :=  topolar(TError, Vpolar.ang);
+                     VTemp    :=  csub(ptocomplex(Vpolar), VTemp); //Calculates Vpq
+                     ITemp    :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
+                     SR0^[Cond]:= ITemp;
+                   end
+                 else
+                   begin
+                     ITemp:=SR0^[Cond];
+                   end;
             end;
         2:  Itemp:=cmplx(0,0); //UPFC as a phase angle regulator
         3:  Begin              //UPFC in Dual mode Voltage and Phase angle regulator
@@ -572,16 +606,17 @@ Begin
                   else if TError < -VpqMax then TError := -VpqMax;
                   Vpolar   :=  topolar(TError,Vpolar.ang);
                   VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
-                  Itemp    :=  cadd(SR0^[Cond],cdiv(VTemp,cmplx(0,Xs)));
+                  Itemp    :=  cmul(cadd(SR0^[Cond],cdiv(VTemp,cmplx(0,Xs))),cmplx(0.8,0));
                   SR0^[Cond]:=  ITemp;
                   SyncFlag:=False;
                 End
                 else begin
                   ITemp:=SR0^[Cond];
                   SyncFlag:=True;
-                end;
-            end;
-    end;
+              end;
+        end;
+      end;
+   end;
     Result := Itemp;
   EXCEPT
       DoSimpleMsg('Error computing current for Isource.'+Name+'. Check specification. Aborting.', 334);
@@ -638,6 +673,8 @@ Begin
   TRY
     WITH ActiveCircuit.Solution Do
   {Get first Phase Current}
+  if UPFCON then
+  begin
       case ModeUPFC of
           0:  begin
                   CurrIn:=cmplx(0,0);
@@ -647,7 +684,6 @@ Begin
                   Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
                   Losses:=CalcUPFCLosses(Cabs(Vbin)/(VRef*1000));
                   CurrIn:=cmul(cnegate(Ctemp),cmplx(Losses,0));
-                  UPFC_Power:=CalcUPFCPowers(2,Cond);
               end;
           2:  Begin                    // Reactive compensation mode
                   UPFC_Power:=CalcUPFCPowers(2,0);
@@ -669,7 +705,9 @@ Begin
                   if ERR0[Cond] < UPFC_Power.im then ERR0[Cond]:=UPFC_Power.im;
               End;
       end;
-      Result := CurrIn;
+  end
+  else CurrIn:=cmplx(0,0);
+  Result := CurrIn;
   EXCEPT
       DoSimpleMsg('Error computing current for Isource.'+Name+'. Check specification. Aborting.', 334);
       IF In_Redirect Then Redirect_Abort := TRUE;
