@@ -191,7 +191,7 @@ Begin
      PropertyHelp[11]:= 'Name of the XYCurve for describing the losses behavior as a function of the voltage at the input of the UPFC';
      PropertyHelp[12]:= 'High limit for the voltage at the input of the UPFC, if the voltage is above this value the UPFC turns off. This value is specified in Volts (default 300 V)';
      PropertyHelp[13]:= 'low limit for the voltage at the input of the UPFC, if voltage is below this value the UPFC turns off. This value is specified in Volts (default 125 V)';
-     PropertyHelp[14]:= 'Current Limit for the UPFC, if the current passing trough the UPFC is higher than this value the UPFC turns off. This value is specified in Amps (Default 236 A)';
+     PropertyHelp[14]:= 'Current Limit for the UPFC, if the current passing through the UPFC is higher than this value the UPFC turns off. This value is specified in Amps (Default 265 A)';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
