@@ -846,7 +846,7 @@ begin
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
-             If (SectIdx > 0) and (SectIdx < pMeterObj.SectionCount) Then
+             If (SectIdx > 0) and (SectIdx <= pMeterObj.SectionCount) Then
                 pMeterObj.ActiveSection := SectIdx
              Else pMeterObj.ActiveSection := 0;
          End;
