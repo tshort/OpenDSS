@@ -242,7 +242,7 @@ class Bus:
             y[i] = bus.y
             distance[i] = bus.Distance
             v = array(bus.Voltages)
-            nodes = array(bus.nodes)
+            nodes = array(bus.Nodes)
 
 # we're only interested in the first three nodes
 # (also called terminals) on the bus
@@ -300,9 +300,9 @@ class Branch:
             xto[i] = bus2.x
             yto[i] = bus2.y
             if bus2.x == 0 or bus2.y == 0: continue # skip lines without proper bus coordinates
-            distance[i] = bus2.distance
+            distance[i] = bus2.Distance
             v = array(bus2.Voltages)
-            nodes = array(bus2.nodes)
+            nodes = array(bus2.Nodes)
             kvbase[i] = bus2.kVBase
             nphases[i] = nodes.size
             if nodes.size > 3: nodes = nodes[0:3]
