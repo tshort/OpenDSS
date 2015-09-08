@@ -839,6 +839,9 @@ End;
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 FUNCTION  SolveFaultStudy:Integer;
+
+
+
 Begin
    Result := 0;
 
@@ -849,10 +852,11 @@ Begin
    Begin
       LoadModel := ADMITTANCE;
       DisableAllFaults;
+
       SolveDirect;   // This gets the open circuit voltages and bus lists corrected
 
-     AllocateAllSCParms;   // Reallocate bus quantities
-     UpdateVBus;  // Put present solution Voc's in bus quantities
+      AllocateAllSCParms;   // Reallocate bus quantities
+      UpdateVBus;  // Put present solution Voc's in bus quantities
    End;
    
    ProgressCaption ('Computing Ysc Matrices for Each Bus');

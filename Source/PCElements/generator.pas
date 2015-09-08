@@ -304,7 +304,7 @@ implementation
 
 USES  ParserDel, Circuit,  Sysutils, Command, Math, MathUtil, DSSClassDefs, DSSGlobals, Utilities;
 
-Const NumPropsThisClass = 38;
+Const NumPropsThisClass = 39;
   // Dispatch modes
       DEFAULT = 0;
       LOADMODE = 1;
@@ -452,6 +452,7 @@ Begin
      AddProperty('debugtrace', 22,  '{Yes | No }  Default is no.  Turn this on to capture the progress of the generator model ' +
                           'for each iteration.  Creates a separate file for each generator named "GEN_name.CSV".' );
       AddProperty('Balanced',  38, '{Yes | No*} Default is No.  For Model=7, force balanced current only for 3-phase generators. Force zero- and negative-sequence to zero.');
+      AddProperty('XRdp',  39, 'Default is 20. X/R ratio for Xdp property for FaultStudy and Dynamic modes.');
 
 
 
@@ -612,19 +613,20 @@ Begin
            23: VMinPu       := Parser.DblValue;
            24: VMaxPu       := Parser.DblValue;
            25: FForcedON     := InterpretYesNo(Param);
-           26: GenVars.kVArating    := Parser.DblValue;
-           27: GenVars.kVArating    := Parser.DblValue * 1000.0;  // 'MVA';
-           28: GenVars.puXd         := Parser.DblValue;
-           29: GenVars.puXdp        := Parser.DblValue;
-           30: GenVars.puXdpp       := Parser.DblValue;
-           31: GenVars.Hmass        := Parser.DblValue;
-           32: GenVars.Dpu          := Parser.DblValue;
-           33: UserModel.Name := Parser.StrValue;  // Connect to user written models
-           34: UserModel.Edit := Parser.StrValue;  // Send edit string to user model
-           35: ShaftModel.Name   := Parser.StrValue;
-           36: ShaftModel.Edit   := Parser.StrValue;
-           37: DutyStart := Parser.DblValue;
-           38: ForceBalanced := InterpretYesNo(Param);
+           26: GenVars.kVArating   := Parser.DblValue;
+           27: GenVars.kVArating   := Parser.DblValue * 1000.0;  // 'MVA';
+           28: GenVars.puXd        := Parser.DblValue;
+           29: GenVars.puXdp       := Parser.DblValue;
+           30: GenVars.puXdpp      := Parser.DblValue;
+           31: GenVars.Hmass       := Parser.DblValue;
+           32: GenVars.Dpu         := Parser.DblValue;
+           33: UserModel.Name      := Parser.StrValue;  // Connect to user written models
+           34: UserModel.Edit      := Parser.StrValue;  // Send edit string to user model
+           35: ShaftModel.Name     := Parser.StrValue;
+           36: ShaftModel.Edit     := Parser.StrValue;
+           37: DutyStart           := Parser.DblValue;
+           38: ForceBalanced       := InterpretYesNo(Param);
+           39: Genvars.XRdp        := Parser.DblValue;  // X/R for dynamics model
 
          ELSE
            // Inherited parameters
@@ -751,6 +753,7 @@ Begin
        GenVars.dSpeed         := OtherGenerator.GenVars.dSpeed;
        GenVars.D              := OtherGenerator.GenVars.D;
        GenVars.Dpu            := OtherGenerator.GenVars.Dpu;
+       GenVars.XRdp           := OtherGenerator.GenVars.Xrdp;
 
        UserModel.Name    := OtherGenerator.UserModel.Name;  // Connect to user written models
        ShaftModel.Name   := OtherGenerator.ShaftModel.Name;
@@ -897,6 +900,7 @@ Begin
          Speed      := 0.0;
          dSpeed     := 0.0;
          D          := 1.0;
+         XRdp       := 20.0;
      End;
 
      {Advertise Genvars struct as public}
@@ -2343,6 +2347,7 @@ begin
      PropertyValue[36]     := '';
      PropertyValue[37]     := '0';
      PropertyValue[38]     := 'No';
+     PropertyValue[39]     := '20';
 
   inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -2365,7 +2370,7 @@ begin
      CASE Genmodel of
          7: Zthev := Cmplx(Xdp, 0.0); // use Xd' as an equivalent R for the inverter
      ELSE
-            Zthev := Cmplx(0.0, Xdp);
+            Zthev := Cmplx(Xdp/XRdp, Xdp);
      END;
 
      Yeq := Cinv(Zthev);

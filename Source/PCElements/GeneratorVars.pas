@@ -49,6 +49,7 @@ TYPE
         ThetaHarm : Double;    {Thevinen equivalent voltage angle reference for Harmonic model}
         VTarget   : Double;   // Target voltage for generator with voltage control
         Zthev     : Complex;
+        XRdp      : Double;  // Assumed X/R for Xd'
    End;
 
 implementation
