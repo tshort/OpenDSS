@@ -182,6 +182,8 @@ Begin
     MeterObj          := NIL;
     ParentPDElement   := NIL;
     DSSObjType        := PD_ELEMENT;
+
+
 End;
 
 destructor TPDElement.Destroy;

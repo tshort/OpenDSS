@@ -78,7 +78,8 @@ TYPE
       HasSensorObj,
       IsIsolated,
       HasControl,
-      IsPartofFeeder    : Boolean;  // Flag used in tree searches etc
+      IsPartofFeeder,
+      Drawn    : Boolean;  // Flag used in tree searches etc
 
       HasOCPDevice      : Boolean; // Fuse, Relay, or Recloser
       HasAutoOCPDevice  : Boolean; // Relay or Recloser only
@@ -188,6 +189,8 @@ Begin
      HasControl     := FALSE;
      IsPartofFeeder := False;
      IsIsolated     := FALSE;
+
+     Drawn             := False;
 
      // Make list for a small number of controls with an increment of 1
      ControlElementList := PointerList.TPointerList.Create(1);
