@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/2/2015 5:18:39 PM from Type Library described below.
+// File generated on 9/23/2015 12:25:25 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -1486,6 +1486,14 @@ type
     function Get_Count: Integer; safecall;
     function Get_idx: Integer; safecall;
     procedure Set_idx(Value: Integer); safecall;
+    function Get_Model: Integer; safecall;
+    procedure Set_Model(Value: Integer); safecall;
+    function Get_kVArated: Double; safecall;
+    procedure Set_kVArated(Value: Double); safecall;
+    function Get_Vmaxpu: Double; safecall;
+    procedure Set_Vmaxpu(Value: Double); safecall;
+    function Get_Vminpu: Double; safecall;
+    procedure Set_Vminpu(Value: Double); safecall;
     property AllNames: OleVariant read Get_AllNames;
     property RegisterNames: OleVariant read Get_RegisterNames;
     property RegisterValues: OleVariant read Get_RegisterValues;
@@ -1500,6 +1508,10 @@ type
     property Phases: Integer read Get_Phases write Set_Phases;
     property Count: Integer read Get_Count;
     property idx: Integer read Get_idx write Set_idx;
+    property Model: Integer read Get_Model write Set_Model;
+    property kVArated: Double read Get_kVArated write Set_kVArated;
+    property Vmaxpu: Double read Get_Vmaxpu write Set_Vmaxpu;
+    property Vminpu: Double read Get_Vminpu write Set_Vminpu;
   end;
 
 // *********************************************************************//
@@ -1523,6 +1535,10 @@ type
     property Phases: Integer dispid 205;
     property Count: Integer readonly dispid 206;
     property idx: Integer dispid 207;
+    property Model: Integer dispid 208;
+    property kVArated: Double dispid 209;
+    property Vmaxpu: Double dispid 210;
+    property Vminpu: Double dispid 211;
   end;
 
 // *********************************************************************//
@@ -3335,6 +3351,13 @@ type
     procedure Set_Name(const Value: WideString); safecall;
     function Get_Irradiance: Double; safecall;
     procedure Set_Irradiance(Value: Double); safecall;
+    function Get_kW: Double; safecall;
+    function Get_kvar: Double; safecall;
+    procedure Set_kvar(Value: Double); stdcall;
+    function Get_PF: Double; safecall;
+    procedure Set_PF(Value: Double); stdcall;
+    function Get_kVArated: Double; safecall;
+    procedure Set_kVArated(Value: Double); stdcall;
     property AllNames: OleVariant read Get_AllNames;
     property RegisterNames: OleVariant read Get_RegisterNames;
     property RegisterValues: OleVariant read Get_RegisterValues;
@@ -3344,6 +3367,10 @@ type
     property idx: Integer read Get_idx write Set_idx;
     property Name: WideString read Get_Name write Set_Name;
     property Irradiance: Double read Get_Irradiance write Set_Irradiance;
+    property kW: Double read Get_kW;
+    // Skipped Property "kvar"
+    // Skipped Property "PF"
+    // Skipped Property "kVArated"
   end;
 
 // *********************************************************************//
@@ -3362,6 +3389,10 @@ type
     property idx: Integer dispid 207;
     property Name: WideString dispid 208;
     property Irradiance: Double dispid 209;
+    property kW: Double readonly dispid 210;
+    function kvar: Double; dispid 211;
+    function PF: Double; dispid 212;
+    function kVArated: Double; dispid 213;
   end;
 
 // *********************************************************************//

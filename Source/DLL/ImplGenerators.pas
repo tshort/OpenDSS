@@ -40,6 +40,14 @@ type
     function Get_Count: Integer; safecall;
     function Get_idx: Integer; safecall;
     procedure Set_idx(Value: Integer); safecall;
+    function Get_Model: Integer; safecall;
+    procedure Set_Model(Value: Integer); safecall;
+    function Get_kVArated: Double; safecall;
+    procedure Set_kVArated(Value: Double); safecall;
+    function Get_Vmaxpu: Double; safecall;
+    function Get_Vminpu: Double; safecall;
+    procedure Set_Vmaxpu(Value: Double); safecall;
+    procedure Set_Vminpu(Value: Double); safecall;
     { Protected declarations }
   end;
 
@@ -407,6 +415,108 @@ begin
         If pGen <> Nil Then ActiveCircuit.ActiveCktElement := pGen;
     End;
 
+end;
+
+function TGenerators.Get_Model: Integer;
+begin
+   Result := -1;
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.Generators Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                 Result := TGeneratorObj(Active).GenModel ;
+             End;
+         End;
+   End;
+end;
+
+procedure TGenerators.Set_Model(Value: Integer);
+begin
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.Generators Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                  With TGeneratorObj(Active) Do Begin
+                     GenModel := Value;
+                     // Handle side effect
+                     If GenModel=3 Then ActiveCircuit.Solution.SolutionInitialized := FALSE ;
+                  End;
+             End;
+         End;
+   End;
+end;
+
+function TGenerators.Get_kVArated: Double;
+begin
+   Result := -1.0;
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.Generators Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                 Result := TGeneratorObj(Active).Genvars.kVArating  ;
+             End;
+         End;
+   End;
+end;
+
+procedure TGenerators.Set_kVArated(Value: Double);
+begin
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.Generators Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                  With TGeneratorObj(Active) Do Begin
+                     Genvars.kVArating  := Value;
+                  End;
+             End;
+         End;
+   End;
+end;
+
+function TGenerators.Get_Vmaxpu: Double;
+begin
+   Result := -1.0;
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.Generators Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                 Result := TGeneratorObj(Active).Vmaxpu ;
+             End;
+         End;
+   End;
+end;
+
+function TGenerators.Get_Vminpu: Double;
+begin
+   Result := -1.0;
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.Generators Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                 Result := TGeneratorObj(Active).Vminpu ;
+             End;
+         End;
+   End;
+end;
+
+procedure TGenerators.Set_Vmaxpu(Value: Double);
+begin
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.Generators Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                  With TGeneratorObj(Active) Do Begin
+                     VMaxPu  := Value;
+                  End;
+             End;
+         End;
+   End;
+end;
+
+procedure TGenerators.Set_Vminpu(Value: Double);
+begin
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.Generators Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                  With TGeneratorObj(Active) Do Begin
+                     VMinPu  := Value;
+                  End;
+             End;
+         End;
+   End;
 end;
 
 initialization

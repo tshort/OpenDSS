@@ -170,8 +170,6 @@ TYPE
         VBase           :Double;  // Base volts suitable for computing currents
         VBase105        :Double;
         VBase95         :Double;
-        Vmaxpu          :Double;
-        Vminpu          :Double;
         Vthev           :Complex;  {Thevinen equivalent voltage (complex) for dynamic model}
 // moved to GeneratorVars        Vthevharm       :Double;  {Thevinen equivalent voltage mag reference for Harmonic model}
 // moved to GeneratorVars        VthevMag        :Double;    {Thevinen equivalent voltage for dynamic model}
@@ -240,7 +238,10 @@ TYPE
         kvarMin         :Double;
         kWBase          :Double;
         PFNominal       :Double;
-        Vpu             :Double;       // per unit Target voltage for generator with voltage control
+        Vpu             :Double;   // per unit Target voltage for generator with voltage control
+        Vmaxpu          :Double;
+        Vminpu          :Double;
+
 // moved to GeneratorVars        VTarget         :Double;  // Target voltage for generator with voltage control
         YearlyShape     :String;  // ='fixed' means no variation  on all the time
         YearlyShapeObj  :TLoadShapeObj;  // Shape for this Generator

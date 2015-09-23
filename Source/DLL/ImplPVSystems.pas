@@ -22,6 +22,13 @@ type
     procedure Set_Name(const Value: WideString); safecall;
     function Get_Irradiance: Double; safecall;
     procedure Set_Irradiance(Value: Double); safecall;
+    function Get_kvar: Double; safecall;
+    function Get_kVArated: Double; safecall;
+    function Get_kW: Double; safecall;
+    function Get_PF: Double; safecall;
+    procedure Set_kVArated(Value: Double); stdcall;
+    procedure Set_PF(Value: Double); stdcall;
+    procedure Set_kvar(Value: Double); stdcall;
 
   end;
 
@@ -243,6 +250,88 @@ begin
          WITH ActiveCircuit.PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TPVSystemObj(Active).PVSystemVars.FIrradiance  := Value;
+             End;
+         End;
+   End;
+end;
+
+function TPVSystems.Get_kvar: Double;
+begin
+   Result := 0.0;  // not set
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.PVSystems Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                 Result := TPVSystemObj(Active).Presentkvar;
+             End;
+         End;
+   End;
+end;
+
+function TPVSystems.Get_kVArated: Double;
+begin
+   Result := -1.0;  // not set
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.PVSystems Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                 Result := TPVSystemObj(Active).kVARating ;
+             End;
+         End;
+   End;
+end;
+
+function TPVSystems.Get_kW: Double;
+begin
+   Result := 0.0;  // not set
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.PVSystems Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                 Result := TPVSystemObj(Active).PresentkW;
+             End;
+         End;
+   End;
+end;
+
+function TPVSystems.Get_PF: Double;
+begin
+   Result := 0.0;  // not set
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.PVSystems Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                 Result := TPVSystemObj(Active).PowerFactor ;
+             End;
+         End;
+   End;
+end;
+
+procedure TPVSystems.Set_kVArated(Value: Double);
+begin
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.PVSystems Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                  TPVSystemObj(Active).kVARating  := Value;
+             End;
+         End;
+   End;
+end;
+
+
+procedure TPVSystems.Set_PF(Value: Double);
+begin
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.PVSystems Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                  TPVSystemObj(Active).PowerFactor  := Value;
+             End;
+         End;
+   End;
+end;
+
+procedure TPVSystems.Set_kvar(Value: Double);
+begin
+   IF ActiveCircuit<> NIL THEN Begin
+         WITH ActiveCircuit.PVSystems Do Begin
+             IF ActiveIndex<>0 THEN Begin
+                  TPVSystemObj(Active).Presentkvar := Value;
              End;
          End;
    End;

@@ -94,22 +94,22 @@ Begin
 
      // compute sequence voltages for Nodes 1, 2, and 3 only
 
-       With Buses^[i] Do
-       FOR j := 1 to 3 DO  Vph[j] := Solution.NodeV^[GetRef(FindIdx(j))] ;
+         With Buses^[i] Do
+         FOR j := 1 to 3 DO  Vph[j] := Solution.NodeV^[GetRef(FindIdx(j))] ;
 
-       IF LL Then  Begin
-             For j := 1 to 3 Do  Begin
-                 k:= j+1; If k>3 Then k:=1;
-                 VLL[j] := Csub(Vph[j], Vph[k]);
-               End;
-             Phase2SymComp(@VLL, @V012);
-       End
-       ELSE  Begin
-             Phase2SymComp(@Vph, @V012);
-       End;
-       V0 := Cabs(V012[1]);
-       V1 := Cabs(V012[2]);
-       V2 := Cabs(V012[3]);
+         IF LL Then  Begin
+               For j := 1 to 3 Do  Begin
+                   k:= j+1; If k>3 Then k:=1;
+                   VLL[j] := Csub(Vph[j], Vph[k]);
+                 End;
+               Phase2SymComp(@VLL, @V012);
+         End
+         ELSE  Begin
+               Phase2SymComp(@Vph, @V012);
+         End;
+         V0 := Cabs(V012[1]);
+         V1 := Cabs(V012[2]);
+         V2 := Cabs(V012[3]);
      END
 
      ELSE Begin
