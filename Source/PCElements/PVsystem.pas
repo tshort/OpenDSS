@@ -33,6 +33,7 @@ interface
 USES  PVsystemUserModel, DSSClass,  PCClass, PCElement, ucmatrix, ucomplex,
       LoadShape, TempShape, XYCurve, Spectrum, ArrayDef, Dynamics;
 
+
 Const  NumPVSystemRegisters = 6;    // Number of energy meter registers
        NumPVSystemVariables = 5;    // No state variables that need integrating.
        VARMODEPF   = 0;
@@ -61,6 +62,7 @@ TYPE
         FpuPmpp         :Double;
         FIrradiance     :Double;
         MaxDynPhaseCurrent   :Double;
+        Fkvarlimit        :Double; //maximum kvar output of the PVSystem (unsigned)
         Vreg: Double; // will be set from InvControl or ExpControl
 
         {32-bit integers}
@@ -274,7 +276,7 @@ TYPE
         PROCEDURE Set_InverterON(const Value: Boolean);
         FUNCTION  Get_VarFollowInverter:Boolean;
         PROCEDURE Set_VarFollowInverter(const Value: Boolean);
-
+        PROCEDURE Set_Maxkvar(const Value: Double);
         PROCEDURE SetNominalPVSystemOuput;
         PROCEDURE Randomize(Opt:Integer);   // 0 = reset to 1.0; 1 = Gaussian around mean and std Dev  ;  // 2 = uniform
 
@@ -309,6 +311,9 @@ TYPE
         Property InverterON   :Boolean read Get_InverterON  Write Set_InverterON;
         Property VarFollowInverter
                               :Boolean read Get_VarFollowInverter  Write Set_VarFollowInverter;
+        Property kvarLimit      :Double  Read PVSystemVars.Fkvarlimit  Write Set_Maxkvar;
+
+
 
    End;
 
@@ -364,9 +369,9 @@ Const
     propBalanced   = 31;
     propLimited    = 32;
     propVarFollowInverter      = 33;
+    propkvarLimit    = 34;
 
-
-    NumPropsThisClass = 33; // Make this agree with the last property constant
+    NumPropsThisClass = 34; // Make this agree with the last property constant
 
 VAR
 
@@ -548,7 +553,8 @@ Begin
                               'Boolean variable (Yes|No) or (True|False). Defaults to False which indicates that the reactive power generation/absorption does not respect the inverter status.' +
                               'When set to True, the PVSystem reactive power generation/absorption will cease when the inverter status is off, due to panel kW dropping below %Cutout.  The reactive power '+
                               'generation/absorption will begin again when the panel kW is above %Cutin.  When set to False, the PVSystem will generate/absorb reactive power regardless of the status of the inverter.');
-
+     AddProperty('kvarLimit',     propkvarLimit,
+                              'Un-signed numerical variable Defaults to kVA rating of the inverter.   Indicates the maximum reactive power generation/absorption (in kvar) for the PVSystem (as an un-signed value).');
 
 
      ActiveProperty := NumPropsThisClass;
@@ -713,7 +719,10 @@ Begin
                propCutout       : FpctCutOut   := Parser.DblValue;
                propVMINPU       : VMinPu       := Parser.DblValue;
                propVMAXPU       : VMaxPu       := Parser.DblValue;
-               propKVA          : PVSystemVars.FkVArating    := Parser.DblValue;
+               propKVA          : Begin
+                                    PVSystemVars.FkVArating    := Parser.DblValue;
+                                    PVSystemVars.Fkvarlimit    := Parser.DblValue;
+                                  End;
                propUSERMODEL    : UserModel.Name := Parser.StrValue;  // Connect to user written models
                propUSERDATA     : UserModel.Edit := Parser.StrValue;  // Send edit string to user model
                propDEBUGTRACE   : DebugTrace   := InterpretYesNo(Param);
@@ -722,6 +731,8 @@ Begin
                propLimited      : CurrentLimited := InterpretYesNo(Param);
                propVarFollowInverter
                                 : FVarFollowInverter := InterpretYesNo(Param);
+               propkvarLimit      : PVSystemVars.Fkvarlimit     := Abs(Parser.DblValue);
+
 
 
 
@@ -830,7 +841,7 @@ Begin
          FpctCutin                   := OtherPVsystemObj.FpctCutin;
          FpctCutout                  := OtherPVsystemObj.FpctCutout;
          FVarFollowInverter          := OtherPVsystemObj.FVarFollowInverter;
-
+         PVSystemVars.Fkvarlimit       := OtherPVsystemObj.PVSystemVars.Fkvarlimit;
 
 
          PVSystemVars.FIrradiance    := OtherPVsystemObj.PVSystemVars.FIrradiance;
@@ -973,6 +984,7 @@ Begin
          FPmpp         := 500.0;
          FpuPmpp       := 1.0;    // full on
          Vreg := 1.0;
+         Fkvarlimit      := FkVArating;
      End;
 
      FpctCutIn         := 20.0;
@@ -1058,6 +1070,8 @@ Begin
      PropertyValue[proppctPmpp]   := '100';
      PropertyValue[propBalanced]  := 'NO';
      PropertyValue[propLimited]   := 'NO';
+     PropertyValue[propkvarLimit]       := Format('%-g', [Fkvarlimit]);
+     
    End;
 
   inherited  InitPropertyValues(NumPropsThisClass);
@@ -1108,6 +1122,7 @@ Begin
           proppctPmpp    : Result := Format('%.6g', [FpuPmpp * 100.0]);
           propBalanced   : If ForceBalanced  Then Result:='Yes' Else Result := 'No';
           propLimited    : If CurrentLimited Then Result:='Yes' Else Result := 'No';
+          propkvarLimit    : Result := Format('%.6g', [Fkvarlimit]);
 
 
           {propDEBUGTRACE = 33;}
@@ -1472,13 +1487,25 @@ Begin
       Then Begin
            IF     PFnominal = 1.0
            Then   kvar_out := 0.0
-           ELSE   kvar_out := kW_out * sqrt(1.0/SQR(PFnominal) - 1.0) * sign(PFnominal);
+           ELSE
+              begin
+                kvar_out := kW_out * sqrt(1.0/SQR(PFnominal) - 1.0) * sign(PFnominal);
+                if abs(kvar_out) > Fkvarlimit then
+                  begin
+                   kvar_out := Fkvarlimit * sign(PFnominal);
+                   PFnominal := sign(PFnominal)* kW_out/sqrt((kvar_out*kvar_out)+(kW_out*kW_out));
+                  end;
+
+                
+              end;
            // if pf is negative, make sure kvar has opposite sign of kW
            // kW will always be positive
       End
-      ELSE Begin  // kvar is specified
-           kvar_Out := kvarRequested;
-      End;
+      ELSE     // kvar is specified
+        Begin
+          if abs(kvarRequested) > Fkvarlimit then kvar_Out := Fkvarlimit*sign(kvarRequested)
+          else kvar_Out := kvarRequested;
+        End;
       if (FInverterON = FALSE) and (FVarFollowInverter = TRUE) then kvar_out := 0.0;
 
 
@@ -2416,22 +2443,28 @@ end;
 // ============================================================Get_VWmode===============================
 
 function TPVsystemObj.Get_VWmode: Boolean;
-begin
+
+begin
       If FVWmode Then Result := TRUE else Result := FALSE;    // TRUE if volt-watt mode
                                                               //  engaged from InvControl (not ExpControl)
 end;
 
-// ============================================================Get_VWYAxis===============================
 
-function TPVsystemObj.Get_VWYAxis: Integer;
-begin
+// ============================================================Get_VWYAxis===============================
+
+
+function TPVsystemObj.Get_VWYAxis: Integer;
+
+begin
       If FVWYAxis = 1 Then Result := 1 else Result := 0;    // TRUE if volt-watt mode
                                                               //  engaged from InvControl (not ExpControl)
 end;
 
-// ============================================================kWOut_Calc===============================
 
-Procedure TPVsystemObj.kWOut_Calc;
+// ============================================================kWOut_Calc===============================
+
+
+Procedure TPVsystemObj.kWOut_Calc;
 
 Var
     Peff, Pmpp :Double;
@@ -2443,6 +2476,7 @@ Var
        Begin
           Peff := PanelkW * EffFactor;
           Pmpp := FPmpp*FpuPmpp;
+
           if(Peff > Pmpp) then kW_Out := Pmpp
           else kW_Out := Peff;
        End;
@@ -2614,8 +2648,13 @@ Begin
    Else PVsystemObjSwitchOpen := TRUE;
 
 End;
-
-
+// ===========================================================================================
+procedure TPVsystemObj.Set_Maxkvar(const Value: Double);
+begin
+      PVSystemVars.Fkvarlimit := Value;
+      PropertyValue[propkvarLimit]       := Format('%-g', [PVSystemVars.Fkvarlimit]);
+end;
+// ===========================================================================================
 procedure TPVsystemObj.Set_kVARating(const Value: Double);
 begin
       PVSystemVars.FkVARating := Value;
@@ -2651,7 +2690,6 @@ Begin
       End;
 End;
 
-
 // ===========================================================================================
 PROCEDURE TPVsystemObj.Set_VarFollowInverter(const Value: Boolean);
 Begin
@@ -2685,7 +2723,6 @@ Begin
 End;
 
 
-// ===========================================================================================
 
 initialization
 
