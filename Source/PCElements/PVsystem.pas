@@ -22,7 +22,7 @@ unit PVsystem;
   The PVsystem element is essentially a generator that consists of a PV panel and an inverter.
 
   The PVsystem element can also produce or absorb vars within the kVA rating of the inverter.
-
+  // WGS: Updated 9/24/2015 to allow for simultaneous modes and additional functionality in the InvControl.
 }
 
 //  The PVsystem element is assumed balanced over the no. of phases defined

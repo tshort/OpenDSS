@@ -21,6 +21,7 @@ Notes:
   All dynamic arrays are set to length numberelements+1 in the appropriate dimension.
   All dynamic arrays are Finalize'd in the destroy procedure.
 
+  // Updated 9/24/2015 to allow for simultaneous modes and additional functionality
 }
 
 INTERFACE
