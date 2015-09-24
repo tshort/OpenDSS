@@ -1,0 +1,65 @@
+Clear
+New Circuit.Kersting4wire_Lead
+!  define a really stiff source
+~ basekv=12.47  pu=1.00  MVAsc1=1e6  MVAsc3=1e6
+
+!Define Linecodes
+
+
+New linecode.556MCM nphases=4 basefreq=60  ! ohms per 5 mile
+~ rmatrix = (1.406 | 0.4765 1.406 | 0.4765 0.4765 1.406 | 0.4765 0.4765 0.4765 3.4365)
+~ xmatrix = (6.91525 | 3.632974 6.91525 | 4.257644 3.901034 6.91525 | 3.762227 3.837112 3.932579  7.73237)
+~ cmatrix = (.1  | -0  .1 | -0 -0 .1 | -0 -0 -0 .1 )  ! small capacitance
+
+New linecode.556MCMkron nphases=4 basefreq=60  ! ohms per 5 mile
+~ rmatrix = (1.406 | 0.4765 1.406 | 0.4765 0.4765 1.406 | 0.4765 0.4765 0.4765 3.4365)
+~ xmatrix = (6.91525 | 3.632974 6.91525 | 4.257644 3.901034 6.91525 | 3.762227 3.837112 3.932579  7.73237)
+~ cmatrix = (.1  | -0  .1 | -0 -0 .1 | -0 -0 -0 .1 )  ! small capacitance
+~ kron=y  !reduce it to 3x3
+
+New linecode.4/0QUAD nphases=4 basefreq=60  ! ohms per 100ft
+~ rmatrix = (0.010972  | 0.001805  0.010972  | 0.001805  0.001805  0.010972  | 0.001805  0.001805  0.001805  0.013017)
+~ xmatrix = (0.027765 | 0.02413 0.027765 | 0.02413  0.02413 0.027765 | 0.024628  0.023203  0.024628 0.029289 )
+~ cmatrix = (.1  | -0  .1 | -0 -0 .1 | -0 -0 -0 .1 )  ! small capacitance
+
+!Define lines
+
+New Line.OHLine  bus1=sourcebus.1.2.3.0  Primary.1.2.3.0  linecode = 556MCM   length=1   ! 5 mile line
+New Line.Quad    Bus1=secondary.1.2.3.0  loadbus.1.2.3.0  linecode = 4/0QUAD  length=1   ! 100 ft
+
+!  Transformer  Bank - ungrounded wye/delta-CT
+
+New Transformer.XfmrAB    Phases=1 Windings=3 Xhl=2.04 XHt = 2.04  Xlt=1.36
+~ wdg=1 bus=Primary.1.0     kv=7.2  kva=25  %r=0.6 
+~ wdg=2 bus=secondary.1.0   kv=.12  kva=25  %r=1.2 conn=delta  ! Declared delta but one terminal connected to node 0
+~ wdg=3 bus=secondary.0.2   kv=.12  kva=25  %r=1.2 conn=delta
+
+New Transformer.XfmrBC    Phases=1 Windings=2 Xhl=1.4
+~ wdg=1 bus=Primary.2.0     kv=7.2  kva=10  %r=0.8 
+~ wdg=2 bus=secondary.2.3   kv=.24  kva=10  %r=0.8  conn=delta
+
+/******** Phase CA removed from closed delta case.
+New Transformer.XfmrCA    Phases=1 Windings=2 Xhl=1.4
+~ wdg=1 bus=Primary.3.0     kv=7.2  kva=10  %r=0.8 
+~ wdg=2 bus=secondary.3.1   kv=.24  kva=10  %r=0.8  conn=delta
+****/
+
+!Loads - single phase
+
+New Load.L1 1  loadbus.1.0  .120  kVA=3  pf=.95 model=1
+New Load.L2 1  loadbus.2.0  .120  kVA=5  pf=.85 model=1
+New Load.L12 1 loadbus.1.2  .240  kVA=10 pf=.90 model=1
+
+!Induction Motor
+! use generator model and define with fixed slip rather than allowing slip to be computed
+
+New Generator.Ind_Motor bus1=loadbus kv=0.24 kw=-18.65 kva=25 conn=delta model=6 Usermodel=IndMach012a  !25 hp
+~ UserData=(rs=0.03359375 xs=0.07999132 rr=.03940972  xr=.07999132  xm=2.1  slip=0.035 option=fixed)
+
+Set voltagebases=[12.47  .24]
+Calcvoltagebases
+
+Solve
+
+Show V LN Nodes
+Show Power kVA elem
