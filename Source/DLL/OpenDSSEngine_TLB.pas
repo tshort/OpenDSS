@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/23/2015 12:25:25 PM from Type Library described below.
+// File generated on 9/23/2015 9:56:47 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -1372,6 +1372,8 @@ type
     function Get_AvgRepairTime: Double; safecall;
     function Get_FaultRateXRepairHrs: Double; safecall;
     function Get_SumBranchFltRates: Double; safecall;
+    function Get_SectSeqIdx: Integer; safecall;
+    function Get_SectTotalCust: Integer; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -1404,6 +1406,8 @@ type
     property AvgRepairTime: Double read Get_AvgRepairTime;
     property FaultRateXRepairHrs: Double read Get_FaultRateXRepairHrs;
     property SumBranchFltRates: Double read Get_SumBranchFltRates;
+    property SectSeqIdx: Integer read Get_SectSeqIdx;
+    property SectTotalCust: Integer read Get_SectTotalCust;
   end;
 
 // *********************************************************************//
@@ -1455,6 +1459,8 @@ type
     property AvgRepairTime: Double readonly dispid 229;
     property FaultRateXRepairHrs: Double readonly dispid 230;
     property SumBranchFltRates: Double readonly dispid 231;
+    property SectSeqIdx: Integer readonly dispid 232;
+    property SectTotalCust: Integer readonly dispid 233;
   end;
 
 // *********************************************************************//

@@ -138,6 +138,8 @@ Type
         OCPDeviceType        : Integer;  // 1=Fuse; 2=Recloser; 3=Relay
         NCustomers           : Integer;
         NBranches            : Integer;
+        TotalCustomers       : Integer;
+        SeqIndex             : Integer;
         AverageRepairTime    : double;
         SumFltRatesXRepairHrs : double;
         SumBranchFltRates    : double;
@@ -2401,7 +2403,9 @@ begin
                 SumFltRatesXRepairHrs := 0.0;
                 SumBranchFltRates    := 0.0;
                 NCustomers           := 0;
+                TotalCustomers       := 0;
                 NBranches            := 0;
+                SeqIndex             := 0;
             End;
 
 
@@ -2416,7 +2420,11 @@ begin
                        Inc(NBranches, 1); // Sum up num branches on this Section
                     dblInc(SumBranchFltRates,  PD_Elem.BranchFltRate);
                     dblInc(SumFltRatesXRepairHrs, (PD_Elem.BranchFltRate * PD_Elem.HrsToRepair));
-                    If PD_Elem.HasOCPDevice  Then  OCPDeviceType := GetOCPDeviceType(PD_Elem);
+                    If PD_Elem.HasOCPDevice  Then  Begin
+                       OCPDeviceType := GetOCPDeviceType(PD_Elem);
+                       SeqIndex := Idx;
+                       TotalCustomers := PD_Elem.BranchTotalCustomers;
+                    End;
                End;
 (*
 {**DEBUG**}

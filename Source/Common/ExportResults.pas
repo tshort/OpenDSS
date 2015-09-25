@@ -3482,15 +3482,19 @@ Begin
      ReWrite(F);
 
      // Write Header
-     Writeln(F, 'Meter, SectionID, DeviceType, NumCustomers, NumBranches, AvgRepairHrs ');
+     Writeln(F, 'Meter, SectionID, DeviceType, NumCustomers, NumBranches, AvgRepairHrs, TotalDownlineCust, HeadBranch ');
 
    If Assigned(pMeter) Then
      // If a meter is specified, export that meter only
      With pMeter Do
      Begin
          for i  := 1 to SectionCount  do
-           With FeederSections^[i] Do
-              Writeln(F, format('%s, %d, %s, %d, %d, %-.6g', [Name, i, GetOCPDeviceTypeString(OCPDeviceType), NCustomers, NBranches, AverageRepairTime ]));
+           With FeederSections^[i] Do Begin
+              ActiveCircuit.ActiveCktElement := TDSSCktElement(sequenceList.Get(SeqIndex));
+              Writeln(F, format('%s, %d, %s, %d, %d, %-.6g, %d, %s',
+              [Name, i, GetOCPDeviceTypeString(OCPDeviceType), NCustomers, NBranches, AverageRepairTime, TotalCustomers,
+               FullName(ActiveCircuit.ActiveCktElement)  ]));
+           End;
      End
    Else    // export sections for all meters
      Begin
@@ -3510,6 +3514,7 @@ Begin
 
      End;
 
+     GlobalResult := FileNm;
 
   Finally
      CloseFile(F);

@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 9/23/2015 12:25:29 PM (- $Rev: 12980 $, 12076833).
+// File generated on 9/23/2015 9:56:50 PM (- $Rev: 12980 $, 6049188).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -1122,6 +1122,10 @@ library OpenDSSengine
     HRESULT _stdcall FaultRateXRepairHrs([out, retval] double* Value);
     [propget, id(0x000000E7), helpstring("Sum of the branch fault rates in this section of the meter's zone")]
     HRESULT _stdcall SumBranchFltRates([out, retval] double* Value);
+    [propget, id(0x000000E8), helpstring("SequenceIndex of the branch at the head of this section")]
+    HRESULT _stdcall SectSeqIdx([out, retval] long* Value);
+    [propget, id(0x000000E9), helpstring("Total Customers downline from this section")]
+    HRESULT _stdcall SectTotalCust([out, retval] long* Value);
   };
 
   [

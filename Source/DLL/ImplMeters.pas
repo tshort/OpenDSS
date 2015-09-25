@@ -68,6 +68,8 @@ type
     function Get_NumSectionCustomers: Integer; safecall;
     function Get_OCPDeviceType: Integer; safecall;
     function Get_SumBranchFltRates: Double; safecall;
+    function Get_SectSeqIdx: Integer; safecall;
+    function Get_SectTotalCust: Integer; safecall;
     { Protected declarations }
   end;
 
@@ -936,6 +938,37 @@ begin
              If ActiveSection>0 then Result := FeederSections^[ActiveSection].SumBranchFltRates ;
          End;
      End;
+
+end;
+
+function TMeters.Get_SectSeqIdx: Integer;
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     Result := 0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then With pMeterObj Do Begin
+             If ActiveSection>0 then Result := FeederSections^[ActiveSection].SeqIndex ;
+         End;
+     End;
+
+end;
+
+function TMeters.Get_SectTotalCust: Integer;
+Var
+  pMeterObj :TEnergyMeterObj;
+begin
+     Result := 0;
+     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     Begin
+         pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
+         If pMeterObj <> Nil Then With pMeterObj Do Begin
+             If ActiveSection>0 then Result := FeederSections^[ActiveSection].TotalCustomers ;
+         End;
+     End;
+
 
 end;
 
