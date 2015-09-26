@@ -42,7 +42,6 @@ object ListBoxForm: TListBoxForm
     Height = 21
     AutoDropDown = True
     DropDownCount = 16
-    ItemHeight = 13
     TabOrder = 2
   end
 end

@@ -21,8 +21,14 @@ object MessageForm1: TMessageForm1
     Width = 310
     Height = 404
     Align = alClient
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     Lines.Strings = (
       'RichEdit1')
+    ParentFont = False
     ReadOnly = True
     ScrollBars = ssBoth
     TabOrder = 0
