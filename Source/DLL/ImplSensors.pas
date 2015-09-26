@@ -1,5 +1,10 @@
 unit ImplSensors;
-
+{
+  ----------------------------------------------------------
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
+  All rights reserved.
+  ----------------------------------------------------------
+}
 {$WARN SYMBOL_PLATFORM OFF}
 
 interface

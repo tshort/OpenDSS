@@ -1,10 +1,11 @@
 unit ImplDSSProperty;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
-
+}
+{
   10-1-2009 Revised so it works on all DSSobjects
 
 }

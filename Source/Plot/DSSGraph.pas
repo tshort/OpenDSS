@@ -1,5 +1,10 @@
 unit DSSGraph;
-
+{
+  ----------------------------------------------------------
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
+  All rights reserved.
+  ----------------------------------------------------------
+}
 {
    Interface to DSSView Program
 

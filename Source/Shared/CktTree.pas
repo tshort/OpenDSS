@@ -1,5 +1,10 @@
 unit CktTree;
-
+{
+  ----------------------------------------------------------
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
+  All rights reserved.
+  ----------------------------------------------------------
+}
 {  Change Log
 
    8/12/99  Added level number to node

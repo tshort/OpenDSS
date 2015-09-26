@@ -1,7 +1,7 @@
 unit Transformer;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008-2011, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }

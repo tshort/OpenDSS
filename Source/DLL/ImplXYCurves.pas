@@ -3,7 +3,7 @@ unit ImplXYCurves;
 {$WARN SYMBOL_PLATFORM OFF}
 {
   ----------------------------------------------------------
-  Copyright (c) 2008-2013, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
