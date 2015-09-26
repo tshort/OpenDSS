@@ -46,7 +46,6 @@ object DoDSSCommandForm: TDoDSSCommandForm
     Top = 56
     Width = 185
     Height = 21
-    ItemHeight = 13
     Sorted = True
     TabOrder = 0
     Text = 'DSSCMDCombo'
