@@ -3,7 +3,7 @@ unit ExpControl;
 
 {
   ----------------------------------------------------------
-  Copyright (c) 2015, University of Pittsburgh
+  Copyright (c) 2015, University of  Pittsburgh
   All rights reserved.
   ----------------------------------------------------------
 

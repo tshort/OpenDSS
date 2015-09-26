@@ -1,7 +1,12 @@
 unit CapUserControl;
 
 {
-  Interface to user-written CapControl DLL
+  ----------------------------------------------------------
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
+  All rights reserved.
+  ----------------------------------------------------------
+
+    Interface to user-written CapControl DLL
 }
 
 
