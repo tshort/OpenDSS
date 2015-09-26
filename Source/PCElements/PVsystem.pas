@@ -2,7 +2,7 @@ unit PVsystem;
 
 {
   ----------------------------------------------------------
-  Copyright (c) 2011, Electric Power Research Institute, Inc.
+  Copyright (c) 2011-2015, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }

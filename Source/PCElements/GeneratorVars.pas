@@ -1,6 +1,11 @@
 unit GeneratorVars;
 
 {
+  ----------------------------------------------------------
+  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
+  All rights reserved.
+  ----------------------------------------------------------
+
   Definition of Generator Public Data Record for passing to DLLs and other object
 }
 

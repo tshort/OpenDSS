@@ -1,7 +1,12 @@
 unit StorageVars;
 
 {
-     Definition of Storage Public Data Record for passing to DLLs and other object
+  ----------------------------------------------------------
+  Copyright (c) 2009-2015, Electric Power Research Institute, Inc.
+  All rights reserved.
+  ----------------------------------------------------------
+
+       Definition of Storage Public Data Record for passing to DLLs and other object
 }
 
 interface

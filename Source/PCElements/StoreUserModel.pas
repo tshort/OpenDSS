@@ -3,7 +3,7 @@ unit StoreUserModel;
 {$M+}
 {
   ----------------------------------------------------------
-  Copyright (c) 2009-2012, Electric Power Research Institute, Inc.
+  Copyright (c) 2009-2015, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 

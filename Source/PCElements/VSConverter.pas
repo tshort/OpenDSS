@@ -2,7 +2,7 @@ unit VSConverter;
 
 {
   ----------------------------------------------------------
-  Copyright (c) 2013-2014, University of Pittsburgh
+  Copyright (c) 2013-2015, University of Pittsburgh
   All rights reserved.
   ----------------------------------------------------------
 }

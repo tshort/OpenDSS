@@ -1,7 +1,7 @@
 unit UPFC;
 {
   ----------------------------------------------------------
-  Copyright (c) 2015, Electric Power Research Institute, Inc.
+  Copyright (c) 2015,  Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
