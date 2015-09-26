@@ -29,6 +29,7 @@ New Storage.Store1 phases=3 Bus1=LVBus kV=0.400 conn=Delta kVA=60
 !  ~ DynaData=(help)
 ~ DynaData=(file=DESSModel_Test.TxT)
 
-// New Load.LOAD1 Bus1=LoadBus kV=12.47 kW=1000 PF=.95 model=4 cvrwatts=1.2
+New Load.LOAD1 Bus1=LoadBus kV=12.47 kW=1000 PF=.95 model=4 cvrwatts=1.2 daily=default
 Solve
-
+New monitor.M1 Storage.Store1 1
+Solve
