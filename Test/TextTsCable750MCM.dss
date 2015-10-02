@@ -1,0 +1,24 @@
+clear
+new circuit.Test750
+
+New tsdata.750MCM  Diashield=(0.017459 2 *)  epsR=2.4 radunits=m tapelayer=0.0001
+~ diains = (0.01739 2 *) diacable=(0.0197 2 *) inslayer=0.006395
+~ Rdc=0.055155 runits=km radius=0.011
+
+New Linespacing.cables nconds=3 nphases=3 x=[-1.5 0 1.5] h=[-1 -1 -1] units=ft
+
+New linegeometry.750MCM nconds=3 nphases=3  units=ft
+~ Cond=1 tscable=750mcm x=-1.5 h=-1
+~ Cond=2 tscable=750mcm x=0 h=-1
+~ Cond=3 tscable=750mcm x=1.5 h=-1
+
+// Test cable suspended on a messenger in tight triangular configuration
+New Wiredata.Mess1    GMR=0.55      DIAM=1.374     RAC=0.474         Normamps=100                Runits=km radunits=cm gmrunits=cm
+
+New linegeometry.750MCMwNeutral nconds=4 nphases=3  units=m
+~ Cond=1 tscable=750mcm x=0.03 h=(-1 0.022 +)
+~ Cond=2 tscable=750mcm x=0 h=(-1.0 0.03 -)
+~ Cond=3 tscable=750mcm x=-.03 h=(-1 0.022 +)
+~ cond=4 wire=Mess1 x=0 h=(-1 0.12 -)
+~ reduce=y
+

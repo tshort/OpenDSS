@@ -1,0 +1,25 @@
+clear
+
+new circuit.testYgD pu=1.05
+
+New Line.Line1 bus1=sourcebus bus2=HV
+
+New Transformer.Tr1 phases=3 windings=2 conns=(wye delta) buses=(HV LV) kVs=[115 12.47] kVAs=[1000 1000]
+
+New Load.Load1 bus1=LV kV=12.47 kW=1000 PF=.95 
+
+Set voltagebases=[115, 12.47]
+Calcv
+
+solve
+show v ln nodes
+
+Show Currents residual=yes Elements
+
+Transformer.tr1.wdg=1 bus=HV.1.2.4   ! open one phase
+solve
+Show Currents residual=yes Elements
+show v ln nodes
+show currents
+Visualize powers Transformer.TR1
+Show Voltage LL

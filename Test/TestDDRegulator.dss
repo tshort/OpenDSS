@@ -1,0 +1,25 @@
+clear
+
+New Circuit.testDDRegulator
+~ basekV=12.47
+
+New Line.Line1  Bus1=SourceBus  Bus2=RegBus1  Length=1
+
+New Transformer.Reg1 phases=3 windings=2 conns=(wye Delta) kVs=(12.47 12.47) Buses=[regbus1.1.2.3.4 regbus2] kvas=5000 XHL=0.01 %LoadLoss=0.01
+
+New Transformer.Reg2 phases=3 windings=2 conns=(wye Delta) kVs=(12.47 12.47) Buses=[regbus3.1.2.3.4 regbus2] kvas=5000 XHL=0.01 %LoadLoss=0.01
+
+New Transformer.Neutral Phases=1 windings=2 conns=(wye wye) kVs=[7.2 7.2] Buses=[regbus1.4.0  regbus3.4.0] kVas=1000 XHL=0.01 %LoadLoss=0.01
+
+New Line.Line2  Bus1=RegBus3  Bus2=Loadbus  Length=1
+
+New Load.Load1  Phases=1 Bus1=Loadbus.1.0 kV=7.2 kW=100 PF=1
+
+Set voltagebases=[12.47]
+Calcv
+
+solve
+Show v ln nodes
+
+
+Show Currents residual=yes Elements
