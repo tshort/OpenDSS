@@ -435,11 +435,13 @@ Begin
                          'If an InvControl is controlling more than one PVSystem, each PVSystem has this quantity calculated independently, and so an individual '+
                          'PVSystem may reach the tolerance within different numbers of control iterations.';
 
-     PropertyHelp[17] := 'Required for VOLTWATT mode.  Must be one of: {PMPPPU* | PAVAILABLEPU}.  The default is PMPPPU.  '+CRLF+CRLF+
+     PropertyHelp[17] := 'Required for VOLTWATT mode.  Must be one of: {PMPPPU* | PAVAILABLEPU| PCTPMPPPU}.  The default is PMPPPU.  '+CRLF+CRLF+
                          'Units for the y-axis of the volt-watt curve while in volt-watt mode. '+CRLF+CRLF+
                          'When set to PMPPPU the y-axis for the volt-watt curve is understood to be in per unit of the full active power output capability of the PVSystem, which is Pmpp. '+CRLF+CRLF+
                          'When set to PAVAILABLEPU the y-axis for the volt-watt curve is understood to be in per unit of available power at any given time, given Pmpp rating, '+
-                         'efficiency factor of the PVSystem, and present irradiance.';
+                         'efficiency factor of the PVSystem, and present irradiance.'+CRLF+CRLF+
+                         'When set to PCTPMPPPU the y-axis for the volt-watt curve is understood to be in per unit of the Pmpp rating times the pctPmpp defined in the PVSystem. ';
+
 
      PropertyHelp[18] := 'Required for VOLTWATT and VOLTVAR mode.  Must be one of: {INACTIVE* | LPF | RISEFALL }.  The default is INACTIVE.  '+CRLF+CRLF+
                          'Defines the rate of change mode for VOLTWATT and VOLTVAR control modes. '+CRLF+CRLF+
@@ -1272,9 +1274,16 @@ BEGIN
               if (FFlagROCOnly[k] = False) then
                 begin
                   if (RateofChangeMode=INACTIVE) or (ActiveCircuit.Solution.Dynavars.dblHour = 0.0) then
-                      PVSys.puPmpp :=FFinalpuPmpp[k];
-                      PVSys.SetNominalPVSystemOuput;
-                      ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
+                      if(FVoltwattYAxis = 0) or (FVoltwattYAxis = 1) then
+                        begin
+                          PVSys.puPmpp :=FFinalpuPmpp[k];
+                          PVSys.SetNominalPVSystemOuput;
+                          ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
+                        end
+                      else
+                        begin
+                          PVSys.PresentkW :=FFinalpuPmpp[k]*PVSys.Pmpp*PVSys.puPmpp;
+                        end;
                 end;
 
                 PTemp := PVSys.PresentkW;

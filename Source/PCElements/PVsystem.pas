@@ -124,7 +124,7 @@ TYPE
         kvar_out        :Double;
         kW_out          :Double;
         kvarRequested   :Double;
-
+        kWRequested     :Double;
 
         FpctCutIn       :Double;
         FpctCutOut      :Double;
@@ -207,6 +207,7 @@ TYPE
 
         PROCEDURE Set_PresentkV(const Value: Double);
         PROCEDURE Set_Presentkvar(const Value: Double);
+        PROCEDURE Set_PresentkW(const Value: Double);
         PROCEDURE Set_PowerFactor(const Value: Double);
         PROCEDURE Set_PresentIrradiance(const Value: Double);
 
@@ -298,7 +299,7 @@ TYPE
         FUNCTION  GetPropertyValue(Index:Integer):String;Override;
 
         Property PresentIrradiance    :Double  Read Get_PresentIrradiance Write Set_PresentIrradiance  ;
-        Property PresentkW    :Double  Read Get_PresentkW   ;
+        Property PresentkW    :Double  Read Get_PresentkW   Write Set_PresentkW;
         Property Presentkvar  :Double  Read Get_Presentkvar Write Set_Presentkvar;
         Property PresentkV    :Double  Read Get_PresentkV   Write Set_PresentkV;
         Property PowerFactor  :Double  Read PFnominal       Write Set_PowerFactor;
@@ -2467,7 +2468,7 @@ end;
 Procedure TPVsystemObj.kWOut_Calc;
 
 Var
-    Peff, Pmpp :Double;
+    Peff, Pmpp, PTemp :Double;
 
     // --------Local Proc-----------------------
     Procedure Calc_kWOut;
@@ -2488,6 +2489,13 @@ begin
           case FVWYAxis of
                0: With PVSystemVars DO kW_Out := PanelkW * EffFactor*FpuPmpp;
                1: Calc_kWOut;   // call local procedure
+               2: With PVSystemVars DO
+                  Begin
+                    PTemp := kWRequested;
+                    Peff := PanelkW * EffFactor;
+                    if(Peff>PTemp) then kW_Out := PTemp
+                    else kW_Out := Peff;
+                   End;
           end
       else
             Calc_kWOut;
@@ -2700,6 +2708,11 @@ End;
 PROCEDURE TPVsystemObj.Set_InverterON(const Value: Boolean);
 Begin
      FInverterON := Value;
+End;
+// ===========================================================================================
+PROCEDURE TPVsystemObj.Set_PresentkW(const Value: Double);
+Begin
+     kWRequested := Value;
 End;
 
 // ===========================================================================================
