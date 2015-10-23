@@ -663,7 +663,7 @@ Begin
          Param := Parser.StrValue;
      End;
 
-
+     RecalcElementData;
   End;
 
 End;
