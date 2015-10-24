@@ -314,6 +314,7 @@
         <DCCReference Include="DISource.pas"/>
         <DCCReference Include="DPVSystems.pas"/>
         <DCCReference Include="DVSources.pas"/>
+        <DCCReference Include="DDSS.pas"/>
         <None Include="..\DLL\OpenDSSengine.dpr"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

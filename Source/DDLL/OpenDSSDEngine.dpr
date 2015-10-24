@@ -188,7 +188,8 @@ uses
   DFuses in 'DFuses.pas',
   DISource in 'DISource.pas',
   DPVSystems in 'DPVSystems.pas',
-  DVSources in 'DVSources.pas';
+  DVSources in 'DVSources.pas',
+  DDSS in 'DDSS.pas';
 
 //**************************end of the functions*************************************
 exports
@@ -227,7 +228,8 @@ exports
    FusesI,FusesF,FusesS,FusesV,
    IsourceI,IsourceF,IsourceS,IsourceV,
    PVsystemsI,PVsystemsF,PVsystemsS,PVsystemsV,
-   VsourcesI,VsourcesF,VsourcesS,VsourcesV;
+   VsourcesI,VsourcesF,VsourcesS,VsourcesV,
+   DSSI,DSSS,DSSV;
 
 begin
 
