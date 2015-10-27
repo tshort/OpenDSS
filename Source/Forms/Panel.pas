@@ -2657,7 +2657,7 @@ begin
          On E:Exception Do DoSimpleMsg('Error Loading File: ' + E.Message, 218);
      End;
     End Else Begin
-         DoSimpleMsg('File '+ CompileCombo.Text + ' Not Found.', 218);
+         DoSimpleMsg('File "'+ CompileCombo.Text + '" Not Found.', 218);
     End ; {File Exists}
     End;
 end;
@@ -2666,7 +2666,7 @@ procedure TControlPanel.CurrentsElem2Click(Sender: TObject);
 { Visualize Command }
 begin
        If Assigned(activeCircuit) Then Begin
-             ActiveScriptForm.ExecuteDSSCommand('Visualize currents '+Classbox.text+'.'+Elementbox.Text);
+             ActiveScriptForm.ExecuteDSSCommand('Visualize currents '+ EncloseQuotes(Classbox.text+'.'+Elementbox.Text));
        End;
 end;
 
@@ -2674,7 +2674,7 @@ procedure TControlPanel.VoltagesElement1Click(Sender: TObject);
 { Visualize Command }
 begin
        If Assigned(activeCircuit) Then Begin
-             ActiveScriptForm.ExecuteDSSCommand('Visualize voltages '+Classbox.text+'.'+Elementbox.Text);
+             ActiveScriptForm.ExecuteDSSCommand('Visualize voltages '+ EncloseQuotes(Classbox.text+'.'+Elementbox.Text));
        End;
 end;
 
@@ -2682,7 +2682,7 @@ procedure TControlPanel.PowersElement1Click(Sender: TObject);
 { Visualize Command }
 begin
        If Assigned(activeCircuit) Then Begin
-             ActiveScriptForm.ExecuteDSSCommand('Visualize powers '+Classbox.text+'.'+Elementbox.Text);
+             ActiveScriptForm.ExecuteDSSCommand('Visualize powers '+EncloseQuotes(Classbox.text+'.'+Elementbox.Text));
        End;
 end;
 

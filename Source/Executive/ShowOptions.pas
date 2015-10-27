@@ -86,7 +86,7 @@ Begin
                     'associated with each generator.';
     ShowHelp[ 9] := 'Shows the present values of the registers in the EnergyMeter elements.';
     ShowHelp[10] := 'Shows the contents of a selected monitor. Syntax: ' + CRLF + CRLF +
-                    ' Show Monitor monitorname';
+                    ' Show Monitor  monitorname';
     ShowHelp[11] := 'Shows control panel. (not necessary for standalone version)';
     ShowHelp[12] := 'Report on powers flowing in circuit from most recent solution. '+CRLF+
                     'Powers may be reported in kVA or MVA and in sequence quantities or in every ' +
