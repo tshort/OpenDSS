@@ -1177,6 +1177,13 @@ begin
            23: Result := GetEarthModel(FEarthModel);
            26: If SymComponentsModel Then Result := Format('%.7g', [twopi * Basefrequency * C1 * 1.0e6]) else Result := '----';
            27: If SymComponentsModel Then Result := Format('%.7g', [twopi * Basefrequency * C0 * 1.0e6]) else Result := '----';
+
+           // Intercept FaultRate, PctPerm, and HourstoRepair
+           30:Result := Format('%-g', [FaultRate]);
+           31:Result := Format('%-g', [PctPerm]);
+           32:Result := Format('%-g', [HrsToRepair]);
+
+
         ELSE
            Result := Inherited GetPropertyValue(index);
         END;
