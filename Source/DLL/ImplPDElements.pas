@@ -37,6 +37,7 @@ type
     function Get_FromTerminal: Integer; safecall;
     function Get_TotalMiles: Double; safecall;
     function Get_SectionID: Integer; safecall;
+    procedure Set_RepairTime(Value: Double); safecall;
 
   end;
 
@@ -339,6 +340,19 @@ begin
           End;
       End;
 
+end;
+
+procedure TPDElements.Set_RepairTime(Value: Double);
+Var
+   ActivePDElement :TPDElement;
+begin
+      If Assigned(ActiveCircuit) Then
+      With ActiveCircuit Do Begin
+          If ActiveCktElement is TPDElement Then Begin
+              ActivePDElement := ActiveCktelement as TPDElement;
+              ActivePDElement.HrsToRepair := Value;
+          End;
+      End;
 end;
 
 initialization

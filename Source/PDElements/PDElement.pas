@@ -43,6 +43,7 @@ TYPE
 
        BranchNumCustomers      : Integer;
        BranchTotalCustomers    : Integer;
+
        BranchCustWeight        : Double; // Weighting factor for customers on this elemebt
        BranchSectionID         : Integer; // ID of the section that this PD element belongs to
 

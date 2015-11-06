@@ -2419,7 +2419,8 @@ begin
                        Inc(NCustomers, PD_Elem.BranchNumCustomers); // Sum up num Customers on this Section
                        Inc(NBranches, 1); // Sum up num branches on this Section
                     dblInc(SumBranchFltRates,  PD_Elem.BranchFltRate);
-                    dblInc(SumFltRatesXRepairHrs, (PD_Elem.BranchFltRate * PD_Elem.HrsToRepair));
+                    pBus    := ActiveCircuit.Buses^[PD_Elem.Terminals^[PD_Elem.ToTerminal].BusRef];
+                    dblInc(SumFltRatesXRepairHrs, (pBus.Bus_Num_Interrupt * PD_Elem.BranchFltRate * PD_Elem.HrsToRepair));
                     If PD_Elem.HasOCPDevice  Then  Begin
                        OCPDeviceType := GetOCPDeviceType(PD_Elem);
                        SeqIndex := Idx;
@@ -2428,12 +2429,12 @@ begin
                End;
 (*
 {**DEBUG**}
-        If idx=SequenceList.ListSize then WriteDLLDebugFile('Meter, SectionID, BranchName, YrlyFaultRate, RepairHrs, NCustomers');
-            With FFeederSections^[PD_Elem.BranchSectionID] Do
-               WriteDLLDebugFile(Format('%s.%s, %d, %s.%s, %.11g, %.11g, %d ',
+            If idx=SequenceList.ListSize then WriteDLLDebugFile('Meter, SectionID, BranchName, FaultRate, AccumulatedBrFltRate, BranchFltRate, RepairHrs, NCustomers, Num_Interrupt');
+            With FeederSections^[PD_Elem.BranchSectionID] Do
+               WriteDLLDebugFile(Format('%s.%s, %d, %s.%s, %.11g, %.11g, %.11g, %.11g, %d, %.11g ',
                [ParentClass.Name, Name, PD_Elem.BranchSectionID, PD_Elem.ParentClass.Name, PD_Elem.Name,
-               PD_Elem.BranchLambda, PD_Elem.HrsToRepair,
-               PD_Elem.BranchNumCustomers   ]));
+               PD_Elem.FaultRate, PD_Elem.AccumulatedBrFltRate, PD_Elem.BranchFltRate, PD_Elem.HrsToRepair,
+               PD_Elem.BranchNumCustomers, pBus.Bus_Num_Interrupt ]));
 {**DEBUG**}
 *)
            End;
@@ -2473,6 +2474,10 @@ begin
                        DblInc(dblkW,     kWBase       * RelWeighting);   // total up weighted kW
                        // Set BusCustDurations for Branch reliability export
                        pBus.BusCustDurations :=  NumCustomers * RelWeighting * FeederSections^[pBus.BusSectionID].SumFltRatesXRepairHrs;
+
+    // WriteDLLDebugFile(Format('Load.%s, %.11g, %.11g, %.11g ',
+    //              [pLoad.Name,pBus.BusCustDurations, pBus.Bus_Num_Interrupt, FeederSections^[pBus.BusSectionID].SumFltRatesXRepairHrs]));
+
                        SAIDI := SAIDI + pBus.BusCustDurations;
                   End ;
            End;

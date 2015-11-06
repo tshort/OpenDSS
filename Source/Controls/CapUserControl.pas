@@ -105,11 +105,12 @@ end;
 destructor TCapUserControl.Destroy;
 begin
 
-  If FID <> 0 Then
-    Begin
-          FDelete(FID);       // Clean up all memory associated with this instance
-          FreeLibrary(FHandle);
-    End;
+ Try
+  If FID <> 0 Then FDelete(FID);  // Clean up all memory associated with this instance
+ Finally
+  If Fhandle <> 0 Then  FreeLibrary(FHandle);
+ End;
+
 
 inherited;
 
@@ -203,7 +204,8 @@ begin
             If not FuncError Then @FDelete      := CheckFuncError(GetProcAddress(FHandle, 'Delete'),      'Delete');
 
             If FuncError Then Begin
-                 FreeLibrary(FHandle);
+                 If not FreeLibrary(FHandle) then
+                 DoSimpleMsg('Error Freeing DLL: '+Fname, 10570);  // decrement the reference count
                  FID     := 0;
                  FHandle := 0;
                  FName   := '';

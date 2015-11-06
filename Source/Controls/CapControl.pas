@@ -506,7 +506,7 @@ Begin
      FpctMinkvar := 50.0;
 
      IsUserModel := FALSE;
-     UserModel  := TCapUserControl.Create;
+     UserModel  := TCapUserControl.Create;   // Inits handles, FID
 
 
      ControlVars.ControlActionHandle := 0;
@@ -528,7 +528,11 @@ Begin
      ElementName := '';
      ControlVars.CapacitorName := '';
      if Assigned(cBuffer) then ReallocMem (cBuffer, 0);
-     UserModel.Free;
+     Try
+        UserModel.Free;
+     Finally
+        UserModel := Nil; // do nothing
+     End;
      Inherited Destroy;
 End;
 
