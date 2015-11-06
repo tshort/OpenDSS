@@ -51,4 +51,4 @@ Export monitors m2
 Plot monitor object= m2 channels=(1 ) base=[7200]
 Export monitors m2
 Plot monitor object= m2 channels=(9 )
-C:\Users\prdu001\OpenDSS\Distrib\IEEETestCases\LVTestCase\lvtest\Master.DSS
+
