@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 9/23/2015 9:56:50 PM (- $Rev: 12980 $, 6049188).
+// File generated on 11/3/2015 2:23:26 PM (- $Rev: 12980 $, 12689339).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -2275,8 +2275,6 @@ library OpenDSSengine
     HRESULT _stdcall Lambda([out, retval] double* Value);
     [propget, id(0x000000D1), helpstring("accummulated failure rate for this branch on downline")]
     HRESULT _stdcall AccumulatedL([out, retval] double* Value);
-    [propget, id(0x000000D2), helpstring("Average time to repair a permanent fault on this branch, hours.")]
-    HRESULT _stdcall RepairTime([out, retval] double* Value);
     [propget, id(0x000000D3), helpstring("Number of customers, this branch")]
     HRESULT _stdcall Numcustomers([out, retval] long* Value);
     [propget, id(0x000000D4), helpstring("Total number of customers from this branch to the end of the zone")]
@@ -2289,6 +2287,10 @@ library OpenDSSengine
     HRESULT _stdcall TotalMiles([out, retval] double* Value);
     [propget, id(0x000000D8), helpstring("Integer ID of the feeder section that this PDElement branch is part of")]
     HRESULT _stdcall SectionID([out, retval] long* Value);
+    [propget, id(0x000000D2), helpstring("Average repair time for this element in hours")]
+    HRESULT _stdcall RepairTime([out, retval] double* Value);
+    [propput, id(0x000000D2), helpstring("Average repair time for this element in hours")]
+    HRESULT _stdcall RepairTime([in] double Value);
   };
 
   [

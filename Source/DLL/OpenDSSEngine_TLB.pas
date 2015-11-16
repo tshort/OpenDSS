@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 9/23/2015 9:56:47 PM from Type Library described below.
+// File generated on 11/3/2015 2:23:20 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -2824,13 +2824,14 @@ type
     procedure Set_Name(const Value: WideString); safecall;
     function Get_Lambda: Double; safecall;
     function Get_AccumulatedL: Double; safecall;
-    function Get_RepairTime: Double; safecall;
     function Get_Numcustomers: Integer; safecall;
     function Get_Totalcustomers: Integer; safecall;
     function Get_ParentPDElement: Integer; safecall;
     function Get_FromTerminal: Integer; safecall;
     function Get_TotalMiles: Double; safecall;
     function Get_SectionID: Integer; safecall;
+    function Get_RepairTime: Double; safecall;
+    procedure Set_RepairTime(Value: Double); safecall;
     property Count: Integer read Get_Count;
     property First: Integer read Get_First;
     property Next: Integer read Get_Next;
@@ -2840,13 +2841,13 @@ type
     property Name: WideString read Get_Name write Set_Name;
     property Lambda: Double read Get_Lambda;
     property AccumulatedL: Double read Get_AccumulatedL;
-    property RepairTime: Double read Get_RepairTime;
     property Numcustomers: Integer read Get_Numcustomers;
     property Totalcustomers: Integer read Get_Totalcustomers;
     property ParentPDElement: Integer read Get_ParentPDElement;
     property FromTerminal: Integer read Get_FromTerminal;
     property TotalMiles: Double read Get_TotalMiles;
     property SectionID: Integer read Get_SectionID;
+    property RepairTime: Double read Get_RepairTime write Set_RepairTime;
   end;
 
 // *********************************************************************//
@@ -2865,13 +2866,13 @@ type
     property Name: WideString dispid 207;
     property Lambda: Double readonly dispid 208;
     property AccumulatedL: Double readonly dispid 209;
-    property RepairTime: Double readonly dispid 210;
     property Numcustomers: Integer readonly dispid 211;
     property Totalcustomers: Integer readonly dispid 212;
     property ParentPDElement: Integer readonly dispid 213;
     property FromTerminal: Integer readonly dispid 214;
     property TotalMiles: Double readonly dispid 215;
     property SectionID: Integer readonly dispid 216;
+    property RepairTime: Double dispid 210;
   end;
 
 // *********************************************************************//

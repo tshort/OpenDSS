@@ -2394,6 +2394,11 @@ begin
        For idx := 1 to SequenceList.ListSize Do
            TPDElement(SequenceList.Get(idx)).CalcNum_Int(SectionCount, AssumeRestoration);
 
+       If SectionCount=0 Then Begin   // Error - no OCP devices
+             DoSimpleMsg('Error: No Overcurrent Protection device (Relay, Recloser, or Fuse) defined. Aborting Reliability calc.', 52902);
+             Exit;
+       End;
+
        // Now have number of sections  so allocate FeederSections array
        Reallocmem(FeederSections, Sizeof(FeederSections^[1])*SectionCount);
        for idx := 1 to SectionCount do
@@ -2418,8 +2423,8 @@ begin
                With FeederSections^[PD_Elem.BranchSectionID] Do Begin
                        Inc(NCustomers, PD_Elem.BranchNumCustomers); // Sum up num Customers on this Section
                        Inc(NBranches, 1); // Sum up num branches on this Section
-                    dblInc(SumBranchFltRates,  PD_Elem.BranchFltRate);
                     pBus    := ActiveCircuit.Buses^[PD_Elem.Terminals^[PD_Elem.ToTerminal].BusRef];
+                    dblInc(SumBranchFltRates,  pBus.Bus_Num_Interrupt * PD_Elem.BranchFltRate);
                     dblInc(SumFltRatesXRepairHrs, (pBus.Bus_Num_Interrupt * PD_Elem.BranchFltRate * PD_Elem.HrsToRepair));
                     If PD_Elem.HasOCPDevice  Then  Begin
                        OCPDeviceType := GetOCPDeviceType(PD_Elem);
@@ -2442,6 +2447,17 @@ begin
         {Compute Avg Interruption duration of each Section }
         for idx := 1 to SectionCount do
             With FeederSections^[idx] Do AverageRepairTime    := SumFltRatesXRepairHrs / SumBranchFltRates;
+
+        { Set Bus_int_Duration}
+
+        With ActiveCircuit  do
+        for idx := 1 to NumBuses  do  Begin
+           pBus := Buses^[idx];
+           If pBus.BusSectionID > 0 Then
+              pBus.Bus_Int_Duration := Source_IntDuration + FeederSections^[pBus.BusSectionID].AverageRepairTime;
+        End;
+
+
 (*
 {**DEBUG**}
         WriteDLLDebugFile('Meter, SectionID, NBranches, NCustomers, AvgRepairHrs, AvgRepairMins, FailureRate*RepairtimeHrs, SumFailureRates');
@@ -2473,7 +2489,7 @@ begin
                        DblInc(dblNcusts, NumCustomers * RelWeighting);   // total up weighted numcustomers
                        DblInc(dblkW,     kWBase       * RelWeighting);   // total up weighted kW
                        // Set BusCustDurations for Branch reliability export
-                       pBus.BusCustDurations :=  NumCustomers * RelWeighting * FeederSections^[pBus.BusSectionID].SumFltRatesXRepairHrs;
+                       pBus.BusCustDurations :=  NumCustomers * RelWeighting * pBus.Bus_Int_Duration * pBus.Bus_Num_Interrupt; // FeederSections^[pBus.BusSectionID].SumFltRatesXRepairHrs;
 
     // WriteDLLDebugFile(Format('Load.%s, %.11g, %.11g, %.11g ',
     //              [pLoad.Name,pBus.BusCustDurations, pBus.Bus_Num_Interrupt, FeederSections^[pBus.BusSectionID].SumFltRatesXRepairHrs]));
@@ -2557,7 +2573,7 @@ begin
          NXfmrs := 0;
      Except
          On E:Exception Do Begin
-             DoSimpleMsg('Error creating Transformers.dss for Energymeter: ' + Self.Name+'. '+E.Message , 530);
+             DoSimpleMsg('Error creating Transformers.dss for Energymeter: ' + Self.Name+'. '+E.Message , 53001);
              CloseFile(FXfmrs);
              Exit;
          End;

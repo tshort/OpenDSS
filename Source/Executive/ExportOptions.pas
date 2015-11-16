@@ -156,9 +156,11 @@ VAR
    pMeter       :TEnergyMeterObj;
    ParamPointer :Integer;
    PhasesToPlot :Integer;
+   AbortExport  :Boolean;
 
 Begin
    Result := 0;
+   AbortExport := FALSE;
 
    ParamName := Parser.NextParam;
    Parm1 := LowerCase(Parser.StrValue);
@@ -357,15 +359,19 @@ Begin
      51: ExportSections(FileName, pMeter);
 
    ELSE
-         ExportVoltages(FileName);    // default
+        // ExportVoltages(FileName);    // default
+        DoSimpleMsg('Error: Unknown Export command: "'+parm1+'"', 24713);
+        AbortExport := TRUE;
    END;
 
    Result := 0;
    InShowResults := False;
 
-   SetLastResultFile( FileName);
-   ParserVars.Add('@lastexportfile', FileName);
-   If AutoShowExport then  FireOffEditor(FileName);
+   If Not AbortExport Then  Begin
+       SetLastResultFile( FileName);
+       ParserVars.Add('@lastexportfile', FileName);
+       If AutoShowExport then  FireOffEditor(FileName);
+   End;
 
 End;
 

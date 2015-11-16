@@ -170,7 +170,11 @@ Begin
    Param := LowerCase(Parser.StrValue);
    ParamPointer := ShowCommands.Getcommand (Param);
 
-   If ParamPointer=0 Then ParamPointer := 13;  {voltages}
+   If ParamPointer=0 Then Begin
+          DoSimpleMsg('Error: Unknown Show Command:"'+Param+'"',24700);
+          Exit;
+//        ParamPointer := 13;  {voltages}
+   End;
 
    {Check commands requiring a solution and abort if no solution or circuit}
    CASE ParamPointer of

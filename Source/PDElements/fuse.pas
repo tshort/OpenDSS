@@ -411,7 +411,7 @@ Begin
                ControlledElement := ActiveCircuit.CktElements.Get(DevIndex);
                ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Make the 1 st terminal active
 
-               ControlledElement.HasOCPDevice := TRUE;  // For Reliability calcs
+               If Enabled then ControlledElement.HasOCPDevice := TRUE;  // For Reliability calcs
 
                For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do
                  IF  ControlledElement.Closed [i]      // Check state of i-th phase of active terminal

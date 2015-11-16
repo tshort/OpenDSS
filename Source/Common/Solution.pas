@@ -142,10 +142,10 @@ TYPE
        SeriesYInvalid :Boolean;
        SolutionCount :Integer;  // Counter incremented for each solution
        SolutionInitialized :Boolean;
-       SystemYChanged :Boolean;
-       UseAuxCurrents  :Boolean;
-       VmagSaved :pDoubleArray;
-       VoltageBaseChanged :Boolean;
+       SystemYChanged  : Boolean;
+       UseAuxCurrents  : Boolean;
+       VmagSaved : pDoubleArray;
+       VoltageBaseChanged : Boolean;
 
 
        {Voltage and Current Arrays}

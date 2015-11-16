@@ -653,8 +653,11 @@ Begin
              ControlledElement := ActiveCircuit.CktElements.Get(DevIndex);
              ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Make the 1 st terminal active
 
-             ControlledElement.HasOCPDevice     := TRUE;  // For Reliability calcs
-             ControlledElement.HasAutoOCPDevice := TRUE;  // For Reliability calcs
+             // If the relay becomes disabled, leave at False
+             If Enabled Then Begin
+               ControlledElement.HasOCPDevice     := TRUE;  // For Reliability calcs
+               ControlledElement.HasAutoOCPDevice := TRUE;  // For Reliability calcs
+             End;
 
              IF  ControlledElement.Closed [0]  THEN    // Check state of phases of active terminal
                Begin

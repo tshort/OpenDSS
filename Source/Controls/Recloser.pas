@@ -523,16 +523,17 @@ Begin
             ControlledElement.HasAutoOCPDevice := FALSE;
          End;
 
-
          Devindex := GetCktElementIndex(ElementName); // Global function
          IF   DevIndex>0   THEN Begin  // Both CktElement and monitored element must already exist
 
              ControlledElement := ActiveCircuit.CktElements.Get(DevIndex);
              ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Make the 1 st terminal active
 
-             ControlledElement.HasOCPDevice := TRUE;  // For Reliability calcs
-             ControlledElement.HasAutoOCPDevice := TRUE;  // For Reliability calcs
-
+             // If the recloser becomes disabled, leave at False
+             If Enabled Then  Begin
+                 ControlledElement.HasOCPDevice := TRUE;  // For Reliability calcs
+                 ControlledElement.HasAutoOCPDevice := TRUE;  // For Reliability calcs
+             End;
 
              IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
              THEN Begin
