@@ -93,6 +93,7 @@ TYPE
           Function SaveDSSObjects:Boolean;
           Function SaveFeeders:Boolean;
           Function SaveBusCoords:Boolean;
+          Function SaveVoltageBases:Boolean;
 
           Procedure ReallocDeviceList;
           procedure Set_CaseName(const Value: String);
@@ -1149,6 +1150,7 @@ begin
     If Success Then Success :=  WriteClassFile(GetDssClassPtr('Spectrum'),'', FALSE);
     If Success Then Success := SaveFeeders; // Save feeders first
     If Success Then Success := SaveDSSObjects;  // Save rest ot the objects
+    If Success Then Success := SaveVoltageBases;
     If Success Then Success := SaveBusCoords;
     If Success Then Success := SaveMasterFile;
 
@@ -1186,6 +1188,28 @@ begin
 
 end;
 
+function TDSSCircuit.SaveVoltageBases: Boolean;
+Var  F:TextFile;
+     i:integer;
+Begin
+
+     Result := FALSE;
+     Try
+        AssignFile(F, 'BusVoltageBases.DSS');
+        Rewrite(F);
+
+        For i := 1 to NumBuses do
+          If Buses^[i].kVBase > 0.0 Then
+            Writeln(F, Format('SetkVBase Bus=%s  kvln=%.7g ', [BusList.Get(i), Buses^[i].kVBase]));
+
+        CloseFile(F);
+        Result := TRUE;
+     Except
+      On E:Exception Do DoSimpleMsg('Error Saving BusVoltageBases File: '+E.Message, 43501);
+     End;
+
+End;
+
 function TDSSCircuit.SaveMasterFile: Boolean;
 
 Var
@@ -1211,9 +1235,11 @@ begin
           Writeln(F, 'Redirect ', SavedFileList.Strings[i-1]);
        End;
 
+      Writeln(F,'MakeBusList');
+      Writeln(F,'Redirect BusVoltageBases.dss  ! set voltage bases');
+
       If FileExists('buscoords.dss') Then
       Begin
-         Writeln(F,'MakeBusList');
          Writeln(F, 'Buscoords buscoords.dss');
       End;
 

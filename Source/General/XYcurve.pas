@@ -115,6 +115,7 @@ TYPE
         FUNCTION  GetPropertyValue(Index:Integer):String;Override;
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
         PROCEDURE DumpProperties(Var F:TextFile; Complete:Boolean);Override;
+        PROCEDURE SaveWrite(Var F:TextFile);Override;
 
         Property NumPoints :Integer      Read FNumPoints   Write Set_NumPoints;
         Property XValue_pt[Index:Integer]:Double  Read Get_XValue Write Set_XValue;
@@ -876,6 +877,34 @@ PROCEDURE TXYCurveObj.Set_YValue(Index:Integer; Value: Double);
 Begin
     If Index <= FNumPoints Then YValues^[Index] := Value;
 End;
+
+procedure TXYcurveObj.SaveWrite(var F: TextFile);
+
+{Override standard SaveWrite}
+{Transformer structure not conducive to standard means of saving}
+var
+   iprop : Integer;
+   i     : Integer;
+begin
+   {Write only properties that were explicitly set in the final order they were actually set}
+
+   {Write Npts out first so that arrays get allocated properly}
+   Write(F, Format(' Npts=%d',[NumPoints]));
+   iProp := GetNextPropertySet(0); // Works on ActiveDSSObject
+   While iProp > 0 Do
+   Begin
+      With ParentClass Do
+       {Trap npts= and write out array properties instead}
+        CASE RevPropertyIdxMap[iProp] of
+            1: {Ignore Npts};
+
+        ELSE
+            Write(F,Format(' %s=%s', [PropertyName^[RevPropertyIdxMap[iProp]],CheckForBlanks(PropertyValue[iProp])] ));
+        END;
+      iProp := GetNextPropertySet(iProp);
+   End;
+
+end;
 
 PROCEDURE TXYcurveObj.Set_NumPoints(const Value: Integer);
 Begin
