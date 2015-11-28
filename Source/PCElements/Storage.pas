@@ -2753,7 +2753,7 @@ Begin
      {Requested kVA output}
      kVA_Gen := Sqrt(Sqr(kW_out) + Sqr(kvar_out)) ;
      With StorageVars do If kVA_Gen > kVArating Then kVA_Gen := kVARating;  // Limit kVA to rated value
-     IF kVA_Gen <> 0.0 THEN PFNominal := kW_out / kVA_Gen ELSE PFNominal := 1.0;
+     IF kVA_Gen <> 0.0 THEN PFNominal := abs(kW_out / kVA_Gen) ELSE PFNominal := 1.0;
      If (kW_out*kvar_out) < 0.0 Then PFNominal := -PFNominal;
 End;
 
@@ -2802,10 +2802,10 @@ Begin
      kvar_out := 0.0;
      // keep kvar nominal up to date with kW and PF
      If (PFNominal <> 0.0)  Then
-     Begin
-          kvar_out := kW_out* sqrt(1.0/Sqr(PFNominal) - 1.0);
-          If PFNominal<0.0 Then kvar_out := -kvar_out;
-     End;
+       Begin
+            kvar_out := kW_out* sqrt(1.0/Sqr(PFNominal) - 1.0);
+            If PFNominal<0.0 Then kvar_out := -kvar_out;
+       End;
 End;
 
 //----------------------------------------------------------------------------
