@@ -1,0 +1,77 @@
+// Storage definition examples
+
+New StorageController.CESmain  element=line.568_4921721 terminal=1  
+  ~ kWTarget=7000  PFTarget=0.98 
+  ~ %ratecharge=30
+  ~ eventlog=y
+ ~ modedischarge=follow   TimeDischargeTrigger = 13 
+
+ New StorageController.CESmain  element=line.568_4921721 terminal=1  
+  ~ kWTarget=8000  PFTarget=0.98 
+  ~ %ratecharge=30
+  ~ eventlog=y
+  ~ modedischarge=schedule Timedischargetrigger=13  %ratekW=25 Tup=0.5 
+
+! Other examples
+New storagecontroller.global_ctrl element=Transformer.COLFAX_T4 yearly=storageloadshape modecharge=loadshape modedischarge=loadshape !vardispatch=no
+
+New StorageController.AEP_Morse element=Line.0_0058_01_MORSE_RD_To_Regulator_conn 1 modedis=peakshave kwtarget=5500  
+
+New StorageController.AEP_Morse element=Line.0_0058_01_MORSE_RD_To_Regulator_conn 1 modedis=time timedischargetrigger=16
+
+New StorageController.AEP_Morse element=Line.0_0058_01_MORSE_RD_To_Regulator_conn 1 timedischarge=19 modedis=follow kwthreshold=5500  Timecharge=3
+
+
+New StorageController.CESmain  element=line.568_4921721 terminal=1  kWTarget=7000  PFTarget=0.98 %ratecharge=30
+~ eventlog=y
+
+!-----------------------------------------
+Compile C:\DSSdata\Wes\Colfax\StartColfax.dss
+
+! Set Controller mode  (select one of following)
+
+
+! ----  LOAD FOLLOWING EXAMPLE
+storagecontroller.cesmain.ModeDischarge=Follow
+~ TimedischargeTrigger=13.15
+~ TimeChargeTrigger=3
+
+! TIME TRIGGERED FIXED DISCHARGE RATE
+storagecontroller.cesmain.ModeDischarge=Time
+~ TimedischargeTrigger=14  %ratekw=25
+~ TimeChargeTrigger=2
+!-----------------------------------------
+
+
+
+New Storage.Store1 phases=3 Bus1=LVBus kV=0.400 conn=Delta kVA=60 
+~ kWrated=60 kWHrated=   0.20833  %reserve=50    // 750 kW-s (kJ)
+~ state=discharge
+~ kW=50  PF=1
+~ DynaDLL="C:\Users\prdu001\OpenDSS\Source\DESS1\Dess1.DLL"   
+!  ~ DynaData=(help)
+~ DynaData=(file=DESSModel_Test.TxT)
+
+New Storage.Store1 phases=3 Bus1=LVBus kV=0.400 conn=Delta kVA=60 
+~ kWrated=60 kWHrated=   0.20833  %reserve=50    // 750 kW-s (kJ)
+~ state=discharge
+~ kW=50  PF=1
+~ balanced=yes 
+~ Limitcurrent=yes
+
+New	Storage.1891720744119	bus1=X_72_0005801_1891720744119.1 	phases=1  kV=0.24	kWhrated=25	    kWrated=12.5   !kWrated=25
+
+Storage.jo0235000269_1.timechargetrig=4
+
+Set Casename=StorageOn50
+Storage.jo0235001304.kwhrated=50
+
+Storage.jo0235000289_2.%charge=50
+
+Storage.jo0235000300_2.chargetrigger=0  ! set for Low charge trigger
+
+New Storage.x_127_4921721_jo0259000693    Bus1=x_127_4921721_jo0259000693    ! take defaults
+
+
+
+
