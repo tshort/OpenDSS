@@ -996,8 +996,8 @@ Begin
      kvar_out     := 0.0;
      PFnominal    := 1.0;
 
-     pctR         := 0.0;;
-     pctX         := 50.0;
+     pctR         := 50.0;;
+     pctX         := 0.0;
 
      PublicDataStruct := @PVSystemVars;
      PublicDataSize   := SizeOf(TPVSystemVars);
