@@ -166,9 +166,9 @@ TYPE
         FVWYAxis        :Integer;  // integer value indicating that whether y-axis of watts is in %Pmpp or %PAvailable
                                   // 1 = %Pmpp, 0=%PAvailable.  Default is 1 such that pctPmpp user-settable
                                   // property will correctly operate on Pmpp (NOT PAvailable)
-        PROCEDURE CalcDailyMult(Hr:double);
+        PROCEDURE CalcDailyMult(Hr:double);  // now incorporates DutyStart offset
         PROCEDURE CalcDutyMult(Hr:double);
-        PROCEDURE CalcYearlyMult(Hr:double);
+        PROCEDURE CalcYearlyMult(Hr:double);  // now incorporates DutyStart offset
 
         PROCEDURE CalcDailyTemperature(Hr:double);
         PROCEDURE CalcDutyTemperature(Hr:double);
@@ -238,6 +238,7 @@ TYPE
         DailyShapeObj      :TLoadShapeObj;  // Daily PVSystem element irradianceShape for this load
         DutyShape          :String;  // Duty cycle irradiance shape for changes typically less than one hour
         DutyShapeObj       :TLoadShapeObj;  // irradiance Shape for this PVSystem element
+        DutyStart          :Double; // starting time offset into the DutyShape [hrs] for this PVsystem
         YearlyShape        :String;  //
         YearlyShapeObj     :TLoadShapeObj;  // Yearly irradiance Shape for this PVSystem element
 
@@ -371,8 +372,9 @@ Const
     propLimited    = 32;
     propVarFollowInverter      = 33;
     propkvarLimit    = 34;
+    propDutyStart   = 35;
 
-    NumPropsThisClass = 34; // Make this agree with the last property constant
+    NumPropsThisClass = 35; // Make this agree with the last property constant
 
 VAR
 
@@ -556,7 +558,8 @@ Begin
                               'generation/absorption will begin again when the panel kW is above %Cutin.  When set to False, the PVSystem will generate/absorb reactive power regardless of the status of the inverter.');
      AddProperty('kvarLimit',     propkvarLimit,
                               'Un-signed numerical variable Defaults to kVA rating of the inverter.   Indicates the maximum reactive power generation/absorption (in kvar) for the PVSystem (as an un-signed value).');
-
+     AddProperty('DutyStart', propDutyStart,
+        'Starting time offset [hours] into the duty cycle shape for this PVSystem, defaults to 0');
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -733,6 +736,7 @@ Begin
                propVarFollowInverter
                                 : FVarFollowInverter := InterpretYesNo(Param);
                propkvarLimit      : PVSystemVars.Fkvarlimit     := Abs(Parser.DblValue);
+               propDutyStart: DutyStart := Parser.DblValue;
 
 
 
@@ -824,6 +828,7 @@ Begin
          DailyShapeObj     := OtherPVsystemObj.DailyShapeObj;
          DutyShape         := OtherPVsystemObj.DutyShape;
          DutyShapeObj      := OtherPVsystemObj.DutyShapeObj;
+         DutyStart         := OtherPVsystemObj.DutyStart;
          YearlyTShape      := OtherPVsystemObj.YearlyTShape;
          YearlyTShapeObj   := OtherPVsystemObj.YearlyTShapeObj;
          DailyTShape       := OtherPVsystemObj.DailyTShape;
@@ -941,6 +946,7 @@ Begin
      DailyShapeObj      := nil;  // If DaillyShapeobj = nil Then the Irradiance alway stays nominal
      DutyShape          := '';
      DutyShapeObj       := nil;  // If DutyShapeobj = nil Then the Irradiance alway stays nominal
+     DutyStart          := 0.0;
 
      YearlyTShape       := '';
      YearlyTShapeObj    := nil;  // If YearlyShapeobj = nil Then the Temperature always stays nominal
@@ -1124,6 +1130,7 @@ Begin
           propBalanced   : If ForceBalanced  Then Result:='Yes' Else Result := 'No';
           propLimited    : If CurrentLimited Then Result:='Yes' Else Result := 'No';
           propkvarLimit    : Result := Format('%.6g', [Fkvarlimit]);
+          propDutyStart: Result := Format('%.6g', [DutyStart]);
 
 
           {propDEBUGTRACE = 33;}
@@ -1180,7 +1187,7 @@ PROCEDURE TPVsystemObj.CalcDutyMult(Hr:Double);
 Begin
      If DutyShapeObj <> Nil
      Then Begin
-             ShapeFactor := DutyShapeObj.GetMult(Hr);
+             ShapeFactor := DutyShapeObj.GetMult(Hr + DutyStart);
      End
      ELSE CalcDailyMult(Hr);  // Default to Daily Mult If no duty curve specified
 End;
@@ -1201,7 +1208,7 @@ PROCEDURE TPVsystemObj.CalcYearlyMult(Hr:Double);
 Begin
      If YearlyShapeObj<>Nil
      Then Begin
-            ShapeFactor := YearlyShapeObj.GetMult(Hr) ;
+            ShapeFactor := YearlyShapeObj.GetMult(Hr + DutyStart) ;
      End
      ELSE CalcDailyMult(Hr);  // Defaults to Daily curve
 End;
