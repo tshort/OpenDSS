@@ -876,6 +876,11 @@ VAR
 begin
      ControlledTransformer := TTransfObj(ControlledElement);
 
+     if TapLimitPerChange = 0 then begin
+        PendingTapChange := 0;
+        Exit;
+     end;
+
      {First, check the direction of power flow to see if we need to reverse direction}
      {Don't do this if using regulated bus logic}
      If Not UsingRegulatedBus Then
@@ -1193,6 +1198,8 @@ procedure TRegControlObj.Set_TapNum(const Value: Integer);
     ictrldWinding: Integer;
 
 begin
+  if not Assigned(ControlledElement) then RecalcElementData;
+
   if ControlledElement <> nil then
     begin
       ctrldTransformer := TTransfObj(ControlledElement);
