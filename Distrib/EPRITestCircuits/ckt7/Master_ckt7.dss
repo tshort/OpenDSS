@@ -21,7 +21,7 @@ Calcvoltagebases
 
 ! Now that buses are defined, define coordinates
 Buscoords  Buscoords_ckt7.dss
-
+BatchEdit Load..* Vminpu=0.85
 
 
 

@@ -14,54 +14,54 @@ New line.333 bus1=ckt7 Bus2 = 318412 length=0.0001 units=m r1=0.0 r0=0.0 x1=0.00
 New line.335 bus1=ckt7 Bus2 = 318414 length=0.0001 units=m r1=0.0 r0=0.0 x1=0.0001 x0=0.0001 normamps=600 emergamps=600
 
 !Feeder equivalent load models
-New load.25609_A bus=ckt7.1 kV=12.47 kVA=(2475) pf=0.95 yearly=25609_A
-New load.25609_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(2576) pf=0.95 yearly=25609_B
-New load.25609_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(2440) pf=0.95 yearly=25609_C
+New load.25609_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(2475) pf=0.95 yearly=25609_A
+New load.25609_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(2576) pf=0.95 yearly=25609_B
+New load.25609_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(2440) pf=0.95 yearly=25609_C
 
-New load.25615_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(2348) pf=0.95 yearly=25615_A
-New load.25615_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(2288) pf=0.95 yearly=25615_B
-New load.25615_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(2170) pf=0.95 yearly=25615_C
+New load.25615_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(2348) pf=0.95 yearly=25615_A
+New load.25615_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(2288) pf=0.95 yearly=25615_B
+New load.25615_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(2170) pf=0.95 yearly=25615_C
 
-New load.25625_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(1714) pf=0.95 yearly=25625_A
-New load.25625_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(1980) pf=0.95 yearly=25625_B
-New load.25625_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(1888) pf=0.95 yearly=25625_C
+New load.25625_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(1714) pf=0.95 yearly=25625_A
+New load.25625_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(1980) pf=0.95 yearly=25625_B
+New load.25625_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(1888) pf=0.95 yearly=25625_C
 
-New load.25627_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(2525) pf=0.95 yearly=25627_A
-New load.25627_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(2367) pf=0.95 yearly=25627_B
-New load.25627_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(2430) pf=0.95 yearly=25627_C
+New load.25627_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(2525) pf=0.95 yearly=25627_A
+New load.25627_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(2367) pf=0.95 yearly=25627_B
+New load.25627_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(2430) pf=0.95 yearly=25627_C
 
-New load.25629_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(1926) pf=0.95 yearly=25629_A
-New load.25629_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(2170) pf=0.95 yearly=25629_B
-New load.25629_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(2240) pf=0.95 yearly=25629_C
+New load.25629_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(1926) pf=0.95 yearly=25629_A
+New load.25629_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(2170) pf=0.95 yearly=25629_B
+New load.25629_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(2240) pf=0.95 yearly=25629_C
 
-New load.25613_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(1233) pf=0.95 yearly=25613_A
-New load.25613_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(1369) pf=0.95 yearly=25613_B
-New load.25613_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(1176) pf=0.95 yearly=25613_C
+New load.25613_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(1233) pf=0.95 yearly=25613_A
+New load.25613_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(1369) pf=0.95 yearly=25613_B
+New load.25613_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(1176) pf=0.95 yearly=25613_C
 
-New load.25617_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(1682) pf=0.95 yearly=25617_A
-New load.25617_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(1670) pf=0.95 yearly=25617_B
-New load.25617_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(1518) pf=0.95 yearly=25617_C
+New load.25617_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(1682) pf=0.95 yearly=25617_A
+New load.25617_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(1670) pf=0.95 yearly=25617_B
+New load.25617_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(1518) pf=0.95 yearly=25617_C
 
-New load.25619_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(1657) pf=0.95 yearly=25619_A
-New load.25619_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(1511) pf=0.95 yearly=25619_B
-New load.25619_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(1458) pf=0.95 yearly=25619_C
+New load.25619_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(1657) pf=0.95 yearly=25619_A
+New load.25619_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(1511) pf=0.95 yearly=25619_B
+New load.25619_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(1458) pf=0.95 yearly=25619_C
 
-New load.25621_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(2006) pf=0.95 yearly=25621_A
-New load.25621_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(1869) pf=0.95 yearly=25621_B
-New load.25621_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(2088) pf=0.95 yearly=25621_C
+New load.25621_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(2006) pf=0.95 yearly=25621_A
+New load.25621_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(1869) pf=0.95 yearly=25621_B
+New load.25621_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(2088) pf=0.95 yearly=25621_C
 
-New load.25601_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(2329) pf=0.95 yearly=25601_A
-New load.25601_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(2506) pf=0.95 yearly=25601_B
-New load.25601_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(2094) pf=0.95 yearly=25601_C
+New load.25601_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(2329) pf=0.95 yearly=25601_A
+New load.25601_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(2506) pf=0.95 yearly=25601_B
+New load.25601_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(2094) pf=0.95 yearly=25601_C
 
-New load.25603_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(1448) pf=0.95 yearly=25603_A
-New load.25603_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(1435) pf=0.95 yearly=25603_B
-New load.25603_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(1591) pf=0.95 yearly=25603_C
+New load.25603_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(1448) pf=0.95 yearly=25603_A
+New load.25603_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(1435) pf=0.95 yearly=25603_B
+New load.25603_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(1591) pf=0.95 yearly=25603_C
 
-New load.25605_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(2117) pf=0.95 yearly=25605_A
-New load.25605_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(1999) pf=0.95 yearly=25605_B
-New load.25605_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(2202) pf=0.95 yearly=25605_C
+New load.25605_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(2117) pf=0.95 yearly=25605_A
+New load.25605_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(1999) pf=0.95 yearly=25605_B
+New load.25605_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(2202) pf=0.95 yearly=25605_C
 
-New load.25611_A Phases=1 bus=ckt7.1 kV=12.47 kVA=(1423) pf=0.95 yearly=25611_A
-New load.25611_B Phases=1 bus=ckt7.2 kV=12.47 kVA=(1305) pf=0.95 yearly=25611_B
-New load.25611_C Phases=1 bus=ckt7.3 kV=12.47 kVA=(1521) pf=0.95 yearly=25611_C
+New load.25611_A Phases=1 bus=ckt7.1 kV=7.2 kVA=(1423) pf=0.95 yearly=25611_A
+New load.25611_B Phases=1 bus=ckt7.2 kV=7.2 kVA=(1305) pf=0.95 yearly=25611_B
+New load.25611_C Phases=1 bus=ckt7.3 kV=7.2 kVA=(1521) pf=0.95 yearly=25611_C
