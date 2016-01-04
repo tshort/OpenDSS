@@ -16,45 +16,45 @@ New Transformer.SubXF Phases=3 Windings=2 Xhl=0.01    ! normally 8
 Redirect        IEEELineCodes.dss   ! revised according to Later test feeder doc
 
 ! Lines
-New Line.L1     Phases=3 Bus1=800.1.2.3  Bus2=802.1.2.3  LineCode=300  Length=2.58
-New Line.L2     Phases=3 Bus1=802.1.2.3  Bus2=806.1.2.3  LineCode=300  Length=1.73
-New Line.L3     Phases=3 Bus1=806.1.2.3  Bus2=808.1.2.3  LineCode=300  Length=32.23
-New Line.L4     Phases=1 Bus1=808.2      Bus2=810.2      LineCode=303  Length=5.804
-New Line.L5     Phases=3 Bus1=808.1.2.3  Bus2=812.1.2.3  LineCode=300  Length=37.5
-New Line.L6     Phases=3 Bus1=812.1.2.3  Bus2=814.1.2.3  LineCode=300  Length=29.73
-New Line.L7     Phases=3 Bus1=814r.1.2.3 Bus2=850.1.2.3  LineCode=301  Length=0.01
-New Line.L8     Phases=1 Bus1=816.1      Bus2=818.1      LineCode=302  Length=1.71
-New Line.L9     Phases=3 Bus1=816.1.2.3  Bus2=824.1.2.3  LineCode=301  Length=10.21
-New Line.L10    Phases=1 Bus1=818.1      Bus2=820.1      LineCode=302  Length=48.15
-New Line.L11    Phases=1 Bus1=820.1      Bus2=822.1      LineCode=302  Length=13.74
-New Line.L12    Phases=1 Bus1=824.2      Bus2=826.2      LineCode=303  Length=3.03
-New Line.L13    Phases=3 Bus1=824.1.2.3  Bus2=828.1.2.3  LineCode=301  Length=0.84
-New Line.L14    Phases=3 Bus1=828.1.2.3  Bus2=830.1.2.3  LineCode=301  Length=20.44
-New Line.L15    Phases=3 Bus1=830.1.2.3  Bus2=854.1.2.3  LineCode=301  Length=0.52
-New Line.L16    Phases=3 Bus1=832.1.2.3  Bus2=858.1.2.3  LineCode=301  Length=4.9
-New Line.L17    Phases=3 Bus1=834.1.2.3  Bus2=860.1.2.3  LineCode=301  Length=2.02
-New Line.L18    Phases=3 Bus1=834.1.2.3  Bus2=842.1.2.3  LineCode=301  Length=0.28
-New Line.L19    Phases=3 Bus1=836.1.2.3  Bus2=840.1.2.3  LineCode=301  Length=0.86
-New Line.L20    Phases=3 Bus1=836.1.2.3  Bus2=862.1.2.3  LineCode=301  Length=0.28
-New Line.L21    Phases=3 Bus1=842.1.2.3  Bus2=844.1.2.3  LineCode=301  Length=1.35
-New Line.L22    Phases=3 Bus1=844.1.2.3  Bus2=846.1.2.3  LineCode=301  Length=3.64
-New Line.L23    Phases=3 Bus1=846.1.2.3  Bus2=848.1.2.3  LineCode=301  Length=0.53
-New Line.L24    Phases=3 Bus1=850.1.2.3  Bus2=816.1.2.3  LineCode=301  Length=0.31
-New Line.L25    Phases=3 Bus1=852r.1.2.3 Bus2=832.1.2.3  LineCode=301  Length=0.01
+New Line.L1     Phases=3 Bus1=800.1.2.3  Bus2=802.1.2.3  LineCode=300  Length=2.58   units=kft
+New Line.L2     Phases=3 Bus1=802.1.2.3  Bus2=806.1.2.3  LineCode=300  Length=1.73   units=kft
+New Line.L3     Phases=3 Bus1=806.1.2.3  Bus2=808.1.2.3  LineCode=300  Length=32.23   units=kft
+New Line.L4     Phases=1 Bus1=808.2      Bus2=810.2      LineCode=303  Length=5.804   units=kft
+New Line.L5     Phases=3 Bus1=808.1.2.3  Bus2=812.1.2.3  LineCode=300  Length=37.5   units=kft
+New Line.L6     Phases=3 Bus1=812.1.2.3  Bus2=814.1.2.3  LineCode=300  Length=29.73   units=kft
+New Line.L7     Phases=3 Bus1=814r.1.2.3 Bus2=850.1.2.3  LineCode=301  Length=0.01   units=kft
+New Line.L8     Phases=1 Bus1=816.1      Bus2=818.1      LineCode=302  Length=1.71   units=kft
+New Line.L9     Phases=3 Bus1=816.1.2.3  Bus2=824.1.2.3  LineCode=301  Length=10.21   units=kft
+New Line.L10    Phases=1 Bus1=818.1      Bus2=820.1      LineCode=302  Length=48.15   units=kft
+New Line.L11    Phases=1 Bus1=820.1      Bus2=822.1      LineCode=302  Length=13.74   units=kft
+New Line.L12    Phases=1 Bus1=824.2      Bus2=826.2      LineCode=303  Length=3.03   units=kft
+New Line.L13    Phases=3 Bus1=824.1.2.3  Bus2=828.1.2.3  LineCode=301  Length=0.84   units=kft
+New Line.L14    Phases=3 Bus1=828.1.2.3  Bus2=830.1.2.3  LineCode=301  Length=20.44   units=kft
+New Line.L15    Phases=3 Bus1=830.1.2.3  Bus2=854.1.2.3  LineCode=301  Length=0.52   units=kft
+New Line.L16    Phases=3 Bus1=832.1.2.3  Bus2=858.1.2.3  LineCode=301  Length=4.9   units=kft
+New Line.L17    Phases=3 Bus1=834.1.2.3  Bus2=860.1.2.3  LineCode=301  Length=2.02   units=kft
+New Line.L18    Phases=3 Bus1=834.1.2.3  Bus2=842.1.2.3  LineCode=301  Length=0.28   units=kft
+New Line.L19    Phases=3 Bus1=836.1.2.3  Bus2=840.1.2.3  LineCode=301  Length=0.86   units=kft
+New Line.L20    Phases=3 Bus1=836.1.2.3  Bus2=862.1.2.3  LineCode=301  Length=0.28   units=kft
+New Line.L21    Phases=3 Bus1=842.1.2.3  Bus2=844.1.2.3  LineCode=301  Length=1.35   units=kft
+New Line.L22    Phases=3 Bus1=844.1.2.3  Bus2=846.1.2.3  LineCode=301  Length=3.64   units=kft
+New Line.L23    Phases=3 Bus1=846.1.2.3  Bus2=848.1.2.3  LineCode=301  Length=0.53   units=kft
+New Line.L24    Phases=3 Bus1=850.1.2.3  Bus2=816.1.2.3  LineCode=301  Length=0.31   units=kft
+New Line.L25    Phases=3 Bus1=852r.1.2.3 Bus2=832.1.2.3  LineCode=301  Length=0.01   units=kft
 
 ! 24.9/4.16 kV  Transformer
 New Transformer.XFM1  Phases=3 Windings=2 Xhl=4.08
 ~ wdg=1 bus=832       conn=wye   kv=24.9  kva=500    %r=0.95
 ~ wdg=2 bus=888       conn=Wye   kv=4.16  kva=500    %r=0.95
 
-New Line.L26    Phases=1 Bus1=854.2      Bus2=856.2      LineCode=303  Length=23.33
-New Line.L27    Phases=3 Bus1=854.1.2.3  Bus2=852.1.2.3  LineCode=301  Length=36.83
+New Line.L26    Phases=1 Bus1=854.2      Bus2=856.2      LineCode=303  Length=23.33   units=kft
+New Line.L27    Phases=3 Bus1=854.1.2.3  Bus2=852.1.2.3  LineCode=301  Length=36.83   units=kft
 ! 9-17-10 858-864 changed to phase A per error report
-New Line.L28    Phases=1 Bus1=858.1      Bus2=864.1      LineCode=303  Length=1.62
-New Line.L29    Phases=3 Bus1=858.1.2.3  Bus2=834.1.2.3  LineCode=301  Length=5.83
-New Line.L30    Phases=3 Bus1=860.1.2.3  Bus2=836.1.2.3  LineCode=301  Length=2.68
-New Line.L31    Phases=1 Bus1=862.2      Bus2=838.2      LineCode=304  Length=4.86
-New Line.L32    Phases=3 Bus1=888.1.2.3  Bus2=890.1.2.3  LineCode=300  Length=10.56
+New Line.L28    Phases=1 Bus1=858.1      Bus2=864.1      LineCode=303  Length=1.62   units=kft
+New Line.L29    Phases=3 Bus1=858.1.2.3  Bus2=834.1.2.3  LineCode=301  Length=5.83   units=kft
+New Line.L30    Phases=3 Bus1=860.1.2.3  Bus2=836.1.2.3  LineCode=301  Length=2.68   units=kft
+New Line.L31    Phases=1 Bus1=862.2      Bus2=838.2      LineCode=304  Length=4.86   units=kft
+New Line.L32    Phases=3 Bus1=888.1.2.3  Bus2=890.1.2.3  LineCode=300  Length=10.56   units=kft
 
 ! Capacitors
 New Capacitor.C844      Bus1=844        Phases=3        kVAR=300        kV=24.9
