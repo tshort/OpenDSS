@@ -1,0 +1,21 @@
+//--------------------------------------------------------------------------------------------------//
+// Dados das cargas
+
+New Load.671 Bus1=671.1.2.3  Phases=3 Conn=Delta Model=1 daily=1 kV=4.16   kW=1155 kvar=660 
+New Load.634a Bus1=634.1     Phases=1 Conn=Wye  Model=1 daily=2 kV=0.277  kW=160   kvar=110 
+New Load.634b Bus1=634.2     Phases=1 Conn=Wye  Model=1 daily=2 kV=0.277  kW=120   kvar=90 
+New Load.634c Bus1=634.3     Phases=1 Conn=Wye  Model=1 daily=2 kV=0.277  kW=120   kvar=90 
+New Load.645 Bus1=645.2       Phases=1 Conn=Wye  Model=1 daily=2 kV=2.4      kW=170   kvar=125 
+New Load.646 Bus1=646.2.3    Phases=1 Conn=Delta Model=2 daily=2 kV=4.16    kW=230   kvar=132 
+New Load.692 Bus1=692.3.1    Phases=1 Conn=Delta Model=5 daily=2 kV=4.16    kW=170   kvar=151 
+New Load.675a Bus1=675.1    Phases=1 Conn=Wye  Model=1 daily=2 kV=2.4  kW=485   kvar=190 
+New Load.675b Bus1=675.2    Phases=1 Conn=Wye  Model=1 daily=2 kV=2.4  kW=68   kvar=60 
+New Load.675c Bus1=675.3    Phases=1 Conn=Wye  Model=1 daily=2 kV=2.4  kW=290   kvar=212 
+New Load.611 Bus1=611.3      Phases=1 Conn=Wye  Model=5 daily=2 kV=2.4  kW=170   kvar=80 
+New Load.652 Bus1=652.1      Phases=1 Conn=Wye  Model=2 daily=2 kV=2.4  kW=128   kvar=86 
+New Load.670a Bus1=670.1    Phases=1 Conn=Wye  Model=1 daily=2 kV=2.4  kW=17    kvar=10 
+New Load.670b Bus1=670.2    Phases=1 Conn=Wye  Model=1 daily=2 kV=2.4  kW=66    kvar=38 
+New Load.670c Bus1=670.3    Phases=1 Conn=Wye  Model=1 daily=2 kV=2.4  kW=117  kvar=68 
+
+
+//--------------------------------------------------------------------------------------------------//

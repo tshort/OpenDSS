@@ -1,0 +1,39 @@
+! define a wind power time series
+
+new LoadShape.3 npts=24 interval=1 mult=(File=LoadShape3.csv)
+
+new generator.WIND bus1=trafo_wind kv=0.69 kw=750 kva=1000 daily=3 model=6
+~ usermode=indmach012a userdata=(Rs=0.00046, Xs=0.1202, Rr=0.10993, Xr=0.18084, Xm=6.84)
+ 
+
+New Transformer.wind_up  phases=3 xhl=5.750000  
+~ wdg=1 bus=trafo_wind kV=0.69 kVA=750.000000 conn=wye
+~ wdg=2 bus=680 kV=4.16 kVA=750.000000 conn=wye
+
+/*
+//------------------------------------------------------------------------------------------------------------------------------//
+// Dados do regulador.
+
+//Fase A
+New Transformer.wind_upA phases=1 xhl=0.01 
+~ wdg=1 bus=trafo_wind.1   kV=0.39837   kva=300      
+~ wdg=2 bus=680.1   kV=2.4017    kva=300     
+!New regcontrol.wind_upA  transformer=wind_upA
+!~ winding=1  vreg=122  band=2  ptratio=3.26 
+
+//Fase B
+New Transformer.wind_upB phases=1 xhl=0.01 
+~ wdg=1 bus=trafo_wind.2   kV=0.39837    kva=300        
+~ wdg=2 bus=680.2   kV=2.4017   kva=300     
+!New regcontrol.wind_upB  transformer=wind_upB
+!~ winding=1  vreg=122  band=2  ptratio=3.26 
+
+//Fase C
+New Transformer.wind_upC phases=1 xhl=0.01 
+~ wdg=1 bus=trafo_wind.3   kV=0.39837    kva=300        
+~ wdg=2 bus=680.3   kV=2.4017    kva=300     
+!New regcontrol.wind_upC  transformer=wind_upC
+!~ winding=1  vreg=122  band=2  ptratio=3.26 
+
+//------------------------------------------------------------------------------------------------------------------------------//
+*/

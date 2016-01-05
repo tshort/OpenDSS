@@ -1,0 +1,13 @@
+
+New Loadshape.storageShape  npts=24  interval=1 mult=[0 0 -1 -1 -1 -1 -1 0 0 0 0 0 0 0 0 0 0.8 0.9 0.94 1 0.94 0 0 0]
+
+! Define the storage element and dispatch it in "follow" mode
+
+New Storage.Battery phases=3 Bus1=680 kV=4.16     kWrated=350  kWhrated=2000 
+~ dispmode=follow  daily=storageShape
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+// P-T curve is per unit of rated Pmpp vs temperature
+// This one is for a Pmpp stated at 25 deg
+New XYCurve.MyPvsT npts=4  xarray=[0  25  75  100]  yarray=[1.2 1.0 0.8  0.6] 
+
+// efficiency curve is per unit eff vs per unit power
+New XYCurve.MyEff npts=4  xarray=[.1  .2  .4  1.0]  yarray=[.86  .9  .93  .97]  
+
+// per unit irradiance curve (per unit if "irradiance" property)
+New Loadshape.MyIrrad npts=24 interval=1 mult=[0 0 0 0 0 0 .1 .2 .3  .5  .8  .9  1.0  1.0  .99  .9  .7  .4  .1 0  0  0  0  0]
+
+// 24-hr temp shape curve
+New Tshape.MyTemp npts=24 interval=1 temp=[25, 25, 25, 25, 25, 25, 25, 25, 35, 40, 45, 50  60 60  55 40  35  30  25 25 25 25 25 25]
+
+
+
+// pv definition
+
+!New PVSystem.PV phases=3 bus1=trafo_pv kV=0.48  kVA=2000  irrad=.98  Pmpp=1800 temperature=25 PF=1 %cutin=0.1 %cutout=0.1  effcurve=Myeff  P-TCurve=MyPvsT Daily=MyIrrad  TDaily=MyTemp !default for inverter is unity PF
+
+New PVSystem.PV phases=3 bus1=trafo_pv kV=0.48  kVA=600  irrad=.98  Pmpp=500 temperature=25 PF=1 %cutin=0.1 %cutout=0.1  effcurve=Myeff  P-TCurve=MyPvsT Daily=MyIrrad  TDaily=MyTemp !default for inverter is unity PF
+
+
+
+
+New Transformer.pv_up  phases=3 xhl=5.750000  
+~ wdg=1 bus=trafo_pv kV=0.48 kVA=750.000000 conn=wye
+~ wdg=2 bus=680 kV=4.16 kVA=750.000000 conn=wye
+
+
+
+

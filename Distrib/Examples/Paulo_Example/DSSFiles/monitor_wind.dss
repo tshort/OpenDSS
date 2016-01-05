@@ -1,0 +1,2 @@
+New monitor.wind_voltage element=Transformer.wind_up terminal=1  mode=0 ppolar=no
+New monitor.wind_power element=Transformer.wind_up terminal=1  mode=1 ppolar=no

@@ -1,0 +1,15 @@
+//--------------------------------------------------------------------------------------------------//
+//Dados das linhas.
+//Obeservação: Na barra 670 é colocado o equivalente da carga distribuída. 
+
+New Line.650632    Phases=3 Bus1=Reg.1.2.3    Bus2=632.1.2.3  LineCode=601 Length=2000 units=ft 
+New Line.632670    Phases=3 Bus1=632.1.2.3    Bus2=670.1.2.3  LineCode=601 Length=667  units=ft    
+New Line.670671    Phases=3 Bus1=670.1.2.3    Bus2=671.1.2.3  LineCode=601 Length=1333 units=ft 
+New Line.671680    Phases=3 Bus1=671.1.2.3    Bus2=680.1.2.3  LineCode=601 Length=1000 units=ft 
+New Line.632633    Phases=3 Bus1=632.1.2.3    Bus2=633.1.2.3  LineCode=602 Length=500  units=ft 
+New Line.632645    Phases=2 Bus1=632.3.2      Bus2=645.3.2    LineCode=603 Length=500  units=ft 
+New Line.645646    Phases=2 Bus1=645.3.2      Bus2=646.3.2    LineCode=603 Length=300  units=ft 
+New Line.692675    Phases=3 Bus1=692.1.2.3    Bus2=675.1.2.3  LineCode=606 Length=500  units=ft 
+New Line.671684    Phases=2 Bus1=671.1.3      Bus2=684.1.3    LineCode=604 Length=300  units=ft 
+New Line.684611    Phases=1 Bus1=684.3        Bus2=611.3      LineCode=605 Length=300  units=ft 
+New Line.684652    Phases=1 Bus1=684.1        Bus2=652.1      LineCode=607 Length=800  units=ft 

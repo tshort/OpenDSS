@@ -1,0 +1,4 @@
+Export monitors subestacaop
+Plot monitor object= subestacaop channels=(1 3 5 )
+Export monitors subestacaop
+Plot monitor object= subestacaop channels=(2 4 6 )

@@ -1,0 +1,6 @@
+Export monitors wind_voltage
+Plot monitor object= wind_voltage channels=(1 3 5 ) bases=[398.37 398.37 398.37]
+Export monitors wind_power
+Plot monitor object= wind_power channels=(1 3 5 )
+Export monitors wind_power
+Plot monitor object= wind_power channels=(2 4 6 )

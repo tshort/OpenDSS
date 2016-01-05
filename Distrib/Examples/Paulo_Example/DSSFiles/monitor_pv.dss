@@ -1,0 +1,4 @@
+New monitor.solar_voltage element=transformer.pv_up terminal=1  mode=0 ppolar=no
+New monitor.solar_power element=transformer.pv_up terminal=1  mode=1 ppolar=no
+New monitor.solar element=PVSystem.PV terminal=1  mode=3 ppolar=no
+

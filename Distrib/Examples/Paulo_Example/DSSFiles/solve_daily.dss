@@ -1,0 +1,9 @@
+// Comandos para solução diária
+
+solve  maxcontrol=100
+
+
+set controlmode=static
+set mode=daily stepsize=1.0h number=24
+
+solve

@@ -1,0 +1,83 @@
+//--------------------------------------------------------------------------------------------------//
+// Escola Politécnica da USP
+// PEA
+// Autor
+//        Nome: Paulo Radatz
+//        NUSP: 6905560
+//------------------------------------------------------------------------------------------------------------------------------//
+
+//------------------------------------------------------------------------------------------------------------------------------//
+// Modelagem da rede teste IEEE 13 barras
+//------------------------------------------------------------------------------------------------------------------------------//
+
+// No Apêndice A do meu TCC se encontra toda a explicação para rodar os diferentes cenários.
+
+//------------------------------------------------------------------------------------------------------------------------------//
+//Reinicia o programa
+
+Clear
+
+//------------------------------------------------------------------------------------------------------------------------------//
+// Files que descrevem o circuito
+
+Redirect subestacao.dss  
+Redirect linecodes.dss
+Redirect lines.dss
+Redirect loadshape.dss
+Redirect loads.dss
+Redirect capacitors.dss
+Redirect transformer_sub.dss
+Redirect transformer.dss
+Redirect regulators.dss
+Redirect switches.dss
+
+!Redirect wind_power.dss
+!Redirect wind_control.dss
+
+!Redirect pvsystemexample.dss
+!Redirect volt_var_pv.dss
+
+Redirect storage_power.dss
+
+Redirect tensao_base.dss
+
+!Redirect solve_snapshot.dss
+
+Redirect monitor_sub.dss
+!Redirect monitor_wind.dss
+!Redirect monitor_pv.dss
+Redirect monitor_storage.dss
+
+
+Redirect solve_daily.dss
+
+!Transformer.RegFaseA.Taps=[1.0 1.0]
+!Transformer.RegFaseB.Taps=[1.0 1.0]
+!Transformer.RegFaseC.Taps=[1.0 1.0]
+!Set Controlmode=OFF
+
+!solve  maxcontrol=100
+
+//--------------------------------------------------------------------------------------------------//
+//Opções de cálculo
+
+!set controlmode=static
+!set mode=daily stepsize=1.0h number=21
+!set mode=daily stepsize=1.0h number=45
+
+
+!solve
+
+
+//Redirect solve_old
+Redirect command_monitor_sub.dss
+!Redirect command_monitor_wind.dss
+!Redirect command_monitor_pv.dss
+Redirect command_monitor_storage.dss
+
+
+!export profile
+
+
+!plot profile phases
+
