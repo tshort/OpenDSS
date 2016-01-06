@@ -2,6 +2,11 @@ This folder contains an example based on the IEEE 13-bus test feeder developed b
 
 There is vibrant OpenDSS user community in Brazil that should welcome this contribution. It should also serve to inspire other users, particularly student users, around the world.
 
+See the YouTube tutorial at:
+
+https://www.youtube.com/watch?v=DfzIg1pCDuk&list=PLhdRxvt3nJ8zPYT9gH8rWPLFv3pPEhEtz
+
+
 If you would like to contact the author, the e-mail address is:
 
 paulo.radatz@gmail.com
