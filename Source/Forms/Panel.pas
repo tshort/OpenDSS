@@ -248,6 +248,7 @@ type
     Generators3: TMenuItem;
     PVSystems1: TMenuItem;
     Storage1: TMenuItem;
+    P1: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DSSHelp1Click(Sender: TObject);
     procedure AboutDSS1Click(Sender: TObject);
@@ -423,6 +424,7 @@ type
     procedure Generators3Click(Sender: TObject);
     procedure PVSystems1Click(Sender: TObject);
     procedure Storage1Click(Sender: TObject);
+    procedure P1Click(Sender: TObject);
   private
     { Private declarations }
     PlotOptionString:String;
@@ -2247,6 +2249,11 @@ begin
         Screen.Cursor := crDefault;
       End;
 
+end;
+
+procedure TControlPanel.P1Click(Sender: TObject);
+begin
+    ActiveScriptForm.ExecuteDSSCommand('Plot Profile Phases=All');
 end;
 
 procedure TControlPanel.Phase1Click(Sender: TObject);
