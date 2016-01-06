@@ -1174,6 +1174,7 @@ begin
            16: Result := Format('%-g', [Rg]);
            17: Result := Format('%-g', [Xg]);
            18: Result := Format('%-g', [Rho]);
+           20: Result := LineUnitsStr(LengthUnits);
            23: Result := GetEarthModel(FEarthModel);
            26: If SymComponentsModel Then Result := Format('%.7g', [twopi * Basefrequency * C1 * 1.0e6]) else Result := '----';
            27: If SymComponentsModel Then Result := Format('%.7g', [twopi * Basefrequency * C0 * 1.0e6]) else Result := '----';
@@ -1320,11 +1321,17 @@ begin
         For i := 2 to FnPhases Do
         For j := i+1 to FnPhases Do  Cm := Cm + Yc.GetElement(i,j).im;
         C1_new := (Cs - Cm)/TwoPi/BaseFrequency/(Fnphases*(FnPhases-1.0)/2.0) * 1.0e9; // nanofarads
+
+        // compensate for length units
+        Z1 := CDivReal(Z1, FunitsConvert);
+        C1_New := C1_New/FunitsConvert;
       end;
       S := Format(' R1=%-.5g  %-.5g  C1=%-.5g Phases=1',[Z1.re, Z1.im, C1_new]);
     end;
     // Conductor Current Ratings
     S := S + Format(' Normamps=%-.5g  %-.5g',[NormAmps, EmergAmps]);
+    // Repeat the Length Units to compensate for unexpected reset
+    S := S + ' Units=' + LineUnitsStr(LengthUnits);
     Parser.CmdString := S;
     Edit;
   End;

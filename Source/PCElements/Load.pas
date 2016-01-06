@@ -2210,6 +2210,7 @@ begin
 
   S := S + Format(' kV=%-.5g',[V]);
 
+(* OLD Method
   // Divide the load by no. phases
   If Fnphases>1 Then
   Begin
@@ -2217,6 +2218,15 @@ begin
       If FConnectedKVA>0.0 Then
          S := S + Format(' xfkVA=%-.5g  ',[FConnectedkVA/Fnphases]);
   End;
+*)
+
+// New Method: Assume load is distributed equally among the 3 phases -- works better
+//1-5-2016 RCD
+
+  S := S + Format(' kW=%-.5g  kvar=%-.5g',[kWbase/3.0, kvarbase/3.0]);
+  If FConnectedKVA>0.0 Then
+     S := S + Format(' xfkVA=%-.5g  ',[FConnectedkVA/3.0]);
+
 
   Parser.CmdString := S;
   Edit;
