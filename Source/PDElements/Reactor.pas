@@ -1061,12 +1061,13 @@ Var
         i,j:Integer;
 
 begin
-    If FnPhases>1 Then
+    {If FnPhases>1 Then }
     Begin
+        S := ' ';
         CASE SpecType OF
 
          1:BEGIN // kvar
-              kvarPerPhase := kvarRating/Fnphases;
+              kvarPerPhase := kvarRating/3.0;  // divide among 3 phases Fnphases;
               If (FnPhases>1) or ( Connection<>0) Then  PhasekV := kVRating / SQRT3
               Else PhasekV := kVRating;
 
@@ -1077,7 +1078,7 @@ begin
          2:BEGIN // R + j X
               S := 'Phases=1 ';
            END;
-         3:BEGIN // Matrices
+         3:If FnPhases>1 Then BEGIN // Matrices
               S := 'Phases=1 ';
               // R1
               Rs := 0.0;   // Avg Self

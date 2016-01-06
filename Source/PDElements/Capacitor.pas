@@ -754,8 +754,10 @@ Var
         i,j:Integer;
 
 begin
-    If FnPhases>1 Then
+    {If FnPhases>1 Then -- do same for 1-phase, too}
     Begin
+
+        S := ' ';
         CASE SpecType OF
 
          1:BEGIN // kvar
@@ -765,8 +767,9 @@ begin
 
               S := 'Phases=1 ' + Format(' kV=%-.5g kvar=(',[PhasekV]);
 
+              // 1-6-16  do caps Like load ...
               For i := 1 to FNumSteps Do Begin
-                kvarPerPhase := FkvarRating^[i]/Fnphases;
+                kvarPerPhase := FkvarRating^[i]/3.0;  // divide the total kvar equally among3 phases.../Fnphases;
                 S := S+ Format(' %-.5g',[kvarPerPhase]);
               End;
 
@@ -778,7 +781,7 @@ begin
          2:BEGIN //
               S := 'Phases=1 ';
            END;
-         3:BEGIN //  C Matrix
+         3:If FnPhases>1 Then BEGIN //  C Matrix
               S := 'Phases=1 ';
               // R1
               Cs := 0.0;   // Avg Self
