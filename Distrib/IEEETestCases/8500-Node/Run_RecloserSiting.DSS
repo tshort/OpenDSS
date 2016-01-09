@@ -1,0 +1,18 @@
+Compile (master.dss)
+
+New Energymeter.m1 Line.ln5815900-1 1
+
+// Define a relay at the substation with default TCC Curves and high pickup values to get by solution
+// without tripping
+New Relay.SubBreaker Line.ln5815900-1 1  PhaseCurve=D GroundCurve=A PhaseTrip=600 GroundTrip=600
+
+Set Maxiterations=20     ! Sometimes the solution takes more than the default 15 iterations
+
+Solve
+
+// Set the triplex failure rate to zero so it does not affect the relcalc
+Redirect TplxFaultrate.dss  ! set to zero
+
+// Stick some fuses on
+Redirect Fuses.DSS
+interpolate  ! to get rid of gaps in circuit plotting
