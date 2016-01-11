@@ -2464,7 +2464,7 @@ end;
 function TPVsystemObj.Get_VWYAxis: Integer;
 
 begin
-      If FVWYAxis = 1 Then Result := 1 else Result := 0;    // TRUE if volt-watt mode
+      Result := FVWYAxis;
                                                               //  engaged from InvControl (not ExpControl)
 end;
 
