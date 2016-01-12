@@ -276,8 +276,8 @@ Begin
                          'voltage that the reclose occurs. ' +
                          'Reverse power relay is one shot to lockout, '+
                          'so this is ignored.  A locked out relay must be closed manually (set action=close).');
-     AddProperty( 'Delay', 24, 'Trip time delay (sec) for definite time relays. Default is 0.0 for current and voltage relays.  If >0 then this value is used instead of curves. '+
-                                       ' Used exclusively by RevPower, 46 and 47 relays at this release. Defaults to 0.1 s for these relays.');
+     AddProperty( 'Delay', 24, 'Trip time delay (sec) for DEFINITE TIME relays. Default is 0.0 for current and voltage relays.  If >0 then this value is used instead of curves. '+
+                                       ' Used by Generic, RevPower, 46 and 47 relays. Defaults to 0.1 s for these relays.');
      AddProperty( 'Overvoltcurve', 15, 'TCC Curve object to use for overvoltage relay.  Curve is assumed to be defined with per unit voltage values. '+
                          'Voltage base should be defined for the relay. Default is none (ignored).');
      AddProperty( 'Undervoltcurve', 16, 'TCC Curve object to use for undervoltage relay.  Curve is assumed to be defined with per unit voltage values. '+
@@ -296,7 +296,7 @@ Begin
      AddProperty('overtrip', 26, 'Trip setting (high value) for Generic relay variable.  Relay trips in definite time if value of variable exceeds this value.');
      AddProperty('undertrip',27,'Trip setting (low value) for Generic relay variable.  Relay trips in definite time if value of variable is less than this value.');
      AddProperty('Breakertime',18, 'Fixed delay time (sec) added to relay time. Default is 0.0. Designed to represent breaker time or some other delay after a trip decision is made.' +
-                         'Use Delay_Time property for setting a fixed trip time delay.' +
+                         'Use Delay property for setting a fixed trip time delay.' +
                          'Added to trip time of current and voltage relays. Could use in combination with inst trip value to obtain a definite time overcurrent relay.');
      AddProperty( 'action', 19, '{Trip/Open | Close}  Action that overrides the relay control. Simulates manual control on breaker. ' +
                          '"Trip" or "Open" causes the controlled element to open and lock out. ' +
