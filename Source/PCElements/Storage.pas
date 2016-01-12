@@ -2,7 +2,7 @@ unit Storage;
 
 {
   ----------------------------------------------------------
-  Copyright (c) 2009-2015, Electric Power Research Institute, Inc.
+  Copyright (c) 2009-2016, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 }
@@ -1303,9 +1303,11 @@ Begin
 
           SetKWandKvarOut;   // Based on State and amount of energy left in storage
 
-          {Pnominalperphase is net at the terminal.  When discharging, the storage supplies the idling losses.
+          {
+           Pnominalperphase is net at the terminal.  When discharging, the storage supplies the idling losses.
            When charging, the idling losses are subtracting from the amount entering the storage element.
           }
+
           Pnominalperphase   := 1000.0 * kW_out    / Fnphases;
 
           IF Fstate = STORE_IDLING  THEN
@@ -1326,7 +1328,10 @@ Begin
         //****  Fix this when user model gets connected in
                        3: // Yeq := Cinv(cmplx(0.0, -StoreVARs.Xd))  ;  // Gets negated in CalcYPrim
                   ELSE
-                     {Yeq no longer used for anything other than this calculation of Yeq95, Yeq105}
+                     {
+                      Yeq no longer used for anything other than this calculation of Yeq95, Yeq105 and
+                      constant Z power flow model
+                     }
                       Yeq  := CDivReal(Cmplx(Pnominalperphase, -Qnominalperphase), Sqr(Vbase));   // Vbase must be L-N for 3-phase
                       If   (Vminpu <> 0.0) Then Yeq95 := CDivReal(Yeq, sqr(Vminpu))  // at 95% voltage
                                            Else Yeq95 := Yeq; // Always a constant Z model
@@ -1775,6 +1780,7 @@ VAR
 Begin
 
 // Assume Yeq is kept up to date
+
     CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
     CalcVTerminalPhase; // get actual voltage across each phase of the load
     ZeroITerminal;
@@ -1832,7 +1838,7 @@ PROCEDURE TStorageObj.DoDynamicMode;
 
 {Compute Total Current and add into InjTemp}
 {
-   For now, just assume the storage element is constant power
+   For now, just assume the storage element Thevenin voltage is constant
    for the duration of the dynamic simulation.
 }
 {****}
@@ -1859,7 +1865,9 @@ Begin
         CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
         ZeroITerminal;
 
-       // Simple Thevenin equivalen
+       // Simple Thevenin equivalent
+       // compute terminal current (Iterminal) and take out the Yprim contribution
+
         With StorageVars Do
         case Fnphases of
             1:Begin

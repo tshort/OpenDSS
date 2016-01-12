@@ -1379,7 +1379,7 @@ Begin
    FreqMultiplier := FYprimFreq / BaseFrequency;
 
    With  ActiveCircuit.solution  Do
-   IF {IsDynamicModel or} IsHarmonicModel
+   IF IsDynamicModel or IsHarmonicModel
    Then Begin
        {YEQ is computed from %R and %X -- inverse of Rthev + j Xthev}
            Y  := YEQ;   // L-N value computed in initialization routines

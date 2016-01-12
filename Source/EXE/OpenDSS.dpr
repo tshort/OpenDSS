@@ -147,12 +147,9 @@ uses
   VSource in '..\PCElements\VSource.pas',
   WireData in '..\General\WireData.pas',
   XfmrCode in '..\General\XfmrCode.pas',
-  Ymatrix in '..\Common\Ymatrix.pas' {,
-  TempShape in '..\General\TempShape.pas',
-  XYcurve in '..\General\XYcurve.pas',
-  PriceShape in '..\General\PriceShape.pas';
+  Ymatrix in '..\Common\Ymatrix.pas' ,
 
-{$R *.RES},
+{$R *.RES}
   TempShape in '..\General\TempShape.pas',
   XYcurve in '..\General\XYcurve.pas',
   PriceShape in '..\General\PriceShape.pas',
