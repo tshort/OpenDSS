@@ -1462,7 +1462,12 @@ Begin
                     ELSE With Genvars Do Curr := Conjg(Cdiv(Cmplx(Pnominalperphase, Qnominalperphase), V));  // Between 95% -105%, constant PQ
                  End;
               1: Begin  {Delta}
-                    VMag := VMag/SQRT3;  // L-N magnitude
+                    case Fnphases of
+                         2, 3: VMag := VMag/SQRT3;  // L-N magnitude
+                    else
+                        {leave Vmag as is}
+                    end;
+
                     IF   VMag <= VBase95
                     THEN Curr := Cmul(CdivReal(Yeq95, 3.0), V)  // Below 95% use an impedance model
                     ELSE If VMag > VBase105
@@ -1581,7 +1586,11 @@ Begin
                 ELSE Curr := Conjg(Cdiv(Cmplx(Genvars.Pnominalperphase, varBase), V));
               End;
             1:Begin
-                Vmag := Vmag/SQRT3;  // Convert to L-N for test
+                case Fnphases of
+                     2, 3: VMag := VMag/SQRT3;  // L-N magnitude
+                else
+                    {leave Vmag as is}
+                end;
                 IF   VMag <= VBase95
                 THEN Curr := Cmul(Cmplx(Yeq95.re/3.0, YQfixed/3.0), V)  // Below 95% use an impedance model
                 ELSE IF VMag > VBase105
@@ -1629,7 +1638,11 @@ Begin
                   End;
                End;
             1:Begin
-                  Vmag := Vmag / SQRT3; // Convert to L-N for test
+                  case Fnphases of
+                       2, 3: VMag := VMag/SQRT3;  // L-N magnitude
+                  else
+                      {leave Vmag as is}
+                  end;
                   IF   Vmag <= VBase95
                   THEN Curr := Cmul(Cmplx(Yeq95.re/3.0, YQfixed/3.0), V)  // Below 95% use an impedance model
                   ELSE IF VMag > VBase105

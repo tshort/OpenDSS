@@ -1728,7 +1728,11 @@ Begin
                           DeltaCurr := Conjg( Cdiv( PhaseCurrentLimit, CDivReal(VLL, VMagLL/SQRT3)) );
                     End Else Begin
                        {The usual model}
-                        VMagLN := VmagLL/SQRT3;
+                        case Fnphases of
+                            2,3: VMagLN := VmagLL/SQRT3;
+                        else
+                            VMagLN := VmagLL;
+                        end;
                         IF   VMagLN <= VBaseMin
                              THEN DeltaCurr := Cmul(CdivReal(YEQ_Min, 3.0), VLL)  // Below 95% use an impedance model
                         ELSE If VMagLN > VBaseMax
