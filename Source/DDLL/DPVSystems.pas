@@ -150,6 +150,25 @@ begin
                End;
            End;
      End;
+  end;
+  7: begin  // PVSystems.kVARated read
+     Result := -1.0;  // not set
+     IF ActiveCircuit<> NIL THEN Begin
+           WITH ActiveCircuit.PVSystems Do Begin
+               IF ActiveIndex<>0 THEN Begin
+                   Result := TPVSystemObj(Active).kVARating ;
+               End;
+           End;
+     End;
+  end;
+  8: begin  // PVSystems.kVARated write
+     IF ActiveCircuit<> NIL THEN Begin
+           WITH ActiveCircuit.PVSystems Do Begin
+               IF ActiveIndex<>0 THEN Begin
+                    TPVSystemObj(Active).kVARating  := arg;
+               End;
+           End;
+     End;
   end
   else
       Result:=-1.0;
