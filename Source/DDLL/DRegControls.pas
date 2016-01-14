@@ -119,6 +119,14 @@ begin
   12: begin  // RegControls.Count
       If Assigned(Activecircuit) Then
          Result := ActiveCircuit.RegControls.ListSize;
+  end;
+  13: begin  // RegControls.TapNumber read
+      Result := 0;
+      elem := ActiveRegControl;
+      if elem <> nil then Result := elem.TapNum;  // tap number on the controlled-winding of the transformer controlled by this regcontrol
+  end;
+  14: begin  // RegControls.TapNumber write
+      Set_Parameter ('TapNum', IntToStr (arg));
   end
   else
       Result:=-1;
