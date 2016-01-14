@@ -188,10 +188,31 @@ procedure LoadShapeV(mode:longint; out arg:Olevariant);stdcall;
 
 Var
    i, k, LoopLimit: Integer;
+   elem: TLoadshapeObj;
+   pList: TPointerList;
 
 begin
   case mode of
-  0: begin  // LoadShapes.PMult read
+  0: begin  // LoadShapes.AllNames
+     arg := VarArrayCreate([0, 0], varOleStr);
+      arg[0] := 'NONE';
+      IF ActiveCircuit <> Nil THEN
+      Begin
+          If LoadShapeClass.ElementList.ListSize > 0 then
+          Begin
+            pList := LoadShapeClass.ElementList;
+            VarArrayRedim(arg, pList.ListSize -1);
+            k:=0;
+            elem := pList.First;
+            WHILE elem<>Nil DO Begin
+                arg[k] := elem.Name;
+                Inc(k);
+                elem := pList.next        ;
+            End;
+          End;
+      End;
+  end;
+  1: begin  // LoadShapes.PMult read
         arg := VarArrayCreate([0, 0], varDouble);
         arg[0] := 0.0;  // error condition: one element array=0
         If ActiveCircuit <> Nil Then
@@ -205,7 +226,7 @@ begin
             End;
          End;
   end;
-  1: begin  // LoadShapes.PMult write
+  2: begin  // LoadShapes.PMult write
     If ActiveCircuit <> Nil Then
      Begin
         If ActiveLSObject <> Nil Then With ActiveLSObject Do Begin
@@ -228,7 +249,7 @@ begin
         End;
      End;
   end;
-  2: begin  // LoadShapes.QMult read
+  3: begin  // LoadShapes.QMult read
         arg := VarArrayCreate([0, 0], varDouble);
         arg[0] := 0.0;  // error condition: one element array=0
         If ActiveCircuit <> Nil Then
@@ -247,7 +268,7 @@ begin
             End;
          End;
   end;
-  3: begin  // LoadShapes.QMult write
+  4: begin  // LoadShapes.QMult write
     If ActiveCircuit <> Nil Then
      Begin
         If ActiveLSObject <> Nil Then With ActiveLSObject Do Begin
@@ -270,7 +291,7 @@ begin
         End;
      End;
   end;
-  4: begin   // LoadShapes.Timearray read
+  5: begin   // LoadShapes.Timearray read
         arg := VarArrayCreate([0, 0], varDouble);
         arg[0] := 0.0;  // error condition: one element array=0
         If ActiveCircuit <> Nil Then
@@ -286,7 +307,7 @@ begin
             End;
          End;
   end;
-  5: begin   // LoadShapes.Timearray write
+  6: begin   // LoadShapes.Timearray write
     If ActiveCircuit <> Nil Then
      Begin
         If ActiveLSObject <> Nil Then With ActiveLSObject Do Begin
