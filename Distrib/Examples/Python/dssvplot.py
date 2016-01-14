@@ -37,6 +37,8 @@ class DSS:
         self.text.Command = "clear"
         self.circuit = self.engine.ActiveCircuit
 
+        print self.engine.Version
+
 
 # if filename is not empty, then compile the .dss file specified
 # note:  filename includes the path and the .dss file name
@@ -46,7 +48,7 @@ class DSS:
 # note:  if compilation is successful we have a circuit instance
 # that represents the electric circuit that is being modeled
         if filename != "":
-            self.text.Command = "compile " + filename
+            self.text.Command = "compile [" + filename + "]"
             self.text.Command = "New EnergyMeter.Feeder Line.L115 1"
             self.text.Command = "solve"
             self.text.Command = "Buscoords Buscoords.dat"   # load in bus coordinates
