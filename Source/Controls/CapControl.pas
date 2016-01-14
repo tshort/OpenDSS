@@ -1049,7 +1049,7 @@ begin
                                   End;
 
                           CTRL_CLOSE:  IF OFF_Value > ON_Value Then Begin
-                                      IF (NormalizedTime ) >= OFF_Value
+                                      IF (NormalizedTime >= OFF_Value) or (NormalizedTime < ON_Value)
                                       THEN Begin
                                              PendingChange := CTRL_OPEN;
                                              ShouldSwitch := TRUE;
