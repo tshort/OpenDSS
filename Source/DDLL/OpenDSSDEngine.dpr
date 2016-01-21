@@ -240,6 +240,7 @@ begin
 {Library initialization code}
 {Intialize the internal interfaces so they're ready to go}
   IsDLL := TRUE;
+  IsMultiThread := True;
 {Create one instance of DSS executive whenever the DSS Engine is init'd}
   DSSExecutive := TExecutive.Create;  // Start the DSS when DSS interface is created
   DSSExecutive.CreateDefaultDSSItems;
