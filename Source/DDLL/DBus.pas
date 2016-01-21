@@ -157,7 +157,7 @@ end;
 function BUSS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
 begin
   case mode of
-  0: begin                                           // Bus.Name
+  0: begin                                           // Bus.Name read
       Result :=pAnsiChar(AnsiString(''));
 
      If (ActiveCircuit <> Nil) Then With ActiveCircuit Do
