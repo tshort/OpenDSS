@@ -14,8 +14,8 @@ function SystemYChanged(mode, arg: longint): longint; Stdcall;
 procedure BuildYMatrixD(BuildOps, AllocateVI: longint); Stdcall;
 function UseAuxCurrents(mode, arg: longint): longint; Stdcall;
 procedure AddInAuxCurrents(SType: integer); Stdcall;
-procedure getIpointer(var IvectorPtr: pComplexArray);Stdcall;
-procedure getVpointer(var VvectorPtr: pComplexArray);Stdcall;
+procedure getIpointer(var IvectorPtr: pNodeVarray);Stdcall;
+procedure getVpointer(var VvectorPtr: pNodeVarray);Stdcall;
 function SolveSystem(var NodeV:pNodeVarray): integer; stdcall;
 
 
@@ -27,7 +27,7 @@ Var {Global variables in this Module}
    Yhandle, NumNZ, NumBuses : LongWord;
    YColumns,
    YRows   : pIntegerArray;
-   YValues, IVector, VVector : pComplexArray;
+   YValues : pComplexArray;
 
 
 Function InitAndGetYparams(var hY, nBus, nNZ:LongWord): Longword; StdCall;
@@ -132,16 +132,14 @@ begin
     ActiveCircuit.Solution.AddInAuxCurrents(SType);
 end;
 
-procedure getIpointer(var IvectorPtr: pComplexArray);Stdcall;
+procedure getIpointer(var IvectorPtr: pNodeVarray);Stdcall;
 begin
-     ReAllocmem(IVector,sizeof(IVector^[1])*NumNZ);
-     IVectorPtr:=IVector;
+     IVectorPtr:=ActiveCircuit.Solution.Currents;
 end;
 
-procedure getVpointer(var VvectorPtr: pComplexArray);Stdcall;
+procedure getVpointer(var VvectorPtr: pNodeVarray);Stdcall;
 begin
-     ReAllocmem(VVector,sizeof(VVector^[1])*NumNZ);
-     VVectorPtr:=VVector;
+     VVectorPtr:=ActiveCircuit.Solution.NodeV;
 end;
 
 function SolveSystem(var NodeV:pNodeVarray): integer; stdcall;
