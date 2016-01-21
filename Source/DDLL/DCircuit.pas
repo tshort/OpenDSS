@@ -242,13 +242,13 @@ begin
       Result := pAnsiChar(AnsiString('-1'));
        IF ActiveCircuit <> NIL
        THEN Begin
-           Result := pAnsiChar(AnsiString(ActiveCircuit.SetElementActive(widestring(arg)) - 1));   // make zero based to be compatible with collections and variant arrays
+           Result := pAnsiChar(AnsiString(Inttostr(ActiveCircuit.SetElementActive(widestring(arg)) - 1)));   // make zero based to be compatible with collections and variant arrays
        End
        ELSE DoSimpleMsg('Create a circuit before trying to set an element active!', 5015);
   end;
   4: begin                                             // Circuit.SetActiveBus
      DSSGlobals.SetActiveBus(StripExtension(widestring(arg)));
-     If Assigned(Activecircuit) then Result := pAnsiChar(AnsiString(ActiveCircuit.ActiveBusIndex - 1)) Else Result := pAnsiChar(AnsiString('-1'));
+     If Assigned(Activecircuit) then Result := pAnsiChar(AnsiString(InttoStr(ActiveCircuit.ActiveBusIndex - 1))) Else Result := pAnsiChar(AnsiString('-1'));
   end;
   5: begin                                             // Circuit.SetActiveClass
      Result := pAnsiChar(AnsiString('0'));
@@ -260,7 +260,7 @@ begin
 
      LastClassReferenced := DevClassIndex;
      ActiveDSSClass := DSSClassList.Get(LastClassReferenced);
-     Result := pAnsiChar(AnsiString(LastClassReferenced));
+     Result := pAnsiChar(AnsiString(InttoStr(LastClassReferenced)));
   end
   else
       Result:=pAnsiChar(AnsiString('Error, parameter not recognized'));
