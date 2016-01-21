@@ -85,20 +85,17 @@ TYPE
        FUNCTION Converged:Boolean;
        FUNCTION OK_for_Dynamics(const Value:Integer):Boolean;
        FUNCTION OK_for_Harmonics(const Value:Integer):Boolean;
-       Function SolveSystem(V:pNodeVArray):Integer;
 
-       PROCEDURE AddInAuxCurrents(SolveType:Integer);
+
+
        PROCEDURE DoNewtonSolution;
        PROCEDURE DoNormalSolution;
 //       PROCEDURE GetMachineInjCurrents;
-       PROCEDURE GetPCInjCurr;
-       PROCEDURE GetSourceInjCurrents;
+       PROCEDURE SetGeneratordQdV;
+       PROCEDURE SumAllCurrents;
        procedure Set_Frequency(const Value: Double);
        PROCEDURE Set_Mode(const Value: Integer);
        procedure Set_Year(const Value: Integer);
-       PROCEDURE SetGeneratordQdV;
-       PROCEDURE SumAllCurrents;
-       PROCEDURE ZeroInjCurr;
 
      public
 
@@ -190,6 +187,14 @@ TYPE
        Property  Mode      :Integer  Read dynavars.SolutionMode Write Set_Mode;
        Property  Frequency :Double   Read FFrequency            Write Set_Frequency;
        Property  Year      :Integer  Read FYear                 Write Set_Year;
+
+ // Procedures that use to be private before 01-20-2016
+
+       PROCEDURE AddInAuxCurrents(SolveType:Integer);
+       Function SolveSystem(V:pNodeVArray):Integer;
+       PROCEDURE GetPCInjCurr;
+       PROCEDURE GetSourceInjCurrents;
+       PROCEDURE ZeroInjCurr;
 
    End;
 
