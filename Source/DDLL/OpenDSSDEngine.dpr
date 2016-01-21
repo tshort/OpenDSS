@@ -189,7 +189,8 @@ uses
   DISource in 'DISource.pas',
   DPVSystems in 'DPVSystems.pas',
   DVSources in 'DVSources.pas',
-  DDSS in 'DDSS.pas';
+  DDSS in 'DDSS.pas',
+  DYMatrix in 'DYMatrix.pas';
 
 //**************************end of the functions*************************************
 exports
@@ -229,7 +230,10 @@ exports
    IsourceI,IsourceF,IsourceS,IsourceV,
    PVsystemsI,PVsystemsF,PVsystemsS,PVsystemsV,
    VsourcesI,VsourcesF,VsourcesS,VsourcesV,
-   DSSI,DSSS,DSSV;
+   DSSI,DSSS,DSSV,
+   InitAndGetYparams,GetCompressedYMatrix,ZeroInjCurr,GetSourceInjCurrents,GetPCInjCurr,
+   SystemYChanged,BuildYMatrixD,UseAuxCurrents,AddInAuxCurrents,getIpointer,
+   getVpointer,SolveSystem;
 
 begin
 
