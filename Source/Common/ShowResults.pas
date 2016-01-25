@@ -1554,6 +1554,7 @@ Var
    GFault, IFault :complex;
    Vphs    :Double;
    CurrMag :Double;
+   S       :String;
 
 Begin
 
@@ -1598,7 +1599,7 @@ Begin
            Writeln(F,'ONE-Node to ground Faults');
            Writeln(F);
            Writeln(F,'                                      pu Node Voltages (L-N Volts if no base)');
-           Writeln(F, Pad('Bus',MaxBusNameLength), '   Node      Amps         Node 1     Node 2     Node 3    ...');
+           Writeln(F, Pad('Bus',MaxBusNameLength), '   Node  Amps         Node 1     Node 2     Node 3    ...');
            Writeln(F);
 
    { Solve for Fault Injection Currents}
@@ -1610,7 +1611,9 @@ Begin
 
              For iphs := 1 to NumNodesThisBus Do Begin
                    IFault := Cdiv(VBus[iphs], Zsc.GetElement (iphs, iphs));
-                   Write(F,Pad(EncloseQuotes(UpperCase(BusList.Get(iBus))),MaxBusNameLength+2), Iphs:4, Cabs(Ifault):12:0,'   ');
+
+                   S := Format('%s %4u %12.0f ',[Pad(EncloseQuotes(UpperCase(BusList.Get(iBus))),MaxBusNameLength+2), GetNum(iphs), Cabs(Ifault)]);
+                   Write(F, S, '   ');
                    For i := 1 to NumNodesThisBus Do Begin
                        Vphs :=  Cabs(Csub(VBus[i], Cmul(Zsc.GetElement(i, iphs), IFault )));
                        If kVbase>0.0 then Begin
@@ -1653,7 +1656,7 @@ Begin
                    YFault.Invert;
                    YFault.MvMult(VFault,BusCurrent);  {Gets voltage appearing at fault}
 
-                   Write(F,Pad(EncloseQuotes(UpperCase(BusList.Get(iBus))),MaxBusNameLength+2), Iphs:4,(Iphs+1):4, Cabs(Cmul(Csub(VFault^[iphs],VFault^[iphs+1]),GFault)):12:0,'   ');
+                   Write(F,Pad(EncloseQuotes(UpperCase(BusList.Get(iBus))),MaxBusNameLength+2), GetNum(Iphs):4, GetNum(Iphs+1):4, Cabs(Cmul(Csub(VFault^[iphs],VFault^[iphs+1]),GFault)):12:0,'   ');
                    For i := 1 to NumNodesThisBus Do Begin
                        Vphs :=  Cabs(VFault^[i]);
                        If kvbase > 0.0 then Begin
