@@ -2498,7 +2498,7 @@ Var
 begin
       If VWmode  then
           case FVWYAxis of
-               0: With PVSystemVars DO kW_Out := PanelkW * EffFactor*FpuPmpp;
+               0: With PVSystemVars DO kW_Out := PanelkW * EffFactor * FpuPmpp;
                1: Calc_kWOut;   // call local procedure
                2: With PVSystemVars DO
                   Begin
