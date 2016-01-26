@@ -4,7 +4,7 @@ from pylab import *
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.colors import ColorConverter
-import matplotlib.text as text
+import matplotlib.text as textds
 colorConverter = ColorConverter()
 import re
 
@@ -31,6 +31,7 @@ class DSS:
 # note: OpenDSSEngine.dll must already be registered
         self.engine = win32com.client.Dispatch("OpenDSSEngine.DSS")
         self.engine.Start("0")
+
 
 # use the Text interface to OpenDSS
         self.text = self.engine.Text
