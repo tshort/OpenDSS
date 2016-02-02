@@ -371,7 +371,7 @@ Begin
 
      PropertyHelp[31] := 'Max per unit tap for the active winding.  Default is 1.10';
      PropertyHelp[32] := 'Min per unit tap for the active winding.  Default is 0.90';
-     PropertyHelp[33] := 'Total number of taps between min and max tap.  Default is 32.';
+     PropertyHelp[33] := 'Total number of taps between min and max tap.  Default is 32 (16 raise and 16 lower taps about the neutral position). The neutral position is not counted.';
      PropertyHelp[34] := 'Substation Name. Optional. Default is null. If specified, printed on plots';
      PropertyHelp[35] := 'Percent magnetizing current. Default=0.0. Magnetizing branch is in parallel with windings in each phase. Also, see "ppm_antifloat".';
      PropertyHelp[36] := 'Default=1 ppm.  Parts per million of transformer winding VA rating connected to ground to protect against accidentally floating a winding without a reference. ' +
