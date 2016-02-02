@@ -17,7 +17,8 @@ uses DSSClassDefs,
      Exechelper,
      sysUtils,
      Executive,
-     Variants;
+     Variants,
+     ExecCommands, ExecOptions;
 
 function DSSI(mode:longint;arg:longint):longint;stdcall;
 begin
