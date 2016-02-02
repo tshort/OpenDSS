@@ -239,6 +239,7 @@ var
   lst: TPointerList;
 
 begin
+  Result:=pAnsiChar(AnsiString('0'));
   case mode of
   0: begin  // Transformers.XfmrCode read
       Result := pAnsiChar(AnsiString(''));
