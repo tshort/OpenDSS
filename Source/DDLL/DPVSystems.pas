@@ -17,7 +17,7 @@ Var
    pPVSystem:TpVSystemObj;
 
 begin
-  Result:=0;
+  Result:=0;    // Default return value
   case mode of
   0: begin  // PVSystems.Count
     If Assigned(Activecircuit) Then
@@ -82,7 +82,7 @@ end;
 //***************************Floating point type properties*************************
 function PVsystemsF(mode:longint;arg:double):double;stdcall;
 begin
-  Result:=0.0;
+  Result:=0.0;   // Default return value
   case mode of
   0: begin  // PVSystems.Irradiance read
      Result := -1.0;  // not set
@@ -186,6 +186,7 @@ Var
    Found :Boolean;
 
 begin
+  Result := pAnsiChar(AnsiString('0')); // Default return value
   case mode of
   0: begin  // PVSystems.Name read
        Result := pAnsiChar(AnsiString(''));

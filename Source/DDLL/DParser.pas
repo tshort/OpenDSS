@@ -15,7 +15,7 @@ Var ComParser : ParserDel.TParser;
 
 function ParserI(mode: longint; arg:longint):longint;stdcall;
 begin
-  Result:=0;
+  Result:=0;    // Default return value
   case mode of
   0: begin // Parser.IntValue
     Result := ComParser.IntValue ;
@@ -40,6 +40,7 @@ end;
 //***************************Floating point type properties*********************
 function ParserF(mode: longint; arg:double):double;stdcall;
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // Parser.DblValue
       Result := ComParser.DblValue ;
@@ -52,7 +53,7 @@ end;
 //***************************String type properties*****************************
 function ParserS(mode: longint; arg:pAnsiChar):pAnsiChar;stdcall;
 begin
-  Result := pAnsiChar(AnsiString(''));
+  Result := pAnsiChar(AnsiString('0')); // Default return value
   case mode of
   0: begin  // Parser.CmdString read
      Result := pAnsiChar(AnsiString(ComParser.CmdString));

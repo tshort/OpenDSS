@@ -12,6 +12,7 @@ var
 
 function DSSProperties(mode:longint; arg:pAnsiChar):pAnsiChar; stdcall;
 begin
+  Result := pAnsiChar(AnsiString('')); // Default return value
   case mode of
     0: begin                                           // DSSProperties.Name
       Result := pAnsiChar(AnsiString(''));

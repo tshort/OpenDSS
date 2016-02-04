@@ -34,6 +34,7 @@ var
   lst: TPointerList;
 
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin  // Transformers.NumWindings read
       Result := 0;
@@ -125,7 +126,7 @@ var
   elem: TTransfObj;
 
 begin
-  Result:=0.0;
+  Result:=0.0;     // Default return value
   case mode of
   0: begin  // Transformers.R read
       Result := 0.0;
@@ -239,7 +240,7 @@ var
   lst: TPointerList;
 
 begin
-  Result:=pAnsiChar(AnsiString('0'));
+  Result:=pAnsiChar(AnsiString('0'));   // Default return value
   case mode of
   0: begin  // Transformers.XfmrCode read
       Result := pAnsiChar(AnsiString(''));

@@ -34,7 +34,7 @@ Var
   lst: TPointerList;
 
 begin
-  Result := 0;
+  Result := 0;      // Default return value
   case mode of
   0: begin  // SwtControls.First
       Result := 0;
@@ -131,6 +131,7 @@ var
   elem: TSwtControlObj;
 
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // SwtControls.Delay read
       Result := 0.0;
@@ -156,6 +157,7 @@ var
   lst: TPointerList;
 
 begin
+   Result := pAnsiChar(AnsiString('')); // Default return value
    case mode of
    0: begin  // SwtControls.Name read
       Result := pAnsiChar(AnsiString(''));

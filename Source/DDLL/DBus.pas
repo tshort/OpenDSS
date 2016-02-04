@@ -15,6 +15,7 @@ uses DSSGlobals, Circuit, Ucomplex, MathUtil, sysutils,
 function BUSI(mode: longint; arg: longint): longint; stdcall;
 
 begin
+  Result := 0;  // Default return value
   case mode of
   0: begin                                           // Bus.NumNodes
      Result := 0;
@@ -60,6 +61,7 @@ end;
 //**************************floating point variables***************************
 function BUSF(mode: longint; arg: double): double; stdcall;
 begin
+  Result := 0.0;  // Default return value
   case mode of
   0: begin                                           // Bus.kVBase
      Result := 0.0;
@@ -156,6 +158,7 @@ end;
 //*****************************String type properties*******************************
 function BUSS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
 begin
+  Result:=pAnsiChar(AnsiString('0')); //Default return value
   case mode of
   0: begin                                           // Bus.Name read
       Result :=pAnsiChar(AnsiString(''));

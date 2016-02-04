@@ -18,6 +18,7 @@ Var
    elem: TVsourceObj;
 
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin  // Vsource.Count
      Result := 0;
@@ -75,6 +76,7 @@ var
   elem: TVsourceObj;
 
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // Vsources.basekV read
     Result := 0.0;
@@ -124,6 +126,7 @@ Var
    elem: TVsourceObj;
 
 begin
+  Result := pAnsiChar(AnsiString(''));    // Default return value
   case mode of
   0: begin  // Vsources.Name read
     Result := pAnsiChar(AnsiString(''));

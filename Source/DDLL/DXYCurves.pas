@@ -16,12 +16,11 @@ uses ComServ, DSSGlobals, DSSObject, Variants;
 
 function XYCurvesI(mode:longint;arg:longint):longint;stdcall;
 
-
-
 Var
    pXYCurve:TXYCurveObj;
 
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin  // XYCurves.Count
       Result := 0;
@@ -73,6 +72,7 @@ Var
    pXYCurve:TXYCurveObj;
 
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // XYCurve.X read
      Result := 0;
@@ -224,9 +224,10 @@ Var
    pXYCurve:TXYCurveObj;
 
 begin
+  Result := pAnsiChar(AnsiString(''));  // Default return value
   case mode of
   0: begin  // XYCurve.Name read
-       Result := pAnsiChar(AnsiString(''));  // signify no name
+       Result := pAnsiChar(AnsiString(''));  // means no name
        If ActiveCircuit <> Nil Then
        Begin
             pXYCurve := XYCurveClass.GetActiveObj ;

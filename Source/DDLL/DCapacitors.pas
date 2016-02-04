@@ -145,6 +145,7 @@ var
   elem: TCapacitorObj;
 
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // Capacitors.kV read
      Result := 0.0;
@@ -179,6 +180,7 @@ Var
   k: Integer;
 
 begin
+  Result := pAnsiChar(AnsiString('0'));  // default return value
   case mode of
   0: begin  // Capacitors.Name read
       Result := pAnsiChar(AnsiString(''));

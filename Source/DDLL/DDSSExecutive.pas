@@ -11,6 +11,7 @@ uses DSSGlobals, ExecCommands, ExecOptions, Executive, sysutils;
 
 function DSSExecutiveI(mode:longint; arg:longint):longint;stdcall;
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin  // DSS_executive.NumCommands
      Result :=  NumExecCommands;
@@ -30,6 +31,7 @@ var
     i:integer;
 
 begin
+  Result:=pAnsiChar(AnsiString('0'));// Default return value
   case mode of
   0: begin // DSS_Executive.Command
      i:=StrToInt(widestring(arg));
@@ -53,7 +55,7 @@ begin
      Result := pAnsiChar(AnsiString(GlobalResult));
   end
   else
-      Result:='Error, parameter not valid';
+      Result:=pAnsiChar(AnsiString('Error, parameter not valid'));
   end;
 end;
 

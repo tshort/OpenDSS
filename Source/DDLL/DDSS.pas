@@ -66,6 +66,7 @@ end;
 //********************************String Type properties***************************
 function DSSS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
 begin
+  Result:=pAnsiChar(AnsiString('0')); // Default return value
   case mode of
   0: begin  // DSS.NewCircuit
      MakeNewCircuit(widestring(arg));

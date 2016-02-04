@@ -28,6 +28,7 @@ Var
    pRelay:TRelayObj;
 
 begin
+  Result:=0;          // Default return value
   case mode of
   0: begin  // Relays.Count
      Result := 0;
@@ -105,6 +106,7 @@ Var
   elem: TRelayObj;
 
 begin
+  Result := pAnsiChar(AnsiString(''));    // Default return value
   case mode of
   0: begin   // Relays.Name read
       Result := pAnsiChar(AnsiString(''));

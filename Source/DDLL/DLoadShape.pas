@@ -20,7 +20,7 @@ Var
    iElem : Integer;
 
 begin
-  Result := 0;
+  Result := 0;   // Default return value
   case mode of
   0: begin  // LoadShapes.Count
      Result := 0;
@@ -90,7 +90,7 @@ end;
 //**********************Floating point type properties***************************
 function LoadShapeF(mode:longint; arg:double):double;stdcall;
 begin
-  Result := 0.0;
+  Result := 0.0;    // Default return value
   case mode of
   0: begin  // LoadShapes.HrInterval read
        Result := 0.0;
@@ -159,6 +159,7 @@ Var
   elem: TLoadshapeObj;
 
 begin
+  Result := pAnsiChar(AnsiString(''));      // Default return value
   case mode of
   0: begin  // LoadShapes.Name read
       Result := pAnsiChar(AnsiString(''));

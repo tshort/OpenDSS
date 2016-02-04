@@ -34,6 +34,7 @@ Var
   lst: TPointerList;
 
 begin
+  Result:=0;  // Default return value
   case mode of
   0:begin  // CapControls.First
       Result := 0;
@@ -211,6 +212,7 @@ var
   lst: TPointerList;
 
 begin
+  Result:=pAnsiChar(AnsiString('0'));
   case mode of
   0: begin  // CapControl.Name read
       Result := pAnsiChar(AnsiString(''));

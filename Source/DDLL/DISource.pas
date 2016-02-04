@@ -18,6 +18,7 @@ Var
    elem: TIsourceObj;
 
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin  // Isources.Count
      Result := 0;
@@ -67,7 +68,7 @@ Var
    elem: TIsourceObj;
 
 begin
-  Result:=0.0;
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // Isources.Amps read
       Result := 0.0;
@@ -108,6 +109,7 @@ Var
    elem: TIsourceObj;
 
 begin
+  Result := pAnsiChar(AnsiString('')); // Default return value
   case mode of
   0: begin  // Isources.Name read
         Result := pAnsiChar(AnsiString(''));

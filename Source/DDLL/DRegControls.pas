@@ -34,7 +34,7 @@ Var
   lst: TPointerList;
 
 begin
-  Result:=0;
+  Result:=0;          // Default return value
   case mode of
   0: begin  // RegControls.First
       Result := 0;
@@ -140,7 +140,7 @@ var
   elem: TRegControlObj;
 
 begin
-  Result := 0.0;
+  Result := 0.0;        // Default return value
   case mode of
   0: begin  // RegControls.CTPrimary read
       Result := 0.0;
@@ -262,6 +262,7 @@ var
   lst: TPointerList;
 
 begin
+  Result := pAnsiChar(AnsiString(''));  // Default return value
   case mode of
   0: begin  // RegControls.Name read
      Result := pAnsiChar(AnsiString(''));

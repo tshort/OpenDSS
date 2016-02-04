@@ -11,6 +11,7 @@ uses DSSForms, {Progressform,} DSSGlobals;
 
 function DSSProgressI(mode: longint; arg: longint): longint; stdcall;
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin // DSSProgress.PctProgress
       If NoFormsAllowed Then Exit;
@@ -35,6 +36,7 @@ end;
 //******************************String type properties*****************************
 function DSSProgressS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
 begin
+  Result:=pAnsiChar(AnsiString('0')); // Default return value
   case mode of
   0: begin // DSSProgress.Caption
      If NoFormsAllowed Then Exit;

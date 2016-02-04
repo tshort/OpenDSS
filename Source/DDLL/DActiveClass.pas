@@ -47,6 +47,7 @@ Var
   pelem:TDSSObject;
 
 begin
+  Result:=pAnsiChar(AnsiString('0'));
   case mode of
   0: begin  // ActiveClass.Name read
       if Assigned(ActiveDSSObject) then  Result := pAnsiChar(AnsiString(ActiveDSSObject.Name))

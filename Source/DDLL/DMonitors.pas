@@ -58,6 +58,7 @@ Var
    Header : THeaderRec;
 
 begin
+  Result:=0;  // Default return value
   case mode of
   0: begin  // Monitors.First
      Result := 0;
@@ -241,6 +242,7 @@ Var
    Found :Boolean;
 
 begin
+  Result := pAnsiChar(AnsiString('0')); // Default return value
   case mode of
   0: begin  // Monitors.FIleName
     If ActiveCircuit <> Nil Then

@@ -62,7 +62,7 @@ var
   node: TCktTreeNode;
 
 begin
-  Result:=0;
+  Result:=0;         // Default return value
   case mode of
   0: begin  // Topology.NumLoops
       Result := 0;
@@ -191,6 +191,7 @@ var
   pdElem: TPDElement;
 
 begin
+  Result := pAnsiChar(AnsiString(''));  // Default return value
   case mode of
   0: begin  // Topology.BranchName read
       Result := pAnsiChar(AnsiString(''));

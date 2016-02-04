@@ -22,6 +22,7 @@ Var
    pGen:TGeneratorObj;
 
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin  // Generators.First
     Result := 0;
@@ -152,6 +153,7 @@ end;
 //**************************Floating point type properties***********************
 function GeneratorsF(mode: longint; arg: double): double; stdcall;
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // Generators.kV read
     Result := -1.0;  // not set
@@ -308,6 +310,7 @@ Var
    Found :Boolean;
 
 begin
+  Result := pAnsiChar(AnsiString('')); // Default return value
   case mode of
   0: begin  // Generators.Name read
      Result := pAnsiChar(AnsiString(''));

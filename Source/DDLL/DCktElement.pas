@@ -123,6 +123,7 @@ End;
 
 function CktElementI(mode:longint; arg:longint):longint;stdcall;
 begin
+    Result:=0;  // Default return value
     case mode of
         0: begin                                    // CktElement.Numterminals
             If ActiveCircuit <> Nil Then
@@ -276,6 +277,7 @@ end;
 //**************************Float commands****************************************
 function CktElementF(mode:longint; arg:double):double;stdcall;
 begin
+    Result:=0.0;  // Default return value
     case mode of
     0: begin                                        // CktElement.NormalAmps - read
           If ActiveCircuit <> Nil Then
@@ -347,6 +349,7 @@ end;
 //**************************String commands****************************************
 function CktElementS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
 begin
+  Result:=pAnsiChar(AnsiString('0'));  // Default return value
   case mode of
   0: begin                                          // CktElement.Name
      If ActiveCircuit <> Nil Then

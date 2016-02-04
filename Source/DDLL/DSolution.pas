@@ -13,6 +13,7 @@ uses DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants, SolutionAlgs;
 
 function SolutionI(mode:longint; arg: longint):longint; stdcall;
 begin
+  Result:=0; // Default retirn value
   case mode of
   0: begin //Solution.solve
     IF ActiveCircuit <> Nil THEN ActiveCircuit.Solution.Solve;
@@ -252,6 +253,7 @@ end;
 //***************************floating point variables*******************************
 function SolutionF(mode:longint; arg: double):double; stdcall;
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // Solution.Frequency read
       If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Frequency
@@ -377,6 +379,7 @@ var
 TestLoadShapeObj :TLoadShapeObj;
 
 begin
+  Result := pAnsiChar(AnsiString(''));  // Default return value
   case mode of
   0: begin  // Solution.ModeID
     If ActiveCircuit <> Nil Then Result := pAnsiChar(AnsiString(GetSolutionModeID))

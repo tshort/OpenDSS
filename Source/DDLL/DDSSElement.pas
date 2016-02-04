@@ -14,6 +14,7 @@ uses DSSGlobals,
 
 function DSSElementI(mode:longint; arg: longint):longint;stdcall;
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin  // DSSElement.NumProperties
     Result := 0;
@@ -35,6 +36,7 @@ end;
 //*********************************String type properties**************************
 function DSSElementS(mode:longint; arg: pAnsiChar):pAnsiChar;stdcall;
 begin
+  Result:=pAnsiChar(AnsiString(''));// Default return value
   case mode of
   0: begin
      If ActiveCircuit <> Nil Then

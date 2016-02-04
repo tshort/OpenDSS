@@ -29,6 +29,7 @@ Var
    pRecloser:TRecloserObj;
 
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin  // Reclosers.Count
      Result := 0;
@@ -131,6 +132,7 @@ var
   elem: TRecloserObj;
 
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // Reclosers.PhaseTrip read
       Result := 0;
@@ -180,6 +182,7 @@ Var
   elem: TRecloserObj;
 
 begin
+  Result := pAnsiChar(AnsiString('')); // Default return value
   case mode of
   0: begin  // Reclosers.Name read
       Result := pAnsiChar(AnsiString(''));

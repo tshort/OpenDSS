@@ -16,6 +16,7 @@ Var
    ActivePDElement :TPDElement;
 
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin  // PDElements.Count
       Result := 0;
@@ -134,6 +135,7 @@ Var
    ActivePDElement :TPDElement;
 
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // PDElements.FaultRate read
       Result := 0.0;
@@ -226,6 +228,7 @@ Var
    TestString : String;
 
 begin
+  Result:=pAnsiChar(AnsiString('0')); // Default return value
   case mode of
   0: begin  // PDElements.Name read
      Result := '';   // return null if not a PD element

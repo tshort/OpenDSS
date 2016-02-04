@@ -38,6 +38,7 @@ var
    Mtr :TEnergyMeter;
 
 begin
+  Result:=0; // Default return value
   case mode of
   0: begin                                             // Circuit.NumCktElements
        If ActiveCircuit <> Nil Then Result := ActiveCircuit.NumDevices;
@@ -191,6 +192,7 @@ end;
 //**************************floating point properties*****************************
 function CircuitF(mode:longint; arg1, arg2: double):double;stdcall;
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin                                             // Circuit.Capacity
      If ActiveCircuit <> Nil Then  With ActiveCircuit Do
@@ -219,6 +221,7 @@ var
    DevClassIndex :Integer;
 
 begin
+  Result:=pAnsiChar(AnsiString('')); // Default return value
   case mode of
   0: begin                                             // Circuit.Name
       If ActiveCircuit <> Nil Then Result := pAnsiChar(AnsiString(ActiveCircuit.Name))

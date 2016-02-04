@@ -11,6 +11,7 @@ uses Ucomplex, variants;
 
 function CmathLibF(mode:longint; arg1:double; arg2:double):double;stdcall;
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // CmathLib.Cabs
      Result := cabs(cmplx(arg1, arg2));

@@ -122,6 +122,7 @@ Var
   elem: TFuseObj;
 
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // Fuses.RatedCurrent read
     elem := FuseClass.GetActiveObj ;
@@ -144,6 +145,7 @@ Var
   elem: TFuseObj;
 
 begin
+  Result := pAnsiChar(AnsiString('')); // Default return value
   case mode of
   0: begin  // Fuses.Name read
       Result := pAnsiChar(AnsiString(''));

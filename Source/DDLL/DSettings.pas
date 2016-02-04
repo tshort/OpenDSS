@@ -13,6 +13,7 @@ uses DSSGlobals, ExecHelper, Variants;
 
 function SettingsI(mode: longint; arg: longint):longint;stdcall;
 begin
+  Result:=0;       // Deafult return value
   case mode of
   0: begin  // Setting.Allowduplicates read
       Result:=0;
@@ -78,6 +79,7 @@ end;
 //****************************Floating point type properties**********************
 function SettingsF(mode: longint; arg: double):double;stdcall;
 begin
+  Result:=0.0; // Deafult return value
   case mode of
   0:begin  // Settings.AllocationFactors
       IF ActiveCircuit <> NIL
@@ -166,6 +168,7 @@ var
   i: integer;
 
 begin
+  Result := pAnsiChar(AnsiString(''));  // Deafult return value
   case mode of
   0: begin  // Settings.AutoBusLits read
       IF ActiveCircuit <> NIL THEN

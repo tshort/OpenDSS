@@ -25,9 +25,10 @@ var
    AssumeRestoration: WordBool;
    PD_Element   :TPDElement;
 
-begin  // Meters.First
+begin
+  Result:=0; // Default return value
   case mode of
-  0: begin
+  0: begin   // Meters.First
      Result := 0;
      If ActiveCircuit <> Nil Then
      With ActiveCircuit Do
@@ -324,6 +325,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 
 begin
+  Result:=0.0;  // Default return value
   case mode of
   0: begin  // Meters.SAIFI
      Result := 0.0;
@@ -414,6 +416,7 @@ Var
    Found :Boolean;
 
 begin
+  Result := pAnsiChar(AnsiString('0')); // Default return value
   case mode of
   0: begin  // Meters.Name read
    If ActiveCircuit <> Nil Then

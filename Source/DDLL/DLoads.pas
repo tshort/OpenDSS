@@ -34,6 +34,7 @@ function DSSLoads(mode:longint; arg: longint):longint; stdcall;
 Var
    pLoad:TLoadObj;
 begin
+    Result := 0; // Default return value
     case mode of
     0: begin                                   // Loads.First   Read
        Result := 0;
@@ -156,6 +157,7 @@ function DSSLoadsF(mode:longint; arg:double):double; stdcall;
 Var
    pLoad:TLoadObj;
 begin
+  Result:=0.0; // Default return value
   case mode of
     0: begin                                   // Loads.kW  read
           Result := 0.0;
@@ -422,16 +424,17 @@ Var
    S: String;
    Found :Boolean;
 begin
+  Result := pAnsiChar(AnsiString('')); // Default return value
   case mode of
   0: begin                                     // Loads.Name - Read
-       Result := '';
+       Result := pAnsiChar(AnsiString(''));
        If ActiveCircuit <> Nil Then
        Begin
             pLoad := ActiveCircuit.Loads.Active;
             If pLoad <> Nil Then
               Result := pAnsiChar(AnsiString(pLoad.Name))
             Else
-                Result := '';  // signify no name
+                Result := pAnsiChar(AnsiString(''));  // signify no name
        End;
   end;
   1: begin                                     // Loads.Name - Write
@@ -464,7 +467,7 @@ begin
       Result:=pAnsiChar(AnsiString(''));
   end;
   2: begin                                     // Loads.CVRCurve - Read
-      Result := '';
+      Result := pAnsiChar(AnsiString(''));
       pLoad := ActiveLoad;
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.CVRshape));
   end;
@@ -473,7 +476,7 @@ begin
       Result:=pAnsiChar(AnsiString(''));
   end;
   4: begin                                     // Loads.Daily - Read
-      Result := '';
+      Result := pAnsiChar(AnsiString(''));
       pLoad := ActiveLoad;
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.DailyShape));
   end;
@@ -482,7 +485,7 @@ begin
       Result:=pAnsiChar(AnsiString(''));
   end;
   6: begin                                     // Loads.Duty - read
-      Result := '';
+      Result := pAnsiChar(AnsiString(''));
       pLoad := ActiveLoad;
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.DailyShape));
   end;
@@ -491,7 +494,7 @@ begin
       Result:=pAnsiChar(AnsiString(''));
   end;
   8: begin                                     // Loads.Spectrum - Read
-      Result := '';
+      Result := pAnsiChar(AnsiString(''));
       pLoad := ActiveLoad;
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.Spectrum));
   end;
@@ -500,7 +503,7 @@ begin
       Result:=pAnsiChar(AnsiString(''));
   end;
   10: begin                                    // Loads.Yearly - Read
-      Result := '';
+      Result := pAnsiChar(AnsiString(''));
       pLoad := ActiveLoad;
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.YearlyShape));
   end;
@@ -509,7 +512,7 @@ begin
       Result:=pAnsiChar(AnsiString(''));
   end;
   12: begin                                    // Loads.Growth - read
-      Result := '';
+      Result := pAnsiChar(AnsiString(''));
       pLoad := ActiveLoad;
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.GrowthShape));
   end;

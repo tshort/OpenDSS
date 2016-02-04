@@ -34,7 +34,7 @@ Var
   lst: TPointerList;
 
 begin
-  Result:=0;
+  Result:=0;             // Default return value
   case mode of
   0: begin  // Sensors.count
       If Assigned(ActiveCircuit) Then
@@ -121,6 +121,7 @@ Var
   elem: TSensorObj;
 
 begin
+  Result:=0.0; // Default return value
   case mode of
   0: begin  // Sensors.PctError read
       Result := 0.0;
@@ -162,6 +163,7 @@ Var
   lst: TPointerList;
 
 begin
+  Result := pAnsiChar(AnsiString(''));// Default return value
   case mode of
   0: begin  // Sensors.Name read
       Result := pAnsiChar(AnsiString(''));
