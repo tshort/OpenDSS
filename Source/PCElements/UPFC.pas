@@ -53,6 +53,9 @@ TYPE
         VLLimit : Double;   // Low limit for the input voltage in volts (default 125V)
         CLimit  : Double;   // Limit for the maximum current in amperes
         UPFCON  : boolean;   // Flag to indicate when the UPFC operation is out of boundaries
+        VRef2   : Double;   // Value for deadband's upper limit, it is calculated if tolerance is specified
+        VRefD   : Double;   // Dynamic reference for control modes 4 and 5
+
 
         // some state vars for reporting
         Losses  : Double;
@@ -63,6 +66,7 @@ TYPE
         ModeUPFC  : Integer;
         Vpqmax  : Double;
         SyncFlag: Boolean;   // Flag used to synchronize controllers in Dual mode
+        SF2     : Boolean;   // Flag used to Synch control modes 4 and 5
 
         LossCurve           :String;      //Losses curve name
         UPFCLossCurveObj    :TXYCurveObj; //Losses curve reference
@@ -119,7 +123,7 @@ USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Utilities, Sysutil
 
 Const
     propLossCurve= 11;
-    NumPropsThisClass = 14;
+    NumPropsThisClass = 15;
     NumUPFCVariables = 12;
 
 
@@ -173,6 +177,7 @@ Begin
      PropertyName[12]:= 'VHLimit';
      PropertyName[13]:= 'VLLimit';
      PropertyName[14]:= 'CLimit';
+     PropertyName[15]:= 'refkv2';
 
      // define Property help values
      PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname.1.3'+CRLF+'bus1=busname.1.2.3';                        ;
@@ -192,6 +197,8 @@ Begin
      PropertyHelp[12]:= 'High limit for the voltage at the input of the UPFC, if the voltage is above this value the UPFC turns off. This value is specified in Volts (default 300 V)';
      PropertyHelp[13]:= 'low limit for the voltage at the input of the UPFC, if voltage is below this value the UPFC turns off. This value is specified in Volts (default 125 V)';
      PropertyHelp[14]:= 'Current Limit for the UPFC, if the current passing through the UPFC is higher than this value the UPFC turns off. This value is specified in Amps (Default 265 A)';
+     PropertyHelp[15]:= 'Base Voltage expected at the output of the UPFC for control modes 4 and 5.'+ CRLF+CRLF +
+                        'This reference must be lower than refkv, see control modes 4 and 5 for details';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -260,7 +267,8 @@ Begin
             propLossCurve:LossCurve:= Param;
             12: VHLimit := Parser.DblValue;
             13: VLLimit := Parser.DblValue;
-            14: CLimit := Parser.DblValue;
+            14: CLimit  := Parser.DblValue;
+            15: VRef2   := Parser.DblValue;
 
          ELSE
             ClassEdit(ActiveUPFCObj, ParamPointer - NumPropsThisClass)
@@ -318,9 +326,10 @@ Begin
        VpqMax    := OtherUPFC.VpqMax;
        LossCurve := OtherUPFC.LossCurve;
        UPFCLossCurveObj:=UPFCLossCurveObj;
-       VHLimit:=OtherUPFC.VHLimit;
-       VLLimit:=OtherUPFC.VLLimit;
-       CLimit:=OtherUPFC.CLimit;
+       VHLimit   :=OtherUPFC.VHLimit;
+       VLLimit   :=OtherUPFC.VLLimit;
+       CLimit    :=OtherUPFC.CLimit;
+       VRef2     := OtherUPFC.VRef2;
 
        ClassMakeLike(OtherUPFC);
 
@@ -370,6 +379,7 @@ Begin
      UPFCON   := True;
      Sr0 := Nil;
      Sr1 := Nil;
+     VRef2    := 0.0;
 
      QIdeal := 0.0;
 
@@ -560,7 +570,7 @@ VAr
 Begin
 
   TRY
-    WITH ActiveCircuit.Solution Do
+   WITH ActiveCircuit.Solution Do
    UPFCON:=True;
    VinMag:=cabs(Vbin);
    if (VinMag>VHLimit) or (VinMag<VLLimit) then
@@ -569,29 +579,28 @@ Begin
         ITemp:=cmplx(0,0);
       end
    else                                                       // Limits OK
-      begin
+   begin
         case ModeUPFC of
         0:  Itemp:=cmplx(0,0); //UPFC off
         1:  Begin              //UPFC as a voltage regulator
-              Vpolar:=ctopolar(Vbout);
-                  Error:=1-abs(Vpolar.mag/(VRef*1000));
-                 Error:=abs(Error);
-                 if Error > Tol1 then
-                   Begin
-                     Vtemp   :=  csub(Vbout,Vbin);
-                     Vpolar  :=  ctopolar(Vbin);
-                     TError  :=  (VRef*1000)-Vpolar.mag;
-                     if TError > VpqMax then TError:=VpqMax
-                     else if TError < -VpqMax then TError:=-VpqMax;
-                      Vpolar   :=  topolar(TError, Vpolar.ang);
-                     VTemp    :=  csub(ptocomplex(Vpolar), VTemp); //Calculates Vpq
-                     ITemp    :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
-                     SR0^[Cond]:= ITemp;
-                   end
-                 else
-                   begin
-                     ITemp:=SR0^[Cond];
-                   end;
+                Vpolar:=ctopolar(Vbout);
+                Error:=abs(1-abs(Vpolar.mag/(VRef*1000)));
+                if Error > Tol1 then
+                  Begin
+                    Vtemp   :=  csub(Vbout,Vbin);
+                    Vpolar  :=  ctopolar(Vbin);
+                    TError  :=  (VRef*1000)-Vpolar.mag;
+                    if TError > VpqMax then TError:=VpqMax
+                    else if TError < -VpqMax then TError:=-VpqMax;
+                    Vpolar   :=  topolar(TError, Vpolar.ang);
+                    VTemp    :=  csub(ptocomplex(Vpolar), VTemp); //Calculates Vpq
+                    ITemp    :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
+                    SR0^[Cond]:= ITemp;
+                  end
+                else
+                begin
+                  ITemp:=SR0^[Cond];
+                end;
             end;
         2:  Itemp:=cmplx(0,0); //UPFC as a phase angle regulator
         3:  Begin              //UPFC in Dual mode Voltage and Phase angle regulator
@@ -613,15 +622,91 @@ Begin
                 else begin
                   ITemp:=SR0^[Cond];
                   SyncFlag:=True;
+                end;
+            end;
+        4:  Begin                // Double reference control mode (only voltage control)
+              Vpolar:=ctopolar(Vbin);       // Takes the input voltage to verify the operation
+              // Verifies if the Voltage at the input is out of the gap defined with VRef and VRef2
+              if (Vpolar.mag > (VRef*1000+VRef*1000*Tol1)) or (Vpolar.mag < (VRef2*1000-VRef2*1000*Tol1)) then
+              Begin
+                // Sets the New reference by considering the value at the input of the device
+                if (Vpolar.mag > (VRef*1000+VRef*1000*Tol1)) then
+                  VRefD:=VRef
+                else if (Vpolar.mag < (VRef2*1000-VRef2*1000*Tol1)) then
+                  VRefD:=VRef2;
+                // Starts the control routine for voltage control only
+                Vpolar:=ctopolar(Vbout);
+                Error:=abs(1-abs(Vpolar.mag/(VRefD*1000)));
+                if Error > Tol1 then
+                  Begin
+                    Vtemp   :=  csub(Vbout,Vbin);
+                    Vpolar  :=  ctopolar(Vbin);
+                    TError  :=  (VRefD*1000)-Vpolar.mag;
+                    if TError > VpqMax then TError:=VpqMax
+                    else if TError < -VpqMax then TError:=-VpqMax;
+                    Vpolar   :=  topolar(TError, Vpolar.ang);
+                    VTemp    :=  csub(ptocomplex(Vpolar), VTemp); //Calculates Vpq
+                    ITemp    :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
+                    SR0^[Cond]:= ITemp;
+                  end
+                else
+                begin
+                  ITemp:=SR0^[Cond];
+                end;
+                SF2:=True;   // Normal control routine
+              End
+              else
+              begin
+                Itemp:=cmplx(0,0); //UPFC off
+                SF2:=False;   // Says to the other controller to do nothing
               end;
+            end;
+        5:  Begin                // Double reference control mode (Dual mode)
+              Vpolar:=ctopolar(Vbin);       // Takes the input voltage to verify the operation
+              // Verifies if the Voltage at the input is out of the gap defined with VRef and VRef2
+              if (Vpolar.mag > (VRef*1000+VRef*1000*Tol1)) or (Vpolar.mag < (VRef2*1000-VRef2*1000*Tol1)) then
+              Begin
+                // Sets the New reference by considering the value at the input of the device
+                if (Vpolar.mag > (VRef*1000+VRef*1000*Tol1)) then
+                  VRefD:=VRef
+                else if (Vpolar.mag < (VRef2*1000-VRef2*1000*Tol1)) then
+                  VRefD:=VRef2;
+                // Starts standard control (the same as Dual control mode)
+                Vpolar:=ctopolar(Vbout);
+                Error:=abs(1-abs(Vpolar.mag/(VRefD*1000)));
+                if Error > Tol1 then
+                  Begin
+                    Vtemp   :=  csub(Vbout,Vbin);
+                    Vpolar  :=  ctopolar(Vbin);
+                    TError  :=  (VRefD*1000)-Vpolar.mag;
+                    if TError > VpqMax then TError:=VpqMax
+                    else if TError < -VpqMax then TError := -VpqMax;
+                    Vpolar   :=  topolar(TError,Vpolar.ang);
+                    VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
+                    Itemp    :=  cmul(cadd(SR0^[Cond],cdiv(VTemp,cmplx(0,Xs))),cmplx(0.8,0));
+                    SR0^[Cond]:=  ITemp;
+                    SyncFlag:=False;
+                  End
+                  else begin
+                    ITemp:=SR0^[Cond];
+                    SyncFlag:=True;
+                  end;
+              End
+              else
+              begin
+                Itemp:=cmplx(0,0); //UPFC off
+                SF2:=False;   // Says to the other controller to do nothing
+              end;
+            End
+        else
+            DoSimpleMsg('Control mode not regognized for UPFC',790);
         end;
-      end;
    end;
-    Result := Itemp;
-  EXCEPT
-      DoSimpleMsg('Error computing current for Isource.'+Name+'. Check specification. Aborting.', 334);
-      IF In_Redirect Then Redirect_Abort := TRUE;
-  END;
+   Result := Itemp;
+   EXCEPT
+     DoSimpleMsg('Error computing current for Isource.'+Name+'. Check specification. Aborting.', 334);
+     IF In_Redirect Then Redirect_Abort := TRUE;
+   END;
 End;
 //============================================================================
 
@@ -704,6 +789,40 @@ Begin
                   CurrIn:=csub(CurrIn,Ctemp);
                   if ERR0[Cond] < UPFC_Power.im then ERR0[Cond]:=UPFC_Power.im;
               End;
+           4: Begin                   // Two band reference Mode   (Only Voltage control mode)
+                  if SF2 then
+                  begin    // Normal control routine considering the dynamic reference
+                    Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
+                    Losses:=CalcUPFCLosses(Cabs(Vbin)/(VRefD*1000));
+                    CurrIn:=cmul(cnegate(Ctemp),cmplx(Losses,0));
+                  end
+                  else
+                  begin   // Do nothing, aparently the input voltage is OK
+                    CurrIn:=cmplx(0,0);
+                    UPFC_Power := CZERO;
+                  end;
+           End;
+           5: Begin                    // Two band reference mode (Dual control mode)
+                  if SF2 then
+                  Begin
+                    Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
+                    UPFC_Power:=CalcUPFCPowers(1,Cond);
+                    S:=abs(UPFC_Power.re)/pf;
+                    QIdeal:=UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
+                    CurrIn:=conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
+                    if (UPFC_Power.im <= ERR0[Cond])And(SyncFlag) then CurrIn:=SR1[Cond]
+                    else SR1[Cond]:=CurrIn;
+                    Losses:=CalcUPFCLosses(Cabs(Vbin)/(VRef*1000));
+                    Ctemp:=cmul(Ctemp,cmplx(Losses,0));
+                    CurrIn:=csub(CurrIn,Ctemp);
+                    if ERR0[Cond] < UPFC_Power.im then ERR0[Cond]:=UPFC_Power.im;
+                  End
+                  else
+                  begin   // Do nothing, aparently the input voltage is OK
+                    CurrIn:=cmplx(0,0);
+                    UPFC_Power := CZERO;
+                  End;
+           End;
       end;
   end
   else CurrIn:=cmplx(0,0);
