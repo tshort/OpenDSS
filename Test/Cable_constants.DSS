@@ -1,0 +1,35 @@
+clear
+new circuit.dummy
+set earthmodel=Carson
+
+New CNDATA.250_1/3 k=13 DiaStrand=0.064 Rstrand=2.816666667 epsR=2.3
+~ InsLayer=0.220 DiaIns=1.06 DiaCable=1.16 Rac=0.076705 GMRac=0.20568 diam=0.573
+~ Runits=kft Radunits=in GMRunits=in
+
+New LineGeometry.606 nconds=3 nphases=3 units=ft
+~ cond=1 cncable=250_1/3 x=-0.5 h= -4
+~ cond=2 cncable=250_1/3 x=0   h= -4
+~ cond=3 cncable=250_1/3 x=0.5  h= -4
+
+// 7.5 in spacing  Okonite dimensions
+New CNDATA.250_1/3a k=13 DiaStrand=0.064 Rstrand=3.35 epsR=2.3
+~ InsLayer=0.220 DiaIns=1.06 DiaCable=1.16 Rac=0.0893 GMRac=0.216 diam=0.575
+~ Runits=kft Radunits=in GMRunits=in
+
+New LineGeometry.606-75 nconds=3 nphases=3 units=in
+~ cond=1 cncable=250_1/3a x=-7.5 h= -48
+~ cond=2 cncable=250_1/3a x=0   h= -48
+~ cond=3 cncable=250_1/3a x=7.5  h= -48
+
+New TSData.1/0TS diashield=0.85 tapelayer=0.005 epsR=2.3 
+~ inslayer=0.22 DiaIns=0.78 Rdc=0.184204546 GMRac=0.13320 diam=0.368
+~ Runits=kft Radunits=in GMRunits=in
+
+New LineGeometry.607 nconds=1 nphases=1 units=ft
+~ cond=1 tscable=1/0TS x=0  h=-4
+
+new line.test1 bus1= sourcebus  bus2 geometry=606 length=1 units=mi
+new line.test2 bus1= sourcebus  bus21 geometry=607 length=1 units=mi
+solve
+
+show lineconstants freq=60 units=kft
