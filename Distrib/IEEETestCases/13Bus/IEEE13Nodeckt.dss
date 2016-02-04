@@ -67,11 +67,37 @@ New linecode.mtx605 nphases=1 BaseFreq=60
 ~ rmatrix = (1.3292 ) 
 ~ xmatrix = (1.3475 ) 
 ~ units=mi 
+
+/*********** Original 606 Linecode *********************
+
+You have to use this to match Kersting's results:
+
 New linecode.mtx606 nphases=3 BaseFreq=60 
 ~ rmatrix = (0.7982 | 0.3192 0.7891 | 0.2849 0.3192 0.7982 ) 
 ~ xmatrix = (0.4463 | 0.0328 0.4041 | -0.0143 0.0328 0.4463 ) 
-~ Cmatrix = [257 | 0 257 | 0 0 257]
+~ Cmatrix = [257 | 0 257 | 0 0 257]  ! <--- This is too low by 1.5
 ~ units=mi 
+
+Corrected mtx606  Feb 3 2016 by RDugan
+
+The new LineCode.606 is computed using the following CN cable definition and 
+LineGeometry definition:
+
+New CNDATA.250_1/3 k=13 DiaStrand=0.064 Rstrand=2.816666667 epsR=2.3
+~ InsLayer=0.220 DiaIns=1.06 DiaCable=1.16 Rac=0.076705 GMRac=0.20568 diam=0.573
+~ Runits=kft Radunits=in GMRunits=in
+
+New LineGeometry.606 nconds=3 nphases=3 units=ft
+~ cond=1 cncable=250_1/3 x=-0.5 h= -4
+~ cond=2 cncable=250_1/3 x=0   h= -4
+~ cond=3 cncable=250_1/3 x=0.5  h= -4
+
+****End Comment******/ 
+
+New Linecode.mtx606 nphases=3  Units=mi
+~ Rmatrix=[0.791721  |0.318476  0.781649  |0.28345  0.318476  0.791721  ]
+~ Xmatrix=[0.438352  |0.0276838  0.396697  |-0.0184204  0.0276838  0.438352  ]
+~ Cmatrix=[383.948  |0  383.948  |0  0  383.948  ]
 New linecode.mtx607 nphases=1 BaseFreq=60 
 ~ rmatrix = (1.3425 ) 
 ~ xmatrix = (0.5124 )
