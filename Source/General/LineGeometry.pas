@@ -476,7 +476,8 @@ BEGIN
 *)
       FNconds     := 0;
       FNPhases    := 0;
-      ActiveCond  := 1;
+//       ActiveCond  := 1;
+      FActiveCond := 1;
       FLastUnit   := UNITS_FT;
       Normamps    := 0.0;
       EmergAmps   := 0.0;
@@ -540,11 +541,11 @@ var
 begin
 
   CASE Index OF
-      3: Result := Format('%d',[FActiveCond]);
+      3: Result       := Format('%d',[FActiveCond]);
       4,13,14: Result := FCondName^[FActiveCond];
-      5: Result := Format('%-g',[FX^[FActiveCond]]);
-      6: Result := Format('%-g',[FY^[FActiveCond]]);
-      7: Result :=  LineUnitsStr(FUnits^[FActiveCond]);
+      5: Result       := Format('%-g',[FX^[FActiveCond]]);
+      6: Result       := Format('%-g',[FY^[FActiveCond]]);
+      7: Result       := LineUnitsStr(FUnits^[FActiveCond]);
       12,15,16: Begin
         Result := '[';
         for i:= 1 to FNConds do Result := Result + FCondName^[i] + ' ';
