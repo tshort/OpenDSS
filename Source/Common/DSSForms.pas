@@ -92,8 +92,8 @@ End;
 Procedure ShowAboutBox;
 
 Begin
-
- WITH TAboutBox.Create(nil) Do
+ If NoFormsAllowed Then Exit;
+ With TAboutBox.Create(nil) Do
  Try
      ShowModal;
      GlobalResult := VersionString;
@@ -105,6 +105,10 @@ End;
 
 Procedure ShowTreeView(Const Fname:String);
 Begin
+  If NoFormsAllowed Then Exit;
+
+  If Not Assigned(TViewForm) Then  TViewForm := TTViewForm.Create(nil);
+
   TViewForm.Left:=0;
   TViewForm.Top := 0;
   TViewForm.TreeView1.Items.Clear;
