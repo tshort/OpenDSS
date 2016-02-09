@@ -563,9 +563,11 @@ VAr
    Error    : Double;
    TError   : Double;
    VinMag   : Double;
+   RefH     : Double;
+   RefL     : Double;
    Vpolar   : polar;
    VTemp    : complex;
-   Itemp    : complex;
+   CurrOut    : complex;
 
 
 Begin
@@ -576,134 +578,136 @@ Begin
    VinMag:=cabs(Vbin);
    if (VinMag>VHLimit) or (VinMag<VLLimit) then
       begin   // Check Limits (Voltage)
-        UPFCON:=False;
-        ITemp:=cmplx(0,0);
+        UPFCON  :=  False;
+        CurrOut :=  cmplx(0,0);
       end
    else                                                       // Limits OK
    begin
         case ModeUPFC of
-        0:  Itemp:=cmplx(0,0); //UPFC off
+        0:  CurrOut         :=  cmplx(0,0); //UPFC off
         1:  Begin              //UPFC as a voltage regulator
                 Vpolar:=ctopolar(Vbout);
                 Error:=abs(1-abs(Vpolar.mag/(VRef*1000)));
                 if Error > Tol1 then
                 Begin
-                  Vtemp   :=  csub(Vbout,Vbin);
-                  Vpolar  :=  ctopolar(Vbin);
-                  TError  :=  (VRef*1000)-Vpolar.mag;
+                  Vtemp     :=  csub(Vbout,Vbin);
+                  Vpolar    :=  ctopolar(Vbin);
+                  TError    :=  (VRef*1000)-Vpolar.mag;
                   if TError > VpqMax then TError:=VpqMax
                   else if TError < -VpqMax then TError := -VpqMax;
-                  Vpolar   :=  topolar(TError,Vpolar.ang);
-                  VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
-                  Itemp    :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
-                  SR0^[Cond]:=  ITemp;
+                  Vpolar    :=  topolar(TError,Vpolar.ang);
+                  VTemp     :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
+                  CurrOut   :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
+                  SR0^[Cond]:=  CurrOut;
                 end
                 else
                 begin
-                  ITemp:=SR0^[Cond];
+                  CurrOut   :=  SR0^[Cond];
                 end;
             end;
-        2:  Itemp:=cmplx(0,0); //UPFC as a phase angle regulator
+        2:  CurrOut         :=  cmplx(0,0); //UPFC as a phase angle regulator
         3:  Begin              //UPFC in Dual mode Voltage and Phase angle regulator
-              Vpolar:=ctopolar(Vbout);
-              Error:=abs(1-abs(Vpolar.mag/(VRef*1000)));
+              Vpolar        :=ctopolar(Vbout);
+              Error         :=abs(1-abs(Vpolar.mag/(VRef*1000)));
               if Error > Tol1 then
                 Begin
-                  Vtemp   :=  csub(Vbout,Vbin);
-                  Vpolar  :=  ctopolar(Vbin);
-                  TError  :=  (VRef*1000)-Vpolar.mag;
+                  Vtemp     :=  csub(Vbout,Vbin);
+                  Vpolar    :=  ctopolar(Vbin);
+                  TError    :=  (VRef*1000)-Vpolar.mag;
                   if TError > VpqMax then TError:=VpqMax
                   else if TError < -VpqMax then TError := -VpqMax;
-                  Vpolar   :=  topolar(TError,Vpolar.ang);
-                  VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
-                  Itemp    :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
-                  SR0^[Cond]:=  ITemp;
-                  SyncFlag:=True;
+                  Vpolar    :=  topolar(TError,Vpolar.ang);
+                  VTemp     :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
+                  CurrOut   :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
+                  SR0^[Cond]:=  CurrOut;
+                  SyncFlag  :=  True;
                 End
                 else begin
-                  ITemp:=SR0^[Cond];
-                  SyncFlag:=True;
+                  CurrOut   :=  SR0^[Cond];
+                  SyncFlag  :=  True;
                 end;
             end;
         4:  Begin                // Double reference control mode (only voltage control)
               Vpolar:=ctopolar(Vbin);       // Takes the input voltage to verify the operation
               // Verifies if the Voltage at the input is out of the gap defined with VRef and VRef2
-              if (Vpolar.mag > (VRef*1000+VRef*1000*Tol1)) or (Vpolar.mag < (VRef2*1000-VRef2*1000*Tol1)) then
+              RefH            :=  (VRef*1000)+(VRef*1000*Tol1);
+              RefL            :=  (VRef2*1000)-(VRef2*1000*Tol1);
+              if (Vpolar.mag > RefH) or (Vpolar.mag < RefL) then
               Begin
                 // Sets the New reference by considering the value at the input of the device
-                if (Vpolar.mag > (VRef*1000+VRef*1000*Tol1)) then
-                  VRefD:=VRef
-                else if (Vpolar.mag < (VRef2*1000-VRef2*1000*Tol1)) then
-                  VRefD:=VRef2;
+                if (Vpolar.mag > RefH) then VRefD:=VRef
+                else if (Vpolar.mag < RefL) then VRefD:=VRef2;
                 // Starts the control routine for voltage control only
-                Vpolar:=ctopolar(Vbout);
-                Error:=abs(1-abs(Vpolar.mag/(VRefD*1000)));
+                Vpolar        :=  ctopolar(Vbout);
+                Error         :=  abs(1-abs(Vpolar.mag/(VRefD*1000)));
                 if Error > Tol1 then
                 Begin
-                    Vtemp   :=  csub(Vbout,Vbin);
-                    Vpolar  :=  ctopolar(Vbin);
-                    TError  :=  (VRefD*1000)-Vpolar.mag;
+                    Vtemp     :=  csub(Vbout,Vbin);
+                    Vpolar    :=  ctopolar(Vbin);
+                    TError    :=  (VRefD*1000)-Vpolar.mag;
                     if TError > VpqMax then TError:=VpqMax
                     else if TError < -VpqMax then TError := -VpqMax;
-                    Vpolar   :=  topolar(TError,Vpolar.ang);
-                    VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
-                    Itemp    :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
-                    SR0^[Cond]:=  ITemp;
+                    Vpolar    :=  topolar(TError,Vpolar.ang);
+                    VTemp     :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
+                    CurrOut   :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
+                    SR0^[Cond]:=  CurrOut;
                  end
                 else
                 begin
-                  ITemp:=SR0^[Cond];
+                  CurrOut     :=  SR0^[Cond];
                 end;
                 SF2:=True;   // Normal control routine
               End
               else
               begin
-                Itemp:=cmplx(0,0); //UPFC off
-                SF2:=False;   // Says to the other controller to do nothing
+                CurrOut       :=  cmplx(0,0); //UPFC off
+                SR0^[Cond]    :=  CurrOut;
+                SF2           :=  False;   // Says to the other controller to do nothing
               end;
             end;
         5:  Begin                // Double reference control mode (Dual mode)
               Vpolar:=ctopolar(Vbin);       // Takes the input voltage to verify the operation
               // Verifies if the Voltage at the input is out of the gap defined with VRef and VRef2
-              if (Vpolar.mag > (VRef*1000+VRef*1000*Tol1)) or (Vpolar.mag < (VRef2*1000-VRef2*1000*Tol1)) then
+              RefH            :=  (VRef*1000)+(VRef*1000*Tol1);
+              RefL            :=  (VRef2*1000)-(VRef2*1000*Tol1);
+              if (Vpolar.mag > RefH) or (Vpolar.mag < RefL) then
               Begin
                 // Sets the New reference by considering the value at the input of the device
-                if (Vpolar.mag > (VRef*1000+VRef*1000*Tol1)) then
-                  VRefD:=VRef
-                else if (Vpolar.mag < (VRef2*1000-VRef2*1000*Tol1)) then
-                  VRefD:=VRef2;
+                if (Vpolar.mag > RefH) then VRefD:=VRef
+                else if (Vpolar.mag < RefL) then  VRefD:=VRef2;
                 // Starts standard control (the same as Dual control mode)
-                Vpolar:=ctopolar(Vbout);
-                Error:=abs(1-abs(Vpolar.mag/(VRefD*1000)));
+                Vpolar        :=  ctopolar(Vbout);
+                Error         :=  abs(1-abs(Vpolar.mag/(VRefD*1000)));
                 if Error > Tol1 then
                 Begin
-                    Vtemp   :=  csub(Vbout,Vbin);
-                    Vpolar  :=  ctopolar(Vbin);
-                    TError  :=  (VRefD*1000)-Vpolar.mag;
+                    Vtemp     :=  csub(Vbout,Vbin);
+                    Vpolar    :=  ctopolar(Vbin);
+                    TError    :=  (VRefD*1000)-Vpolar.mag;
                     if TError > VpqMax then TError:=VpqMax
                     else if TError < -VpqMax then TError := -VpqMax;
-                    Vpolar   :=  topolar(TError,Vpolar.ang);
-                    VTemp    :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
-                    Itemp    :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
-                    SR0^[Cond]:=  ITemp;
-                    SyncFlag:=True;
+                    Vpolar    :=  topolar(TError,Vpolar.ang);
+                    VTemp     :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
+                    CurrOut   :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
+                    SR0^[Cond]:=  CurrOut;
+                    SyncFlag  :=  True;
                   End
                   else begin
-                    ITemp:=SR0^[Cond];
+                    CurrOut   :=SR0^[Cond];
                     SyncFlag:=True;
                   end;
               End
               else
               begin
-                Itemp:=cmplx(0,0); //UPFC off
-                SF2:=False;   // Says to the other controller to do nothing
+                CurrOut       :=  cmplx(0,0); //UPFC off
+                SR0^[Cond]    :=  CurrOut;
+                SF2           :=  False;   // Says to the other controller to do nothing
               end;
             End
         else
             DoSimpleMsg('Control mode not regognized for UPFC',790);
         end;
    end;
-   Result := Itemp;
+   Result := CurrOut;
    EXCEPT
      DoSimpleMsg('Error computing current for Isource.'+Name+'. Check specification. Aborting.', 334);
      IF In_Redirect Then Redirect_Abort := TRUE;
@@ -746,7 +750,7 @@ End;
 
 Function TUPFCObj.GetinputCurr(Cond: integer):Complex;
 VAr
-   Currin,Ctemp:complex;
+   CurrIn,Ctemp:complex;
    S:double;
    Vpolar:polar;
 
@@ -759,74 +763,78 @@ Begin
   begin
       case ModeUPFC of
           0:  begin
-                  CurrIn:=cmplx(0,0);
-                  UPFC_Power := CZERO;
+                  CurrIn      :=  cmplx(0,0);
+                  UPFC_Power  :=  CZERO;
               end;
           1:  begin                     // Voltage regulation mode
-                  CurrIn:=CZERO;
-                  Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
-                  Losses:=CalcUPFCLosses(Cabs(Vbin)/(VRef*1000));
-                  CurrIn:=cnegate(cmplx((Ctemp.re*Losses),SR0^[Cond].im));
-                  SR1^[Cond]:=CurrIn;
+                  CurrIn      :=  CZERO;
+                  Ctemp       :=  conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
+                  Losses      :=  CalcUPFCLosses(Cabs(Vbin)/(VRef*1000));
+                  CurrIn      :=  cnegate(cmplx((Ctemp.re*Losses),SR0^[Cond].im));
+                  SR1^[Cond]  :=  CurrIn;
               end;
           2:  Begin                    // Reactive compensation mode
-                  UPFC_Power:=CalcUPFCPowers(2,0);
-                  S:=abs(UPFC_Power.re)/pf;
-                  QIdeal:=UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
-                  CurrIn:=conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
+                  UPFC_Power  :=  CalcUPFCPowers(2,0);
+                  S           :=  abs(UPFC_Power.re)/pf;
+                  QIdeal      :=  UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
+                  CurrIn      :=  conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
               End;
           3:  Begin                    // Dual mode
-                  CurrIn:=CZERO;
-                  Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
-                  Losses:=CalcUPFCLosses(Cabs(Vbin)/(VRef*1000));
-                  CurrIn:=cnegate(cmplx((Ctemp.re*Losses),SR0^[Cond].im));
-                  SR1^[Cond]:=CurrIn;
+                  CurrIn      :=  CZERO;
+                  Ctemp       :=  conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
+                  Losses      :=  CalcUPFCLosses(Cabs(Vbin)/(VRef*1000));
+                  CurrIn      :=  cnegate(cmplx((Ctemp.re*Losses),SR0^[Cond].im));
+                  SR1^[Cond]  :=  CurrIn;
                   // Starts Power Calculations to copensate the reactive power
-                  UPFC_Power:=CalcUPFCPowers(1,Cond);
-                  S:=abs(UPFC_Power.re)/pf;
-                  QIdeal:=UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
-                  CurrIn:=cadd(conjg(cdiv(cmplx(0,QIdeal),Vbin)),SR1^[Cond]); //Q in terms of current  *** conjg
+                  UPFC_Power  :=  CalcUPFCPowers(1,Cond);
+                  S           :=  abs(UPFC_Power.re)/pf;
+                  QIdeal      :=  UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
+                  CurrIn      :=  cadd(conjg(cdiv(cmplx(0,QIdeal),Vbin)),SR1^[Cond]); //Q in terms of current  *** conjg
                   // This partial result is added to the one obtained previously to balance the control loop
               End;
            4: Begin                   // Two band reference Mode   (Only Voltage control mode)
                   if SF2 then
                   begin    // Normal control routine considering the dynamic reference
-                    CurrIn:=CZERO;
-                    Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
-                    Losses:=CalcUPFCLosses(Cabs(Vbin)/(VRefD*1000));
-                    CurrIn:=cnegate(cmplx((Ctemp.re*Losses),SR0^[Cond].im));
+                    CurrIn    :=  CZERO;
+                    Ctemp     :=  conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
+                    Losses    :=  CalcUPFCLosses(Cabs(Vbin)/(VRefD*1000));
+                    CurrIn    :=  cnegate(cmplx((Ctemp.re*Losses),SR0^[Cond].im));
                     SR1^[Cond]:=CurrIn;
                   end
                   else
                   begin   // Do nothing, aparently the input voltage is OK
-                    CurrIn:=cmplx(0,0);
-                    UPFC_Power := CZERO;
+                    CurrIn    :=  cmplx(0,0);
+                    SR0^[Cond]:=  CurrIn;
+                    UPFC_Power:=  CZERO;
                   end;
            End;
            5: Begin                    // Two band reference mode (Dual control mode)
                   if SF2 then
                   Begin
-                    CurrIn:=CZERO;
-                    Ctemp:=conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
-                    Losses:=CalcUPFCLosses(Cabs(Vbin)/(VRefD*1000));
-                    CurrIn:=cnegate(cmplx((Ctemp.re*Losses),SR0^[Cond].im));
-                    SR1^[Cond]:=CurrIn;
-                    // Starts Power Calculations to copensate the reactive power
-                    UPFC_Power:=CalcUPFCPowers(1,Cond);
-                    S:=abs(UPFC_Power.re)/pf;
-                    QIdeal:=UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
-                    CurrIn:=cadd(conjg(cdiv(cmplx(0,QIdeal),Vbin)),SR1^[Cond]); //Q in terms of current  *** conjg
-                    // This partial result is added to the one obtained previously to balance the control loop
+                    CurrIn    :=  CZERO;
+                    Ctemp     :=  conjg(cmul(cdiv(Vbout,Vbin),conjg(SR0^[Cond]))); //Balancing powers
+                    Losses    :=  CalcUPFCLosses(Cabs(Vbin)/(VRefD*1000));
+                    CurrIn    :=  cnegate(cmplx((Ctemp.re*Losses),SR0^[Cond].im));
+                    SR1^[Cond]:=  CurrIn;
                   End
                   else
                   begin   // Do nothing, aparently the input voltage is OK
                     CurrIn:=cmplx(0,0);
-                    UPFC_Power := CZERO;
+                    SR1^[Cond]:=  CurrIn;
+                    UPFC_Power:=  CZERO;
                   End;
+                    //Always corrects PF
+                    // Starts Power Calculations to copensate the reactive power
+                    UPFC_Power:=  CalcUPFCPowers(1,Cond);
+                    S         :=abs(UPFC_Power.re)/pf;
+                    QIdeal    :=UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
+                    CurrIn    :=cadd(conjg(cdiv(cmplx(0,QIdeal),Vbin)),SR1^[Cond]); //Q in terms of current  *** conjg
+                    // This partial result is added to the one obtained previously to balance the control loop
+
            End;
       end;
   end
-  else CurrIn:=cmplx(0,0);
+  else CurrIn :=  cmplx(0,0);
   Result := CurrIn;
   EXCEPT
       DoSimpleMsg('Error computing current for Isource.'+Name+'. Check specification. Aborting.', 334);
