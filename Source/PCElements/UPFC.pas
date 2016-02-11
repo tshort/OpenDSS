@@ -702,7 +702,7 @@ Begin
                 CurrOut       :=  cmplx(0,0); //UPFC off
                 SR0^[Cond]    :=  CurrOut;
                 SF2           :=  False;   // Says to the other controller to do nothing
-                SyncFlag      :=  True;
+                SyncFlag      :=  False;
               end;
             End
         else
