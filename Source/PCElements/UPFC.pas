@@ -620,7 +620,7 @@ Begin
                   VTemp     :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
                   CurrOut   :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
                   SR0^[Cond]:=  CurrOut;
-                  SyncFlag  :=  True;
+                  SyncFlag  :=  False;
                 End
                 else begin
                   CurrOut   :=  SR0^[Cond];
@@ -666,7 +666,7 @@ Begin
               end;
             end;
         5:  Begin                // Double reference control mode (Dual mode)
-              Vpolar:=ctopolar(Vbin);       // Takes the input voltage to verify the operation
+              Vpolar          :=  ctopolar(Vbin);       // Takes the input voltage to verify the operation
               // Verifies if the Voltage at the input is out of the gap defined with VRef and VRef2
               RefH            :=  (VRef*1000)+(VRef*1000*Tol1);
               RefL            :=  (VRef2*1000)-(VRef2*1000*Tol1);
@@ -689,18 +689,20 @@ Begin
                     VTemp     :=  csub(ptocomplex(Vpolar),VTemp); //Calculates Vpq
                     CurrOut   :=  cadd(SR0^[Cond],cdiv(VTemp, cmplx(0,Xs)));
                     SR0^[Cond]:=  CurrOut;
-                    SyncFlag  :=  True;
+                    SyncFlag  :=  False;
                   End
                   else begin
-                    CurrOut   :=SR0^[Cond];
-                    SyncFlag:=True;
+                    CurrOut   :=  SR0^[Cond];
+                    SyncFlag  :=  True;
                   end;
+                  SF2:=True;   // Normal control routine
               End
               else
               begin
                 CurrOut       :=  cmplx(0,0); //UPFC off
                 SR0^[Cond]    :=  CurrOut;
                 SF2           :=  False;   // Says to the other controller to do nothing
+                SyncFlag      :=  True;
               end;
             End
         else
@@ -785,12 +787,15 @@ Begin
                   Losses      :=  CalcUPFCLosses(Cabs(Vbin)/(VRef*1000));
                   CurrIn      :=  cnegate(cmplx((Ctemp.re*Losses),SR0^[Cond].im));
                   SR1^[Cond]  :=  CurrIn;
-                  // Starts Power Calculations to copensate the reactive power
-                  UPFC_Power  :=  CalcUPFCPowers(1,Cond);
-                  S           :=  abs(UPFC_Power.re)/pf;
-                  QIdeal      :=  UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
-                  CurrIn      :=  cadd(conjg(cdiv(cmplx(0,QIdeal),Vbin)),SR1^[Cond]); //Q in terms of current  *** conjg
-                  // This partial result is added to the one obtained previously to balance the control loop
+                  if SyncFlag then
+                  Begin
+                    // Starts Power Calculations to copensate the reactive power
+                    UPFC_Power  :=  CalcUPFCPowers(1,Cond);
+                    S           :=  abs(UPFC_Power.re)/pf;
+                    QIdeal      :=  UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
+                    CurrIn      :=  cadd(conjg(cdiv(cmplx(0,QIdeal),Vbin)),SR1^[Cond]); //Q in terms of current  *** conjg
+                    // This partial result is added to the one obtained previously to balance the control loop
+                  End;
               End;
            4: Begin                   // Two band reference Mode   (Only Voltage control mode)
                   if SF2 then
@@ -819,18 +824,20 @@ Begin
                   End
                   else
                   begin   // Do nothing, aparently the input voltage is OK
-                    CurrIn:=cmplx(0,0);
-                    SR1^[Cond]:=  CurrIn;
+                    CurrIn:=CZERO;
+                    SR1^[Cond]  :=  CurrIn;
                     UPFC_Power:=  CZERO;
                   End;
                     //Always corrects PF
+                  if SyncFlag then
+                  Begin
                     // Starts Power Calculations to copensate the reactive power
                     UPFC_Power:=  CalcUPFCPowers(1,Cond);
                     S         :=abs(UPFC_Power.re)/pf;
                     QIdeal    :=UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
                     CurrIn    :=cadd(conjg(cdiv(cmplx(0,QIdeal),Vbin)),SR1^[Cond]); //Q in terms of current  *** conjg
                     // This partial result is added to the one obtained previously to balance the control loop
-
+                  End;
            End;
       end;
   end
