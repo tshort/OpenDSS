@@ -194,7 +194,7 @@ TYPE
         Property XhlVal:Double Read Xhl;
         Property XhtVal:Double Read Xht;
         Property XltVal:Double Read Xlt;
-        Property SbortHkVA: Double Read NormMaxHKVA;
+        Property NormalHkVA: Double Read NormMaxHKVA;
         Property EmergHkVA: Double Read EmergMaxHKVA;
         Property thTau: Double Read ThermalTimeConst;
         Property thN: Double Read n_thermal;
@@ -1012,6 +1012,7 @@ begin
             4..9: {do Nothing}; // Ignore these properties; use arrays instead
 
         ELSE
+        If Length(PropertyValue[iProp])>0 Then
           Write(F,Format(' %s=%s', [PropertyName^[RevPropertyIdxMap[iProp]],CheckForBlanks(PropertyValue[iProp])] ));
         END;
       iProp := GetNextPropertySet(iProp);
@@ -1474,6 +1475,8 @@ begin
            20: FOR i := 1 to (NumWindings-1)*NumWindings div 2 Do Result := Result + Format('%-g, ',[ Xsc^[i]*100.0]);// Parser.ParseAsVector(((NumWindings - 1)*NumWindings div 2), Xsc);
            26: Result := Format('%.7g',[pctLoadLoss]);
            27: Result := Format('%.7g',[pctNoLoadLoss]);
+           28: Result := Format('%.7g',[NormMaxHkva]);
+           29: Result := Format('%.7g',[EmergMaxHkva]);
            31: Result := Format('%.7g',[Winding^[ActiveWinding].MaxTap]);
            32: Result := Format('%.7g',[Winding^[ActiveWinding].MinTap]);
            33: Result := Format('%-d',[Winding^[ActiveWinding].NumTaps]);

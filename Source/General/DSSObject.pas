@@ -130,15 +130,17 @@ end;
 procedure TDSSObject.SaveWrite(var F: TextFile);
 var
    iprop:Integer;
+   str  :String;
 begin
    {Write only properties that were explicitly set in the
    final order they were actually set}
    iProp := GetNextPropertySet(0); // Works on ActiveDSSObject
    While iProp >0 Do
      Begin
-      if Length(PropertyValue[iProp])>0 then  Begin
+      str:= trim(PropertyValue[iProp]);
+      if Length(str)>0 then  Begin
           With ParentClass Do Write(F,' ', PropertyName^[RevPropertyIdxMap[iProp]]);
-          Write(F, '=', CheckForBlanks(PropertyValue[iProp]));
+          Write(F, '=', CheckForBlanks(str));
       End;
       iProp := GetNextPropertySet(iProp);
      End;

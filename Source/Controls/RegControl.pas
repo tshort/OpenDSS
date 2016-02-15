@@ -135,6 +135,7 @@ TYPE
        FUNCTION  GetPropertyValue(Index:Integer):String;Override;
        PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
        PROCEDURE DumpProperties(Var F:TextFile; Complete:Boolean);Override;
+       PROCEDURE SaveWrite(Var F:TextFile);Override;
 
        Property Transformer:TTransfObj Read Get_Transformer;  // Pointer to controlled Transformer
        Property TrWinding:Integer Read Get_Winding;  // Report Tapped winding
@@ -1148,6 +1149,31 @@ Procedure TRegControlObj.Reset;
 begin
       PendingTapChange := 0.0;
 
+end;
+
+procedure TRegcontrolObj.SaveWrite(var F: TextFile);
+{Override standard SaveWrite}
+{Regcontrol structure not conducive to standard means of saving}
+var
+   iprop :Integer;
+   i     :Integer;
+begin
+   {Write only properties that were explicitly set in the
+   final order they were actually set}
+
+   // Write Transformer name out first so that it is set for later operations
+   iProp := 1;
+   If Length(PropertyValue[iProp])>0 Then  With ParentClass Do
+    Write(F,Format(' %s=%s', [PropertyName^[RevPropertyIdxMap[iProp]],CheckForBlanks(PropertyValue[iProp])] ));
+
+   iProp := GetNextPropertySet(0); // Works on ActiveDSSObject
+   While iProp > 0 Do  With ParentClass do
+   Begin
+      If iProp <> 1  Then   // Don't repeat Transformer property
+        If Length(PropertyValue[iProp])>0 Then
+            Write(F,Format(' %s=%s', [PropertyName^[RevPropertyIdxMap[iProp]],CheckForBlanks(PropertyValue[iProp])] ));
+      iProp := GetNextPropertySet(iProp);
+   End;
 end;
 
 procedure TRegcontrolObj.InitPropertyValues(ArrayOffset: Integer);

@@ -541,7 +541,7 @@ begin
   XHT := obj.XhtVal;
   XLT := obj.XltVal;
   VABase := obj.baseVA;
-  NormMaxHKVA := obj.SbortHkVA;
+  NormMaxHKVA  := obj.NormalHkVA;
   EmergMaxHKVA := obj.EmergHkVA;
   ThermalTimeConst := obj.thTau;
   n_thermal := obj.thN;
