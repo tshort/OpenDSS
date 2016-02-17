@@ -5,7 +5,7 @@ interface
 function CircuitI(mode:longint; arg: longint):longint;stdcall;
 function CircuitF(mode:longint; arg1, arg2: double):double;stdcall;
 function CircuitS(mode:longint; arg: pAnsiChar):pAnsiChar;stdcall;
-procedure CircuitV(mode:longint; out arg: Olevariant);stdcall;
+procedure CircuitV(mode:longint; out arg: Olevariant; arg2: longint);stdcall;
 
 implementation
 
@@ -270,7 +270,7 @@ begin
   end;
 end;
 //**************************Variant type properties*****************************
-procedure CircuitV(mode:longint; out arg: Olevariant);stdcall;
+procedure CircuitV(mode:longint; out arg: Olevariant; arg2: longint);stdcall;
 
 var
    LossValue :complex;
@@ -279,7 +279,7 @@ var
    pTransf:TTransfObj;
    pCktElem:TDSSCktElement;
    cPower, cLoss, Volts, Curr:Complex;
-   i,j,k,NodeIdx:Integer;
+   i,j,k,NodeIdx, Phase:Integer;
    BaseFactor, VoltsD: double;
    BusName:String;
    iV, p               :LongWord;
@@ -542,6 +542,7 @@ begin
     ELSE arg := VarArrayCreate([0, 0], varDouble);
   end;
   14: begin                                            // Circuit.AllNodeVmagByPhase
+    Phase :=  integer(arg2);
     IF ActiveCircuit <> Nil THEN
      WITH ActiveCircuit DO
      Begin
@@ -552,7 +553,7 @@ begin
        k:=0;
        FOR i := 1 to NumBuses DO
        Begin
-           NodeIdx := Buses^[i].FindIdx(integer(arg));
+           NodeIdx := Buses^[i].FindIdx(Phase);
            If NodeIdx > 0 then   // Node found with this phase number
            Begin
                 Inc(k);
@@ -569,6 +570,7 @@ begin
     ELSE arg := VarArrayCreate([0, 0], varDouble);
   end;
   15: begin                                            // Circuit.AllNodeVmagPUByPhase
+    Phase :=  integer(arg2);
     IF ActiveCircuit <> Nil THEN
      WITH ActiveCircuit DO
      Begin
@@ -577,12 +579,12 @@ begin
        // Find nodes connected to specified phase
        k:=0;
        FOR i := 1 to NumBuses DO  Begin
-           NodeIdx := Buses^[i].FindIdx(integer(arg));
+           NodeIdx := Buses^[i].FindIdx(Phase);
            If NodeIdx > 0 then   // Node found with this phase number
            Begin
                 If Buses^[i].kVBase >0.0 then BaseFactor :=  1000.0* Buses^[i].kVBase  Else BaseFactor := 1.0;
                 Inc(k);
-                Temp^[k] := Cabs(ActiveCircuit.Solution.NodeV^[Buses^[i].GetRef(NodeIdx)])/Basefactor;
+                Temp^[k] := Cabs(ActiveCircuit.Solution.NodeV^[Buses^[i].GetRef(NodeIdx)])/BaseFactor;
            End;
        End;
        // Assign to result and free temp array
