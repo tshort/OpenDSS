@@ -3039,7 +3039,7 @@ begin
 
           End;
           inc(i);
-     Until (i > pCktElement.ControlElementList.listSize) or (Result > 0);
+     Until (i > pElem.ControlElementList.listSize) or (Result > 0);
 end;
 
 Function GetOCPDeviceTypeString(icode:integer):String;
