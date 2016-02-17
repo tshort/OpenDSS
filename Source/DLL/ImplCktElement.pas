@@ -1288,7 +1288,7 @@ begin
 
               End;
               inc(iControl);
-         Until (iControl > pCktElement.ControlElementList.listSize) or (Result > 0);
+         Until (iControl > ActiveCktElement.ControlElementList.listSize) or (Result > 0);
      End;
 end;
 
