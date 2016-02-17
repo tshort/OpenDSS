@@ -98,8 +98,7 @@ begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               If Assigned(ActivePDElement) Then ActiveCktElement := ActivePDElement.ParentPDElement;
-
-              Result := ActivecktElement.ClassIndex ;
+              Result := ActivePDElement.ClassIndex;
           End;
       End;
   end;
