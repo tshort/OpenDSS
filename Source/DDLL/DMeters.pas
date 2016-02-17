@@ -5,7 +5,7 @@ interface
 function MetersI(mode: longint; arg: longint):Longint;stdcall;
 function MetersF(mode: longint; arg: double):double;stdcall;
 function MetersS(mode: longint; arg: pAnsiChar):pAnsiChar;stdcall;
-procedure MetersV(mode: longint; arg: olevariant);stdcall;
+procedure MetersV(mode: longint; out arg: olevariant);stdcall;
 
 implementation
 
@@ -487,7 +487,7 @@ begin
 end;
 
 //***************************Variant type properties******************************
-procedure MetersV(mode: longint; arg: olevariant);stdcall;
+procedure MetersV(mode: longint; out arg: olevariant);stdcall;
 
 Var
   MeterElem:TEnergyMeterObj;
