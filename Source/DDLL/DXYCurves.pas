@@ -3,12 +3,12 @@ unit DXYCurves;
 interface
 
 uses
-  ActiveX, XYCurve, DSSClass;
+  ActiveX, XYCurve, DSSClass, Arraydef, UComplex, Solution;
 
 function XYCurvesI(mode:longint;arg:longint):longint;stdcall;
 function XYCurvesF(mode:longint;arg:double):double;stdcall;
 function XYCurvesS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure XYCurvesV(mode:longint;arg:Olevariant);stdcall;
+procedure XYCurvesV(mode:longint; out arg:Olevariant; var arg2: Olevariant);stdcall;
 
 implementation
 
@@ -251,7 +251,7 @@ begin
 end;
 
 //************************Variant type properties********************************
-procedure XYCurvesV(mode:longint;arg:Olevariant);stdcall;
+procedure XYCurvesV(mode:longint; out arg:Olevariant; var arg2: Olevariant);stdcall;
 
 Var
    pXYCurve:TXYCurveObj;
@@ -276,26 +276,27 @@ begin
          End;
   end;
   1: begin  // XYCurve.XArray write
-    If ActiveCircuit <> Nil Then
-     Begin
-        pXYCurve := XYCurveClass.GetActiveObj;
-        If pXYCurve <> Nil Then Begin
+      arg := VarArrayCreate([0, 0], varDouble);
+      If ActiveCircuit <> Nil Then
+       Begin
+          pXYCurve := XYCurveClass.GetActiveObj;
+          If pXYCurve <> Nil Then Begin
 
-        // Only put in as many points as we have allocated
-         LoopLimit := VarArrayHighBound(arg,1);
-         If (LoopLimit - VarArrayLowBound(arg,1) + 1) > pXYCurve.NumPoints  Then   LoopLimit :=  VarArrayLowBound(arg,1) + pXYCurve.NumPoints - 1;
+          // Only put in as many points as we have allocated
+           LoopLimit := VarArrayHighBound(arg2,1);
+           If (LoopLimit - VarArrayLowBound(arg2,1) + 1) > pXYCurve.NumPoints  Then   LoopLimit :=  VarArrayLowBound(arg2,1) + pXYCurve.NumPoints - 1;
 
-         k := 1;
-         for i := VarArrayLowBound(arg,1) to LoopLimit do
-         Begin
-             pXYCurve.XValue_pt[k] := arg[i];
-             inc(k);
-         End;
+           k := 1;
+           for i := VarArrayLowBound(arg2,1) to LoopLimit do
+           Begin
+               pXYCurve.XValue_pt[k] := arg2[i];
+               inc(k);
+           End;
 
-        End Else Begin
-           DoSimpleMsg('No active XYCurve Object found.',51015);
-        End;
-     End;
+          End Else Begin
+             DoSimpleMsg('No active XYCurve Object found.',51015);
+          End;
+       End;
   end;
   2: begin  // XYCurve.YArray read
         arg := VarArrayCreate([0, 0], varDouble);
@@ -313,7 +314,8 @@ begin
          End;
   end;
   3: begin  // XYCurve.YArray write
-    If ActiveCircuit <> Nil Then
+     arg := VarArrayCreate([0, 0], varDouble);
+     If ActiveCircuit <> Nil Then
      Begin
         pXYCurve := XYCurveClass.GetActiveObj;
         If pXYCurve <> Nil Then Begin
