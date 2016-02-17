@@ -122,6 +122,10 @@ Begin
 End;
 
 function CktElementI(mode:longint; arg:longint):longint;stdcall;
+var
+   pCktElement : TDSSCktElement;
+   iControl : integer;
+
 begin
     Result:=0;  // Default return value
     case mode of
@@ -234,18 +238,18 @@ begin
             Result := 0;
             If ActiveCircuit <> Nil Then  With ActiveCircuit Do
             Begin
-                 i := 1;
+                 iControl :=  1;
                  Repeat
            // cycle through the list of controls until we find a fuse, recloser, or relay
-                      ctrl :=  ActiveCktElement.ControlElementList.Get(i);
-                      If ctrl <> Nil Then
-                      Case (ctrl.DSSObjType and CLASSMASK) of
-                          FUSE_CONTROL     : Result := i;
-                          RECLOSER_CONTROL : Result := i;
-                          RELAY_CONTROL    : Result := i;
+                      pCktElement :=  ActiveCktElement.ControlElementList.Get(iControl);
+                      If pCktElement <> Nil Then
+                      Case (pCktElement.DSSObjType and CLASSMASK) of
+                          FUSE_CONTROL     : Result := longint(iControl);
+                          RECLOSER_CONTROL : Result := longint(iControl);
+                          RELAY_CONTROL    : Result := longint(iControl);
                       End;
-                      inc(i);
-                 Until (i > ctrl.ControlElementList.listSize) or (Result > 0);
+                      inc(iControl);
+                 Until (iControl > ActiveCktElement.ControlElementList.listSize) or (Result > 0);
              End;
         end;
         11: begin                                   // CktElement.OCPDevType
