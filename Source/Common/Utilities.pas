@@ -1778,7 +1778,7 @@ Begin
      Try
         IF AMatrix<>nil THEN
           Begin
-             Writeln(F, '!(G matrix)');
+             Writeln(F, '!(Real part)');
              With AMatrix Do
                Begin
                   FOR i := 1 to Order DO
@@ -1787,7 +1787,7 @@ Begin
                        For j := 1 to i DO Write(F, GetElement(i,j).re:0:8,' ');
                      Writeln(F);
                    End;
-                 Writeln(F, '!(B Matrix) = ');
+                 Writeln(F, '!(Imaginary part) = ');
                  FOR i := 1 to Order DO
                    Begin
                      Write(F, '! ');
