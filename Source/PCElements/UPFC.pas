@@ -56,6 +56,7 @@ TYPE
         UPFCON  : boolean;   // Flag to indicate when the UPFC operation is out of boundaries
         VRef2   : Double;   // Value for deadband's upper limit, it is calculated if tolerance is specified
         VRefD   : Double;   // Dynamic reference for control modes 4 and 5
+        KVARLim : Double;   // kvar limit, defines the maximum amount of kvars that the UPFC can absorb
 
 
         // some state vars for reporting
@@ -124,7 +125,7 @@ USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Utilities, Sysutil
 
 Const
     propLossCurve= 11;
-    NumPropsThisClass = 15;
+    NumPropsThisClass = 16;
     NumUPFCVariables = 14;
 
 
@@ -179,6 +180,7 @@ Begin
      PropertyName[13]:= 'VLLimit';
      PropertyName[14]:= 'CLimit';
      PropertyName[15]:= 'refkv2';
+     PropertyName[16]:= 'kvarLimit';
 
      // define Property help values
      PropertyHelp[1] := 'Name of bus to which the input terminal (1) is connected.'+CRLF+'bus1=busname.1.3'+CRLF+'bus1=busname.1.2.3';                        ;
@@ -200,6 +202,7 @@ Begin
      PropertyHelp[14]:= 'Current Limit for the UPFC, if the current passing through the UPFC is higher than this value the UPFC turns off. This value is specified in Amps (Default 265 A)';
      PropertyHelp[15]:= 'Base Voltage expected at the output of the UPFC for control modes 4 and 5.'+ CRLF+CRLF +
                         'This reference must be lower than refkv, see control modes 4 and 5 for details';
+     PropertyHelp[16]:= 'Maximum amount of reactive power (kvar) that can be absorved by the UPFC (Default = 5)';
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -270,6 +273,7 @@ Begin
             13: VLLimit := Parser.DblValue;
             14: CLimit  := Parser.DblValue;
             15: VRef2   := Parser.DblValue;
+            16: kvarLim := Parser.DblValue;
 
          ELSE
             ClassEdit(ActiveUPFCObj, ParamPointer - NumPropsThisClass)
@@ -331,6 +335,7 @@ Begin
        VLLimit   :=OtherUPFC.VLLimit;
        CLimit    :=OtherUPFC.CLimit;
        VRef2     := OtherUPFC.VRef2;
+       kvarLim   := OtherUPFC.kvarLim;
 
        ClassMakeLike(OtherUPFC);
 
@@ -381,6 +386,7 @@ Begin
      Sr0 := Nil;
      Sr1 := Nil;
      VRef2    := 0.0;
+     kvarLim  := 5;
 
      QIdeal := 0.0;
 
@@ -779,6 +785,7 @@ Begin
                   UPFC_Power  :=  CalcUPFCPowers(2,0);
                   S           :=  abs(UPFC_Power.re)/pf;
                   QIdeal      :=  UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
+                  if (QIdeal > (kvarLim*1000)) then QIdeal := kvarLim*1000;
                   CurrIn      :=  conjg(cdiv(cmplx(0,QIdeal),Vbin)); //Q in terms of current  *** conjg
               End;
           3:  Begin                    // Dual mode
@@ -793,6 +800,7 @@ Begin
                     UPFC_Power  :=  CalcUPFCPowers(1,Cond);
                     S           :=  abs(UPFC_Power.re)/pf;
                     QIdeal      :=  UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
+                    if (QIdeal > (kvarLim*1000)) then QIdeal := kvarLim*1000;
                     CurrIn      :=  cadd(conjg(cdiv(cmplx(0,QIdeal),Vbin)),SR1^[Cond]); //Q in terms of current  *** conjg
                     // This partial result is added to the one obtained previously to balance the control loop
                   End;
@@ -835,6 +843,7 @@ Begin
                     UPFC_Power:=  CalcUPFCPowers(1,Cond);
                     S         :=abs(UPFC_Power.re)/pf;
                     QIdeal    :=UPFC_Power.im-sqrt(1-pf*pf)*S;   //This is the expected compensating reactive power
+                    if (QIdeal > (kvarLim*1000)) then QIdeal := kvarLim*1000;
                     CurrIn    :=cadd(conjg(cdiv(cmplx(0,QIdeal),Vbin)),SR1^[Cond]); //Q in terms of current  *** conjg
                     // This partial result is added to the one obtained previously to balance the control loop
                   End;
