@@ -97,8 +97,11 @@ begin
       With ActiveCircuit Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
-              If Assigned(ActivePDElement) Then ActiveCktElement := ActivePDElement.ParentPDElement;
-              Result := ActivePDElement.ClassIndex;
+	      If ActivePDElement.ParentPDElement <> nil then
+	      Begin  // If nil, returns 0 and leaves ActiveCktElement as it is
+		   ActiveCktElement := ActivePDElement.ParentPDElement;
+		   Result := ActiveCktElement.ClassIndex;
+	      End;
           End;
       End;
   end;
