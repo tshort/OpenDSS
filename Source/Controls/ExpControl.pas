@@ -385,6 +385,8 @@ Begin
     for i := 1 to FPVSystemPointerList.ListSize do begin
         // User ControlledElement[] as the pointer to the PVSystem elements
          ControlledElement[i] :=  TPVSystemObj(FPVSystemPointerList.Get(i));  // pointer to i-th PVSystem
+         Nphases := ControlledElement[i].NPhases;  // TEMC TODO
+         Nconds  := Nphases;
          if (ControlledElement[i] = nil) then
             DoErrorMsg('ExpControl: "' + Self.Name + '"',
               'Controlled Element "' + FPVSystemNameList.Strings[i-1] + '" Not Found.',
