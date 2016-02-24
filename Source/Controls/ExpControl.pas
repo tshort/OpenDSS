@@ -3,7 +3,7 @@ unit ExpControl;
 
 {
   ----------------------------------------------------------
-  Copyright (c) 2015, University of  Pittsburgh
+  Copyright (c) 2015-2016, University of Pittsburgh
   All rights reserved.
   ----------------------------------------------------------
 
@@ -461,8 +461,8 @@ BEGIN
       if (FWithinTol[i]=False) then begin
         // look up Qpu from the slope crossing at Vreg, and add the bias
         Qpu := -FSlope * (FPresentVpu[i] - FVregs[i]) + FQbias;
-        If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+','+PVSys.Name+',',
-          Format('  FVreg= %.5g, Vpu= %.5g', [FVregs[i],FPresentVpu[i]]));
+        If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+','+PVSys.Name,
+          Format(' Setting Qpu= %.5g at FVreg= %.5g, Vpu= %.5g', [Qpu, FVregs[i],FPresentVpu[i]]));
       end;
 
       // apply limits on Qpu, then define the target in kVAR
@@ -477,9 +477,9 @@ BEGIN
       Qset := FPriorQ[i] + DeltaQ * FdeltaQ_factor;
  //     Qset := FQbias * Qbase;
       If PVSys.Presentkvar <> Qset Then PVSys.Presentkvar := Qset;
-      If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name +','+ PVSys.Name+',',
-                             Format('**%s mode set PVSystem output var level to**, kvar= %.5g',
-                             [GetPropertyValue(2), PVSys.Presentkvar,FPresentVpu[i]]));
+      If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name +','+ PVSys.Name,
+                             Format(' Setting PVSystem output kvar= %.5g',
+                             [PVSys.Presentkvar]));
       FPriorQ[i] := Qset;
       FPriorVpu[i] := FPresentVpu[i];
       ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
@@ -529,12 +529,11 @@ begin
           With  ActiveCircuit.Solution.DynaVars Do
             ControlActionHandle := ActiveCircuit.ControlQueue.Push (intHour, t + TimeDelay, PendingChange[i], 0, Self);
           If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+' '+PVSys.Name, Format
-            ('**Ready to change var output due in %s mode**, Vavgpu= %.5g, VPriorpu=%.5g',
-            [GetPropertyValue(2), FPresentVpu[i],FPriorVpu[i]]));
+            (' outside Hit Tolerance, Verr= %.5g, Qerr=%.5g', [Verr,Qerr]));
         end else begin
           if ((Verr <= FVoltageChangeTolerance) and (Qerr <= FVarChangeTolerance)) then FWithinTol[i] := True;
           If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+' '+PVSys.Name, Format
-            ('**Hit Tolerance**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FPriorVpu[i]]));
+            (' within Hit Tolerance, Verr= %.5g, Qerr=%.5g', [Verr,Qerr]));
         end;
       end;
     end;  {For}
@@ -686,8 +685,8 @@ begin
     if FVregs[j] < FVregMin then FVregs[j] := FVregMin;
     if FVregs[j] > FVregMax then FVregs[j] := FVregMax;
     PVSys.Set_Variable(5,FVregs[j]);
-    If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+','+PVSys.Name+',',
-      Format('  **VREG set new FVreg= %.5g Vpu=%.5g Verr=%.5g',
+    If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+','+PVSys.Name,
+      Format(' Setting new Vreg= %.5g Vpu=%.5g Verr=%.5g',
       [FVregs[j], FPresentVpu[j], Verr]));
   end;
 end;
