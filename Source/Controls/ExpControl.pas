@@ -1,4 +1,3 @@
-
 unit ExpControl;
 
 {
@@ -265,6 +264,10 @@ Begin
    OtherExpControl := Find(ExpControlName);
    IF OtherExpControl<>Nil THEN
    WITH ActiveExpControlObj Do Begin
+
+      NPhases := OtherExpControl.Fnphases;
+      NConds  := OtherExpControl.Fnconds; // Force Reallocation of terminal stuff
+
       for i := 1 to FPVSystemPointerList.ListSize do begin
         ControlledElement[i]       := OtherExpControl.ControlledElement[i];
         FWithinTol[i]              := OtherExpControl.FWithinTol[i];
@@ -385,7 +388,7 @@ Begin
     for i := 1 to FPVSystemPointerList.ListSize do begin
         // User ControlledElement[] as the pointer to the PVSystem elements
          ControlledElement[i] :=  TPVSystemObj(FPVSystemPointerList.Get(i));  // pointer to i-th PVSystem
-         Nphases := ControlledElement[i].NPhases;  // TEMC TODO
+         Nphases := ControlledElement[i].NPhases;  // TEMC TODO - what if these are different sizes (same concern exists with InvControl)
          Nconds  := Nphases;
          if (ControlledElement[i] = nil) then
             DoErrorMsg('ExpControl: "' + Self.Name + '"',
@@ -401,6 +404,18 @@ procedure TExpControlObj.MakePosSequence;
 // ***  This assumes the PVSystem devices have already been converted to pos seq
 begin
   IF FPVSystemPointerList.ListSize = 0 Then  RecalcElementData;
+  // TEMC - from here to inherited was copied from InvControl
+  Nphases := 3;
+  Nconds := 3;
+  Setbus(1, MonitoredElement.GetBus(ElementTerminal));
+  IF FPVSystemPointerList.ListSize > 0  Then Begin
+    {Setting the terminal of the ExpControl device to same as the 1st PVSystem element}
+    { This sets it to a realistic value to avoid crashes later }
+    MonitoredElement :=  TDSSCktElement(FPVSystemPointerList.Get(1));   // Set MonitoredElement to 1st PVSystem in lise
+    Setbus(1, MonitoredElement.Firstbus);
+    Nphases := MonitoredElement.NPhases;
+    Nconds := Nphases;
+  End;
   inherited;
 end;
 
