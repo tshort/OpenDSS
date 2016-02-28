@@ -2387,6 +2387,7 @@ Var
     iNormal,
     iEmerg, Cmax   :Double;
     Separator      :String;
+    Spower         :Double;
 
 Begin
 
@@ -2400,7 +2401,7 @@ Begin
      Getmem(cbuffer, sizeof(cBuffer^[1])* GetMaxCktElementSize);
 
      {Sequence Currents}
-     Writeln(F,'Element, Terminal,  I1, %Normal, %Emergency, I2, %I2/I1, I0, %I0/I1');
+     Writeln(F,'Element, Terminal,  I1, AmpsOver, kVAOver, %Normal, %Emergency, I2, %I2/I1, I0, %I0/I1');
 
      Separator := ', ';
 
@@ -2439,12 +2440,18 @@ Begin
             THEN
              IF (CMax > PDElem.NormAmps) OR (Cmax > pdelem.EmergAmps)
              THEN Begin
-                 Write(F, Pad(('"'+pDelem.DSSClassName + '.' + Uppercase(pDelem.Name)+'"'), 22),  Separator, j:3);
-                 Write(F, Separator, I1:8:1);
+               // Get terminal 1 power
+                 Spower := Cabs(PDElem.Power[1]) * 0.001;   // kW
+
+                 Write(F, Format('%s, %d, ' ,[Pad(('"'+pDelem.DSSClassName + '.' + Uppercase(pDelem.Name)+'"'), 22),j]));
+                 Write(F, Format('%8.2f, ',[I1 ]));
                  IF  j = 1 THEN Begin // Only for 1st Terminal
                       iNormal := PDelem.NormAmps;
                       IF iNormal > 0.0
-                          THEN Write(F, Separator, Cmax/iNormal*100.0:8:1)
+                          THEN Begin
+                                    Write(F, Format('%8.2f, %10.2f', [(Cmax - iNormal), Spower*(Cmax-iNormal)/iNormal ]));
+                                    Write(F, Separator, Cmax/iNormal*100.0:8:1);
+                               End
                           ELSE Write(F, Separator, '     0.0');
                       iEmerg :=  PDelem.EmergAmps;
                       IF iEmerg > 0.0

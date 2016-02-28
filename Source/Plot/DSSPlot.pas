@@ -319,13 +319,11 @@ begin
      Begin
          BusMarker := ActiveCircuit.BusMarkerList.Items[i];
          Bus1Idx := ActiveCircuit.BusList.Find(BusMarker.BusName);
-         if Bus1Idx>0  then Begin
+         if Bus1Idx>0  then With BusMarker do Begin
               Bus := ActiveCircuit.Buses^[Bus1Idx];
-              if Bus.CoordDefined  then  With BusMarker do
-              Begin
-                  AddNewMarker(Bus.x, Bus.y, AddMarkerColor, AddMarkerCode, AddMarkerSize);
-              End
-              Else DoSimpleMsg('Bus Coordinates not defined for bus ' + BusMarker.Busname, 28709);
+              if Bus.CoordDefined  then
+                  AddNewMarker(Bus.x, Bus.y, AddMarkerColor, AddMarkerCode, AddMarkerSize)
+              Else DoSimpleMsg('Bus Coordinates not defined for bus ' + Busname, 28709);
 
          End;
      End;

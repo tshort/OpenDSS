@@ -2166,7 +2166,7 @@ Begin
      Writeln(F);
      Writeln(F,'SYMMETRICAL COMPONENT CURRENTS BY CIRCUIT ELEMENT ');
      Writeln(F);
-     Writeln(F,'Element                      Term    I1      I2    %I2/I1    I0    %I0/I1 %Normal   %Emergency');
+     Writeln(F,'Element                             Term    I1    IOver %Normal  %Emerg     I2    %I2/I1    I0    %I0/I1');
      Writeln(F);
 
 
@@ -2210,12 +2210,13 @@ Begin
            THEN Begin
                Write(F, Pad(FullName(PDelem), MaxDeviceNameLength+2), j:3);
                Write(F, I1:8:1);
+               IF PDElem.Normamps > 0.0 Then  Write(F, (Cmax-PDElem.Normamps):8:2) Else Write(F,'     0.0');
+               IF PDElem.Normamps > 0.0  Then Write(F, Cmax/PDElem.Normamps*100.0:8:1)  Else Write(F,'     0.0');
+               IF PDElem.Emergamps > 0.0 Then Write(F, Cmax/PDElem.Emergamps*100.0:8:1) Else Write(F,'     0.0');
                Write(F, I2:8:1);
-               IF I1>0.0 THEN Write(F, 100.0*I2/I1:8:1) ELSE Write(F,'     0.0');
+               IF I1>0.0 Then Write(F, 100.0*I2/I1:8:1) Else Write(F,'     0.0');
                Write(F, I0:8:1);
-               IF I1>0.0 THEN Write(F, 100.0*I0/I1:8:1) ELSE Write(F,'     0.0');
-               IF PDElem.Normamps > 0.0  THEN Write(F, Cmax/PDElem.Normamps*100.0:8:1)  ELSE Write(F,'     0.0');
-               IF PDElem.Emergamps > 0.0 THEN Write(F, Cmax/PDElem.Emergamps*100.0:8:1) ELSE Write(F,'     0.0');
+               IF I1>0.0 Then Write(F, 100.0*I0/I1:8:1) Else Write(F,'     0.0');
                Writeln(F);
            END;
         End; {For}
