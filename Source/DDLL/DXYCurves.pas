@@ -8,7 +8,7 @@ uses
 function XYCurvesI(mode:longint;arg:longint):longint;stdcall;
 function XYCurvesF(mode:longint;arg:double):double;stdcall;
 function XYCurvesS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure XYCurvesV(mode:longint; out arg:Olevariant; var arg2: Olevariant);stdcall;
+procedure XYCurvesV(mode:longint; var arg:Olevariant);stdcall;
 
 implementation
 
@@ -251,7 +251,7 @@ begin
 end;
 
 //************************Variant type properties********************************
-procedure XYCurvesV(mode:longint; out arg:Olevariant; var arg2: Olevariant);stdcall;
+procedure XYCurvesV(mode:longint; var arg:Olevariant);stdcall;
 
 Var
    pXYCurve:TXYCurveObj;
@@ -276,24 +276,23 @@ begin
          End;
   end;
   1: begin  // XYCurve.XArray write
-      arg := VarArrayCreate([0, 0], varDouble);
+ //     arg := VarArrayCreate([0, 0], varDouble);
       If ActiveCircuit <> Nil Then
        Begin
           pXYCurve := XYCurveClass.GetActiveObj;
           If pXYCurve <> Nil Then Begin
 
           // Only put in as many points as we have allocated
-           LoopLimit := VarArrayHighBound(arg2,1);
-           If (LoopLimit - VarArrayLowBound(arg2,1) + 1) > pXYCurve.NumPoints  Then   LoopLimit :=  VarArrayLowBound(arg2,1) + pXYCurve.NumPoints - 1;
-
-           k := 1;
-           for i := VarArrayLowBound(arg2,1) to LoopLimit do
-           Begin
-               pXYCurve.XValue_pt[k] := arg2[i];
-               inc(k);
-           End;
-
-          End Else Begin
+           LoopLimit := VarArrayHighBound(arg,1);
+           If (LoopLimit - VarArrayLowBound(arg,1) + 1) > pXYCurve.NumPoints  Then   LoopLimit :=  VarArrayLowBound(arg,1) + pXYCurve.NumPoints - 1;
+//             DoSimpleMsg('We are in',0);
+             k := 1;
+             for i := VarArrayLowBound(arg,1) to LoopLimit do
+             Begin
+                 pXYCurve.XValue_pt[k] := arg[i];
+                 inc(k);
+             End;
+           End Else Begin
              DoSimpleMsg('No active XYCurve Object found.',51015);
           End;
        End;
