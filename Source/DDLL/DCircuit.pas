@@ -605,7 +605,7 @@ begin
        k:=0;
        FOR i := 1 to NumBuses DO
        Begin
-           NodeIdx := Buses^[i].FindIdx(integer(arg));
+           NodeIdx := Buses^[i].FindIdx(integer(arg2));
            If NodeIdx > 0 then   // Node found with this phase number
            Begin
                 Inc(k);
@@ -632,7 +632,7 @@ begin
        // Find nodes connected to specified phase
        k:=0;
        FOR i := 1 to NumBuses DO  Begin
-           NodeIdx := Buses^[i].FindIdx(integer(arg));
+           NodeIdx := Buses^[i].FindIdx(integer(arg2));
            If NodeIdx > 0 then   // Node found with this phase number
            Begin
                 Inc(k);
