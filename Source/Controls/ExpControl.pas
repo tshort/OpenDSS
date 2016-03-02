@@ -251,6 +251,7 @@ Begin
       ParamName := Parser.NextParam;
       Param := Parser.StrValue;
     End;
+    RecalcElementData;
   End;
 End;
 
@@ -353,7 +354,6 @@ Begin
      FPendingChange         := nil;
 
      InitPropertyValues(0);
-   //  RecalcElementData;
 End;
 
 destructor TExpControlObj.Destroy;
@@ -504,6 +504,7 @@ BEGIN
       Set_PendingChange(NONE,i);
     end
   end;
+
 end;
 
 PROCEDURE TExpControlObj.Sample;
@@ -617,7 +618,7 @@ begin
 
   //Initialize arrays
   For i := 1 to FlistSize Do begin
-    PVSys := PVSysClass.Find(FPVSystemNameList.Strings[i-1]);
+//    PVSys := PVSysClass.Find(FPVSystemNameList.Strings[i-1]);
 //    Set_NTerms(PVSys.NTerms); // TODO - what is this for?
     FPriorVpu[i] := 0.0;
     FPresentVpu[i] := 0.0;
