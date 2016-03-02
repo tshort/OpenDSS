@@ -1681,18 +1681,18 @@ BEGIN
  {Note: NodeV[0] = 0 + j0 always.  Therefore, pass the address of the element 1 of the array.
  }
   Try
-    // new function to log KLUSolve.DLL function calls
+    // new function to log KLUSolve.DLL function calls; same information as stepping through in Delphi debugger
     // SetLogFile ('KLU_Log.txt', 1);
-    RetCode :=  SolveSparseSet(hY, @V^[1], @Currents^[1]);  // Solve for present InjCurr
+    RetCode := SolveSparseSet(hY, @V^[1], @Currents^[1]);  // Solve for present InjCurr
     // new information functions
-    // GetFlops (hY, @dRes);
-    // GetRGrowth (hY, @dRes);
+    GetFlops (hY, @dRes);
+    GetRGrowth (hY, @dRes);
     GetRCond (hY, @dRes);
     // GetCondEst (hY, @dRes); // this can be expensive
-    // GetSize (hY, @iRes);
+    GetSize (hY, @iRes);
     GetNNZ (hY, @iRes);
     GetSparseNNZ (hY, @iRes);
-    // GetSingularCol (hY, @iRes);
+    GetSingularCol (hY, @iRes);
   Except
     On E:Exception Do Raise  EEsolv32Problem.Create('Error Solving System Y Matrix.  Sparse matrix solver reports numerical error: '
                    +E.Message);
