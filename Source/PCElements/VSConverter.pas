@@ -468,7 +468,7 @@ begin
     Stotal := Cadd (Stotal, Sphase);
   end;
   Pac := Stotal.re;
-  Qac := Stotal.im;
+//  Qac := Stotal.im;
   if (Pac = 0.0) then Pac := 1000.0 * FkW;
 
   // DC current source injection

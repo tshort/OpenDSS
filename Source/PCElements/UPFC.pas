@@ -41,15 +41,12 @@ TYPE
         Xs      : Double; //Impedance of the series Xfmr
         Sr0     : pComplexArray; //Shift register for controller 1
         Sr1     : pComplexArray; //Shift register for controller 2
-        Sr3     : Complex; //Shift register for controller 2
         Vbin    : Complex; // Voltage at the input of the device
         Vbout   : Complex; // Voltage at the output of the device
         Tol1    : Double;   //Tolerance (dead band) specified for the controller 1
         ERR0    : array[1..6] of Double; //Error controller 1 for Dual mode
         ZBase   : Double;
         Freq    : Double;
-        tolS    : boolean;  // Defines the sign of the error
-        TolSim  : Double;   // Tolerance used for the simulation
         VHLimit : Double;   // High limit for the input voltage in volts (default 300V)
         VLLimit : Double;   // Low limit for the input voltage in volts (default 125V)
         CLimit  : Double;   // Limit for the maximum current in amperes
@@ -724,13 +721,6 @@ End;
 //============================================================================
 
 Function TUPFCObj.CalcUPFCPowers(ModeUP,Cond:integer):Complex;
-
-VAr
-
-   VoutNC : complex; //Variable to put the output voltage without control
-   Vpolar : polar;
-   TError : double;
-
 Begin
       case ModeUP of
         1: Begin                                                //Dual mode
@@ -760,7 +750,6 @@ Function TUPFCObj.GetinputCurr(Cond: integer):Complex;
 VAr
    CurrIn,Ctemp:complex;
    S:double;
-   Vpolar:polar;
 
 Begin
 

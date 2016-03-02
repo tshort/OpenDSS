@@ -1156,7 +1156,6 @@ procedure TRegcontrolObj.SaveWrite(var F: TextFile);
 {Regcontrol structure not conducive to standard means of saving}
 var
    iprop :Integer;
-   i     :Integer;
 begin
    {Write only properties that were explicitly set in the
    final order they were actually set}

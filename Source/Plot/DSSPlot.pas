@@ -2376,7 +2376,7 @@ Var
    Xarray : pDoubleArray;
    Yarray : Array[0..100] of pDoubleArray;
    iCount : Integer;
-   iChannel : Integer;
+   iChannel : Cardinal;
 
 begin
    { Plot designated channels in monitor designated by ObjectName }

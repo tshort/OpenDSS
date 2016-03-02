@@ -145,7 +145,6 @@ end;
             FRiseFallLimit : Double;
             FPresentVpu: Array of Double;
             FvoltwattDeltaVTolerance: Double; // tolerance of voltage change from one solution to the
-            LPFWattspu : Double;
             FPendingChange: Array of Integer;
             FFlagROCOnly : Array of Boolean;
 
@@ -2613,11 +2612,11 @@ end;
 
 procedure TInvControlObj.UpdateInvControl(i:integer);
 Var
-   j,k                      : Integer;
-   solnvoltage,tempa3       : Double;
-   localControlledElement     : TDSSCktElement;
-   tempVbuffer                : pComplexArray;
-   PVSys                      : TPVSystemObj;
+   j,k                    : Integer;
+   solnvoltage            : Double;
+   localControlledElement : TDSSCktElement;
+   tempVbuffer            : pComplexArray;
+   PVSys                  : TPVSystemObj;
 
 
 begin
@@ -2718,19 +2717,13 @@ End;
 Procedure TInvControlObj.CalcDRC_vars(j: Integer);
 VAR
 
-  Pdesiredpu                                :Double;
-  voltagechangesolution,VpuFromCurve,
-  DeltaQ,basekV,alpha,
-  LPFvarspu,Qdesiredpu_temp,QTemp,tempa,tempa2,TempQ     :Double;
+  DeltaQ,basekV,
+  QTemp,TempQ     :Double;
   SMonitoredElement                         :Complex;
 
 
  // local pointer to current PVSystem element
   PVSys                                     :TPVSystemObj;
-
-  FDiffvar                                  :Array of Double;
-  FDesiredpu_temp                           :Array of Double;
-  FlagFinished                              :Boolean;
 
 BEGIN
 
@@ -2805,125 +2798,104 @@ END;
 
 FUNCTION TInvControlObj.CalcLPF(m: Integer; powertype: String;PVSys:TPVSystemObj):Double;
 VAR
-  j                                         :Integer;
-  Pdesiredpu                                :Double;
-  voltagechangesolution,QPresentpu,VpuFromCurve,
-  DeltaQ,basekV,alpha,DeltaP,
-  LPFvarspu,Qdesiredpu_temp,LPFwattspu      :Double;
+  Pdesiredpu                :Double;
+  DeltaQ,alpha,DeltaP,
+  LPFvarspu,LPFwattspu      :Double;
 
   // Applies the LPF:
   //  Return value is in kvar for VARS
   //  Return value is in puPmpp for WATTS
 
 BEGIN
-       // calculate the alpha constant
-       alpha := 1.0/(ActiveCircuit.Solution.DynaVars.h)/(FLPFTau+1.0/ActiveCircuit.Solution.DynaVars.h);
-       if powertype = 'VARS' then
-        begin
-           LPFvarspu :=alpha*(Qoutputpu[m])+(1-alpha)*(FPriorvarspu[m]);
-           if (LPFvarspu <> 0.0) then
-            begin
-             QDeliver[m] := LPFvarspu*QHeadRoom[m];
-             DeltaQ := QDeliver[m] - Qold[m];
-
-             Result := QOld[m] + DeltaQ * FdeltaQ_factor;
-            end
-
-           else
-            Result := -999.999;
-        end;
-       if powertype = 'WATTS' then
-        begin
-           LPFWattspu :=alpha*(FFinalpuPmpp[m])+(1-alpha)*(FPriorWattspu[m]);
-           if (LPFWattspu <> 0.0) then
-             begin
-                Pdesiredpu := LPFWattspu;
-                DeltaP := Pdesiredpu - POld[m];
-                Result := POld[m] + DeltaP * FdeltaP_factor;
-              end
-           else
-            Result := -999.999;
-        end;
+  Result := -999.999;
+  // calculate the alpha constant
+  alpha := 1.0/(ActiveCircuit.Solution.DynaVars.h)/(FLPFTau+1.0/ActiveCircuit.Solution.DynaVars.h);
+  if powertype = 'VARS' then begin
+    LPFvarspu :=alpha*(Qoutputpu[m])+(1-alpha)*(FPriorvarspu[m]);
+    if (LPFvarspu <> 0.0) then begin
+      QDeliver[m] := LPFvarspu*QHeadRoom[m];
+      DeltaQ := QDeliver[m] - Qold[m];
+      Result := QOld[m] + DeltaQ * FdeltaQ_factor;
+    end;
+  end;
+  if powertype = 'WATTS' then begin
+    LPFWattspu :=alpha*(FFinalpuPmpp[m])+(1-alpha)*(FPriorWattspu[m]);
+    if (LPFWattspu <> 0.0) then begin
+      Pdesiredpu := LPFWattspu;
+      DeltaP := Pdesiredpu - POld[m];
+      Result := POld[m] + DeltaP * FdeltaP_factor;
+    end;
+  end;
 END;
 
 FUNCTION TInvControlObj.CalcRF(m: Integer;powertype: String;PVSys:TPVSystemObj):Double;
 VAR
   Pdesiredpu                                :Double;
-  voltagechangesolution,QPresentpu,VpuFromCurve,
-  DeltaQ,basekV,alpha,DeltaP,
-  LPFvarspu,Pdesiredpu_temp,LPFwattspu,
+  DeltaP,
+  Pdesiredpu_temp,
   Qdesiredpu_temp                           :Double;
 
 BEGIN
-
-
-
+  Result := 0.0;
   // Applies the Rise/Fall limiting function:
   //  Return value is in kvar for VARS
   //  Return value is in puPmpp for WATTS
-  if FVV_ReacPower_ref = 'VARAVAL_WATTS' then QHeadRoom[m] := SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW));
-  if (FVV_ReacPower_ref = 'VARMAX_VARS') or (FVV_ReacPower_ref = 'VARMAX_WATTS') then QHeadRoom[m] := PVSys.kvarLimit;
+  if FVV_ReacPower_ref = 'VARAVAL_WATTS' then
+    QHeadRoom[m] := SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW));
+  if (FVV_ReacPower_ref = 'VARMAX_VARS') or (FVV_ReacPower_ref = 'VARMAX_WATTS') then
+    QHeadRoom[m] := PVSys.kvarLimit;
 
+  if powertype='VARS' then begin
+    if(abs(PVSys.Presentkvar) < 0.00001) then begin
+      exit;
+    end;
+    // rate of change rise/fall limit
+    if(PVSys.Presentkvar/QHeadroom[m] - FPriorvarspu[m])<=0 then begin
+      if(PVSys.Presentkvar<=0) then
+        Qdesiredpu_temp := Max((FPriorvarspu[m]-(FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h))),PVSys.Presentkvar/QHeadroom[m])
+      else
+        Qdesiredpu_temp := Min((FPriorvarspu[m]-(FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h))),PVSys.Presentkvar/QHeadroom[m])
+    end else begin
+      if(PVSys.Presentkvar<=0) then
+        Qdesiredpu_temp := Max((FPriorvarspu[m]+(-1.0*FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h))),PVSys.Presentkvar/QHeadroom[m])
+      else  // TODO - Wes check the following, Tom prepended Qdesiredpu_temp :=
+        Qdesiredpu_temp := Min((FPriorvarspu[m]+(-1.0*FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h))),PVSys.Presentkvar/QHeadroom[m]);
+    end;
+    FROCEvaluated[m] := True;
+    Result := Qdesiredpu_temp*QHeadRoom[m];
+  end;
 
-            if powertype='VARS' then
-              begin
-                if(abs(PVSys.Presentkvar) < 0.00001) then
-                begin
-                  Result := 0.0;
-                  exit;
-                end;
-                // rate of change rise/fall limit
-                if(PVSys.Presentkvar/QHeadroom[m] - FPriorvarspu[m])<=0  then
-                  begin
-                    if(PVSys.Presentkvar<=0) then Qdesiredpu_temp := Max((FPriorvarspu[m]-(FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h))),PVSys.Presentkvar/QHeadroom[m])
-                    else Qdesiredpu_temp := Min((FPriorvarspu[m]-(FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h))),PVSys.Presentkvar/QHeadroom[m])
-                  end
-                else
-                  begin
-                    if(PVSys.Presentkvar<=0) then Qdesiredpu_temp := Max((FPriorvarspu[m]+(-1.0*FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h))),PVSys.Presentkvar/QHeadroom[m])
-                    else Min((FPriorvarspu[m]+(-1.0*FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h))),PVSys.Presentkvar/QHeadroom[m]);
-                  end;
-                FROCEvaluated[m] := True;
-                Result := Qdesiredpu_temp*QHeadRoom[m];
-            end;
-
-            if powertype = 'WATTS' then
-              begin
-                // rate of change rise/fall limit
-                if (abs(FFinalpuPmpp[m] - FPriorWattspu[m])/(1.0/ActiveCircuit.Solution.DynaVars.h*1.0)) > FRiseFallLimit then
-                  begin
-
-                    if(FFinalpuPmpp[m] - FPriorWattspu[m])<=0 then Pdesiredpu_temp := (FPriorWattspu[m]-(FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h)));
-                    if(FFinalpuPmpp[m] - FPriorWattspu[m])>0 then Pdesiredpu_temp := (FPriorWattspu[m]+(FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h)));
-                    if(Pdesiredpu_temp > PVSys.PresentkW/PVSys.PVSystemVars.FPmpp) then Pdesiredpu_temp := PVSys.PresentkW/PVSys.PVSystemVars.FPmpp;
-                    if (Pdesiredpu_temp <> 0.0)   then
-                      begin
-                        Pdesiredpu :=Pdesiredpu_temp;
-                        DeltaP := Pdesiredpu - POld[m];
-                        Result := POld[m] + DeltaP * FdeltaP_factor;
-                      end;
-                  end
-                else Result := PVSys.PresentkW/PVSys.PVSystemVars.FPmpp;
-              end;
-
+  if powertype = 'WATTS' then begin
+    // rate of change rise/fall limit
+    if (abs(FFinalpuPmpp[m] - FPriorWattspu[m])/(1.0/ActiveCircuit.Solution.DynaVars.h*1.0)) > FRiseFallLimit then begin
+      if(FFinalpuPmpp[m] - FPriorWattspu[m])<=0 then
+        Pdesiredpu_temp := (FPriorWattspu[m]-(FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h)))
+      else
+        Pdesiredpu_temp := (FPriorWattspu[m]+(FRiseFallLimit*(1.0/ActiveCircuit.Solution.DynaVars.h)));
+      if(Pdesiredpu_temp > PVSys.PresentkW/PVSys.PVSystemVars.FPmpp) then
+        Pdesiredpu_temp := PVSys.PresentkW/PVSys.PVSystemVars.FPmpp;
+      if (Pdesiredpu_temp <> 0.0) then begin
+        Pdesiredpu :=Pdesiredpu_temp;
+        DeltaP := Pdesiredpu - POld[m];
+        Result := POld[m] + DeltaP * FdeltaP_factor;
+      end;
+    end else
+      Result := PVSys.PresentkW/PVSys.PVSystemVars.FPmpp;
+  end;
 END;
 
 Procedure TInvControlObj.CalcVoltVar_vars(j: Integer);
 VAR
 
-  Pdesiredpu                                :Double;
   voltagechangesolution,QPresentpu,VpuFromCurve,
-  DeltaQ,basekV,alpha,
-  Qdesiredpu_temp                           :Double;
-  SMonitoredElement                         :Complex;
+  DeltaQ                                   :Double;
+  SMonitoredElement                        :Complex;
 
 
  // local pointer to current PVSystem element
   PVSys                                     :TPVSystemObj;
   FDiffvar                                  :Array of Double;
   FDesiredpu_temp                           :Array of Double;
-  FlagFinished                              :Boolean;
-
 
 BEGIN
 
