@@ -884,7 +884,6 @@ procedure TXYcurveObj.SaveWrite(var F: TextFile);
 {Transformer structure not conducive to standard means of saving}
 var
    iprop : Integer;
-   i     : Integer;
 begin
    {Write only properties that were explicitly set in the final order they were actually set}
 
