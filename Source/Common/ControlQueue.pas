@@ -44,6 +44,7 @@ Type
        FUNCTION  TimeRecToTime(Trec:TTimeRec):Double;
        PROCEDURE Set_Trace(const Value: Boolean);
        PROCEDURE WriteTraceRecord(const ElementName: String;const Code:Integer; TraceParameter:Double;const s:String);
+       FUNCTION Get_QueueSize:Integer;
 
 
     public
@@ -61,7 +62,8 @@ Type
 
       PROCEDURE ShowQueue(Const Filenm:String);
 
-      Property  TraceLog:Boolean Read DebugTrace Write Set_Trace;
+      Property  TraceLog:Boolean  Read DebugTrace Write Set_Trace;
+      Property  QueueSize:Integer Read Get_QueueSize;
 
 
     End;
@@ -390,5 +392,10 @@ begin
             End;
      End;
 end;
+
+FUNCTION TControlQueue.Get_QueueSize:Integer;
+Begin
+     Result := ActionList.Count;
+End;
 
 end.

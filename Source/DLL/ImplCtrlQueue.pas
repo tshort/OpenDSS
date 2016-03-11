@@ -27,6 +27,8 @@ type
     procedure ClearActions; safecall;
     function Get_PopAction: Integer; safecall;
     procedure Set_Action(Param1: Integer); safecall;
+    function Get_QueueSize: Integer; safecall;
+    procedure DoAllQueue; safecall;
     {Declare ICtrlQueue methods here}
   end;
 
@@ -189,6 +191,20 @@ begin
      If Param1 < ActionList.Count then Begin
        ActiveAction := ActionList.Items[Param1 - 1];
      End;
+end;
+
+function TCtrlQueue.Get_QueueSize: Integer;
+begin
+   If ActiveCircuit <> Nil then Begin
+      Result := ActiveCircuit.ControlQueue.QueueSize;
+   End;
+end;
+
+procedure TCtrlQueue.DoAllQueue;
+begin
+    If ActiveCircuit <> Nil then Begin
+      ActiveCircuit.ControlQueue.DoAllActions;
+   End;
 end;
 
 initialization

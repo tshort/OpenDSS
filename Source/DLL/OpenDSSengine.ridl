@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 2/2/2016 11:06:31 AM (- $Rev: 12980 $, 5046913).
+// File generated on 3/10/2016 10:15:15 PM (- $Rev: 12980 $, 3536573).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -1451,6 +1451,10 @@ library OpenDSSengine
     HRESULT _stdcall ClearActions(void);
     [propget, id(0x0000006E), helpstring("Pops next action off the action list and makes it the active action. Returns zero if none.")]
     HRESULT _stdcall PopAction([out, retval] long* Value);
+    [propget, id(0x000000C9), helpstring("Number of items on the OpenDSS control Queue")]
+    HRESULT _stdcall QueueSize([out, retval] long* Value);
+    [id(0x000000CA), helpstring("Do All Actions currently on the Control queue. Side effect: clears the queue")]
+    HRESULT _stdcall DoAllQueue(void);
   };
 
   [

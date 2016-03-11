@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 45604 $
-// File generated on 2/2/2016 11:06:26 AM from Type Library described below.
+// File generated on 3/10/2016 10:15:10 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -1818,11 +1818,14 @@ type
     procedure Show; safecall;
     procedure ClearActions; safecall;
     function Get_PopAction: Integer; safecall;
+    function Get_QueueSize: Integer; safecall;
+    procedure DoAllQueue; safecall;
     property NumActions: Integer read Get_NumActions;
     property Action: Integer write Set_Action;
     property ActionCode: Integer read Get_ActionCode;
     property DeviceHandle: Integer read Get_DeviceHandle;
     property PopAction: Integer read Get_PopAction;
+    property QueueSize: Integer read Get_QueueSize;
   end;
 
 // *********************************************************************//
@@ -1842,6 +1845,8 @@ type
     procedure Show; dispid 108;
     procedure ClearActions; dispid 109;
     property PopAction: Integer readonly dispid 110;
+    property QueueSize: Integer readonly dispid 201;
+    procedure DoAllQueue; dispid 202;
   end;
 
 // *********************************************************************//
