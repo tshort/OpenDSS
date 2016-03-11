@@ -31,7 +31,7 @@ Export Powers
 Export voltages
 
 ! Plot the circuit with blue lines and with 1-phase lines dashed
-
+interpolate
 Plot Circuit Power Max=2000 dots=n labels=n  C1=Blue  1ph=3
 
 ! Plot the voltage profile and include all phases

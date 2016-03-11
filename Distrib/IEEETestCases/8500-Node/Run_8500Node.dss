@@ -33,7 +33,7 @@ Export voltages
 
 Set markCapacitors=yes  CapMarkersize=3
 Set markRegulators=yes  RegMarkersize=5
-
+Interpolate
 Plot Circuit Power Max=5000 dots=n labels=n  C1=Blue  1ph=3   ! $00FF0000
 
 Plot Circuit voltage Max=0 dots=n n  C1=Blue C2=$FF00FF  1ph=3
