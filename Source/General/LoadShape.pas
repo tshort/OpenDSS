@@ -88,6 +88,7 @@ TYPE
         iMaxP:integer;
 
         FStdDevCalculated :Boolean;
+        MaxQSpecified     :Boolean;
         FMean,
         FStdDev :Double;
 
@@ -360,6 +361,7 @@ BEGIN
                             ArrayPropertyIndex := ParamPointer;
                             NumPoints := FNumPoints;  // Keep Properties in order for save command
                        END;
+           14: MaxQSpecified := TRUE;
 
          END;
 
@@ -669,6 +671,7 @@ BEGIN
      BaseP        := 0.0;
      BaseQ        := 0.0;
      UseActual    := FALSE;
+     MaxQSpecified := FALSE;
      FStdDevCalculated := FALSE;  // calculate on demand
 
      ArrayPropertyIndex := 0;
@@ -1160,8 +1163,9 @@ begin
        iMaxP := iMaxAbsdblArrayValue(NumPoints, PMultipliers);
        If iMaxP > 0 Then Begin
           MaxP := PMultipliers^[iMaxP];
-          If Assigned(QMultipliers) then  MaxQ := QMultipliers^[iMaxP]
-          else MaxQ := 0.0;
+          If Not MaxQSpecified Then
+            If Assigned(QMultipliers) then  MaxQ := QMultipliers^[iMaxP]
+            else MaxQ := 0.0;
        End;
 end;
 

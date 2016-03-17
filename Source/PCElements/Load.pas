@@ -35,6 +35,7 @@ unit Load;
     10-14-08 Added kWh and Cfactor. Modified behavior of AllocationFactor to simplify State Estimation
     4/1/14 Added Vlowpu property to make solution converge better at very low voltages
     1/7/15 Added puXHarm and XRHarm properties to help model motor load for harmonic studies
+    3/16/16 Added PFSpecified to account for problems when UseActual is specified and no Qmult specified
 }
 
 interface
@@ -116,6 +117,7 @@ TYPE
         ExemptFromLDCurve       :Boolean;
         Fixed                   :Boolean;   // IF Fixed, always at base value
         ShapeIsActual           :Boolean;
+        PFSpecified             :Boolean;  // Added 3-16-16 to fix problem with UseActual
         FnZIPV                  :Integer;
 
         FUNCTION  AllTerminalsClosed:Boolean;
@@ -623,7 +625,7 @@ Begin
             3: UpdateVoltageBases;
 
             4: LoadSpecType := 0;
-            5: PFChanged := TRUE;
+            5: Begin PFChanged := TRUE; PFSpecified := TRUE; End;
     {Set shape objects;  returns nil if not valid}
     {Sets the kW and kvar properties to match the peak kW demand from the Loadshape}
             7: Begin
@@ -645,7 +647,7 @@ Begin
                End;
             10: GrowthShapeObj := GrowthShapeClass.Find(GrowthShape);
 
-            12: LoadSpecType := 1;  // kW, kvar
+            12: Begin LoadSpecType := 1;  PFSpecified := FALSE; End;// kW, kvar
  {*** see set_xfkva, etc           21, 22: LoadSpectype := 3;  // XFKVA*AllocationFactor, PF  }
             23: LoadSpecType := 2;  // kVA, PF
  {*** see set_kwh, etc           28..30: LoadSpecType := 4;  // kWh, days, cfactor, PF }
@@ -807,6 +809,7 @@ Begin
      HasBeenAllocated  := FALSE;
      PFChanged         := FALSE;
      ShapeIsActual     := FALSE;
+     PFSpecified       := FALSE;  // default to not specified by PF property
 
      LoadSolutionCount     := -1;  // for keeping track of the present solution in Injcurrent calcs
      OpenLoadSolutionCount := -1;
@@ -968,12 +971,12 @@ procedure TLoadObj.SetkWkvar(const PkW, Qkvar: Double);
 begin
      kWBase := PkW;
      kvarbase := Qkvar;
-     LoadSpecType := 1;
+     If PFSpecified then LoadSpecType := 0 Else LoadSpecType := 1;
 end;
 
 PROCEDURE TLoadObj.SetNominalLoad;
 Var
-   Factor:Double;
+   Factor   :Double;
 
 Begin
   ShapeFactor := CDOUBLEONE;
@@ -1036,12 +1039,21 @@ Begin
 
     If ShapeIsActual then
         Begin
-            WNominal   := 1000.0 * ShapeFactor.re / Fnphases ;
-            varNominal := 1000.0 * ShapeFactor.im / Fnphases;
+            WNominal   := 1000.0 * ShapeFactor.re / Fnphases;
+            varNominal := 0.0; // initialize  for unity PF  and check for change
+            If ShapeFactor.im <> 0.0  Then   // Qmult was specified
+                 varNominal := 1000.0 * ShapeFactor.im/ Fnphases
+            Else
+                 If PFSpecified and (PFNominal <> 1.0) Then  // Qmult not specified but PF was
+                 Begin  // user specified the PF for this load
+                     varNominal := WNominal * SQRT((1.0/SQR(PFNominal) - 1));
+                     If PFNominal < 0.0 Then // watts and vare are in opposite directions
+                        varNominal := -varNominal;
+                 End;
         End
     Else
         Begin
-            WNominal   := 1000.0 * kWBase   * Factor * ShapeFactor.re / Fnphases ;
+            WNominal   := 1000.0 * kWBase   * Factor * ShapeFactor.re / Fnphases;
             varNominal := 1000.0 * kvarBase * Factor * ShapeFactor.im / Fnphases;
         End;
 
@@ -1075,12 +1087,12 @@ Begin
 
     Case LoadSpecType of
       0:Begin  {kW, PF}
-            kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
+            kvarBase := kWBase* SQRT(1.0/SQR(PFNominal) - 1.0);
             IF PFNominal < 0.0 THEN kvarBase := -kvarBase;
-            kVABase := Sqrt(Sqr(kWbase) + sqr(kvarBase));
+            kVABase := SQRT(SQR(kWbase) + SQR(kvarBase));
         End;
       1:Begin  {kW, kvar -- need to set PFNominal}
-            kVABase := Sqrt(Sqr(kWbase) + sqr(kvarBase));
+            kVABase := SQRT(SQR(kWbase) + SQR(kvarBase));
             If kVABase>0.0 then Begin
                PFNominal := kWBase/kVABase;
                {If kW and kvar are different signs, PF is negative}
@@ -1090,14 +1102,14 @@ Begin
         End;
       2:Begin  {kVA, PF}
             kWbase   := kVABase * Abs(PFNominal);
-            kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
+            kvarBase := kWBase* SQRT(1.0/SQR(PFNominal) - 1.0);
             IF PFNominal < 0.0 THEN kvarBase := -kvarBase;
         End;
       3,4: If PFChanged then
            Begin  // Recompute kvarBase
-                kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
+                kvarBase := kWBase* SQRT(1.0/SQR(PFNominal) - 1.0);
                 IF   PFNominal < 0.0 THEN kvarBase := -kvarBase;
-                kVABase := Sqrt(Sqr(kWbase) + sqr(kvarBase));
+                kVABase := SQRT(SQR(kWbase) + SQR(kvarBase));
            End;
 
            
@@ -1134,7 +1146,7 @@ Begin
          YNeut := Cinv(Cmplx(Rneut, XNeut));
 
     varBase := 1000.0*kvarBase/Fnphases;
-    YQFixed := -varBase/ Sqr(VBase);
+    YQFixed := -varBase/ SQR(VBase);
 
     Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
     Reallocmem(FPhaseCurr, SizeOf(FPhaseCurr^[1])*FNphases);
@@ -2099,7 +2111,7 @@ case LoadSpecType of
 
      3: IF FConnectedkVA > 0.0 THEN  Begin
             kWBase := FConnectedkVA * FkVAAllocationFactor * Abs(PFNominal);
-            kvarBase := kWBase* sqrt(1.0/Sqr(PFNominal) - 1.0);
+            kvarBase := kWBase* SQRT(1.0/SQR(PFNominal) - 1.0);
             IF   PFNominal < 0.0
             THEN kvarBase := -kvarBase;
         End;
@@ -2107,7 +2119,7 @@ case LoadSpecType of
      4: Begin
             FavgkW := FkWh / (FkWhDays * 24);
             kWBase := FavgkW * FCfactor;
-            kvarBase := kWBase * sqrt(1.0/Sqr(PFNominal) - 1.0);
+            kvarBase := kWBase * SQRT(1.0/SQR(PFNominal) - 1.0);
             IF   PFNominal < 0.0
             THEN kvarBase := -kvarBase;
         End;
