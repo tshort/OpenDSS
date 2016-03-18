@@ -140,6 +140,16 @@ begin
   9: begin  // CtrlQueue.PopAction
      Result := COMControlProxyObj.ActionList.Count;
      COMControlProxyObj.PopAction;
+  end;
+  10: begin // CtrlQueue.Get_QueueSize
+     If ActiveCircuit <> Nil then Begin
+        Result := ActiveCircuit.ControlQueue.QueueSize;
+     End;
+  end;
+  11: begin // CtrlQueue.DoAllQueue
+     If ActiveCircuit <> Nil then Begin
+        ActiveCircuit.ControlQueue.DoAllActions;
+     End;
   end
   else
       Result:=-1;
