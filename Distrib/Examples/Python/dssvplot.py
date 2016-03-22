@@ -4,7 +4,7 @@ from pylab import *
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.colors import ColorConverter
-import matplotlib.text as textds
+import matplotlib.text as text
 colorConverter = ColorConverter()
 import re
 
