@@ -1,0 +1,108 @@
+object MainEditForm: TMainEditForm
+  Left = 882
+  Height = 918
+  Top = 284
+  Width = 1012
+  Caption = 'Main Script Window'
+  ClientHeight = 918
+  ClientWidth = 1012
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  FormStyle = fsMDIChild
+  OnActivate = FormActivate
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poDefault
+  LCLVersion = '1.6.0.4'
+  Visible = True
+  object Editor: TRichMemo
+    Left = 0
+    Height = 891
+    Top = 27
+    Width = 1012
+    Align = alClient
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    HideSelection = False
+    Lines.Strings = (
+      ''
+    )
+    OnChange = EditorChange
+    OnKeyDown = EditorKeyDown
+    OnSelectionChange = EditorSelectionChange
+    ParentFont = False
+    PopupMenu = PopupMenu2
+    ScrollBars = ssBoth
+    TabOrder = 0
+    WordWrap = False
+    ZoomFactor = 1
+  end
+  object ToolBar1: TToolBar
+    Left = 0
+    Height = 27
+    Top = 0
+    Width = 1012
+    Caption = 'ToolBar1'
+    TabOrder = 1
+    object FontBtn: TButton
+      Left = 1
+      Height = 22
+      Top = 2
+      Width = 89
+      Caption = 'Font...'
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      OnClick = FontBtnClick
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object PopupMenu2: TPopupMenu
+    left = 680
+    top = 248
+    object Do2: TMenuItem
+      Caption = '&Do Selected'
+      Default = True
+      Hint = 'Execute selected script'
+      ShortCut = 16452
+      OnClick = Do2Click
+    end
+    object Save3: TMenuItem
+      Caption = '&Save This Window'
+      OnClick = Save3Click
+    end
+    object CloseWindow1: TMenuItem
+      Caption = '&Close Window'
+      OnClick = CloseWindow1Click
+    end
+    object ChangetothisDir1: TMenuItem
+      Caption = 'C&hange to this Directory'
+      OnClick = ChangetothisDir1Click
+    end
+    object OpenSelectedFile1: TMenuItem
+      Caption = '&Open Selected File'
+      OnClick = OpenSelectedFile1Click
+    end
+    object EditSelectedFile1: TMenuItem
+      Caption = '&Edit Selected File'
+      OnClick = EditSelectedFile1Click
+    end
+  end
+  object FontDialog1: TFontDialog
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    MinFontSize = 0
+    MaxFontSize = 0
+    left = 336
+    top = 112
+  end
+end

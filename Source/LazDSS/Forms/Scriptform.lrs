@@ -1,0 +1,37 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TMainEditForm','FORMDATA',[
+  'TPF0'#13'TMainEditForm'#12'MainEditForm'#4'Left'#3'{'#4#6'Height'#3#150#3#3
+  +'Top'#3#206#0#5'Width'#3#244#3#7'Caption'#6#18'Main Script Window'#12'Client'
+  +'Height'#3#150#3#11'ClientWidth'#3#244#3#5'Color'#7#9'clBtnFace'#10'Font.Col'
+  +'or'#7#12'clWindowText'#11'Font.Height'#2#245#9'Font.Name'#6#13'MS Sans Seri'
+  +'f'#9'FormStyle'#7#10'fsMDIChild'#10'OnActivate'#7#12'FormActivate'#7'OnClos'
+  +'e'#7#9'FormClose'#8'OnCreate'#7#10'FormCreate'#9'OnDestroy'#7#11'FormDestro'
+  +'y'#8'Position'#7#9'poDefault'#10'LCLVersion'#6#7'1.6.0.4'#7'Visible'#9#0#9
+  +'TRichMemo'#6'Editor'#4'Left'#2#0#6'Height'#3'{'#3#3'Top'#2#27#5'Width'#3#244
+  +#3#5'Align'#7#8'alClient'#12'Font.CharSet'#7#12'ANSI_CHARSET'#10'Font.Color'
+  +#7#12'clWindowText'#11'Font.Height'#2#244#9'Font.Name'#6#13'MS Sans Serif'#10
+  +'Font.Style'#11#6'fsBold'#0#13'HideSelection'#8#13'Lines.Strings'#1#6#0#0#8
+  +'OnChange'#7#12'EditorChange'#9'OnKeyDown'#7#13'EditorKeyDown'#17'OnSelectio'
+  +'nChange'#7#21'EditorSelectionChange'#10'ParentFont'#8#9'PopupMenu'#7#10'Pop'
+  +'upMenu2'#10'ScrollBars'#7#6'ssBoth'#8'TabOrder'#2#0#8'WordWrap'#8#10'ZoomFa'
+  +'ctor'#5#0#0#0#0#0#0#0#128#255'?'#0#0#8'TToolBar'#8'ToolBar1'#4'Left'#2#0#6
+  +'Height'#2#27#3'Top'#2#0#5'Width'#3#244#3#7'Caption'#6#8'ToolBar1'#8'TabOrde'
+  +'r'#2#1#0#7'TButton'#7'FontBtn'#4'Left'#2#1#6'Height'#2#22#3'Top'#2#2#5'Widt'
+  +'h'#2'Y'#7'Caption'#6#7'Font...'#10'Font.Color'#7#12'clWindowText'#11'Font.H'
+  +'eight'#2#245#9'Font.Name'#6#13'MS Sans Serif'#10'Font.Style'#11#6'fsBold'#0
+  +#7'OnClick'#7#12'FontBtnClick'#10'ParentFont'#8#8'TabOrder'#2#0#0#0#0#10'TPo'
+  +'pupMenu'#10'PopupMenu2'#4'left'#3#168#2#3'top'#3#248#0#0#9'TMenuItem'#3'Do2'
+  +#7'Caption'#6#12'&Do Selected'#7'Default'#9#4'Hint'#6#23'Execute selected sc'
+  +'ript'#8'ShortCut'#3'D@'#7'OnClick'#7#8'Do2Click'#0#0#9'TMenuItem'#5'Save3'#7
+  +'Caption'#6#17'&Save This Window'#7'OnClick'#7#10'Save3Click'#0#0#9'TMenuIte'
+  +'m'#12'CloseWindow1'#7'Caption'#6#13'&Close Window'#7'OnClick'#7#17'CloseWin'
+  +'dow1Click'#0#0#9'TMenuItem'#16'ChangetothisDir1'#7'Caption'#6#25'C&hange to'
+  +' this Directory'#7'OnClick'#7#21'ChangetothisDir1Click'#0#0#9'TMenuItem'#17
+  +'OpenSelectedFile1'#7'Caption'#6#19'&Open Selected File'#7'OnClick'#7#22'Ope'
+  +'nSelectedFile1Click'#0#0#9'TMenuItem'#17'EditSelectedFile1'#7'Caption'#6#19
+  +'&Edit Selected File'#7'OnClick'#7#22'EditSelectedFile1Click'#0#0#0#11'TFont'
+  +'Dialog'#11'FontDialog1'#10'Font.Color'#7#12'clWindowText'#11'Font.Height'#2
+  +#245#9'Font.Name'#6#13'MS Sans Serif'#11'MinFontSize'#2#0#11'MaxFontSize'#2#0
+  +#4'left'#3'P'#1#3'top'#2'p'#0#0#0
+]);
