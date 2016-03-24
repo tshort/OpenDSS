@@ -611,11 +611,14 @@
   <CompilerOptions>
     <Version Value="11"/>
     <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="..\opendss"/>
+    </Target>
     <SearchPaths>
       <IncludeFiles Value="..\Forms;..\Shared;..\Common;..\PDElements;..\Controls;..\General;..\Plot;..\Meters;..\PCElements;..\Executive;..\Parser;$(ProjOutDir)"/>
       <Libraries Value="..\..\..\..\KLUSolve\Lib"/>
       <OtherUnitFiles Value="..\Forms;..\Shared;..\Common;..\PDElements;..\Controls;..\General;..\Plot;..\Meters;..\PCElements;..\Executive;..\Parser"/>
-      <UnitOutputDirectory Value=".."/>
+      <UnitOutputDirectory Value="..\units\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
