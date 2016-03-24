@@ -627,6 +627,8 @@
     </Parsing>
     <Linking>
       <Options>
+        <PassLinkerOptions Value="True"/>
+        <LinkerOptions Value="-lm -lstdc++ -lgcc_s"/>
         <Win32>
           <GraphicApplication Value="True"/>
         </Win32>
