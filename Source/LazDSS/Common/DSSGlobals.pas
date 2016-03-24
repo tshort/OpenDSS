@@ -252,10 +252,9 @@ implementation
 
 USES  {Forms,   Controls,}
      SysUtils,
-     Windows,
+     LCLIntf, LCLType, LMessages, dynlibs, resource, versiontypes, versionresource,
      DSSForms,
      Solution,
-     SHFolder,
      Executive;
      {Intrinsic Ckt Elements}
 
@@ -272,21 +271,23 @@ VAR
    DSSRegisterProc:TDSSRegister;   // of last library loaded
 
 FUNCTION GetDefaultDataDirectory: String;
-Var
-  ThePath:Array[0..MAX_PATH] of char;
+//Var
+//  ThePath:Array[0..MAX_PATH] of char;
 Begin
-  FillChar(ThePath, SizeOF(ThePath), #0);
-  SHGetFolderPath (0, CSIDL_PERSONAL, 0, 0, ThePath);
-  Result := ThePath;
+//  FillChar(ThePath, SizeOF(ThePath), #0);
+//  SHGetFolderPath (0, CSIDL_PERSONAL, 0, 0, ThePath);
+//  Result := ThePath;
+  Result := GetEnvironmentVariable('HOME') + '/Documents';
 End;
 
 FUNCTION GetDefaultScratchDirectory: String;
-Var
-  ThePath:Array[0..MAX_PATH] of char;
+//Var
+//  ThePath:Array[0..MAX_PATH] of char;
 Begin
-  FillChar(ThePath, SizeOF(ThePath), #0);
-  SHGetFolderPath (0, CSIDL_LOCAL_APPDATA, 0, 0, ThePath);
-  Result := ThePath;
+//  FillChar(ThePath, SizeOF(ThePath), #0);
+//  SHGetFolderPath (0, CSIDL_LOCAL_APPDATA, 0, 0, ThePath);
+//  Result := ThePath;
+  Result := '/tmp/opendss';
 End;
 
 function GetOutputDirectory:String;
@@ -515,37 +516,40 @@ End;
 
 
 FUNCTION GetDSSVersion: String;
-var
+(* Unlike most of AboutText (below), this takes significant activity at run-    *)
+ (* time to extract version/release/build numbers from resource information      *)
+ (* appended to the binary.                                                      *)
 
-  InfoSize, Wnd: DWORD;
-  VerBuf: Pointer;
-  FI: PVSFixedFileInfo;
-  VerSize: DWORD;
-  MajorVer, MinorVer, BuildNo, RelNo :DWORD;
+ VAR     Stream: TResourceStream;
+         vr: TVersionResource;
+         fi: TVersionFixedInfo;
 
+ BEGIN
+   RESULT:= 'Unknown.';
+   TRY
 
-Begin
-    Result := 'Unknown.' ;
+ (* This raises an exception if version info has not been incorporated into the  *)
+ (* binary (Lazarus Project -> Project Options -> Version Info -> Version        *)
+ (* numbering).                                                                  *)
 
-    InfoSize := GetFileVersionInfoSize(PChar(DSSFileName), Wnd);
-    if InfoSize <> 0 then
-    begin
-      GetMem(VerBuf, InfoSize);
-      try
-        if GetFileVersionInfo(PChar(DSSFileName), Wnd, InfoSize, VerBuf) then
-          if VerQueryValue(VerBuf, '\', Pointer(FI), VerSize) then  Begin
-            MinorVer := FI.dwFileVersionMS and $FFFF;
-            MajorVer := (FI.dwFileVersionMS and $FFFF0000) shr 16;
-            BuildNo :=  FI.dwFileVersionLS and $FFFF;
-            RelNo := (FI.dwFileVersionLS and $FFFF0000) shr 16;
-            Result := Format('%d.%d.%d.%d',[MajorVer, MinorVer, RelNo, BuildNo]);
-            End;
-      finally
-        FreeMem(VerBuf);
-      end;
-    end;
-
-End;
+     Stream:= TResourceStream.CreateFromID(HINSTANCE, 1, PChar(RT_VERSION));
+     TRY
+       vr:= TVersionResource.Create;
+       TRY
+         vr.SetCustomRawDataStream(Stream);
+         fi:= vr.FixedInfo;
+         RESULT := 'Version ' + IntToStr(fi.FileVersion[0]) + '.' + IntToStr(fi.FileVersion[1]) +
+                ' release ' + IntToStr(fi.FileVersion[2]) + ' build ' + IntToStr(fi.FileVersion[3]) + LineEnding;
+         vr.SetCustomRawDataStream(nil)
+       FINALLY
+         vr.Free
+       END
+     FINALLY
+       Stream.Free
+     END
+   EXCEPT
+   END
+ End;
 
 
 PROCEDURE WriteDLLDebugFile(Const S:String);
@@ -568,7 +572,7 @@ var
   TempFile: array[0..MAX_PATH] of Char;
 begin
   if GetTempFileName(PChar(Dir), 'DA', 0, TempFile) <> 0 then
-    Result := Windows.DeleteFile(TempFile)
+    Result := DeleteFile(TempFile)
   else
     Result := False;
 end;

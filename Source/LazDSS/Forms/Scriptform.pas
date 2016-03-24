@@ -12,7 +12,7 @@ unit Scriptform;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ComCtrls,contnrs, Menus, ToolWin, RichMemo;
 
 type
@@ -76,7 +76,7 @@ var
 
 implementation
 
-Uses RichEdit, Executive, DSSGlobals, DSSForms,  Panel,Utilities, MessageForm, uComplex;
+Uses Executive, DSSGlobals, DSSForms,  Panel,Utilities, MessageForm, uComplex;
 
 {$R *.lfm}
 
@@ -109,12 +109,15 @@ end;
 
 procedure TMainEditForm.UpdateCursorPos;
 begin
-  line1 := SendMessage(Editor.Handle, EM_EXLINEFROMCHAR, 0,
-    Editor.SelStart);
-  line2 := SendMessage(Editor.Handle, EM_EXLINEFROMCHAR, 0,
-    Editor.SelStart + Editor.SelLength);
-  col := (Editor.SelStart -
-    SendMessage(Editor.Handle, EM_LINEINDEX, line1, 0));
+  Line1 := Editor.SelStart;
+  Line2 := Editor.SelLength;
+  col := 1;
+//  line1 := SendMessage(Editor.Handle, EM_EXLINEFROMCHAR, 0,
+//    Editor.SelStart);
+//  line2 := SendMessage(Editor.Handle, EM_EXLINEFROMCHAR, 0,
+//    Editor.SelStart + Editor.SelLength);
+//  col := (Editor.SelStart -
+//    SendMessage(Editor.Handle, EM_LINEINDEX, line1, 0));
 end;
 
 procedure TMainEditForm.EditorSelectionChange(Sender: TObject);

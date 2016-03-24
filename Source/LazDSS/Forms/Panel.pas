@@ -12,7 +12,7 @@ unit Panel;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ComCtrls, Menus, ToolWin, ImgList,Scriptform, ExtCtrls;
 
 type
@@ -454,10 +454,10 @@ uses Executive, DSSClassDefs, DSSGlobals,
   ClipBrd,  Utilities, contnrs, MessageForm,
   DlgPlotOptions,  DSSPlot, FrmCSVchannelSelect,
   DlgComboBox,dlgNumber, ExecOptions, ExecCommands, ExecHelper, Dynamics, DSSClass, ListForm,
-  Lineunits, Monitor, FrmDoDSSCommand, Frm_RPNcalc, DSSForms, showOptions, ShellAPI,
-  IniRegSave, JwaPSApi;
+  Lineunits, Monitor, FrmDoDSSCommand, Frm_RPNcalc, DSSForms, showOptions,
+  IniRegSave; //, JwaPSApi;
 
-{$R *.LFM}
+{$R *.lfm}
 
 Var
    SelectedMonitor :String;
@@ -997,17 +997,39 @@ end;
 
 procedure TControlPanel.UpdateStatus;
 var
-  pmc: PROCESS_MEMORY_COUNTERS;
-  cb: Integer;
+//  pmc: PROCESS_MEMORY_COUNTERS;
+//  cb: Integer;
+  PID: SizeUInt;
+  PageSize: LongInt;
+  Pages, KB: LongInt;
+  FName: String;
+  MyFile: TextFile;
+  s: String;
 begin
-     cb := sizeof(_PROCESS_MEMORY_COUNTERS);
+  PID := GetProcessID;
+  PageSize := 4096; // returned from getconf(PAGESIZE);
+  FName := Format('/proc/%d/statm', [PID]);
+  try
+     AssignFile(MyFile, FName);
+     reset(MyFile);
+     readln(MyFile, s);
+     SScanf (s, '%d', [@Pages]);
+     KB := (PageSize div 1025) * Pages;
+     StatusBar1.Panels[0].Text := Format ('Memory: %dK', [KB]);
+  finally
+    CloseFile(MyFile);
+    StatusBar1.Panels[0].Text := 'Memory: ?';
+  end;
+  StatusBar1.Panels[1].Text := 'Blocks: ?';
+
+//     cb := sizeof(_PROCESS_MEMORY_COUNTERS);
 //     GetMem(@pmc, cb);
-     pmc.cb := cb;
-     IF GetProcessMemoryInfo(GetCurrentProcess(), pmc, cb)
-     then
-        StatusBar1.Panels[0].Text := Format('Memory: %dK',[pmc.WorkingSetSize div 1024])
-     else
-        StatusBar1.Panels[0].Text := 'Memory: ?';
+//     pmc.cb := cb;
+//     IF GetProcessMemoryInfo(GetCurrentProcess(), pmc, cb)
+//     then
+//        StatusBar1.Panels[0].Text := Format('Memory: %dK',[pmc.WorkingSetSize div 1024])
+//     else
+//        StatusBar1.Panels[0].Text := 'Memory: ?';
 //     FreeMem(pmc);
 //     StatusBar1.Panels[1].Text := Format('Blocks: %d',[AllocMemCount]);
      If ActiveCircuit <> Nil Then  Begin
@@ -1893,7 +1915,7 @@ end;
 
 procedure TControlPanel.TechNotes1Click(Sender: TObject);
 begin
-     shellexecute(handle,'open','http://sourceforge.net/apps/mediawiki/electricdss/index.php?title=List_of_DSS_tech_notes',nil,nil,1);
+  OpenURL('https://sourceforge.net/p/electricdss/code/HEAD/tree/trunk/Distrib/Doc/TechNotes/');
 end;
 
 procedure TControlPanel.TraceLog1Click(Sender: TObject);
@@ -2217,7 +2239,7 @@ end;
 
 procedure TControlPanel.OpenDSSWiki1Click(Sender: TObject);
 begin
-      shellexecute(handle,'open','http://smartgrid.epri.com/SimulationTool.aspx',nil,nil,1);
+  OpenURL('http://smartgrid.epri.com/SimulationTool.aspx');
 end;
 
 procedure TControlPanel.Save2Click(Sender: TObject);

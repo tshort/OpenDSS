@@ -44,7 +44,7 @@ VAR
 implementation
 
 Uses      ExecCommands, ExecOptions,
-          Windows, Forms, Controls, Dialogs, DSSGlobals,Executive, DSSClass,ParserDel,
+          LCLIntf, LCLType, LMessages, Forms, Controls, Dialogs, DSSGlobals,Executive, DSSClass,ParserDel,
           ProgressForm,
           Helpform,
           PropEdit,
@@ -122,15 +122,15 @@ end;
 
 FUNCTION GetDSSExeFile: String;
 
-Var
-   TheFileName:Array[0..MAX_PATH] of char;
+//Var
+//   TheFileName:Array[0..MAX_PATH] of char;
 
 Begin
 
-    FillChar(TheFileName, SizeOF(TheFileName), #0);  // Fill it with nulls
-    GetModuleFileName(HInstance, TheFileName, SizeOF(TheFileName));
-    Result := TheFileName;
-
+//    FillChar(TheFileName, SizeOF(TheFileName), #0);  // Fill it with nulls
+//    GetModuleFileName(HInstance, TheFileName, SizeOF(TheFileName));
+//    Result := TheFileName;
+      Result := ExtractFilePath (Application.ExeName);
     If IsLibrary then IsDLL := TRUE;
 End;
 

@@ -15,7 +15,7 @@ unit TViewer;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ComCtrls, Menus, StdCtrls, PrintersDlgs;
 
 type
@@ -52,7 +52,7 @@ implementation
 
 Uses Printers, math, Executive;
 
-{$R *.LFM}
+{$R *.lfm}
 
 
 { TTViewForm }

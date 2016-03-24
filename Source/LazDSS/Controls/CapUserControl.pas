@@ -79,7 +79,7 @@ TYPE
 
 implementation
 
-Uses  DSSGlobals, Windows, Sysutils;
+Uses  DSSGlobals, LCLIntf, LCLType, LMessages, dynlibs, Sysutils;
 
 { TCapUserControl }
 

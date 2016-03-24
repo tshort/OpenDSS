@@ -75,20 +75,21 @@ VAR
 
 implementation
 
-Uses ComObj, SysUtils, Dialogs, ActiveX, DSSGlobals;
+Uses SysUtils, Dialogs, DSSGlobals;
 Var
   TOP_Inited:Boolean;
 
 Procedure StartTop;
 
 Begin
-  TOP_Object := CreateOleObject('TOP2000.MAIN');
-  TOP_Inited := TRUE;
+//  TOP_Object := CreateOleObject('TOP2000.MAIN');
+//  TOP_Inited := TRUE;
 End;
 
 Procedure TOutFile32.SendToTop;
 Begin
-
+     ShowMessage ('TOP Export (COM Interface) is not supported on Linux');
+  (*
   TRY
      If NOT TOP_Inited Then StartTop;
 
@@ -109,7 +110,7 @@ Begin
 
         On E:Exception Do ShowMessage('Error Connecting to TOP: '+E.Message);
   End;
-
+*)
 End;
 
 
@@ -261,6 +262,6 @@ Initialization
     TOPTransferFile:= TOutFile32.Create;
     TOPTransferFile.Fname := 'DSSTransfer.STO';
 
-    CoInitialize(Nil);
+//   CoInitialize(Nil);
 end.
 

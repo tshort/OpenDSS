@@ -35,12 +35,12 @@ Function CheckYMatrixforZeroes:String;
 {Declare FUNCTIONs in KLUSolve DLL}
 
 { $INCLUDE Esolv32Declarations.pas}
-{$INCLUDE KLUSolveDeclarations.pas}
+// {$INCLUDE KLUSolveDeclarations.pas}
 
 
 implementation
 
-Uses DSSGlobals, Circuit, CktElement, Utilities;
+Uses DSSGlobals, Circuit, CktElement, Utilities, KLUStatic;
 
 
 

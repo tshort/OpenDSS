@@ -130,7 +130,7 @@ TYPE
 
 implementation
 
-Uses Storage, DSSGlobals, Windows, Sysutils;
+Uses Storage, DSSGlobals, LCLIntf, LCLType, LMessages, dynlibs, Sysutils;
 
 { TStoreUserModel }
 

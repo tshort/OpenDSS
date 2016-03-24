@@ -152,7 +152,7 @@ Procedure BackwardSweepAllFeeders;
 
 implementation
 
-Uses Windows,    SysUtils, ShellAPI,  Dialogs,      DSSClassDefs,
+Uses LCLIntf, LCLType, LMessages,   Process, SysUtils, Dialogs,      DSSClassDefs,
      DSSGlobals, Dynamics, Executive, ExecCommands, ExecOptions,
      Solution,   DSSObject,math,      DSSForms,     ParserDel,
      Capacitor,  Reactor,  Generator, Load,
@@ -236,11 +236,15 @@ End;
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 Procedure FireOffEditor(FileNm:String);
-Var retval:Word;
+Var
+   retval:boolean; //Word;
+   s: string;
 Begin
   TRY
   If FileExists(FileNm) Then
   Begin
+      retval := RunCommand (DefaultEditor, [FileNm], s);
+      (*
       retval := ShellExecute (0, Nil, PChar(encloseQuotes(DefaultEditor)), PChar(encloseQuotes(FileNm)), Nil, SW_SHOW);
       SetLastResultFile( FileNm);
 
@@ -251,6 +255,7 @@ Begin
                                             +CRLF+'Did you set complete path name?', 702);
           ERROR_PATH_NOT_FOUND: DoSimpleMsg('Path for Editor "'+DefaultEditor+'" Not Found.', 703);
       End;
+      *)
   End;
   EXCEPT
       On E: Exception DO
@@ -262,12 +267,14 @@ End;
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 Procedure DoDOSCmd(CmdString:String);
-Var Handle:Word;
+Var //Handle:Word;
+   s: string;
+   ret: boolean;
 Begin
   TRY
-      Handle := 0;
-      ShellExecute(Handle, 'open', PChar('cmd.exe'), PChar(CmdString), nil, SW_SHOW);
-
+//      Handle := 0;
+//      ShellExecute(Handle, 'open', PChar('cmd.exe'), PChar(CmdString), nil, SW_SHOW);
+    ret := RunCommand('/bin/bash',['-c',CmdString],s);
   EXCEPT
       On E: Exception DO
         DoSimpleMsg(Format('DoDOSCmd Error:%s. Error in Command "%s"',[E.Message, CmdString]), 704);

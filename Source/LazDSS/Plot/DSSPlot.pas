@@ -173,7 +173,6 @@ Var
 implementation
 
 Uses DSSGraph,
-   Comobj,
    DSSClassDefs,
    DssGlobals,
    Circuit,

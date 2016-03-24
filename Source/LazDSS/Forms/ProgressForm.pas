@@ -17,7 +17,7 @@ unit ProgressForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ComCtrls;
 
 type
@@ -49,7 +49,7 @@ implementation
 uses
     DSSGlobals;
 
-{$R *.LFM}
+{$R *.lfm}
 
 procedure TProgress.AbortBtnClick(Sender: TObject);
 begin

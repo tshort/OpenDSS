@@ -11,7 +11,7 @@ unit MessageForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ComCtrls, RichMemo;
 
 type
@@ -28,7 +28,7 @@ var
 
 implementation
 
-{$R *.LFM}
+{$R *.lfm}
 
 
 initialization

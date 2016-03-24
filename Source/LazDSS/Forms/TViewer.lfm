@@ -4,7 +4,7 @@ object TViewForm: TTViewForm
   Top = 184
   Width = 648
   Caption = 'TViewForm'
-  ClientHeight = 428
+  ClientHeight = 467
   ClientWidth = 648
   Color = clBtnFace
   Font.Color = clWindowText
@@ -15,15 +15,15 @@ object TViewForm: TTViewForm
   LCLVersion = '1.6.0.4'
   object Label1: TLabel
     Left = 328
-    Height = 13
+    Height = 14
     Top = 0
-    Width = 149
+    Width = 177
     Caption = 'Right-click to edit/view element'
     ParentColor = False
   end
   object TreeView1: TTreeView
     Left = 0
-    Height = 428
+    Height = 467
     Top = 0
     Width = 648
     Align = alClient

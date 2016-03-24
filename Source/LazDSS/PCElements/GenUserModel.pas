@@ -88,7 +88,7 @@ TYPE
 
 implementation
 
-Uses Generator, DSSGlobals, Windows, Sysutils;
+Uses Generator, DSSGlobals, LCLIntf, LCLType, LMessages, dynlibs, Sysutils;
 
 { TGenUserModel }
 

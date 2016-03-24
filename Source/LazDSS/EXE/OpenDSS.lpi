@@ -43,7 +43,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="134">
+    <Units Count="135">
       <Unit0>
         <Filename Value="OpenDSS.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -122,7 +122,9 @@
       <Unit18>
         <Filename Value="..\Forms\DlgPlotOptions.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="PlotOptionsForm"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit18>
       <Unit19>
         <Filename Value="..\Common\DSSCallBackRoutines.pas"/>
@@ -472,7 +474,9 @@
       <Unit102>
         <Filename Value="..\Forms\TViewer.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="TViewForm"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit102>
       <Unit103>
         <Filename Value="..\Shared\Ucmatrix.pas"/>
@@ -598,6 +602,10 @@
         <Filename Value="..\Controls\GenDispatcher.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit133>
+      <Unit134>
+        <Filename Value="..\Common\KLUStatic.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit134>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -605,6 +613,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="..\Forms;..\Shared;..\Common;..\PDElements;..\Controls;..\General;..\Plot;..\Meters;..\PCElements;..\Executive;..\Parser;$(ProjOutDir)"/>
+      <Libraries Value="..\..\..\..\KLUSolve\Lib"/>
       <OtherUnitFiles Value="..\Forms;..\Shared;..\Common;..\PDElements;..\Controls;..\General;..\Plot;..\Meters;..\PCElements;..\Executive;..\Parser"/>
       <UnitOutputDirectory Value=".."/>
     </SearchPaths>

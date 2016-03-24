@@ -82,10 +82,9 @@ TYPE
 implementation
 
 Uses
-    Windows,
+    LCLIntf, LCLType, LMessages, Process,
     DSSGlobals,
     Utilities,
-    ShellAPI,
     Math,
     PDElement,
     ParserDel;
@@ -385,8 +384,8 @@ end;
 
 Procedure ShowGraph;
 Var
-    retval  :integer;
-    DSSViewFile :String;
+    retval  : boolean; //integer;
+    DSSViewFile, s :String;
 Begin
 
        If  IsOpen(ActiveDSSGraphFile) Then
@@ -399,13 +398,14 @@ Begin
              If FileExists(ActiveFileName) Then
              Begin
                  DSSViewFile := EncloseQuotes(DSSDirectory + 'DSSView.exe');
-                 retval := ShellExecute (0, 'open',
+                 retval := RunCommand (DSSViewFile, [ActiveFileName], s);
+                 (* ShellExecute (0, 'open',
                                         PChar(DSSViewFile),
                                         PChar(EncloseQuotes(ActiveFileName)),
-                                         Nil, SW_SHOW);
+                                         Nil, SW_SHOW); *)
 
                  ParserVars.Add( '@LastPlotFile', ActiveFileName);
-
+                 (*
                  Case Retval of
                      0: DoSimpleMsg('System out of memory. ', 45700);
                      ERROR_BAD_FORMAT: DoSimpleMsg('Graphics output file "'+ ActiveFileName + '" is Invalid.', 45701);
@@ -413,6 +413,7 @@ Begin
                                                        +CRLF+'It should be in the same directory as the OpenDSS program', 45702);
                      ERROR_PATH_NOT_FOUND: DoSimpleMsg('Path for DSSView program "'+DSSViewFile+'" Not Found.', 45703);
                  End;
+                 *)
              End;
           EXCEPT
               On E: Exception DO
