@@ -599,14 +599,24 @@ BEGIN
   // Put a \ on the end if not supplied. Allow a null specification.
   If Length(DataDirectory) > 0 Then Begin
     ChDir(DataDirectory);   // Change to specified directory
+{$IFDEF WINDOWS}
     If DataDirectory[Length(DataDirectory)] <> '\' Then DataDirectory := DataDirectory + '\';
-  End;
+{$ENDIF}
+{$IFDEF UNIX}
+    If DataDirectory[Length(DataDirectory)] <> '/' Then DataDirectory := DataDirectory + '/';
+{$ENDIF}
+  end;
 
   // see if DataDirectory is writable. If not, set OutputDirectory to the user's appdata
   if IsDirectoryWritable(DataDirectory) then begin
     OutputDirectory := DataDirectory;
   end else begin
+{$IFDEF WINDOWS}
     ScratchPath := GetDefaultScratchDirectory + '\' + ProgramName + '\';
+{$ENDIF}
+{$IFDEF UNIX}
+    ScratchPath := GetDefaultScratchDirectory + '/' + ProgramName + '/';
+{$ENDIF}
     if not DirectoryExists(ScratchPath) then CreateDir(ScratchPath);
     OutputDirectory := ScratchPath;
   end;

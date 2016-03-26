@@ -1,11 +1,11 @@
 object ControlPanel: TControlPanel
-  Left = 1017
+  Left = 148
   Height = 625
-  Top = 399
+  Top = 73
   Width = 1128
   Anchors = [akBottom]
   Caption = 'OpenDSS: Main Control Panel'
-  ClientHeight = 586
+  ClientHeight = 625
   ClientWidth = 1128
   Color = clBtnFace
   Font.Color = clWindowText
@@ -1007,7 +1007,7 @@ object ControlPanel: TControlPanel
   object Image2: TImage
     Left = 16
     Height = 47
-    Top = 504
+    Top = 543
     Width = 280
     Anchors = [akLeft, akBottom]
     Picture.Data = {
@@ -1992,7 +1992,7 @@ object ControlPanel: TControlPanel
   end
   object ToolBar1: TToolBar
     Left = 0
-    Height = 24
+    Height = 29
     Top = 0
     Width = 1128
     AutoSize = True
@@ -2087,10 +2087,10 @@ object ControlPanel: TControlPanel
     end
     object BaseClassCombo: TComboBox
       Left = 194
-      Height = 21
+      Height = 27
       Top = 2
       Width = 97
-      ItemHeight = 13
+      ItemHeight = 0
       OnChange = BaseClassComboChange
       TabOrder = 2
       Text = 'BaseClassCombo'
@@ -2106,24 +2106,24 @@ object ControlPanel: TControlPanel
     end
     object ClassBox: TComboBox
       Left = 299
-      Height = 21
+      Height = 27
       Hint = 'Active Class'
       Top = 2
       Width = 98
       DropDownCount = 16
-      ItemHeight = 13
+      ItemHeight = 0
       OnChange = ClassBoxChange
       TabOrder = 0
       Text = 'ClassBox'
     end
     object ElementBox: TComboBox
       Left = 397
-      Height = 21
+      Height = 27
       Hint = 'Active Element'
       Top = 2
       Width = 222
       DropDownCount = 16
-      ItemHeight = 13
+      ItemHeight = 0
       OnChange = ElementBoxChange
       TabOrder = 1
     end
@@ -2222,9 +2222,9 @@ object ControlPanel: TControlPanel
     end
     object LBL_DefaultFreq: TLabel
       Left = 835
-      Height = 16
+      Height = 17
       Top = 2
-      Width = 113
+      Width = 119
       Alignment = taCenter
       Caption = 'LBL_DefaultFreq'
       Font.Color = clRed
@@ -2237,13 +2237,13 @@ object ControlPanel: TControlPanel
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 36
-    Top = 550
+    Height = 21
+    Top = 604
     Width = 1128
     Panels = <    
       item
         Text = 'Memory:'
-        Width = 150
+        Width = 200
       end    
       item
         Text = 'Status'
@@ -2258,17 +2258,17 @@ object ControlPanel: TControlPanel
   object ToolBar2: TToolBar
     Left = 0
     Height = 26
-    Top = 24
+    Top = 29
     Width = 1128
     Caption = 'ToolBar2'
     Images = ImageList1
     TabOrder = 2
     object CompileCombo: TComboBox
       Left = 1
-      Height = 21
+      Height = 27
       Top = 2
       Width = 521
-      ItemHeight = 13
+      ItemHeight = 0
       PopupMenu = PopupMenu1
       TabOrder = 0
       Text = 'CompileCombo'
@@ -2317,7 +2317,7 @@ object ControlPanel: TControlPanel
     end
     object Edit_Result: TEdit
       Left = 607
-      Height = 21
+      Height = 24
       Top = 2
       Width = 396
       TabOrder = 1

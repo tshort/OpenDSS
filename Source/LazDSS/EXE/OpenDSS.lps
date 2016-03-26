@@ -198,9 +198,10 @@
       <Unit23>
         <Filename Value="..\Common\DSSGlobals.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="735"/>
-        <CursorPos Y="749"/>
+        <TopLine Value="601"/>
+        <CursorPos X="92" Y="606"/>
         <UsageCount Value="78"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -427,7 +428,6 @@
       <Unit49>
         <Filename Value="..\Shared\IniRegSave.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <TopLine Value="44"/>
         <CursorPos X="67" Y="50"/>
@@ -598,8 +598,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="484"/>
-        <CursorPos Y="501"/>
+        <TopLine Value="1025"/>
+        <CursorPos X="55" Y="1034"/>
         <UsageCount Value="78"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -1278,132 +1278,124 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="..\Common\DSSGlobals.pas"/>
+        <Caret Line="629" Column="57" TopLine="601"/>
       </Position1>
       <Position2>
         <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="222" Column="22" TopLine="194"/>
+        <Caret Line="644" Column="41" TopLine="616"/>
       </Position2>
       <Position3>
         <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="584" Column="22" TopLine="587"/>
+        <Caret Line="751" Column="73" TopLine="725"/>
       </Position3>
       <Position4>
-        <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="627" Column="59" TopLine="599"/>
+        <Filename Value="..\Shared\IniRegSave.pas"/>
+        <Caret Line="108" TopLine="79"/>
       </Position4>
       <Position5>
-        <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="628" Column="67" TopLine="600"/>
+        <Filename Value="..\Shared\IniRegSave.pas"/>
+        <Caret Line="109" TopLine="81"/>
       </Position5>
       <Position6>
-        <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="629" Column="57" TopLine="601"/>
+        <Filename Value="..\Shared\IniRegSave.pas"/>
+        <Caret Line="110" TopLine="82"/>
       </Position6>
       <Position7>
-        <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="644" Column="41" TopLine="616"/>
+        <Filename Value="..\Shared\IniRegSave.pas"/>
+        <Caret Line="109" TopLine="82"/>
       </Position7>
       <Position8>
-        <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="751" Column="73" TopLine="725"/>
+        <Filename Value="..\Shared\IniRegSave.pas"/>
+        <Caret Line="108" TopLine="82"/>
       </Position8>
       <Position9>
         <Filename Value="..\Shared\IniRegSave.pas"/>
-        <Caret Line="108" TopLine="79"/>
+        <Caret Line="114" TopLine="86"/>
       </Position9>
       <Position10>
-        <Filename Value="..\Shared\IniRegSave.pas"/>
-        <Caret Line="109" TopLine="81"/>
+        <Filename Value="..\Forms\Panel.pas"/>
+        <Caret Line="518" TopLine="501"/>
       </Position10>
       <Position11>
-        <Filename Value="..\Shared\IniRegSave.pas"/>
-        <Caret Line="110" TopLine="82"/>
+        <Filename Value="..\Forms\Panel.pas"/>
+        <Caret Line="501" TopLine="484"/>
       </Position11>
       <Position12>
         <Filename Value="..\Shared\IniRegSave.pas"/>
-        <Caret Line="109" TopLine="82"/>
+        <Caret Line="108" TopLine="86"/>
       </Position12>
       <Position13>
-        <Filename Value="..\Shared\IniRegSave.pas"/>
-        <Caret Line="108" TopLine="82"/>
+        <Filename Value="..\Common\DSSGlobals.pas"/>
+        <Caret Line="673" Column="65" TopLine="571"/>
       </Position13>
       <Position14>
-        <Filename Value="..\Shared\IniRegSave.pas"/>
-        <Caret Line="114" TopLine="86"/>
+        <Filename Value="..\Common\DSSGlobals.pas"/>
       </Position14>
       <Position15>
-        <Filename Value="..\Forms\Panel.pas"/>
-        <Caret Line="518" TopLine="501"/>
+        <Filename Value="..\Shared\IniRegSave.pas"/>
+        <Caret Line="66" Column="20" TopLine="42"/>
       </Position15>
       <Position16>
-        <Filename Value="..\Forms\Panel.pas"/>
-        <Caret Line="501" TopLine="484"/>
+        <Filename Value="..\Common\DSSGlobals.pas"/>
+        <Caret Line="746" TopLine="732"/>
       </Position16>
       <Position17>
-        <Filename Value="..\Shared\IniRegSave.pas"/>
-        <Caret Line="108" TopLine="86"/>
+        <Filename Value="..\Common\DSSGlobals.pas"/>
       </Position17>
       <Position18>
         <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="673" Column="65" TopLine="571"/>
+        <Caret Line="282" Column="80" TopLine="259"/>
       </Position18>
       <Position19>
         <Filename Value="..\Common\DSSGlobals.pas"/>
+        <Caret Line="755" Column="78" TopLine="728"/>
       </Position19>
       <Position20>
-        <Filename Value="..\Shared\IniRegSave.pas"/>
-        <Caret Line="66" Column="20" TopLine="42"/>
+        <Filename Value="..\Common\DSSGlobals.pas"/>
       </Position20>
       <Position21>
         <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="746" TopLine="732"/>
+        <Caret Line="272" Column="24" TopLine="256"/>
       </Position21>
       <Position22>
         <Filename Value="..\Common\DSSGlobals.pas"/>
+        <Caret Line="747" TopLine="735"/>
       </Position22>
       <Position23>
         <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="282" Column="80" TopLine="259"/>
+        <Caret Line="748" TopLine="735"/>
       </Position23>
       <Position24>
         <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="755" Column="78" TopLine="728"/>
+        <Caret Line="749" TopLine="735"/>
       </Position24>
       <Position25>
-        <Filename Value="..\Common\DSSGlobals.pas"/>
+        <Filename Value="..\Shared\IniRegSave.pas"/>
+        <Caret Line="65" TopLine="42"/>
       </Position25>
       <Position26>
-        <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="272" Column="24" TopLine="256"/>
+        <Filename Value="..\Forms\Panel.pas"/>
+        <Caret Line="6" Column="18"/>
       </Position26>
       <Position27>
         <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="747" TopLine="735"/>
+        <Caret Line="2"/>
       </Position27>
       <Position28>
         <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="748" TopLine="735"/>
+        <Caret Line="176" Column="64" TopLine="160"/>
       </Position28>
       <Position29>
         <Filename Value="..\Common\DSSGlobals.pas"/>
-        <Caret Line="749" TopLine="735"/>
+        <Caret Line="177" Column="80" TopLine="161"/>
       </Position29>
       <Position30>
-        <Filename Value="..\Shared\IniRegSave.pas"/>
-        <Caret Line="65" TopLine="42"/>
+        <Filename Value="..\Common\DSSGlobals.pas"/>
+        <Caret Line="272" Column="33" TopLine="265"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="1">
-      <Item1>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="..\Common\DSSGlobals.pas"/>
-        <Line Value="747"/>
-      </Item1>
-    </BreakPoints>
     <Watches Count="1">
       <Item1>
         <Expression Value="FiniFile"/>
