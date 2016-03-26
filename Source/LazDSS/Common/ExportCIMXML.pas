@@ -22,10 +22,10 @@ Procedure ExportCDPSM (FileNm:String; prf:CIMProfileChoice = Combined);
 
 implementation
 
-Uses SysUtils, Utilities, Circuit, DSSClassDefs, DSSGlobals, CktElement,
-     PDElement, PCElement, Generator, Load, RegControl,
+Uses SysUtils, Utilities, Circuit, DSSGlobals, CktElement,
+     PDElement, Generator, Load, RegControl,
      Vsource, Line, Transformer, Ucomplex, UcMatrix, LineCode,
-     Fuse, Capacitor, CapControl, CapControlvars,  Reactor, Feeder, ConductorData, LineUnits,
+     Capacitor, CapControl, CapControlvars, ConductorData, LineUnits,
      LineGeometry, NamedObject, StrUtils, Math, XfmrCode, HashList, WireData,
      LineSpacing, CableData, CNData, TSData;
 

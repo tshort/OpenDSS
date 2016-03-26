@@ -131,7 +131,7 @@ VAR
 
 implementation
 
-USES  ParserDel,  DSSClassDefs, DSSGlobals, Sysutils,  MathUtil, Utilities, Classes,  Math, PointerList;
+USES  ParserDel,  DSSClassDefs, DSSGlobals, Sysutils,  MathUtil, Utilities, Classes, PointerList;
 
 Const NumPropsThisClass = 13;
 

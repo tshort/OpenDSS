@@ -8,7 +8,7 @@ unit VSConverter;
 }
 interface
 USES
-  Command, DSSClass, PCClass, Circuit, PCElement, UcMatrix, Ucomplex, ArrayDef, XYCurve;
+  Command, DSSClass, PCClass, Circuit, PCElement, UcMatrix, Ucomplex;
 TYPE
   TVSConverter = class(TPCClass)
     private
@@ -67,7 +67,7 @@ var
 
 implementation
 uses
-  ParserDel, MyDSSClassDefs, DSSClassDefs, DSSGlobals, Dynamics, Sysutils, MathUtil, Utilities, StrUtils;
+  ParserDel, DSSClassDefs, DSSGlobals, Sysutils, MathUtil, Utilities, StrUtils;
 
 Const NumPropsthisclass = 19;
   VSC_FIXED  = 0;

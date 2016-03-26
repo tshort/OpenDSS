@@ -50,7 +50,7 @@ TYPE
 
 implementation
 
-USES  ParserDel, DSSGlobals, DSSClassDefs, Sysutils, Ucomplex, Arraydef, LineUnits;
+USES  ParserDel, DSSGlobals, DSSClassDefs, Sysutils, Ucomplex;
 
 Const NumPropsThisClass = 3;
 

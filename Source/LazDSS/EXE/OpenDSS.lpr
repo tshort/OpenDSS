@@ -174,11 +174,14 @@ uses
   GICTransformer in '..\PDElements\GICTransformer.pas',
   ExpControl in '..\Controls\ExpControl.pas',
   UPFC in '..\PCElements\UPFC.pas',
+  KLUStatic in '..\Common\KLUStatic.pas',
   GenDispatcher in '..\Controls\GenDispatcher.pas';
 
 begin
   Application.Initialize;
-  Application.Title := 'OpenDSS: Distribution System Simulator';
+
+  // LCL can't show any forms until after Application.Initialize
+  NoFormsAllowed  := FALSE;
 
   {Have to Start DSSExecutive before Creating the Control Panel}
   DSSExecutive := TExecutive.Create;  // Make a DSS object

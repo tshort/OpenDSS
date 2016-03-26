@@ -44,7 +44,7 @@ Interface
  }
 
 USES
-   Command, DSSClass, DSSObject, UcMatrix, ucomplex, Arraydef;
+   Command, DSSClass, DSSObject, ucomplex, Arraydef;
 
 
 TYPE

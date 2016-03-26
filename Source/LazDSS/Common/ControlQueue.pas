@@ -17,7 +17,7 @@ unit ControlQueue;
 
 interface
 
-Uses Arraydef, ControlElem, Classes;
+Uses ControlElem, Classes;
 
 Type
 

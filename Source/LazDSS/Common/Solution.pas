@@ -210,7 +210,7 @@ implementation
 
 USES  SolutionAlgs,
       DSSClassDefs, DSSGlobals, DSSForms, CktElement,  ControlElem, Fault,
-      Executive, AutoAdd,  YMatrix,
+      AutoAdd,  YMatrix,
       ParserDel, Generator,
 {$IFDEF DLL_ENGINE}
       ImplGlobals,  // to fire events

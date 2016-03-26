@@ -194,7 +194,7 @@ implementation
 USES
 
     ParserDel, DSSClassDefs, DSSGlobals, Circuit, CktElement,Transformer, PCElement,
-    Sysutils, ucmatrix, showresults, mathUtil, PointerList, TOPExport, Dynamics, PstCalc;
+    Sysutils, showresults, mathUtil, PointerList, TOPExport, Dynamics, PstCalc;
 
 CONST
     SEQUENCEMASK = 16;

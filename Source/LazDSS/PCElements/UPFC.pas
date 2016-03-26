@@ -13,7 +13,7 @@ unit UPFC;
 
 interface
 
-USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum, Arraydef, Loadshape, XYCurve;
+USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Arraydef, XYCurve;
 
 
 
@@ -118,7 +118,7 @@ VAR
 implementation
 
 
-USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Dynamics, Utilities, Sysutils, Command, solution, YMatrix;
+USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command, solution;
 
 Const
     propLossCurve= 11;

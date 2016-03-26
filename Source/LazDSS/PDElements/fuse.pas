@@ -26,7 +26,7 @@ unit Fuse;
 INTERFACE
 
 USES
-     Command, ControlClass, ControlElem, CktElement, DSSClass, Arraydef, ucomplex,
+     Command, ControlClass, ControlElem, CktElement, DSSClass, ucomplex,
       utilities, TCC_Curve, Math;
 
 CONST
@@ -104,7 +104,7 @@ IMPLEMENTATION
 
 USES
 
-    ParserDel, DSSClassDefs, DSSGlobals, Circuit,   Sysutils, uCmatrix, MathUtil;
+    ParserDel, DSSClassDefs, DSSGlobals, Circuit,   Sysutils, MathUtil;
 
 CONST
 

@@ -44,10 +44,6 @@ object HelpForm1: THelpForm1
     ReadOnly = True
     TabOrder = 0
     OnChange = TreeView1Change
-    Items.NodeData = {
-      0301000000260000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF000000
-      000000000001047400650073007400
-    }
   end
   object Memo1: TMemo
     Left = 203

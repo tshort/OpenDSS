@@ -43,8 +43,8 @@ VAR
 
 implementation
 
-Uses      ExecCommands, ExecOptions,
-          LCLIntf, LCLType, LMessages, Forms, Controls, Dialogs, DSSGlobals,Executive, DSSClass,ParserDel,
+Uses      ExecOptions,
+          LCLIntf, LCLType, Forms, Controls, Dialogs, DSSGlobals,ParserDel,
           ProgressForm,
           Helpform,
           PropEdit,

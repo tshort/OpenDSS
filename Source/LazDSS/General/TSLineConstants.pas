@@ -39,7 +39,7 @@ end;
 
 implementation
 
-uses SysUtils, Math;
+uses SysUtils;
 
 Const
   RhoTS:double = 2.3718e-8;  // for copper tape shield

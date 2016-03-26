@@ -383,9 +383,9 @@ VAR
 
 
 implementation
-USES  ParserDel, DSSClassDefs, DSSGlobals, Bus, Sysutils, MathUtil,  UCMatrix, 
-      Utilities, PCElement,  StackDef, Circuit, Line, LineUnits,
-      Classes, ReduceAlgs, LCLIntf, LCLType, LMessages, Math;
+USES  ParserDel, DSSClassDefs, DSSGlobals, Bus, Sysutils, MathUtil,
+      Utilities, PCElement, Circuit, Line, LineUnits,
+      Classes, ReduceAlgs, LCLIntf, LCLType, Math;
 
 Const NumPropsThisClass = 24;
 

@@ -11,7 +11,7 @@ unit PropEdit;
 interface
 
 uses
-  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLIntf, LCLType, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Grids, DSSObject, StdCtrls;
 
 type
@@ -47,7 +47,7 @@ implementation
 
 {$R *.lfm}
 
-Uses DSSGlobals, Executive, ParserDel;
+Uses DSSGlobals, ParserDel;
 
 Var
    SelectedRow : Integer;

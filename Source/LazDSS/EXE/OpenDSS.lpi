@@ -4,21 +4,20 @@
     <Version Value="9"/>
     <PathDelim Value="\"/>
     <General>
-      <Flags>
-        <MainUnitHasUsesSectionForAllUnits Value="False"/>
-        <MainUnitHasCreateFormStatements Value="False"/>
-        <MainUnitHasTitleStatement Value="False"/>
-      </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
       <Title Value="OpenDSS"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
+      <Icon Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
     </i18n>
     <VersionInfo>
+      <UseVersionInfo Value="True"/>
+      <MajorVersionNr Value="7"/>
+      <MinorVersionNr Value="8"/>
       <StringTable ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="1">
@@ -249,7 +248,9 @@
       <Unit48>
         <Filename Value="..\Forms\HelpForm.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="HelpForm1"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit48>
       <Unit49>
         <Filename Value="..\Shared\IniRegSave.pas"/>
@@ -314,7 +315,7 @@
         <IsPartOfProject Value="True"/>
       </Unit63>
       <Unit64>
-        <Filename Value="MyDSSClassDefs.Pas"/>
+        <Filename Value="MyDSSClassDefs.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit64>
       <Unit65>
@@ -625,7 +626,15 @@
         <SyntaxMode Value="Delphi"/>
       </SyntaxOptions>
     </Parsing>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="3"/>
+      </Optimizations>
+    </CodeGeneration>
     <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
       <Options>
         <PassLinkerOptions Value="True"/>
         <LinkerOptions Value="-lm -lstdc++ -lgcc_s"/>
@@ -639,7 +648,7 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="3">
+    <Exceptions Count="4">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -649,6 +658,9 @@
       <Item3>
         <Name Value="EFOpenError"/>
       </Item3>
+      <Item4>
+        <Name Value="Exception"/>
+      </Item4>
     </Exceptions>
   </Debugging>
 </CONFIG>

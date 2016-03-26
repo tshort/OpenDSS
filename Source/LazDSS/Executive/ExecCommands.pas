@@ -31,7 +31,7 @@ PROCEDURE ProcessCommand(Const CmdLine:String);
 implementation
 
 Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions,  PlotOptions,
-     ExportOptions, ParserDel, LoadShape, DSSForms, sysutils, Utilities, SolutionAlgs;
+     ExportOptions, ParserDel, DSSForms, sysutils, Utilities, SolutionAlgs;
 
 
 PROCEDURE DefineCommands;

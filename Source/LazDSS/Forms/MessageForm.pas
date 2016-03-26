@@ -11,8 +11,8 @@ unit MessageForm;
 interface
 
 uses
-  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ComCtrls, RichMemo;
+  LCLIntf, LCLType, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  RichMemo;
 
 type
   TMessageForm1 = class(TForm)

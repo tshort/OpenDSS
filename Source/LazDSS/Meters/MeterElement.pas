@@ -10,7 +10,7 @@ unit MeterElement;
 
 Interface
 
-USES CktElement, Bus, ucomplex, DSSClass, Arraydef;
+USES CktElement, ucomplex, DSSClass, Arraydef;
 
 TYPE
    TMeterElement = class(TDSSCktElement)

@@ -91,8 +91,7 @@ implementation
 
 USES ExecCommands, ExecOptions,
      {ExecHelper,} DSSClassDefs, DSSGlobals, ParserDel,  SysUtils,
-     Utilities, Solution, DSSClass, IniRegSave,
-     DSSForms;
+     Utilities, DSSForms;
 
 
 //----------------------------------------------------------------------------

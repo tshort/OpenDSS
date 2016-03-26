@@ -45,7 +45,7 @@ TYPE
 
 implementation
 
-USES  ParserDel,  DSSGlobals, DSSClassDefs, Sysutils, Ucomplex, Arraydef,  LineUNits;
+USES  ParserDel,  DSSGlobals, DSSClassDefs, Sysutils, Ucomplex;
 
 Const
   NumPropsThisClass = 0; // because they were all moved to ConductorData

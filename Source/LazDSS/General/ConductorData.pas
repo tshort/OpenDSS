@@ -20,7 +20,7 @@ interface
  }
 
 USES
-   Command, DSSClass, DSSObject;
+   DSSClass, DSSObject;
 
 TYPE
   ConductorChoice = (Overhead, ConcentricNeutral, TapeShield, Unknown);

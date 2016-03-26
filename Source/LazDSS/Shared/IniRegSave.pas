@@ -23,14 +23,14 @@ unit IniRegSave;
 interface
 
 uses
-  Registry;
+  IniFiles; // Registry;
 
 type
 
   TIniRegSave = class(TObject)
     FSection : String;
     Fname   : String;
-    FIniFile: TRegIniFile;
+    FIniFile: TIniFile; // TRegIniFile;
 
   private
     procedure Set_FSection(const Value: String);
@@ -58,13 +58,13 @@ type
 
 implementation
 
-
+uses sysutils;
 
 
 constructor TIniRegSave.Create(const Name: String);
 begin
      FName := Name;
-     FIniFile := TRegIniFile.Create(Name);
+     FIniFile := TIniFile.Create(Name); // TRegIniFile.Create(Name);
      FSection := 'MainSect';
 end;
 
@@ -106,7 +106,7 @@ end;
 
 procedure TIniRegSave.WriteString(const key: string; value: String);
 begin
-    FiniFile.WriteString (FSection, key, value);
+     FiniFile.WriteString (FSection, key, value);
 end;
 
 procedure TIniRegSave.ClearSection;

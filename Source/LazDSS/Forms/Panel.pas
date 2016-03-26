@@ -12,8 +12,8 @@ unit Panel;
 interface
 
 uses
-  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ComCtrls, Menus, ToolWin, ImgList,Scriptform, ExtCtrls;
+  LCLIntf, LCLType, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ComCtrls, Menus, Scriptform, ExtCtrls;
 
 type
   TControlPanel = class(TForm)
@@ -450,12 +450,12 @@ type
 
 implementation
 
-uses Executive, DSSClassDefs, DSSGlobals,
+uses DSSClassDefs, DSSGlobals,
   ClipBrd,  Utilities, contnrs, MessageForm,
   DlgPlotOptions,  DSSPlot, FrmCSVchannelSelect,
-  DlgComboBox,dlgNumber, ExecOptions, ExecCommands, ExecHelper, Dynamics, DSSClass, ListForm,
+  DlgComboBox,dlgNumber, ExecOptions, ExecHelper, Dynamics, DSSClass, ListForm,
   Lineunits, Monitor, FrmDoDSSCommand, Frm_RPNcalc, DSSForms, showOptions,
-  IniRegSave; //, JwaPSApi;
+  IniRegSave {$IFDEF WINDIWS}, ShellAPI, JwaPSApi, JwaWinBase, JwaWinNT{$ENDIF};
 
 {$R *.lfm}
 
@@ -997,63 +997,55 @@ end;
 
 procedure TControlPanel.UpdateStatus;
 var
-//  pmc: PROCESS_MEMORY_COUNTERS;
-//  cb: Integer;
-  PID: SizeUInt;
-  PageSize: LongInt;
-  Pages, KB: LongInt;
-  FName: String;
-  MyFile: TextFile;
-  s: String;
+    {$IFDEF UNIX}
+//    PID: SizeUInt;
+//    PageSize: LongInt;
+//    Pages, KB: LongInt;
+//    FName: String;
+//    MyFile: TextFile;
+    {$ENDIF}
+    hstat: TFPCHeapStatus;
 begin
-  PID := GetProcessID;
-  PageSize := 4096; // returned from getconf(PAGESIZE);
-  FName := Format('/proc/%d/statm', [PID]);
-  try
-     AssignFile(MyFile, FName);
-     reset(MyFile);
-     readln(MyFile, s);
-     SScanf (s, '%d', [@Pages]);
-     KB := (PageSize div 1025) * Pages;
-     StatusBar1.Panels[0].Text := Format ('Memory: %dK', [KB]);
-  finally
-    CloseFile(MyFile);
-    StatusBar1.Panels[0].Text := 'Memory: ?';
-  end;
-  StatusBar1.Panels[1].Text := 'Blocks: ?';
-
-//     cb := sizeof(_PROCESS_MEMORY_COUNTERS);
-//     GetMem(@pmc, cb);
-//     pmc.cb := cb;
-//     IF GetProcessMemoryInfo(GetCurrentProcess(), pmc, cb)
-//     then
-//        StatusBar1.Panels[0].Text := Format('Memory: %dK',[pmc.WorkingSetSize div 1024])
-//     else
-//        StatusBar1.Panels[0].Text := 'Memory: ?';
-//     FreeMem(pmc);
-//     StatusBar1.Panels[1].Text := Format('Blocks: %d',[AllocMemCount]);
-     If ActiveCircuit <> Nil Then  Begin
-         With ActiveCircuit Do Begin
-          If IsSolved Then  StatusBar1.Panels[1].Text := 'Circuit Status: SOLVED'
-                      else  StatusBar1.Panels[1].Text := 'Circuit Status: NOT SOLVED';
-          StatusBar1.Panels[2].Text := Format('Total Iterations = %d, Control Iterations = %d,  Max Solution Iterations = %d',[solution.iteration, Solution.ControlIteration, Solution.MostIterationsDone  ]);
-         End;
-     End Else Begin
-         StatusBar1.Panels[1].Text := 'No Active Circuit';
-         StatusBar1.Panels[2].Text := ' ';
+  {$IFDEF UNIX}
+//  PID := GetProcessID;
+//  PageSize := 4096; // returned from getconf(PAGESIZE);
+//  FName := Format('/proc/%d/statm', [PID]);
+//  try
+//     AssignFile(MyFile, FName);
+//     reset(MyFile);
+//     readln(MyFile, s);
+//     SScanf (s, '%d', [@Pages]);
+//     KB := (PageSize div 1025) * Pages;
+//     StatusBar1.Panels[0].Text := Format ('Memory: %dK', [KB]);
+//  finally
+//    CloseFile(MyFile);
+//    StatusBar1.Panels[0].Text := 'Memory: ?';
+//  end;
+//  StatusBar1.Panels[1].Text := 'Blocks: ?';
+  {$ENDIF}
+  hstat := GetFPCHeapStatus;
+  StatusBar1.Panels[0].Text := Format('Heap Memory Used: %dK',[hstat.CurrHeapUsed div 1024]);
+  If ActiveCircuit <> Nil Then  Begin
+    With ActiveCircuit Do Begin
+      If IsSolved Then  StatusBar1.Panels[1].Text := 'Circuit Status: SOLVED'
+                  else  StatusBar1.Panels[1].Text := 'Circuit Status: NOT SOLVED';
+        StatusBar1.Panels[2].Text := Format('Total Iterations = %d, Control Iterations = %d,  Max Solution Iterations = %d',[solution.iteration, Solution.ControlIteration, Solution.MostIterationsDone  ]);
      End;
+  End Else Begin
+     StatusBar1.Panels[1].Text := 'No Active Circuit';
+     StatusBar1.Panels[2].Text := ' ';
+  End;
 
-     DemandInterval1.Checked   := EnergyMeterclass.SaveDemandInterval ;
-     Caption := ProgramName + ' Data Directory: ' + DataDirectory; // NOTE: not necessarily same as output directory
-     If ActiveCircuit <> Nil then
-     With ActiveCircuit Do
-     Begin
-       ZonesLocked1.Checked       := ZonesLocked;
-       DuplicatesAllowed1.checked := DuplicatesAllowed;
-       TraceLog1.Checked          := ControlQueue.TraceLog;
-       Trapezoidal1.checked       := TrapezoidalIntegration;
-     End;
-     LBL_DefaultFreq.Caption := Format(' Base Frequency = %d Hz', [Round(DefaultBaseFreq) ]);
+  DemandInterval1.Checked   := EnergyMeterclass.SaveDemandInterval ;
+  Caption := ProgramName + ' Data Directory: ' + DataDirectory; // NOTE: not necessarily same as output directory
+  If ActiveCircuit <> Nil then
+    With ActiveCircuit Do Begin
+      ZonesLocked1.Checked       := ZonesLocked;
+      DuplicatesAllowed1.checked := DuplicatesAllowed;
+      TraceLog1.Checked          := ControlQueue.TraceLog;
+      Trapezoidal1.checked       := TrapezoidalIntegration;
+    End;
+  LBL_DefaultFreq.Caption := Format(' Base Frequency = %d Hz', [Round(DefaultBaseFreq) ]);
 end;
 
 procedure TControlPanel.RecordScript1Click(Sender: TObject);

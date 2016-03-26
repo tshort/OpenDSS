@@ -7,7 +7,7 @@ unit SwtControl;
 
 interface
 USES
-     Command, ControlClass, ControlElem, CktElement, DSSClass, Arraydef, ucomplex;
+     Command, ControlClass, ControlElem, CktElement, DSSClass, ucomplex;
 
 TYPE
 

@@ -24,7 +24,7 @@ unit Transformer;
 interface
 
 USES
-   Command, DSSClass, PDClass,Circuit, PDElement, uComplex, UcMatrix, ParserDel, Arraydef, math;
+   Command, DSSClass, PDClass,Circuit, PDElement, uComplex, UcMatrix, ParserDel, Arraydef;
 
 
 TYPE

@@ -44,11 +44,11 @@ Procedure ShowResult(FileNm:String);
 
 implementation
 
-Uses uComplex,  Arraydef,  sysutils, Circuit, DSSClass, DSSClassDefs, DSSGlobals,
+Uses uComplex,  sysutils, Circuit, DSSClass, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution,  CktElement, Utilities, Bus, MathUtil,
      PDElement, PCElement, Generator, Transformer, EnergyMeter, Load, RegControl,
-     ParserDel, CktTree,   DSSForms, Math, Line, LineUnits, LineGeometry, YMatrix,
-     SwtControl, KLUStatic;
+     ParserDel, CktTree,   DSSForms, Math, Line, LineUnits, LineGeometry,
+     KLUStatic;
 
 VAR
    MaxBusNameLength :Integer;

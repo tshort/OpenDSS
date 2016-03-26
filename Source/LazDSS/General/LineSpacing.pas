@@ -81,7 +81,7 @@ VAR
 
 implementation
 
-USES  ParserDel,  DSSClassDefs,  DSSGlobals, Ucomplex, Utilities,  LineUNits;
+USES  ParserDel,  DSSClassDefs,  DSSGlobals, Ucomplex, LineUnits;
 
 Const      NumPropsThisClass = 5;
 

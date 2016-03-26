@@ -158,7 +158,7 @@ Type
 IMPLEMENTATION
 
 uses
-  Circuit, PDElement, PCElement, DSSGlobals, Utilities;
+  Circuit, PCElement, DSSGlobals, Utilities;
 
 constructor TcktTreeNode.Create(const pParent: TCktTreeNode;const pSelfobj:Pointer);
 

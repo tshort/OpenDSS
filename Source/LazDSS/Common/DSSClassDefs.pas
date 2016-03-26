@@ -84,7 +84,6 @@ USES
      MyDSSClassDefs,
 
      Solution,
-     Bus,
      Line,
      VSource,
      Isource,
@@ -116,7 +115,6 @@ USES
      Recloser,
      Fuse,
      Sensor,
-     Feeder,
      XfmrCode,
      Storage,
      StorageController,

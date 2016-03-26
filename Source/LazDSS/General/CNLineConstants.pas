@@ -43,7 +43,7 @@ end;
 
 implementation
 
-uses SysUtils, Math, Utilities;
+uses SysUtils, Math;
 
 function TCNLineConstants.Get_kStrand(i: Integer): Integer;
 begin

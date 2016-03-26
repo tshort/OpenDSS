@@ -90,7 +90,7 @@ IMPLEMENTATION
 
 USES
 
-    ParserDel, DSSClassDefs, DSSGlobals, Circuit,  Generator, Sysutils, uCmatrix, MathUtil, Math;
+    ParserDel, DSSClassDefs, DSSGlobals, Circuit,  Generator, Sysutils, MathUtil, Math;
 
 CONST
 

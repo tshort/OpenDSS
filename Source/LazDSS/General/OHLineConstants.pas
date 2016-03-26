@@ -10,7 +10,7 @@ unit OHLineConstants;
 
 interface
 
-Uses Arraydef, Ucmatrix, Ucomplex, LineUnits, LineConstants;
+Uses Ucomplex, LineConstants;
 
 TYPE
 

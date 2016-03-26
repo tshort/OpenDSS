@@ -306,7 +306,7 @@ VAR
 implementation
 
 
-USES  ParserDel, Circuit,  Sysutils, Command, Math, MathUtil, DSSClassDefs, DSSGlobals, Utilities;
+USES  ParserDel, Circuit,  Sysutils, Command, MathUtil, DSSClassDefs, DSSGlobals, Utilities;
 
 Const NumPropsThisClass = 39;
   // Dispatch modes

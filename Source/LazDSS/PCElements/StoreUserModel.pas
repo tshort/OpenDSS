@@ -15,7 +15,7 @@ unit StoreUserModel;
 
 interface
 
-USES  StorageVars, Dynamics, DSSCallBackRoutines, ucomplex, Arraydef;
+USES  Dynamics, DSSCallBackRoutines, ucomplex, Arraydef;
 
 TYPE
 
@@ -130,7 +130,7 @@ TYPE
 
 implementation
 
-Uses Storage, DSSGlobals, LCLIntf, LCLType, LMessages, dynlibs, Sysutils;
+Uses Storage, DSSGlobals, LCLIntf, LCLType, dynlibs, Sysutils;
 
 { TStoreUserModel }
 

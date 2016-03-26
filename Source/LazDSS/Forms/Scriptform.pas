@@ -12,8 +12,8 @@ unit Scriptform;
 interface
 
 uses
-  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ComCtrls,contnrs, Menus, ToolWin, RichMemo;
+  LCLIntf, LCLType, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ComCtrls,contnrs, Menus, RichMemo;
 
 type
   TMainEditForm = class(TForm)

@@ -93,8 +93,7 @@ VAR
 implementation
 
 
-USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command, Energymeter,
-      PDElement;
+USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Sysutils, Command, Energymeter;
 
 Var  NumPropsThisClass:Integer;
 

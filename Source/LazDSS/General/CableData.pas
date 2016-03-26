@@ -8,7 +8,7 @@ unit CableData;
 interface
 
 uses
-   Command, DSSClass, DSSObject, ConductorData;
+   DSSClass, DSSObject, ConductorData;
 
 type
    TCableData = class(TConductorData)
@@ -47,7 +47,7 @@ type
 
 implementation
 
-uses  ParserDel, DSSGlobals, DSSClassDefs, Sysutils, Ucomplex, Arraydef, LineUnits;
+uses  ParserDel, DSSGlobals, DSSClassDefs, Sysutils, Ucomplex;
 
 constructor TCableData.Create;  // Creates superstructure for all Line objects
 BEGIN

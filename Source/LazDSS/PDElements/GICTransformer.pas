@@ -18,7 +18,7 @@ unit GICTransformer;
 
 interface
 USES
-   Command, DSSClass, PDClass, Circuit, PDElement, UcMatrix, ArrayDef, XYCurve;
+   Command, DSSClass, PDClass, Circuit, PDElement, UcMatrix, XYCurve;
 
 TYPE
 
@@ -79,7 +79,7 @@ VAR
    ActiveGICTransformerObj: TGICTransformerObj;
 
 implementation
-USES  ParserDel,  MyDSSClassDefs, DSSClassDefs, DSSGlobals, dynamics, Sysutils, Ucomplex, MathUtil, Utilities;
+USES  ParserDel, DSSClassDefs, DSSGlobals, Sysutils, Ucomplex, MathUtil, Utilities;
 
 Const NumPropsthisclass = 15;
 

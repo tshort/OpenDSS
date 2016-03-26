@@ -1,6 +1,6 @@
 unit DSSGlobals;
 
-{$MODE Delphi}
+{$IFDEF FPC}{$MODE Delphi}{$ENDIF}
 
 {
   ----------------------------------------------------------
@@ -24,7 +24,7 @@ unit DSSGlobals;
 interface
 
 Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerList,
-     UComplex, Arraydef, CktElement, Circuit, IniRegSave, Graphics,
+     UComplex, Circuit, IniRegSave, Graphics,
 
      {Some units which have global vars defined here}
      Spectrum,
@@ -37,7 +37,6 @@ Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerLis
      EnergyMeter,
      Sensor,
      TCC_Curve,
-     Feeder,
      WireData,
      CNData,
      TSData,
@@ -252,7 +251,7 @@ implementation
 
 USES  {Forms,   Controls,}
      SysUtils,
-     LCLIntf, LCLType, LMessages, dynlibs, resource, versiontypes, versionresource,
+     LCLIntf, LCLType, dynlibs, resource, versiontypes, versionresource,
      DSSForms,
      Solution,
      Executive;
@@ -271,14 +270,14 @@ VAR
    DSSRegisterProc:TDSSRegister;   // of last library loaded
 
 FUNCTION GetDefaultDataDirectory: String;
-//Var
-//  ThePath:Array[0..MAX_PATH] of char;
 Begin
-//  FillChar(ThePath, SizeOF(ThePath), #0);
-//  SHGetFolderPath (0, CSIDL_PERSONAL, 0, 0, ThePath);
-//  Result := ThePath;
+{$IFDEF UNIX}
   Result := GetEnvironmentVariable('HOME') + '/Documents';
-End;
+{$ENDIF}
+{$IFDEF WINDOWS}
+  Result := GetEnvironmentVariable('HOMEDRIVE') + GetEnvironmentVariable('HOMEPATH') + '\Documents';
+{$ENDIF}
+end;
 
 FUNCTION GetDefaultScratchDirectory: String;
 //Var
@@ -287,7 +286,12 @@ Begin
 //  FillChar(ThePath, SizeOF(ThePath), #0);
 //  SHGetFolderPath (0, CSIDL_LOCAL_APPDATA, 0, 0, ThePath);
 //  Result := ThePath;
-  Result := '/tmp/opendss';
+  {$IFDEF UNIX}
+  Result := '/tmp';
+  {$ENDIF}
+  {$IFDEF WINDOWS}
+  Result := GetEnvironmentVariable('LOCALAPPDATA');
+  {$ENDIF}
 End;
 
 function GetOutputDirectory:String;
@@ -694,6 +698,9 @@ End;
 
 initialization
 
+   // LCL can't show any forms until after Application.Initialize
+   NoFormsAllowed  := TRUE;
+
    {Various Constants and Switches}
 
    CALPHA                := Cmplx(-0.5, -0.866025); // -120 degrees phase shift
@@ -736,17 +743,21 @@ initialization
 {$ELSE ! CPUX86}
    VersionString    := 'Version ' + GetDSSVersion + ' (32-bit build)';
 {$ENDIF}
-   StartupDirectory := GetCurrentDir+'\';
-   SetDataPath (GetDefaultDataDirectory + '\' + ProgramName + '\');
-
-   DSS_Registry     := TIniRegSave.Create('\Software\' + ProgramName);
+{$IFDEF WINDOWS}
+        StartupDirectory := GetCurrentDir+'\';
+        SetDataPath (GetDefaultDataDirectory + '\' + ProgramName + '\');
+        DSS_Registry     := TIniRegSave.Create(DataDirectory + 'opendss.ini');
+{$ENDIF}
+{$IFDEF UNIX}
+        StartupDirectory := GetCurrentDir+'/';
+        SetDataPath (GetDefaultDataDirectory + '/' + ProgramName + '/');
+        DSS_Registry     := TIniRegSave.Create(DataDirectory + 'opendss.ini');
+{$ENDIF}
 
    AuxParser       := TParser.Create;
    DefaultEditor   := 'NotePad';
    DefaultFontSize := 8;
    DefaultFontName := 'MS Sans Serif';
-
-   NoFormsAllowed  := FALSE;
 
    EventStrings    := TStringList.Create;
    SavedFileList   := TStringList.Create;

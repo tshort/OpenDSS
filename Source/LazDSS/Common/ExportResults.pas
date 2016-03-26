@@ -63,10 +63,10 @@ Procedure ExportSections(FileNM:String; pMeter:TEnergyMeterObj);
 
 IMPLEMENTATION
 
-Uses uComplex,  Arraydef, sysutils,   Circuit, DSSClassDefs, DSSGlobals,
+Uses uComplex,  sysutils,   Circuit, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution, CktElement, Utilities, Bus, MathUtil, DSSClass,
      PDElement, PCElement, Generator,  Sensor, Load, RegControl, Transformer,
-     ParserDel, Math, Ymatrix, LineGeometry, WireData, LineCode, XfmrCode, NamedObject,
+     ParserDel, Math, LineGeometry, WireData, LineCode, XfmrCode, NamedObject,
      GICTransformer, PVSystem, Storage, KLUStatic;
 
 Procedure WriteElementVoltagesExportFile(Var F:TextFile; pElem:TDSSCktElement;MaxNumNodes:Integer);

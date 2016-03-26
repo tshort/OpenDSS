@@ -9,7 +9,7 @@ unit XfmrCode;
 interface
 
 USES
-   Command, DSSClass, DSSObject, UcMatrix, arraydef, Transformer;
+   Command, DSSClass, DSSObject, arraydef, Transformer;
 
 TYPE
    WdgParmChoice = (Conn, kV, kVA, R, Tap);

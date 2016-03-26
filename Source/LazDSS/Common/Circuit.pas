@@ -293,7 +293,7 @@ implementation
 USES
      PDElement, CktElementClass,
      ParserDel,  DSSClassDefs, DSSGlobals, Dynamics,
-     Line, Transformer,  Vsource,
+     Line, Vsource,
      Utilities,  DSSForms;
 
 //----------------------------------------------------------------------------

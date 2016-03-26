@@ -34,7 +34,7 @@ unit CapControl;
 INTERFACE
 
 USES
-     Command, ControlClass, ControlElem, CktElement, Bus, DSSClass, Arraydef, ucomplex,
+     Command, ControlClass, ControlElem, CktElement, Bus, DSSClass, ucomplex,
      Capacitor, utilities, CapControlVars, CapUserControl;
 
 TYPE
@@ -132,7 +132,7 @@ IMPLEMENTATION
 
 USES
 
-    ParserDel, DSSClassDefs, DSSGlobals, Circuit,   Sysutils, uCmatrix, MathUtil, Math;
+    ParserDel, DSSClassDefs, DSSGlobals, Circuit, Sysutils, MathUtil, Math;
 
 CONST
     AVGPHASES = -1;

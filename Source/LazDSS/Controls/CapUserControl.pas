@@ -24,7 +24,7 @@ unit CapUserControl;
 
 interface
 
-USES  CapControlVars, Dynamics, DSSCallBackRoutines, ucomplex, Arraydef;
+USES  DSSCallBackRoutines, ucomplex;
 
 TYPE
 
@@ -79,7 +79,7 @@ TYPE
 
 implementation
 
-Uses  DSSGlobals, LCLIntf, LCLType, LMessages, dynlibs, Sysutils;
+Uses  DSSGlobals, LCLIntf, LCLType, dynlibs, Sysutils;
 
 { TCapUserControl }
 

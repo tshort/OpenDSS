@@ -30,8 +30,8 @@ Notes:
 INTERFACE
 
 USES
-     Command, ControlClass, ControlElem, CktElement, DSSClass, PVSystem, Arraydef, ucomplex,
-     gqueue, utilities, XYcurve, Dynamics, PointerList, Classes, StrUtils;
+     Command, ControlClass, ControlElem, CktElement, DSSClass, PVSystem, ucomplex,
+     gqueue, utilities, XYcurve, Dynamics, PointerList, Classes;
 
 TYPE
 

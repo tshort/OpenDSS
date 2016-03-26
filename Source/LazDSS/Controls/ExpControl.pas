@@ -15,8 +15,8 @@ INTERFACE
 
   uses
     Command, ControlClass, ControlElem,
-    CktElement, DSSClass, PVSystem, Arraydef, ucomplex,
-    utilities, Dynamics, PointerList, Classes, StrUtils;
+    CktElement, DSSClass, PVSystem, uComplex,
+    utilities, Dynamics, PointerList, Classes;
 
   type
     TExpControl = class(TControlClass)

@@ -85,7 +85,7 @@ INTERFACE
 
 IMPLEMENTATION
 
-USES  Sysutils, math;
+USES  Sysutils;
 
 Constructor THashList.Create(Nelements:Cardinal);
 VAR

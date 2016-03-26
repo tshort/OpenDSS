@@ -82,7 +82,7 @@ TYPE
 implementation
 
 Uses
-    LCLIntf, LCLType, LMessages, Process,
+    LCLIntf, LCLType, Process,
     DSSGlobals,
     Utilities,
     Math,

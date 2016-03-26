@@ -1,11 +1,11 @@
 object ControlPanel: TControlPanel
   Left = 1017
-  Height = 628
+  Height = 625
   Top = 399
   Width = 1128
   Anchors = [akBottom]
   Caption = 'OpenDSS: Main Control Panel'
-  ClientHeight = 589
+  ClientHeight = 586
   ClientWidth = 1128
   Color = clBtnFace
   Font.Color = clWindowText
@@ -1005,9 +1005,9 @@ object ControlPanel: TControlPanel
     Stretch = True
   end
   object Image2: TImage
-    Left = 8
+    Left = 16
     Height = 47
-    Top = 519
+    Top = 504
     Width = 280
     Anchors = [akLeft, akBottom]
     Picture.Data = {
@@ -2238,7 +2238,7 @@ object ControlPanel: TControlPanel
   object StatusBar1: TStatusBar
     Left = 0
     Height = 36
-    Top = 553
+    Top = 550
     Width = 1128
     Panels = <    
       item
@@ -2253,6 +2253,7 @@ object ControlPanel: TControlPanel
         Text = 'Blocks'
         Width = 400
       end>
+    SimplePanel = False
   end
   object ToolBar2: TToolBar
     Left = 0
