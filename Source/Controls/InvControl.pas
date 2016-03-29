@@ -335,7 +335,7 @@ Begin
 
 
      PropertyHelp[3] := 'Combination of Modes with which the InvControl will control the PVSystem(s) specified in PVSystemList. '+CRLF+CRLF+
-                        'Must be a combination of the following: {''*, VV_VW | VV_DRC}. Default is to not set this property, in which case the single control mode in Mode is active.  ' +
+                        'Must be a combination of the following: {VV_VW | VV_DRC}. Default is to not set this property, in which case the single control mode in Mode is active.  ' +
                          CRLF+CRLF+'In combined VV_VW mode, both volt-var and volt-watt control modes are active simultaneously.  See help individually for volt-var mode and volt-watt mode in Mode property.'+
                          CRLF+'Note that the PVSystem will attempt to achieve both the volt-watt and volt-var set-points based on the capabilities of the inverter in the PVSystem (kVA rating), any limits set on maximum active power,' +
                          CRLF+', any limits set on maximum reactive power. '+
@@ -475,7 +475,7 @@ Begin
 
      PropertyHelp[22] := '{Yes/True* | No/False} Default is YES for InvControl. Log control actions to Eventlog.';
 
-     PropertyHelp[23] := 'Required for any mode that has VOLTVAR in it. Defaults to VARAVAL_WATTS. Possible Settings: VARAVAL_WATTS*|VARMAX_VARS|VARMAX_WATTS'+CRLF+CRLF+
+     PropertyHelp[23] := 'Required for any mode that has VOLTVAR in it. Defaults to VARAVAL_WATTS. Possible Settings: VARAVAL_WATTS|VARMAX_VARS|VARMAX_WATTS'+CRLF+CRLF+
                          'When the VOLTVAR mode is active (alone or in conjunction with other modes, this property defines the reference for the percent value given on the y-axis of the volt-var curve.'+CRLF+CRLF+
                          'VARAVAL_WATTS: When set to VARAVAL_WATTS the units of the y-axis for the volt-var curve are given in percent of available reactive power given present active power output and the kVA rating of the PVSystem.'+CRLF+
                          'Active power output is given precedence over reactive power output/absorption, so the reactive power output/absorption possibly may not achieve the desired available reactive power level as defined by the volt-var curve if little headroonm.'+CRLF+CRLF+
