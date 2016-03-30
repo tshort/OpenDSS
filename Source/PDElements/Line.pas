@@ -235,11 +235,14 @@ Begin
                         'the program to use the symmetrical component line definition. See also Rmatrix.';
      PropertyHelp[7] := 'Positive-sequence Reactance, ohms per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
                         'the program to use the symmetrical component line definition.  See also Xmatrix';
-     PropertyHelp[8] := 'Zero-sequence Resistance, ohms per unit length.';
-     PropertyHelp[9] := 'Zero-sequence Reactance, ohms per unit length.';
+     PropertyHelp[8] := 'Zero-sequence Resistance, ohms per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
+                        'the program to use the symmetrical component line definition.';
+     PropertyHelp[9] := 'Zero-sequence Reactance, ohms per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
+                        'the program to use the symmetrical component line definition.';
      PropertyHelp[10] := 'Positive-sequence capacitance, nf per unit length.  Setting any of R1, R0, X1, X0, C1, C0 forces ' +
                         'the program to use the symmetrical component line definition. See also Cmatrix and B1.';
-     PropertyHelp[11] := 'Zero-sequence capacitance, nf per unit length. See also B0.';
+     PropertyHelp[11] := 'Zero-sequence capacitance, nf per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
+                        'the program to use the symmetrical component line definition.See also B0.';
      PropertyHelp[12] := 'Resistance matrix, lower triangle, ohms per unit length. Order of the matrix is the number of phases. '+
                         'May be used to specify the impedance of any line configuration. Using any of Rmatrix, Xmatrix, Cmatrix ' +
                         'forces program to use the matrix values for line impedance definition. For balanced line models, you may '+
