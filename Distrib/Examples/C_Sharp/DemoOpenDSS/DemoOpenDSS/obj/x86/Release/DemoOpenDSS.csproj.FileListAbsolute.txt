@@ -13,3 +13,8 @@ F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.exe.manifest
 F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.application
 F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.exe
 F:\PROPRE\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.pdb
+C:\Users\prdu001\OpenDSS\Distrib\Examples\C_Sharp\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\Interop.OpenDSSengine.dll
+C:\Users\prdu001\OpenDSS\Distrib\Examples\C_Sharp\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.csproj.ResolveComReference.cache
+C:\Users\prdu001\OpenDSS\Distrib\Examples\C_Sharp\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.exe
+C:\Users\prdu001\OpenDSS\Distrib\Examples\C_Sharp\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.pdb
+C:\Users\prdu001\OpenDSS\Distrib\Examples\C_Sharp\DemoOpenDSS\DemoOpenDSS\obj\x86\Release\DemoOpenDSS.csprojResolveAssemblyReference.cache
