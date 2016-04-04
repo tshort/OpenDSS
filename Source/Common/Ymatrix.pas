@@ -27,7 +27,7 @@ TYPE
 
 
 PROCEDURE BuildYMatrix(BuildOption :Integer; AllocateVI:Boolean);
-PROCEDURE ResetSparseMatrix(var hY:LongWord; size:integer);
+PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer);
 PROCEDURE InitializeNodeVbase;
 
 Function CheckYMatrixforZeroes:String;
@@ -89,7 +89,7 @@ End;
 
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-PROCEDURE ResetSparseMatrix(var hY:LongWord; size:integer);
+PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer);
 
 
 Begin

@@ -118,9 +118,9 @@ TYPE
        Harmonic   :Double;
        HarmonicList  :pDoubleArray;
        HarmonicListSize :Integer;
-       hYsystem :LongWord;   {Handle for main (system) Y matrix}
-       hYseries :LongWord;   {Handle for series Y matrix}
-       hY :LongWord;         {either hYsystem or hYseries}
+       hYsystem :NativeUint;   {Handle for main (system) Y matrix}
+       hYseries :NativeUint;   {Handle for series Y matrix}
+       hY :NativeUint;         {either hYsystem or hYseries}
        IntervalHrs:Double;   // Solution interval since last solution, hrs.
        IsDynamicModel :Boolean;
        IsHarmonicModel :Boolean;
@@ -294,6 +294,8 @@ Begin
     Inherited Create(ParClass);
     Name := LowerCase(SolutionName);
 
+//    i := SetLogFile ('c:\\temp\\KLU_Log.txt', 1);
+
     FYear    := 0;
     DynaVars.intHour     := 0;
     DynaVars.t        := 0.0;
@@ -317,7 +319,7 @@ Begin
     Frequency := DefaultBaseFreq;
     {Fundamental := 60.0; Moved to Circuit and used as default base frequency}
     Harmonic := 1.0;
-    
+
     FrequencyChanged := TRUE;  // Force Building of YPrim matrices
     DoAllHarmonics   := TRUE;
     FirstIteration   := TRUE;
@@ -378,9 +380,11 @@ Begin
       Reallocmem(NodeV, 0);
       Reallocmem(NodeVbase, 0);
       Reallocmem(VMagSaved, 0);
-      
+
       If hYsystem <> 0 THEN   DeleteSparseSet(hYsystem);
       If hYseries <> 0 THEN   DeleteSparseSet(hYseries);
+
+//      SetLogFile ('c:\\temp\\KLU_Log.txt', 0);
 
       Reallocmem(HarmonicList,0);
 
