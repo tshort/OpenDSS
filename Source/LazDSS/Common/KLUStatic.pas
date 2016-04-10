@@ -2,12 +2,18 @@ unit KLUStatic;
 
 interface
 
-// uses cytpes;
 uses
     uComplex;
 
 const
   KLULib = 'libklusolve';
+//FUNCTION NewSparseSet(nBus:LongWord):LongWord;external KLULib;
+
+//{$LINKLIB klusolve}
+//{$LINKLIB stdc++}
+//{$LINKLIB gcc}
+//{$LINKLIB gcc_s}
+//FUNCTION NewSparseSet(nBus:LongWord):LongWord;cdecl;external;
 
 // in general, KLU arrays are 0-based
 // function calls return 0 to indicate failure, 1 for success
