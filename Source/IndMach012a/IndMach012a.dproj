@@ -5,11 +5,11 @@
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
         <DCC_DependencyCheckOutputName>IndMach012.dll</DCC_DependencyCheckOutputName>
-        <ProjectVersion>14.3</ProjectVersion>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <ProjectVersion>16.1</ProjectVersion>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
     </PropertyGroup>
@@ -61,6 +61,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <SanitizedProjectName>IndMach012a</SanitizedProjectName>
         <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
         <Manifest_File>None</Manifest_File>
@@ -85,7 +86,7 @@
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <Version>7.0</Version>
         <DCC_Alignment>1</DCC_Alignment>
-        <DCC_DebugInformation>False</DCC_DebugInformation>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_WriteableConstants>True</DCC_WriteableConstants>
         <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
@@ -168,7 +169,6 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
-                <Platform value="OSX32">False</Platform>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
             </Platforms>

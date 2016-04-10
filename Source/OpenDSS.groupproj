@@ -12,6 +12,9 @@
         <Projects Include="IndMach012a\IndMach012a.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="DDLL\OpenDSSDirect.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -47,14 +50,23 @@
     <Target Name="IndMach012a:Make">
         <MSBuild Projects="IndMach012a\IndMach012a.dproj" Targets="Make"/>
     </Target>
+    <Target Name="OpenDSSDirect">
+        <MSBuild Projects="DDLL\OpenDSSDirect.dproj"/>
+    </Target>
+    <Target Name="OpenDSSDirect:Clean">
+        <MSBuild Projects="DDLL\OpenDSSDirect.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="OpenDSSDirect:Make">
+        <MSBuild Projects="DDLL\OpenDSSDirect.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="OpenDSSengine;OpenDSS;IndMach012a"/>
+        <CallTarget Targets="OpenDSSengine;OpenDSS;IndMach012a;OpenDSSDirect"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="OpenDSSengine:Clean;OpenDSS:Clean;IndMach012a:Clean"/>
+        <CallTarget Targets="OpenDSSengine:Clean;OpenDSS:Clean;IndMach012a:Clean;OpenDSSDirect:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="OpenDSSengine:Make;OpenDSS:Make;IndMach012a:Make"/>
+        <CallTarget Targets="OpenDSSengine:Make;OpenDSS:Make;IndMach012a:Make;OpenDSSDirect:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
