@@ -147,9 +147,7 @@ uses
   VSource in '..\PCElements\VSource.pas',
   WireData in '..\General\WireData.pas',
   XfmrCode in '..\General\XfmrCode.pas',
-  Ymatrix in '..\Common\Ymatrix.pas' ,
-
-{$R *.RES}
+  Ymatrix in '..\Common\Ymatrix.pas',
   TempShape in '..\General\TempShape.pas',
   XYcurve in '..\General\XYcurve.pas',
   PriceShape in '..\General\PriceShape.pas',
@@ -173,7 +171,8 @@ uses
   GICTransformer in '..\PDElements\GICTransformer.pas',
   ExpControl in '..\Controls\ExpControl.pas',
   UPFC in '..\PCElements\UPFC.pas',
-  GenDispatcher in '..\Controls\GenDispatcher.pas';
+  GenDispatcher in '..\Controls\GenDispatcher.pas',
+  KLUSolve in '..\Common\KLUSolve.pas';
 
 {$R *.RES}
 

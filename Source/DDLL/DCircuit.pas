@@ -27,7 +27,8 @@ uses DSSClassDefs,
      Variants,
      arrayDef,
      Utilities,
-     SolutionAlgs;
+     SolutionAlgs,
+     KLUSolve;
 
 function CircuitI(mode:longint; arg: longint):longint;stdcall;
 

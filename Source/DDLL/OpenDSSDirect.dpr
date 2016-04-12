@@ -190,7 +190,8 @@ uses
   DPVSystems in 'DPVSystems.pas',
   DVSources in 'DVSources.pas',
   DDSS in 'DDSS.pas',
-  DYMatrix in 'DYMatrix.pas';
+  DYMatrix in 'DYMatrix.pas',
+  KLUSolve in '..\Common\KLUSolve.pas';
 
 //**************************end of the functions*************************************
 exports

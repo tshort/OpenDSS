@@ -205,7 +205,8 @@ uses
   ImplDSSimComs in 'ImplDSSimComs.pas',
   GenDispatcher in '..\Controls\GenDispatcher.pas',
   ImplPVSystems in 'ImplPVSystems.pas' {PVSystems: CoClass},
-  ImplVsources in 'ImplVsources.pas' {Vsources: CoClass};
+  ImplVsources in 'ImplVsources.pas' {Vsources: CoClass},
+  KLUSolve in '..\Common\KLUSolve.pas';
 
 exports
   DllGetClassObject,

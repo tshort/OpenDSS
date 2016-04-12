@@ -21,7 +21,7 @@ function SolveSystem(var NodeV:pNodeVarray): integer; stdcall;
 
 implementation
 
-Uses DSSGlobals, Ymatrix;
+Uses DSSGlobals, Ymatrix, KLUSolve;
 
 Var {Global variables in this Module}
    Yhandle, NumNZ, NumBuses : LongWord;

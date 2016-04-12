@@ -125,7 +125,8 @@ uses ComServ,
      Variants,
      arrayDef,
      Utilities,
-     SolutionAlgs;
+     SolutionAlgs,
+     KLUSolve;
 
 function TCircuit.Get_Buses(Index: OleVariant): IBus;
 
