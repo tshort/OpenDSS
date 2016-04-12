@@ -215,7 +215,7 @@ USES  SolutionAlgs,
 {$IFDEF DLL_ENGINE}
       ImplGlobals,  // to fire events
 {$ENDIF}
-      Math,  Circuit, Utilities
+      Math,  Circuit, Utilities, KLUSolve
 ;
 
 Const NumPropsThisClass = 1;

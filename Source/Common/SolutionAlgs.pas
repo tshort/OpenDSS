@@ -43,7 +43,7 @@ interface
 implementation
 
 Uses ArrayDef, DSSGlobals, DSSForms,  Utilities, SysUtils, MathUtil, Math, Fault, uComplex, YMatrix,
-     PCElement, Spectrum, Vsource, Isource;
+     PCElement, Spectrum, Vsource, Isource, KLUSolve;
 
 VAR ProgressCount:Integer;
 

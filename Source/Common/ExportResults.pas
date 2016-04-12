@@ -65,7 +65,7 @@ Uses uComplex,  Arraydef, System.sysutils,   Circuit, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution, CktElement, Utilities, Bus, MathUtil, DSSClass,
      PDElement, PCElement, Generator,  Sensor, Load, RegControl, Transformer,
      ParserDel, Math, Ymatrix, LineGeometry, WireData, LineCode, XfmrCode, NamedObject,
-     GICTransformer, PVSystem, Storage;
+     GICTransformer, PVSystem, Storage, KLUSolve;
 
 Procedure WriteElementVoltagesExportFile(Var F:TextFile; pElem:TDSSCktElement;MaxNumNodes:Integer);
 
