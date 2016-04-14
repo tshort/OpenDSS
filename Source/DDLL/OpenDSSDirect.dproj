@@ -365,6 +365,7 @@
         <DCCReference Include="DDSS.pas"/>
         <DCCReference Include="DYMatrix.pas"/>
         <DCCReference Include="..\Common\KLUSolve.pas"/>
+        <DCCReference Include="..\Forms\ScriptEdit.pas"/>
         <None Include="..\DLL\OpenDSSengine.dpr"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -433,12 +434,12 @@
                         <RemoteName>OpenDSSDirect.dll</RemoteName>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule"/>
                 <DeployFile LocalName="..x86\OpenDSSDirect.dll" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>OpenDSSDirect.dll</RemoteName>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule"/>
                 <DeployFile LocalName="..\x86\OpenDSSDirect.dll" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>OpenDSSDirect.dll</RemoteName>

@@ -73,7 +73,7 @@ var
 
 implementation
 
-Uses RichEdit, Executive, DSSGlobals, DSSForms,  Panel,Utilities, MessageForm, uComplex,
+Uses RichEdit, Executive, DSSGlobals, DSSForms,  Panel,Utilities, uComplex,
   System.Types, System.UITypes;
 
 {$R *.DFM}
@@ -191,7 +191,7 @@ begin
         If Assigned(ActiveCircuit) Then With ActiveCircuit Do
         if (SolutionWasAttempted) and (Not IsSolved) then Begin
             Beep;
-            SummaryForm.Show;
+            ControlPanel.ResultPages.ActivePage := ControlPanel.SummaryTab;
         End;
         ControlPanel.UpdateStatus;
   End;
@@ -235,9 +235,9 @@ end;
 
 procedure TMainEditForm.UpdateResultform;
 begin
-     ResultForm.Editor.Clear;
-     ResultForm.Editor.Lines.Add(GlobalResult);
-     If Length(GlobalResult)>0 Then  ResultForm.Show;
+     ControlPanel.ResultsEdit.Clear;
+     ControlPanel.ResultsEdit.Lines.Add(GlobalResult);
+     If Length(GlobalResult)>0 Then  ControlPanel.ResultPages.ActivePage := ControlPanel.ResultsTab;
      If Not IsDLL Then ControlPanel.Edit_Result.Text := GlobalResult;
 end;
 
@@ -246,19 +246,19 @@ Var
      cLosses, cPower:Complex;
 begin
 
-  With SummaryForm Do
+  With ControlPanel.SummaryEdit Do
   Begin
-      Editor.Clear;
-      Editor.Lines.BeginUpdate;
+      Clear;
+      Lines.BeginUpdate;
 
       If ActiveCircuit<>nil Then
-        With Editor.Lines Do
+        With Lines Do
         Begin
            IF ActiveCircuit.Issolved Then Add('Status = SOLVED')
            Else Begin
-             Editor.SelAttributes.Color := clRed;
+             SelAttributes.Color := clRed;
              Add('Status = NOT Solved');
-             Editor.SelAttributes.Color := clBlack;
+             SelAttributes.Color := clBlack;
            End;
            Add('Solution Mode = ' + GetSolutionModeID);
            Add('Number = ' + IntToStr(ActiveCircuit.Solution.NumberofTimes));
@@ -300,7 +300,7 @@ begin
          If Not IsDLL Then   ControlPanel.Caption := 'DSS Main Control Panel: Active Circuit = ' + ActiveCircuit.Name;
         End
       Else
-        With Editor.Lines Do Begin
+        With Lines Do Begin
           Add('No Circuits Defined');
         End;
 
@@ -308,7 +308,7 @@ begin
 
       If Not IsDLL Then ControlPanel.UpdateStatus;
 
-      Editor.Lines.EndUpdate;
+      Lines.EndUpdate;
   End;
 
 end;

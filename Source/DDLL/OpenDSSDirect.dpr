@@ -191,7 +191,8 @@ uses
   DVSources in 'DVSources.pas',
   DDSS in 'DDSS.pas',
   DYMatrix in 'DYMatrix.pas',
-  KLUSolve in '..\Common\KLUSolve.pas';
+  KLUSolve in '..\Common\KLUSolve.pas',
+  ScriptEdit in '..\Forms\ScriptEdit.pas';
 
 //**************************end of the functions*************************************
 exports

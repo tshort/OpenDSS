@@ -206,7 +206,8 @@ uses
   GenDispatcher in '..\Controls\GenDispatcher.pas',
   ImplPVSystems in 'ImplPVSystems.pas' {PVSystems: CoClass},
   ImplVsources in 'ImplVsources.pas' {Vsources: CoClass},
-  KLUSolve in '..\Common\KLUSolve.pas';
+  KLUSolve in '..\Common\KLUSolve.pas',
+  ScriptEdit in '..\Forms\ScriptEdit.pas';
 
 exports
   DllGetClassObject,

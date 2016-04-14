@@ -46,7 +46,7 @@ Uses      ExecCommands, ExecOptions,
           Helpform,
           PropEdit,
           About,
-          MessageForm,
+//          MessageForm,
           ComCtrls,
           TViewer,
           Sysutils, FrmCSVchannelSelect, System.UITypes;
@@ -222,11 +222,13 @@ Procedure ShowMessageForm(S:TStrings);
 
 Begin
           If NoFormsAllowed Then Exit;
-          If Not Assigned (MessageForm1) Then MessageForm1 := TMessageForm1.Create(Nil);
-          MessageForm1.Editor.Clear;
-          MessageForm1.Editor.Lines := S;
-          MessageForm1.WindowState := wsNormal;
-          MessageForm1.Show;
+//          If Not Assigned (MessageForm1) Then MessageForm1 := TMessageForm1.Create(Nil);
+//          MessageForm1.Editor.Clear;
+//          MessageForm1.Editor.Lines := S;
+//          MessageForm1.WindowState := wsNormal;
+//          MessageForm1.Show;
+  ControlPanel.MessageEdit.Clear;
+  ControlPanel.MessageEdit.Lines := s;
 End;
 
 Procedure ShowPropEditForm;
@@ -314,7 +316,7 @@ finalization
     If Assigned(Progress) Then Progress.Free;
     If (ControlPanelCreated) THEN ControlPanel.Free;
     If Assigned(TViewForm) Then TViewForm.Free;
-    If Assigned(MessageForm1) Then MessageForm1.Free;
+//    If Assigned(MessageForm1) Then MessageForm1.Free;
   End;
 
 end.
