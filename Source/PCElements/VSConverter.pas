@@ -427,7 +427,7 @@ procedure TVSConverterObj.GetInjCurrents(Curr:pComplexArray);
 var
   Vmag: Complex;
   Vdc, Sphase, Stotal: Complex;
-  Pac, Qac, Deg, Idc, Idclim, Iaclim, Itmag : Double;
+  Pac, Deg, Idc, Idclim, Iaclim, Itmag : Double;
   i, Nac: integer;
 begin
 
