@@ -477,7 +477,7 @@ uses Executive, DSSClassDefs, DSSGlobals,
   DlgPlotOptions,  DSSPlot, FrmCSVchannelSelect,
   DlgComboBox,dlgNumber, ExecOptions, ExecCommands, ExecHelper, Dynamics, DSSClass, ListForm,
   Lineunits, Monitor, FrmDoDSSCommand, Frm_RPNcalc, DSSForms, showOptions, ShellAPI,
-  IniRegSave, System.UITypes;
+  IniRegSave, System.UITypes, System.Types;
 
 {$R *.DFM}
 
@@ -798,7 +798,6 @@ end;
 
 procedure TControlPanel.ScriptOpenClick(Sender: TObject);
 Var
-  TempActiveForm:TScriptEdit;
   FileName:String;
 begin
   FileName := ActiveScriptForm.GetSelectedFileName;
