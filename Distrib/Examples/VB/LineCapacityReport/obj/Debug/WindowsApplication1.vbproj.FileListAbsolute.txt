@@ -1,0 +1,12 @@
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\obj\Debug\Interop.OpenDSSengine.dll
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\obj\Debug\WindowsApplication1.vbproj.ResolveComReference.cache
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\bin\Debug\OpenDSSVBNetApp.exe.config
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\bin\Debug\OpenDSSVBNetApp.exe
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\bin\Debug\OpenDSSVBNetApp.pdb
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\bin\Debug\OpenDSSVBNetApp.xml
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\obj\Debug\OpenDSSExample.Form1.resources
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\obj\Debug\OpenDSSExample.Resources.resources
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\obj\Debug\WindowsApplication1.vbproj.GenerateResource.Cache
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\obj\Debug\OpenDSSVBNetApp.exe
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\obj\Debug\OpenDSSVBNetApp.xml
+c:\users\prdu001\documents\visual studio 2013\Projects\WindowsApplication1\WindowsApplication1\obj\Debug\OpenDSSVBNetApp.pdb

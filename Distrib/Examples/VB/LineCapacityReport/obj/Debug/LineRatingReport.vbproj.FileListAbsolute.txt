@@ -1,0 +1,12 @@
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\bin\Debug\OpenDSSVBNetApp.exe.config
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\obj\Debug\Interop.OpenDSSengine.dll
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\obj\Debug\LineRatingReport.vbproj.ResolveComReference.cache
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\obj\Debug\OpenDSSVBNetApp.exe
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\obj\Debug\OpenDSSVBNetApp.xml
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\obj\Debug\OpenDSSVBNetApp.pdb
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\bin\Debug\OpenDSSVBNetApp.exe
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\bin\Debug\OpenDSSVBNetApp.pdb
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\bin\Debug\OpenDSSVBNetApp.xml
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\obj\Debug\OpenDSSExample.Form1.resources
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\obj\Debug\OpenDSSExample.Resources.resources
+C:\Users\prdu001\Documents\Visual Studio 2013\Projects\LineCapacityReport\LineCapacityReport\obj\Debug\LineRatingReport.vbproj.GenerateResource.Cache
