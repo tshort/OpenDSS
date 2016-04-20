@@ -48,7 +48,7 @@ Uses uComplex,  sysutils, Circuit, DSSClass, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution,  CktElement, Utilities, Bus, MathUtil,
      PDElement, PCElement, Generator, Transformer, EnergyMeter, Load, RegControl,
      ParserDel, CktTree,   DSSForms, Math, Line, LineUnits, LineGeometry,
-     KLUStatic;
+     KLUSolve;
 
 VAR
    MaxBusNameLength :Integer;

@@ -338,7 +338,7 @@ Begin
 
 
      PropertyHelp[3] := 'Combination of Modes with which the InvControl will control the PVSystem(s) specified in PVSystemList. '+CRLF+CRLF+
-                        'Must be a combination of the following: {''*, VV_VW | VV_DRC}. Default is to not set this property, in which case the single control mode in Mode is active.  ' +
+                        'Must be a combination of the following: {VV_VW | VV_DRC}. Default is to not set this property, in which case the single control mode in Mode is active.  ' +
                          CRLF+CRLF+'In combined VV_VW mode, both volt-var and volt-watt control modes are active simultaneously.  See help individually for volt-var mode and volt-watt mode in Mode property.'+
                          CRLF+'Note that the PVSystem will attempt to achieve both the volt-watt and volt-var set-points based on the capabilities of the inverter in the PVSystem (kVA rating), any limits set on maximum active power,' +
                          CRLF+', any limits set on maximum reactive power. '+
@@ -478,7 +478,7 @@ Begin
 
      PropertyHelp[22] := '{Yes/True* | No/False} Default is YES for InvControl. Log control actions to Eventlog.';
 
-     PropertyHelp[23] := 'Required for any mode that has VOLTVAR in it. Defaults to VARAVAL_WATTS. Possible Settings: VARAVAL_WATTS*|VARMAX_VARS|VARMAX_WATTS'+CRLF+CRLF+
+     PropertyHelp[23] := 'Required for any mode that has VOLTVAR in it. Defaults to VARAVAL_WATTS. Possible Settings: VARAVAL_WATTS|VARMAX_VARS|VARMAX_WATTS'+CRLF+CRLF+
                          'When the VOLTVAR mode is active (alone or in conjunction with other modes, this property defines the reference for the percent value given on the y-axis of the volt-var curve.'+CRLF+CRLF+
                          'VARAVAL_WATTS: When set to VARAVAL_WATTS the units of the y-axis for the volt-var curve are given in percent of available reactive power given present active power output and the kVA rating of the PVSystem.'+CRLF+
                          'Active power output is given precedence over reactive power output/absorption, so the reactive power output/absorption possibly may not achieve the desired available reactive power level as defined by the volt-var curve if little headroonm.'+CRLF+CRLF+
@@ -973,6 +973,8 @@ Begin
          ControlledElement[i].ActiveTerminalIdx := 1; // Make the 1 st terminal active
          Nphases := ControlledElement[i].NPhases;
          Nconds  := Nphases;
+         FRollAvgWindow[i].BuffLength    := FRollAvgWindowLength; // TEMc
+         FDRCRollAvgWindow[i].BuffLength := FDRCRollAvgWindowLength;
          if (ControlledElement[i] <> Nil) then
          With ControlledElement[i] Do
          begin
@@ -1571,7 +1573,7 @@ BEGIN
                               PNew[k] :=FFinalpuPmpp[k];
 
                               If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
-                               Format('**VV_DRC VARMAX_VARS mode set PVSystem output level to**, puPmpp= %.5g, PriorWatts= %.5g', [PVSys.puPmpp,FPriorWattspu[k]]));
+                               Format('**DRC VARMAX_VARS mode set PVSystem output level to**, puPmpp= %.5g, PriorWatts= %.5g', [PVSys.puPmpp,FPriorWattspu[k]]));
 
                               ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
                               FAvgpVuPrior[k] := FPresentVpu[k];
@@ -1590,8 +1592,8 @@ BEGIN
 
           Qoutputpu[k] := PVSys.Presentkvar / QHeadroom[k];
           If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name +','+ PVSys.Name+',',
-                         Format('DYNAMICREACTIVECURRENT mode set PVSystem output var level to**, kvar= %.5g',
-                         [PVSys.Presentkvar,FPresentVpu[k]]));
+                         Format('DRC mode set PVSystem output var level to**, kvar= %.5g',
+                         [PVSys.Presentkvar]));
 
           QoutputDRCpu[k] := PVSys.Presentkvar / QHeadroom[k];
 
@@ -2075,10 +2077,9 @@ begin
 
                     end;
 
-                    if  (FRocEvaluated[i] = False) and (FWithinTol[i] = False)  then
-                    begin
-                     if (((Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FVoltageChangeTolerance) or
-                      ((Abs(Abs(QoutputDRCpu[i]) - Abs(Qdesiredpu[i])) > FVarChangeTolerance))) or
+                    if  (FRocEvaluated[i] = False) and (FWithinTol[i] = False)  then begin
+                      if ((Abs(FPresentVpu[i] - FAvgpVuPrior[i]) > FVoltageChangeTolerance) or
+   //                      (Abs(Abs(QoutputDRCpu[i]) - Abs(Qdesiredpu[i])) > FVarChangeTolerance) or // TEMc; also tried checking against QDRCdesiredpu
                       (ActiveCircuit.Solution.ControlIteration = 1)) then
                         begin
                           FWithinTol[i] := False;
@@ -2087,18 +2088,17 @@ begin
                           With  ActiveCircuit.Solution.DynaVars Do
                             ControlActionHandle := ActiveCircuit.ControlQueue.Push
                               (intHour, t + TimeDelay, PendingChange[i], 0, Self);
-
-//                          If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
-  //                          ('**Ready to change DRC output due to out of tolerance V and Q trigger**, Vavgpu= %.5g, VPriorpu=%.5g',
-    //                          [FPresentVpu[i],FAvgpVuPrior[i]]));
+                          If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
+                            ('**Ready to change DRC output because V or Q out of tolerance**, Vavgpu= %.5g, VPriorpu=%.5g, QoutPU=%.3g, QdesiredPU=%.3g, QDRCdesiredPU=%.3g',
+                              [FPresentVpu[i],FAvgpVuPrior[i],QoutputDRCpu[i],Qdesiredpu[i],QDRCdesiredpu[i]]));
                         end
                       else
                       begin
                         if ((Abs(FPresentVpu[i] - FAvgpVuPrior[i]) <= FVoltageChangeTolerance) and
                           ((Abs(Abs(QoutputDRCpu[i]) - Abs(Qdesiredpu[i])) <= FVarChangeTolerance))) then
                              FWithinTol[i] := True;
-//                          If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
-//                            ('**Hit Tolerance with DRCvar**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
+                         If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
+                           ('**Hit Tolerance with DRCvar**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
 
                       end;
                     end;
@@ -2334,9 +2334,9 @@ begin
            Qdesiredpu[i]                            :=0.0;
            QDRCdesiredpu[i]                         :=0.0;
            FRollAvgWindow[i]                        := TRollAvgWindow.Create;
-           FRollAvgWindow[i].BuffLength             := FRollAvgWindowLength;
+//           FRollAvgWindow[i].BuffLength             := FRollAvgWindowLength;
            FDRCRollAvgWindow[i]                     := TRollAvgWindow.Create;
-           FDRCRollAvgWindow[i].BuffLength          := FDRCRollAvgWindowLength;
+//           FDRCRollAvgWindow[i].BuffLength          := FDRCRollAvgWindowLength;
 
            deltaVDynReac[i]                         := 0.0;
            FlagChangeCurve[i]                       := False;
@@ -2658,6 +2658,7 @@ begin
              priorDRCRollAvgWindow[j] := FDRCRollAvgWindow[j].Get_AvgVal;
              // compute the present terminal voltage
              localControlledElement.ComputeVterminal;
+             PVSys.Set_Variable(5,FDRCRollAvgWindow[j].Get_AvgVal); // save rolling average voltage in monitor
 
              for k := 1 to localControlledElement.Yorder do tempVbuffer[k] := localControlledElement.Vterminal^[k];
 

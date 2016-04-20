@@ -1,6 +1,8 @@
 unit Scriptform;
 
-{$IFDEF FPC}{$MODE Delphi}{$ENDIF}
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
 
 {
   ----------------------------------------------------------
@@ -13,7 +15,7 @@ interface
 
 uses
   LCLIntf, LCLType, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ComCtrls,contnrs, Menus, RichMemo;
+  StdCtrls, ComCtrls,contnrs, Menus, ToolWin, RichMemo;
 
 type
   TMainEditForm = class(TForm)
@@ -76,9 +78,14 @@ var
 
 implementation
 
-Uses Executive, DSSGlobals, DSSForms,  Panel,Utilities, MessageForm, uComplex;
+Uses RichEdit, Executive, DSSGlobals, DSSForms,  Panel,Utilities, uComplex,
+  System.Types, System.UITypes;
 
-{$R *.lfm}
+{$IFnDEF FPC}
+  {$R *.dfm}
+{$ELSE}
+  {$R *.lfm}
+{$ENDIF}
 
 const
      ModifiedColor =  13434879;
@@ -109,15 +116,12 @@ end;
 
 procedure TMainEditForm.UpdateCursorPos;
 begin
-  Line1 := Editor.SelStart;
-  Line2 := Editor.SelLength;
-  col := 1;
-//  line1 := SendMessage(Editor.Handle, EM_EXLINEFROMCHAR, 0,
-//    Editor.SelStart);
-//  line2 := SendMessage(Editor.Handle, EM_EXLINEFROMCHAR, 0,
-//    Editor.SelStart + Editor.SelLength);
-//  col := (Editor.SelStart -
-//    SendMessage(Editor.Handle, EM_LINEINDEX, line1, 0));
+  line1 := SendMessage(Editor.Handle, EM_EXLINEFROMCHAR, 0,
+    Editor.SelStart);
+  line2 := SendMessage(Editor.Handle, EM_EXLINEFROMCHAR, 0,
+    Editor.SelStart + Editor.SelLength);
+  col := (Editor.SelStart -
+    SendMessage(Editor.Handle, EM_LINEINDEX, line1, 0));
 end;
 
 procedure TMainEditForm.EditorSelectionChange(Sender: TObject);
@@ -196,7 +200,7 @@ begin
         If Assigned(ActiveCircuit) Then With ActiveCircuit Do
         if (SolutionWasAttempted) and (Not IsSolved) then Begin
             Beep;
-            SummaryForm.Show;
+            ControlPanel.ResultPages.ActivePage := ControlPanel.SummaryTab;
         End;
         ControlPanel.UpdateStatus;
   End;
@@ -240,9 +244,9 @@ end;
 
 procedure TMainEditForm.UpdateResultform;
 begin
-     ResultForm.Editor.Clear;
-     ResultForm.Editor.Lines.Add(GlobalResult);
-     If Length(GlobalResult)>0 Then  ResultForm.Show;
+     ControlPanel.ResultsEdit.Clear;
+     ControlPanel.ResultsEdit.Lines.Add(GlobalResult);
+     If Length(GlobalResult)>0 Then  ControlPanel.ResultPages.ActivePage := ControlPanel.ResultsTab;
      If Not IsDLL Then ControlPanel.Edit_Result.Text := GlobalResult;
 end;
 
@@ -251,20 +255,19 @@ Var
      cLosses, cPower:Complex;
 begin
 
-  With SummaryForm Do
+  With ControlPanel.SummaryEdit Do
   Begin
-      Editor.Clear;
-      Editor.Lines.BeginUpdate;
+      Clear;
+      Lines.BeginUpdate;
 
       If ActiveCircuit<>nil Then
-        With Editor.Lines Do
+        With Lines Do
         Begin
            IF ActiveCircuit.Issolved Then Add('Status = SOLVED')
            Else Begin
-//             Editor.SelAttributes.Color := clRed;
-               Add('Status = NOT Solved');
-//             Editor.SelAttributes.Color := clBlack;
-               Editor.SetRangeColor(Editor.SelStart-19,19,clRed);
+             SelAttributes.Color := clRed;
+             Add('Status = NOT Solved');
+             SelAttributes.Color := clBlack;
            End;
            Add('Solution Mode = ' + GetSolutionModeID);
            Add('Number = ' + IntToStr(ActiveCircuit.Solution.NumberofTimes));
@@ -306,7 +309,7 @@ begin
          If Not IsDLL Then   ControlPanel.Caption := 'DSS Main Control Panel: Active Circuit = ' + ActiveCircuit.Name;
         End
       Else
-        With Editor.Lines Do Begin
+        With Lines Do Begin
           Add('No Circuits Defined');
         End;
 
@@ -314,7 +317,7 @@ begin
 
       If Not IsDLL Then ControlPanel.UpdateStatus;
 
-      Editor.Lines.EndUpdate;
+      Lines.EndUpdate;
   End;
 
 end;
@@ -406,10 +409,9 @@ Begin
   Try
 
    Try
-//       Editor.PlainText := True;
-//       Editor.Lines.SaveToFile (Caption, TEncoding.ANSI);
-//       Editor.PlainText := False;
-         Editor.Lines.SaveToFile (Caption);
+       Editor.PlainText := True;
+       Editor.Lines.SaveToFile (Caption, TEncoding.ANSI);
+       Editor.PlainText := False;
        HasBeenModified := FALSE;
        HasFileName := TRUE;
 
@@ -551,8 +553,8 @@ end;
 procedure TMainEditForm.FontDialog1Apply(Sender: TObject; Wnd: HWND);
 begin
 
-//   Editor.SelAttributes.Assign(TFontDialog(Sender).Font)
-     Editor.SetTextAttributes(Editor.SelStart, Editor.SelLength, TFontDialog(Sender).Font);
+   Editor.SelAttributes.Assign(TFontDialog(Sender).Font)
+
 end;
 
 procedure TMainEditForm.FontBtnClick(Sender: TObject);
@@ -567,9 +569,8 @@ begin
            Font := Editor.Font;
            Options := Options + [fdApplyButton];
            If Execute then Begin
-//              Editor.SelAttributes.Assign(Font);
-                Editor.SetTextAttributes(Editor.SelStart, Editor.SelLength, Font);
-                Editor.Font := Font;
+              Editor.SelAttributes.Assign(Font);
+              Editor.Font := Font;
               DefaultFontSize   := Editor.Font.Size;
               DefaultFontName   := Editor.Font.Name;
               DefaultFontStyles := Editor.Font.Style;

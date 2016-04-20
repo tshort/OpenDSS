@@ -43,6 +43,7 @@ TYPE
       FMaxIdc:      Double;
       Fmode:        Integer;
       FNdc:         Integer;
+      LastCurrents: pComplexArray; // state memory for GetInjCurrents
     Public
       constructor Create(ParClass:TDSSClass; const FaultName:String);
       destructor Destroy; override;
@@ -309,6 +310,8 @@ begin
   DSSObjType := ParClass.DSSClassType;
   Name := LowerCase(FaultName);
 
+  LastCurrents := nil;
+
   // typically the first 3 "phases" are AC, and the last one is DC
   NPhases := 4;
   Fnconds := 4;
@@ -340,13 +343,18 @@ end;
 
 destructor TVSConverterObj.Destroy;
 begin
+  Reallocmem(LastCurrents, 0);
   inherited destroy;
 end;
 
 Procedure TVSConverterObj.RecalcElementData;
+var
+  i: Integer;
 begin
   if (FRac = 0.0) and (FXac = 0.0) then FRac := EPSILON;
   Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
+  Reallocmem(LastCurrents, SizeOf(LastCurrents^[1])*Yorder);
+  for i := 1 to Yorder do LastCurrents^[i] := CZERO;
 end;
 
 Procedure TVSConverterObj.CalcYPrim;
@@ -403,7 +411,10 @@ begin
       // currents from Yprim elements, which should be zero at the DC nodes
       YPrim.MVMult(Curr, Vterminal);
       GetInjCurrents(ComplexBuffer);
-      for i := 1 to Yorder do Curr^[i] := Csub(Curr^[i], ComplexBuffer^[i]);
+      for i := 1 to Yorder do begin
+        Curr^[i] := Csub(Curr^[i], ComplexBuffer^[i]);
+        LastCurrents^[i] := Curr^[i];
+      end;
     end;
   except
     on E: Exception
@@ -416,7 +427,7 @@ procedure TVSConverterObj.GetInjCurrents(Curr:pComplexArray);
 var
   Vmag: Complex;
   Vdc, Sphase, Stotal: Complex;
-  Pac, Qac, Deg, Idc, Idclim, Iaclim, Itmag : Double;
+  Pac, Deg, Idc, Idclim, Iaclim, Itmag : Double;
   i, Nac: integer;
 begin
 
@@ -460,11 +471,11 @@ begin
   ComplexBuffer^[FNPhases] := CZERO;
   YPrim.MVMult(Curr, ComplexBuffer);
 
-  // calculate the converter AC power, exclusive of the losses
+  // calculate the converter AC power, exclusive of the losses, using LastCurrents
   Stotal.re := 0.0;
   Stotal.im := 0.0;
   for i := 1 to Nac do begin
-    Sphase := Cmul (ComplexBuffer^[i], Conjg(Iterminal^[i]));
+    Sphase := Cmul (ComplexBuffer^[i], Conjg(LastCurrents^[i]));
     Stotal := Cadd (Stotal, Sphase);
   end;
   Pac := Stotal.re;
@@ -476,6 +487,7 @@ begin
   if Idc > Idclim then Idc := Idclim;
   if Idc < -Idclim then Idc := -Idclim;
 //  Idc := 17.7781;
+
   Curr^[FNphases] := cmplx (Idc, 0.0);
   Curr^[2*FNphases] := cmplx (-Idc, 0.0);
   ITerminalUpdated := FALSE;

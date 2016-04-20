@@ -1,6 +1,8 @@
 unit About;
 
-{$IFDEF FPC}{$MODE Delphi}{$ENDIF}
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
 
 {
   ----------------------------------------------------------
@@ -11,7 +13,7 @@ unit About;
 interface
 
 uses LCLIntf, LCLType, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
-  Buttons, ExtCtrls;
+  Buttons, ExtCtrls, ComCtrls;
 
 type
   TAboutBox = class(TForm)
@@ -39,14 +41,18 @@ implementation
 
 uses DSSGlobals,  DSSForms;
 
-{$R *.lfm}
+{$IFnDEF FPC}
+  {$R *.dfm}
+{$ELSE}
+  {$R *.lfm}
+{$ENDIF}
 
 procedure TAboutBox.FormCreate(Sender: TObject);
 begin
      Version.Caption := VersionString;
 
      LicenseText.Lines.Clear();
-     LicenseText.Lines.Add('Copyright (c) 2008-2015, Electric Power Research Institute, Inc.');
+     LicenseText.Lines.Add('Copyright (c) 2008-2016, Electric Power Research Institute, Inc.');
      LicenseText.Lines.Add('All rights reserved.');
      LicenseText.Lines.Add('');
      LicenseText.Lines.Add('Redistribution and use in source and binary forms, with or without');

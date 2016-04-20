@@ -536,8 +536,8 @@ begin
       Qerr := Abs(PVSys.Presentkvar - FTargetQ[i]) / PVSys.kVARating;
 
       // process the sample
-      if (PVSys.InverterON = FALSE) and (PVSys.VarFollowInverter = TRUE) then begin
-        FVregs[i] := FPresentVpu[i];
+      if (PVSys.InverterON = FALSE) and (PVSys.VarFollowInverter = TRUE) then begin // not injecting
+        if (FVregTau > 0.0) then FVregs[i] := FPresentVpu[i]; // tracking grid voltage while not injecting
         continue;
       end;
       PVSys.VWmode := FALSE;

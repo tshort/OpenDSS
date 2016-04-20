@@ -1,73 +1,71 @@
 object MainEditForm: TMainEditForm
-  Left = 882
-  Height = 918
-  Top = 284
-  Width = 1012
+  Left = 266
+  Top = 205
   Caption = 'Main Script Window'
-  ClientHeight = 918
-  ClientWidth = 1012
+  ClientHeight = 562
+  ClientWidth = 877
   Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -17
   Font.Name = 'MS Sans Serif'
+  Font.Style = []
   FormStyle = fsMDIChild
+  Position = poDefault
+  Visible = True
   OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  Position = poDefault
-  LCLVersion = '1.6.0.4'
-  Visible = True
+  PixelsPerInch = 144
   object Editor: TRichMemo
     Left = 0
-    Height = 891
     Top = 27
-    Width = 1012
+    Width = 877
+    Height = 535
     Align = alClient
-    Font.CharSet = ANSI_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -12
+    Font.Height = -18
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
-    HideSelection = False
     Lines.Strings = (
-      ''
-    )
-    OnChange = EditorChange
-    OnKeyDown = EditorKeyDown
-    OnSelectionChange = EditorSelectionChange
+      '')
     ParentFont = False
     PopupMenu = PopupMenu2
     ScrollBars = ssBoth
     TabOrder = 0
     WordWrap = False
-    ZoomFactor = 1
+    OnChange = EditorChange
+    OnKeyDown = EditorKeyDown
+    OnSelectionChange = EditorSelectionChange
   end
   object ToolBar1: TToolBar
     Left = 0
-    Height = 27
     Top = 0
-    Width = 1012
+    Width = 877
+    Height = 27
     Caption = 'ToolBar1'
     TabOrder = 1
     object FontBtn: TButton
-      Left = 1
-      Height = 22
-      Top = 2
+      Left = 0
+      Top = 0
       Width = 89
+      Height = 22
       Caption = 'Font...'
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
-      OnClick = FontBtnClick
       ParentFont = False
       TabOrder = 0
+      OnClick = FontBtnClick
     end
   end
   object PopupMenu2: TPopupMenu
-    left = 680
-    top = 248
+    Left = 680
+    Top = 248
     object Do2: TMenuItem
       Caption = '&Do Selected'
       Default = True
@@ -97,12 +95,12 @@ object MainEditForm: TMainEditForm
     end
   end
   object FontDialog1: TFontDialog
+    Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
-    MinFontSize = 0
-    MaxFontSize = 0
-    left = 336
-    top = 112
+    Font.Style = []
+    Left = 336
+    Top = 112
   end
 end

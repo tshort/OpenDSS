@@ -27,20 +27,14 @@ TYPE
 
 
 PROCEDURE BuildYMatrix(BuildOption :Integer; AllocateVI:Boolean);
-PROCEDURE ResetSparseMatrix(var hY:LongWord; size:integer);
+PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer);
 PROCEDURE InitializeNodeVbase;
 
 Function CheckYMatrixforZeroes:String;
 
-{Declare FUNCTIONs in KLUSolve DLL}
-
-{ $INCLUDE Esolv32Declarations.pas}
-// {$INCLUDE KLUSolveDeclarations.pas}
-
-
 implementation
 
-Uses DSSGlobals, Circuit, CktElement, Utilities, KLUStatic;
+Uses DSSGlobals, Circuit, CktElement, Utilities, KLUSolve;
 
 
 
@@ -89,7 +83,7 @@ End;
 
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-PROCEDURE ResetSparseMatrix(var hY:LongWord; size:integer);
+PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer);
 
 
 Begin

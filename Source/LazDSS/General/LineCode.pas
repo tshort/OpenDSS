@@ -177,12 +177,18 @@ Begin
 
 
      PropertyHelp[1] := 'Number of phases in the line this line code data represents.  Setting this property reinitializes the line code.  Impedance matrix is reset for default symmetrical component.';
-     PropertyHelp[2] := 'Positive-sequence Resistance, ohms per unit length.  See also Rmatrix.';
-     PropertyHelp[3] := 'Positive-sequence Reactance, ohms per unit length.  See also Xmatrix';
-     PropertyHelp[4] := 'Zero-sequence Resistance, ohms per unit length.';
-     PropertyHelp[5] := 'Zero-sequence Reactance, ohms per unit length.';
-     PropertyHelp[6] := 'Positive-sequence capacitance, nf per unit length. See also Cmatrix and B1.';
-     PropertyHelp[7] := 'Zero-sequence capacitance, nf per unit length. See also B0.';
+     PropertyHelp[2] := 'Positive-sequence Resistance, ohms per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
+                        'the program to use the symmetrical component line definition. See also Rmatrix.';
+     PropertyHelp[3] := 'Positive-sequence Reactance, ohms per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
+                        'the program to use the symmetrical component line definition. See also Xmatrix';
+     PropertyHelp[4] := 'Zero-sequence Resistance, ohms per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
+                        'the program to use the symmetrical component line definition.';
+     PropertyHelp[5] := 'Zero-sequence Reactance, ohms per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
+                        'the program to use the symmetrical component line definition.';
+     PropertyHelp[6] := 'Positive-sequence capacitance, nf per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
+                        'the program to use the symmetrical component line definition. See also Cmatrix and B1.';
+     PropertyHelp[7] := 'Zero-sequence capacitance, nf per unit length. Setting any of R1, R0, X1, X0, C1, C0 forces ' +
+                        'the program to use the symmetrical component line definition. See also B0.';
      PropertyHelp[8] := 'One of (ohms per ...) {none|mi|km|kft|m|me|ft|in|cm}.  Default is none; assumes units agree with length units' +
                     'given in Line object';
      PropertyHelp[9] := 'Resistance matrix, lower triangle, ohms per unit length. Order of the matrix is the number of phases. '+

@@ -118,9 +118,9 @@ TYPE
        Harmonic   :Double;
        HarmonicList  :pDoubleArray;
        HarmonicListSize :Integer;
-       hYsystem :LongWord;   {Handle for main (system) Y matrix}
-       hYseries :LongWord;   {Handle for series Y matrix}
-       hY :LongWord;         {either hYsystem or hYseries}
+       hYsystem :NativeUint;   {Handle for main (system) Y matrix}
+       hYseries :NativeUint;   {Handle for series Y matrix}
+       hY :NativeUint;         {either hYsystem or hYseries}
        IntervalHrs:Double;   // Solution interval since last solution, hrs.
        IsDynamicModel :Boolean;
        IsHarmonicModel :Boolean;
@@ -215,7 +215,7 @@ USES  SolutionAlgs,
 {$IFDEF DLL_ENGINE}
       ImplGlobals,  // to fire events
 {$ENDIF}
-      Math,  Circuit, Utilities, KLUStatic;
+      Math,  Circuit, Utilities, KLUSolve;
 
 Const NumPropsThisClass = 1;
 
@@ -292,6 +292,8 @@ constructor TSolutionObj.Create(ParClass:TDSSClass; const SolutionName:String);
 Begin
     Inherited Create(ParClass);
     Name := LowerCase(SolutionName);
+
+//    i := SetLogFile ('c:\\temp\\KLU_Log.txt', 1);
 
     FYear    := 0;
     DynaVars.intHour     := 0;
@@ -380,6 +382,8 @@ Begin
       
       If hYsystem <> 0 THEN   DeleteSparseSet(hYsystem);
       If hYseries <> 0 THEN   DeleteSparseSet(hYseries);
+
+//      SetLogFile ('c:\\temp\\KLU_Log.txt', 0);
 
       Reallocmem(HarmonicList,0);
 

@@ -101,7 +101,6 @@ uses
   Load in '..\PCElements\Load.pas',
   LoadShape in '..\General\LoadShape.pas',
   mathutil in '..\Shared\mathutil.pas',
-  MessageForm in '..\Forms\MessageForm.pas' {MessageForm1},
   MeterClass in '..\Meters\MeterClass.pas',
   MeterElement in '..\Meters\MeterElement.pas',
   Monitor in '..\Meters\Monitor.pas',
@@ -127,7 +126,6 @@ uses
   RegControl in '..\Controls\RegControl.pas',
   Relay in '..\Controls\Relay.pas',
   RPN in '..\Parser\RPN.pas',
-  Scriptform in '..\Forms\Scriptform.pas' {MainEditForm},
   Sensor in '..\Meters\Sensor.pas',
   ShowOptions in '..\Executive\ShowOptions.pas',
   ShowResults in '..\Common\ShowResults.pas',
@@ -174,11 +172,13 @@ uses
   GICTransformer in '..\PDElements\GICTransformer.pas',
   ExpControl in '..\Controls\ExpControl.pas',
   UPFC in '..\PCElements\UPFC.pas',
-  KLUStatic in '..\Common\KLUStatic.pas',
+  KLUSolve in '..\Common\KLUSolve.pas',
+  ScriptEdit in '..\Forms\ScriptEdit.pas',
   GenDispatcher in '..\Controls\GenDispatcher.pas';
 
 begin
   Application.Initialize;
+//  Application.Title := 'OpenDSS: Distribution System Simulator';
 
   // LCL can't show any forms until after Application.Initialize
   NoFormsAllowed  := FALSE;
@@ -198,21 +198,16 @@ begin
     DSSExecutive.Command := 'compile ' + ParamStr(1);
     ExitCode := DSSExecutive.Error;
   end else begin
-    {Instantiate basic forms}
-    Application.CreateForm(TControlPanel, ControlPanel);
-  Application.CreateForm(TMessageForm1, MessageForm1);
-  Application.CreateForm(TTViewForm, TViewForm);
-  Application.CreateForm(TMainEditForm, MainEditForm);
-  Application.CreateForm(TProgress, Progress);
-  Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
-  Application.CreateForm(TListBoxForm, ListBoxForm);
-  Application.CreateForm(TDoDSSCommandForm, DoDSSCommandForm);
-  Application.CreateForm(TRPNForm, RPNForm);
-  Application.CreateForm(TChannelSelectForm, ChannelSelectForm);
-  ControlPanelCreated := TRUE;
+      Application.CreateForm(TControlPanel, ControlPanel);
+    Application.CreateForm(TTViewForm, TViewForm);
+    Application.CreateForm(TProgress, Progress);
+    Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
+    Application.CreateForm(TListBoxForm, ListBoxForm);
+    Application.CreateForm(TDoDSSCommandForm, DoDSSCommandForm);
+    Application.CreateForm(TRPNForm, RPNForm);
+    Application.CreateForm(TChannelSelectForm, ChannelSelectForm);
+    ControlPanelCreated := TRUE;
     ControlPanel.InitializeForm;
-    MessageForm1.Editor.Clear;
-    MessageForm1.WindowState := wsMinimized;
     ControlPanel.Show;
     Application.Run;
   end;
