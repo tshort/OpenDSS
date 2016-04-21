@@ -599,7 +599,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="..\Forms;..\Shared;..\Common;..\PDElements;..\Controls;..\General;..\Plot;..\Meters;..\PCElements;..\Executive;..\Parser;$(ProjOutDir)"/>
-      <Libraries Value="..\..\..\..\KLUSolve\Lib;c:\tdm-gcc-64\lib\gcc\x86_64-w64-mingw32\5.1.0"/>
+      <Libraries Value="..\..\..\..\KLUSolve\Lib;c:\tdm-gcc-64\lib\gcc\x86_64-w64-mingw32\5.1.0\"/>
       <OtherUnitFiles Value="..\Forms;..\Shared;..\Common;..\PDElements;..\Controls;..\General;..\Plot;..\Meters;..\PCElements;..\Executive;..\Parser"/>
       <UnitOutputDirectory Value="..\units\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
@@ -617,6 +617,9 @@
       </Optimizations>
     </CodeGeneration>
     <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
       <Options>
         <PassLinkerOptions Value="True"/>
         <LinkerOptions Value="-lm -lstdc++ -lgcc_s"/>

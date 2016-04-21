@@ -8,14 +8,13 @@ uses
     uComplex;
 
 const
-//  KLULib = 'libklusolve.dll';
   KLULib = 'libklusolve';
-//FUNCTION NewSparseSet(nBus:LongWord):LongWord;external KLULib;
 
 //{$LINKLIB klusolve}
 //{$LINKLIB stdc++}
 //{$LINKLIB gcc}
 //{$LINKLIB gcc_s}
+//FUNCTION NewSparseSet(nBus:LongWord):LongWord;external KLULib;
 //FUNCTION NewSparseSet(nBus:LongWord):LongWord;cdecl;external;
 
 // in general, KLU arrays are 0-based

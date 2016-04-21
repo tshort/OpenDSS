@@ -1129,7 +1129,7 @@
       <Unit125>
         <Filename Value="..\Controls\InvControl.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="200"/>
         <CursorPos Y="209"/>
         <UsageCount Value="89"/>
@@ -1175,9 +1175,9 @@
         <Filename Value="..\Common\KLUSolve.pas"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="2"/>
-        <CursorPos X="24" Y="12"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="4"/>
+        <CursorPos X="12" Y="22"/>
         <UsageCount Value="28"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -1185,7 +1185,7 @@
       <Unit131>
         <Filename Value="..\Forms\ScriptEdit.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="54"/>
         <CursorPos X="6" Y="63"/>
         <UsageCount Value="28"/>
@@ -1214,9 +1214,9 @@
         <ComponentName Value="ControlPanel"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="813"/>
-        <CursorPos Y="831"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="1049"/>
+        <CursorPos Y="1056"/>
         <UsageCount Value="85"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -1233,10 +1233,9 @@
       </Unit135>
       <Unit136>
         <Filename Value="..\Common\KLUStatic.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="85" Y="70"/>
         <UsageCount Value="34"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit136>
       <Unit137>
@@ -1346,7 +1345,7 @@
         <UsageCount Value="10"/>
       </Unit150>
     </Units>
-    <JumpHistory Count="29" HistoryIndex="28">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="..\Forms\Panel.pas"/>
         <Caret Line="892" TopLine="866"/>
@@ -1462,6 +1461,10 @@
         <Filename Value="..\Controls\InvControl.pas"/>
         <Caret Line="62" Column="55" TopLine="31"/>
       </Position29>
+      <Position30>
+        <Filename Value="..\Forms\Panel.pas"/>
+        <Caret Line="4" Column="21"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
