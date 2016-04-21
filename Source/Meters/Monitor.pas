@@ -203,7 +203,7 @@ CONST
     MODEMASK = 15;
 
     NumPropsThisClass = 7;
-    NumSolutionVars = 10;
+    NumSolutionVars = 11;
 
 VAR
     StrBuffer:TMonitorStrBuffer;
@@ -727,6 +727,7 @@ Begin
              strLcat(strPtr, pAnsichar('Mode, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Frequency, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Year, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('Miliseconds, '), Sizeof(TMonitorStrBuffer));
         End
      Else Begin
          // Compute RecordSize
@@ -1029,16 +1030,17 @@ Begin
      5: Begin
             (* Capture Solution Variables *)
             With ActiveCircuit.Solution Do Begin
-             SolutionBuffer^[1] := Iteration;
-             SolutionBuffer^[2] := ControlIteration;
-             SolutionBuffer^[3] := MaxIterations;
-             SolutionBuffer^[4] := MaxControlIterations;
+             SolutionBuffer^[1]   :=  Iteration;
+             SolutionBuffer^[2]   :=  ControlIteration;
+             SolutionBuffer^[3]   :=  MaxIterations;
+             SolutionBuffer^[4]   :=  MaxControlIterations;
              If ConvergedFlag then SolutionBuffer^[5] := 1 else SolutionBuffer^[3] := 0;
-             SolutionBuffer^[6] := IntervalHrs;
-             SolutionBuffer^[7] := SolutionCount;
-             SolutionBuffer^[8] := Mode;
-             SolutionBuffer^[9] := Frequency;
-             SolutionBuffer^[10] := Year;
+             SolutionBuffer^[6]   :=  IntervalHrs;
+             SolutionBuffer^[7]   :=  SolutionCount;
+             SolutionBuffer^[8]   :=  Mode;
+             SolutionBuffer^[9]   :=  Frequency;
+             SolutionBuffer^[10]  :=  Year;
+             SolutionBuffer^[11]  :=  Time_Elapsed;
             End;
 
         End;
