@@ -892,6 +892,7 @@ begin
   ScriptWindowList.Add(Result);
   EditPages.ActivePage := ts;
   ts.Tag := NativeInt(Result);
+  ActiveScriptForm := Result;
 end;
 
 procedure TControlPanel.FormDestroy(Sender: TObject);
@@ -1660,7 +1661,7 @@ end;
 
 procedure TControlPanel.UpdateCaptions;
 begin
-  if ActiveScriptForm.HasFileName then begin
+  if Assigned(ActiveScriptForm) and ActiveScriptForm.HasFileName then begin
     Caption := ProgramName + ' - ' + ActiveScriptForm.Caption;
     ActiveScriptForm.Tab.Caption := ExtractFileName(ActiveScriptForm.Caption);
   end else begin
@@ -1682,7 +1683,6 @@ begin
            Filter := 'any File|*.*';
            FileName := DataDirectory+'*.*';
            If Execute Then  ActiveScriptForm.ExecuteDSSCommand('set Datapath=('+ ExtractFilePath(FileName)+')');
-
       End;
 end;
 
