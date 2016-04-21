@@ -152,7 +152,7 @@ TYPE
 
 //****************************Timing variables**********************************
        Stopwatch: TStopwatch;
-       Time_Elapsed: TTimeSpan;
+       FTime_Elapsed: Double;
 //******************************************************************************
        constructor Create(ParClass:TDSSClass; const solutionname:String);
        destructor  Destroy; override;
@@ -188,9 +188,10 @@ TYPE
        PROCEDURE Update_dblHour;
        PROCEDURE Increment_time;
 
-       Property  Mode      :Integer  Read dynavars.SolutionMode Write Set_Mode;
-       Property  Frequency :Double   Read FFrequency            Write Set_Frequency;
-       Property  Year      :Integer  Read FYear                 Write Set_Year;
+       Property  Mode         :Integer  Read dynavars.SolutionMode Write Set_Mode;
+       Property  Frequency    :Double   Read FFrequency            Write Set_Frequency;
+       Property  Year         :Integer  Read FYear                 Write Set_Year;
+       Property  Time_Elapsed :Double   Read FTime_Elapsed;
 
  // Procedures that use to be private before 01-20-2016
 
@@ -479,9 +480,10 @@ Try
          HARMONICMODET:SolveHarmonicT;  //Declares the Hsequential-time harmonics
      Else
          DosimpleMsg('Unknown solution mode.', 481);
+         Stopwatch.Stop;
      End;
-     Time_Elapsed := Stopwatch.Elapsed;
-     Stopwatch := TStopwatch.Stop;
+     FTime_Elapsed := Stopwatch.ElapsedMilliseconds;
+     Stopwatch.Stop;
 Except
 
     On E:Exception Do Begin
