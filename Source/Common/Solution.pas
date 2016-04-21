@@ -46,7 +46,9 @@ USES
     DSSObject,
     Dynamics,
     EnergyMeter,
-    SysUtils;
+    SysUtils,
+    System.Diagnostics,
+    System.TimeSpan;
 
 CONST
 
@@ -144,12 +146,14 @@ TYPE
        VmagSaved : pDoubleArray;
        VoltageBaseChanged : Boolean;
 
+        {Voltage and Current Arrays}
+       NodeV    : pNodeVArray;    // Main System Voltage Array   allows NodeV^[0]=0
+       Currents : pNodeVArray;      // Main System Currents Array
 
-       {Voltage and Current Arrays}
-       NodeV    :pNodeVArray;    // Main System Voltage Array   allows NodeV^[0]=0
-       Currents :pNodeVArray;      // Main System Currents Array
-
-
+//****************************Timing variables**********************************
+       Stopwatch: TStopwatch;
+       Time_Elapsed: TTimeSpan;
+//******************************************************************************
        constructor Create(ParClass:TDSSClass; const solutionname:String);
        destructor  Destroy; override;
 
@@ -453,7 +457,7 @@ Try
 {$ENDIF}
 
     {CheckFaultStatus;  ???? needed here??}
-
+     Stopwatch := TStopwatch.StartNew;
      Case Dynavars.SolutionMode OF
          SNAPSHOT:     SolveSnap;
          YEARLYMODE:   SolveYearly;
@@ -473,11 +477,11 @@ Try
          HARMONICMODE: SolveHarmonic;
          GENERALTIME:  SolveGeneralTime;
          HARMONICMODET:SolveHarmonicT;  //Declares the Hsequential-time harmonics
-
      Else
          DosimpleMsg('Unknown solution mode.', 481);
      End;
-
+     Time_Elapsed := Stopwatch.Elapsed;
+     Stopwatch := TStopwatch.Stop;
 Except
 
     On E:Exception Do Begin
