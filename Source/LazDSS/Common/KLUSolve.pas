@@ -8,7 +8,8 @@ uses
     uComplex;
 
 const
-  KLULib = 'libklusolve.dll';
+//  KLULib = 'libklusolve.dll';
+  KLULib = 'libklusolve';
 //FUNCTION NewSparseSet(nBus:LongWord):LongWord;external KLULib;
 
 //{$LINKLIB klusolve}

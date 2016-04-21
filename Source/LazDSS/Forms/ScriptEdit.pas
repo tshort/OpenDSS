@@ -60,7 +60,7 @@ var
 
 implementation
 
-Uses RichEdit, Executive, DSSGlobals, DSSForms,  Panel,Utilities, uComplex;
+Uses Executive, DSSGlobals, DSSForms,  Panel,Utilities, uComplex;
 //  System.Types, System.UITypes;
 
 const
