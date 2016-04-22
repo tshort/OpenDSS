@@ -304,7 +304,7 @@ Begin
              THEN ShowUnserved(GetOutputDirectory + CircuitName_ + 'Unserved.Txt', TRUE)
              ELSE ShowUnserved(GetOutputDirectory + CircuitName_ + 'Unserved.Txt', FALSE);
           End;
-     18: ShowMessageForm(EventStrings);
+     18: ShowEventLog(GetOutputDirectory + CircuitName_ + 'EventLog.Txt');// ShowMessageForm(EventStrings);
      19: ShowVariables(GetOutputDirectory + CircuitName_ + 'Variables.Txt');
      20: ShowRatings(GetOutputDirectory + CircuitName_ + 'RatingsOut.Txt');
      21: ShowLoops(GetOutputDirectory + CircuitName_ + 'Loops.Txt');
