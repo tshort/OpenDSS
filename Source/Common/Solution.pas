@@ -151,8 +151,10 @@ TYPE
        Currents : pNodeVArray;      // Main System Currents Array
 
 //****************************Timing variables**********************************
-       Stopwatch: TStopwatch;
-       FTime_Elapsed: Double;
+       StartTime      : int64;
+       endtime        : int64;
+       CPU_Freq       : int64;
+       FTime_Elapsed  : extended;
 //******************************************************************************
        constructor Create(ParClass:TDSSClass; const solutionname:String);
        destructor  Destroy; override;
@@ -191,7 +193,7 @@ TYPE
        Property  Mode         :Integer  Read dynavars.SolutionMode Write Set_Mode;
        Property  Frequency    :Double   Read FFrequency            Write Set_Frequency;
        Property  Year         :Integer  Read FYear                 Write Set_Year;
-       Property  Time_Elapsed :Double   Read FTime_Elapsed;
+       Property  Time_Elapsed :extended   Read FTime_Elapsed;
 
  // Procedures that use to be private before 01-20-2016
 
@@ -220,7 +222,7 @@ USES  SolutionAlgs,
 {$IFDEF DLL_ENGINE}
       ImplGlobals,  // to fire events
 {$ENDIF}
-      Math,  Circuit, Utilities, KLUSolve
+      Math,  Circuit, Utilities, KLUSolve, Windows
 ;
 
 Const NumPropsThisClass = 1;
@@ -458,7 +460,7 @@ Try
 {$ENDIF}
 
     {CheckFaultStatus;  ???? needed here??}
-     Stopwatch := TStopwatch.StartNew;
+
      Case Dynavars.SolutionMode OF
          SNAPSHOT:     SolveSnap;
          YEARLYMODE:   SolveYearly;
@@ -480,10 +482,8 @@ Try
          HARMONICMODET:SolveHarmonicT;  //Declares the Hsequential-time harmonics
      Else
          DosimpleMsg('Unknown solution mode.', 481);
-         Stopwatch.Stop;
      End;
-     FTime_Elapsed := Stopwatch.ElapsedMilliseconds;
-     Stopwatch.Stop;
+
 Except
 
     On E:Exception Do Begin
@@ -955,7 +955,8 @@ VAR
 Begin
    SnapShotInit;
    TotalIterations    := 0;
-
+   QueryPerformanceFrequency(CPU_Freq);
+   QueryPerformanceCounter(StartTime);
    REPEAT
 
        Inc(ControlIteration);
@@ -985,7 +986,8 @@ Begin
 {$IFDEF DLL_ENGINE}
    Fire_StepControls;
 {$ENDIF}
-
+   QueryPerformanceCounter(endTime);
+   FTime_Elapsed := ((EndTime-startTime)/CPU_Freq)*1000000;
    Iteration := TotalIterations;  { so that it reports a more interesting number }
 
 End;
@@ -997,6 +999,8 @@ Begin
    Result := 0;
 
    LoadsNeedUpdating := TRUE;  // Force possible update of loads and generators
+   QueryPerformanceFrequency(CPU_Freq);
+   QueryPerformanceCounter(StartTime);
 
    If SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, TRUE);   // Side Effect: Allocates V
 
@@ -1015,6 +1019,8 @@ Begin
        ConvergedFlag := TRUE;
    End;
 
+   QueryPerformanceCounter(endTime);
+   FTime_Elapsed := ((EndTime-startTime)/CPU_Freq)*1000000;
    Iteration := 1;
    LastSolutionWasDirect := TRUE;
 
