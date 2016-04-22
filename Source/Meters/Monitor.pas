@@ -727,7 +727,7 @@ Begin
              strLcat(strPtr, pAnsichar('Mode, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Frequency, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Year, '), Sizeof(TMonitorStrBuffer));
-             strLcat(strPtr, pAnsichar('Miliseconds, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('Microseconds, '), Sizeof(TMonitorStrBuffer));
         End
      Else Begin
          // Compute RecordSize
