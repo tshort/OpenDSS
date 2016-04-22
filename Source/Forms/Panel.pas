@@ -848,7 +848,8 @@ end;
 
 procedure TControlPanel.ResultFile1Click(Sender: TObject);
 begin
-    ActiveScriptForm.ExecuteDSSCommand('fileedit ['+ ResultsEdit.Lines.Strings[0]+']');
+ //   ActiveScriptForm.ExecuteDSSCommand('fileedit ['+ ResultsEdit.Lines.Strings[0]+']');
+    ActiveScriptForm.ExecuteDSSCommand('fileedit ['+ Edit_Result.Text+']');
 end;
 
 function TControlPanel.MakeANewEditForm(const Cap: String): TScriptEdit;
@@ -2183,9 +2184,11 @@ begin
        Monitors2Click(Sender); // Export monitor  to CSV file
 
        {Open Result File and Parse first line}
-       if FileExists(ResultsEdit.Lines.Strings[0]) then  Begin
+//       if FileExists(ResultsEdit.Lines.Strings[0]) then  Begin
+       if FileExists(Edit_Result.text) then  Begin
 
-         if MakeChannelSelection(2, ResultsEdit.Lines.Strings[0]) Then
+//         if MakeChannelSelection(2, ResultsEdit.Lines.Strings[0]) Then
+         if MakeChannelSelection(2, Edit_Result.text) Then
          Begin
            Screen.Cursor := crHourglass;
            ActiveScriptForm.ExecuteDSSCommand('Plot monitor object= '+SelectedMonitor+' channels=(' + ChannelSelectForm.ResultString  +')');
