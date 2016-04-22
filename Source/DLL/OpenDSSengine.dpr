@@ -1,7 +1,7 @@
 library OpenDSSengine;
 
 { ----------------------------------------------------------
-  Copyright (c) 2008-2014, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2016, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------
 

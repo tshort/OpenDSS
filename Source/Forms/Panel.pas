@@ -936,7 +936,7 @@ begin
     nLines := DSS_Registry.ReadInteger(Format('LineCount%d',[i]), 0);
     if i > 1 then begin // need to make a new edit form
       Inc(EditFormCount);
-      if nLines < 1 then begin
+      if nLines < 1 then begin   // if no lines stored in Registry
         FileName := DSS_Registry.ReadString(Format('File%d',[i]), '');
         ActiveScriptForm := MakeANewEditForm(FileName);
       end else begin
@@ -948,6 +948,7 @@ begin
       Try
         ActiveScriptForm.Editor.Lines.LoadFromFile (FileName);
         ActiveScriptForm.HasFileName := TRUE;
+        UpdateCaptions;
       Except  // ignore error -- likely file got moved
       End;
     end else begin // read collection of saved lines into the script window
@@ -959,6 +960,7 @@ begin
     ActiveScriptForm.HasBeenModified := FALSE; // should not be yellow after restoration
     ActiveScriptForm.Editor.Lines.EndUpdate;
   end;
+
 
   // compiled combo box section
   DSS_Registry.Section := 'Compiled';
@@ -1023,6 +1025,7 @@ begin
   Recordcommands := False;
   MakeBaseClassBox;
   UpdateClassBox;
+
 end;
 
 procedure TControlPanel.NewScriptWindow1Click(Sender: TObject);
@@ -1634,12 +1637,16 @@ end;
 
 procedure TControlPanel.UpdateCaptions;
 begin
+  MessageEdit.Clear;
   if ActiveScriptForm.HasFileName then begin
-    Caption := ProgramName + ' - ' + ActiveScriptForm.Caption;
+    // Caption := ProgramName + ' - ' + ActiveScriptForm.Caption;
+    MessageEdit.Lines.Add(ProgramName + ' - ' + ActiveScriptForm.Caption);
     ActiveScriptForm.Tab.Caption := ExtractFileName(ActiveScriptForm.Caption);
   end else begin
-    Caption := ProgramName + ' Data Directory: ' + DataDirectory;
+    MessageEdit.Lines.Add(ActiveScriptForm.Caption);
   end;
+  {Refresh Form Caption}
+  Caption := ProgramName + ' Data Directory: ' + DataDirectory;
 end;
 
 procedure TControlPanel.EditPagesChange(Sender: TObject);

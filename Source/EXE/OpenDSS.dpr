@@ -212,7 +212,7 @@ begin
   Application.CreateForm(TChannelSelectForm, ChannelSelectForm);
   ControlPanelCreated := TRUE;
     ControlPanel.InitializeForm;
-    ControlPanel.MessageEdit.Clear;
+ //   ControlPanel.MessageEdit.Clear;
 //    MessageForm1.WindowState := wsMinimized;
     ControlPanel.Show;
     Application.Run;
