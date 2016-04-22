@@ -1021,11 +1021,13 @@ begin
     ToolButton2Click(nil);   // Execute all the commands in the window
   End;
 
+
   {Tile;}
   UpdateStatus;
   Recordcommands := False;
   MakeBaseClassBox;
   UpdateClassBox;
+  Edit_Result.Text := VersionString;
 
 end;
 
