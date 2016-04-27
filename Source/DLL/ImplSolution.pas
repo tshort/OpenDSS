@@ -93,11 +93,14 @@ type
     procedure Set_ControlActionsDone(Value: WordBool); safecall;
     procedure Cleanup; safecall;
     procedure FinishTimeStep; safecall;
+    function Get_Process_Time: Double; safecall;
+    function Get_Total_Time: Double; safecall;
+    procedure Set_Total_Time(Value: Double); safecall;
   end;
 
 implementation
 
-uses ComServ, DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants, SolutionAlgs;
+uses ComServ, DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants, SolutionAlgs, Solution;
 
 function TSolution.Get_Frequency: Double;
 begin
@@ -656,6 +659,21 @@ begin
                 Increment_time;
  //               DefaultHourMult := DefaultDailyShapeObj.getmult(TDynamicsrec.dblHour);
     End;
+end;
+
+function TSolution.Get_Process_Time: Double;
+begin
+    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Time_Elapsed;
+end;
+
+function TSolution.Get_Total_Time: Double;
+begin
+    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Total_Time;
+end;
+
+procedure TSolution.Set_Total_Time(Value: Double);
+begin
+     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.Total_Time   :=  Value;
 end;
 
 initialization
