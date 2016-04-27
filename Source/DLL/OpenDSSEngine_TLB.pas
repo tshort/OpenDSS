@@ -11,11 +11,11 @@ unit OpenDSSengine_TLB;
 // manual modifications will be lost.
 // ************************************************************************ //
 
-// $Rev: 45604 $
-// File generated on 3/10/2016 10:15:10 PM from Type Library described below.
+// $Rev: 52393 $
+// File generated on 4/27/2016 10:12:50 AM from Type Library described below.
 
 // ************************************************************************  //
-// Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
+// Type Lib: C:\OpenDSS\Source\DLL\OpenDSSengine (1)
 // LIBID: {8BFDE413-245A-4514-B151-B16DCC243796}
 // LCID: 0
 // Helpfile:
@@ -1124,6 +1124,9 @@ type
     procedure Set_ControlActionsDone(Value: WordBool); safecall;
     procedure FinishTimeStep; safecall;
     procedure Cleanup; safecall;
+    function Get_Total_Time: Double; safecall;
+    procedure Set_Total_Time(Value: Double); safecall;
+    function Get_Process_Time: Double; safecall;
     property Mode: Integer read Get_Mode write Set_Mode;
     property Frequency: Double read Get_Frequency write Set_Frequency;
     property Hour: Integer read Get_Hour write Set_Hour;
@@ -1160,6 +1163,8 @@ type
     property Totaliterations: Integer read Get_Totaliterations;
     property MostIterationsDone: Integer read Get_MostIterationsDone;
     property ControlActionsDone: WordBool read Get_ControlActionsDone write Set_ControlActionsDone;
+    property Total_Time: Double read Get_Total_Time write Set_Total_Time;
+    property Process_Time: Double read Get_Process_Time;
   end;
 
 // *********************************************************************//
@@ -1220,6 +1225,8 @@ type
     property ControlActionsDone: WordBool dispid 222;
     procedure FinishTimeStep; dispid 223;
     procedure Cleanup; dispid 224;
+    property Total_Time: Double dispid 225;
+    property Process_Time: Double readonly dispid 226;
   end;
 
 // *********************************************************************//
