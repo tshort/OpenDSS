@@ -98,6 +98,7 @@ TYPE
        procedure Set_Frequency(const Value: Double);
        PROCEDURE Set_Mode(const Value: Integer);
        procedure Set_Year(const Value: Integer);
+       procedure Set_Total_Time(const Value: Double);
 
      public
 
@@ -153,8 +154,8 @@ TYPE
 //****************************Timing variables**********************************
        StartTime      : int64;
        endtime        : int64;
-       CPU_Freq       : int64;
-       FTime_Elapsed  : extended;
+       GTime_Elapsed  : double;
+       FTime_Elapsed  : double;
 //******************************************************************************
        constructor Create(ParClass:TDSSClass; const solutionname:String);
        destructor  Destroy; override;
@@ -193,7 +194,8 @@ TYPE
        Property  Mode         :Integer  Read dynavars.SolutionMode Write Set_Mode;
        Property  Frequency    :Double   Read FFrequency            Write Set_Frequency;
        Property  Year         :Integer  Read FYear                 Write Set_Year;
-       Property  Time_Elapsed :extended   Read FTime_Elapsed;
+       Property  Time_Elapsed :Double  Read FTime_Elapsed;
+       Property  Total_Time   :Double  Read GTime_Elapsed      Write Set_Total_Time;
 
  // Procedures that use to be private before 01-20-2016
 
@@ -955,7 +957,6 @@ VAR
 Begin
    SnapShotInit;
    TotalIterations    := 0;
-   QueryPerformanceFrequency(CPU_Freq);
    QueryPerformanceCounter(StartTime);
    REPEAT
 
@@ -988,6 +989,7 @@ Begin
 {$ENDIF}
    QueryPerformanceCounter(endTime);
    FTime_Elapsed := ((EndTime-startTime)/CPU_Freq)*1000000;
+   GTime_Elapsed := GTime_Elapsed + FTime_Elapsed;
    Iteration := TotalIterations;  { so that it reports a more interesting number }
 
 End;
@@ -999,7 +1001,6 @@ Begin
    Result := 0;
 
    LoadsNeedUpdating := TRUE;  // Force possible update of loads and generators
-   QueryPerformanceFrequency(CPU_Freq);
    QueryPerformanceCounter(StartTime);
 
    If SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, TRUE);   // Side Effect: Allocates V
@@ -1020,7 +1021,8 @@ Begin
    End;
 
    QueryPerformanceCounter(endTime);
-   FTime_Elapsed := ((EndTime-startTime)/CPU_Freq)*1000000;
+   FTime_Elapsed  := ((EndTime-startTime)/CPU_Freq)*1000000;
+   GTime_Elapsed  :=  GTime_Elapsed + FTime_Elapsed;
    Iteration := 1;
    LastSolutionWasDirect := TRUE;
 
@@ -1638,6 +1640,11 @@ begin
       Dynavars.t := 0.0;
       Update_dblHour;
       EnergyMeterClass.ResetAll;  // force any previous year data to complete
+end;
+
+procedure TSolutionObj.Set_Total_Time(const Value: Double);
+begin
+      GTime_Elapsed :=  Value;
 end;
 
 procedure TSolutionObj.SaveVoltages;
