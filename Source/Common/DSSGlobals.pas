@@ -102,7 +102,6 @@ CONST
       PROFILELLPRI = 9995;
       PROFILELL    = 9994;
 
-
 VAR
 
    DLLFirstTime   :Boolean=TRUE;
@@ -207,6 +206,7 @@ VAR
    ClassNames         :THashList;
 
    UpdateRegistry     :Boolean;  // update on program exit
+   CPU_Freq       : int64;          // Used to store the CPU frequency
 
 
 
@@ -747,6 +747,7 @@ initialization
    LogQueries        := FALSE;
    QueryLogFileName  := '';
    UpdateRegistry    := TRUE;
+   QueryPerformanceFrequency(CPU_Freq);
 
 
    //WriteDLLDebugFile('DSSGlobals');
