@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 3/11/2016 12:06:11 PM (- $Rev: 12980 $, 4669765).
+// File generated on 4/27/2016 11:03:50 AM (- $Rev: 12980 $, 1735538921).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -940,6 +940,12 @@ library OpenDSSengine
     HRESULT _stdcall FinishTimeStep(void);
     [id(0x000000E0), helpstring("Update storage, invcontrol, etc at end of time step")]
     HRESULT _stdcall Cleanup(void);
+    [propget, id(0x000000E1), helpstring("Gets the accumulated time of the simulation")]
+    HRESULT _stdcall Total_Time([out, retval] double* Value);
+    [propput, id(0x000000E1), helpstring("Sets the Accumulated time of the simulation")]
+    HRESULT _stdcall Total_Time([in] double Value);
+    [propget, id(0x000000E2), helpstring("Gets the time required to perform the latest solution (Read only)")]
+    HRESULT _stdcall Process_Time([out, retval] double* Value);
   };
 
   [
