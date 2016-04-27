@@ -366,6 +366,21 @@ begin
           ActiveCircuit.Solution.Dynavars.h := arg * 3600.0;
       End;
       Result:=0.0;
+  end;
+  24: begin // Solution.Process_Time
+      If ActiveCircuit <> Nil Then Begin
+          Result  :=  ActiveCircuit.Solution.Time_Elapsed;
+      End;
+  end;
+  25: begin // Solution.Total_Time read
+      If ActiveCircuit <> Nil Then Begin
+          Result  :=  ActiveCircuit.Solution.Total_Time;
+      End;
+  end;
+  26: begin // Solution.Total_Time Write
+      If ActiveCircuit <> Nil Then Begin
+          ActiveCircuit.Solution.Total_Time :=  arg;
+      End;
   end
   else
       Result:=-1.0;
