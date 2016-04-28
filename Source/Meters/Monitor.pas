@@ -1034,7 +1034,7 @@ Begin
              SolutionBuffer^[2]   :=  ControlIteration;
              SolutionBuffer^[3]   :=  MaxIterations;
              SolutionBuffer^[4]   :=  MaxControlIterations;
-             If ConvergedFlag then SolutionBuffer^[5] := 1 else SolutionBuffer^[3] := 0;
+             If ConvergedFlag then SolutionBuffer^[5] := 1 else SolutionBuffer^[5] := 0;
              SolutionBuffer^[6]   :=  IntervalHrs;
              SolutionBuffer^[7]   :=  SolutionCount;
              SolutionBuffer^[8]   :=  Mode;
