@@ -717,7 +717,7 @@ Begin
         End;
      5: Begin
              RecordSize := NumSolutionVars;
-             strLcat(strPtr, pAnsichar('Iteration, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('TotalIterations, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('ControlIteration, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('MaxIterations, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('MaxControlIterations, '), Sizeof(TMonitorStrBuffer));
