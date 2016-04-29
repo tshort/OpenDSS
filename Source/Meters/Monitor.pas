@@ -203,7 +203,7 @@ CONST
     MODEMASK = 15;
 
     NumPropsThisClass = 7;
-    NumSolutionVars = 11;
+    NumSolutionVars = 12;
 
 VAR
     StrBuffer:TMonitorStrBuffer;
@@ -727,7 +727,8 @@ Begin
              strLcat(strPtr, pAnsichar('Mode, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Frequency, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Year, '), Sizeof(TMonitorStrBuffer));
-             strLcat(strPtr, pAnsichar('Microseconds, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('Solution_uSecs, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('TimeStep_uSecs, '), Sizeof(TMonitorStrBuffer));
         End
      Else Begin
          // Compute RecordSize
@@ -1041,6 +1042,7 @@ Begin
              SolutionBuffer^[9]   :=  Frequency;
              SolutionBuffer^[10]  :=  Year;
              SolutionBuffer^[11]  :=  Time_Elapsed;
+             SolutionBuffer^[12]  :=  Time_TimeStep;
             End;
 
         End;
