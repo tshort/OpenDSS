@@ -96,6 +96,7 @@ type
     function Get_Process_Time: Double; safecall;
     function Get_Total_Time: Double; safecall;
     procedure Set_Total_Time(Value: Double); safecall;
+    function Get_Time_of_Step: Double; safecall;
   end;
 
 implementation
@@ -674,6 +675,11 @@ end;
 procedure TSolution.Set_Total_Time(Value: Double);
 begin
      If ActiveCircuit <> Nil Then ActiveCircuit.Solution.Total_Time   :=  Value;
+end;
+
+function TSolution.Get_Time_of_Step: Double;
+begin
+    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Time_TimeStep;
 end;
 
 initialization
