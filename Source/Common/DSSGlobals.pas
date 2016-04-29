@@ -206,7 +206,8 @@ VAR
    ClassNames         :THashList;
 
    UpdateRegistry     :Boolean;  // update on program exit
-   CPU_Freq       : int64;          // Used to store the CPU frequency
+   CPU_Freq           : int64;          // Used to store the CPU frequency
+   CPU_Cores          : integer;
 
 
 
@@ -734,20 +735,21 @@ initialization
 
    DSS_Registry     := TIniRegSave.Create('\Software\' + ProgramName);
 
-   AuxParser       := TParser.Create;
-   DefaultEditor   := 'NotePad';
-   DefaultFontSize := 8;
-   DefaultFontName := 'MS Sans Serif';
+   AuxParser        := TParser.Create;
+   DefaultEditor    := 'NotePad';
+   DefaultFontSize  := 8;
+   DefaultFontName  := 'MS Sans Serif';
 
-   NoFormsAllowed  := FALSE;
+   NoFormsAllowed   := FALSE;
 
-   EventStrings    := TStringList.Create;
-   SavedFileList   := TStringList.Create;
+   EventStrings     := TStringList.Create;
+   SavedFileList    := TStringList.Create;
 
-   LogQueries        := FALSE;
-   QueryLogFileName  := '';
-   UpdateRegistry    := TRUE;
+   LogQueries       := FALSE;
+   QueryLogFileName := '';
+   UpdateRegistry   := TRUE;
    QueryPerformanceFrequency(CPU_Freq);
+   CPU_Cores        :=  CPUCount;
 
 
    //WriteDLLDebugFile('DSSGlobals');
