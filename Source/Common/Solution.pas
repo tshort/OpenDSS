@@ -154,8 +154,11 @@ TYPE
 //****************************Timing variables**********************************
        StartTime      : int64;
        endtime        : int64;
+       GStartTime     : int64;
+       Gendtime       : int64;
        GTime_Elapsed  : double;
        FTime_Elapsed  : double;
+       TTime_Elapsed  : double;
 //******************************************************************************
        constructor Create(ParClass:TDSSClass; const solutionname:String);
        destructor  Destroy; override;
@@ -195,6 +198,7 @@ TYPE
        Property  Frequency    :Double   Read FFrequency            Write Set_Frequency;
        Property  Year         :Integer  Read FYear                 Write Set_Year;
        Property  Time_Elapsed :Double  Read FTime_Elapsed;
+       Property  Time_TimeStep:Double  Read TTime_Elapsed;
        Property  Total_Time   :Double  Read GTime_Elapsed      Write Set_Total_Time;
 
  // Procedures that use to be private before 01-20-2016
@@ -462,7 +466,7 @@ Try
 {$ENDIF}
 
     {CheckFaultStatus;  ???? needed here??}
-
+     QueryPerformanceCounter(GStartTime);
      Case Dynavars.SolutionMode OF
          SNAPSHOT:     SolveSnap;
          YEARLYMODE:   SolveYearly;
@@ -485,7 +489,9 @@ Try
      Else
          DosimpleMsg('Unknown solution mode.', 481);
      End;
-
+    QueryPerformanceCounter(GEndTime);
+    TTime_Elapsed := ((GEndTime-GStartTime)/CPU_Freq)*1000000;
+    GTime_Elapsed := GTime_Elapsed + TTime_Elapsed;
 Except
 
     On E:Exception Do Begin
@@ -989,7 +995,6 @@ Begin
 {$ENDIF}
    QueryPerformanceCounter(endTime);
    FTime_Elapsed := ((EndTime-startTime)/CPU_Freq)*1000000;
-   GTime_Elapsed := GTime_Elapsed + FTime_Elapsed;
    Iteration := TotalIterations;  { so that it reports a more interesting number }
 
 End;
