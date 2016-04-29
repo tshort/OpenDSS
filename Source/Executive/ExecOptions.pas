@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 107;
+        NumExecOptions = 108;
 
 VAR
          ExecOption,
@@ -140,6 +140,7 @@ Begin
      ExecOption[105] := 'RelayMarkerSize';
      ExecOption[106] := 'ProcessTime';
      ExecOption[107] := 'TotalTime';
+     ExecOption[108] := 'TimeofStep';
 
 
 
@@ -385,7 +386,7 @@ Begin
      OptionHelp[105] := 'Size of Relay marker. Default is 5.';
      OptionHelp[106] := 'The time required in microseconds to solve the latest single iteration, this is a read only option';
      OptionHelp[107] := 'The accumulated time in microseconds to solve the circuit since the last reset';
-
+     OptionHelp[108] := 'Process time + meters sampling (microseconds),  this is a read only option';
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -778,6 +779,7 @@ Begin
           105: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RelayMarkerSize]));
           106: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_Elapsed]));
           107: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Total_Time]));
+          108: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_TimeStep]));
          ELSE
            // Ignore excess parameters
          End;
