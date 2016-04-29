@@ -381,6 +381,11 @@ begin
       If ActiveCircuit <> Nil Then Begin
           ActiveCircuit.Solution.Total_Time :=  arg;
       End;
+  end;
+  27: begin // Solution.Time_TimeStep
+      If ActiveCircuit <> Nil Then Begin
+          Result  :=  ActiveCircuit.Solution.Time_TimeStep;
+      End;
   end
   else
       Result:=-1.0;
