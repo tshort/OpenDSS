@@ -104,6 +104,7 @@ TYPE
 
        Procedure ResetAll;   Override;
        Procedure SampleAll;  Override;  // Force all monitors to take a sample
+       Procedure SampleAllMode5;  // Sample just Mode 5 monitors
        Procedure SaveAll;    Override;   // Force all monitors to save their buffers to disk
        Procedure PostProcessAll;
        Procedure TOPExport(Objname:String);
@@ -380,11 +381,27 @@ Procedure TDSSMonitor.SampleAll;  // Force all monitors in the circuit to take a
 
 VAR
    Mon:TMonitorObj;
-
+// sample all monitors except mode 5 monitors
 Begin
       Mon := ActiveCircuit.Monitors.First;
       WHILE Mon<>Nil DO  Begin
-          If Mon.enabled Then Mon.TakeSample;
+          If Mon.enabled Then
+             If Mon.Mode <> 5 then Mon.TakeSample;
+          Mon := ActiveCircuit.Monitors.Next;
+      End;
+End;
+
+{--------------------------------------------------------------------------}
+Procedure TDSSMonitor.SampleAllMode5;  // Force all mode=5 monitors in the circuit to take a sample
+
+VAR
+   Mon:TMonitorObj;
+// sample all Mode 5 monitors except monitors
+Begin
+      Mon := ActiveCircuit.Monitors.First;
+      WHILE Mon<>Nil DO  Begin
+          If Mon.enabled Then
+             If Mon.Mode = 5 then Mon.TakeSample;
           Mon := ActiveCircuit.Monitors.Next;
       End;
 End;
@@ -727,7 +744,7 @@ Begin
              strLcat(strPtr, pAnsichar('Mode, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Frequency, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Year, '), Sizeof(TMonitorStrBuffer));
-             strLcat(strPtr, pAnsichar('Solution_uSecs, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('SolveSnap_uSecs, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('TimeStep_uSecs, '), Sizeof(TMonitorStrBuffer));
         End
      Else Begin
@@ -1041,8 +1058,8 @@ Begin
              SolutionBuffer^[8]   :=  Mode;
              SolutionBuffer^[9]   :=  Frequency;
              SolutionBuffer^[10]  :=  Year;
-             SolutionBuffer^[11]  :=  Time_Elapsed;
-             SolutionBuffer^[12]  :=  Time_TimeStep;
+             SolutionBuffer^[11]  :=  Time_Solve;
+             SolutionBuffer^[12]  :=  Time_Step;
             End;
 
         End;

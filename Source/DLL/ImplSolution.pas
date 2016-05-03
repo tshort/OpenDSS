@@ -664,7 +664,7 @@ end;
 
 function TSolution.Get_Process_Time: Double;
 begin
-    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Time_Elapsed;
+    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Time_Solve;
 end;
 
 function TSolution.Get_Total_Time: Double;
@@ -679,7 +679,7 @@ end;
 
 function TSolution.Get_Time_of_Step: Double;
 begin
-    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Time_TimeStep;
+    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Time_Step;
 end;
 
 initialization

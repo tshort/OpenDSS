@@ -152,14 +152,17 @@ TYPE
        Currents : pNodeVArray;      // Main System Currents Array
 
 //****************************Timing variables**********************************
-       StartTime      : int64;
-       endtime        : int64;
+       SolveStartTime      : int64;
+       SolveEndtime        : int64;
        GStartTime     : int64;
        Gendtime       : int64;
-       GTime_Elapsed  : double;
-       FTime_Elapsed  : double;
-       TTime_Elapsed  : double;
+       LoopEndtime            : int64;
+       Total_Time_Elapsed     : double;
+       Solve_Time_Elapsed     : double;
+       Total_Solve_Time_Elapsed  : double;
+       Step_Time_Elapsed      : double;
 //******************************************************************************
+
        constructor Create(ParClass:TDSSClass; const solutionname:String);
        destructor  Destroy; override;
 
@@ -194,12 +197,15 @@ TYPE
        PROCEDURE Update_dblHour;
        PROCEDURE Increment_time;
 
+       PROCEDURE UpdateLoopTime;
+
        Property  Mode         :Integer  Read dynavars.SolutionMode Write Set_Mode;
        Property  Frequency    :Double   Read FFrequency            Write Set_Frequency;
        Property  Year         :Integer  Read FYear                 Write Set_Year;
-       Property  Time_Elapsed :Double  Read FTime_Elapsed;
-       Property  Time_TimeStep:Double  Read TTime_Elapsed;
-       Property  Total_Time   :Double  Read GTime_Elapsed      Write Set_Total_Time;
+       Property  Time_Solve :Double  Read Solve_Time_Elapsed;
+       Property  Time_TotalSolve:Double  Read Total_Solve_Time_Elapsed;
+       Property  Time_Step:Double      Read Step_Time_Elapsed;     // Solve + sample
+       Property  Total_Time   :Double  Read Total_Time_Elapsed      Write Set_Total_Time;
 
  // Procedures that use to be private before 01-20-2016
 
@@ -490,8 +496,8 @@ Try
          DosimpleMsg('Unknown solution mode.', 481);
      End;
     QueryPerformanceCounter(GEndTime);
-    TTime_Elapsed := ((GEndTime-GStartTime)/CPU_Freq)*1000000;
-    GTime_Elapsed := GTime_Elapsed + TTime_Elapsed;
+    Total_Solve_Time_Elapsed := ((GEndTime-GStartTime)/CPU_Freq)*1000000;
+    Total_Time_Elapsed := Total_Time_Elapsed + Total_Solve_Time_Elapsed;
 Except
 
     On E:Exception Do Begin
@@ -963,7 +969,7 @@ VAR
 Begin
    SnapShotInit;
    TotalIterations    := 0;
-   QueryPerformanceCounter(StartTime);
+   QueryPerformanceCounter(SolveStartTime);
    REPEAT
 
        Inc(ControlIteration);
@@ -993,8 +999,8 @@ Begin
 {$IFDEF DLL_ENGINE}
    Fire_StepControls;
 {$ENDIF}
-   QueryPerformanceCounter(endTime);
-   FTime_Elapsed := ((EndTime-startTime)/CPU_Freq)*1000000;
+   QueryPerformanceCounter(SolveEndtime);
+   Solve_Time_Elapsed := ((SolveEndtime-SolveStartTime)/CPU_Freq)*1000000;
    Iteration := TotalIterations;  { so that it reports a more interesting number }
 
 End;
@@ -1006,7 +1012,7 @@ Begin
    Result := 0;
 
    LoadsNeedUpdating := TRUE;  // Force possible update of loads and generators
-   QueryPerformanceCounter(StartTime);
+   QueryPerformanceCounter(SolveStartTime);
 
    If SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, TRUE);   // Side Effect: Allocates V
 
@@ -1025,9 +1031,9 @@ Begin
        ConvergedFlag := TRUE;
    End;
 
-   QueryPerformanceCounter(endTime);
-   FTime_Elapsed  := ((EndTime-startTime)/CPU_Freq)*1000000;
-   GTime_Elapsed  :=  GTime_Elapsed + FTime_Elapsed;
+   QueryPerformanceCounter(SolveEndtime);
+   Solve_Time_Elapsed  := ((SolveEndtime-SolveStartTime)/CPU_Freq)*1000000;
+   Total_Time_Elapsed  :=  Total_Time_Elapsed + Solve_Time_Elapsed;
    Iteration := 1;
    LastSolutionWasDirect := TRUE;
 
@@ -1649,7 +1655,7 @@ end;
 
 procedure TSolutionObj.Set_Total_Time(const Value: Double);
 begin
-      GTime_Elapsed :=  Value;
+      Total_Time_Elapsed :=  Value;
 end;
 
 procedure TSolutionObj.SaveVoltages;
@@ -1733,6 +1739,17 @@ END;
 procedure TSolutionObj.Update_dblHour;
 begin
      DynaVars.dblHour := DynaVars.intHour + dynavars.t/3600.0;
+end;
+
+procedure TSolutionObj.UpdateLoopTime;
+begin
+
+// Update Loop time is called from end of time step cleanup
+// Timer is based on beginning of SolveSnap time
+
+   QueryPerformanceCounter(LoopEndtime);
+   Step_Time_Elapsed  := ((LoopEndtime-SolveStartTime)/CPU_Freq)*1000000;
+
 end;
 
 procedure TSolutionObj.UpdateVBus;

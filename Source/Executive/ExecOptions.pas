@@ -140,7 +140,7 @@ Begin
      ExecOption[105] := 'RelayMarkerSize';
      ExecOption[106] := 'ProcessTime';
      ExecOption[107] := 'TotalTime';
-     ExecOption[108] := 'TimeofStep';
+     ExecOption[108] := 'StepTime';
 
 
 
@@ -384,9 +384,9 @@ Begin
      OptionHelp[103] := '{YES/TRUE | NO/FALSE}  Default is NO. Mark Relay locations with a symbol. See RelayMarkerCode and RelayMarkerSize. ';
      OptionHelp[104] := 'Numeric marker code (0..47 see Users Manual) for Relay elements. Default is 17. (Color=Lime)';
      OptionHelp[105] := 'Size of Relay marker. Default is 5.';
-     OptionHelp[106] := 'The time required in microseconds to solve the latest single iteration, this is a read only option';
-     OptionHelp[107] := 'The accumulated time in microseconds to solve the circuit since the last reset';
-     OptionHelp[108] := 'Process time + meters sampling (microseconds),  this is a read only option';
+     OptionHelp[106] := 'The time in microseconds to execute the solve process in the most recent time step or solution (read only)';
+     OptionHelp[107] := 'The accumulated time in microseconds to solve the circuit since the last reset. Set this value to reset the accumulator.';
+     OptionHelp[108] := 'Process time + meter sampling time in microseconds for most recent time step - (read only)';
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -777,9 +777,9 @@ Begin
           103: If ActiveCircuit.MarkRelays Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
           104: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RelayMarkerCode]));
           105: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RelayMarkerSize]));
-          106: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_Elapsed]));
+          106: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_Solve]));
           107: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Total_Time]));
-          108: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_TimeStep]));
+          108: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_Step]));
          ELSE
            // Ignore excess parameters
          End;
