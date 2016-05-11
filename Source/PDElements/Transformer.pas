@@ -910,9 +910,7 @@ VAR
    i,
    ihvolt   :Integer;
    VFactor  :Double;
-{$IFDEF TRANSDEBUG}
-   F        :Textfile;
-{$ENDIF}
+
 
 Begin
 
@@ -1107,6 +1105,7 @@ PROCEDURE TTransfObj.DumpProperties(Var F:TextFile;Complete:Boolean);
 
 VAR
    i,j:Integer;
+   ZBtemp: Tcmatrix;
 
 Begin
     Inherited DumpProperties(F,Complete);
@@ -1161,6 +1160,25 @@ Begin
     End;
 
     IF Complete THEN Begin
+        Writeln(F);
+        ZBTemp := TCmatrix.CreateMatrix(NumWindings-1);
+        ZBTemp.CopyFrom(ZB);
+        ZBTemp.Invert;
+
+        Writeln(F,'ZB:');
+        WITH ZBTemp Do Begin
+           FOR i := 1 to NumWindings-1 Do Begin
+               FOR j := 1 to i Do Write(F, format('%g ',[GetElement(i,j).re]));
+               Writeln(F);
+           End;
+           FOR i := 1 to NumWindings-1 Do Begin
+               FOR j := 1 to i Do Write(F, format('%g ',[GetElement(i,j).im]));
+               Writeln(F);
+           End;
+        End;  {WITH}
+
+        ZBTemp.Free;
+
         Writeln(F);
         Writeln(F,'ZB: (inverted)');
         WITH ZB Do Begin
@@ -1730,7 +1748,9 @@ Var
     AT         :TcMatrix;
     Yadder     :Complex;
     Rmult      :Double;
-
+{$IFDEF TRANSDEBUG}
+   F        :Textfile;
+{$ENDIF}
     {Function to fix a specification of a pu tap of 0.0}
     {Regcontrol can attempt to force zero tap position in some models}
     function ZeroTapFix(const tapvalue:Double):Double;
@@ -1832,7 +1852,7 @@ begin
 {******************************DEBUG******************************************************}
 {$IFDEF TRANSDEBUG}
      Writeln(F,'Y_OneVolt ...');
-     DumpComplexMatrix(F, Y_OneVolt);
+     DumpComplexMatrix(F, Y_1Volt);
 {$ENDIF}
 {*****************************************************************************************}
    // should have admittance of one phase of the transformer on a one-volt, wye-connected base
@@ -1873,7 +1893,7 @@ begin
 {******************************DEBUG******************************************************}
 {$IFDEF TRANSDEBUG}
      Writeln(F,'Y_Terminal before adding small element to diagonals ...');
-     DumpComplexMatrix(F, Y_Terminal);
+     DumpComplexMatrix(F, Y_Term);
 {$ENDIF}
 {*****************************************************************************************}
 
@@ -1892,7 +1912,7 @@ begin
 {******************************DEBUG******************************************************}
 {$IFDEF TRANSDEBUG}
      Writeln(F,'Y_Terminal after adding small element to diagonals ...');
-     DumpComplexMatrix(F, Y_Terminal);
+     DumpComplexMatrix(F, Y_Term);
      CloseFile(F);
 {$ENDIF}
 {*****************************************************************************************}
