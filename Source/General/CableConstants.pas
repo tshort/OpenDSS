@@ -78,6 +78,8 @@ var
 begin
   Result := FALSE;
 
+(*   Height of cable doesn't matter
+  Removed 5-25-2016 RcD
   For i := 1 to FNumConds do Begin
     if (FY^[i] >= 0.0) then Begin
       Result := TRUE;
@@ -86,7 +88,7 @@ begin
       Exit
     End;
   End;
-
+*)
   For i := 1 to FNumConds do Begin
     if i <= FNumPhases then Ri := FRadius^[i] else Ri := 0.5 * FDiaCable^[i];
     for j := i+1 to FNumConds do Begin
