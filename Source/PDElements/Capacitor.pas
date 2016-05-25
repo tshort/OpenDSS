@@ -739,8 +739,8 @@ begin
 
        // Override Inherited properties
        //  Override Inherited properties
-     PropertyValue[NumPropsThisClass + 1] := Str_Real(Normamps, 0   );
-     PropertyValue[NumPropsThisClass + 2] := Str_Real(Emergamps, 0    );
+     PropertyValue[NumPropsThisClass + 1] := Format('%g',[Normamps]  );
+     PropertyValue[NumPropsThisClass + 2] := Format('%g',[Emergamps]  );
      PropertyValue[NumPropsThisClass + 3] := Str_Real(FaultRate, 0    );
      PropertyValue[NumPropsThisClass + 4] := Str_Real(PctPerm, 0      );
      PropertyValue[NumPropsThisClass + 5] := Str_Real(HrsToRepair, 0 );
@@ -1067,6 +1067,8 @@ begin
        10: Result := GetDSSArray_Real(FNumSteps, FXL);
        11: Result := GetDSSArray_Real(FNumSteps, Fharm);
        13: Result  := GetDSSArray_Integer(FNumSteps, FStates);
+       14: Result := Format('%g',[Normamps]  );
+       15: Result := Format('%g',[Emergamps]  );
     ELSE
        Result := Inherited GetPropertyValue(index);
     END;
