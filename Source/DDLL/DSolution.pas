@@ -369,7 +369,7 @@ begin
   end;
   24: begin // Solution.Process_Time
       If ActiveCircuit <> Nil Then Begin
-          Result  :=  ActiveCircuit.Solution.Time_Elapsed;
+          Result  :=  ActiveCircuit.Solution.Time_Solve;
       End;
   end;
   25: begin // Solution.Total_Time read
@@ -384,7 +384,7 @@ begin
   end;
   27: begin // Solution.Time_TimeStep
       If ActiveCircuit <> Nil Then Begin
-          Result  :=  ActiveCircuit.Solution.Time_TimeStep;
+          Result  :=  ActiveCircuit.Solution.Time_Step;
       End;
   end
   else
