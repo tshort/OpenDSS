@@ -1491,22 +1491,27 @@ begin
     V    := Vterminal^[i];
     VMag := Cabs(V);
 
-    if      VMag <= VBase95 then Curr := Cmul(Yeq95,  V)
-    else if VMag > VBase105 then Curr := Cmul(Yeq105, V)
-    else begin
-      CurrZ := Cmul(Cmplx(Yeq.re*ZIPV^[1],Yeq.im*ZIPV^[4]), Vterminal^[i]);
-      CurrI := Conjg(Cdiv(Cmplx(WNominal*ZIPV^[2],varNominal*ZIPV^[5]), CMulReal(CDivReal(V, Cabs(V)), Vbase)));
-      CurrP := Conjg(Cdiv(Cmplx(WNominal*ZIPV^[3],varNominal*ZIPV^[6]), V));
-      Curr := CAdd (CurrZ, CAdd (CurrI, CurrP));
-    end;
+    { May 31, 2016 changed to linear model below VbaseLow -- converges better for low voltage}
+    if      VMag <= VBaseLow THEN Curr := Cmul(Yeq,    V)  // Below VbaseZ resort to linear equal to Yprim contribution
+    else
+    Begin
+        if VMag <= VBase95  THEN Curr := Cmul(InterpolateY95_YLow(Vmag), V)   //  Voltage between Vminpu and Vlow
+        else if VMag > VBase105 then Curr := Cmul(Yeq105, V)
+        else begin
+          CurrZ := Cmul(Cmplx(Yeq.re*ZIPV^[1],Yeq.im*ZIPV^[4]), Vterminal^[i]);
+          CurrI := Conjg(Cdiv(Cmplx(WNominal*ZIPV^[2],varNominal*ZIPV^[5]), CMulReal(CDivReal(V, Cabs(V)), Vbase)));
+          CurrP := Conjg(Cdiv(Cmplx(WNominal*ZIPV^[3],varNominal*ZIPV^[6]), V));
+          Curr := CAdd (CurrZ, CAdd (CurrI, CurrP));
+        end;
 
-    // low-voltage drop-out
-    if ZIPV^[7] > 0.0 then begin
-      vx := 500.0 * (Vmag / Vbase - ZIPV^[7]);
-      evx := exp (2 * vx);
-      yv := 0.5 * (1 + (evx-1)/(evx+1));
-      Curr := CMulReal (Curr, yv);
-    end;
+        // low-voltage drop-out
+        if ZIPV^[7] > 0.0 then begin
+          vx := 500.0 * (Vmag / Vbase - ZIPV^[7]);
+          evx := exp (2 * vx);
+          yv := 0.5 * (1 + (evx-1)/(evx+1));
+          Curr := CMulReal (Curr, yv);
+        end;
+    End;
 
     // Save this value in case the Load value is different than the terminal value (see InitHarmonics)
     FPhaseCurr^[i] := Curr;
