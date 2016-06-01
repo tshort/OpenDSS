@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 5/3/2016 7:14:17 AM from Type Library described below.
+// File generated on 6/1/2016 12:05:19 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -2289,6 +2289,11 @@ type
     function Get_SwitchedTerm: Integer; safecall;
     procedure Set_SwitchedTerm(Value: Integer); safecall;
     function Get_Count: Integer; safecall;
+    function Get_NormalState: ActionCodes; safecall;
+    procedure Set_NormalState(Value: ActionCodes); safecall;
+    function Get_State: ActionCodes; safecall;
+    procedure Set_State(Value: ActionCodes); safecall;
+    procedure Reset; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property Name: WideString read Get_Name write Set_Name;
     property First: Integer read Get_First;
@@ -2299,6 +2304,8 @@ type
     property SwitchedObj: WideString read Get_SwitchedObj write Set_SwitchedObj;
     property SwitchedTerm: Integer read Get_SwitchedTerm write Set_SwitchedTerm;
     property Count: Integer read Get_Count;
+    property NormalState: ActionCodes read Get_NormalState write Set_NormalState;
+    property State: ActionCodes read Get_State write Set_State;
   end;
 
 // *********************************************************************//
@@ -2318,6 +2325,9 @@ type
     property SwitchedObj: WideString dispid 208;
     property SwitchedTerm: Integer dispid 209;
     property Count: Integer readonly dispid 210;
+    property NormalState: ActionCodes dispid 211;
+    property State: ActionCodes dispid 212;
+    procedure Reset; dispid 213;
   end;
 
 // *********************************************************************//

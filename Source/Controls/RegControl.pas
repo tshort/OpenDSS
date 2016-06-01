@@ -110,9 +110,9 @@ TYPE
         PROCEDURE RegWriteTraceRecord(TapChangeMade:Double);
         PROCEDURE RegWriteDebugRecord(S:String);
         procedure set_PendingTapChange(const Value: Double);
-        FUNCTION AtLeastOneTap(Const ProposedChange:Double; Increment:Double):Double;
-        Function ComputeTimeDelay(Vavg:Double):Double;
-        Function GetControlVoltage(VBuffer:pComplexArray; Nphs:Integer; PTRatio:Double ):Complex;
+        FUNCTION  AtLeastOneTap(Const ProposedChange:Double; Increment:Double):Double;
+        Function  ComputeTimeDelay(Vavg:Double):Double;
+        Function  GetControlVoltage(VBuffer:pComplexArray; Nphs:Integer; PTRatio:Double ):Complex;
         Procedure Set_TapNum(const Value: Integer);
 
      public

@@ -12,6 +12,8 @@ interface
 uses
   ComObj, ActiveX, OpenDSSengine_TLB, StdVcl;
 
+
+
 type
   TSwtControls = class(TAutoObject, ISwtControls)
   protected
@@ -31,6 +33,11 @@ type
     procedure Set_SwitchedObj(const Value: WideString); safecall;
     procedure Set_SwitchedTerm(Value: Integer); safecall;
     function Get_Count: Integer; safecall;
+    function Get_NormalState: ActionCodes; safecall;
+    procedure Set_NormalState(Value: ActionCodes); safecall;
+    function Get_State: ActionCodes; safecall;
+    procedure Set_State(Value: ActionCodes); safecall;
+    procedure Reset; safecall;
 
   end;
 
@@ -62,8 +69,8 @@ begin
   elem := ActiveSwtControl;
   if elem <> nil then begin
     Case elem.CurrentAction of
-      CTRL_CLOSE: Result := dssActionClose;
       CTRL_OPEN: Result := dssActionOpen;
+      CTRL_CLOSE: Result := dssActionClose;
     End;
   end;
 end;
@@ -103,7 +110,7 @@ end;
 function TSwtControls.Get_First: Integer;
 Var
   elem: TSwtControlObj;
-  lst: TPointerList;
+  lst:  TPointerList;
 Begin
   Result := 0;
   If ActiveCircuit <> Nil Then begin
@@ -127,7 +134,7 @@ var
 begin
   Result := FALSE;
   elem := ActiveSwtControl;
-  if elem <> nil then Result := elem.IsIsolated;
+  if elem <> nil then Result := elem.IsLocked;   // Fixed bug here
 end;
 
 function TSwtControls.Get_Name: WideString;
@@ -185,30 +192,41 @@ begin
   elem := ActiveSwtControl;
   if elem <> nil then begin
     Case Value of
-      dssActionOpen: Set_Parameter('Action', 'o');
-      dssActionClose: Set_Parameter('Action', 'c');
-      dssActionReset: begin  // Reset means the shelf state
-        Set_Parameter('Lock', 'n');
-        Set_Parameter('Action', 'c');
-      end;
-      dssActionLock: Set_Parameter('Lock', 'y');
-      dssActionUnlock: Set_Parameter('Lock', 'n');
+      dssActionOpen:  elem.CurrentAction := CTRL_OPEN;
+      dssActionClose: elem.CurrentAction := CTRL_CLOSE;
+      dssActionReset: elem.Reset;
+      dssActionLock:  elem.Locked := TRUE;
+      dssActionUnlock: elem.Locked := FALSE;
       else // TapUp, TapDown, None have no effect
     End;
+    // Make sure the NormalState has an initial value  before taking action
+    if elem.NormalState = CTRL_NONE then
+       case value of
+          dssActionOpen:  elem.NormalState := CTRL_OPEN;
+          dssActionClose: elem.NormalState := CTRL_CLOSE;
+       end;
   end;
 end;
 
 procedure TSwtControls.Set_Delay(Value: Double);
+var
+  elem: TSwtControlObj;
 begin
-  Set_Parameter ('Delay', FloatToStr (Value));
+  elem := ActiveSwtControl;
+  if elem <> nil then begin
+      elem.TimeDelay  := Value;
+  end;
 end;
 
 procedure TSwtControls.Set_IsLocked(Value: WordBool);
+var
+  elem: TSwtControlObj;
 begin
-  If Value = TRUE then
-    Set_Parameter ('Lock', 'y')
-  else
-    Set_Parameter ('Lock', 'n');
+  elem := ActiveSwtControl;
+  if elem <> nil then begin
+      elem.Locked := Value;
+  end;
+
 end;
 
 procedure TSwtControls.Set_Name(const Value: WideString);
@@ -255,6 +273,74 @@ function TSwtControls.Get_Count: Integer;
 begin
      If Assigned(ActiveCircuit) Then
              Result := ActiveCircuit.SwtControls.ListSize;
+end;
+
+function TSwtControls.Get_NormalState: ActionCodes;
+Var
+  elem: TSwtControlObj;
+begin
+  elem := ActiveSwtControl;
+  if elem <> nil then begin
+      case elem.NormalState  of
+        CTRL_OPEN: Result := dssActionOpen;
+      else
+        Result := dssActionClose;
+      end;
+  end;
+
+end;
+
+procedure TSwtControls.Set_NormalState(Value: ActionCodes);
+Var
+  elem: TSwtControlObj;
+begin
+  elem := ActiveSwtControl;
+  if elem <> nil then begin
+     case Value of
+         dssActionOpen:  elem.NormalState := CTRL_OPEN;
+     else
+         elem.NormalState := CTRL_CLOSE;
+     end;
+  end;
+end;
+
+function TSwtControls.Get_State: ActionCodes;
+var
+  elem: TSwtControlObj;
+begin
+  Result := dssActionNone;
+  elem   := ActiveSwtControl;
+  if elem <> nil then begin
+    Case elem.PresentState   of
+      CTRL_OPEN:  Result := dssActionOpen;
+      CTRL_CLOSE: Result := dssActionClose;
+    End;
+  end;
+end;
+
+procedure TSwtControls.Set_State(Value: ActionCodes);
+var
+  elem: TSwtControlObj;
+begin
+  elem   := ActiveSwtControl;
+  if elem <> nil then begin
+    Case value   of
+      dssActionOpen:  elem.PresentState := CTRL_OPEN;
+      dssActionClose: elem.PresentState := CTRL_CLOSE;
+    End;
+  end;
+
+end;
+
+procedure TSwtControls.Reset;
+var
+  elem: TSwtControlObj;
+begin
+  elem   := ActiveSwtControl;
+  if elem <> nil then begin
+      elem.Locked := FALSE;
+      elem.Reset;
+  end;
 end;
 
 initialization
