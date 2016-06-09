@@ -2383,7 +2383,7 @@ Begin
     Finally
    // Writeln(F, 'Set allowduplicates=no');
     CloseFile(F);
-
+    SetlastResultFile(Fname);
     End;
 
 End;
