@@ -814,13 +814,16 @@ End;
 PROCEDURE TDSSCktElement.DoYprimCalcs(Ymatrix: TCMatrix);
 
 Var i, j, k , ii, jj,  ElimRow :Integer;
-    Ynn, Yij, Yin, Ynj    :Complex;
+    Ynn, Yij, Yin, Ynj  :Complex;
     RowEliminated :pIntegerArray;
     ElementOpen   :Boolean;
+    cEpsilon      :Complex;
 
 Begin
-     {Now Account for Open Conductors}
-     {For any conductor that is open, zero out row and column}
+     {Now Account for Open Conductors
+      Perform a Kron Reduction on rows where I is forced to zero.
+      Then for any conductor that is open, zero out row and column.
+      }
      With Ymatrix DO Begin
        ElementOpen := False;
        k := 0;
@@ -830,6 +833,7 @@ Begin
                 If Not ElementOpen Then Begin
                     RowEliminated := AllocMem(Sizeof(RowEliminated^[1])*Yorder);
                     ElementOpen := True;
+                    cEpsilon := Cmplx(EPSILON, 0.0);
                 End;
                 // First do Kron Reduction
                 ElimRow := j+k;
@@ -850,12 +854,22 @@ Begin
                 // Now zero out row and column
                 ZeroRow(ElimRow);
                 ZeroCol(ElimRow);
-                SetElement(ElimRow, ElimRow, Cmplx(EPSILON, 0.0));  // In case node gets isolated
+                // put a small amount on the diagonal in case node gets isolated
+                SetElement(ElimRow, ElimRow, cEpsilon);
              End;
          End;
          k := k+Fnconds;
        End;
-       If ElementOpen Then Reallocmem(RowEliminated,0);
+       { Clean up at end of loop.
+         Add in cEpsilon to diagonal elements of remaining rows to avoid leaving a bus hanging.
+         This happens on low-impedance simple from-to elements when one terminal opened.
+       }
+       If ElementOpen Then Begin
+          for ii := 1 to Yorder do
+              if RowEliminated^[ii] =0 then  AddElement(ii, ii, cEpsilon);
+
+          Reallocmem(RowEliminated,0);
+       End;
      End;
 end;
 
