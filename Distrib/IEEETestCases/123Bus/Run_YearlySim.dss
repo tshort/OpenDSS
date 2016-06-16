@@ -3,7 +3,7 @@
 
 // define base 123-bus test feeder circuit
 // Change the path for the actual location of the 123Bus Folder
-Compile "C:\opendss\IEEETestCases\123Bus\IEEE123Master.dss"
+Compile "IEEE123Master.dss"
 
 solve
 
@@ -11,7 +11,7 @@ Buscoords buscoords.dat
 
 // Define a yearly loadshape  "loadshape1"
 // Change the path for the actual location of the example loadshape file
-Redirect   "C:\OpenDSS\Examples\Loadshapes\Loadshape1.dss"
+Redirect  "C:\Users\prdu001\OpenDSS\Distrib\Examples\Loadshapes\LoadShape1.DSS"
 
 // New command added by McDermott in 2011
 // Uses PERL syntax to do global changes on items of the same class
@@ -24,6 +24,7 @@ solve
 
 // put a monitor on a regulator to watch taps
 New Monitor.taps transformer.reg1a 2 mode=2
+New monitor.timesteps vsource.source 1 mode=5
 
 // -----------------YEARLY SIMULATION WITH DEMAND INTERVAL METERING -----------------------------------------
 
@@ -35,7 +36,7 @@ Set voltexcept=true
 set demand=true
 set DIVerbose=true
 
-Set Year=1
+Set Year=1 Number= 720
 solve 
 closedi   !  don't forget to close the meter file !!
 
