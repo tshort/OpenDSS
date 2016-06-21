@@ -406,7 +406,7 @@ var
 begin
   try
     with ActiveCircuit.Solution do begin
-      for i := 1 to Yorder do Vterminal^[i] := NodeV^[NodeRef^[i]];
+      ComputeVTerminal;
       // add the injection currents from both AC and DC nodes, to the
       // currents from Yprim elements, which should be zero at the DC nodes
       YPrim.MVMult(Curr, Vterminal);
@@ -447,20 +447,19 @@ begin
   ComputeVterminal;
   ITerminalUpdated := FALSE;
   GetTerminalCurrents (ITerminal);
-  for i := 1 to Nac do begin
-    Itmag := cabs(Iterminal^[i]);
-    if Itmag > Iaclim then begin
-      Itmag := Iaclim / Itmag;
-      Iterminal^[i].re := Iterminal^[i].re * Itmag;
-      Iterminal^[i].im := Iterminal^[i].im * Itmag;
-    end;
-  end;
+//  for i := 1 to Nac do begin
+//    Itmag := cabs(Iterminal^[i]);
+//    if Itmag > Iaclim then begin
+//      Itmag := Iaclim / Itmag;
+//      Iterminal^[i].re := Iterminal^[i].re * Itmag;
+//      Iterminal^[i].im := Iterminal^[i].im * Itmag;
+//    end;
+//  end;
 
   // do the AC voltage source injection - dependent voltage sources kept in ComplexBuffer
   Vdc := Vterminal^[FNphases];
   if (Vdc.re = 0.0) and (Vdc.im = 0.0) then Vdc.re := 1000.0 * FkVdc;
   Vmag := CMulReal (Vdc, 0.353553 * Fm);
-//  Vmag := cmplx (8000, 0);
   RotatePhasorDeg(Vmag, 1.0, Fd);
   ComplexBuffer^[1] := Vmag;
   Deg := -360.0 / Nac;
@@ -475,7 +474,8 @@ begin
   Stotal.re := 0.0;
   Stotal.im := 0.0;
   for i := 1 to Nac do begin
-    Sphase := Cmul (ComplexBuffer^[i], Conjg(LastCurrents^[i]));
+//    Sphase := Cmul (ComplexBuffer^[i], Conjg(LastCurrents^[i]));
+    Sphase := Cmul (ComplexBuffer^[i], Conjg(Iterminal^[i]));
     Stotal := Cadd (Stotal, Sphase);
   end;
   Pac := Stotal.re;
@@ -486,7 +486,6 @@ begin
   Idc := Pac / Cabs(Vdc);
   if Idc > Idclim then Idc := Idclim;
   if Idc < -Idclim then Idc := -Idclim;
-//  Idc := 17.7781;
 
   Curr^[FNphases] := cmplx (Idc, 0.0);
   Curr^[2*FNphases] := cmplx (-Idc, 0.0);
