@@ -870,7 +870,7 @@ Begin
     Inc(SolutionCount);    //Unique number for this solution
 
     ZeroInjCurr;   // Side Effect: Allocates InjCurr
-    GetSourceInjCurrents;    // Vsource and Isource only
+    GetSourceInjCurrents;    // Vsource, Isource and VCCS only
 
     {Make the series Y matrix the active matrix}
     IF  hYseries = 0 THEN

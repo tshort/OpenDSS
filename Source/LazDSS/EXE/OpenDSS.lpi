@@ -42,7 +42,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="132">
+    <Units Count="133">
       <Unit0>
         <Filename Value="OpenDSS.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -589,6 +589,11 @@
         <Filename Value="..\Forms\ScriptEdit.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit131>
+      <Unit132>
+        <Filename Value="..\PCElements\vccs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="VCCS"/>
+      </Unit132>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -617,9 +622,6 @@
       </Optimizations>
     </CodeGeneration>
     <Linking>
-      <Debugging>
-        <GenerateDebugInfo Value="False"/>
-      </Debugging>
       <Options>
         <PassLinkerOptions Value="True"/>
         <LinkerOptions Value="-lm -lstdc++ -lgcc_s"/>

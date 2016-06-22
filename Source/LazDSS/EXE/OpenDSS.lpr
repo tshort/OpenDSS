@@ -174,7 +174,8 @@ uses
   UPFC in '..\PCElements\UPFC.pas',
   KLUSolve in '..\Common\KLUSolve.pas',
   ScriptEdit in '..\Forms\ScriptEdit.pas',
-  GenDispatcher in '..\Controls\GenDispatcher.pas';
+  GenDispatcher in '..\Controls\GenDispatcher.pas',
+  VCCS in '..\PCElements\vccs.pas';
 
 begin
   Application.Initialize;

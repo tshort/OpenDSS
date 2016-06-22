@@ -917,7 +917,7 @@ Begin
 End;
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-Function GetSourceFrequency(pc:TPCElement):Double;
+Function GetSourceFrequency(pc:TPCElement):Double; // TODO - vccs has no frequency?
 
 Var
     pVsrc:TVsourceObj;
