@@ -86,6 +86,7 @@ USES
      Line,
      VSource,
      Isource,
+     VCCS,
      LineCode,
      Spectrum,
      WireData,
@@ -178,6 +179,7 @@ Begin
      DSSClasses.New := TLine.Create;
      DSSClasses.New := TVSource.Create;
      DSSClasses.New := TISource.Create;
+     DSSClasses.New := TVCCS.Create;
      DSSClasses.New := TLoad.Create;
      DSSClasses.New := TTransf.Create;
      DSSClasses.New := TRegControl.Create;

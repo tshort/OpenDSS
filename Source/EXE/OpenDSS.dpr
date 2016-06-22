@@ -177,7 +177,8 @@ uses
   UPFC in '..\PCElements\UPFC.pas',
   GenDispatcher in '..\Controls\GenDispatcher.pas',
   KLUSolve in '..\Common\KLUSolve.pas',
-  ScriptEdit in '..\Forms\ScriptEdit.pas';
+  ScriptEdit in '..\Forms\ScriptEdit.pas',
+  vccs in '..\PCElements\vccs.pas';
 
 {$R *.RES}
 
@@ -203,7 +204,7 @@ begin
     {Instantiate basic forms}
     Application.CreateForm(TControlPanel, ControlPanel);
   Application.CreateForm(TTViewForm, TViewForm);
-//  Application.CreateForm(TMainEditForm, MainEditForm);
+  //  Application.CreateForm(TMainEditForm, MainEditForm);
   Application.CreateForm(TProgress, Progress);
   Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
   Application.CreateForm(TListBoxForm, ListBoxForm);
