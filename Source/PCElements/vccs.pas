@@ -4,10 +4,9 @@ unit VCCS;
 
 interface
 
-USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, XYCurve;
+USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, XYCurve, ArrayDef;
 
 TYPE
-// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
    TVCCS = CLASS(TPCClass)
      private
        XY_CurveClass: TDSSClass;
@@ -23,7 +22,6 @@ TYPE
        Function NewObject(const ObjName:String):Integer; override;
    End;
 
-// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
    TVCCSObj = class(TPCElement)
      private
         Fbp1: TXYcurveObj;
@@ -49,20 +47,25 @@ TYPE
 
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
         Procedure DumpProperties(Var F:TextFile; Complete:Boolean); Override;
+
+        // Support for Dynamics Mode
+        Procedure InitStateVars; Override;
+        Procedure IntegrateStates; Override;
+        Function NumVariables:Integer; Override;
+        Procedure GetAllVariables(States:pDoubleArray); Override;
+        Function VariableName(i:Integer):String; Override;
    End;
 
 VAR
     ActiveVCCSObj:TVCCSObj;
     VCCSClass:TVCCS;
 
-// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 implementation
 
 USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command;
 
 Var  NumPropsThisClass:Integer;
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TVCCS.Create;  // Creates superstructure for all Line objects
 Begin
      Inherited Create;
@@ -80,16 +83,11 @@ Begin
      VCCSClass := Self;
 End;
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Destructor TVCCS.Destroy;
-
 Begin
-    // ElementList and  CommandList freed in inherited destroy
     Inherited Destroy;
-
 End;
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Procedure TVCCS.DefineProperties;
 Begin
      NumPropsThisClass := 8;
@@ -97,7 +95,6 @@ Begin
      Numproperties := NumPropsThisClass;
      CountProperties;   // Get inherited property count
      AllocatePropertyArrays;
-
 
      // Define Property names
      PropertyName[1] := 'bus1';
@@ -124,38 +121,28 @@ Begin
 
      // Override help string
      PropertyHelp[NumPropsThisClass+1] := 'Harmonic spectrum assumed for this source.  Default is "default".';
-
 End;
 
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Function TVCCS.NewObject(const ObjName:String):Integer;
 Begin
-    // Make a new dependent current source and add it to VCCS class list
-    With ActiveCircuit Do
-    Begin
+    With ActiveCircuit Do Begin
       ActiveCktElement := TVCCSObj.Create(Self, ObjName);
       Result := AddObjectToList(ActiveDSSObject);
     End;
 End;
 
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Function TVCCS.Edit:Integer;
 VAR
    ParamPointer :Integer;
    ParamName,
    Param        :String;
-
 Begin
   // continue parsing with contents of Parser
   ActiveVCCSObj            := ElementList.Active;
   ActiveCircuit.ActiveCktElement := ActiveVCCSObj;
-
   Result := 0;
 
   WITH ActiveVCCSObj DO Begin
-
      ParamPointer := 0;
      ParamName := Parser.NextParam;
      Param     := Parser.StrValue;
@@ -199,222 +186,200 @@ Begin
          ParamName := Parser.NextParam;
          Param     := Parser.StrValue;
      End;
-
      RecalcElementData;
      YPrimInvalid := True;
   End;
-
 End;
 
 //----------------------------------------------------------------------------
 Function TVCCS.MakeLike(Const OtherSource:String):Integer;
-VAR
-   OtherVCCS :TVCCSObj;
-   i :Integer;
-
+var
+  OtherVCCS :TVCCSObj;
+  i :Integer;
 Begin
-   Result := 0;
-   {See if we can find this line name in the present collection}
-   OtherVCCS := Find(OtherSource);
-   IF   OtherVCCS <> Nil THEN
-   WITH ActiveVCCSObj DO Begin
+  Result := 0;
+  {See if we can find this line name in the present collection}
+  OtherVCCS := Find(OtherSource);
+  IF   OtherVCCS <> Nil THEN
+    WITH ActiveVCCSObj DO Begin
+      IF Fnphases <> OtherVCCS.Fnphases THEN Begin
+        Nphases := OtherVCCS.Fnphases;
+        NConds  := Fnphases;  // Forces reallocation of terminal stuff
 
-       IF Fnphases <> OtherVCCS.Fnphases THEN Begin
-           Nphases := OtherVCCS.Fnphases;
-           NConds  := Fnphases;  // Forces reallocation of terminal stuff
+        Yorder := Fnconds * Fnterms;
+        YPrimInvalid := True;
+      End;
+      Prated := OtherVCCS.Prated;
+      Vrated := OtherVCCS.Vrated;
+      Ppct := OtherVCCS.Ppct;
+      Fbp1 := OtherVCCS.Fbp1;
+      Fbp2 := OtherVCCS.Fbp2;
+      Ffilter := OtherVCCS.Ffilter;
+      Fbp1_name := OtherVCCS.Fbp1_name;
+      Fbp2_name := OtherVCCS.Fbp2_name;
+      Ffilter_name := OtherVCCS.Ffilter_name;
 
-           Yorder := Fnconds * Fnterms;
-           YPrimInvalid := True;
-       End;
+      ClassMakeLike(OtherVCCS); // set spectrum,  base frequency
 
-       Prated := OtherVCCS.Prated;
-       Vrated := OtherVCCS.Vrated;
-       Ppct := OtherVCCS.Ppct;
-       Fbp1 := OtherVCCS.Fbp1;
-       Fbp2 := OtherVCCS.Fbp2;
-       Ffilter := OtherVCCS.Ffilter;
-       Fbp1_name := OtherVCCS.Fbp1_name;
-       Fbp2_name := OtherVCCS.Fbp2_name;
-       Ffilter_name := OtherVCCS.Ffilter_name;
-
-       ClassMakeLike(OtherVCCS); // set spectrum,  base frequency
-
-       For i := 1 to ParentClass.NumProperties Do PropertyValue[i] := OtherVCCS.PropertyValue[i];
-       Result := 1;
-   End
-   ELSE  DoSimpleMsg('Error in VCCS MakeLike: "' + OtherSource + '" Not Found.', 332);
-
+      For i := 1 to ParentClass.NumProperties Do PropertyValue[i] := OtherVCCS.PropertyValue[i];
+      Result := 1;
+    End
+  ELSE DoSimpleMsg('Error in VCCS MakeLike: "' + OtherSource + '" Not Found.', 332);
 End;
 
-//----------------------------------------------------------------------------
 Function TVCCS.Init(Handle:Integer):Integer;
-
 Begin
-   DoSimpleMsg('Need to implement TVCCS.Init', -1);
-   Result := 0;
+  DoSimpleMsg('Need to implement TVCCS.Init', -1);
+  Result := 0;
 End;
 
-//----------------------------------------------------------------------------
 Constructor TVCCSObj.Create(ParClass:TDSSClass; const SourceName:String);
 Begin
-     Inherited create(ParClass);
-     Name := LowerCase(SourceName);
-     DSSObjType := ParClass.DSSClassType; // SOURCE + NON_PCPD_ELEM;  // Don't want this in PC Element List
+  Inherited create(ParClass);
+  Name := LowerCase(SourceName);
+  DSSObjType := ParClass.DSSClassType; // SOURCE + NON_PCPD_ELEM;  // Don't want this in PC Element List
 
-     Nphases := 1;
-     Fnconds := 1;
-     Nterms  := 1;
+  Nphases := 1;
+  Fnconds := 1;
+  Nterms  := 1;
 
-     Prated := 250.0;
-     Vrated := 208.0;
-     Ppct := 100.0;
+  Prated := 250.0;
+  Vrated := 208.0;
+  Ppct := 100.0;
 
-     InitPropertyValues(0);
+  InitPropertyValues(0);
 
-
-     Yorder := Fnterms * Fnconds;
-     RecalcElementData;
-
+  Yorder := Fnterms * Fnconds;
+  RecalcElementData;
 End;
 
-
-//----------------------------------------------------------------------------
 Destructor TVCCSObj.Destroy;
 Begin
-    Inherited Destroy;
+  Inherited Destroy;
 End;
 
-//----------------------------------------------------------------------------
 Procedure TVCCSObj.RecalcElementData;
-
-
 Begin
-
-      SpectrumObj := SpectrumClass.Find(Spectrum);
-
-      IF SpectrumObj=NIL Then Begin
-          DoSimpleMsg('Spectrum Object "' + Spectrum + '" for Device VCCS.'+Name+' Not Found.', 333);
-      End;
-
-      Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
-
-      BaseCurr := 0.01 * Ppct * Prated / Vrated / FNphases;
-      if FNPhases = 3 then BaseCurr := BaseCurr * sqrt(3);
+  SpectrumObj := SpectrumClass.Find(Spectrum);
+  if SpectrumObj=NIL Then Begin
+    DoSimpleMsg('Spectrum Object "' + Spectrum + '" for Device VCCS.'+Name+' Not Found.', 333);
+  end;
+  Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
+  BaseCurr := 0.01 * Ppct * Prated / Vrated / FNphases;
+  if FNPhases = 3 then BaseCurr := BaseCurr * sqrt(3);
 End;
 
-//----------------------------------------------------------------------------
 Procedure TVCCSObj.CalcYPrim;
-
-
 Begin
+  // Build only YPrim Series
+  IF YPrimInvalid THEN Begin
+    IF YPrim_Series <> nil Then YPrim_Series.Free;
+    YPrim_Series := TcMatrix.CreateMatrix(Yorder);
+    IF YPrim <> nil Then YPrim.Free;
+    YPrim := TcMatrix.CreateMatrix(Yorder);
+  End ELSE Begin
+    YPrim_Series.Clear;
+    YPrim.Clear;
+  End;
+  {Yprim = 0  for Ideal Current Source;  just leave it zeroed}
 
- // Build only YPrim Series
-     IF YPrimInvalid THEN Begin
-       IF YPrim_Series <> nil Then YPrim_Series.Free;
-       YPrim_Series := TcMatrix.CreateMatrix(Yorder);
-       IF YPrim <> nil Then YPrim.Free;
-       YPrim := TcMatrix.CreateMatrix(Yorder);
-     End
-     ELSE Begin
-          YPrim_Series.Clear;
-          YPrim.Clear;
-     End;
-
-
-     {Yprim = 0  for Ideal Current Source;  just leave it zeroed}
-
-     {Now Account for Open Conductors}
-     {For any conductor that is open, zero out row and column}
-     Inherited CalcYPrim;
-
-     YPrimInvalid := False;
-
+  {Now Account for Open Conductors}
+  {For any conductor that is open, zero out row and column}
+  Inherited CalcYPrim;
+  YPrimInvalid := False;
 End;
 
 Function TVCCSObj.InjCurrents:Integer;
-
 {Sum Currents directly into solution array}
-
 Begin
   GetInjCurrents(InjCurrent);
-
   Result := Inherited Injcurrents;  // Adds into system array
-
 End;
 
 Procedure TVCCSObj.GetCurrents(Curr: pComplexArray);
-
 {Total currents into a device}
-
-VAR
-   i:Integer;
-
+var
+  i:Integer;
 Begin
-
-  TRY
-       GetInjCurrents(ComplexBuffer);  // Get present value of inj currents
-      // Add Together  with yprim currents
-       FOR i := 1 TO Yorder DO Curr^[i] := Cnegate(ComplexBuffer^[i]);
-
-  EXCEPT
+  try
+    GetInjCurrents(ComplexBuffer);  // Get present value of inj currents
+    // Add Together with yprim currents
+    for i := 1 to Yorder do Curr^[i] := Cnegate(ComplexBuffer^[i]);
+  except
     On E: Exception
-    Do DoErrorMsg(('GetCurrents for VCCS Element: ' + Name + '.'), E.Message,
+      Do DoErrorMsg(('GetCurrents for VCCS Element: ' + Name + '.'), E.Message,
         'Inadequate storage allotted for circuit element?', 335);
   End;
-
 End;
 
 Procedure TVCCSObj.GetInjCurrents(Curr:pComplexArray);
-VAR
+var
   i:Integer;
 Begin
   ComputeVterminal;
   For i := 1 to Fnphases Do Begin
-      Curr^[i] := pdegtocomplex (BaseCurr, cdang(Vterminal^[i]));
+    Curr^[i] := pdegtocomplex (BaseCurr, cdang(Vterminal^[i]));
   End;
 End;
 
 Procedure TVCCSObj.DumpProperties(Var F:TextFile; Complete:Boolean);
-
-VAR
-   i:Integer;
-
+var
+  i:Integer;
 Begin
-    Inherited DumpProperties(F,Complete);
-
-    With ParentClass Do
-     For i := 1 to NumProperties Do
-     Begin
-        Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
-     End;
-
-    If Complete Then Begin
-      Writeln(F);
-      Writeln(F);
+  Inherited DumpProperties(F,Complete);
+  With ParentClass Do
+    For i := 1 to NumProperties Do Begin
+      Writeln(F,'~ ',PropertyName^[i],'=',PropertyValue[i]);
     End;
-
+  If Complete Then Begin
+    Writeln(F);
+    Writeln(F);
+  End;
 End;
 
 procedure TVCCSObj.InitPropertyValues(ArrayOffset: Integer);
 begin
-   PropertyValue[1]  := GetBus(1);
-   PropertyValue[2]  := '1';
-   PropertyValue[3]  := '250';
-   PropertyValue[4]  := '208';
-   PropertyValue[5]  := '100';
-   PropertyValue[6]  := 'NONE';
-   PropertyValue[7]  := 'NONE';
-   PropertyValue[8]  := 'NONE';
-   inherited  InitPropertyValues(NumPropsThisClass);
+  PropertyValue[1]  := GetBus(1);
+  PropertyValue[2]  := '1';
+  PropertyValue[3]  := '250';
+  PropertyValue[4]  := '208';
+  PropertyValue[5]  := '100';
+  PropertyValue[6]  := 'NONE';
+  PropertyValue[7]  := 'NONE';
+  PropertyValue[8]  := 'NONE';
+  inherited  InitPropertyValues(NumPropsThisClass);
 end;
 
 procedure TVCCSObj.MakePosSequence;
 begin
   If Fnphases>1 Then Begin
-     Parser.CmdString := 'phases=1';
-     Edit;
+    Parser.CmdString := 'phases=1';
+    Edit;
   End;
   inherited;
+end;
+
+// support for DYNAMICMODE
+procedure TVCCSObj.InitStateVars;
+begin
+end;
+
+procedure TVCCSObj.IntegrateStates;
+begin
+end;
+
+procedure TVCCSObj.GetAllVariables( States: pDoubleArray);
+begin
+end;
+
+function TVCCSObj.NumVariables: Integer;
+begin
+  Result := 0;
+end;
+
+Function TVCCSObj.VariableName(i: Integer):String;
+begin
+  Result := '';
 end;
 
 end.
