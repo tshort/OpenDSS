@@ -959,11 +959,11 @@ BEGIN
                      END;
                      Writeln(F,')');
                   END;
-              13: Writeln(F, Format('Z1=[%-.8g, %-.8g]',[ Z1.re, Z1.im ]));
-              14: Writeln(F, Format('Z2=[%-.8g, %-.8g]',[ Z2.re, Z2.im ]));
-              15: Writeln(F, Format('Z0=[%-.8g, %-.8g]',[ Z0.re, Z0.im ]));
-              16: Writeln(F, Format('Z =[%-.8g, %-.8g]',[ R, X ]));
-              19: Writeln(F, Format('%-.8g', [L * 1000.0]));
+              13: Writeln(F, Format('~ Z1=[%-.8g, %-.8g]',[ Z1.re, Z1.im ]));
+              14: Writeln(F, Format('~ Z2=[%-.8g, %-.8g]',[ Z2.re, Z2.im ]));
+              15: Writeln(F, Format('~ Z0=[%-.8g, %-.8g]',[ Z0.re, Z0.im ]));
+              16: Writeln(F, Format('~ Z =[%-.8g, %-.8g]',[ R, X ]));
+              19: Writeln(F, Format('~ LmH=%-.8g', [L * 1000.0]));
           ELSE
               Writeln(F,'~ ',PropertyName^[k],'=',PropertyValue[k]);
           END;

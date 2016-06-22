@@ -41,6 +41,8 @@ TYPE
        PROCEDURE InterpretAllkVRatings(const S:String);
        PROCEDURE InterpretAllkVARatings(const S:String);
        PROCEDURE InterpretAllRs(const S:String);
+       FUNCTION  TrapZero(const Value:Double; DefaultValue:Double):Double;
+
        {PROCEDURE MakeNewBusNameForNeutral(Var NewBusName:String; Nphases:Integer);}
      Protected
        PROCEDURE DefineProperties;
@@ -457,9 +459,9 @@ Begin
            14: InterpretAllkVRatings(Param);
            15: InterpretAllkVARatings(Param);
            16: InterpretAllTaps(Param);
-           17: XHL :=  parser.Dblvalue * 0.01;
-           18: XHT :=  parser.Dblvalue * 0.01;
-           19: XLT :=  parser.Dblvalue * 0.01;
+           17: XHL :=  TrapZero(parser.Dblvalue, 7.0) * 0.01;
+           18: XHT :=  TrapZero(parser.Dblvalue, 35.0) * 0.01;
+           19: XLT :=  TrapZero(parser.Dblvalue, 30.0) * 0.01;
            20: Parser.ParseAsVector(((NumWindings - 1) * NumWindings div 2), Xsc);
            21: ThermalTimeConst := Parser.DblValue;
            22: n_thermal        := Parser.DblValue;
@@ -481,9 +483,9 @@ Begin
            38: XfmrBank := Param;
            39: FetchXfmrCode (Param);
            40: XRConst := InterpretYesNo(Param);
-           41: XHL :=  parser.Dblvalue * 0.01;
-           42: XHT :=  parser.Dblvalue * 0.01;
-           43: XLT :=  parser.Dblvalue * 0.01;
+           41: XHL :=  TrapZero(parser.Dblvalue, 7.0) * 0.01;
+           42: XHT :=  TrapZero(parser.Dblvalue, 35.0) * 0.01;
+           43: XLT :=  TrapZero(parser.Dblvalue, 30.0) * 0.01;
          ELSE
            // Inherited properties
               ClassEdit(ActiveTransfObj, ParamPointer - NumPropsThisClass)
@@ -547,6 +549,16 @@ Begin
     IF   (w > 0) And (w <= NumWindings) THEN ActiveWinding := w
     ELSE DoSimpleMsg('Wdg parameter invalid for "' + ActiveTransfObj.Name + '"', 112);
 End;
+
+function TTransf.TrapZero(const Value: Double; DefaultValue: Double): Double;
+begin
+     if Value=0.0 then
+     Begin
+       Dosimplemsg('Zero Reactance specified for Transformer.' + ActiveTransfObj.Name, 11201);
+       Result := DefaultValue;
+     End
+     else Result := Value;
+end;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROCEDURE TTransf.InterpretConnection(const S:String);
@@ -910,9 +922,7 @@ VAR
    i,
    ihvolt   :Integer;
    VFactor  :Double;
-{$IFDEF TRANSDEBUG}
-   F        :Textfile;
-{$ENDIF}
+
 
 Begin
 
@@ -1730,7 +1740,9 @@ Var
     AT         :TcMatrix;
     Yadder     :Complex;
     Rmult      :Double;
-
+{$IFDEF TRANSDEBUG}
+   F        :Textfile;
+{$ENDIF}
     {Function to fix a specification of a pu tap of 0.0}
     {Regcontrol can attempt to force zero tap position in some models}
     function ZeroTapFix(const tapvalue:Double):Double;
@@ -1832,7 +1844,7 @@ begin
 {******************************DEBUG******************************************************}
 {$IFDEF TRANSDEBUG}
      Writeln(F,'Y_OneVolt ...');
-     DumpComplexMatrix(F, Y_OneVolt);
+     DumpComplexMatrix(F, Y_1Volt);
 {$ENDIF}
 {*****************************************************************************************}
    // should have admittance of one phase of the transformer on a one-volt, wye-connected base
@@ -1873,7 +1885,7 @@ begin
 {******************************DEBUG******************************************************}
 {$IFDEF TRANSDEBUG}
      Writeln(F,'Y_Terminal before adding small element to diagonals ...');
-     DumpComplexMatrix(F, Y_Terminal);
+     DumpComplexMatrix(F, Y_Term);
 {$ENDIF}
 {*****************************************************************************************}
 
@@ -1892,7 +1904,7 @@ begin
 {******************************DEBUG******************************************************}
 {$IFDEF TRANSDEBUG}
      Writeln(F,'Y_Terminal after adding small element to diagonals ...');
-     DumpComplexMatrix(F, Y_Terminal);
+     DumpComplexMatrix(F, Y_Term);
      CloseFile(F);
 {$ENDIF}
 {*****************************************************************************************}

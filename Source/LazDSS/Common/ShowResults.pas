@@ -41,6 +41,7 @@ Procedure ShowkVBaseMismatch(FileNm:String);
 Procedure ShowDeltaV(FileNm:String);
 Procedure ShowControlledElements(FileNm:String);
 Procedure ShowResult(FileNm:String);
+Procedure ShowEventLog(FileNm:String);
 
 implementation
 
@@ -3496,6 +3497,23 @@ Begin
      ParserVars.Add('@lastshowfile', FileNm);
   End;
 
+
+End;
+
+
+Procedure ShowEventLog(FileNm:String);
+
+
+Begin
+  Try
+
+     EventStrings.SaveToFile(FileNm);
+     GlobalResult := FileNm;
+
+  FINALLY
+     FireOffEditor(FileNm);
+     ParserVars.Add('@lastshowfile', FileNm);
+  End;
 
 End;
 

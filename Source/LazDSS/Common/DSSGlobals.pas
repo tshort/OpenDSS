@@ -209,6 +209,8 @@ VAR
    ClassNames         :THashList;
 
    UpdateRegistry     :Boolean;  // update on program exit
+   CPU_Freq           : int64;          // Used to store the CPU frequency
+   CPU_Cores          : integer;
 
 
 
@@ -775,6 +777,9 @@ initialization
    LogQueries        := FALSE;
    QueryLogFileName  := '';
    UpdateRegistry    := TRUE;
+   CPU_Freq := 1000; // until we can query it
+//   QueryPerformanceFrequency(CPU_Freq);
+   CPU_Cores        :=  CPUCount;
 
 
    //WriteDLLDebugFile('DSSGlobals');

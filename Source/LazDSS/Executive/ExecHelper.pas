@@ -3841,6 +3841,7 @@ FUNCTION DoVarCmd:Integer;
 VAR
    ParamName:String;
    Param:String;
+   Str  : String;
    iVar : Integer;
    MsgStrings : TStringList;
 
@@ -3854,12 +3855,20 @@ Begin
       If Length(Param)=0 Then  // show all vars
       Begin
           If NoFormsAllowed Then Exit;
+          {
           MsgStrings := TStringList.Create;
           MsgStrings.Add('Variable, Value');
           for iVar := 1 to ParserVars.NumVariables  do
               MsgStrings.Add(ParserVars.VarString[iVar] );
           ShowMessageForm(MsgStrings);
-          MsgStrings.Free;
+          MsgStrings.Free;}
+          Str := 'Variable, Value' + CRLF;
+          for iVar := 1 to ParserVars.NumVariables do
+            Str := Str + ParserVars.VarString[iVar]+CRLF;
+
+          DoSimpleMsg(Str, 999345);
+
+
       End Else if Length(ParamName)=0 then   // show value of this var
       Begin
            GlobalResult := Param;  // Parser substitutes @var with value

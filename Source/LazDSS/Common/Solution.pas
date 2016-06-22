@@ -47,6 +47,8 @@ USES
     Dynamics,
     EnergyMeter,
     SysUtils;
+//    Diagnostics,
+//    System.TimeSpan;
 
 CONST
 
@@ -96,6 +98,7 @@ TYPE
        procedure Set_Frequency(const Value: Double);
        PROCEDURE Set_Mode(const Value: Integer);
        procedure Set_Year(const Value: Integer);
+       procedure Set_Total_Time(const Value: Double);
 
      public
 
@@ -144,11 +147,21 @@ TYPE
        VmagSaved : pDoubleArray;
        VoltageBaseChanged : Boolean;
 
-
        {Voltage and Current Arrays}
        NodeV    :pNodeVArray;    // Main System Voltage Array   allows NodeV^[0]=0
        Currents :pNodeVArray;      // Main System Currents Array
 
+//****************************Timing variables**********************************
+       SolveStartTime      : int64;
+       SolveEndtime        : int64;
+       GStartTime     : int64;
+       Gendtime       : int64;
+       LoopEndtime            : int64;
+       Total_Time_Elapsed     : double;
+       Solve_Time_Elapsed     : double;
+       Total_Solve_Time_Elapsed  : double;
+       Step_Time_Elapsed      : double;
+//******************************************************************************
 
        constructor Create(ParClass:TDSSClass; const solutionname:String);
        destructor  Destroy; override;
@@ -184,9 +197,15 @@ TYPE
        PROCEDURE Update_dblHour;
        PROCEDURE Increment_time;
 
+       PROCEDURE UpdateLoopTime;
+
        Property  Mode      :Integer  Read dynavars.SolutionMode Write Set_Mode;
        Property  Frequency :Double   Read FFrequency            Write Set_Frequency;
        Property  Year      :Integer  Read FYear                 Write Set_Year;
+       Property  Time_Solve :Double  Read Solve_Time_Elapsed;
+       Property  Time_TotalSolve:Double  Read Total_Solve_Time_Elapsed;
+       Property  Time_Step:Double      Read Step_Time_Elapsed;     // Solve + sample
+       Property  Total_Time   :Double  Read Total_Time_Elapsed      Write Set_Total_Time;
 
  // Procedures that use to be private before 01-20-2016
 
@@ -452,7 +471,7 @@ Try
 {$ENDIF}
 
     {CheckFaultStatus;  ???? needed here??}
-
+//     QueryPerformanceCounter(GStartTime);
      Case Dynavars.SolutionMode OF
          SNAPSHOT:     SolveSnap;
          YEARLYMODE:   SolveYearly;
@@ -472,11 +491,12 @@ Try
          HARMONICMODE: SolveHarmonic;
          GENERALTIME:  SolveGeneralTime;
          HARMONICMODET:SolveHarmonicT;  //Declares the Hsequential-time harmonics
-
      Else
          DosimpleMsg('Unknown solution mode.', 481);
      End;
-
+//     QueryPerformanceCounter(GEndTime);
+     Total_Solve_Time_Elapsed := ((GEndTime-GStartTime)/CPU_Freq)*1000000;
+     Total_Time_Elapsed := Total_Time_Elapsed + Total_Solve_Time_Elapsed;
 Except
 
     On E:Exception Do Begin
@@ -948,7 +968,7 @@ VAR
 Begin
    SnapShotInit;
    TotalIterations    := 0;
-
+//   QueryPerformanceCounter(SolveStartTime);
    REPEAT
 
        Inc(ControlIteration);
@@ -978,7 +998,8 @@ Begin
 {$IFDEF DLL_ENGINE}
    Fire_StepControls;
 {$ENDIF}
-
+//   QueryPerformanceCounter(SolveEndtime);
+   Solve_Time_Elapsed := ((SolveEndtime-SolveStartTime)/CPU_Freq)*1000000;
    Iteration := TotalIterations;  { so that it reports a more interesting number }
 
 End;
@@ -990,6 +1011,7 @@ Begin
    Result := 0;
 
    LoadsNeedUpdating := TRUE;  // Force possible update of loads and generators
+//   QueryPerformanceCounter(SolveStartTime);
 
    If SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, TRUE);   // Side Effect: Allocates V
 
@@ -1008,6 +1030,9 @@ Begin
        ConvergedFlag := TRUE;
    End;
 
+//   QueryPerformanceCounter(SolveEndtime);
+   Solve_Time_Elapsed  := ((SolveEndtime-SolveStartTime)/CPU_Freq)*1000000;
+   Total_Time_Elapsed  :=  Total_Time_Elapsed + Solve_Time_Elapsed;
    Iteration := 1;
    LastSolutionWasDirect := TRUE;
 
@@ -1627,6 +1652,11 @@ begin
       EnergyMeterClass.ResetAll;  // force any previous year data to complete
 end;
 
+procedure TSolutionObj.Set_Total_Time(const Value: Double);
+begin
+      Total_Time_Elapsed :=  Value;
+end;
+
 procedure TSolutionObj.SaveVoltages;
 
 Var F:TextFile;
@@ -1708,6 +1738,17 @@ END;
 procedure TSolutionObj.Update_dblHour;
 begin
      DynaVars.dblHour := DynaVars.intHour + dynavars.t/3600.0;
+end;
+
+procedure TSolutionObj.UpdateLoopTime;
+begin
+
+// Update Loop time is called from end of time step cleanup
+// Timer is based on beginning of SolveSnap time
+
+//   QueryPerformanceCounter(LoopEndtime);
+   Step_Time_Elapsed  := ((LoopEndtime-SolveStartTime)/CPU_Freq)*1000000;
+
 end;
 
 procedure TSolutionObj.UpdateVBus;

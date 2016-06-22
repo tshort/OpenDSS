@@ -230,8 +230,8 @@ Begin
 //          MessageForm1.Editor.Lines := S;
 //          MessageForm1.WindowState := wsNormal;
 //          MessageForm1.Show;
-  ControlPanel.MessageEdit.Clear;
-  ControlPanel.MessageEdit.Lines := s;
+  ControlPanel.ResultsEdit.Clear;
+  ControlPanel.ResultsEdit.Lines := s;
 End;
 
 Procedure ShowPropEditForm;

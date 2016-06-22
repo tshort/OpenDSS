@@ -104,6 +104,7 @@ TYPE
 
        Procedure ResetAll;   Override;
        Procedure SampleAll;  Override;  // Force all monitors to take a sample
+       Procedure SampleAllMode5;  // Sample just Mode 5 monitors
        Procedure SaveAll;    Override;   // Force all monitors to save their buffers to disk
        Procedure PostProcessAll;
        Procedure TOPExport(Objname:String);
@@ -203,7 +204,7 @@ CONST
     MODEMASK = 15;
 
     NumPropsThisClass = 7;
-    NumSolutionVars = 10;
+    NumSolutionVars = 12;
 
 VAR
     StrBuffer:TMonitorStrBuffer;
@@ -380,11 +381,27 @@ Procedure TDSSMonitor.SampleAll;  // Force all monitors in the circuit to take a
 
 VAR
    Mon:TMonitorObj;
-
+// sample all monitors except mode 5 monitors
 Begin
       Mon := ActiveCircuit.Monitors.First;
       WHILE Mon<>Nil DO  Begin
-          If Mon.enabled Then Mon.TakeSample;
+          If Mon.enabled Then
+             If Mon.Mode <> 5 then Mon.TakeSample;
+          Mon := ActiveCircuit.Monitors.Next;
+      End;
+End;
+
+{--------------------------------------------------------------------------}
+Procedure TDSSMonitor.SampleAllMode5;  // Force all mode=5 monitors in the circuit to take a sample
+
+VAR
+   Mon:TMonitorObj;
+// sample all Mode 5 monitors except monitors
+Begin
+      Mon := ActiveCircuit.Monitors.First;
+      WHILE Mon<>Nil DO  Begin
+          If Mon.enabled Then
+             If Mon.Mode = 5 then Mon.TakeSample;
           Mon := ActiveCircuit.Monitors.Next;
       End;
 End;
@@ -717,7 +734,7 @@ Begin
         End;
      5: Begin
              RecordSize := NumSolutionVars;
-             strLcat(strPtr, pAnsichar('Iteration, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('TotalIterations, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('ControlIteration, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('MaxIterations, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('MaxControlIterations, '), Sizeof(TMonitorStrBuffer));
@@ -727,6 +744,8 @@ Begin
              strLcat(strPtr, pAnsichar('Mode, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Frequency, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('Year, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('SolveSnap_uSecs, '), Sizeof(TMonitorStrBuffer));
+             strLcat(strPtr, pAnsichar('TimeStep_uSecs, '), Sizeof(TMonitorStrBuffer));
         End
      Else Begin
          // Compute RecordSize
@@ -1029,16 +1048,18 @@ Begin
      5: Begin
             (* Capture Solution Variables *)
             With ActiveCircuit.Solution Do Begin
-             SolutionBuffer^[1] := Iteration;
-             SolutionBuffer^[2] := ControlIteration;
-             SolutionBuffer^[3] := MaxIterations;
-             SolutionBuffer^[4] := MaxControlIterations;
-             If ConvergedFlag then SolutionBuffer^[5] := 1 else SolutionBuffer^[3] := 0;
-             SolutionBuffer^[6] := IntervalHrs;
-             SolutionBuffer^[7] := SolutionCount;
-             SolutionBuffer^[8] := Mode;
-             SolutionBuffer^[9] := Frequency;
-             SolutionBuffer^[10] := Year;
+                SolutionBuffer^[1]   :=  Iteration;
+                SolutionBuffer^[2]   :=  ControlIteration;
+                SolutionBuffer^[3]   :=  MaxIterations;
+                SolutionBuffer^[4]   :=  MaxControlIterations;
+                If ConvergedFlag then SolutionBuffer^[5] := 1 else SolutionBuffer^[5] := 0;
+                SolutionBuffer^[6]   :=  IntervalHrs;
+                SolutionBuffer^[7]   :=  SolutionCount;
+                SolutionBuffer^[8]   :=  Mode;
+                SolutionBuffer^[9]   :=  Frequency;
+                SolutionBuffer^[10]  :=  Year;
+                SolutionBuffer^[11]  :=  Time_Solve;
+                SolutionBuffer^[12]  :=  Time_Step;
             End;
 
         End;

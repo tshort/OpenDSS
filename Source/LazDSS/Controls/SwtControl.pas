@@ -1,7 +1,7 @@
 unit SwtControl;
 {
   ----------------------------------------------------------
-  Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
+  Copyright (c) 2008-2016, Electric Power Research Institute, Inc.
   All rights reserved.
   ----------------------------------------------------------}
 
@@ -25,10 +25,18 @@ TYPE
 
   TSwtControlObj = class(TControlElem)
     private
-      PresentState   :EControlAction;
-      Locked : Boolean;
+      FPresentState  : EControlAction;
+      FNormalState   : EControlAction;
+      ActionCommand  : EControlAction;
+      LockCommand    : EControlAction;
+      FLocked        : Boolean;
+      Armed          : Boolean;
 
       PROCEDURE InterpretSwitchAction(const Action:String);
+      procedure Set_NormalState(const Value: EControlAction);
+      procedure set_Flocked(const Value: Boolean);
+      procedure Set_LastAction(const Value: EControlAction);
+      procedure Set_PresentState(const Value: EControlAction);
     public
       constructor Create(ParClass:TDSSClass; const SwtControlName:String);
       destructor Destroy; override;
@@ -47,8 +55,11 @@ TYPE
       FUNCTION  GetPropertyValue(Index:Integer):String;Override;
       PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
       PROCEDURE DumpProperties(Var F:TextFile; Complete:Boolean);Override;
-      Property IsLocked: Boolean Read Locked;
-      Property CurrentAction: EControlAction Read PresentState;
+      Property NormalState: EControlAction   Read FNormalState Write Set_NormalState;
+      Property PresentState: EControlAction  Read FPresentState Write Set_PresentState;
+      Property IsLocked: Boolean Read FLocked;
+      Property Locked: Boolean   Read Flocked write set_Flocked;
+      Property CurrentAction: EControlAction Read ActionCommand Write Set_LastAction;
    end;
 
 VAR
@@ -63,7 +74,7 @@ USES
 
 CONST
 
-    NumPropsThisClass = 5;
+    NumPropsThisClass = 8;
 
 constructor TSwtControl.Create;  // Creates superstructure for all SwtControl objects
 Begin
@@ -97,16 +108,24 @@ Begin
      PropertyName[3] := 'Action';
      PropertyName[4] := 'Lock';
      PropertyName[5] := 'Delay';
+     PropertyName[6] := 'Normal';
+     PropertyName[7] := 'State';
+     PropertyName[8] := 'Reset';
 
      PropertyHelp[1] := 'Name of circuit element switch that the SwtControl operates. '+
-                  'Specify the full object class and name.';
+                        'Specify the full object class and name.';
      PropertyHelp[2] := 'Terminal number of the controlled element switch. ' +
-                  '1 or 2, typically.  Default is 1.';
-     PropertyHelp[3] := '{Open | Close}  simulates manual operation of the controlled switch to open or close, after a time delay. ' +
-                  'Note: automatic operation requires use of the COM interface with an external control algorithm.';
-     PropertyHelp[4] := '{Yes | No} Controlled switch is locked in its present open / close state. ' +
-                  'Switch will not respond to either manual (Action) or automatic (COM interface) control until this Lock is removed.';
+                        '1 or 2, typically.  Default is 1.';
+     PropertyHelp[3] := '{Open | Close}  After specified delay time, and if not locked, causes the controlled switch to open or close. ' ;
+     PropertyHelp[4] := '{Yes | No} Delayed action. Sends CTRL_LOCK or CTRL_UNLOCK message to control queue. ' +
+                        'After delay time, controlled switch is locked in its present open / close state or unlocked. ' +
+                        'Switch will not respond to either manual (Action) or automatic (COM interface) control or internal OpenDSS Reset when locked.';
      PropertyHelp[5] := 'Operating time delay (sec) of the switch. Defaults to 120.';
+     PropertyHelp[6] := '{Open | Closed] Normal state of the switch. If not Locked, the switch reverts to this state for reset, change of mode, etc.' +
+                        ' Defaults to first Action or State specified if not specifically declared.';
+     PropertyHelp[7] := '{Open | Closed] Present state of the switch. Upon setting, immediately forces state of switch.';
+     PropertyHelp[8] := '{Yes | No} If Yes, forces Reset of switch to Normal state and removes Lock independently of any internal '+
+                        'reset command for mode change, etc.';
 
      ActiveProperty  := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -158,10 +177,40 @@ Begin
             3: InterpretSwitchAction (param);
             4: Locked := InterpretYesNo (Param);
             5: TimeDelay := Parser.DblValue;
+            6: Begin    // set the normal state
+                 InterpretSwitchAction (param);
+                 NormalState := ActionCommand;
+               End;
+            7: Begin    // set the present state
+                 InterpretSwitchAction (param);
+                 PresentState := ActionCommand;
+               End;
+            8: If InterpretYesNo (Param) Then Begin  // force a reset
+                  Locked := FALSE;
+                  Reset;
+                  PropertyValue[8]  := 'n';
+               End;
          ELSE
            // Inherited parameters
            ClassEdit( ActiveSwtControlObj, ParamPointer - NumPropsthisClass)
          End;
+
+         {supplemental actions}
+         case ParamPointer of
+
+             // Default to first action specified for legacy scripts
+             3: if NormalState=CTRL_NONE then  NormalState := ActionCommand;
+
+             4: if Locked then LockCommand :=  CTRL_LOCK else LockCommand := CTRL_UNLOCK;
+
+             7: Begin
+                  if NormalState=CTRL_NONE then  NormalState := PresentState;
+                  Case PresentState of     // Force state
+                    CTRL_OPEN:  ControlledElement.Closed[0] := FALSE;
+                    CTRL_CLOSE: ControlledElement.Closed[0] := TRUE;
+                  End;
+                End;
+         end;
 
          ParamName := Parser.NextParam;
          Param := Parser.StrValue;
@@ -192,9 +241,10 @@ Begin
         ControlledElement := OtherSwtControl.ControlledElement;  // Pointer to target circuit element
 
         TimeDelay     := OtherSwtControl.TimeDelay;
-        Locked         := OtherSwtControl.Locked;
-        PresentState   := OtherSwtControl.PresentState;
-
+        Locked        := OtherSwtControl.Locked;
+        PresentState  := OtherSwtControl.PresentState;
+        NormalState   := OtherSwtControl.NormalState;
+        ActionCommand    := OtherSwtControl.ActionCommand;
         For i := 1 to ParentClass.NumProperties Do PropertyValue[i] := OtherSwtControl.PropertyValue[i];
 
      End
@@ -219,9 +269,13 @@ Begin
   ElementName   := '';
   ControlledElement := NIL;
   ElementTerminal := 1;
-  PresentState  := CTRL_CLOSE;
+  PresentState  := CTRL_CLOSE;  // default to closed
+  NormalState   := CTRL_NONE;   // default to unspecified; set on first setting action or anything
+  ActionCommand := PresentState;
+  Lockcommand   := CTRL_NONE;
   Locked        := FALSE;
-  TimeDelay := 120.0;
+  Armed         := FALSE;
+  TimeDelay     := 120.0; // 2 minutes
 
   InitPropertyValues(0);
 End;
@@ -243,12 +297,14 @@ Begin
     ControlledElement.ActiveTerminalIdx := ElementTerminal;
 
     ControlledElement.HasSwtControl := TRUE;  // For Reliability calcs
-
+{
     if not Locked then
       Case PresentState of
         CTRL_OPEN: ControlledElement.Closed[0] := FALSE;
         CTRL_CLOSE: ControlledElement.Closed[0] := TRUE;
       End;
+
+}
     // attach controller bus to the switch bus - no space allocated for monitored variables
     Setbus (1, ControlledElement.GetBus(ElementTerminal));
   End ELSE Begin
@@ -288,27 +344,40 @@ Begin
 End;
 
 PROCEDURE TSwtControlObj.DoPendingAction(Const Code, ProxyHdl:Integer);
+Var ctrl_code : EControlAction;
 begin
-  if not Locked then begin
-    ControlledElement.ActiveTerminalIdx := ElementTerminal;
-    if (Code = Integer(CTRL_OPEN)) and (PresentState = CTRL_CLOSE) then begin
-      ControlledElement.Closed[0] := FALSE; // Open all phases of active terminal
-      AppendtoEventLog('SwtControl.'+Self.Name, 'Opened');
-    end;
-    if (Code = Integer(CTRL_CLOSE)) and (PresentState = CTRL_OPEN) then begin
-      ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
-      AppendtoEventLog('SwtControl.'+Self.Name, 'Closed');
-    end;
-  end;
+     ctrl_code := EControlAction(Code);  // change type
+     ControlledElement.ActiveTerminalIdx := ElementTerminal;
+     case Ctrl_Code of
+          CTRL_LOCK:    Locked := TRUE;
+          CTRL_UNLOCK:  Locked := FALSE;
+     else
+          if not Locked then begin
+              if (Code = Integer(CTRL_OPEN)) and (PresentState = CTRL_CLOSE) then begin
+                ControlledElement.Closed[0] := FALSE; // Open all phases of active terminal
+                PresentState := CTRL_OPEN;
+                AppendtoEventLog('SwtControl.'+Self.Name, 'Opened');
+              end;
+              if (Code = Integer(CTRL_CLOSE)) and (PresentState = CTRL_OPEN) then begin
+                ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                PresentState := CTRL_CLOSE;
+                AppendtoEventLog('SwtControl.'+Self.Name, 'Closed');
+              end;
+              Armed := FALSE;  // reset the switch
+          end;
+     end;
 end;
 
 PROCEDURE TSwtControlObj.InterpretSwitchAction(const Action:String);
 Begin
   If Not Locked Then begin
     Case LowerCase(Action)[1] of
-      'o': PresentState := CTRL_OPEN;
-      'c': PresentState := CTRL_CLOSE;
+      'o': ActionCommand := CTRL_OPEN;
+    else    // default is closed
+      ActionCommand := CTRL_CLOSE;
     End;
+
+    {   Changed to delayed action
     if ControlledElement <> nil then begin
       ControlledElement.ActiveTerminalIdx := ElementTerminal;
       Case PresentState of
@@ -316,15 +385,51 @@ Begin
         CTRL_CLOSE: ControlledElement.Closed[0] := TRUE;
       End;
     End;
+    }
+
   end;
 End;
 
 PROCEDURE TSwtControlObj.Sample;
 begin
-  ControlledElement.ActiveTerminalIdx := ElementTerminal;
+
+// push on the Lock command if any at the present time delay
+  if LockCommand <> CTRL_NONE then
+  With ActiveCircuit, ActiveCircuit.Solution Do begin
+       ControlQueue.Push(DynaVars.intHour, Dynavars.t + TimeDelay, LockCommand, 0, Self);
+       LockCommand := CTRL_NONE;  // reset the lock command for next time
+  end;
+
+  if (ActionCommand <> PresentState) and not Armed then   // we need to operate this switch
+  With ActiveCircuit, ActiveCircuit.Solution Do begin
+       ControlQueue.Push(DynaVars.intHour, Dynavars.t + TimeDelay, ActionCommand, 0, Self);
+       Armed := TRUE;
+  end;
+  {ControlledElement.ActiveTerminalIdx := ElementTerminal;
   IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
   THEN PresentState := CTRL_CLOSE
-  ELSE PresentState := CTRL_OPEN;
+  ELSE PresentState := CTRL_OPEN; }
+end;
+
+procedure TSwtControlObj.set_Flocked(const Value: Boolean);
+begin
+     Flocked := Value;
+end;
+
+procedure TSwtControlObj.Set_LastAction(const Value: EControlAction);
+begin
+     ActionCommand := Value;
+
+end;
+
+procedure TSwtControlObj.Set_NormalState(const Value: EControlAction);
+begin
+  FNormalState := Value;
+end;
+
+procedure TSwtControlObj.Set_PresentState(const Value: EControlAction);
+begin
+  FPresentState := Value;
 end;
 
 PROCEDURE TSwtControlObj.DumpProperties(Var F:TextFile; Complete:Boolean);
@@ -339,18 +444,49 @@ End;
 
 FUNCTION TSwtControlObj.GetPropertyValue(Index: Integer): String;
 begin
-  Result := Inherited GetPropertyValue(Index);
+  Result := '';
+  case Index of
+      1: Result := ElementName;
+      2: Result := Format('%d',[ElementTerminal]);
+      3: Case ActionCommand of
+          CTRL_OPEN: Result := 'open';
+         else
+          {CTRL_CLOSE:} Result := 'close';
+         End;
+      4: If Locked then Result := 'Yes' else Result := 'No';
+      5: Result := Format('%-.7g',[TimeDelay]);
+      6: Case FNormalState of
+          CTRL_OPEN: Result := 'open';
+         else
+          {CTRL_CLOSE:} Result := 'closed';
+         End;
+      7: Begin
+             ControlledElement.ActiveTerminalIdx := ElementTerminal;
+             If ControlledElement.Closed[0] then Result := 'Closed'
+             else Result := 'open';
+         End;
+      8: Result := 'n';  // Always no; yes is executed immediately
+  else
+      Result := Inherited GetPropertyValue(Index);
+  end;
+
 end;
 
-// TODO: should Reset close the switch?
 Procedure TSwtControlObj.Reset;
 Begin
-  PresentState   := CTRL_CLOSE;
-  Locked         := FALSE;
-  IF ControlledElement <> NIL  THEN  Begin
-    ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Set active terminal
-    ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
-  End;
+    if not Locked then   Begin
+      PresentState   := NormalState;
+      ActionCommand  := PresentState;
+      Armed          := FALSE;
+      IF ControlledElement <> NIL  THEN  Begin
+          ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Set active terminal
+          case FNormalState of
+            CTRL_OPEN:  ControlledElement.Closed[0] := FALSE;
+          else
+            {CTRL_CLOSE:} ControlledElement.Closed[0] := TRUE;  // Close all phases of active terminal
+          end;
+      End;
+    End;
 end;
 
 procedure TSwtControlObj.InitPropertyValues(ArrayOffset: Integer);
@@ -360,6 +496,9 @@ begin
   PropertyValue[3]  := 'c';
   PropertyValue[4]  := 'n';
   PropertyValue[5]  := '120.0';
+  PropertyValue[6]  := 'c';
+  PropertyValue[7]  := 'c';
+  PropertyValue[8]  := 'n';
   inherited  InitPropertyValues(NumPropsThisClass);
 end;
 

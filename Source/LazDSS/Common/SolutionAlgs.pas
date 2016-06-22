@@ -73,6 +73,10 @@ Begin
     StorageClass.UpdateAll;
     InvControlClass.UpdateAll;
     ExpControlClass.UpdateAll;
+
+    // End of Time Step Timer
+    ActiveCircuit.Solution.UpdateLoopTime;
+    MonitorClass.SampleAllMode5;  // sample all mode 5 monitors to get timings
 End;
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

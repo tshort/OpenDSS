@@ -860,7 +860,8 @@ end;
 
 procedure TControlPanel.ResultFile1Click(Sender: TObject);
 begin
-    ActiveScriptForm.ExecuteDSSCommand('fileedit ['+ ResultsEdit.Lines.Strings[0]+']');
+ //   ActiveScriptForm.ExecuteDSSCommand('fileedit ['+ ResultsEdit.Lines.Strings[0]+']');
+    ActiveScriptForm.ExecuteDSSCommand('fileedit ['+ Edit_Result.Text+']');
 end;
 
 function TControlPanel.MakeANewEditForm(const Cap: String): TScriptEdit;
@@ -892,7 +893,7 @@ begin
   ScriptWindowList.Add(Result);
   EditPages.ActivePage := ts;
   ts.Tag := NativeInt(Result);
-  ActiveScriptForm := Result;
+  ActiveScriptForm := Result; // TODO: EPRI doesn't have this
 end;
 
 procedure TControlPanel.FormDestroy(Sender: TObject);
@@ -949,7 +950,7 @@ begin
     nLines := DSS_Registry.ReadInteger(Format('LineCount%d',[i]), 0);
     if i > 1 then begin // need to make a new edit form
       Inc(EditFormCount);
-      if nLines < 1 then begin
+      if nLines < 1 then begin   // if no lines stored in Registry
         FileName := DSS_Registry.ReadString(Format('File%d',[i]), '');
         ActiveScriptForm := MakeANewEditForm(FileName);
       end else begin
@@ -961,6 +962,7 @@ begin
       Try
         ActiveScriptForm.Editor.Lines.LoadFromFile (FileName);
         ActiveScriptForm.HasFileName := TRUE;
+        UpdateCaptions; // TODO - EPRI added this
       Except  // ignore error -- likely file got moved
       End;
     end else begin // read collection of saved lines into the script window
@@ -1035,6 +1037,7 @@ begin
   Recordcommands := False;
   MakeBaseClassBox;
   UpdateClassBox;
+  Edit_Result.Text := VersionString; // TODO - EPRI added this
 end;
 
 procedure TControlPanel.NewScriptWindow1Click(Sender: TObject);
@@ -1669,6 +1672,20 @@ begin
   end;
 end;
 
+(* TODO - this is EPRI's
+procedure TControlPanel.UpdateCaptions;
+begin
+  MessageEdit.Clear;
+  if ActiveScriptForm.HasFileName then begin
+    MessageEdit.Lines.Add(ProgramName + ' - ' + ActiveScriptForm.Caption);
+    ActiveScriptForm.Tab.Caption := ExtractFileName(ActiveScriptForm.Caption);
+  end else begin
+    MessageEdit.Lines.Add(ActiveScriptForm.Caption);
+  end;
+  Caption := ProgramName + ' Data Directory: ' + DataDirectory;
+end;
+*)
+
 procedure TControlPanel.EditPagesChange(Sender: TObject);
 begin
   ActiveScriptForm := TScriptEdit(EditPages.ActivePage.Tag);
@@ -2202,16 +2219,15 @@ begin
        Monitors2Click(Sender); // Export monitor  to CSV file
 
        {Open Result File and Parse first line}
-       if FileExists(ResultsEdit.Lines.Strings[0]) then  Begin
+       if FileExists(Edit_Result.text (*ResultsEdit.Lines.Strings[0] *)) then  Begin
 
-         if MakeChannelSelection(2, ResultsEdit.Lines.Strings[0]) Then
+         if MakeChannelSelection(2, Edit_Result.text (*ResultsEdit.Lines.Strings[0] *)) Then
          Begin
            Screen.Cursor := crHourglass;
            ActiveScriptForm.ExecuteDSSCommand('Plot monitor object= '+SelectedMonitor+' channels=(' + ChannelSelectForm.ResultString  +')');
            Screen.Cursor := crDefault;
          End;
        End;
-
 end;
 
 procedure TControlPanel.Loops1Click(Sender: TObject);
