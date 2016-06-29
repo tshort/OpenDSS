@@ -61,6 +61,7 @@ CONST
       EXP_CONTROL      = 30 * 8;
       UPFC_ELEMENT     = 31 * 8;
       UPFC_CONTROL     = 32 * 8;
+      VCCS_ELEMENT     = 33 * 8;
 
 VAR
    NumIntrinsicClasses,

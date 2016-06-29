@@ -31,6 +31,23 @@ TYPE
         Ffilter: TXYcurveObj;
         Ffilter_name: String;
         BaseCurr: double; // line current at Ppct
+        FsampleFreq: double; // discretization frequency for Z filter
+        Fwinlen: integer;
+        Ffiltlen: integer;
+        FhistRMS: pDoubleArray;
+        FhistFilter: pDoubleArray;
+        FhistV: pDoubleArray;
+
+        // Support for Dynamics Mode
+        sVwave: double;
+        sIwave: double;
+        sIrms: double;
+        sIpeak: double;
+        sBP1out: double;
+        sFilterout: double;
+     protected
+        Function  Get_Variable(i: Integer): Double; Override;
+        procedure Set_Variable(i: Integer; Value: Double); Override;
       public
         Ppct, Prated, Vrated: double;
         constructor Create(ParClass:TDSSClass; const SourceName:String);
@@ -62,7 +79,8 @@ VAR
 
 implementation
 
-USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command;
+USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command,
+      Solution;
 
 Var  NumPropsThisClass:Integer;
 
@@ -70,7 +88,7 @@ constructor TVCCS.Create;  // Creates superstructure for all Line objects
 Begin
      Inherited Create;
      Class_Name := 'VCCS';
-     DSSClassType := SOURCE + NON_PCPD_ELEM;  // Don't want this in PC Element List
+     DSSClassType := VCCS_ELEMENT + PC_ELEMENT; // participates in dynamics
 
      ActiveElement := 0;
 
@@ -90,7 +108,7 @@ End;
 
 Procedure TVCCS.DefineProperties;
 Begin
-     NumPropsThisClass := 8;
+     NumPropsThisClass := 9;
 
      Numproperties := NumPropsThisClass;
      CountProperties;   // Get inherited property count
@@ -105,6 +123,7 @@ Begin
      PropertyName[6] := 'bp1';
      PropertyName[7] := 'bp2';
      PropertyName[8] := 'filter';
+     PropertyName[9] := 'fsample';
 
      // define Property help values
      PropertyHelp[1] := 'Name of bus to which source is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3';
@@ -114,7 +133,8 @@ Begin
      PropertyHelp[5] := 'Steady-state operating output, in percent of rated.';
      PropertyHelp[6] := 'XYCurve defining the input piece-wise linear block.';
      PropertyHelp[7] := 'XYCurve defining the output piece-wise linear block.';
-     PropertyHelp[8] := 'XYCurve defining the linear transfer function coefficients (x numerator, y denominator).';
+     PropertyHelp[8] := 'XYCurve defining the digital filter coefficients (x numerator, y denominator).';
+     PropertyHelp[9] := 'Sample frequency [Hz} for the digital filter.';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -180,6 +200,7 @@ Begin
                       Ffilter := XY_CurveClass.Find(Ffilter_name);
                   end;
                End;
+            9: FsampleFreq := Parser.DblValue;
          ELSE
             ClassEdit(ActiveVCCSObj, ParamPointer - NumPropsThisClass)
          End;
@@ -218,6 +239,7 @@ Begin
       Fbp1_name := OtherVCCS.Fbp1_name;
       Fbp2_name := OtherVCCS.Fbp2_name;
       Ffilter_name := OtherVCCS.Ffilter_name;
+      FsampleFreq := OtherVCCS.FsampleFreq;
 
       ClassMakeLike(OtherVCCS); // set spectrum,  base frequency
 
@@ -237,7 +259,7 @@ Constructor TVCCSObj.Create(ParClass:TDSSClass; const SourceName:String);
 Begin
   Inherited create(ParClass);
   Name := LowerCase(SourceName);
-  DSSObjType := ParClass.DSSClassType; // SOURCE + NON_PCPD_ELEM;  // Don't want this in PC Element List
+  DSSObjType := ParClass.DSSClassType;
 
   Nphases := 1;
   Fnconds := 1;
@@ -246,6 +268,15 @@ Begin
   Prated := 250.0;
   Vrated := 208.0;
   Ppct := 100.0;
+  FsampleFreq := 5000.0;
+
+  Fwinlen := 0;
+  Ffilter_name := '';
+  Fbp1_name := '';
+  Fbp2_name := '';
+  FhistRMS := nil;
+  FhistFilter := nil;
+  FhistV := nil;
 
   InitPropertyValues(0);
 
@@ -255,6 +286,9 @@ End;
 
 Destructor TVCCSObj.Destroy;
 Begin
+  Reallocmem (FhistRMS, 0);
+  Reallocmem (FhistFilter, 0);
+  Reallocmem (FhistV, 0);
   Inherited Destroy;
 End;
 
@@ -266,6 +300,14 @@ Begin
   end;
   Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
   BaseCurr := 0.01 * Ppct * Prated / Vrated / FNphases;
+  if Length (Ffilter_name) > 0 then begin
+    Ffiltlen := Ffilter.NumPoints;
+    Fwinlen := Trunc (FsampleFreq / BaseFrequency);
+    Reallocmem (FhistRMS, sizeof(FhistRMS^[1]) * Fwinlen);
+    Reallocmem (FhistFilter, sizeof(FhistFilter^[1]) * Ffiltlen);
+    Reallocmem (FhistV, sizeof(FhistV^[1]) * Ffiltlen);
+  end;
+
   if FNPhases = 3 then BaseCurr := BaseCurr * sqrt(3);
 End;
 
@@ -339,14 +381,15 @@ End;
 
 procedure TVCCSObj.InitPropertyValues(ArrayOffset: Integer);
 begin
-  PropertyValue[1]  := GetBus(1);
-  PropertyValue[2]  := '1';
-  PropertyValue[3]  := '250';
-  PropertyValue[4]  := '208';
-  PropertyValue[5]  := '100';
-  PropertyValue[6]  := 'NONE';
-  PropertyValue[7]  := 'NONE';
-  PropertyValue[8]  := 'NONE';
+  PropertyValue[1] := GetBus(1);
+  PropertyValue[2] := '1';
+  PropertyValue[3] := '250';
+  PropertyValue[4] := '208';
+  PropertyValue[5] := '100';
+  PropertyValue[6] := 'NONE';
+  PropertyValue[7] := 'NONE';
+  PropertyValue[8] := 'NONE';
+  PropertyValue[9] := '5000';
   inherited  InitPropertyValues(NumPropsThisClass);
 end;
 
@@ -361,25 +404,96 @@ end;
 
 // support for DYNAMICMODE
 procedure TVCCSObj.InitStateVars;
+var
+  d: double;
+  i: integer;
 begin
+  ComputeIterminal;
+  sVwave := cabs(Vterminal^[1]) * sqrt(2);
+  sIrms := cabs(Iterminal^[1]);
+  sIwave := sIrms * sqrt(2);
+  sIpeak := sIrms * sqrt(2);
+  sBP1out := 0;
+  sFilterout := 0;
+
+  d := 1 / FsampleFreq;
+  for i := 1 to Ffiltlen do begin
+    FhistV[i] := d;
+    FhistFilter[i] := d;
+  end;
+  for i := 1 to Fwinlen do begin
+    FhistRMS[i] := d;
+  end;
 end;
 
 procedure TVCCSObj.IntegrateStates;
+var
+  t, h, f, w, wt, sinwt, coswt, pk: double;
 begin
-end;
+  t := ActiveSolutionObj.DynaVars.t;
+  h := ActiveSolutionObj.DynaVars.t;
+  f := ActiveSolutionObj.Frequency;
+  w := 2 * Pi * f;
+  wt := w * t;
+  sinwt := sin(wt);
+  coswt := cos(wt);
+  pk := sqrt(2);
 
-procedure TVCCSObj.GetAllVariables( States: pDoubleArray);
-begin
+  sVwave := pk * (Vterminal^[1].re * coswt + Vterminal^[1].im * sinwt);
+  sBP1out := Fbp1.GetYValue(sVwave);
+  sIwave := pk * (Iterminal^[1].re * coswt + Iterminal^[1].im * sinwt);
+  sIrms := abs(sIwave) / pk;
+  if abs(sIwave) > sIpeak then sIpeak := abs(sIwave);
 end;
 
 function TVCCSObj.NumVariables: Integer;
 begin
-  Result := 0;
+  Result := 6;
+end;
+
+procedure TVCCSObj.GetAllVariables( States: pDoubleArray);
+var
+  i: integer;
+begin
+  for i := 1 to 6 Do States^[i] := Variable[i];  // property maps to Get_Variable below
 end;
 
 Function TVCCSObj.VariableName(i: Integer):String;
 begin
   Result := '';
+  case i of
+    1: Result := 'Vwave';
+    2: Result := 'Iwave';
+    3: Result := 'Irms';
+    4: Result := 'Ipeak';
+    5: Result := 'bp1out';
+    6: Result := 'filterout';
+  end;
+end;
+
+function TVCCSObj.Get_Variable(i: Integer): Double;
+begin
+  Result := 0;
+  case i of
+    1: Result := sVwave;
+    2: Result := sIwave;
+    3: Result := sIrms;
+    4: Result := sIpeak;
+    5: Result := sBP1out;
+    6: Result := sFilterout;
+  end;
+end;
+
+procedure TVCCSObj.Set_Variable(i: Integer;  Value: Double);
+begin
+  case i of
+    1: sVwave := Value;
+    2: sIwave := Value;
+    3: sIrms := Value;
+    4: sIpeak := Value;
+    5: sBP1out := Value;
+    6: sFilterout := Value;
+  end;
 end;
 
 end.
