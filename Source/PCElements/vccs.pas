@@ -1,6 +1,12 @@
 unit VCCS;
+{
+  ----------------------------------------------------------
+  Copyright (c) 2016, University of Pittsburgh
+  All rights reserved.
+  ----------------------------------------------------------
+}
 
-// {$mode delphi}
+{$ifdef fpc}{$mode delphi}{$endif}
 
 interface
 
@@ -34,9 +40,6 @@ TYPE
         FsampleFreq: double; // discretization frequency for Z filter
         Fwinlen: integer;
         Ffiltlen: integer;
-        FhistRMS: pDoubleArray;
-        FhistFilter: pDoubleArray;
-        FhistV: pDoubleArray;
 
         // Support for Dynamics Mode
         sVwave: double;
@@ -45,6 +48,13 @@ TYPE
         sIpeak: double;
         sBP1out: double;
         sFilterout: double;
+        vlast: complex;
+        y2: pDoubleArray;
+        z: pDoubleArray;
+        uhist: pDoubleArray;
+        sIdxU: integer; // ring buffer index for z and uhist
+        sIdxY: integer; // ring buffer index for y2 (rms current)
+        y2sum: double;
      protected
         Function  Get_Variable(i: Integer): Double; Override;
         procedure Set_Variable(i: Integer; Value: Double); Override;
@@ -83,6 +93,19 @@ USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command
       Solution;
 
 Var  NumPropsThisClass:Integer;
+
+// helper functions for ring buffer indexing, 1..len
+function MapIdx(idx, len: integer):integer;
+begin
+  while idx <= 0 do idx := idx + len;
+  Result := idx mod (len + 1);
+  if Result = 0 then Result := 1;
+end;
+
+function OffsetIdx(idx, offset, len: integer):integer;
+begin
+  Result := MapIdx(idx+offset, len);
+end;
 
 constructor TVCCS.Create;  // Creates superstructure for all Line objects
 Begin
@@ -274,9 +297,9 @@ Begin
   Ffilter_name := '';
   Fbp1_name := '';
   Fbp2_name := '';
-  FhistRMS := nil;
-  FhistFilter := nil;
-  FhistV := nil;
+  y2 := nil;
+  z := nil;
+  uhist := nil;
 
   InitPropertyValues(0);
 
@@ -286,9 +309,9 @@ End;
 
 Destructor TVCCSObj.Destroy;
 Begin
-  Reallocmem (FhistRMS, 0);
-  Reallocmem (FhistFilter, 0);
-  Reallocmem (FhistV, 0);
+  Reallocmem (y2, 0);
+  Reallocmem (z, 0);
+  Reallocmem (uhist, 0);
   Inherited Destroy;
 End;
 
@@ -303,9 +326,9 @@ Begin
   if Length (Ffilter_name) > 0 then begin
     Ffiltlen := Ffilter.NumPoints;
     Fwinlen := Trunc (FsampleFreq / BaseFrequency);
-    Reallocmem (FhistRMS, sizeof(FhistRMS^[1]) * Fwinlen);
-    Reallocmem (FhistFilter, sizeof(FhistFilter^[1]) * Ffiltlen);
-    Reallocmem (FhistV, sizeof(FhistV^[1]) * Ffiltlen);
+    Reallocmem (y2, sizeof(y2^[1]) * Fwinlen);
+    Reallocmem (z, sizeof(z^[1]) * Ffiltlen);
+    Reallocmem (uhist, sizeof(uhist^[1]) * Ffiltlen);
   end;
 
   if FNPhases = 3 then BaseCurr := BaseCurr * sqrt(3);
@@ -405,45 +428,103 @@ end;
 // support for DYNAMICMODE
 procedure TVCCSObj.InitStateVars;
 var
-  d: double;
+  d, wt, wd, val, iang, vang, pk: double;
   i: integer;
 begin
+  // initialize outputs from the terminal conditions
   ComputeIterminal;
-  sVwave := cabs(Vterminal^[1]) * sqrt(2);
+  iang := cang(Iterminal^[1]);
+  vang := cang(Vterminal^[1]);
+  pk := sqrt(2);
+  sVwave := cabs(Vterminal^[1]) * pk;
   sIrms := cabs(Iterminal^[1]);
-  sIwave := sIrms * sqrt(2);
-  sIpeak := sIrms * sqrt(2);
+  sIwave := sIrms * pk;
+  sIpeak := sIrms * pk;
   sBP1out := 0;
   sFilterout := 0;
+  vlast := Vterminal^[1];
 
+  // initialize the history terms
   d := 1 / FsampleFreq;
+  wd := 2 * Pi * ActiveSolutionObj.Frequency * d;
   for i := 1 to Ffiltlen do begin
-    FhistV[i] := d;
-    FhistFilter[i] := d;
+    wt := vang - wd * i;
+    uhist[i] := sVwave * cos(wt);
   end;
   for i := 1 to Fwinlen do begin
-    FhistRMS[i] := d;
+    wt := iang - wd * i;
+    val := pk * sIrms * cos(wt);
+    y2[i] := val * val;
+    if i <= Ffiltlen then z[i] := Fbp2.GetXvalue (val);
   end;
+
+  // initialize the ring buffer indices; these increment by 1 before actual use
+  sIdxU := 0;
+  sIdxY := 0;
 end;
 
 procedure TVCCSObj.IntegrateStates;
 var
-  t, h, f, w, wt, sinwt, coswt, pk: double;
+  t, h, d, f, w, wt, sinwt, coswt, pk: double;
+  vre, vim, vin, scale, y: double;
+  nstep, i, k, iflag: integer;
+  vnow: complex;
 begin
+  ComputeIterminal;
+
   t := ActiveSolutionObj.DynaVars.t;
-  h := ActiveSolutionObj.DynaVars.t;
+  h := ActiveSolutionObj.DynaVars.h;
   f := ActiveSolutionObj.Frequency;
+  iflag := ActiveSolutionObj.DynaVars.IterationFlag;
+  d := 1 / FSampleFreq;
+  nstep := trunc (1e-6 + h/d);
   w := 2 * Pi * f;
   wt := w * t;
   sinwt := sin(wt);
   coswt := cos(wt);
   pk := sqrt(2);
 
-  sVwave := pk * (Vterminal^[1].re * coswt + Vterminal^[1].im * sinwt);
-  sBP1out := Fbp1.GetYValue(sVwave);
-  sIwave := pk * (Iterminal^[1].re * coswt + Iterminal^[1].im * sinwt);
-  sIrms := abs(sIwave) / pk;
-  if abs(sIwave) > sIpeak then sIpeak := abs(sIwave);
+//  sVwave := pk * (Vterminal^[1].re * coswt + Vterminal^[1].im * sinwt);
+//  sBP1out := Fbp1.GetYValue(sVwave);
+//  sIwave := pk * (Iterminal^[1].re * coswt + Iterminal^[1].im * sinwt);
+//  sIrms := abs(sIwave) / pk;
+//  if abs(sIwave) > sIpeak then sIpeak := abs(sIwave);
+
+  // push input voltage waveform through the first PWL block
+  vnow := Vterminal^[1];
+  for i:=1 to nstep do begin
+    sIdxU := OffsetIdx (sIdxU, 1, Ffiltlen);
+    scale := 1.0 * i / nstep;
+    vre := vlast.re + (vnow.re - vlast.re) * scale;
+    vim := vlast.im + (vnow.im - vlast.im) * scale;
+    wt := w * (t - h + i * d);
+    vin := pk * (vre * cos(wt) + vim * sin(wt));
+    uhist[sIdxU] := Fbp1.GetYValue(vin);
+  end;
+  vlast := vnow;
+  sVwave := vin;
+  sBP1out := uhist[sIdxU];
+
+  // apply the filter and second PWL block
+  y := 0;
+  for i := 1 to nstep do begin
+    z[sIdxU] := 0;
+    for k := 1 to Ffiltlen do begin
+      z[sIdxU] := z[sIdxU] + Ffilter.Yvalue_pt[k] * uhist[MapIdx(sIdxU-k+1,Ffiltlen)];
+    end;
+    for k := 2 to Ffiltlen do begin
+      z[sIdxU] := z[sIdxU] - Ffilter.Xvalue_pt[k] * z[MapIdx(sIdxU-k+1,Ffiltlen)];
+    end;
+    y := Fbp2.GetYValue(z[sIdxU]);
+    if abs(y) > sIpeak then sIpeak := abs(y); // catching the fastest peaks
+    sIdxY := OffsetIdx (sIdxY, 1, Fwinlen);
+    y2[sIdxY] := y * y;  // brute-force RMS update
+    y2sum := 0.0;
+    for k := 1 to Fwinlen do y2sum := y2sum + y2[k];
+    sIrms := sqrt(y2sum / Fwinlen); // TODO - this is the magnitude, what about angle?
+  end;
+  sFilterout := z[sIdxU];
+  sIwave := y;
 end;
 
 function TVCCSObj.NumVariables: Integer;
