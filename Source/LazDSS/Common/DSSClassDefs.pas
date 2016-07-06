@@ -1,7 +1,5 @@
 unit DSSClassDefs;
 
-{$MODE Delphi}
-
 {
   ----------------------------------------------------------
   Copyright (c) 2008-2015, Electric Power Research Institute, Inc.
@@ -63,6 +61,7 @@ CONST
       EXP_CONTROL      = 30 * 8;
       UPFC_ELEMENT     = 31 * 8;
       UPFC_CONTROL     = 32 * 8;
+      VCCS_ELEMENT     = 33 * 8;
 
 VAR
    NumIntrinsicClasses,
@@ -84,6 +83,7 @@ USES
      MyDSSClassDefs,
 
      Solution,
+     Bus,
      Line,
      VSource,
      Isource,
@@ -116,6 +116,7 @@ USES
      Recloser,
      Fuse,
      Sensor,
+     Feeder,
      XfmrCode,
      Storage,
      StorageController,
