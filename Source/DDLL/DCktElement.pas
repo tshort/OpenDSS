@@ -392,6 +392,7 @@ begin
   end;
   5: begin                                          // CktElement.Controller
       Result := pAnsiChar(AnsiString(''));
+      i   :=  strtoInt(arg);
       If ActiveCircuit <> Nil Then With ActiveCircuit Do begin
         If (i>0) and (i <= ActiveCktElement.ControlElementList.Listsize) Then
         Begin
