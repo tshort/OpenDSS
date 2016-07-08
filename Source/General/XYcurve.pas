@@ -721,6 +721,8 @@ FUNCTION TXYcurveObj.GetXValue(Y: double): Double;
 // If no points exist in the curve, the result is  0.0
 // If Xvalue is outside the range of defined X values,
 // the curve is extrapolated from the Ends.
+// TEMc: change to relax assumption that Y values are increasing monotonically
+//       if Y is not monotonic (increasing or decreasing) then X is not unique
 
 Var
    i:Integer;
@@ -729,13 +731,40 @@ Begin
 
   Result := 0.0;    // default return value if no points in curve
 
+  if FNumPoints > 0 then
+    if FNumPoints=1 then
+      Result := XValues^[1]
+    else begin
+      for i := 2 to FNumPoints do begin
+        if ((Y >= YValues^[i-1]) and (Y <= YValues^[i])) then begin
+          Result := InterpolatePoints (i-1, i, Y, YValues, XValues);
+          Exit;
+        end;
+        if ((Y <= YValues^[i-1]) and (Y >= YValues^[i])) then begin
+          Result := InterpolatePoints (i-1, i, Y, YValues, XValues);
+          Exit;
+        end;
+      end;
+      // Y is out of range, need to determine which end to extrapolate from
+      if YValues^[1] <= YValues^[FNumPoints] then begin // increasing Y values
+        if Y <= YValues^[1] then begin
+          Result := InterpolatePoints (1, 2, Y, YValues, XValues);
+        end else begin
+          Result := InterpolatePoints (FNumPoints-1, FNumPoints, Y, YValues, XValues);
+        end
+      end else begin // decreasing Y values
+       if Y >= YValues^[1] then begin
+          Result := InterpolatePoints (1, 2, Y, YValues, XValues);
+        end else begin
+          Result := InterpolatePoints (FNumPoints-1, FNumPoints, Y, YValues, XValues);
+        end
+      end;
+    end;
+    {
   IF FNumPoints>0 Then         // Handle Exceptional cases
   IF FNumPoints=1 Then Result := XValues^[1]
   ELSE
     Begin
-
-    { Start with previous value accessed under the assumption that most
-      of the time, this FUNCTION will be called sequentially}
 
      IF (YValues^[LastValueAccessed] > Y) Then LastValueAccessed := 1; // Start over from Beginning
 
@@ -766,6 +795,7 @@ Begin
      LastValueAccessed := FNumPoints-1;
      Result := InterpolatePoints(FNumPoints, LastValueAccessed,  Y, YValues, XValues);
     End;
+    }
 End;
 
 PROCEDURE TXYcurveObj.InitPropertyValues(ArrayOffset: Integer);
