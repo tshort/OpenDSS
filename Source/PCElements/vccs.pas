@@ -458,14 +458,18 @@ begin
   wd := 2 * Pi * ActiveSolutionObj.Frequency * d;
   for i := 1 to Ffiltlen do begin
     wt := vang - wd * (Ffiltlen - i);
+    whist[i] := 0;
     whist[i] := Fbp1.GetYValue(sVwave * cos(wt));
   end;
   for i := 1 to Fwinlen do begin
     wt := iang - wd * (Fwinlen - i);
-    val := pk * sIrms * cos(wt);
+    val := pk * sIrms * cos(wt);  // current by passive sign convention
     y2[i] := val * val;
     k := i - Fwinlen + Ffiltlen;
-    if k > 0 then z[k] := -Fbp2.GetXvalue (val);
+    if k > 0 then begin
+      z[k] := 0;
+      z[k] := -Fbp2.GetXvalue (val); // HW history with generator convention
+    end;
   end;
 
   // initialize the ring buffer indices; these increment by 1 before actual use
