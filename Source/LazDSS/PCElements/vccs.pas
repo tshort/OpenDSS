@@ -51,8 +51,8 @@ TYPE
         vlast: complex;
         y2: pDoubleArray;
         z: pDoubleArray;
-        uhist: pDoubleArray;
-        sIdxU: integer; // ring buffer index for z and uhist
+        whist: pDoubleArray;
+        sIdxU: integer; // ring buffer index for z and whist
         sIdxY: integer; // ring buffer index for y2 (rms current)
         y2sum: double;
      protected
@@ -299,7 +299,7 @@ Begin
   Fbp2_name := '';
   y2 := nil;
   z := nil;
-  uhist := nil;
+  whist := nil;
 
   InitPropertyValues(0);
 
@@ -311,7 +311,7 @@ Destructor TVCCSObj.Destroy;
 Begin
   Reallocmem (y2, 0);
   Reallocmem (z, 0);
-  Reallocmem (uhist, 0);
+  Reallocmem (whist, 0);
   Inherited Destroy;
 End;
 
@@ -328,7 +328,7 @@ Begin
     Fwinlen := Trunc (FsampleFreq / BaseFrequency);
     Reallocmem (y2, sizeof(y2^[1]) * Fwinlen);
     Reallocmem (z, sizeof(z^[1]) * Ffiltlen);
-    Reallocmem (uhist, sizeof(uhist^[1]) * Ffiltlen);
+    Reallocmem (whist, sizeof(whist^[1]) * Ffiltlen);
   end;
 
   if FNPhases = 3 then BaseCurr := BaseCurr * sqrt(3);
@@ -382,9 +382,16 @@ var
   i:Integer;
 Begin
   ComputeVterminal;
-  For i := 1 to Fnphases Do Begin
-    Curr^[i] := pdegtocomplex (BaseCurr, cdang(Vterminal^[i]));
-  End;
+//  IterminalUpdated := FALSE;
+  if ActiveSolutionObj.IsDynamicModel then begin
+    For i := 1 to Fnphases Do Begin
+      Curr^[i] := pdegtocomplex (sIrms, cdang(Vterminal^[i]));
+    End;
+  end else begin
+    For i := 1 to Fnphases Do Begin
+      Curr^[i] := pdegtocomplex (BaseCurr, cdang(Vterminal^[i]));
+    End;
+  end;
 End;
 
 Procedure TVCCSObj.DumpProperties(Var F:TextFile; Complete:Boolean);
@@ -426,10 +433,12 @@ begin
 end;
 
 // support for DYNAMICMODE
+// NB: The test data and HW model used source convention (I and V in phase)
+//     However, OpenDSS uses the load convention
 procedure TVCCSObj.InitStateVars;
 var
   d, wt, wd, val, iang, vang, pk: double;
-  i: integer;
+  i, k: integer;
 begin
   // initialize outputs from the terminal conditions
   ComputeIterminal;
@@ -444,18 +453,23 @@ begin
   sFilterout := 0;
   vlast := Vterminal^[1];
 
-  // initialize the history terms
+  // initialize the history terms for HW model source convention
   d := 1 / FsampleFreq;
   wd := 2 * Pi * ActiveSolutionObj.Frequency * d;
   for i := 1 to Ffiltlen do begin
-    wt := vang - wd * i;
-    uhist[i] := sVwave * cos(wt);
+    wt := vang - wd * (Ffiltlen - i);
+    whist[i] := 0;
+    whist[i] := Fbp1.GetYValue(sVwave * cos(wt));
   end;
   for i := 1 to Fwinlen do begin
-    wt := iang - wd * i;
-    val := pk * sIrms * cos(wt);
+    wt := iang - wd * (Fwinlen - i);
+    val := pk * sIrms * cos(wt);  // current by passive sign convention
     y2[i] := val * val;
-    if i <= Ffiltlen then z[i] := Fbp2.GetXvalue (val);
+    k := i - Fwinlen + Ffiltlen;
+    if k > 0 then begin
+      z[k] := 0;
+      z[k] := -Fbp2.GetXvalue (val); // HW history with generator convention
+    end;
   end;
 
   // initialize the ring buffer indices; these increment by 1 before actual use
@@ -463,19 +477,23 @@ begin
   sIdxY := 0;
 end;
 
+// this is called twice per dynamic time step; predictor then corrector
 procedure TVCCSObj.IntegrateStates;
 var
   t, h, d, f, w, wt, sinwt, coswt, pk: double;
   vre, vim, vin, scale, y: double;
-  nstep, i, k, iflag: integer;
+  nstep, i, k, corrector: integer;
   vnow: complex;
+  iu, iy: integer; // local copies of sIdxU and sIdxY for predictor
 begin
   ComputeIterminal;
+  iu := sIdxU;
+  iy := sIdxY;
 
   t := ActiveSolutionObj.DynaVars.t;
   h := ActiveSolutionObj.DynaVars.h;
   f := ActiveSolutionObj.Frequency;
-  iflag := ActiveSolutionObj.DynaVars.IterationFlag;
+  corrector := ActiveSolutionObj.DynaVars.IterationFlag;
   d := 1 / FSampleFreq;
   nstep := trunc (1e-6 + h/d);
   w := 2 * Pi * f;
@@ -484,47 +502,45 @@ begin
   coswt := cos(wt);
   pk := sqrt(2);
 
-//  sVwave := pk * (Vterminal^[1].re * coswt + Vterminal^[1].im * sinwt);
-//  sBP1out := Fbp1.GetYValue(sVwave);
-//  sIwave := pk * (Iterminal^[1].re * coswt + Iterminal^[1].im * sinwt);
-//  sIrms := abs(sIwave) / pk;
-//  if abs(sIwave) > sIpeak then sIpeak := abs(sIwave);
-
   // push input voltage waveform through the first PWL block
   vnow := Vterminal^[1];
+  vin := 0;
   for i:=1 to nstep do begin
-    sIdxU := OffsetIdx (sIdxU, 1, Ffiltlen);
+    iu := OffsetIdx (iu, 1, Ffiltlen);
     scale := 1.0 * i / nstep;
     vre := vlast.re + (vnow.re - vlast.re) * scale;
     vim := vlast.im + (vnow.im - vlast.im) * scale;
     wt := w * (t - h + i * d);
     vin := pk * (vre * cos(wt) + vim * sin(wt));
-    uhist[sIdxU] := Fbp1.GetYValue(vin);
+    whist[iu] := Fbp1.GetYValue(vin);
   end;
-  vlast := vnow;
-  sVwave := vin;
-  sBP1out := uhist[sIdxU];
 
   // apply the filter and second PWL block
   y := 0;
-  for i := 1 to nstep do begin
-    z[sIdxU] := 0;
-    for k := 1 to Ffiltlen do begin
-      z[sIdxU] := z[sIdxU] + Ffilter.Yvalue_pt[k] * uhist[MapIdx(sIdxU-k+1,Ffiltlen)];
-    end;
-    for k := 2 to Ffiltlen do begin
-      z[sIdxU] := z[sIdxU] - Ffilter.Xvalue_pt[k] * z[MapIdx(sIdxU-k+1,Ffiltlen)];
-    end;
-    y := Fbp2.GetYValue(z[sIdxU]);
-    if abs(y) > sIpeak then sIpeak := abs(y); // catching the fastest peaks
-    sIdxY := OffsetIdx (sIdxY, 1, Fwinlen);
-    y2[sIdxY] := y * y;  // brute-force RMS update
-    y2sum := 0.0;
-    for k := 1 to Fwinlen do y2sum := y2sum + y2[k];
-    sIrms := sqrt(y2sum / Fwinlen); // TODO - this is the magnitude, what about angle?
+  z[iu] := 0;
+  for k := 1 to Ffiltlen do begin
+    z[iu] := z[iu] + Ffilter.Yvalue_pt[k] * whist[MapIdx(iu-k+1,Ffiltlen)];
   end;
-  sFilterout := z[sIdxU];
-  sIwave := y;
+  for k := 2 to Ffiltlen do begin
+    z[iu] := z[iu] - Ffilter.Xvalue_pt[k] * z[MapIdx(iu-k+1,Ffiltlen)];
+  end;
+  y := Fbp2.GetYValue(z[iu]);
+  if abs(y) > sIpeak then sIpeak := abs(y); // catching the fastest peaks
+  iy := OffsetIdx (iy, 1, Fwinlen);
+  y2[iy] := y * y;  // brute-force RMS update
+  y2sum := 0.0;
+  for k := 1 to Fwinlen do y2sum := y2sum + y2[k];
+  sIrms := sqrt(y2sum / Fwinlen); // TODO - this is the magnitude, what about angle?
+
+  if corrector = 1 then begin
+    sIdxU := iu;
+    sIdxY := iy;
+    vlast := vnow;
+    sVwave := vin;
+    sBP1out := whist[sIdxU];
+    sFilterout := z[sIdxU];
+    sIwave := y;
+  end;
 end;
 
 function TVCCSObj.NumVariables: Integer;
