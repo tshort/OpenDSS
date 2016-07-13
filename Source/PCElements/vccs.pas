@@ -467,7 +467,6 @@ begin
     y2[i] := val * val;
     k := i - Fwinlen + Ffiltlen;
     if k > 0 then begin
-      z[k] := 0;
       z[k] := -Fbp2.GetXvalue (val); // HW history with generator convention
     end;
   end;
@@ -480,15 +479,13 @@ end;
 // this is called twice per dynamic time step; predictor then corrector
 procedure TVCCSObj.IntegrateStates;
 var
-  t, h, d, f, w, wt, sinwt, coswt, pk: double;
+  t, h, d, f, w, wt, pk: double;
   vre, vim, vin, scale, y: double;
   nstep, i, k, corrector: integer;
   vnow: complex;
   iu, iy: integer; // local copies of sIdxU and sIdxY for predictor
 begin
   ComputeIterminal;
-  iu := sIdxU;
-  iy := sIdxY;
 
   t := ActiveSolutionObj.DynaVars.t;
   h := ActiveSolutionObj.DynaVars.h;
@@ -497,27 +494,23 @@ begin
   d := 1 / FSampleFreq;
   nstep := trunc (1e-6 + h/d);
   w := 2 * Pi * f;
-  wt := w * t;
-  sinwt := sin(wt);
-  coswt := cos(wt);
   pk := sqrt(2);
 
-  // push input voltage waveform through the first PWL block
   vnow := Vterminal^[1];
   vin := 0;
+  y := 0;
+  iu := sIdxU;
+  iy := sIdxY;
   for i:=1 to nstep do begin
     iu := OffsetIdx (iu, 1, Ffiltlen);
+    // push input voltage waveform through the first PWL block
     scale := 1.0 * i / nstep;
     vre := vlast.re + (vnow.re - vlast.re) * scale;
     vim := vlast.im + (vnow.im - vlast.im) * scale;
     wt := w * (t - h + i * d);
     vin := pk * (vre * cos(wt) + vim * sin(wt));
     whist[iu] := Fbp1.GetYValue(vin);
-  end;
-
-  // apply the filter and second PWL block
-  y := 0;
-  for i := 1 to nstep do begin
+    // apply the filter and second PWL block
     z[iu] := 0;
     for k := 1 to Ffiltlen do begin
       z[iu] := z[iu] + Ffilter.Yvalue_pt[k] * whist[MapIdx(iu-k+1,Ffiltlen)];
@@ -526,13 +519,19 @@ begin
       z[iu] := z[iu] - Ffilter.Xvalue_pt[k] * z[MapIdx(iu-k+1,Ffiltlen)];
     end;
     y := Fbp2.GetYValue(z[iu]);
-    if abs(y) > sIpeak then sIpeak := abs(y); // catching the fastest peaks
+    // updating outputs
+    if (corrector = 1) and (abs(y) > sIpeak) then
+      sIpeak := abs(y); // catching the fastest peaks
+    // update the RMS
     iy := OffsetIdx (iy, 1, Fwinlen);
     y2[iy] := y * y;  // brute-force RMS update
-    y2sum := 0.0;
-    for k := 1 to Fwinlen do y2sum := y2sum + y2[k];
-    sIrms := sqrt(y2sum / Fwinlen); // TODO - this is the magnitude, what about angle?
+    if i = nstep then begin
+      y2sum := 0.0;
+      for k := 1 to Fwinlen do y2sum := y2sum + y2[k];
+      sIrms := sqrt(y2sum / Fwinlen); // TODO - this is the magnitude, what about angle?
+    end;
   end;
+
   if corrector = 1 then begin
     sIdxU := iu;
     sIdxY := iy;
