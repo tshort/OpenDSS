@@ -50,8 +50,10 @@ TYPE
         sFilterout: double;
         vlast: complex;
         y2: pDoubleArray;
-        z: pDoubleArray;
+        z: pDoubleArray;     // current digital filter history terms
         whist: pDoubleArray;
+        zlast: pDoubleArray; // update only after the corrector step
+        wlast: pDoubleArray;
         sIdxU: integer; // ring buffer index for z and whist
         sIdxY: integer; // ring buffer index for y2 (rms current)
         y2sum: double;
@@ -300,6 +302,8 @@ Begin
   y2 := nil;
   z := nil;
   whist := nil;
+  zlast := nil;
+  wlast := nil;
 
   InitPropertyValues(0);
 
@@ -312,6 +316,8 @@ Begin
   Reallocmem (y2, 0);
   Reallocmem (z, 0);
   Reallocmem (whist, 0);
+  Reallocmem (wlast, 0);
+  Reallocmem (zlast, 0);
   Inherited Destroy;
 End;
 
@@ -329,6 +335,8 @@ Begin
     Reallocmem (y2, sizeof(y2^[1]) * Fwinlen);
     Reallocmem (z, sizeof(z^[1]) * Ffiltlen);
     Reallocmem (whist, sizeof(whist^[1]) * Ffiltlen);
+    Reallocmem (wlast, sizeof(wlast^[1]) * Ffiltlen);
+    Reallocmem (zlast, sizeof(zlast^[1]) * Ffiltlen);
   end;
 
   if FNPhases = 3 then BaseCurr := BaseCurr * sqrt(3);
@@ -460,6 +468,7 @@ begin
     wt := vang - wd * (Ffiltlen - i);
     whist[i] := 0;
     whist[i] := Fbp1.GetYValue(sVwave * cos(wt));
+    wlast[i] := whist[i];
   end;
   for i := 1 to Fwinlen do begin
     wt := iang - wd * (Fwinlen - i);
@@ -467,8 +476,8 @@ begin
     y2[i] := val * val;
     k := i - Fwinlen + Ffiltlen;
     if k > 0 then begin
-      z[k] := 0;
       z[k] := -Fbp2.GetXvalue (val); // HW history with generator convention
+      zlast[k] := z[k];
     end;
   end;
 
@@ -501,6 +510,11 @@ begin
   vin := 0;
   y := 0;
   iu := sIdxU;
+  iy := sIdxY;
+  for k := 1 to FFiltlen do begin
+    z[k] := zlast[k];
+    whist[k] := wlast[k];
+  end;
   for i:=1 to nstep do begin
     iu := OffsetIdx (iu, 1, Ffiltlen);
     // push input voltage waveform through the first PWL block
@@ -510,12 +524,7 @@ begin
     wt := w * (t - h + i * d);
     vin := pk * (vre * cos(wt) + vim * sin(wt));
     whist[iu] := Fbp1.GetYValue(vin);
-  end;
-  // apply the filter and second PWL block
-  iu := sIdxU;
-  iy := sIdxY;
-  for i := 1 to nstep do begin
-    iu := OffsetIdx (iu, 1, Ffiltlen);
+    // apply the filter and second PWL block
     z[iu] := 0;
     for k := 1 to Ffiltlen do begin
       z[iu] := z[iu] + Ffilter.Yvalue_pt[k] * whist[MapIdx(iu-k+1,Ffiltlen)];
@@ -545,6 +554,10 @@ begin
     sBP1out := whist[sIdxU];
     sFilterout := z[sIdxU];
     sIwave := y;
+    for k := 1 to FFiltlen do begin
+      zlast[k] := z[k];
+      wlast[k] := whist[k];
+    end;
   end;
 end;
 
