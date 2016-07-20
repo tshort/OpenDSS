@@ -32,7 +32,7 @@ type
 
 implementation
 
-uses ComServ, Variants, PointerList, Isource, DSSGlobals;
+uses ComServ, Variants, PointerList, Isource, DSSGlobals, CktElement;
 
 function TISources.Get_AllNames: OleVariant;
 Var
@@ -108,10 +108,10 @@ end;
 
 function TISources.Get_Name: WideString;
 Var
-   elem: TIsourceObj;
+   elem: TDSSCktElement;
 Begin
     Result := '';
-    elem := IsourceClass.GetActiveObj;
+    elem := ActiveCircuit.ActiveCktElement;
     If elem <> Nil Then Result := elem.Name;
 end;
 
