@@ -9,7 +9,7 @@ procedure IsourceV(mode:longint;out arg:Olevariant);stdcall;
 
 implementation
 
-uses ComServ, Variants, PointerList, Isource, DSSGlobals;
+uses ComServ, Variants, PointerList, Isource, DSSGlobals, CktElement;
 
 function IsourceI(mode:longint;arg:longint):Longint;stdcall;
 
@@ -106,14 +106,14 @@ end;
 function IsourceS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
 
 Var
-   elem: TIsourceObj;
+   elem: TDSSCktElement;
 
 begin
   Result := pAnsiChar(AnsiString('')); // Default return value
   case mode of
   0: begin  // Isources.Name read
         Result := pAnsiChar(AnsiString(''));
-        elem := IsourceClass.GetActiveObj;
+        elem := ActiveCircuit.ActiveCktElement;
         If elem <> Nil Then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // Isoruces.Name write
