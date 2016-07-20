@@ -9,7 +9,7 @@ procedure VsourcesV(mode:longint;out arg:Olevariant);stdcall;
 
 implementation
 
-uses ComServ, Vsource, Variants, PointerList, DSSGlobals;
+uses ComServ, Vsource, Variants, PointerList, DSSGlobals, CktElement;
 
 function VsourcesI(mode:longint;arg:longint):Longint;stdcall;
 
@@ -123,14 +123,14 @@ end;
 function VsourcesS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
 
 Var
-   elem: TVsourceObj;
+   elem: TDSSCktElement;
 
 begin
   Result := pAnsiChar(AnsiString(''));    // Default return value
   case mode of
   0: begin  // Vsources.Name read
     Result := pAnsiChar(AnsiString(''));
-    elem := VsourceClass.GetActiveObj;
+    elem := ActiveCircuit.ActiveCktElement;
     If elem <> Nil Then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // Vsources.Name write
