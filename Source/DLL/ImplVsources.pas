@@ -36,7 +36,7 @@ type
 
 implementation
 
-uses ComServ, Vsource, Variants, PointerList, DSSGlobals;
+uses ComServ, Vsource, Variants, PointerList, DSSGlobals, CktElement;
 
 function TVsources.Get_AllNames: OleVariant;
 Var
@@ -112,10 +112,10 @@ end;
 
 function TVsources.Get_Name: WideString;
 Var
-   elem: TVsourceObj;
+   elem: TDSSCktElement;
 Begin
     Result := '';
-    elem := VsourceClass.GetActiveObj;
+    elem := ActiveCircuit.ActiveCktElement;
     If elem <> Nil Then Result := elem.Name;
 end;
 
