@@ -96,6 +96,8 @@ TYPE
         FPTphase          :Integer;
         ControlledPhase   :Integer;
 
+        ControlActionHandle :Integer;
+
         VBuffer, CBuffer  :pComplexArray;
 
         FUNCTION Get_Transformer  :TTransfObj;
@@ -542,6 +544,9 @@ Begin
      FInversetime := FALSE;
      RegulatedBus := '';
      Vlimit := 0.0;
+
+     ControlActionHandle := 0;
+
    //  RecalcElementData;
 
 End;
@@ -1026,7 +1031,7 @@ begin
                        Begin
                          IF   PresentTap[TapWinding] < MaxTap[TapWinding]  THEN
                          WITH ActiveCircuit Do Begin
-                               ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self);
+                               ControlActionHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self);
                                Armed := TRUE;  // Armed to change taps
                          End;
                        End
@@ -1034,13 +1039,20 @@ begin
                        Begin
                          IF   PresentTap[TapWinding] > MinTap[TapWinding]  THEN
                          WITH ActiveCircuit Do Begin
-                               ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self);
+                               ControlActionHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self);
                                Armed := TRUE;  // Armed to change taps
                          End;
                        End;
                End;
            END {If TapChangeIsNeeded}
-         ELSE PendingTapChange := 0.0;
+         ELSE Begin {Reset if back in band.}
+              PendingTapChange := 0.0;
+              if Armed Then  Begin
+                   ActiveCircuit.ControlQueue.Delete(ControlActionHandle);
+                   Armed := FALSE;
+                   ControlActionHandle := 0;
+              End;
+         End;
 
        END;
 end;
