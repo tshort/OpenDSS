@@ -2,10 +2,10 @@ unit DLines;
 
 interface
 
-function LinesI(mode: longint; arg: longint): longint; stdcall;
-function LinesF(mode: longint; arg: double): double; stdcall;
-function LinesS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
-procedure LinesV(mode: longint; out arg: olevariant);stdcall;
+function LinesI(mode: longint; arg: longint): longint; cdecl;
+function LinesF(mode: longint; arg: double): double; cdecl;
+function LinesS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
+procedure LinesV(mode: longint; out arg: olevariant);cdecl;
 
 implementation
 
@@ -21,7 +21,7 @@ Begin
        'Element name='+ CktElem.Name, 5007) ;
 END;
 
-function LinesI(mode: longint; arg: longint): longint; stdcall;
+function LinesI(mode: longint; arg: longint): longint; cdecl;
 
 Var
    pLine:TLineObj;
@@ -145,7 +145,7 @@ begin
 end;
 
 //******************************floating point type properties*************************
-function LinesF(mode: longint; arg: double): double; stdcall;
+function LinesF(mode: longint; arg: double): double; cdecl;
 begin
   Result:=0.0;
   case mode of
@@ -377,7 +377,7 @@ begin
 end;
 
 //******************************String type properties****************************
-function LinesS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
+function LinesS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
 
 Var
    pLine:TDSSCktElement;
@@ -523,7 +523,7 @@ begin
 end;
 
 //************************Variant type properties*******************************
-procedure LinesV(mode: longint; out arg: olevariant);stdcall;
+procedure LinesV(mode: longint; out arg: olevariant);cdecl;
 
 Var
   LineElem:TLineObj;

@@ -2,16 +2,16 @@ unit DVSources;
 
 interface
 
-function VsourcesI(mode:longint;arg:longint):Longint;stdcall;
-function VsourcesF(mode:longint;arg:double):double;stdcall;
-function VsourcesS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure VsourcesV(mode:longint;out arg:Olevariant);stdcall;
+function VsourcesI(mode:longint;arg:longint):Longint;cdecl;
+function VsourcesF(mode:longint;arg:double):double;cdecl;
+function VsourcesS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
+procedure VsourcesV(mode:longint;out arg:Olevariant);cdecl;
 
 implementation
 
 uses ComServ, Vsource, Variants, PointerList, DSSGlobals, CktElement;
 
-function VsourcesI(mode:longint;arg:longint):Longint;stdcall;
+function VsourcesI(mode:longint;arg:longint):Longint;cdecl;
 
 Var
    pElem : TVsourceObj;
@@ -70,7 +70,7 @@ begin
 end;
 
 //***************************Floating point type properties*******************************
-function VsourcesF(mode:longint;arg:double):double;stdcall;
+function VsourcesF(mode:longint;arg:double):double;cdecl;
 
 var
   elem: TVsourceObj;
@@ -120,7 +120,7 @@ begin
 end;
 
 //***************************String type properties*******************************
-function VsourcesS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
+function VsourcesS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
    elem: TDSSCktElement;
@@ -151,7 +151,7 @@ begin
 end;
 
 //***************************Variant type properties*******************************
-procedure VsourcesV(mode:longint;out arg:Olevariant);stdcall;
+procedure VsourcesV(mode:longint;out arg:Olevariant);cdecl;
 
 Var
   elem: TVsourceObj;

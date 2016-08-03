@@ -2,10 +2,10 @@ unit DLoadShape;
 
 interface
 
-function LoadShapeI(mode:longint; arg:longint):longint;stdcall;
-function LoadShapeF(mode:longint; arg:double):double;stdcall;
-function LoadShapeS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
-procedure LoadShapeV(mode:longint; out arg:Olevariant);stdcall;
+function LoadShapeI(mode:longint; arg:longint):longint;cdecl;
+function LoadShapeF(mode:longint; arg:double):double;cdecl;
+function LoadShapeS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
+procedure LoadShapeV(mode:longint; out arg:Olevariant);cdecl;
 
 implementation
 
@@ -14,7 +14,7 @@ uses Loadshape, DSSGlobals, PointerList, Variants, ExecHelper;
 Var
     ActiveLSObject: TLoadshapeObj;
 
-function LoadShapeI(mode:longint; arg:longint):longint;stdcall;
+function LoadShapeI(mode:longint; arg:longint):longint;cdecl;
 
 Var
    iElem : Integer;
@@ -88,7 +88,7 @@ begin
 end;
 
 //**********************Floating point type properties***************************
-function LoadShapeF(mode:longint; arg:double):double;stdcall;
+function LoadShapeF(mode:longint; arg:double):double;cdecl;
 begin
   Result := 0.0;    // Default return value
   case mode of
@@ -153,7 +153,7 @@ begin
 end;
 
 //**********************String type properties***************************
-function LoadShapeS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function LoadShapeS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
   elem: TLoadshapeObj;
@@ -185,7 +185,7 @@ begin
 end;
 
 //**********************Variant type properties***************************
-procedure LoadShapeV(mode:longint; out arg:Olevariant);stdcall;
+procedure LoadShapeV(mode:longint; out arg:Olevariant);cdecl;
 
 Var
    i, k, LoopLimit: Integer;

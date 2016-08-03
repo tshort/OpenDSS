@@ -2,10 +2,10 @@ unit DLoads;
 
 interface
 
-function DSSLoads(mode:longint; arg:longint):longint; stdcall;
-function DSSLoadsF(mode:longint; arg:double):double; stdcall;
-function DSSLoadsS(mode:longint; arg:pAnsiChar):pAnsiChar; stdcall;
-procedure DSSLoadsV(mode:longint; out arg:Olevariant); stdcall;
+function DSSLoads(mode:longint; arg:longint):longint; cdecl;
+function DSSLoadsF(mode:longint; arg:double):double; cdecl;
+function DSSLoadsS(mode:longint; arg:pAnsiChar):pAnsiChar; cdecl;
+procedure DSSLoadsV(mode:longint; out arg:Olevariant); cdecl;
 
 implementation
 
@@ -30,7 +30,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 //*********************Properties int Type***********************************
-function DSSLoads(mode:longint; arg: longint):longint; stdcall;
+function DSSLoads(mode:longint; arg: longint):longint; cdecl;
 Var
    pLoad:TLoadObj;
 begin
@@ -153,7 +153,7 @@ end;
 
 
 //*********************Properties Float Type***********************************
-function DSSLoadsF(mode:longint; arg:double):double; stdcall;
+function DSSLoadsF(mode:longint; arg:double):double; cdecl;
 Var
    pLoad:TLoadObj;
 begin
@@ -417,7 +417,7 @@ begin
 end;
 
 //*********************Properties String Type***********************************
-function DSSLoadsS(mode:longint; arg:pAnsiChar):pAnsiChar; stdcall;
+function DSSLoadsS(mode:longint; arg:pAnsiChar):pAnsiChar; cdecl;
 Var
    pLoad:TLoadObj;
    ActiveSave :integer;
@@ -526,7 +526,7 @@ begin
 end;
 
 //*********************Properties Variant Type***********************************
-procedure DSSLoadsV(mode:longint; out arg:Olevariant); stdcall;
+procedure DSSLoadsV(mode:longint; out arg:Olevariant); cdecl;
 Var
    pLoad:TLoadObj;
    k, i, Looplimit:Integer;

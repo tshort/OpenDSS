@@ -2,10 +2,10 @@ unit DFuses;
 
 interface
 
-function FusesI(mode:longint;arg:longint):longint;stdcall;
-function FusesF(mode:longint;arg:double):double;stdcall;
-function FusesS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure FusesV(mode:longint;out arg:Olevariant);stdcall;
+function FusesI(mode:longint;arg:longint):longint;cdecl;
+function FusesF(mode:longint;arg:double):double;cdecl;
+function FusesS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
+procedure FusesV(mode:longint;out arg:Olevariant);cdecl;
 
 implementation
 
@@ -21,7 +21,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 
-function FusesI(mode:longint;arg:longint):longint;stdcall;
+function FusesI(mode:longint;arg:longint):longint;cdecl;
 
 Var
    pElem : TFuseObj;
@@ -116,7 +116,7 @@ begin
 end;
 
 //******************************Floating point type properties********************
-function FusesF(mode:longint;arg:double):double;stdcall;
+function FusesF(mode:longint;arg:double):double;cdecl;
 
 Var
   elem: TFuseObj;
@@ -139,7 +139,7 @@ begin
 end;
 
 //******************************String type properties********************
-function FusesS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
+function FusesS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
   elem: TFuseObj;
@@ -197,7 +197,7 @@ begin
 end;
 
 //******************************Variant type properties********************
-procedure FusesV(mode:longint;out arg:Olevariant);stdcall;
+procedure FusesV(mode:longint;out arg:Olevariant);cdecl;
 
 Var
   elem: TFuseObj;

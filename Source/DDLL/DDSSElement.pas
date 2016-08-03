@@ -2,9 +2,9 @@ unit DDSSElement;
 
 interface
 
-function DSSElementI(mode:longint; arg: longint):longint;stdcall;
-function DSSElementS(mode:longint; arg: pAnsiChar):pAnsiChar;stdcall;
-procedure DSSElementV(mode: longint; out arg: Olevariant);stdcall;
+function DSSElementI(mode:longint; arg: longint):longint;cdecl;
+function DSSElementS(mode:longint; arg: pAnsiChar):pAnsiChar;cdecl;
+procedure DSSElementV(mode: longint; out arg: Olevariant);cdecl;
 
 implementation
 
@@ -12,7 +12,7 @@ uses DSSGlobals,
      Variants,
      Sysutils;
 
-function DSSElementI(mode:longint; arg: longint):longint;stdcall;
+function DSSElementI(mode:longint; arg: longint):longint;cdecl;
 begin
   Result:=0; // Default return value
   case mode of
@@ -34,7 +34,7 @@ begin
 end;
 
 //*********************************String type properties**************************
-function DSSElementS(mode:longint; arg: pAnsiChar):pAnsiChar;stdcall;
+function DSSElementS(mode:longint; arg: pAnsiChar):pAnsiChar;cdecl;
 begin
   Result:=pAnsiChar(AnsiString(''));// Default return value
   case mode of
@@ -54,7 +54,7 @@ begin
 end;
 
 //*****************************Variant type properties**************************
-procedure DSSElementV(mode: longint; out arg: Olevariant);stdcall;
+procedure DSSElementV(mode: longint; out arg: Olevariant);cdecl;
 
 VAR
    k:Integer;

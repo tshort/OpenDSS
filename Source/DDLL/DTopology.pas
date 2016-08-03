@@ -2,9 +2,9 @@ unit DTopology;
 
 interface
 
-function TopologyI(mode:longint; arg:longint):longint;stdcall;
-function TopologyS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
-procedure TopologyV(mode:longint; out arg:Olevariant);stdcall;
+function TopologyI(mode:longint; arg:longint):longint;cdecl;
+function TopologyS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
+procedure TopologyV(mode:longint; out arg:Olevariant);cdecl;
 
 implementation
 
@@ -53,7 +53,7 @@ begin
   end;
 end;
 
-function TopologyI(mode:longint; arg:longint):longint;stdcall;
+function TopologyI(mode:longint; arg:longint):longint;cdecl;
 
 var
   topo: TCktTree;
@@ -179,7 +179,7 @@ begin
 end;
 
 //****************************String type properties*****************************
-function TopologyS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function TopologyS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
 
 var
   node: TCktTreeNode;
@@ -263,7 +263,7 @@ begin
 end;
 
 //****************************Variant type properties*****************************
-procedure TopologyV(mode:longint; out arg:Olevariant);stdcall;
+procedure TopologyV(mode:longint; out arg:Olevariant);cdecl;
 
 var
   topo: TCktTree;

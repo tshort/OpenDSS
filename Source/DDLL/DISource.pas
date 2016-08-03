@@ -2,16 +2,16 @@ unit DISource;
 
 interface
 
-function IsourceI(mode:longint;arg:longint):Longint;stdcall;
-function IsourceF(mode:longint;arg:double):double;stdcall;
-function IsourceS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure IsourceV(mode:longint;out arg:Olevariant);stdcall;
+function IsourceI(mode:longint;arg:longint):Longint;cdecl;
+function IsourceF(mode:longint;arg:double):double;cdecl;
+function IsourceS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
+procedure IsourceV(mode:longint;out arg:Olevariant);cdecl;
 
 implementation
 
 uses ComServ, Variants, PointerList, Isource, DSSGlobals, CktElement;
 
-function IsourceI(mode:longint;arg:longint):Longint;stdcall;
+function IsourceI(mode:longint;arg:longint):Longint;cdecl;
 
 Var
    pElem : TIsourceObj;
@@ -61,7 +61,7 @@ begin
 end;
 
 //***************************Floating point type properties*******************************
-function IsourceF(mode:longint;arg:double):double;stdcall;
+function IsourceF(mode:longint;arg:double):double;cdecl;
 
 Var
    pElem : TIsourceObj;
@@ -103,7 +103,7 @@ begin
 end;
 
 //***************************String type properties*******************************
-function IsourceS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
+function IsourceS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
    elem: TDSSCktElement;
@@ -134,7 +134,7 @@ begin
 end;
 
 //***************************Variant type properties*******************************
-procedure IsourceV(mode:longint;out arg:Olevariant);stdcall;
+procedure IsourceV(mode:longint;out arg:Olevariant);cdecl;
 
 Var
   elem: TIsourceObj;

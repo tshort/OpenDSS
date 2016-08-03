@@ -2,9 +2,9 @@ unit DRelays;
 
 interface
 
-function RelaysI(mode:longint;arg:longint):longint;stdcall;
-function RelaysS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure RelaysV(mode:longint;out arg:Olevariant);stdcall;
+function RelaysI(mode:longint;arg:longint):longint;cdecl;
+function RelaysS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
+procedure RelaysV(mode:longint;out arg:Olevariant);cdecl;
 
 implementation
 
@@ -20,7 +20,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 
-function RelaysI(mode:longint;arg:longint):longint;stdcall;
+function RelaysI(mode:longint;arg:longint):longint;cdecl;
 
 Var
    pElem : TRelayObj;
@@ -100,7 +100,7 @@ begin
 end;
 
 //****************************String type properties****************************
-function RelaysS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
+function RelaysS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
   elem: TRelayObj;
@@ -149,7 +149,7 @@ begin
 end;
 
 //****************************Variant type properties****************************
-procedure RelaysV(mode:longint;out arg:Olevariant);stdcall;
+procedure RelaysV(mode:longint;out arg:Olevariant);cdecl;
 
 Var
   elem: TRelayObj;

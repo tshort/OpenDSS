@@ -2,14 +2,14 @@ unit DCmathLib;
 
 interface
 
-function CmathLibF(mode:longint; arg1:double; arg2:double):double;stdcall;
-procedure CmathLibV(mode:longint; Realpart:double; ImagPart:double; out arg: Olevariant);stdcall;
+function CmathLibF(mode:longint; arg1:double; arg2:double):double;cdecl;
+procedure CmathLibV(mode:longint; Realpart:double; ImagPart:double; out arg: Olevariant);cdecl;
 
 implementation
 
 uses Ucomplex, variants;
 
-function CmathLibF(mode:longint; arg1:double; arg2:double):double;stdcall;
+function CmathLibF(mode:longint; arg1:double; arg2:double):double;cdecl;
 begin
   Result:=0.0; // Default return value
   case mode of
@@ -25,7 +25,7 @@ begin
 end;
 
 //***************************Variant type properties****************************
-procedure CmathLibV(mode:longint; Realpart:double; ImagPart:double; out arg: Olevariant);stdcall;
+procedure CmathLibV(mode:longint; Realpart:double; ImagPart:double; out arg: Olevariant);cdecl;
 
 Var
    TempPolar:polar;

@@ -4,19 +4,19 @@ interface
 
 Uses Arraydef, UComplex, Solution;
 
-Function  InitAndGetYparams(var hY, nBus, nNZ:LongWord): Longword; StdCall;
-Procedure GetCompressedYMatrix(hY, nBus, nNz:Longword; Var ColPtr, RowIdx:pIntegerArray; Var cVals:pComplexArray); StdCall;
+Function  InitAndGetYparams(var hY, nBus, nNZ:LongWord): Longword; cdecl;
+Procedure GetCompressedYMatrix(hY, nBus, nNz:Longword; Var ColPtr, RowIdx:pIntegerArray; Var cVals:pComplexArray); cdecl;
 //01202016
-procedure ZeroInjCurr; Stdcall;
-procedure GetSourceInjCurrents; Stdcall;
-procedure GetPCInjCurr; Stdcall;
-function SystemYChanged(mode, arg: longint): longint; Stdcall;
-procedure BuildYMatrixD(BuildOps, AllocateVI: longint); Stdcall;
-function UseAuxCurrents(mode, arg: longint): longint; Stdcall;
-procedure AddInAuxCurrents(SType: integer); Stdcall;
-procedure getIpointer(var IvectorPtr: pNodeVarray);Stdcall;
-procedure getVpointer(var VvectorPtr: pNodeVarray);Stdcall;
-function SolveSystem(var NodeV:pNodeVarray): integer; stdcall;
+procedure ZeroInjCurr; cdecl;
+procedure GetSourceInjCurrents; cdecl;
+procedure GetPCInjCurr; cdecl;
+function SystemYChanged(mode, arg: longint): longint; cdecl;
+procedure BuildYMatrixD(BuildOps, AllocateVI: longint); cdecl;
+function UseAuxCurrents(mode, arg: longint): longint; cdecl;
+procedure AddInAuxCurrents(SType: integer); cdecl;
+procedure getIpointer(var IvectorPtr: pNodeVarray);cdecl;
+procedure getVpointer(var VvectorPtr: pNodeVarray);cdecl;
+function SolveSystem(var NodeV:pNodeVarray): integer; cdecl;
 
 
 implementation
@@ -30,7 +30,7 @@ Var {Global variables in this Module}
    YValues : pComplexArray;
 
 
-Function InitAndGetYparams(var hY, nBus, nNZ:LongWord): Longword; StdCall;
+Function InitAndGetYparams(var hY, nBus, nNZ:LongWord): Longword; cdecl;
 
 // Call this first
 
@@ -58,7 +58,7 @@ Begin
 End;
 
 
-Procedure GetCompressedYMatrix(hY, nBus, nNz:Longword; Var ColPtr, RowIdx:pIntegerArray; Var cVals:pComplexArray); StdCall;
+Procedure GetCompressedYMatrix(hY, nBus, nNz:Longword; Var ColPtr, RowIdx:pIntegerArray; Var cVals:pComplexArray); cdecl;
 
 {Returns Pointers to column and row and matrix values}
 
@@ -79,22 +79,22 @@ Begin
      cVals  := YValues;
 End;
 
-procedure ZeroInjCurr; Stdcall;
+procedure ZeroInjCurr; cdecl;
 Begin
      IF ActiveCircuit <> Nil THEN ActiveCircuit.Solution.ZeroInjCurr;
 end;
 
-procedure GetSourceInjCurrents; Stdcall;
+procedure GetSourceInjCurrents; cdecl;
 Begin
      IF ActiveCircuit <> Nil THEN ActiveCircuit.Solution.GetSourceInjCurrents;
 end;
 
-procedure GetPCInjCurr; Stdcall;
+procedure GetPCInjCurr; cdecl;
 Begin
      IF ActiveCircuit <> Nil THEN ActiveCircuit.Solution.GetPCInjCurr;
 end;
 
-function SystemYChanged(mode, arg: longint): longint; Stdcall;
+function SystemYChanged(mode, arg: longint): longint; cdecl;
 begin
     Result:=0;
     case mode of
@@ -106,7 +106,7 @@ begin
     end;
 end;
 
-procedure BuildYMatrixD(BuildOps, AllocateVI: longint); Stdcall;
+procedure BuildYMatrixD(BuildOps, AllocateVI: longint); cdecl;
 var
   AllocateV: boolean;
 begin
@@ -115,7 +115,7 @@ begin
    BuildYMatrix(BuildOps,AllocateV);
 end;
 
-function UseAuxCurrents(mode, arg: longint): longint; Stdcall;
+function UseAuxCurrents(mode, arg: longint): longint; cdecl;
 begin
     Result:=0;
     case mode of
@@ -127,22 +127,22 @@ begin
     end;
 end;
 
-procedure AddInAuxCurrents(SType: integer); Stdcall;
+procedure AddInAuxCurrents(SType: integer); cdecl;
 begin
     ActiveCircuit.Solution.AddInAuxCurrents(SType);
 end;
 
-procedure getIpointer(var IvectorPtr: pNodeVarray);Stdcall;
+procedure getIpointer(var IvectorPtr: pNodeVarray);cdecl;
 begin
      IVectorPtr:=ActiveCircuit.Solution.Currents;
 end;
 
-procedure getVpointer(var VvectorPtr: pNodeVarray);Stdcall;
+procedure getVpointer(var VvectorPtr: pNodeVarray);cdecl;
 begin
      VVectorPtr:=ActiveCircuit.Solution.NodeV;
 end;
 
-function SolveSystem(var NodeV:pNodeVarray): integer; stdcall;
+function SolveSystem(var NodeV:pNodeVarray): integer; cdecl;
 begin
   Result:=ActiveCircuit.Solution.SolveSystem(NodeV);
 end;

@@ -2,16 +2,16 @@ unit DSolution;
 
 interface
 
-function SolutionI(mode:longint; arg: longint):longint; stdcall;
-function SolutionF(mode:longint; arg: double):double; stdcall;
-function SolutionS(mode:longint; arg: pAnsiChar):pAnsiChar; stdcall;
-procedure SolutionV(mode:longint; out arg: OleVariant); stdcall;
+function SolutionI(mode:longint; arg: longint):longint; cdecl;
+function SolutionF(mode:longint; arg: double):double; cdecl;
+function SolutionS(mode:longint; arg: pAnsiChar):pAnsiChar; cdecl;
+procedure SolutionV(mode:longint; out arg: OleVariant); cdecl;
 
 implementation
 
 uses DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants, SolutionAlgs;
 
-function SolutionI(mode:longint; arg: longint):longint; stdcall;
+function SolutionI(mode:longint; arg: longint):longint; cdecl;
 begin
   Result:=0; // Default retirn value
   case mode of
@@ -251,7 +251,7 @@ begin
 end;
 
 //***************************floating point variables*******************************
-function SolutionF(mode:longint; arg: double):double; stdcall;
+function SolutionF(mode:longint; arg: double):double; cdecl;
 begin
   Result:=0.0; // Default return value
   case mode of
@@ -393,7 +393,7 @@ begin
 end;
 
 //***************************String type properties*******************************
-function SolutionS(mode:longint; arg: pAnsiChar):pAnsiChar; stdcall;
+function SolutionS(mode:longint; arg: pAnsiChar):pAnsiChar; cdecl;
 
 var
 TestLoadShapeObj :TLoadShapeObj;
@@ -451,7 +451,7 @@ begin
 end;
 
 //**********************************Variant type properties*******************************
-procedure SolutionV(mode:longint; out arg: OleVariant); stdcall;
+procedure SolutionV(mode:longint; out arg: OleVariant); cdecl;
 Var i:Integer;
 begin
   case mode of

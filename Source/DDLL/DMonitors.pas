@@ -2,9 +2,9 @@ unit DMonitors;
 
 interface
 
-function MonitorsI(mode:longint; arg: longint):longint; stdcall;
-function MonitorsS(mode:longint; arg: pAnsiChar):pAnsiChar; stdcall;
-procedure MonitorsV(mode:longint; out arg: Olevariant); stdcall;
+function MonitorsI(mode:longint; arg: longint):longint; cdecl;
+function MonitorsS(mode:longint; arg: pAnsiChar):pAnsiChar; cdecl;
+procedure MonitorsV(mode:longint; out arg: Olevariant); cdecl;
 
 implementation
 
@@ -51,7 +51,7 @@ Begin
 
 End;
 
-function MonitorsI(mode:longint; arg: longint):longint; stdcall;
+function MonitorsI(mode:longint; arg: longint):longint; cdecl;
 
 Var
    pMon:TMonitorObj;
@@ -232,7 +232,7 @@ begin
 end;
 
 //***********************String Type properties*********************************
-function MonitorsS(mode:longint; arg: pAnsiChar):pAnsiChar; stdcall;
+function MonitorsS(mode:longint; arg: pAnsiChar):pAnsiChar; cdecl;
 
 Var
    pMon:TMonitorObj;
@@ -307,7 +307,7 @@ begin
 end;
 
 //****************************Variant type properties***************************
-procedure MonitorsV(mode:longint; out arg: Olevariant); stdcall;
+procedure MonitorsV(mode:longint; out arg: Olevariant); cdecl;
 
 Var
   MonitorElem:TMonitorObj;

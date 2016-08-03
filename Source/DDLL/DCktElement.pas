@@ -2,10 +2,10 @@ unit DCktElement;
 
 interface
 
-function CktElementI(mode:longint; arg:longint):longint;stdcall;
-function CktElementF(mode:longint; arg:double):double;stdcall;
-function CktElementS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
-procedure CktElementV(mode:longint; out arg:Olevariant);stdcall;
+function CktElementI(mode:longint; arg:longint):longint;cdecl;
+function CktElementF(mode:longint; arg:double):double;cdecl;
+function CktElementS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
+procedure CktElementV(mode:longint; out arg:Olevariant);cdecl;
 
 implementation
 
@@ -121,7 +121,7 @@ Begin
     Result :=  ((ActiveCircuit.ActiveCktElement.DSSObjType and 3) = PD_ELEMENT)
 End;
 
-function CktElementI(mode:longint; arg:longint):longint;stdcall;
+function CktElementI(mode:longint; arg:longint):longint;cdecl;
 var
    pCktElement : TDSSCktElement;
    iControl : integer;
@@ -279,7 +279,7 @@ begin
 end;
 
 //**************************Float commands****************************************
-function CktElementF(mode:longint; arg:double):double;stdcall;
+function CktElementF(mode:longint; arg:double):double;cdecl;
 begin
     Result:=0.0;  // Default return value
     case mode of
@@ -351,7 +351,7 @@ begin
 end;
 
 //**************************String commands****************************************
-function CktElementS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function CktElementS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
 begin
   Result:=pAnsiChar(AnsiString('0'));  // Default return value
   case mode of
@@ -407,7 +407,7 @@ begin
   end;
 end;
 //**************************Variant commands****************************************
-procedure CktElementV(mode:longint; out arg:Olevariant);stdcall;
+procedure CktElementV(mode:longint; out arg:Olevariant);cdecl;
 
 var
   VPh, V012 : Array[1..3] of Complex;

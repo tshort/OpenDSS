@@ -2,10 +2,10 @@ unit DCapacitors;
 
 interface
 
-function CapacitorsI(mode:longint; arg: longint):longint;stdcall;
-function CapacitorsF(mode:longint; arg: double):double;stdcall;
-function CapacitorsS(mode:longint; arg: pAnsiChar):pAnsiChar;stdcall;
-procedure CapacitorsV(mode:longint; out arg: Olevariant);stdcall;
+function CapacitorsI(mode:longint; arg: longint):longint;cdecl;
+function CapacitorsF(mode:longint; arg: double):double;cdecl;
+function CapacitorsS(mode:longint; arg: pAnsiChar):pAnsiChar;cdecl;
+procedure CapacitorsV(mode:longint; out arg: Olevariant);cdecl;
 
 implementation
 
@@ -27,7 +27,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 
-function CapacitorsI(mode:longint; arg: longint):longint;stdcall;
+function CapacitorsI(mode:longint; arg: longint):longint;cdecl;
 
 var
   elem: TCapacitorObj;
@@ -139,7 +139,7 @@ begin
 end;
 
 //***************************Floating point type properties**********************
-function CapacitorsF(mode:longint; arg: double):double;stdcall;
+function CapacitorsF(mode:longint; arg: double):double;cdecl;
 
 var
   elem: TCapacitorObj;
@@ -169,7 +169,7 @@ begin
 end;
 
 //*******************************String type properties***************************
-function CapacitorsS(mode:longint; arg: pAnsiChar):pAnsiChar;stdcall;
+function CapacitorsS(mode:longint; arg: pAnsiChar):pAnsiChar;cdecl;
 
 Var
   elem: TCapacitorObj;
@@ -215,7 +215,7 @@ begin
 end;
 
 //*********************************Variant type properties***********************
-procedure CapacitorsV(mode:longint; out arg: Olevariant);stdcall;
+procedure CapacitorsV(mode:longint; out arg: Olevariant);cdecl;
 
 var
   elem: TCapacitorObj;

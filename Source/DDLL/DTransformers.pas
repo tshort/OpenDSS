@@ -2,10 +2,10 @@ unit DTransformers;
 
 interface
 
-function TransformersI(mode: longint; arg: longint):longint; stdcall;
-function TransformersF(mode: longint; arg: double):double; stdcall;
-function TransformersS(mode: longint; arg: pAnsiChar):pAnsiChar; stdcall;
-procedure TransformersV(mode: longint; out arg: Olevariant); stdcall;
+function TransformersI(mode: longint; arg: longint):longint; cdecl;
+function TransformersF(mode: longint; arg: double):double; cdecl;
+function TransformersS(mode: longint; arg: pAnsiChar):pAnsiChar; cdecl;
+procedure TransformersV(mode: longint; out arg: Olevariant); cdecl;
 
 implementation
 
@@ -27,7 +27,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 
-function TransformersI(mode: longint; arg: longint):longint; stdcall;
+function TransformersI(mode: longint; arg: longint):longint; cdecl;
 
 var
   elem: TTransfObj;
@@ -120,7 +120,7 @@ begin
 end;
 
 //*****************************Floating point type properties************************
-function TransformersF(mode: longint; arg: double):double; stdcall;
+function TransformersF(mode: longint; arg: double):double; cdecl;
 
 var
   elem: TTransfObj;
@@ -230,7 +230,7 @@ begin
 end;
 
 //*******************************String type properties****************************
-function TransformersS(mode: longint; arg: pAnsiChar):pAnsiChar; stdcall;
+function TransformersS(mode: longint; arg: pAnsiChar):pAnsiChar; cdecl;
 
 var
   elem: TTransfObj;
@@ -285,7 +285,7 @@ begin
 end;
 
 //*****************************Variant ype properties*****************************
-procedure TransformersV(mode: longint; out arg: Olevariant); stdcall;
+procedure TransformersV(mode: longint; out arg: Olevariant); cdecl;
 
 Var
   elem: TTransfObj;

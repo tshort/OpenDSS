@@ -2,10 +2,10 @@ unit DReclosers;
 
 interface
 
-function ReclosersI(mode:longint;arg:longint):longint;stdcall;
-function ReclosersF(mode:longint;arg:double):double;stdcall;
-function ReclosersS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure ReclosersV(mode:longint;out arg:Olevariant);stdcall;
+function ReclosersI(mode:longint;arg:longint):longint;cdecl;
+function ReclosersF(mode:longint;arg:double):double;cdecl;
+function ReclosersS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
+procedure ReclosersV(mode:longint;out arg:Olevariant);cdecl;
 
 implementation
 
@@ -21,7 +21,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 
-function ReclosersI(mode:longint;arg:longint):longint;stdcall;
+function ReclosersI(mode:longint;arg:longint):longint;cdecl;
 
 Var
    pElem : TRecloserObj;
@@ -126,7 +126,7 @@ begin
 end;
 
 //********************Floating point type properties******************************
-function ReclosersF(mode:longint;arg:double):double;stdcall;
+function ReclosersF(mode:longint;arg:double):double;cdecl;
 
 var
   elem: TRecloserObj;
@@ -176,7 +176,7 @@ begin
 end;
 
 //********************String type properties******************************
-function ReclosersS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
+function ReclosersS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
   elem: TRecloserObj;
@@ -225,7 +225,7 @@ begin
 end;
 
 //********************Variant type properties******************************
-procedure ReclosersV(mode:longint;out arg:Olevariant);stdcall;
+procedure ReclosersV(mode:longint;out arg:Olevariant);cdecl;
 
 Var
   elem: TRecloserObj;

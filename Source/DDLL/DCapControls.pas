@@ -2,10 +2,10 @@ unit DCapControls;
 
 interface
 
-function CapControlsI(mode:longint; arg:longint):longint;stdcall;
-function CapControlsF(mode:longint; arg:double):double;stdcall;
-function CapControlsS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
-procedure CapControlsV(mode:longint; out arg:Olevariant);stdcall;
+function CapControlsI(mode:longint; arg:longint):longint;cdecl;
+function CapControlsF(mode:longint; arg:double):double;cdecl;
+function CapControlsS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
+procedure CapControlsV(mode:longint; out arg:Olevariant);cdecl;
 
 implementation
 
@@ -27,7 +27,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 
-function CapControlsI(mode:longint; arg:longint):longint;stdcall;
+function CapControlsI(mode:longint; arg:longint):longint;cdecl;
 
 Var
   elem: TCapControlObj;
@@ -124,7 +124,7 @@ begin
 end;
 
 //********************************Floating point type properties*******************
-function CapControlsF(mode:longint; arg:double):double;stdcall;
+function CapControlsF(mode:longint; arg:double):double;cdecl;
 
 var
   elem: TCapControlObj;
@@ -202,7 +202,7 @@ begin
 end;
 
 //******************************String type properties****************************
-function CapControlsS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function CapControlsS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
 
 var
   elem: TCapControlObj;
@@ -263,7 +263,7 @@ begin
 end;
 
 //******************************Variant type properties****************************
-procedure CapControlsV(mode:longint; out arg:Olevariant);stdcall;
+procedure CapControlsV(mode:longint; out arg:Olevariant);cdecl;
 
 Var
   elem: TCapControlObj;

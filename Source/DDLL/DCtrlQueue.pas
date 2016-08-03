@@ -5,7 +5,7 @@ interface
 uses
   Windows, ActiveX, Classes, ComObj;
 
-function CtrlQueueI(mode: longint; arg: longint):longint;stdcall;
+function CtrlQueueI(mode: longint; arg: longint):longint;cdecl;
 
 implementation
 
@@ -86,7 +86,7 @@ begin
 
 end;
 
-function CtrlQueueI(mode: longint; arg: longint):longint;stdcall;
+function CtrlQueueI(mode: longint; arg: longint):longint;cdecl;
 
 var
     COMControlProxyObj :TCOMControlProxyObj;

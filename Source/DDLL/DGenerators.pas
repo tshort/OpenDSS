@@ -2,10 +2,10 @@ unit DGenerators;
 
 interface
 
-function GeneratorsI(mode: longint; arg: longint): longint; stdcall;
-function GeneratorsF(mode: longint; arg: double): double; stdcall;
-function GeneratorsS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
-procedure GeneratorsV(mode: longint; out arg: Olevariant); stdcall;
+function GeneratorsI(mode: longint; arg: longint): longint; cdecl;
+function GeneratorsF(mode: longint; arg: double): double; cdecl;
+function GeneratorsS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
+procedure GeneratorsV(mode: longint; out arg: Olevariant); cdecl;
 
 implementation
 
@@ -16,7 +16,7 @@ uses DSSCLassDefs,
      SysUtils,
      Variants;
 
-function GeneratorsI(mode: longint; arg: longint): longint; stdcall;
+function GeneratorsI(mode: longint; arg: longint): longint; cdecl;
 
 Var
    pGen:TGeneratorObj;
@@ -151,7 +151,7 @@ begin
 end;
 
 //**************************Floating point type properties***********************
-function GeneratorsF(mode: longint; arg: double): double; stdcall;
+function GeneratorsF(mode: longint; arg: double): double; cdecl;
 begin
   Result:=0.0; // Default return value
   case mode of
@@ -300,7 +300,7 @@ begin
 end;
 
 //*******************************String type properties***************************
-function GeneratorsS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
+function GeneratorsS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
 
 Var
    pGen:TGeneratorObj;
@@ -359,7 +359,7 @@ begin
 end;
 
 //*******************************Variant type properties************************
-procedure GeneratorsV(mode: longint; out arg: Olevariant); stdcall;
+procedure GeneratorsV(mode: longint; out arg: Olevariant); cdecl;
 
 Var
   GenElem:TGeneratorObj;

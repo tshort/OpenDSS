@@ -2,16 +2,16 @@ unit DSettings;
 
 interface
 
-function SettingsI(mode: longint; arg: longint):longint;stdcall;
-function SettingsF(mode: longint; arg: double):double;stdcall;
-function SettingsS(mode: longint; arg: pAnsiChar):pAnsiChar;stdcall;
-procedure SettingsV(mode:longint; out arg: Olevariant); stdcall;
+function SettingsI(mode: longint; arg: longint):longint;cdecl;
+function SettingsF(mode: longint; arg: double):double;cdecl;
+function SettingsS(mode: longint; arg: pAnsiChar):pAnsiChar;cdecl;
+procedure SettingsV(mode:longint; out arg: Olevariant); cdecl;
 
 implementation
 
 uses DSSGlobals, ExecHelper, Variants;
 
-function SettingsI(mode: longint; arg: longint):longint;stdcall;
+function SettingsI(mode: longint; arg: longint):longint;cdecl;
 begin
   Result:=0;       // Deafult return value
   case mode of
@@ -77,7 +77,7 @@ begin
 end;
 
 //****************************Floating point type properties**********************
-function SettingsF(mode: longint; arg: double):double;stdcall;
+function SettingsF(mode: longint; arg: double):double;cdecl;
 begin
   Result:=0.0; // Deafult return value
   case mode of
@@ -162,7 +162,7 @@ begin
 end;
 
 //*******************************Strings type properties**************************
-function SettingsS(mode: longint; arg: pAnsiChar):pAnsiChar;stdcall;
+function SettingsS(mode: longint; arg: pAnsiChar):pAnsiChar;cdecl;
 
 var
   i: integer;
@@ -204,7 +204,7 @@ begin
 end;
 
 //*******************************Variant type properties******************************
-procedure SettingsV(mode:longint; out arg: Olevariant); stdcall;
+procedure SettingsV(mode:longint; out arg: Olevariant); cdecl;
 
 VAR
    i, j, Count, Num:Integer;

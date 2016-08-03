@@ -2,16 +2,16 @@ unit DPVSystems;
 
 interface
 
-function PVsystemsI(mode:longint;arg:longint):longint;stdcall;
-function PVsystemsF(mode:longint;arg:double):double;stdcall;
-function PVsystemsS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure PVsystemsV(mode:longint;out arg:Olevariant);stdcall;
+function PVsystemsI(mode:longint;arg:longint):longint;cdecl;
+function PVsystemsF(mode:longint;arg:double):double;cdecl;
+function PVsystemsS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
+procedure PVsystemsV(mode:longint;out arg:Olevariant);cdecl;
 
 implementation
 
 uses ComServ, DSSGlobals, PVSystem, Variants, SysUtils;
 
-function PVsystemsI(mode:longint;arg:longint):longint;stdcall;
+function PVsystemsI(mode:longint;arg:longint):longint;cdecl;
 
 Var
    pPVSystem:TpVSystemObj;
@@ -80,7 +80,7 @@ begin
 end;
 
 //***************************Floating point type properties*************************
-function PVsystemsF(mode:longint;arg:double):double;stdcall;
+function PVsystemsF(mode:longint;arg:double):double;cdecl;
 begin
   Result:=0.0;   // Default return value
   case mode of
@@ -176,7 +176,7 @@ begin
 end;
 
 //***************************String type properties*************************
-function PVsystemsS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
+function PVsystemsS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
    pPVSystem:TPVSystemObj;
@@ -235,7 +235,7 @@ begin
 end;
 
 //***************************Variant type properties*************************
-procedure PVsystemsV(mode:longint;out arg:Olevariant);stdcall;
+procedure PVsystemsV(mode:longint;out arg:Olevariant);cdecl;
 
 Var
   PVSystemElem:TPVSystemObj;

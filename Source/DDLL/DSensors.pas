@@ -2,10 +2,10 @@ unit DSensors;
 
 interface
 
-function SensorsI(mode:longint; arg:longint):longint;stdcall;
-function SensorsF(mode:longint; arg:double):double;stdcall;
-function SensorsS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
-procedure SensorsV(mode:longint; out arg:Olevariant);stdcall;
+function SensorsI(mode:longint; arg:longint):longint;cdecl;
+function SensorsF(mode:longint; arg:double):double;cdecl;
+function SensorsS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
+procedure SensorsV(mode:longint; out arg:Olevariant);cdecl;
 
 implementation
 
@@ -27,7 +27,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 
-function SensorsI(mode:longint; arg:longint):longint;stdcall;
+function SensorsI(mode:longint; arg:longint):longint;cdecl;
 
 Var
   elem: TSensorObj;
@@ -115,7 +115,7 @@ begin
 end;
 
 //***************************floating point type properties***********************
-function SensorsF(mode:longint; arg:double):double;stdcall;
+function SensorsF(mode:longint; arg:double):double;cdecl;
 
 Var
   elem: TSensorObj;
@@ -153,7 +153,7 @@ begin
 end;
 
 //*******************************String type properties***************************
-function SensorsS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function SensorsS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
   elem: TSensorObj;
@@ -206,7 +206,7 @@ begin
 end;
 
 //***************************Variant type properties*****************************
-procedure SensorsV(mode:longint; out arg:Olevariant);stdcall;
+procedure SensorsV(mode:longint; out arg:Olevariant);cdecl;
 
 Var
   elem:TSensorObj;

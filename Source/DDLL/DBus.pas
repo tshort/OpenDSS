@@ -2,17 +2,17 @@ unit DBus;
 
 interface
 
-function BUSI(mode: longint; arg: longint): longint; stdcall;
-function BUSF(mode: longint; arg: double): double; stdcall;
-function BUSS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
-procedure BUSV(mode: longint; out arg: OleVariant); stdcall;
+function BUSI(mode: longint; arg: longint): longint; cdecl;
+function BUSF(mode: longint; arg: double): double; cdecl;
+function BUSS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
+procedure BUSV(mode: longint; out arg: OleVariant); cdecl;
 
 implementation
 
 uses DSSGlobals, Circuit, Ucomplex, MathUtil, sysutils,
      ExecHelper, SolutionAlgs, Variants, Utilities, Bus;
 
-function BUSI(mode: longint; arg: longint): longint; stdcall;
+function BUSI(mode: longint; arg: longint): longint; cdecl;
 
 begin
   Result := 0;  // Default return value
@@ -59,7 +59,7 @@ begin
 end;
 
 //**************************floating point variables***************************
-function BUSF(mode: longint; arg: double): double; stdcall;
+function BUSF(mode: longint; arg: double): double; cdecl;
 begin
   Result := 0.0;  // Default return value
   case mode of
@@ -156,7 +156,7 @@ begin
 end;
 
 //*****************************String type properties*******************************
-function BUSS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
+function BUSS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
 begin
   Result:=pAnsiChar(AnsiString('0')); //Default return value
   case mode of
@@ -172,7 +172,7 @@ begin
   end;
 end;
 
-procedure BUSV(mode: longint; out arg: OleVariant); stdcall;
+procedure BUSV(mode: longint; out arg: OleVariant); cdecl;
 
 var
   Nvalues,i,  iV, NodeIdx, jj, NodeIdxj, NodeIdxi : Integer;

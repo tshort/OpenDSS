@@ -2,15 +2,15 @@ unit DPDELements;
 
 interface
 
-function PDElementsI(mode:longint; arg:longint):longint;stdcall;
-function PDElementsF(mode:longint; arg:double):double;stdcall;
-function PDElementsS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function PDElementsI(mode:longint; arg:longint):longint;cdecl;
+function PDElementsF(mode:longint; arg:double):double;cdecl;
+function PDElementsS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
 
 implementation
 
 uses DSSGlobals, PDElement, PDClass, SysUtils, Bus;
 
-function PDElementsI(mode:longint; arg:longint):longint;stdcall;
+function PDElementsI(mode:longint; arg:longint):longint;cdecl;
 
 Var
    ActivePDElement :TPDElement;
@@ -131,7 +131,7 @@ begin
 end;
 
 //**************************Floating point type properties***********************
-function PDElementsF(mode:longint; arg:double):double;stdcall;
+function PDElementsF(mode:longint; arg:double):double;cdecl;
 
 Var
    ActivePDElement :TPDElement;
@@ -223,7 +223,7 @@ begin
 end;
 
 //*************************String type properties*******************************
-function PDElementsS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function PDElementsS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
    ActivePDElement :TPDElement;

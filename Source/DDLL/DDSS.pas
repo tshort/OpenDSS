@@ -2,9 +2,9 @@ unit DDSS;
 
 interface
 
-function DSSI(mode:longint;arg:longint):longint;stdcall;
-function DSSS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure DSSV(mode:longint;out arg:Olevariant);stdcall;
+function DSSI(mode:longint;arg:longint):longint;cdecl;
+function DSSS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
+procedure DSSV(mode:longint;out arg:Olevariant);cdecl;
 
 implementation
 
@@ -20,7 +20,7 @@ uses DSSClassDefs,
      Variants,
      ExecCommands, ExecOptions;
 
-function DSSI(mode:longint;arg:longint):longint;stdcall;
+function DSSI(mode:longint;arg:longint):longint;cdecl;
 begin
   Result:=0;
   case mode of
@@ -66,7 +66,7 @@ begin
 end;
 
 //********************************String Type properties***************************
-function DSSS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
+function DSSS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
 begin
   Result:=pAnsiChar(AnsiString('0')); // Default return value
   case mode of
@@ -92,7 +92,7 @@ begin
 end;
 
 //********************************Variant Type properties***************************
-procedure DSSV(mode:longint;out arg:Olevariant);stdcall;
+procedure DSSV(mode:longint;out arg:Olevariant);cdecl;
 
 Var
   i,k:Integer;

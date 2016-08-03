@@ -1,7 +1,7 @@
 unit DIDSSProperty;
 
 interface
-function DSSProperties(mode:longint; arg:pAnsiChar):pAnsiChar; stdcall;
+function DSSProperties(mode:longint; arg:pAnsiChar):pAnsiChar; cdecl;
 
 implementation
 
@@ -10,7 +10,7 @@ uses DSSClass, DSSGlobals, Executive, SysUtils;
 var
   FPropIndex   :Integer;
 
-function DSSProperties(mode:longint; arg:pAnsiChar):pAnsiChar; stdcall;
+function DSSProperties(mode:longint; arg:pAnsiChar):pAnsiChar; cdecl;
 begin
   Result := pAnsiChar(AnsiString('')); // Default return value
   case mode of

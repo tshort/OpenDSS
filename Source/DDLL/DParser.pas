@@ -2,10 +2,10 @@ unit DParser;
 
 interface
 
-function ParserI(mode: longint; arg:longint):longint;stdcall;
-function ParserF(mode: longint; arg:double):double;stdcall;
-function ParserS(mode: longint; arg:pAnsiChar):pAnsiChar;stdcall;
-procedure ParserV(mode: longint; out arg:Olevariant);stdcall;
+function ParserI(mode: longint; arg:longint):longint;cdecl;
+function ParserF(mode: longint; arg:double):double;cdecl;
+function ParserS(mode: longint; arg:pAnsiChar):pAnsiChar;cdecl;
+procedure ParserV(mode: longint; out arg:Olevariant);cdecl;
 
 implementation
 
@@ -13,7 +13,7 @@ uses ComServ, ParserDel, Variants, ArrayDef;
 
 Var ComParser : ParserDel.TParser;
 
-function ParserI(mode: longint; arg:longint):longint;stdcall;
+function ParserI(mode: longint; arg:longint):longint;cdecl;
 begin
   Result:=0;    // Default return value
   case mode of
@@ -38,7 +38,7 @@ begin
 end;
 
 //***************************Floating point type properties*********************
-function ParserF(mode: longint; arg:double):double;stdcall;
+function ParserF(mode: longint; arg:double):double;cdecl;
 begin
   Result:=0.0; // Default return value
   case mode of
@@ -51,7 +51,7 @@ begin
 end;
 
 //***************************String type properties*****************************
-function ParserS(mode: longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function ParserS(mode: longint; arg:pAnsiChar):pAnsiChar;cdecl;
 begin
   Result := pAnsiChar(AnsiString('0')); // Default return value
   case mode of
@@ -97,7 +97,7 @@ begin
 end;
 
 //***************************Variant type properties****************************
-procedure ParserV(mode: longint; out arg:Olevariant);stdcall;
+procedure ParserV(mode: longint; out arg:Olevariant);cdecl;
 
 Var  i, ActualSize,MatrixSize:Integer;
      VectorBuffer:pDoubleArray;

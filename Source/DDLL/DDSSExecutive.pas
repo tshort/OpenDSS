@@ -2,14 +2,14 @@ unit DDSSExecutive;
 
 interface
 
-function DSSExecutiveI(mode:longint; arg:longint):longint;stdcall;
-function DSSExecutiveS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function DSSExecutiveI(mode:longint; arg:longint):longint;cdecl;
+function DSSExecutiveS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
 
 implementation
 
 uses DSSGlobals, ExecCommands, ExecOptions, Executive, sysutils;
 
-function DSSExecutiveI(mode:longint; arg:longint):longint;stdcall;
+function DSSExecutiveI(mode:longint; arg:longint):longint;cdecl;
 begin
   Result:=0; // Default return value
   case mode of
@@ -25,7 +25,7 @@ begin
 end;
 
 //****************************String type properties******************************
-function DSSExecutiveS(mode:longint; arg:pAnsiChar):pAnsiChar;stdcall;
+function DSSExecutiveS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
 
 var
     i:integer;

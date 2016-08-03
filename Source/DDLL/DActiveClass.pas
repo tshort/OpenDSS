@@ -2,15 +2,15 @@ unit DActiveClass;
 
 interface
 
-function ActiveClassI(mode:longint; arg: longint):longint; stdcall;
-function ActiveClassS(mode:longint; arg: pAnsiChar):pAnsiChar; stdcall;
-procedure ActiveClassV(mode:longint; out arg: Olevariant); stdcall;
+function ActiveClassI(mode:longint; arg: longint):longint; cdecl;
+function ActiveClassS(mode:longint; arg: pAnsiChar):pAnsiChar; cdecl;
+procedure ActiveClassV(mode:longint; out arg: Olevariant); cdecl;
 
 implementation
 
 uses DSSGlobals, DSSObject, Variants, CktElement;
 
-function ActiveClassI(mode:longint; arg: longint):longint; stdcall;
+function ActiveClassI(mode:longint; arg: longint):longint; cdecl;
 begin
   case mode of
   0: begin  // ActiveClass.First
@@ -41,7 +41,7 @@ begin
 end;
 
 //***************************String type properties*****************************
-function ActiveClassS(mode:longint; arg: pAnsiChar):pAnsiChar; stdcall;
+function ActiveClassS(mode:longint; arg: pAnsiChar):pAnsiChar; cdecl;
 
 Var
   pelem:TDSSObject;
@@ -74,7 +74,7 @@ begin
 end;
 
 //*****************************Variant type properties**************************
-procedure ActiveClassV(mode:longint; out arg: Olevariant); stdcall;
+procedure ActiveClassV(mode:longint; out arg: Olevariant); cdecl;
 
 Var
   idx: Integer;

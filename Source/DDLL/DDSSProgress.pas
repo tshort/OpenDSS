@@ -2,14 +2,14 @@ unit DDSSProgress;
 
 interface
 
-function DSSProgressI(mode: longint; arg: longint): longint; stdcall;
-function DSSProgressS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
+function DSSProgressI(mode: longint; arg: longint): longint; cdecl;
+function DSSProgressS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
 
 implementation
 
 uses DSSForms, {Progressform,} DSSGlobals;
 
-function DSSProgressI(mode: longint; arg: longint): longint; stdcall;
+function DSSProgressI(mode: longint; arg: longint): longint; cdecl;
 begin
   Result:=0; // Default return value
   case mode of
@@ -34,7 +34,7 @@ begin
 end;
 
 //******************************String type properties*****************************
-function DSSProgressS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
+function DSSProgressS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
 begin
   Result:=pAnsiChar(AnsiString('0')); // Default return value
   case mode of

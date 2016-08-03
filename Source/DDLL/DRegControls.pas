@@ -2,10 +2,10 @@ unit DRegControls;
 
 interface
 
-function RegControlsI(mode: longint; arg: longint):longint ;stdcall;
-function RegControlsF(mode: longint; arg: double):double ;stdcall;
-function RegControlsS(mode: longint; arg: pAnsiChar):pAnsiChar ;stdcall;
-procedure RegControlsV(mode: longint; out arg: Olevariant) ;stdcall;
+function RegControlsI(mode: longint; arg: longint):longint ;cdecl;
+function RegControlsF(mode: longint; arg: double):double ;cdecl;
+function RegControlsS(mode: longint; arg: pAnsiChar):pAnsiChar ;cdecl;
+procedure RegControlsV(mode: longint; out arg: Olevariant) ;cdecl;
 
 implementation
 
@@ -27,7 +27,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 
-function RegControlsI(mode: longint; arg: longint):longint ;stdcall;
+function RegControlsI(mode: longint; arg: longint):longint ;cdecl;
 
 Var
   elem: TRegControlObj;
@@ -134,7 +134,7 @@ begin
 end;
 
 //***********************Floating poitn type properties***************************
-function RegControlsF(mode: longint; arg: double):double ;stdcall;
+function RegControlsF(mode: longint; arg: double):double ;cdecl;
 
 var
   elem: TRegControlObj;
@@ -252,7 +252,7 @@ begin
 end;
 
 //********************String type properties**************************************
-function RegControlsS(mode: longint; arg: pAnsiChar):pAnsiChar ;stdcall;
+function RegControlsS(mode: longint; arg: pAnsiChar):pAnsiChar ;cdecl;
 
 var
   elem: TRegControlObj;
@@ -313,7 +313,7 @@ begin
 end;
 
 //*******************Variant type properties**************************************
-procedure RegControlsV(mode: longint; out arg: Olevariant) ;stdcall;
+procedure RegControlsV(mode: longint; out arg: Olevariant) ;cdecl;
 
 Var
   elem: TRegControlObj;

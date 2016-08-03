@@ -5,16 +5,16 @@ interface
 uses
   ActiveX, XYCurve, DSSClass, Arraydef, UComplex, Solution;
 
-function XYCurvesI(mode:longint;arg:longint):longint;stdcall;
-function XYCurvesF(mode:longint;arg:double):double;stdcall;
-function XYCurvesS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
-procedure XYCurvesV(mode:longint; var arg:Olevariant);stdcall;
+function XYCurvesI(mode:longint;arg:longint):longint;cdecl;
+function XYCurvesF(mode:longint;arg:double):double;cdecl;
+function XYCurvesS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
+procedure XYCurvesV(mode:longint; var arg:Olevariant);cdecl;
 
 implementation
 
 uses ComServ, DSSGlobals, DSSObject, Variants;
 
-function XYCurvesI(mode:longint;arg:longint):longint;stdcall;
+function XYCurvesI(mode:longint;arg:longint):longint;cdecl;
 
 Var
    pXYCurve:TXYCurveObj;
@@ -66,7 +66,7 @@ begin
 end;
 
 //************************Floating point type properties******************************
-function XYCurvesF(mode:longint;arg:double):double;stdcall;
+function XYCurvesF(mode:longint;arg:double):double;cdecl;
 
 Var
    pXYCurve:TXYCurveObj;
@@ -218,7 +218,7 @@ begin
 end;
 
 //************************String type properties***********************************
-function XYCurvesS(mode:longint;arg:pAnsiChar):pAnsiChar;stdcall;
+function XYCurvesS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
 
 Var
    pXYCurve:TXYCurveObj;
@@ -251,7 +251,7 @@ begin
 end;
 
 //************************Variant type properties********************************
-procedure XYCurvesV(mode:longint; var arg:Olevariant);stdcall;
+procedure XYCurvesV(mode:longint; var arg:Olevariant);cdecl;
 
 Var
    pXYCurve:TXYCurveObj;

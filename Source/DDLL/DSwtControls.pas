@@ -2,10 +2,10 @@ unit DSwtControls;
 
 interface
 
-function SwtControlsI(mode: longint; arg: longint): longint; stdcall;
-function SwtControlsF(mode: longint; arg: double): double; stdcall;
-function SwtControlsS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
-procedure SwtControlsV(mode: longint; out arg: Olevariant); stdcall;
+function SwtControlsI(mode: longint; arg: longint): longint; cdecl;
+function SwtControlsF(mode: longint; arg: double): double; cdecl;
+function SwtControlsS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
+procedure SwtControlsV(mode: longint; out arg: Olevariant); cdecl;
 
 implementation
 
@@ -27,7 +27,7 @@ begin
   DSSExecutive.Command := cmd;
 end;
 
-function SwtControlsI(mode: longint; arg: longint): longint; stdcall;
+function SwtControlsI(mode: longint; arg: longint): longint; cdecl;
 
 Var
   elem: TSwtControlObj;
@@ -125,7 +125,7 @@ begin
 end;
 
 //************************************Floating point type properties****************
-function SwtControlsF(mode: longint; arg: double): double; stdcall;
+function SwtControlsF(mode: longint; arg: double): double; cdecl;
 
 var
   elem: TSwtControlObj;
@@ -147,7 +147,7 @@ begin
 end;
 
 //************************************String type properties************************
-function SwtControlsS(mode: longint; arg: pAnsiChar): pAnsiChar; stdcall;
+function SwtControlsS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
 
 var
   elem: TSwtControlObj;
@@ -200,7 +200,7 @@ begin
 end;
 
 //******************************Variant type properties*****************************
-procedure SwtControlsV(mode: longint; out arg: Olevariant); stdcall;
+procedure SwtControlsV(mode: longint; out arg: Olevariant); cdecl;
 
 var
   elem: TSwtControlObj;

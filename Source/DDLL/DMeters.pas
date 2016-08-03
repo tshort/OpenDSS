@@ -2,10 +2,10 @@ unit DMeters;
 
 interface
 
-function MetersI(mode: longint; arg: longint):Longint;stdcall;
-function MetersF(mode: longint; arg: double):double;stdcall;
-function MetersS(mode: longint; arg: pAnsiChar):pAnsiChar;stdcall;
-procedure MetersV(mode: longint; out arg: olevariant);stdcall;
+function MetersI(mode: longint; arg: longint):Longint;cdecl;
+function MetersF(mode: longint; arg: double):double;cdecl;
+function MetersS(mode: longint; arg: pAnsiChar):pAnsiChar;cdecl;
+procedure MetersV(mode: longint; out arg: olevariant);cdecl;
 
 implementation
 
@@ -18,7 +18,7 @@ uses EnergyMeter,
      PDElement,
      CktTree;
 
-function MetersI(mode: longint; arg: longint):Longint;stdcall;
+function MetersI(mode: longint; arg: longint):Longint;cdecl;
 
 var
    pMeter:TEnergyMeterObj;
@@ -319,7 +319,7 @@ begin
 end;
 
 //*************************Floating point type properties***************************
-function MetersF(mode: longint; arg: double):double;stdcall;
+function MetersF(mode: longint; arg: double):double;cdecl;
 
 Var
   pMeterObj :TEnergyMeterObj;
@@ -407,7 +407,7 @@ begin
 end;
 
 //********************************String type properties**************************
-function MetersS(mode: longint; arg: pAnsiChar):pAnsiChar;stdcall;
+function MetersS(mode: longint; arg: pAnsiChar):pAnsiChar;cdecl;
 
 Var
    pMeterObj:TEnergyMeterObj;
@@ -487,7 +487,7 @@ begin
 end;
 
 //***************************Variant type properties******************************
-procedure MetersV(mode: longint; out arg: olevariant);stdcall;
+procedure MetersV(mode: longint; out arg: olevariant);cdecl;
 
 Var
   MeterElem:TEnergyMeterObj;
