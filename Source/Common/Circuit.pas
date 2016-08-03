@@ -291,7 +291,7 @@ USES
      PDElement, CktElementClass,
      ParserDel,  DSSClassDefs, DSSGlobals, Dynamics,
      Line, Transformer,  Vsource,
-     Utilities,  DSSForms;
+     Utilities,  DSSForms, Executive;
 
 //----------------------------------------------------------------------------
 Constructor TDSSCircuit.Create(const aName:String);
@@ -1191,6 +1191,7 @@ end;
 function TDSSCircuit.SaveVoltageBases: Boolean;
 Var  F:TextFile;
      i:integer;
+     VBases:string;
 Begin
 
      Result := FALSE;
@@ -1198,10 +1199,12 @@ Begin
         AssignFile(F, 'BusVoltageBases.DSS');
         Rewrite(F);
 
-        For i := 1 to NumBuses do
-          If Buses^[i].kVBase > 0.0 Then
-            Writeln(F, Format('SetkVBase Bus=%s  kvln=%.7g ', [BusList.Get(i), Buses^[i].kVBase]));
-
+//        For i := 1 to NumBuses do
+//          If Buses^[i].kVBase > 0.0 Then
+//            Writeln(F, Format('SetkVBase Bus=%s  kvln=%.7g ', [BusList.Get(i), Buses^[i].kVBase]));
+        DSSExecutive.Command := 'get voltagebases';
+        VBases := GlobalResult;
+        Writeln(F, 'Set Voltagebases='+VBases);
         CloseFile(F);
         Result := TRUE;
      Except
