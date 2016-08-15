@@ -64,6 +64,7 @@ Type
 
       Property  TraceLog:Boolean  Read DebugTrace Write Set_Trace;
       Property  QueueSize:Integer Read Get_QueueSize;
+      function QueueItem(Qidx:integer):String;
 
 
     End;
@@ -396,6 +397,19 @@ end;
 FUNCTION TControlQueue.Get_QueueSize:Integer;
 Begin
      Result := ActionList.Count;
+End;
+
+FUNCTION TControlQueue.QueueItem(Qidx : integer):String;
+Var
+     pAction:pActionRecord;
+Begin
+     pAction := ActionList.Items[Qidx];
+     If pAction<>Nil then With Paction^ Do Begin
+       Result  := Format('%d, %d, %-.g, %d, %d, %s ',
+       [ActionHandle, ActionTime.Hour, ActionTime.sec, ActionCode, ProxyHandle, ControlElement.Name]);
+     End
+     else
+        Result  :=  '';
 End;
 
 end.
