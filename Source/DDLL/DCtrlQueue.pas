@@ -6,10 +6,11 @@ uses
   Windows, ActiveX, Classes, ComObj;
 
 function CtrlQueueI(mode: longint; arg: longint):longint;cdecl;
+procedure CtrlQueueV(mode:longint; out arg: Olevariant);cdecl;
 
 implementation
 
-uses ComServ, DSSGlobals, ControlQueue, ControlElem, DSSClass;
+uses ComServ, DSSGlobals, ControlQueue, ControlElem, DSSClass,Variants;
 
 Type
   pAction = ^Taction;
@@ -155,5 +156,31 @@ begin
       Result:=-1;
   end;
 end;
+
+procedure CtrlQueueV(mode:longint; out arg: Olevariant);cdecl;
+Var
+  i     : integer;
+  Qsize : integer;
+Begin
+  case mode of
+  0: begin  // CtrlQueue.ClearQueue
+      arg  := VarArrayCreate([0, 0], varOleStr);
+      QSize   := ActiveCircuit.ControlQueue.QueueSize;
+      if QSize > 0 then
+      begin
+        VarArrayRedim(arg, QSize);
+        arg[0]:='Handle, Hour, Sec, ActionCode, ProxyDevRef, Device';
+        For i := 0 to QSize-1 do
+          Begin
+            arg[i+1]:= ActiveCircuit.ControlQueue.QueueItem(i);
+          End;
+      end
+      else arg[0]:='No events';
+  end
+  else
+    arg   := VarArrayCreate([0, 0], varOleStr);
+    arg[0]:='Mode not recognized';
+  end;
+End;
 
 end.
