@@ -28,7 +28,7 @@ interface
 USES
      Classes, Solution, SysUtils, ArrayDef, HashList, PointerList, CktElement,
      DSSClass, {DSSObject,} Bus, LoadShape, PriceShape, ControlQueue, uComplex,
-     AutoAdd, EnergyMeter, NamedObject, CktTree, Graphics;
+     AutoAdd, EnergyMeter, NamedObject, CktTree;
 
 
 TYPE
@@ -50,7 +50,7 @@ TYPE
 
     public
       BusName: String;
-      AddMarkerColor: Tcolor;
+      AddMarkerColor: Integer; // Tcolor; TEMc
       AddMarkerCode,
       AddMarkerSize: Integer;
 
@@ -294,7 +294,7 @@ USES
      PDElement, CktElementClass,
      ParserDel,  DSSClassDefs, DSSGlobals, Dynamics,
      Line, Vsource,
-     Utilities,  DSSForms;
+     Utilities,  CmdForms;
 
 //----------------------------------------------------------------------------
 Constructor TDSSCircuit.Create(const aName:String);
@@ -1408,7 +1408,7 @@ constructor TBusMarker.Create;
 begin
   inherited;
   BusName := '';
-  AddMarkerColor := clBlack;
+  AddMarkerColor := 1; // clBlack; TEMc
   AddMarkerCode := 4;
   AddMarkerSize := 1;
 end;

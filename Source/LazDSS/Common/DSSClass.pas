@@ -17,7 +17,7 @@ unit DSSClass;
 interface
 
 USES
-    PointerList, Command,  Arraydef, Hashlist;
+    PointerList, Command,  Arraydef, HashList;
 
 TYPE
 

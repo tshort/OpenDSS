@@ -17,7 +17,7 @@ unit CktElement;
 interface
 
 USES
-  Ucomplex,  Ucmatrix,  ArrayDef, Terminal, DSSObject, DSSClass, PointerList;
+  Ucomplex,  Ucmatrix,  Arraydef, Terminal, DSSObject, DSSClass, PointerList;
 
 
 TYPE

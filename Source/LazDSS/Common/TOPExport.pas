@@ -75,7 +75,7 @@ VAR
 
 implementation
 
-Uses SysUtils, Dialogs, DSSGlobals;
+Uses SysUtils, {Dialogs,} DSSGlobals, CmdForms; // TEMc
 Var
   TOP_Inited:Boolean;
 
@@ -88,7 +88,7 @@ End;
 
 Procedure TOutFile32.SendToTop;
 Begin
-     ShowMessage ('TOP Export (COM Interface) is not supported on Linux');
+     DSSInfoMessageDlg ('TOP Export (COM Interface) is not supported on Linux');
   (*
   TRY
      If NOT TOP_Inited Then StartTop;

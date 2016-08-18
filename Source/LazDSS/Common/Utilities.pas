@@ -13,7 +13,7 @@ unit Utilities;
 
 interface
 
-Uses ArrayDef, CktElement, PDElement, UComplex, UcMatrix, DSSClass, Classes{, StdCtrls};
+Uses Arraydef, CktElement, PDElement, UComplex, UcMatrix, DSSClass, Classes{, StdCtrls};
 
 Function  CompareTextShortest(Const S1, S2:String):Integer;
 Procedure FireOffEditor(FileNm:String);
@@ -152,12 +152,12 @@ Procedure BackwardSweepAllFeeders;
 
 implementation
 
-Uses LCLIntf, LCLType, LMessages,   Process, SysUtils, Dialogs,      DSSClassDefs,
+Uses Process, SysUtils, Dialogs,      DSSClassDefs,
      DSSGlobals, Dynamics, Executive, ExecCommands, ExecOptions,
      Solution,   DSSObject,math,      DSSForms,     ParserDel,
      Capacitor,  Reactor,  Generator, Load,
      Line,       Fault,    Feeder,    HashList,
-     EnergyMeter,PCElement,ControlElem, Graphics;
+     EnergyMeter,PCElement,ControlElem;
 
 Const ZERONULL      :Integer=0;
       padString     :String='                                                  '; //50 blanks

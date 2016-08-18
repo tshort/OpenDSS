@@ -24,7 +24,7 @@ unit DSSGlobals;
 interface
 
 Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerList,
-     UComplex, Circuit, IniRegSave, Graphics,
+     UComplex, Circuit, IniRegSave, // Graphics,  TEMc
 
      {Some units which have global vars defined here}
      Spectrum,
@@ -169,7 +169,7 @@ VAR
    DefaultEditor    :String;     // normally, Notepad
    DefaultFontSize  :Integer;
    DefaultFontName  :String;
-   DefaultFontStyles :TFontStyles;
+   DefaultFontStyles :Integer; // TFontStyles; TEMc
    DSSFileName      :String;     // Name of current exe or DLL
    DSSDirectory     :String;     // where the current exe resides
    StartupDirectory :String;     // Where we started
@@ -253,8 +253,8 @@ implementation
 
 USES  {Forms,   Controls,}
      SysUtils,
-     LCLIntf, LCLType, dynlibs, resource, versiontypes, versionresource,
-     DSSForms,
+     {LCLIntf, LCLType,} dynlibs, resource, versiontypes, versionresource,
+     CmdForms,
      Solution,
      Executive;
      {Intrinsic Ckt Elements}
@@ -628,12 +628,18 @@ PROCEDURE ReadDSS_Registry;
 Var  TestDataDirectory:string;
 Begin
   DSS_Registry.Section := 'MainSect';
-  DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
-  DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '8' ));
-  DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'MS Sans Serif' );
-  DefaultFontStyles := [];
-  If DSS_Registry.ReadBool('ScriptFontBold', TRUE)    Then DefaultFontStyles := DefaultFontStyles + [fsbold];
-  If DSS_Registry.ReadBool('ScriptFontItalic', FALSE) Then DefaultFontStyles := DefaultFontStyles + [fsItalic];
+  {$IFDEF Darwin}
+     DefaultEditor    := DSS_Registry.ReadString('Editor', 'open -e /Applications/TextEdit.app');
+     DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '12'));
+     DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'Geneva');
+  {$ELSE}
+     DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
+     DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '8' ));
+     DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'MS Sans Serif' );
+  {$ENDIF}
+  DefaultFontStyles := 1; // []; TEMc
+//  If DSS_Registry.ReadBool('ScriptFontBold', TRUE)    Then DefaultFontStyles := DefaultFontStyles + [fsbold];
+//  If DSS_Registry.ReadBool('ScriptFontItalic', FALSE) Then DefaultFontStyles := DefaultFontStyles + [fsItalic];
   DefaultBaseFreq  := StrToInt(DSS_Registry.ReadString('BaseFrequency', '60' ));
   LastFileCompiled := DSS_Registry.ReadString('LastFile', '' );
   TestDataDirectory :=   DSS_Registry.ReadString('DataPath', DataDirectory);
@@ -649,8 +655,8 @@ Begin
       DSS_Registry.WriteString('Editor',        DefaultEditor);
       DSS_Registry.WriteString('ScriptFontSize', Format('%d',[DefaultFontSize]));
       DSS_Registry.WriteString('ScriptFontName', Format('%s',[DefaultFontName]));
-      DSS_Registry.WriteBool('ScriptFontBold',   (fsBold in DefaultFontStyles));
-      DSS_Registry.WriteBool('ScriptFontItalic', (fsItalic in DefaultFontStyles));
+      DSS_Registry.WriteBool('ScriptFontBold', False); // (fsBold in DefaultFontStyles));  TEMc
+      DSS_Registry.WriteBool('ScriptFontItalic', False); // (fsItalic in DefaultFontStyles));  TEMc
       DSS_Registry.WriteString('BaseFrequency', Format('%d',[Round(DefaultBaseFreq)]));
       DSS_Registry.WriteString('LastFile',      LastFileCompiled);
       DSS_Registry.WriteString('DataPath', DataDirectory);
@@ -767,9 +773,15 @@ initialization
 {$ENDIF}
 
    AuxParser       := TParser.Create;
+{$IFDEF Darwin}
+   DefaultEditor   := 'open -e /Applications/TextEdit.app';
+   DefaultFontSize := 12;
+   DefaultFontName := 'Geneva';
+{$ELSE}
    DefaultEditor   := 'NotePad';
    DefaultFontSize := 8;
    DefaultFontName := 'MS Sans Serif';
+{$ENDIF}
 
    EventStrings    := TStringList.Create;
    SavedFileList   := TStringList.Create;
