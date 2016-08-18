@@ -18,7 +18,7 @@ unit ParserDel;
 interface
 
 Uses
-    Arraydef, classes,{controls,} DSSForms, Sysutils, RPN, HashList;
+    Arraydef, classes,{controls,} CmdForms, Sysutils, RPN, HashList;
 
 
 
