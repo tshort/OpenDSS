@@ -8,7 +8,7 @@ unit Ucmatrix;
 
 interface
 
-Uses UComplex ;
+Uses Ucomplex ;
 
 {
    12-4-99 Added MvMultAccum

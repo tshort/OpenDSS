@@ -14,7 +14,7 @@ unit Command;
 
 interface
 
-Uses Hashlist;
+Uses HashList;
 
 TYPE
    TCommandList = class(TObject)

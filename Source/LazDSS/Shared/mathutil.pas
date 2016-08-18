@@ -290,7 +290,7 @@ End;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function RCDSUM( Data:Pointer; Count:Integer): Extended; register;
 
-{$IFDEF CPUX64}
+{$IF defined(CPUX64) or defined(Darwin)}
 
 begin
   Result := 0.0;

@@ -31,7 +31,7 @@ unit HashList;
 
 INTERFACE
 
-   USES ArrayDef;
+   USES Arraydef;
 
    TYPE
 
