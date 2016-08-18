@@ -261,6 +261,7 @@ Begin
                     '    Flicker level at simulation time step, Pst at 10-minute time step.' +CRLF+
                     '5 = Solution variables (Iterations, etc).' +CRLF+CRLF+
                     'Normally, these would be actual phasor quantities from solution.' + CRLF+
+                    '6 = Capacitor Switching (Capacitors only)'+CRLF+
                     'Combine with adders below to achieve other results for terminal quantities:' + CRLF+
                     '+16 = Sequence quantities' + CRLF+
                     '+32 = Magnitude only' + CRLF+
