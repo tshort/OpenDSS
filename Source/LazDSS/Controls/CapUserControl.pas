@@ -79,7 +79,7 @@ TYPE
 
 implementation
 
-Uses  DSSGlobals, LCLIntf, LCLType, dynlibs, Sysutils;
+Uses  DSSGlobals, {LCLIntf, LCLType,} dynlibs, Sysutils; // TEMc
 
 { TCapUserControl }
 
