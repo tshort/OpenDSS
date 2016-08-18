@@ -17,7 +17,7 @@
                 CaptureOutputWith="ProcessBuffer"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine="/usr/local/bin/fpc -Mdelphi -Fd -Fu../Common -Fu../Controls -Fu../Executive -Fu../General -Fu../Meters -Fu../Parser -Fu../PCElements -Fu../PDElements -Fu../Shared %f"/>
+                <Exec CmdLine="/usr/local/bin/ppc386 @fpcopts.cfg %f"/>
             </Target>
             <Target
                 Name="Build"
@@ -52,6 +52,24 @@
         </Menu>
     </Config>
     <Files>
+        <Folder
+            Name="Reference"
+            Filters=""
+            GUID="{7BCCF103-2758-4FF1-9178-2F496695C5CC}">
+            <F N="/Developer/Documentation/Free Pascal Compiler/Code Documenter.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Compiler Switches.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/COPYING.txt"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/FCL - Resource Handling.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Free Component Library.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Getting Started.rtf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Language Reference Guide.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/License.txt"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Programmer's Manual.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/ReadMe.txt"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Units Reference Guide.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/User's Manual.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/What's New.txt"/>
+        </Folder>
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go"
@@ -235,23 +253,6 @@
             <F N="MyDSSClassDefs.pas"/>
             <F N="opendsscmd.pas"/>
         </Folder>
-        <Folder
-            Name="Reference"
-            Filters=""
-            GUID="{7BCCF103-2758-4FF1-9178-2F496695C5CC}">
-            <F N="/Developer/Documentation/Free Pascal Compiler/Code Documenter.pdf"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/Compiler Switches.pdf"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/COPYING.txt"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/FCL - Resource Handling.pdf"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/Free Component Library.pdf"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/Getting Started.rtf"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/Language Reference Guide.pdf"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/License.txt"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/Programmer's Manual.pdf"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/ReadMe.txt"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/Units Reference Guide.pdf"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/User's Manual.pdf"/>
-            <F N="/Developer/Documentation/Free Pascal Compiler/What's New.txt"/>
-        </Folder>
+        <F N="fpcopts.cfg"/>
     </Files>
 </Project>
