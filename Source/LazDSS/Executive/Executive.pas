@@ -91,7 +91,7 @@ implementation
 
 USES ExecCommands, ExecOptions,
      {ExecHelper,} DSSClassDefs, DSSGlobals, ParserDel,  SysUtils,
-     Utilities, DSSForms;
+     Utilities, CmdForms;
 
 
 //----------------------------------------------------------------------------
@@ -230,7 +230,7 @@ begin
           RebuildHelpForm := True; // because class strings have changed
        End;
 
-       If Not IsDLL Then ControlPanel.UpdateElementBox ;
+ //      If Not IsDLL Then ControlPanel.UpdateElementBox;  // TEMc
 
        {Prepare for new variables}
        ParserVars.Free;

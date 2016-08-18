@@ -30,8 +30,8 @@ PROCEDURE ProcessCommand(Const CmdLine:String);
 
 implementation
 
-Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions,  PlotOptions,
-     ExportOptions, ParserDel, DSSForms, sysutils, Utilities, SolutionAlgs;
+Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions, // PlotOptions,  // TEMc
+     ExportOptions, ParserDel, CmdForms, sysutils, Utilities, SolutionAlgs;
 
 
 PROCEDURE DefineCommands;
@@ -595,7 +595,7 @@ Begin
         9: CmdResult := DoSetCmd(1);  // changed from DoSolveCmd; //'solve';
        10: CmdResult := DoEnableCmd;
        11: CmdResult := DoDisableCmd;
-       12: CmdResult := DoPlotCmd; //'plot';
+       12: CmdResult := DoPropertyDump; // DoPlotCmd; // TEMc
        13: CmdResult := DoResetCmd; //'resetmonitors';
        15: CmdResult := DoSetCmd(0);  //'set WITH no solve'
        16: CmdResult := DoPropertyDump;

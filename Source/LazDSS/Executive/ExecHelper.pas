@@ -145,8 +145,8 @@ USES Command, ArrayDef, ParserDel, SysUtils, DSSClassDefs, DSSGlobals,
      DSSClass, DSSObject, Utilities, Solution,
      EnergyMeter, Generator, LoadShape, Load, PCElement,   CktElement,
      uComplex,  mathutil,  Bus,  SolutionAlgs,
-     DSSForms,  ExecCommands, Executive, Dynamics,
-     DssPlot,
+     CmdForms,  ExecCommands, Executive, Dynamics,
+//     DssPlot,
      Capacitor, Reactor, Line, Math,
      Classes,  Sensor,  { ExportCIMXML,} NamedObject,
      RegExpr, PstCalc;
@@ -2991,7 +2991,7 @@ Var
     PeakDay:Boolean;
 {$ENDIF}
 Begin
-{$IFNDEF DLL_ENGINE}
+{$IFDEF DLL_ENGINE_TEMC}
      IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
 
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
@@ -3051,7 +3051,7 @@ Var
     CaseName2, WhichFile:String;
 {$ENDIF}
 Begin
-{$IFNDEF DLL_ENGINE}
+{$IFDEF DLL_ENGINE_TEMC}
      IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
      CaseName1 := 'base';
@@ -3109,7 +3109,7 @@ Var
     WhichFile:String;
 {$ENDIF}
 Begin
-{$IFNDEF DLL_ENGINE}
+{$IFDEF DLL_ENGINE_TEMC}
      IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
 
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
@@ -3194,6 +3194,7 @@ Begin
           DoSimpleMsg('The circuit must be solved before you can do this.',24722);
           Exit;
      End;
+{$IFDEF TEMC}
 
      Quantity := vizCURRENT;
      ElemName := '';
@@ -3241,6 +3242,7 @@ Begin
      End Else Begin
         DoSimpleMsg('Requested Circuit Element: "' + ElemName + '" Not Found.',282 ); // Did not find it ..
      End;
+{$ENDIF}
 End;
 
 FUNCTION DoCloseDICmd:Integer;

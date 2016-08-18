@@ -25,7 +25,7 @@ VAR
 implementation
 
 Uses ShowResults, ParserDel, Monitor, Utilities,
-     DSSGlobals, sysutils, DSSForms,
+     DSSGlobals, sysutils, CmdForms,
      LineUnits;
 
 
