@@ -53,6 +53,7 @@ uses
   CktElement in '..\Common\CktElement.pas',
   CktElementClass in '..\Common\CktElementClass.pas',
   CktTree in '..\Shared\CktTree.pas',
+  CmdForms in 'CmdForms.pas',
   Command in '..\Shared\Command.pas',
   Conductor in '..\Common\Conductor.pas',
   ControlClass in '..\Controls\ControlClass.pas',
@@ -64,7 +65,7 @@ uses
 //  DSSForms in '..\Common\DSSForms.pas',
   DSSGlobals in '..\Common\DSSGlobals.pas',
   DSSObject in '..\General\DSSObject.pas',
-  DSSPlot in '..\Plot\DSSPlot.pas',
+//  DSSPlot in '..\Plot\DSSPlot.pas',
   Dynamics in '..\Shared\Dynamics.pas',
   EnergyMeter in '..\Meters\EnergyMeter.pas',
   Equivalent in '..\PCElements\Equivalent.pas',
@@ -106,7 +107,7 @@ uses
   PCElement in '..\PCElements\PCElement.pas',
   PDClass in '..\PDElements\PDClass.pas',
   PDElement in '..\PDElements\PDElement.pas',
-  PlotOptions in '..\Executive\PlotOptions.pas',
+//  PlotOptions in '..\Executive\PlotOptions.pas',
   PointerList in '..\Shared\PointerList.pas',
   PriceShape in '..\General\PriceShape.pas',
   PVsystem in '..\PCElements\PVsystem.pas',
@@ -165,12 +166,12 @@ uses
   VCCS in '..\PCElements\vccs.pas';
 
 begin
-  Application.Initialize;
+//  Application.Initialize;
   NoFormsAllowed  := FALSE;
   DSSExecutive := TExecutive.Create;  // Make a DSS object
   DSSExecutive.CreateDefaultDSSItems;
 
-  Application.ShowMainForm := False;
+//  Application.ShowMainForm := False;
   NoFormsAllowed := True;
   DataDirectory := StartupDirectory;
   OutputDirectory := StartupDirectory;

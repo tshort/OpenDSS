@@ -89,7 +89,7 @@ Type
 implementation
 
 Uses  DSSClassDefs, DSSGlobals, PDElement, Utilities, SysUtils, Executive,
-      DSSForms,
+      CmdForms,
       {ProgressForm, Forms,} Solution;
 
 FUNCTION SumSelectedRegisters(Mtr: TEnergyMeterObj; Regs: pIntegerArray;  count: Integer): Double;

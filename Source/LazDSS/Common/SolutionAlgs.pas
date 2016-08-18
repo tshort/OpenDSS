@@ -42,7 +42,7 @@ interface
 
 implementation
 
-Uses ArrayDef, DSSGlobals, DSSForms,  Utilities, SysUtils, MathUtil, Math, Fault, uComplex, YMatrix,
+Uses ArrayDef, DSSGlobals, CmdForms,  Utilities, SysUtils, MathUtil, Math, Fault, uComplex, YMatrix,
      PCElement, Spectrum, Vsource, Isource, KLUSolve;
 
 VAR ProgressCount:Integer;

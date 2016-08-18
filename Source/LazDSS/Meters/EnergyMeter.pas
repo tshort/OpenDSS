@@ -385,7 +385,7 @@ VAR
 implementation
 USES  ParserDel, DSSClassDefs, DSSGlobals, Bus, Sysutils, MathUtil,
       Utilities, PCElement, Circuit, Line, LineUnits,
-      Classes, ReduceAlgs, LCLIntf, LCLType, Math;
+      Classes, ReduceAlgs, {*LCLIntf, LCLType,*} Math; // TEMc
 
 Const NumPropsThisClass = 24;
 

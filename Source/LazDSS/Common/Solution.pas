@@ -228,7 +228,7 @@ VAR
 implementation
 
 USES  SolutionAlgs,
-      DSSClassDefs, DSSGlobals, DSSForms, CktElement,  ControlElem, Fault,
+      DSSClassDefs, DSSGlobals, CmdForms, CktElement,  ControlElem, Fault,
       AutoAdd,  YMatrix,
       ParserDel, Generator,
 {$IFDEF DLL_ENGINE}
