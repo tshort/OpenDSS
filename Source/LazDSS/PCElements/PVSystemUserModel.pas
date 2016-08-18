@@ -71,7 +71,7 @@ TYPE
 
 implementation
 
-Uses PVSystem, DSSGlobals, LCLIntf, LCLType, Sysutils, dynlibs;
+Uses PVSystem, DSSGlobals, {LCLIntf, LCLType,} Sysutils, dynlibs;  // TEMc
 
 { TPVsystemUserModel }
 

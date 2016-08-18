@@ -130,7 +130,7 @@ TYPE
 
 implementation
 
-Uses Storage, DSSGlobals, LCLIntf, LCLType, dynlibs, Sysutils;
+Uses Storage, DSSGlobals, { LCLIntf, LCLType,} dynlibs, Sysutils; // TEMc
 
 { TStoreUserModel }
 
