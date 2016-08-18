@@ -195,7 +195,8 @@ implementation
 USES
 
     ParserDel, DSSClassDefs, DSSGlobals, Circuit, CktElement,Transformer, PCElement,
-    Sysutils, ucmatrix, showresults, mathUtil, PointerList, TOPExport, Dynamics, PstCalc;
+    Sysutils, ucmatrix, showresults, mathUtil, PointerList, TOPExport, Dynamics, PstCalc,
+    Capacitor;
 
 CONST
     SEQUENCEMASK = 16;
@@ -580,22 +581,30 @@ VAR
 
 Begin
          ValidMonitor := FALSE;
-         Devindex := GetCktElementIndex(ElementName); // Global function
-         IF DevIndex>0 THEN Begin  // Monitored element must already exist
+         Devindex := GetCktElementIndex(ElementName);                   // Global function
+         IF DevIndex>0 THEN Begin                                       // Monitored element must already exist
              MeteredElement := ActiveCircuit.CktElements.Get(DevIndex);
              Case (Mode and MODEMASK) of
-                2: Begin   // Must be transformer
+                2: Begin                                                // Must be transformer
                           If (MeteredElement.DSSObjType And CLASSMASK) <> XFMR_ELEMENT Then Begin
                             DoSimpleMsg(MeteredElement.Name + ' is not a transformer!', 663);
                             Exit;
                           End;
                    End;
-                3: Begin   // Must be PCElement
+                3: Begin                                                // Must be PCElement
                           If (MeteredElement.DSSObjType And BASECLASSMASK) <> PC_ELEMENT Then Begin
                             DoSimpleMsg(MeteredElement.Name + ' must be a power conversion element (Load or Generator)!', 664);
                             Exit;
                           End;
                    End;
+                6: begin                                                // Checking Caps Tap
+                          If (MeteredElement.DSSObjType And CLASSMASK) <> CAP_ELEMENT Then Begin
+                            DoSimpleMsg(MeteredElement.Name + ' is not a capacitor!', 2016001);
+                            Exit;
+                          End;
+                   end;
+
+
 
              End;
 
@@ -698,6 +707,7 @@ VAR
     NumVI       :Integer;
     RecordSize  :Integer;
     strPtr      :pANSIchar;
+    Str_Temp    :AnsiString;
 
 Begin
   Try
@@ -746,7 +756,16 @@ Begin
              strLcat(strPtr, pAnsichar('Year, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('SolveSnap_uSecs, '), Sizeof(TMonitorStrBuffer));
              strLcat(strPtr, pAnsichar('TimeStep_uSecs, '), Sizeof(TMonitorStrBuffer));
-        End
+        End;
+     6: Begin
+              RecordSize := TCapacitorObj(MeteredElement).NumSteps;     // Capacitor Taps
+              for i := 1 to RecordSize do
+                begin
+                  Str_Temp  :=  AnsiString('Step_' + inttostr(i) + ' ');
+                  strLcat(strPtr, pAnsichar(Str_Temp), Sizeof(TMonitorStrBuffer));
+                end;
+
+        End;
      Else Begin
          // Compute RecordSize
          // Use same logic as in TakeSample Method
@@ -1064,6 +1083,16 @@ Begin
 
         End;
 
+     6: Begin     // Monitor Transformer Tap Position
+
+              With TCapacitorObj(MeteredElement) Do Begin
+                  for i := 1 to NumSteps do
+                    begin
+                      AddDblToBuffer(States[i]);
+                    end;
+              End;
+              Exit;  // Done with this mode now.
+        End;
      Else Exit  // Ignore invalid mask
 
    End;
