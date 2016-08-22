@@ -5,7 +5,8 @@
     TemplateName="(Other)"
     WorkingDir="."
     BuildSystem="vsbuild"
-    BuildMakeFile="">
+    BuildMakeFile=""
+    VCSProject="Subversion:">
     <Config
         Name="Release"
         OutputFile=""
@@ -17,7 +18,7 @@
                 CaptureOutputWith="ProcessBuffer"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine="/usr/local/bin/ppc386 @fpcopts.cfg %f"/>
+                <Exec CmdLine="/usr/local/bin/ppcx64 @fpcopts.cfg -g -B %f"/>
             </Target>
             <Target
                 Name="Build"
@@ -40,7 +41,7 @@
                 MenuCaption="&amp;Debug"
                 SaveOption="SaveNone"
                 RunFromDir="%rw">
-                <Exec/>
+                <Exec CmdLine="gdb opendsscmd"/>
             </Target>
             <Target
                 Name="Execute"
@@ -62,6 +63,7 @@
             <F N="/Developer/Documentation/Free Pascal Compiler/FCL - Resource Handling.pdf"/>
             <F N="/Developer/Documentation/Free Pascal Compiler/Free Component Library.pdf"/>
             <F N="/Developer/Documentation/Free Pascal Compiler/Getting Started.rtf"/>
+            <F N="IEEE13Nodeckt.dss"/>
             <F N="/Developer/Documentation/Free Pascal Compiler/Language Reference Guide.pdf"/>
             <F N="/Developer/Documentation/Free Pascal Compiler/License.txt"/>
             <F N="/Developer/Documentation/Free Pascal Compiler/Programmer's Manual.pdf"/>
