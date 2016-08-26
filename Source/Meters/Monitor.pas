@@ -18,6 +18,7 @@ unit Monitor;
    2-19-08 Added SampleCount
    01-19-13 Added flicker meter mode
    08-18-15 Added Solution monitor mode
+   08-10-16 Added mode 6 for storing capacitor switching
 }
 
 {
