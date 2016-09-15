@@ -1315,6 +1315,7 @@ Begin
      CloseMonitorStream;   // Position at beginning
 
      CSVName := CSVFileName;
+     DoSimpleMsg('Writing to "'+CSVName+'"'+CRLF, 672);
 
      TRY
       AssignFile(F, CSVName);    // Make CSV file
