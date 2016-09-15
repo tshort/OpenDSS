@@ -367,7 +367,7 @@ begin
     ref := GuidHash.Add(key);
     CreateGuid (Result);
     size := High(GuidList) + 1;
-    if ref > size then SetLength (GuidList, 2 * size);
+    if ref > size then SetLength (GuidList, 2 * (size+1));
     GuidList[ref-1] := Result
   end else begin
     Result := GuidList[ref-1]
@@ -1135,24 +1135,27 @@ Begin
 
     pGen := ActiveCircuit.Generators.First;
     while pGen <> nil do begin
-      pName1.localName := pGen.Name + '_GenUnit';
-      CreateGUID (geoGUID);
-      pName1.GUID := geoGUID;
-      StartInstance (F, 'GeneratingUnit', pName1);
-      DoubleNode (F, 'GeneratingUnit.ratedNetMaxP', pGen.GenVars.kVArating / 1000.0);
-      DoubleNode (F, 'GeneratingUnit.initialP', pGen.PresentkW / 1000.0);
-      GeneratorControlEnum (F, 'plantControl');
-      EndInstance (F, 'GeneratingUnit');
+     if pGen.Enabled  then   begin
 
-      StartInstance (F, 'SynchronousMachine', pGen);
-      CircuitNode (F, ActiveCircuit);
-      DoubleNode (F, 'SynchronousMachine.minQ', pGen.kvarMin / 1000.0);
-      DoubleNode (F, 'SynchronousMachine.maxQ', pGen.kvarMax / 1000.0);
-      DoubleNode (F, 'SynchronousMachine.baseQ', pGen.Presentkvar / 1000.0);
-      RefNode (F, 'SynchronousMachine.GeneratingUnit', pName1);
-      SynchMachTypeEnum (F, 'generator');
-      SynchMachModeEnum (F, 'generator');
-      EndInstance (F, 'SynchronousMachine');
+        pName1.localName := pGen.Name + '_GenUnit';
+        CreateGUID (geoGUID);
+        pName1.GUID := geoGUID;
+        StartInstance (F, 'GeneratingUnit', pName1);
+        DoubleNode (F, 'GeneratingUnit.ratedNetMaxP', pGen.GenVars.kVArating / 1000.0);
+        DoubleNode (F, 'GeneratingUnit.initialP', pGen.PresentkW / 1000.0);
+        GeneratorControlEnum (F, 'plantControl');
+        EndInstance (F, 'GeneratingUnit');
+
+        StartInstance (F, 'SynchronousMachine', pGen);
+        CircuitNode (F, ActiveCircuit);
+        DoubleNode (F, 'SynchronousMachine.minQ', pGen.kvarMin / 1000.0);
+        DoubleNode (F, 'SynchronousMachine.maxQ', pGen.kvarMax / 1000.0);
+        DoubleNode (F, 'SynchronousMachine.baseQ', pGen.Presentkvar / 1000.0);
+        RefNode (F, 'SynchronousMachine.GeneratingUnit', pName1);
+        SynchMachTypeEnum (F, 'generator');
+        SynchMachModeEnum (F, 'generator');
+        EndInstance (F, 'SynchronousMachine');
+     end;
  //     AttachPhases (F, pGen, 1, 'SynchronousMachine');
       pGen := ActiveCircuit.Generators.Next;
     end;
@@ -1160,6 +1163,7 @@ Begin
     pVsrc := ActiveCircuit.Sources.First; // pIsrc are in the same list
     while pVsrc <> nil do begin
       if pVsrc.ClassNameIs('TVSourceObj') then
+        if pVsrc.Enabled  then
         with pVsrc do begin
           Zs := Z.AvgDiagonal;
           Zm := Z.AvgOffDiagonal;
@@ -1262,6 +1266,7 @@ Begin
  *}
     pCapC := ActiveCircuit.CapControls.First;
     while (pCapC <> nil) do begin
+      if pCapC.Enabled then
       with pCapC do begin
         StartInstance (F, 'RegulatingControl', pCapC);
         RefNode (F, 'RegulatingControl.RegulatingCondEq', This_Capacitor);
@@ -1291,6 +1296,7 @@ Begin
     // begin the transformers; write all the XfmrCodes first (CIM TransformerTankInfo)
     pXfmr := clsXfmr.ElementList.First;
     while pXfmr <> nil do begin
+
       WriteXfmrCode (F, pXfmr);
       // link to the transformers using this XfmrCode
       pName1.LocalName := 'TankAsset_' + pXfmr.Name;
@@ -1312,29 +1318,35 @@ Begin
     maxWdg := 0;
     pXf := ActiveCircuit.Transformers.First;
     while pXf <> nil do begin
-      if pXf.NumberOfWindings > maxWdg then maxWdg := pXf.NumberofWindings;
+      if pXf.Enabled then
+        if pXf.NumberOfWindings > maxWdg then maxWdg := pXf.NumberofWindings;
       pXf := ActiveCircuit.Transformers.Next;
     end;
-    SetLength (WdgList, maxWdg);
-    SetLength (CoreList, maxWdg);
-    SetLength (MeshList, (maxWdg-1)*maxWdg div 2);
-    for i:=1 to maxWdg do WdgList[i-1]:=TNamedObject.Create('dummy');
-    CoreList[0]:=TNamedObject.Create('dummy');
-    for i:=1 to ((maxWdg-1)*maxWdg div 2) do MeshList[i-1]:=TNamedObject.Create('dummy');
+
+    if MaxWdg>0 then  Begin
+      SetLength (WdgList, maxWdg);
+      SetLength (CoreList, maxWdg);
+      SetLength (MeshList, (maxWdg-1)*maxWdg div 2);
+      for i:=1 to maxWdg do WdgList[i-1]:=TNamedObject.Create('dummy');
+      CoreList[0]:=TNamedObject.Create('dummy');
+      for i:=1 to ((maxWdg-1)*maxWdg div 2) do MeshList[i-1]:=TNamedObject.Create('dummy');
+    End;
 
     pXf := ActiveCircuit.Transformers.First;
     while pXf <> nil do begin
-      if pXf.XfmrBank = '' then
-        sBank := '=' + pXf.Name
-      else
-        sBank := pXf.XfmrBank;
-      pBank := GetBank (sBank);
-      if pBank = nil then begin
-        pBank := TBankObject.Create(maxWdg);
-        pBank.localName := sBank;
-        pBank.GUID := GetDevGuid (Bank, sBank, 0);
-        AddBank (pBank);
-      end;
+      if pXf.Enabled  then  Begin
+        if pXf.XfmrBank = '' then
+          sBank := '=' + pXf.Name
+        else
+          sBank := pXf.XfmrBank;
+        pBank := GetBank (sBank);
+        if pBank = nil then begin
+          pBank := TBankObject.Create(maxWdg);
+          pBank.localName := sBank;
+          pBank.GUID := GetDevGuid (Bank, sBank, 0);
+          AddBank (pBank);
+        end;
+      End;
       pXf := ActiveCircuit.Transformers.Next;
     end;
 
@@ -1343,6 +1355,7 @@ Begin
     //   without XfmrCode, write mesh impedances and core admittances
     pXf := ActiveCircuit.Transformers.First;
     while pXf <> nil do begin
+      if pXf.Enabled then
       with pXf do begin
         // write this Tank, add to the Bank, write its location and XfmrCode (if used)
         StartInstance (F, 'TransformerTank', pXf);
@@ -1465,6 +1478,7 @@ Begin
     // voltage regulators
     pReg := ActiveCircuit.RegControls.First;
     while (pReg <> nil) do begin
+      if pReg.enabled then
       with pReg do begin
         pName1.LocalName := pReg.LocalName + '_Info';
         CreateGUID (geoGUID);
@@ -1545,7 +1559,8 @@ Begin
 
     pLine := ActiveCircuit.Lines.First;
     while pLine <> nil do begin
-      with pLine do begin
+      If pLine.Enabled Then
+      With pLine do begin
         bval := False; // flag to write a "line code" of PULengthPhaseZ
         v1 := To_Meters (pLine.LengthUnits);
         geoGUID := GetDevGuid (LineLoc, pLine.Name, 1);
@@ -1878,6 +1893,7 @@ Begin
         RefNode (F, 'Asset.AssetInfo', pSpac);
         pLine := ActiveCircuit.Lines.First;
         while pLine <> nil do begin
+          if pLine.Enabled then
           if pLine.SpacingSpecified then
             if pLine.SpacingCode = pSpac.Name then
                 RefNode (F, 'Asset.PowerSystemResources', pLine);
