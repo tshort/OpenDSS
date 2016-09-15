@@ -185,7 +185,14 @@ procedure TMyApplication.DoRun;
 var
   ErrorMsg: String;
 begin
-  // quick check parameters
+	NoFormsAllowed := True;
+	DSSExecutive := TExecutive.Create;  // Make a DSS object
+	DSSExecutive.CreateDefaultDSSItems;
+	writeln('Startup Directory: ', StartupDirectory);
+	DataDirectory := StartupDirectory;
+	OutputDirectory := StartupDirectory;
+
+	// quick check parameters
   ErrorMsg:=CheckOptions('h', 'help');
   if ErrorMsg<>'' then begin
     ShowException(Exception.Create(ErrorMsg));
@@ -200,13 +207,6 @@ begin
     Exit;
   end;
 
-  { add your program here }
-	NoFormsAllowed := True;
-	DSSExecutive := TExecutive.Create;  // Make a DSS object
-	DSSExecutive.CreateDefaultDSSItems;
-	writeln('Startup Directory: ', StartupDirectory);
-	DataDirectory := StartupDirectory;
-	OutputDirectory := StartupDirectory;
 	writeln('Argument: ', ParamStr(1));
 	DSSExecutive.Command := 'compile ' + ParamStr(1);
 	writeln(DSSExecutive.LastError);
