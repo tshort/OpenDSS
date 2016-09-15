@@ -34,6 +34,8 @@ unit Solution;
          0-th element is alway ground(complex zero volts).
  8-14-06 Revised power flow initialization; removed forward/backward sweep
 
+ 9-14-16 Added SampleTheMeters Flag to allow sampling energy meters in Time and DutyCycle mode
+
 }
 
 interface
@@ -139,9 +141,10 @@ TYPE
        NumberOfTimes :Integer;  // Number of times to solve
        PreserveNodeVoltages:Boolean;
        RandomType :Integer;     //0 = none; 1 = gaussian; 2 = UNIFORM
-       SeriesYInvalid :Boolean;
-       SolutionCount :Integer;  // Counter incremented for each solution
-       SolutionInitialized :Boolean;
+       SampleTheMeters : Boolean;  // Flag to allow sampling of EnergyMeters
+       SeriesYInvalid  : Boolean;
+       SolutionCount   : Integer;  // Counter incremented for each solution
+       SolutionInitialized : Boolean;
        SystemYChanged  : Boolean;
        UseAuxCurrents  : Boolean;
        VmagSaved : pDoubleArray;
@@ -210,7 +213,7 @@ TYPE
  // Procedures that use to be private before 01-20-2016
 
        PROCEDURE AddInAuxCurrents(SolveType:Integer);
-       Function SolveSystem(V:pNodeVArray):Integer;
+       Function  SolveSystem(V:pNodeVArray):Integer;
        PROCEDURE GetPCInjCurr;
        PROCEDURE GetSourceInjCurrents;
        PROCEDURE ZeroInjCurr;
@@ -329,11 +332,14 @@ Begin
 
     MaxIterations    := 15;
     MaxControlIterations  := 10;
-    ConvergenceTolerance := 0.0001;
-    ConvergedFlag := FALSE;
+    ConvergenceTolerance  := 0.0001;
 
-    IsDynamicModel   := FALSE;
-    IsHarmonicModel  := FALSE;
+    ConvergedFlag   := FALSE;
+
+    SampleTheMeters := FALSE;  // Flag to tell solution algorithm to sample the Energymeters
+
+    IsDynamicModel  := FALSE;
+    IsHarmonicModel := FALSE;
 
     Frequency := DefaultBaseFreq;
     {Fundamental := 60.0; Moved to Circuit and used as default base frequency}
@@ -1397,6 +1403,7 @@ begin
 
    SolutionInitialized := FALSE;   // reinitialize solution when mode set (except dynamics)
    PreserveNodeVoltages := FALSE;  // don't do this unless we have to
+   SampleTheMeters := FALSE;
 
    // Reset defaults for solution modes
    Case Dynavars.SolutionMode of
@@ -1405,6 +1412,7 @@ begin
        DAILYMODE:     Begin
                            DynaVars.h    := 3600.0;
                            NumberOfTimes := 24;
+                           SampleTheMeters := TRUE;
                       End;
        SNAPSHOT:      Begin
                            IntervalHrs   := 1.0;
@@ -1414,6 +1422,7 @@ begin
                            IntervalHrs   := 1.0;
                            DynaVars.h    := 3600.0;
                            NumberOfTimes := 8760;
+                           SampleTheMeters := TRUE;
                       End;
        DUTYCYCLE:     Begin
                            DynaVars.h  := 1.0;
@@ -1430,9 +1439,9 @@ begin
                            DynaVars.h    := 3600.0;
                            NumberOfTimes := 1;  // just one time step per Solve call expected
                       End;
-       MONTECARLO1:   Begin IntervalHrs    := 1.0;  End;
-       MONTECARLO2:   Begin DynaVars.h     := 3600.0;   End;
-       MONTECARLO3:   Begin IntervalHrs    := 1.0;   End;
+       MONTECARLO1:   Begin IntervalHrs    := 1.0;  SampleTheMeters := TRUE; End;
+       MONTECARLO2:   Begin DynaVars.h     := 3600.0;  SampleTheMeters := TRUE; End;
+       MONTECARLO3:   Begin IntervalHrs    := 1.0; SampleTheMeters := TRUE;  End;
        MONTEFAULT:    Begin IsDynamicModel := TRUE;  END;
        FAULTSTUDY:    Begin
                             IsDynamicModel := TRUE;
@@ -1440,10 +1449,12 @@ begin
        LOADDURATION1: Begin
                            DynaVars.h := 3600.0;
                            ActiveCircuit.TrapezoidalIntegration := TRUE;
+                           SampleTheMeters := TRUE;
                       End;
        LOADDURATION2: Begin
                            DynaVars.intHour := 1;
                            ActiveCircuit.TrapezoidalIntegration := TRUE;
+                           SampleTheMeters := TRUE;
                       End;
        AUTOADDFLAG :  Begin
                            IntervalHrs := 1.0;
@@ -1463,7 +1474,7 @@ begin
                           IsHarmonicModel := TRUE;
                           LoadModel       := ADMITTANCE;
                           PreserveNodeVoltages := TRUE;  // need to do this in case Y changes during this mode
-       End;
+                      End;
    End;
 
    {Moved here 9-8-2007 so that mode is changed before reseting monitors, etc.}

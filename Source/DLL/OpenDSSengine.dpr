@@ -207,7 +207,8 @@ uses
   ImplPVSystems in 'ImplPVSystems.pas' {PVSystems: CoClass},
   ImplVsources in 'ImplVsources.pas' {Vsources: CoClass},
   KLUSolve in '..\Common\KLUSolve.pas',
-  ScriptEdit in '..\Forms\ScriptEdit.pas';
+  ScriptEdit in '..\Forms\ScriptEdit.pas',
+  vccs in '..\PCElements\vccs.pas';
 
 exports
   DllGetClassObject,

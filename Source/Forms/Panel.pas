@@ -10,7 +10,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ComCtrls, Menus, ToolWin, ImgList,ScriptEdit, ExtCtrls, PsAPI;
+  StdCtrls, ComCtrls, Menus, ToolWin, ImgList,ScriptEdit, ExtCtrls, PsAPI,
+  System.ImageList;
 
 type
   TControlPanel = class(TForm)

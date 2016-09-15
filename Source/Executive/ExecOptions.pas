@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 108;
+        NumExecOptions = 109;
 
 VAR
          ExecOption,
@@ -141,6 +141,7 @@ Begin
      ExecOption[106] := 'ProcessTime';
      ExecOption[107] := 'TotalTime';
      ExecOption[108] := 'StepTime';
+     ExecOption[109] := 'SampleEnergyMeters';
 
 
 
@@ -163,7 +164,7 @@ Begin
                     CRLF+'  Yearly (follow Yearly curve),'+
                     CRLF+'  DIrect,'+
                     CRLF+'  DUtycycle,'+
-                    CRLF+'  Time, ( see LoadShapeClass option)' +
+                    CRLF+'  Time, ( see LoadShapeClass, SampleEnergymeters options)' +
                     CRLF+'  DYnamic,  ( see LoadShapeClass option)'+
                     CRLF+'  Harmonic,'+
                     CRLF+'  HarmonicT,  (sequential Harmonic Mode)'+
@@ -387,6 +388,9 @@ Begin
      OptionHelp[106] := 'The time in microseconds to execute the solve process in the most recent time step or solution (read only)';
      OptionHelp[107] := 'The accumulated time in microseconds to solve the circuit since the last reset. Set this value to reset the accumulator.';
      OptionHelp[108] := 'Process time + meter sampling time in microseconds for most recent time step - (read only)';
+     OptionHelp[109] := '{YES/TRUE | NO/FALSE} Overrides default value for sampling EnergyMeter objects at the end of the solution loop. ' +
+                        'Normally Time and Duty modes do not automatically sample EnergyMeters whereas Daily, Yearly, M1, M2, M3, LD1 and LD2 modes do. ' +
+                        'Use this Option to turn sampling on or off';
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -608,6 +612,7 @@ Begin
           104: ActiveCircuit.RelayMarkerCode  := Parser.IntValue;
           105: ActiveCircuit.RelayMarkerSize  := Parser.IntValue;
           107: ActiveCircuit.Solution.Total_Time  :=  Parser.DblValue;
+          109: ActiveCircuit.Solution.SampleTheMeters   :=  InterpretYesNo(Param);
          ELSE
            // Ignore excess parameters
          End;
@@ -773,13 +778,14 @@ Begin
            99: If ActiveCircuit.MarkReclosers Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
           100: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RecloserMarkerCode]));
           101: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RecloserMarkerSize]));
-          102: UpdateRegistry                    := InterpretYesNo(Param);
+          102: If UpdateRegistry Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
           103: If ActiveCircuit.MarkRelays Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
           104: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RelayMarkerCode]));
           105: AppendGlobalResult(Format('%d' ,[ActiveCircuit.RelayMarkerSize]));
           106: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_Solve]));
           107: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Total_Time]));
           108: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_Step]));
+          109: If ActiveCircuit.Solution.SampleTheMeters Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
          ELSE
            // Ignore excess parameters
          End;
