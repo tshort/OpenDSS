@@ -16,7 +16,7 @@ Uses Classes;
 function Create_Meter_Space(Init_Str : string): TBytesStream; overload;
 procedure WriteintoMemStr(Mem_Space : TBytesStream; Content: string); overload;
 procedure WriteintoMem(Mem_Space : TBytesStream; Content: Double); overload;
-procedure CloseMHandler(Mem_Space : TBytesStream; const Dest_Path : string); overload;
+procedure CloseMHandler(Mem_Space : TBytesStream; const Dest_Path : string; AppendFile  : Boolean); overload;
 procedure Write_String(Mem_Space : TBytesStream; const Content : string);
 
 implementation
@@ -67,7 +67,7 @@ end;
 // Saves the content of the BytesStream into the specified file path
 // and destroys the ByteStream
 //******************************************************************************
-procedure CloseMHandler(Mem_Space : TBytesStream; const Dest_Path : string); overload;
+procedure CloseMHandler(Mem_Space : TBytesStream; const Dest_Path : string; AppendFile  : Boolean); overload;
 var
   F       : TextFile;
   buffer          : Uint8;
@@ -78,7 +78,8 @@ var
   TVariableDbl    : Double;
 begin
   AssignFile(F,Dest_path);
-  Rewrite(F);
+  if AppendFile then Append(F)
+  else Rewrite(F);
   idx     :=  0;
   MWrite  :=  False;
   Fhead   :=  True;
