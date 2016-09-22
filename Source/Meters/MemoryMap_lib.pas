@@ -150,14 +150,8 @@ var
   Str_Sz  : Integer;
   idx     : integer;
 Begin
-  Str_Sz  :=  length(Content);
-  idx     :=  0;
-  while idx < Str_Sz do
-  begin
-    Mem_Space.WriteData(Content[idx+1]);
-    inc(idx);
-  end;
+  Str_Sz  :=  length(Content)-1;
+  For idx := 0 to Str_Sz do Mem_Space.WriteData(Content[idx+1]);
 End;
-
 
 end.
