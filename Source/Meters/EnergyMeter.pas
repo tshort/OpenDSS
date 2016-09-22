@@ -414,8 +414,18 @@ VAR
    SM_MHandle             : TBytesStream;
    EMT_MHandle            : TBytesStream;
    PHV_MHandle            : TBytesStream;
-
    FM_MHandle             : TBytesStream;
+
+//*********** Flags for appending Files*****************************************
+   OV_Append              : Boolean;
+   VR_Append              : Boolean;
+   DI_Append              : Boolean;
+   SDI_Append             : Boolean;
+   TDI_Append             : Boolean;
+   SM_Append              : Boolean;
+   EMT_Append             : Boolean;
+   PHV_Append             : Boolean;
+   FM_Append              : Boolean;
 
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -976,6 +986,17 @@ Begin
 
      LocalOnly           := FALSE;
      VoltageUEOnly       := FALSE;
+
+//*************No append files by default***************************************
+     OV_Append              :=  False;
+     VR_Append              :=  False;
+     DI_Append              :=  False;
+     SDI_Append             :=  False;
+     TDI_Append             :=  False;
+     SM_Append              :=  False;
+     EMT_Append             :=  False;
+     PHV_Append             :=  False;
+     FM_Append              :=  False;
 
      // Set Register names  that correspond to the register quantities
      RegisterNames[1]  := 'kWh';
@@ -2771,9 +2792,9 @@ begin
 
   Try
      IF This_Meter_DIFileIsOpen Then Begin
-       CloseMHandler(DI_MHandle, MakeDIFileName);
+       CloseMHandler(DI_MHandle, MakeDIFileName, DI_Append);
        This_Meter_DIFileIsOpen := FALSE;
-       If VPhaseReportFileIsOpen then CloseMHandler(PHV_MHandle, MakeVPhaseReportFileName) ;
+       If VPhaseReportFileIsOpen then CloseMHandler(PHV_MHandle, MakeVPhaseReportFileName, PHV_Append) ;
        VPhaseReportFileIsOpen := FALSE;
      End;
   Except
@@ -2884,15 +2905,15 @@ Begin
         WriteTotalsFile;  // Sum all energymeter registers to "Totals.CSV"
         SystemMeter.CloseDemandIntervalFile;
         SystemMeter.Save;
-        CloseMHandler(EMT_MHandle, DI_Dir + '\EnergyMeterTotals.CSV');
-        CloseMHandler(TDI_MHandle, DI_Dir+'\DI_Totals.CSV');
+        CloseMHandler(EMT_MHandle, DI_Dir + '\EnergyMeterTotals.CSV', EMT_Append);
+        CloseMHandler(TDI_MHandle, DI_Dir+'\DI_Totals.CSV', TDI_Append);
         DIFilesAreOpen := FALSE;
         if OverloadFileIsOpen then Begin
-            CloseMHandler(OV_MHandle,EnergyMeterClass.DI_Dir+'\DI_Overloads.CSV');
+            CloseMHandler(OV_MHandle,EnergyMeterClass.DI_Dir+'\DI_Overloads.CSV', OV_Append);
             OverloadFileIsOpen := FALSE;
         End;
         if VoltageFileIsOpen then Begin
-            CloseMHandler(VR_MHandle,EnergyMeterClass.DI_Dir+'\DI_VoltExceptions.CSV');
+            CloseMHandler(VR_MHandle,EnergyMeterClass.DI_Dir+'\DI_VoltExceptions.CSV', VR_Append);
             VoltageFileIsOpen := FALSE;
         End;
       End;
@@ -2911,9 +2932,9 @@ begin
   Try
       If Energymeterclass.FDI_Verbose Then Begin
           FileNm := MakeDIFileName;   // Creates directory if it doesn't exist
-//          AssignFile(DI_File, FileNm );
-          {File Must Exist}
-//          If FileExists(FileNm) Then Append(DI_File) Else Rewrite(DI_File);
+          If FileExists(FileNm) Then DI_Append  :=  True
+          Else DI_Append :=  False;
+          DI_MHandle  :=  Create_Meter_Space(' ');
           This_Meter_DIFileIsOpen := TRUE;
       End;
   Except
@@ -2976,11 +2997,8 @@ Begin
           Try
               FileNm :=  DI_Dir+'\DI_Totals.CSV';
               {File Must Exist}
-              If FileExists(FileNm) Then  Begin
-//                AssignFile(FDI_Totals, FileNm );    // re-establishes connection to file
-//                Append(FDI_Totals) ;
-              End
-              Else CreateFDI_Totals;
+              If FileExists(FileNm) Then  TDI_Append := True;
+              CreateFDI_Totals;
           Except
               On E:Exception Do DosimpleMsg('Error opening demand interval file "'+Name+'.CSV' +' for appending.'+CRLF+E.Message, 538);
           End;
@@ -3116,7 +3134,7 @@ var
 begin
      IF This_Meter_DIFileIsOpen Then Begin
        File_Path  :=  EnergyMeterClass.DI_Dir+'\DI_SystemMeter.CSV';
-       CloseMHandler(SDI_MHandle, File_Path);
+       CloseMHandler(SDI_MHandle, File_Path, SDI_Append);
        This_Meter_DIFileIsOpen := FALSE;
      End;
 end;
@@ -3201,7 +3219,7 @@ begin
       WriteintoMemStr(SM_MHandle, Char(10));
 
  Finally
-      CloseMHandler(SM_MHandle, Folder + CSVName);
+      CloseMHandler(SM_MHandle, Folder + CSVName, SM_Append);
  End;
 end;
 
@@ -3312,7 +3330,7 @@ begin
         WriteintoMemStr(FM_MHandle, inttostr(ActiveCircuit.Solution.Year));
         For i := 1 to NumEMRegisters Do WriteintoMem(FM_MHandle,Double(RegSum[i]));
         WriteintoMemStr(FM_MHandle, Char(10));
-        CloseMHandler(FM_MHandle, DI_Dir + '\Totals.CSV');
+        CloseMHandler(FM_MHandle, DI_Dir + '\Totals.CSV', FM_Append);
 
   Except
       On E:Exception Do DosimpleMsg('Error writing demand interval file Totals.CSV.'+CRLF+E.Message, 543);
