@@ -192,7 +192,9 @@ uses
   DDSS in 'DDSS.pas',
   DYMatrix in 'DYMatrix.pas',
   KLUSolve in '..\Common\KLUSolve.pas',
-  ScriptEdit in '..\Forms\ScriptEdit.pas';
+  ScriptEdit in '..\Forms\ScriptEdit.pas',
+  vccs in '..\PCElements\vccs.pas',
+  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas';
 
 //**************************end of the functions*************************************
 exports
@@ -210,7 +212,7 @@ exports
    DSSProgressI,DSSProgressS,
    SettingsI,SettingsF,SettingsS,SettingsV,
    LinesI, LinesF, LinesS, LinesV,
-   CtrlQueueI,
+   CtrlQueueI,CtrlQueueV,
    DSSElementI, DSSElementS, DSSElementV,
    ActiveClassI, ActiveClassS, ActiveClassV,
    CapacitorsI,CapacitorsF,CapacitorsS,CapacitorsV,
