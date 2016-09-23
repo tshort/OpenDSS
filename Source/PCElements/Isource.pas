@@ -22,7 +22,7 @@ unit Isource;
 
 interface
 
-USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum, StdVcl;
+USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum, StdVcl, Loadshape;
 
 TYPE
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -45,8 +45,13 @@ TYPE
      private
 
         FphaseShift  :Double;
+        ShapeIsActual: Boolean;
+        ShapeFactor  : Complex;
 
         Function GetBaseCurr:Complex;
+        PROCEDURE CalcDailyMult(Hr:double);
+        PROCEDURE CalcDutyMult(Hr:double);
+        PROCEDURE CalcYearlyMult(Hr:double);
 
       public
 
@@ -55,6 +60,13 @@ TYPE
         SrcFrequency:Double;
         ScanType,
         SequenceType :Integer;
+        PerUnit     : Double;
+        DailyShape    : String;         // Daily (24 HR) load shape
+        DailyShapeObj : TLoadShapeObj;  // Daily load Shape FOR this load
+        DutyShape     : String;         // Duty cycle load shape FOR changes typically less than one hour
+        DutyShapeObj  : TLoadShapeObj;  // Shape for this load
+        YearlyShape   : String;  // ='fixed' means no variation  exempt from variation
+        YearlyShapeObj: TLoadShapeObj;  // Shape for this load
 
         constructor Create(ParClass:TDSSClass; const SourceName:String);
         destructor  Destroy; override;
@@ -67,7 +79,6 @@ TYPE
         Function  InjCurrents:Integer; Override;
         Procedure GetInjCurrents(Curr:pComplexArray); Override;
         Procedure GetCurrents(Curr: pComplexArray);Override;
-
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
         Procedure DumpProperties(Var F:TextFile; Complete:Boolean); Override;
 
@@ -81,7 +92,7 @@ VAR
 implementation
 
 
-USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command;
+USES  ParserDel, Circuit, DSSClassDefs, DSSGlobals, Utilities, Sysutils, Command, dynamics;
 
 Var  NumPropsThisClass:Integer;
 
@@ -114,7 +125,7 @@ End;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Procedure TIsource.DefineProperties;
 Begin
-     NumPropsThisClass := 7;
+     NumPropsThisClass := 10;
 
      Numproperties := NumPropsThisClass;
      CountProperties;   // Get inherited property count
@@ -129,6 +140,9 @@ Begin
      PropertyName[5] := 'phases';
      PropertyName[6] := 'scantype';
      PropertyName[7] := 'sequence';
+     PropertyName[8] := 'Yearly';
+     PropertyName[9] := 'Daily';
+     PropertyName[10] := 'Duty';
 
      // define Property help values
      PropertyHelp[1] := 'Name of bus to which source is connected.'+CRLF+'bus1=busname'+CRLF+'bus1=busname.1.2.3';
@@ -142,6 +156,24 @@ Begin
                         'Otherwise, angle between phases rotates with harmonic.';
      PropertyHelp[7] := '{pos*| neg | zero} Set the phase angles for the specified symmetrical component sequence for non-harmonic solution modes. '+
                         'Default is positive sequence. ';
+     PropertyHelp[8]  := 'LOADSHAPE object to use for the per-unit current for YEARLY-mode simulations. Set the Mult property of the LOADSHAPE ' +
+                          'to the pu curve. Qmult is not used. If UseActual=Yes then the Mult curve should be actual Amp.' + CRLF+CRLF+
+                          'Must be previously defined as a LOADSHAPE object. '+  CRLF+CRLF+
+                          'Is set to the Daily load shape when Daily is defined.  The daily load shape is repeated in this case. '+
+                          'Set to NONE to reset to no loadahape for Yearly mode. ' +
+                          'The default is no variation.';
+     PropertyHelp[9]  := 'LOADSHAPE object to use for the per-unit current for DAILY-mode simulations. Set the Mult property of the LOADSHAPE ' +
+                          'to the pu curve. Qmult is not used. If UseActual=Yes then the Mult curve should be actual A.' + CRLF+CRLF+
+                          'Must be previously defined as a LOADSHAPE object. '+  CRLF+CRLF+
+                          'Sets Yearly curve if it is not already defined.   '+
+                          'Set to NONE to reset to no loadahape for Yearly mode. ' +
+                          'The default is no variation.';
+     PropertyHelp[10]  := 'LOADSHAPE object to use for the per-unit current for DUTYCYCLE-mode simulations. Set the Mult property of the LOADSHAPE ' +
+                          'to the pu curve. Qmult is not used. If UseActual=Yes then the Mult curve should be actual A.' + CRLF+CRLF+
+                          'Must be previously defined as a LOADSHAPE object. '+  CRLF+CRLF+
+                          'Defaults to Daily load shape when Daily is defined.   '+
+                          'Set to NONE to reset to no loadahape for Yearly mode. ' +
+                          'The default is no variation.';
 
 
      ActiveProperty := NumPropsThisClass;
@@ -220,10 +252,24 @@ Begin
                 ELSE
                    DoSimpleMsg('Unknown Sequence Type for "' + Class_Name +'.'+ Name + '": '+Param, 331);
                 END;
-
+            8: YearlyShape  := Param;
+            9: DailyShape   := Param;
+           10: DutyShape    := Param;
          ELSE
-            ClassEdit(ActiveIsourceObj, ParamPointer - NumPropsThisClass)
+            ClassEdit(ActiveIsourceObj, ParamPointer - NumPropsThisClass);
          End;
+
+         CASE ParamPointer OF
+            {Set shape objects;  returns nil if not valid}
+            {Sets the kW and kvar properties to match the peak kW demand from the Loadshape}
+             8: YearlyShapeObj := LoadShapeClass.Find(YearlyShape);
+             9: Begin
+                    DailyShapeObj := LoadShapeClass.Find(DailyShape);
+                  {If Yearly load shape is not yet defined, make it the same as Daily}
+                    IF YearlyShapeObj=Nil THEN YearlyShapeObj := DailyShapeObj;
+                 End;
+             10: DutyShapeObj := LoadShapeClass.Find(DutyShape);
+         END;
          ParamName := Parser.NextParam;
          Param     := Parser.StrValue;
      End;
@@ -261,6 +307,13 @@ Begin
        Scantype         := OtherIsource.Scantype;
        Sequencetype     := OtherIsource.Sequencetype;
 
+       ShapeIsActual    := OtherIsource.ShapeIsActual;
+       DailyShape       := OtherIsource.DailyShape;
+       DailyShapeObj    := OtherIsource.DailyShapeObj;
+       DutyShape        := OtherIsource.DutyShape;
+       DutyShapeObj     := OtherIsource.DutyShapeObj;
+       YearlyShape      := OtherIsource.YearlyShape;
+       YearlyShapeObj   := OtherIsource.YearlyShapeObj;
 
        ClassMakeLike(OtherIsource); // set spectrum,  base frequency
 
@@ -298,7 +351,13 @@ Begin
      Sequencetype := 1;
 
      InitPropertyValues(0);
-
+     ShapeIsActual := FALSE;
+     YearlyShape    := '';
+     YearlyShapeObj := nil;  // IF YearlyShapeobj = nil THEN the Vsource alway stays nominal
+     DailyShape     := '';
+     DailyShapeObj  := nil;  // IF DaillyShapeobj = nil THEN the Vsource alway stays nominal
+     DutyShape      := '';
+     DutyShapeObj   := nil;  // IF DutyShapeobj = nil THEN the Vsource alway stays nominal
 
      Yorder := Fnterms * Fnconds;
      RecalcElementData;
@@ -360,7 +419,8 @@ End;
 Function TIsourceObj.GetBaseCurr:Complex;
 
 VAr
-   SrcHarmonic:Double;
+   SrcHarmonic: Double;
+   NAmps      : Double;
 
 Begin
 
@@ -376,7 +436,24 @@ Begin
        End
        ELSE
        Begin
-            IF abs(Frequency - SrcFrequency) < EPSILON2 THEN Result := pdegtocomplex(Amps, Angle)  Else Result := CZERO;
+           case Mode of
+               {Uses same logic as LOAD}
+               DAILYMODE:   Begin
+                                 CalcDailyMult(DynaVars.dblHour);
+                            End;
+               YEARLYMODE:  Begin
+                                 CalcYearlyMult(DynaVars.dblHour);
+                            End;
+               DUTYCYCLE:   Begin
+                                 CalcDutyMult(DynaVars.dblHour);
+                            End;
+           end;
+           NAmps  :=  Amps;
+           If (Mode=DAILYMODE)  or     {If a loadshape mode simulation}
+              (Mode=YEARLYMODE) or
+              (Mode=DUTYCYCLE)
+           Then NAmps :=  Amps*ShapeFactor.re;
+           IF abs(Frequency - SrcFrequency) < EPSILON2 THEN Result := pdegtocomplex(NAmps, Angle)  Else Result := CZERO;
        End;
 
   EXCEPT
@@ -490,6 +567,9 @@ begin
      PropertyValue[5]  := '3';
      PropertyValue[6]  := 'pos';
      PropertyValue[7]  := 'pos';
+     PropertyValue[8]  := '';
+     PropertyValue[9]  := '';
+     PropertyValue[10]  := '';
 
     inherited  InitPropertyValues(NumPropsThisClass);
 
@@ -507,6 +587,38 @@ begin
 
 end;
 
+Procedure TISourceObj.CalcDailyMult(Hr:Double);
 
+Begin
+     IF DailyShapeObj <> Nil THEN
+       Begin
+         ShapeFactor   := DailyShapeObj.GetMult(Hr);
+         ShapeIsActual := DailyShapeObj.UseActual;
+       End
+     ELSE ShapeFactor := cmplx(PerUnit, 0.0); // CDOUBLEONE;  // Default to no daily variation
+End;
+
+Procedure TISourceObj.CalcDutyMult(Hr:double);
+
+Begin
+     IF DutyShapeObj <> Nil THEN
+       Begin
+           ShapeFactor   := DutyShapeObj.GetMult(Hr);
+           ShapeIsActual := DutyShapeObj.UseActual;
+       End
+     ELSE CalcDailyMult(Hr);  // Default to Daily Mult IF no duty curve specified
+End;
+
+//----------------------------------------------------------------------------
+Procedure TISourceObj.CalcYearlyMult(Hr:double);
+
+Begin
+{Yearly curve is assumed to be hourly only}
+     IF   YearlyShapeObj<>Nil THEN Begin
+           ShapeFactor   := YearlyShapeObj.GetMult(Hr);
+           ShapeIsActual := YearlyShapeObj.UseActual;
+     End
+     ELSE ShapeFactor := cmplx(PerUnit, 0.0); // CDOUBLEONE;   // Defaults to no variation
+End;
 
 end.
