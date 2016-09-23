@@ -52,8 +52,8 @@ begin
         {Put any code here necessary to reset for specific systems};
   end;
   7: begin  // DSS.Allowforms read
-     if Not NoFormsAllowed then Result:=0
-     else Result:=1;
+     if NoFormsAllowed then Result:=1
+     else Result:=0;
   end;
   8: begin  // DSS.Allowforms write
      If arg=0 Then NoFormsAllowed := TRUE  // Only set to False
