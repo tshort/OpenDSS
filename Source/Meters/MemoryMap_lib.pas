@@ -109,13 +109,14 @@ begin
               Mem_Space.Read(buffer,1);
               if (buffer <> $A0) then
               begin
-                if (buffer > 0) then write(F,char(buffer));
                 if Fhead then Fhead :=  False;
                 if (buffer = 10) then
                 begin
+                  writeln(F);
                   Fhead := True;
                   inc(idx);
-                end;
+                end
+                else  if (buffer > 0) then write(F,char(buffer));
               end
               else
               begin
