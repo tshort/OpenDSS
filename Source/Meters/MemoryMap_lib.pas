@@ -24,7 +24,8 @@ implementation
 uses windows,
      sysutils,
      math,
-     Dialogs;
+     Dialogs,
+     DSSGlobals;
 type
     TByteArr  = array of uint8;
 //******************************************************************************
@@ -34,8 +35,6 @@ type
 function Create_Meter_Space(Init_Str : string): TBytesStream; overload;
 var
   Mem_Space : TBytesStream;
-  Str_Sz  : Integer;
-  idx     : integer;
 begin
   Mem_Space :=  TBytesStream.Create();
   Mem_Space.WriteData($01A0);   // Header for identifying String type data
@@ -46,9 +45,6 @@ end;
 // Writes a string into the specified BytesStream
 //******************************************************************************
 procedure WriteintoMemStr(Mem_Space : TBytesStream; Content: string); overload;
-var
-  Str_Sz  : Integer;
-  idx     : integer;
 begin
   Mem_Space.WriteData($01A0);   // Header for identifying String type data
   Write_String(Mem_Space, Content);
@@ -57,8 +53,6 @@ end;
 // Writes a DBL into the specified BytesStream
 //******************************************************************************
 procedure WriteintoMem(Mem_Space : TBytesStream; Content: Double); overload;
-var
-  Content_h  : string;
 begin
   Mem_Space.WriteData($02A0);   // Header for identifying a double type data
   Mem_Space.WriteData(Content);
@@ -77,82 +71,102 @@ var
   MSize           : Longint;
   TVariableDbl    : Double;
 begin
-  AssignFile(F,Dest_path);
-  if AppendFile then Append(F)
-  else Rewrite(F);
-  idx     :=  0;
-  MWrite  :=  False;
-  Fhead   :=  True;
-  MSize   :=  Mem_Space.Size;
-  while idx < MSize do
-  begin
-    Mem_Space.Position  :=  idx;
-    if MWrite = False then       // Checks if we are writing
-    begin
-      Mem_Space.Read(buffer,1);
-      if buffer = $A0 then       // If not, checks the header of the next content
+
+{ Open Output file; check for errors}
+    Try
+      AssignFile(F,Dest_path);
+      if AppendFile then Append(F)
+      else Rewrite(F);
+    Except
+       On E:Exception Do Begin
+         DoSimpleMsg('Error Attempting to open file: "' + Dest_path + '. ' + E.Message , 159000);
+         CloseFile(F);
+         Exit;
+       End;
+    End;
+
+    Try
+
+      idx     :=  0;
+      MType   :=  0;  // initialize to eliminate compiler warning
+      MWrite  :=  False;
+      Fhead   :=  True;
+      MSize   :=  Mem_Space.Size;
+      while idx < MSize do
       begin
-        Mem_Space.Position  :=  idx + 1;
-        Mem_Space.Read(buffer,1);
-        if buffer < $03 then
+        Mem_Space.Position  :=  idx;
+        if MWrite = False then       // Checks if we are writing
         begin
-          MWrite  :=  True;
-          MType   :=  buffer;
-          inc(idx);
-        end;
-      end;
-    end
-    else
-    begin
-        case MType of
-        1 : begin        // Is a string
-              Mem_Space.Read(buffer,1);
-              if (buffer <> $A0) then
-              begin
-                if Fhead then Fhead :=  False;
-                if (buffer = 10) then
-                begin
-                  writeln(F);
-                  Fhead := True;
-                  inc(idx);
-                end
-                else  if (buffer > 0) then write(F,char(buffer));
-              end
-              else
-              begin
-                idx     :=  idx - 1;
-                MWrite  := False;
-              end;
-        end;
-        2 : begin        // Is a Double
-                Mem_Space.ReadData(TVariableDbl,8);
-                idx :=  idx + 7;
-                if Fhead then Fhead :=  False
-                else write(F,', ');
-                write(F,Format( '%-g', [TVariableDbl]));
-                MWrite  := False;
-        end
-        else             // Not recognized
+          Mem_Space.Read(buffer,1);
+          if buffer = $A0 then       // If not, checks the header of the next content
+          begin
+            Mem_Space.Position  :=  idx + 1;
+            Mem_Space.Read(buffer,1);
+            if buffer < $03 then
             begin
-                idx :=  idx;
+              MWrite  :=  True;
+              MType   :=  buffer;
+              inc(idx);
+            end;
+          end;
+        end
+        else
+        begin
+            case MType of
+            1 : begin        // Is a string
+                  Mem_Space.Read(buffer,1);
+                  if (buffer <> $A0) then
+                  begin
+                    if Fhead then Fhead :=  False;
+                    if (buffer = 10) then
+                    begin
+                      writeln(F);
+                      Fhead := True;
+                      inc(idx);
+                    end
+                    else  if (buffer > 0) then write(F,char(buffer));
+                  end
+                  else
+                  begin
+                    idx     :=  idx - 1;
+                    MWrite  := False;
+                  end;
+            end;
+            2 : begin        // Is a Double
+                    Mem_Space.ReadData(TVariableDbl,8);
+                    idx :=  idx + 7;
+                    if Fhead then Fhead :=  False
+                    else write(F,', ');
+                    write(F,Format( '%-g', [TVariableDbl]));
+                    MWrite  := False;
+            end
+            else             // Not recognized
+                begin
+                    idx :=  idx;
+                end;
             end;
         end;
-    end;
-    inc(idx);
-  end;
-  CloseFile(F);
-  Mem_Space.Free;
-end;
+        inc(idx);
+      end;
+    Finally    // make sure we close the file
+      CloseFile(F);
+      Mem_Space.Free;     // Get rid of stream
+    End;
+End;
 //******************************************************************************
 // Writes the incomming String into the specified BytesStream
 //******************************************************************************
 procedure Write_String(Mem_Space : TBytesStream; const Content : string);
 var
-  Str_Sz  : Integer;
+  // Str_Sz  : Integer;
   idx     : integer;
 Begin
-  Str_Sz  :=  length(Content)-1;
-  For idx := 0 to Str_Sz do Mem_Space.WriteData(Content[idx+1]);
+
+{  Str_Sz  :=  length(Content)-1;
+  For idx := 0 to Str_Sz do Mem_Space.WriteData(Content[idx+1]);}
+
+  For idx := 1 to length(Content) do Mem_Space.WriteData(Content[idx]);
+
 End;
 
 end.
