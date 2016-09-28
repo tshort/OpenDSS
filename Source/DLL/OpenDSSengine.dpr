@@ -208,7 +208,8 @@ uses
   ImplVsources in 'ImplVsources.pas' {Vsources: CoClass},
   KLUSolve in '..\Common\KLUSolve.pas',
   ScriptEdit in '..\Forms\ScriptEdit.pas',
-  vccs in '..\PCElements\vccs.pas';
+  vccs in '..\PCElements\vccs.pas',
+  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas';
 
 exports
   DllGetClassObject,
