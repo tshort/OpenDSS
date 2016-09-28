@@ -178,9 +178,13 @@ uses
   GenDispatcher in '..\Controls\GenDispatcher.pas',
   KLUSolve in '..\Common\KLUSolve.pas',
   ScriptEdit in '..\Forms\ScriptEdit.pas',
-  vccs in '..\PCElements\vccs.pas';
+  vccs in '..\PCElements\vccs.pas',
+  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas';
 
 {$R *.RES}
+
+var
+   ErrorFile :Textfile;
 
 begin
   Application.Initialize;
@@ -200,6 +204,13 @@ begin
     OutputDirectory := StartupDirectory;
     DSSExecutive.Command := 'compile ' + ParamStr(1);
     ExitCode := DSSExecutive.Error;
+    If ExitCode <> 0 Then Begin
+        {write error message to a file}
+        AssignFile(ErrorFile, 'STDERR_OpenDSS.Txt');
+        Rewrite(Errorfile);
+        Writeln(ErrorFile, GlobalResult); // output error message to stderr
+        Closefile(ErrorFile);
+    End;
   end else begin
     {Instantiate basic forms}
     Application.CreateForm(TControlPanel, ControlPanel);
