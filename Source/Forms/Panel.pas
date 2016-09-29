@@ -10,8 +10,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ComCtrls, Menus, ToolWin, ImgList,ScriptEdit, ExtCtrls, PsAPI,
-  System.ImageList;
+  StdCtrls, ComCtrls, Menus, ToolWin, ImgList,ScriptEdit, ExtCtrls, PsAPI
+{$IFDEF VER300} // Seattle
+  ,System.ImageList;
+{$ELSE}
+  ;
+{$ENDIF}
 
 type
   TControlPanel = class(TForm)
