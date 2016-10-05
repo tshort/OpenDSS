@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 6/1/2016 12:55:41 PM (- $Rev: 12980 $, 14934927).
+// File generated on 10/5/2016 9:45:45 AM (- $Rev: 12980 $, 176795171).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -1463,6 +1463,8 @@ library OpenDSSengine
     HRESULT _stdcall QueueSize([out, retval] long* Value);
     [id(0x000000CA), helpstring("Do All Actions currently on the Control queue. Side effect: clears the queue")]
     HRESULT _stdcall DoAllQueue(void);
+    [propget, id(0x000000CB), helpstring("Variant array of strings containing the entire queue in CSV format")]
+    HRESULT _stdcall Queue([out, retval] VARIANT* Value);
   };
 
   [

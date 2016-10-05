@@ -29,7 +29,8 @@ type
     procedure Set_Action(Param1: Integer); safecall;
     function Get_QueueSize: Integer; safecall;
     procedure DoAllQueue; safecall;
-    function Get_CtrlQueue: OleVariant; safecall;
+   // function Get_CtrlQueue: OleVariant; safecall;
+    function Get_Queue: OleVariant; safecall;
     {Declare ICtrlQueue methods here}
   end;
 
@@ -209,7 +210,7 @@ begin
    End;
 end;
 
-function TCtrlQueue.Get_CtrlQueue: OleVariant;
+(*function TCtrlQueue.Get_CtrlQueue: OleVariant;
 Var
   i     : integer;
   Qsize : integer;
@@ -227,6 +228,29 @@ begin
           End;
       end
       else Result[0]:='No events';
+end;
+ *)
+
+function TCtrlQueue.Get_Queue: OleVariant;
+// returns entire queue in CSV file format as a variant array of strings
+Var
+  i     : integer;
+  Qsize : integer;
+
+begin
+      Result  := VarArrayCreate([0, 0], varOleStr);
+      QSize   := Get_queuesize;
+      if QSize > 0 then
+      begin
+        VarArrayRedim(Result, QSize);
+        Result[0]:='Handle, Hour, Sec, ActionCode, ProxyDevRef, Device';
+        For i := 0 to QSize-1 do
+          Begin
+            Result[i+1]:= ActiveCircuit.ControlQueue.QueueItem(i);
+          End;
+      end
+      else Result[0]:='No events';
+
 end;
 
 initialization
