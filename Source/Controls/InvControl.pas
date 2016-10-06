@@ -1076,7 +1076,7 @@ VAR
 
   k                                         :Integer;
   SMonitoredElement                         :Complex;
-  Qtemp,PTemp                               :Double;
+  Qtemp,PTemp,QTemp2                        :Double;
   pctVV,pctDRC,QTemporig                    :Double;
 
   // local pointer to current PVSystem element
@@ -1103,12 +1103,15 @@ BEGIN
               CalcVoltVar_vars(k);
               CalcDRC_vars(k);
               QTemp  := QNew[k]+QDRCNew[k];
+
+
               QTemporig := QTemp;
               if(QTemp = 0) then
                 begin
                   if abs(QTemp) > abs(PVSys.kvarLimit) then
                     QTemp := sign(QTemp)*1.0*PVSys.kvarLimit;
                   PVSys.Presentkvar := QTemp;
+                  QTemp2 := PVSys.Presentkvar;
               Qoutputpu[k]    := PVSys.Presentkvar / QHeadroom[k];
 
               If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name +','+ PVSys.Name+',',
@@ -1127,31 +1130,32 @@ BEGIN
               pctVV  := QNew[k]/QTemp;
               pctDRC := QDRCNew[k]/QTemp;
               WriteDLLDebugFile(Format('%g, %d, %.6g, %.6g, %.6g, %s', [ActiveCircuit.Solution.Dynavars.t, ActiveCircuit.Solution.ControlIteration, QNew[k],QDRCNew[k], QTemp, 'before limit.']));
+
               //Respect the PVSystem's maximum kvar limit, first
-              if abs(Qtemp) > abs(PVSys.kvarLimit) then
+              if abs(Qtemp2) > abs(PVSys.kvarLimit) then
                 begin
-                  Qtemp := sign(Qtemp)*0.99*PVSys.kvarLimit;
-                  QDesiredpu[k] := pctVV*(Qtemp/QTemporig)*QDesiredpu[k];
-                  QDRCDesiredpu[k] := pctDRC*(Qtemp/QTemporig)*QDRCDesiredpu[k];
+                  Qtemp2 := sign(Qtemp)*0.99*PVSys.kvarLimit;
+                  QDesiredpu[k] := pctVV*(Qtemp2/QTemporig)*QDesiredpu[k];
+                  QDRCDesiredpu[k] := pctDRC*(Qtemp2/QTemporig)*QDRCDesiredpu[k];
                   FHitkvarLimit[k] := True;
                 end;
               PVSys.SetNominalPVSystemOuput;
               PTemp := PVSys.PresentkW;
               // if the desired kW and desired kvar exceed the kva rating of the PVSystem's inverter then...
-              if SQRT(Sqr(Qtemp)+Sqr(PTemp)) > PVSys.kVARating then
+              if SQRT(Sqr(QTemp2)+Sqr(PTemp)) > PVSys.kVARating then
                 begin
                   //...if watts have precedence, reduce the reactive power to not exceed the kva rating
                   if(FVV_ReacPower_ref = 'VARAVAL_WATTS') or (FVV_ReacPower_ref = 'VARMAX_WATTS') then
                     begin
-                      Qtemp := 0.99*sign(Qtemp)*SQRT(Sqr(PVSys.kVARating)-Sqr(PTemp));
-                      QDesiredpu[k] := pctVV*(Qtemp/QTemporig)*QDesiredpu[k];
-                      QDRCDesiredpu[k] := pctDRC*(Qtemp/QTemporig)*QDRCDesiredpu[k];
+                      Qtemp2 := 0.99*sign(Qtemp2)*SQRT(Sqr(PVSys.kVARating)-Sqr(PTemp));
+                      Qnew[k] := Qtemp2;
+                      PVSys.Presentkvar := Qnew[k];
                     end
 
                   //...else, vars have precedence, reduce the active power to not exceed the kva rating
                   else
                     begin
-                      PTemp := 0.99*sign(PTemp)*SQRT(Sqr(PVSys.kVARating)-Sqr(Qtemp));
+                      PTemp := 0.99*sign(PTemp)*SQRT(Sqr(PVSys.kVARating)-Sqr(QTemp2));
                       // Set the active power
                       FFinalpuPmpp[k] :=PTemp/PVSys.Pmpp;
                       PVSys.VWmode  := TRUE;
@@ -1165,7 +1169,9 @@ BEGIN
                               PNew[k] :=FFinalpuPmpp[k];
 
                               If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
-                               Format('**VV_DRC VARMAX_VARS mode limited PVSystem output level to**, puPmpp= %.5g, PriorWatts= %.5g', [PVSys.puPmpp,FPriorWattspu[k]]));
+                               Format('**VOLTVAR VARMAX_VARS mode limited PVSystem output level to**, puPmpp= %.5g, PriorWatts= %.5g', [PVSys.puPmpp,FPriorWattspu[k]]));
+                              Qnew[k] := Qtemp2;
+                              PVSys.Presentkvar := Qnew[k];
 
                               ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
                               FAvgpVuPrior[k] := FPresentVpu[k];
@@ -1174,7 +1180,7 @@ BEGIN
                         end;
                     end;
                   FHitkvaLimit[k] := True;
-                end;
+                end;                           
 
 
               // Set the reactive power, if it is different than the present PVSystem kvar setting
@@ -1266,7 +1272,7 @@ BEGIN
                   Qnew[k] := sign(QNew[k])*0.99*PVSys.kvarLimit;
                   FHitkvarLimit[k] := True;
                 end;
-
+              QTemp2 := Qnew[k];
               //Convert output from CalcVoltWatt_pu to kW
               PVSys.VWmode  := TRUE;
               PVSys.VWYAxis := FVoltwattYAxis;
@@ -1286,21 +1292,50 @@ BEGIN
                         end;
                 end;
 
-                PTemp := PVSys.PresentkW;
               // if the desired kW and desired kvar exceed the kva rating of the PVSystem's inverter then...
-              if SQRT(Sqr(QNew[k])+Sqr(PTemp)) > PVSys.kVARating then
+              PVSys.SetNominalPVSystemOuput;
+              PTemp := PVSys.PresentkW;
+              // if the desired kW and desired kvar exceed the kva rating of the PVSystem's inverter then...
+              if SQRT(Sqr(QTemp2)+Sqr(PTemp)) > PVSys.kVARating then
                 begin
                   //...if watts have precedence, reduce the reactive power to not exceed the kva rating
                   if(FVV_ReacPower_ref = 'VARAVAL_WATTS') or (FVV_ReacPower_ref = 'VARMAX_WATTS') then
-                    QNew[k] := 0.99*sign(QNew[k])*SQRT(Sqr(PVSys.kVARating)-Sqr(PTemp))
+                    begin
+                      Qtemp2 := 0.99*sign(Qtemp2)*SQRT(Sqr(PVSys.kVARating)-Sqr(PTemp));
+                      Qnew[k] := Qtemp2;
+                      PVSys.Presentkvar := Qnew[k];
+                    end
+
                   //...else, vars have precedence, reduce the active power to not exceed the kva rating
-                  else PTemp := 0.99*sign(PTemp)*SQRT(Sqr(PVSys.kVARating)-Sqr(QNew[k]));
+                  else
+                    begin
+                      PTemp := 0.99*sign(PTemp)*SQRT(Sqr(PVSys.kVARating)-Sqr(QTemp2));
+                      // Set the active power
+                      FFinalpuPmpp[k] :=PTemp/PVSys.Pmpp;
+                      PVSys.VWmode  := TRUE;
+                      PVSys.VWYAxis := FVoltwattYAxis;
+                      PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
+                      if (FFlagROCOnly[k] = False) then
+                        begin
+                          if (RateofChangeMode=INACTIVE) or (ActiveCircuit.Solution.Dynavars.dblHour = 0.0) then
+                            begin
+                              PVSys.puPmpp :=FFinalpuPmpp[k];
+                              PNew[k] :=FFinalpuPmpp[k];
+
+                              If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
+                               Format('**VOLTVAR VARMAX_VARS mode limited PVSystem output level to**, puPmpp= %.5g, PriorWatts= %.5g', [PVSys.puPmpp,FPriorWattspu[k]]));
+                              Qnew[k] := Qtemp2;
+                              PVSys.Presentkvar := Qnew[k];
+
+                              ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
+                              FAvgpVuPrior[k] := FPresentVpu[k];
+                              POld[k] := PVSys.puPmpp;
+                          end;
+                        end;
+                    end;
                   FHitkvaLimit[k] := True;
-                end;
+                end;                           
 
-
-
-              // Set the reactive power and set the active power on the PVSystem
 
               // Set the reactive power, if it is different than the present PVSystem kvar setting
               PVSys.VWmode := FALSE;
@@ -1313,7 +1348,14 @@ BEGIN
                     Qnew[k] := sign(QNew[k])*1.0*PVSys.kvarLimit;
                   PVSys.Presentkvar := Qnew[k];
                 end;
-
+              //Respect the PVSystem's maximum kvar limit
+              if abs(Qnew[k]) > abs(PVSys.kvarLimit) then
+                begin
+                  Qnew[k] := sign(Qnew[k])*0.99*PVSys.kvarLimit;
+                  FHitkvarLimit[k] := True;
+                end;
+                
+              PVSys.Presentkvar := Qnew[k];
               Qoutputpu[k] := PVSys.Presentkvar / QHeadroom[k];
               If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name +','+ PVSys.Name+',',
                              Format('**VV_VW mode set PVSystem output var level to**, kvar= %.5g',
@@ -1453,12 +1495,56 @@ BEGIN
               If PVSys.Presentkvar <> Qnew[k] Then
                 begin
                   if abs(QNew[k]) > abs(PVSys.kvarLimit) then
+                     begin
                     Qnew[k] := sign(QNew[k])*1.0*PVSys.kvarLimit;
+                    FHitkvarLimit[k] := True;
+                    end;
                 PVSys.Presentkvar := Qnew[k];
-
-
+                QTemp2 := Qnew[k];
                 end;
 
+              PVSys.SetNominalPVSystemOuput;
+              PTemp := PVSys.PresentkW;
+              // if the desired kW and desired kvar exceed the kva rating of the PVSystem's inverter then...
+              if SQRT(Sqr(QTemp2)+Sqr(PTemp)) > PVSys.kVARating then
+                begin
+                  //...if watts have precedence, reduce the reactive power to not exceed the kva rating
+                  if(FVV_ReacPower_ref = 'VARAVAL_WATTS') or (FVV_ReacPower_ref = 'VARMAX_WATTS') then
+                    begin
+                      Qtemp2 := 0.99*sign(Qtemp2)*SQRT(Sqr(PVSys.kVARating)-Sqr(PTemp));
+                      Qnew[k] := Qtemp2;
+                      PVSys.Presentkvar := Qnew[k];
+                    end
+
+                  //...else, vars have precedence, reduce the active power to not exceed the kva rating
+                  else
+                    begin
+                      PTemp := 0.99*sign(PTemp)*SQRT(Sqr(PVSys.kVARating)-Sqr(QTemp2));
+                      // Set the active power
+                      FFinalpuPmpp[k] :=PTemp/PVSys.Pmpp;
+                      PVSys.VWmode  := TRUE;
+                      PVSys.VWYAxis := FVoltwattYAxis;
+                      PVSys.ActiveTerminalIdx := 1; // Set active terminal of PVSystem to terminal 1
+                      if (FFlagROCOnly[k] = False) then
+                        begin
+                          if (RateofChangeMode=INACTIVE) or (ActiveCircuit.Solution.Dynavars.dblHour = 0.0) then
+                            begin
+                              PVSys.puPmpp :=FFinalpuPmpp[k];
+                              PNew[k] :=FFinalpuPmpp[k];
+
+                              If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+','+PVSys.Name+',',
+                               Format('**VOLTVAR VARMAX_VARS mode limited PVSystem output level to**, puPmpp= %.5g, PriorWatts= %.5g', [PVSys.puPmpp,FPriorWattspu[k]]));
+                              Qnew[k] := Qtemp2;
+                              PVSys.Presentkvar := Qnew[k];
+
+                              ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
+                              FAvgpVuPrior[k] := FPresentVpu[k];
+                              POld[k] := PVSys.puPmpp;
+                          end;
+                        end;
+                    end;
+                  FHitkvaLimit[k] := True;
+                end;                           
 			
               Qoutputpu[k] := PVSys.Presentkvar / QHeadroom[k];
 			  QoutputVVpu[k] := Qoutputpu[k];
