@@ -118,6 +118,7 @@ TYPE
        Property VmaxVal:Double Read ControlVars.Vmax;
        Property UseVoltageOverride:Boolean Read ControlVars.Voverride;
        Property DeadTimeVal:Double Read ControlVars.DeadTime;
+       Property PTPhase:Integer Read ControlVars.FPTPhase;
    end;
 
 
