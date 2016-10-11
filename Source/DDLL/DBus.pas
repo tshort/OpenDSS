@@ -476,46 +476,46 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble);
   end;
   11: begin  // Bus.VLL
-       IF ActiveCircuit = nil Then Begin
-            arg := VarArrayCreate([0, 0], varDouble)
-       End
-       ELSE With ActiveCircuit Do
-       IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
-       Begin
-          pBus    := Buses^[ActiveBusIndex];
-          Nvalues := pBus.NumNodesThisBus;
-          If Nvalues > 3 Then Nvalues := 3;
-          If Nvalues > 1 Then
-          Begin
-              If Nvalues = 2 Then  Nvalues := 1;  // only one L-L voltage if 2 phase
-              arg  := VarArrayCreate( [0, 2*NValues -1], varDouble);
-              iV := 0;
-              WITH pBus DO
-              Begin
-                If kVBase>0.0 Then BaseFactor := 1000.0*kVBase*sqrt3
-                              Else BaseFactor := 1.0;
-                FOR i := 1 to  NValues DO     // for 2- or 3-phases
-                Begin
-                      // this code assumes the nodes are ordered 1, 2, 3
-                      NodeIdxi := FindIdx(i);  // Get the index of the Node that matches i
-                      jj := i+1;
-                      if jj>3 then jj := 1; // wrap around
-                      NodeIdxj := FindIdx(jj);
-                      With Solution Do Volts := Csub(NodeV^[GetRef(NodeIdxi)], NodeV^[GetRef(NodeIdxj)]);
-                      arg[iV] := Volts.re / BaseFactor;
-                      Inc(iV);
-                      arg[iV] := Volts.im / BaseFactor;
-                      Inc(iV);
-                End;
-              End;  {With pBus}
-          End
-          ELSE Begin  // for 1-phase buses, do not attempt to compute.
-              arg := VarArrayCreate([0, 1], varDouble);  // just return -1's in array
-              arg[0] := -99999.0;
-              arg[1] := 0.0;
-          End;
+      IF ActiveCircuit = nil Then Begin
+        arg := VarArrayCreate([0, 0], varDouble)
       End
-      ELSE arg := VarArrayCreate([0, 0], varDouble);  // just return null array
+     ELSE With ActiveCircuit Do
+     IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
+     Begin
+        pBus    := Buses^[ActiveBusIndex];
+        Nvalues := pBus.NumNodesThisBus;
+        If Nvalues > 3 Then Nvalues := 3;
+
+        If Nvalues > 1 Then
+        Begin
+            If Nvalues = 2 Then  Nvalues := 1;  // only one L-L voltage if 2 phase
+            arg  := VarArrayCreate( [0, 2*NValues -1], varDouble);
+            iV := 0;
+            WITH pBus DO
+              FOR i := 1 to  NValues DO     // for 2- or 3-phases
+              Begin
+
+                    // this code assumes the nodes are ordered 1, 2, 3
+                    // this code so nodes come out in order from smallest to largest
+                    NodeIdxi := FindIdx(i);  // Get the index of the Node that matches i
+                    jj := i+1;
+                    if jj>3 then jj := 1; // wrap around
+                    NodeIdxj := FindIdx(jj);
+
+                    With Solution Do Volts := Csub(NodeV^[GetRef(NodeIdxi)], NodeV^[GetRef(NodeIdxj)]);
+                    arg[iV] := Volts.re;
+                    Inc(iV);
+                    arg[iV] := Volts.im;
+                    Inc(iV);
+              End;
+        End
+        ELSE Begin  // for 1-phase buses, do not attempt to compute.
+            arg := VarArrayCreate([0, 1], varDouble);  // just return -1's in array
+            arg[0] := -99999.0;
+            arg[1] := 0.0;
+        End;
+  End
+  ELSE arg := VarArrayCreate([0, 0], varDouble);  // just return null array
   end;
   12: begin   // Bus. PuVLL
        IF ActiveCircuit = nil Then Begin
