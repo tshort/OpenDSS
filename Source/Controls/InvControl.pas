@@ -2122,7 +2122,7 @@ begin
                       if (FWithinTol[i] = True) and (FRocEvaluated[i] = False) then
                         begin
                            FFlagROCOnly[i] := True;
-                           Set_PendingChange(CHANGEDRCVVARLEVEL,i);
+                           Set_PendingChange(CHANGEVARLEVEL,i);
 
                             With  ActiveCircuit.Solution.DynaVars Do
                             ControlActionHandle := ActiveCircuit.ControlQueue.Push
