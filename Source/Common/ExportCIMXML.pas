@@ -613,7 +613,7 @@ begin
     pPhase.LocalName := pCap.Name + '_' + phs;
     pPhase.GUID := GetDevGuid (CapPhase, pPhase.LocalName, 1);
     StartInstance (F, 'LinearShuntCompensatorPhase', pPhase);
-    PhaseKindNode (F, 'LinearShuntCompensatorPhase', phs);
+    PhaseKindNode (F, 'ShuntCompensatorPhase', phs);
     DoubleNode (F, 'LinearShuntCompensatorPhase.bPerSection', bph);
     DoubleNode (F, 'LinearShuntCompensatorPhase.gPerSection', 0.0);
     RefNode (F, 'LinearShuntCompensatorPhase.ShuntCompensator', pCap);
@@ -1211,11 +1211,11 @@ Begin
           DoubleNode (F, 'LinearShuntCompensator.bPerSection', val);
           DoubleNode (F, 'LinearShuntCompensator.gPerSection', 0.0);
           if Connection = 0 then begin
-            ShuntConnectionKindNode (F, 'LinearShuntCompensator', 'Y');
+            ShuntConnectionKindNode (F, 'ShuntCompensator', 'Y');
             BooleanNode (F, 'LinearShuntCompensator.grounded', True);  // TODO - check bus 2
             DoubleNode (F, 'LinearShuntCompensator.b0PerSection', val);
           end else begin
-            ShuntConnectionKindNode (F, 'LinearShuntCompensator', 'D');
+            ShuntConnectionKindNode (F, 'ShuntCompensator', 'D');
             BooleanNode (F, 'LinearShuntCompensator.grounded', False);
             DoubleNode (F, 'LinearShuntCompensator.b0PerSection', 0.0);
           end;
