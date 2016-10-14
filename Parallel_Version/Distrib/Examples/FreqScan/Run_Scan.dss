@@ -1,0 +1,43 @@
+// CHANGE THIS PATH TO MATCH WHERE YOU HAVE THE 123 BUS IEEE TEST FEEEDER
+
+Redirect "C:\Users\prdu001\OpenDSS\Distrib\IEEETestCases\123Bus\IEEE123Master.dss"
+
+/*
+   NOTE: By using Redirect instead of Compile, OpenDSS returns to home directory
+   so we don't clutter the 123Bus folder with files.
+*/
+
+// THIS SCRIPT WILL RUN A FREQUENCY SCAN ON THE IEEE 123 BUS TEST CASE
+
+! Solve executes the solution for the present solution mode, which is "snapshot".
+
+solve
+Buscoords Buscoords.dat   ! load in bus coordinates (must be local file)
+
+Spectrum.DefaultLoad.NumHarm=1   ! This effectively gets rid of LOAD harmonics
+
+// Define a spectrum for the scan source
+New spectrum.Scanspec numharm=1000 csvfile=ScanSpectrum.csv
+
+// Put a Monitor to capture the results
+New Monitor.Mscan Line.l84 1
+
+// Define a positive-sequence (the default) 1-A 3-ph current source 
+New Isource.scansource bus1=83 amps=1 spectrum=scanspec
+ 
+solve    ! solve the power flow
+
+// add a marker to the circuit plot to show the Isource location
+ClearBusMarkers    !...Clears any previous bus markers
+AddBusMarker Bus=83 code=15 color=Red size=4
+
+// Create the circuit plot
+Plot Circuit Power Max=1000 dots=n labels=n  C1=Blue  1ph=3
+
+
+solve mode=harmonics  ! do the harmonic solutions
+show mon mscan  ! show the results
+Export monitors mscan
+
+// You can plot the Monitor, but Excel or Matlab might be better
+Plot monitor object= mscan channels=(1 3 5 )

@@ -1,0 +1,10 @@
+IF (MenuGroup.Text <> )  THEN  Next.Enabled := True;
+IF (MenuGroup.Text = )  THEN  Next.Enabled := False;
+IF (ISNT.Caption = TRUE)  THEN  AllUsers.Enabled := True;
+IF (ISNT.Caption <> TRUE)  THEN  AllUsers.Enabled := False;
+IF (Glass.Caption <> TRUE)  THEN  Separator.Visible := True;
+IF (Glass.Caption <> TRUE)  THEN  InstallAware.Visible := True;
+IF (Glass.Caption = TRUE)  THEN  Install.Visible := True;
+IF (Glass.Caption = TRUE)  THEN  Separator.Visible := False;
+IF (Glass.Caption = TRUE)  THEN  InstallAware.Visible := False;
+IF (Glass.Caption <> TRUE)  THEN  Install.Visible := False;

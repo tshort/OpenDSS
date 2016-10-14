@@ -1,0 +1,65 @@
+! Solution Run Script for Ckt7
+
+! generally when running from OpenDSS.EXE you will open this file first and control
+! the execution from here. Add any commands you wish.
+
+! Ckt7 Consists of
+
+! Devices = 2232
+! Buses = 1255
+! Nodes = 2452
+
+Compile [Master_ckt7.dss]  
+
+! Note:adding full path name in brackets will avoid having to manually change to this directory
+
+solve
+
+! Define some monitors
+New monitor.ckt7_totalizedmonitor element=line.333 terminal=2 mode=1 
+New monitor.ckt7_mon element=line.333 terminal=1 mode=0 Residual=yes
+New monitor.ckt7_mon_p element=line.333 terminal=1 mode=1 Ppolar=No  ! kW, kvar
+
+Solve
+
+! Some circuit plotting scripts
+plot circuit Voltage Max=200 dots=n labels=n subs=y C1=Blue  1phlinestyle=3
+plot circuit Power Max=2000 dots=n labels=n subs=y C1=$00FF00FF 1phlinestyle=3
+
+! Loss density plot
+plot circuit Losses Max=.02 dots=n labels=n subs=y C1=Blue  1phlinestyle=3
+
+! Example profile plot scripts
+Plot profile  phases=default
+Plot profile phases=all
+Plot profile phases=primary
+Plot profile phases=1
+Plot profile phases=2
+Plot profile phases=3
+
+show voltages ln nodes
+show powers kva elements
+show overloads
+show currents elements
+show losses
+Export Capacity
+
+! ***********************************************************************
+! Use this part of the script to conduct an annual simulation
+set mode=yearly number=8760
+set casename=Example_ckt7
+
+set demand=true
+set DIVerbose=true
+set voltexceptionreport = true
+solve
+closeDI   ! Don' forget to close DI files
+! ***********************************************************************
+
+! export selected monitors to CSV files
+
+Set ShowExport=True  ! automatically display exported files
+
+Export monitor ckt7_totalizedmonitor
+Export monitor ckt7_mon
+Export monitor ckt7mon_p 

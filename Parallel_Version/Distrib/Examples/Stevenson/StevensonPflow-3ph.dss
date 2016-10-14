@@ -1,0 +1,39 @@
+Clear
+
+// Power flow example from Stevenson 2nd Ed, p.219-225
+
+// 3-phase version
+
+New Circuit.Stevenson
+~ bus1=1 Basekv=115  pu=1.02    mvasc3=1000000   1000000   ! Stiff Source
+
+! Lines in ohms @ 115 kV
+New Line.1-2 phases=3 Bus1=1  Bus2=2  R1=13.225   X1=52.9    R0=13.225   X0=52.9   C1=0  C0=0 Length=1
+New Line.1-4 phases=3 Bus1=1  Bus2=4  R1=19.8375  X1=79.35   R0=19.8375  X0=79.35  C1=0  C0=0 Length=1
+New Line.1-5 phases=3 Bus1=1  Bus2=5  R1=6.6125   X1=26.45   R0=6.6125   X0=26.45  C1=0  C0=0 Length=1
+New Line.2-3 phases=3 Bus1=2  Bus2=3  R1=6.6125   X1=26.45   R0=6.6125   X0=26.45  C1=0  C0=0 Length=1
+New Line.2-4 phases=3 Bus1=2  Bus2=4  R1=13.225   X1=52.9    R0=13.225   X0=52.9   C1=0  C0=0 Length=1
+New Line.3-5 phases=3 Bus1=3  Bus2=5  R1=6.6125   X1=26.45   R0=6.6125   X0=26.45  C1=0  C0=0 Length=1
+
+New Generator.Bus3  phases=3 bus1=3   kV=115 kW=100000  model=3  Vpu=1.04 maxkvar=60000  minkvar=-45000  
+~ PVFactor=0.5  ! default is 0.1; This is faster.
+!  ~ debug=yes
+
+New load.Bus2  phases=3  bus1=2  kV=115  kW= 60000   kvar= 30000   vmin=0.9
+New load.Bus4  phases=3  bus1=4  kV=115  kW= 40000   kvar= 10000   vmin=0.9
+New load.Bus5  phases=3  bus1=5  kV=115  kW= 60000   kvar= 20000   vmin=0.9
+
+
+Set voltagebases=[115]
+calcv
+
+solve
+
+
+
+Show Powers MVA Elements
+
+Show Voltage LN Nodes
+show mismatch
+Show convergence
+Show Power MVA

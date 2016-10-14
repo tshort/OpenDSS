@@ -1,0 +1,36 @@
+! voltage regulator definitions
+
+! Define three banks of single-phase regulators; each phase is controlled separately
+
+! The regulating transformer is defined as a low-impedance, low-loss 2-winding, 1:1, Y-Y transformer to approximate an ideal regulator
+! The control regulates winding 2
+
+! Regulator No. 2
+
+New Transformer.VREG2_A phases=1  windings=2  buses=(regxfmr_190-8593.1, 190-8593.1)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(10000, 10000)  xhl=0.1 %loadloss=.01 Wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0 
+New Transformer.VREG2_B phases=1  windings=2  buses=(regxfmr_190-8593.2, 190-8593.2)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(10000, 10000)  xhl=0.1 %loadloss=.01 Wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0 
+New Transformer.VREG2_C phases=1  windings=2  buses=(regxfmr_190-8593.3, 190-8593.3)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(10000, 10000)  xhl=0.1 %loadloss=.01 Wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0 
+
+New RegControl.VREG2_A transformer=VREG2_A  winding=2 vreg=125  ptratio=60 band=2  
+New RegControl.VREG2_B transformer=VREG2_B  winding=2 vreg=125  ptratio=60 band=2  
+New RegControl.VREG2_C transformer=VREG2_C  winding=2 vreg=125  ptratio=60 band=2  
+
+! Regulator No. 3
+
+New Transformer.VREG3_A phases=1  windings=2  buses=(regxfmr_190-8581.1, 190-8581.1)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(10000, 10000)  xhl=0.1 %loadloss=.01 Wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0 
+New Transformer.VREG3_B phases=1  windings=2  buses=(regxfmr_190-8581.2, 190-8581.2)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(10000, 10000)  xhl=0.1 %loadloss=.01 Wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0 
+New Transformer.VREG3_C phases=1  windings=2  buses=(regxfmr_190-8581.3, 190-8581.3)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(10000, 10000)  xhl=0.1 %loadloss=.01 Wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0 
+
+New RegControl.VREG3_A transformer=VREG3_A  winding=2 vreg=125  ptratio=60 band=2  
+New RegControl.VREG3_B transformer=VREG3_B  winding=2 vreg=125  ptratio=60 band=2  
+New RegControl.VREG3_C transformer=VREG3_C  winding=2 vreg=125  ptratio=60 band=2  
+
+! Regulator No. 4
+
+New Transformer.VREG4_A phases=1  windings=2  buses=(regxfmr_190-7361.1, 190-7361.1)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(10000, 10000)  xhl=0.1 %loadloss=.01 Wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0 
+New Transformer.VREG4_B phases=1  windings=2  buses=(regxfmr_190-7361.2, 190-7361.2)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(10000, 10000)  xhl=0.1 %loadloss=.01 Wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0 
+New Transformer.VREG4_C phases=1  windings=2  buses=(regxfmr_190-7361.3, 190-7361.3)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(10000, 10000)  xhl=0.1 %loadloss=.01 Wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0 
+
+New RegControl.VREG4_A transformer=VREG4_A  winding=2 vreg=125  ptratio=60 band=2  
+New RegControl.VREG4_B transformer=VREG4_B  winding=2 vreg=125  ptratio=60 band=2  
+New RegControl.VREG4_C transformer=VREG4_C  winding=2 vreg=125  ptratio=60 band=2  

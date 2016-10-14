@@ -1,0 +1,25 @@
+//------------------------------------------------------------------------------------------------------------------------------//
+// Dados dos reguladores.
+
+//Fase A
+New Transformer.RegFaseA phases=1 xhl=0.01 %LoadLoss=0.001 
+~ wdg=1 bus=650.1   kV=2.4    kva=1666.7        
+~ wdg=2 bus=Reg.1   kV=2.4    kva=1666.7     
+New regcontrol.RegFaseA  transformer=RegFaseA
+~ winding=2  vreg=122  band=2  ptratio=20 ctprim=700  R=3   X=9 
+
+//Fase B
+New Transformer.RegFaseB phases=1 xhl=0.01 %LoadLoss=0.001 
+~ wdg=1 bus=650.2   kV=2.4    kva=1666.7        
+~ wdg=2 bus=Reg.2   kV=2.4    kva=1666.7     
+New regcontrol.RegFaseB  transformer=RegFaseB
+~ winding=2  vreg=122  band=2  ptratio=20 ctprim=700  R=3   X=9 
+
+//Fase C
+New Transformer.RegFaseC phases=1 xhl=0.01 %LoadLoss=0.001 
+~ wdg=1 bus=650.3   kV=2.4    kva=1666.7        
+~ wdg=2 bus=Reg.3   kV=2.4    kva=1666.7     
+New regcontrol.RegFaseC  transformer=RegFaseC
+~ winding=2  vreg=122  band=2  ptratio=20 ctprim=700  R=3   X=9 
+
+//------------------------------------------------------------------------------------------------------------------------------//

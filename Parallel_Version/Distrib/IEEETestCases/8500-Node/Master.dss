@@ -1,0 +1,28 @@
+// Master file for 8500-Node IEEE Test Feeder Case
+// Balanced Load Case
+
+Clear
+
+New Circuit.IEEE8500  
+
+! Make the source stiff with small impedance
+~ pu=1.05  r1=0  x1=0.001  r0=0  x0=0.001  
+
+Redirect  LineCodes2.dss
+Redirect  Triplex_Linecodes.dss
+
+Redirect  Lines.dss
+Redirect  Transformers.dss
+Redirect  LoadXfmrs.dss    ! Load Transformers
+Redirect  Triplex_Lines.dss
+Redirect  Loads.dss     ! Balanced Loads
+Redirect  Capacitors.dss
+Redirect  CapControls.dss
+Redirect  Regulators.dss
+
+! Let DSS estimate the voltage bases
+Set voltagebases=[115, 12.47,  0.48, 0.208]
+Calcvoltagebases     ! This also establishes the bus list
+
+! Load in bus coordintes now that bus list is established
+Buscoords  Buscoords.dss

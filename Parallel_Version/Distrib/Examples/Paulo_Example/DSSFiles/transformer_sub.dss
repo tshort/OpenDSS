@@ -1,0 +1,12 @@
+//------------------------------------------------------------------------------------------------------------------------------//
+// Dados dos transformadores.
+//         Subestação.
+//Observação: A tensão na saída desse trafo na publicação do IEEE é igual a 1 pu. 
+//            Portanto, para a simulação é considerado a impedância do trafo muito 
+//            pequena, ou seja, diferente do publicado.
+
+New Transformer.Subestacao phases=3 windings=2   xhl=0.0001
+~ wdg=1 bus=SourceBus   conn=delta  kV=115  kVA=5000   %r=0.0000005
+~ wdg=2 bus=650   conn=wye    kV=4.16  kVA=5000   %r=0.0000005
+
+//------------------------------------------------------------------------------------------------------------------------------//

@@ -1,0 +1,19 @@
+! Capacitor Control Definitions
+! these controls monitor one phase of the specified line and control one phase of the associated capacitor bank
+! Each control monitors a single phase and controls a single phase capacitor (see capacitor definitions)
+
+New CapControl.CAPBank2A_Ctrl Capacitor=CAPBank2A element=line.CAP_1A  terminal=1 type=kvar ptratio=1 ctratio=1 ONsetting=150 OFFsetting=-225 VoltOverride=Y Vmin=7110 Vmax=7740 Delay=100 Delayoff=100 
+New CapControl.CAPBank2B_Ctrl Capacitor=CAPBank2B element=line.CAP_1B  terminal=1 type=kvar ptratio=1 ctratio=1 ONsetting=150 OFFsetting=-225 VoltOverride=Y Vmin=7110 Vmax=7740 Delay=101 Delayoff=101 
+New CapControl.CAPBank2C_Ctrl Capacitor=CAPBank2C element=line.CAP_1C  terminal=1 type=kvar ptratio=1 ctratio=1 ONsetting=150 OFFsetting=-225 VoltOverride=Y Vmin=7110 Vmax=7740 Delay=102 Delayoff=102 
+
+
+New CapControl.CAPBank1A_Ctrl Capacitor=CAPBank1A element=line.CAP_2A  terminal=1 type=kvar ptratio=1 ctratio=1 ONsetting=150 OFFsetting=-225 VoltOverride=Y Vmin=7110 Vmax=7740 Delay=100 Delayoff=90  
+New CapControl.CAPBank1B_Ctrl Capacitor=CAPBank1B element=line.CAP_2B  terminal=1 type=kvar ptratio=1 ctratio=1 ONsetting=150 OFFsetting=-225 VoltOverride=Y Vmin=7110 Vmax=7740 Delay=101 Delayoff=91  
+New CapControl.CAPBank1C_Ctrl Capacitor=CAPBank1C element=line.CAP_2C  terminal=1 type=kvar ptratio=1 ctratio=1 ONsetting=150 OFFsetting=-225 VoltOverride=Y Vmin=7110 Vmax=7740 Delay=102 Delayoff=92  
+
+
+New CapControl.CAPBank0A_Ctrl Capacitor=CAPBank0A element=line.CAP_3A  terminal=1 type=kvar ptratio=1 ctratio=1 ONsetting=200 OFFsetting=-300 VoltOverride=Y Vmin=7110 Vmax=7740 Delay=100 Delayoff=80  
+New CapControl.CAPBank0B_Ctrl Capacitor=CAPBank0B element=line.CAP_3B  terminal=1 type=kvar ptratio=1 ctratio=1 ONsetting=200 OFFsetting=-300 VoltOverride=Y Vmin=7110 Vmax=7740 Delay=101 Delayoff=81  
+New CapControl.CAPBank0C_Ctrl Capacitor=CAPBank0C element=line.CAP_3C  terminal=1 type=kvar ptratio=1 ctratio=1 ONsetting=200 OFFsetting=-300 VoltOverride=Y Vmin=7110 Vmax=7740 Delay=102 Delayoff=82  
+
+

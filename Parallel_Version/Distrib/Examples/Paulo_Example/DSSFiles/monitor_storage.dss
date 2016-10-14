@@ -1,0 +1,4 @@
+new monitor.storage_voltage storage.battery 1 ppolar=no mode=0
+new monitor.storage_power storage.battery 1 mode=1 ppolar=no
+new monitor.storage_general storage.battery 1 mode=3
+

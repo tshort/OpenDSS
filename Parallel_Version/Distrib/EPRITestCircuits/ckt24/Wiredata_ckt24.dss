@@ -1,0 +1,19 @@
+!!!! Edited by EPRI
+
+
+
+New WireData.OH_1/0_AAAC_6201 diam=0.368 radunits=in GMRac=0.134 GMRunits=in Rac=0.8628 Runits=mi normamps=268 !Changed GMR
+New WireData.OH_1/0_AAAC_5005 diam=0.368 radunits=in GMRac=0.134 GMRunits=in Rac=1.0262 Runits=mi normamps=261 !Changed GMR
+New WireData.OH_Unknown diam=0.858 radunits=in GMRac=0.334191 GMRunits=in Rac=0.1928 Runits=mi normamps=118
+New WireData.OH_4/0_AAC diam=0.522 radunits=in GMRac=0.189 GMRunits=in Rac=0.4407 Runits=mi normamps=387   !Changed GMR
+New WireData.OH_#2_AAAC_5005 diam=0.292 radunits=in GMRac=0.106 GMRunits=in Rac=1.6309 Runits=mi normamps=195   !Changed GMR
+New WireData.OH_336_AAC diam=0.666 radunits=in GMRac=0.252 GMRunits=in Rac=0.2779 Runits=mi normamps=521   !Changed GMR
+New WireData.OH_477_AAC diam=0.793 radunits=in GMRac=0.3 GMRunits=in Rac=0.1968 Runits=mi normamps=650   !Changed GMR
+New WireData.OH_#6A_Copperweld diam=0.23 radunits=in GMRac=0.057 GMRunits=in Rac=2.2 Runits=mi normamps=118
+New WireData.OH_1/0_ACSR_6/1 diam=0.398 radunits=in GMRac=0.054 GMRunits=in Rac=1.12 Runits=mi normamps=242 !Changed R and GMR
+New WireData.OH_4/0_ACSR_6/1 diam=0.563 radunits=in GMRac=0.098 GMRunits=in Rac=0.592 Runits=mi normamps=361 !Changed R and GMR
+New WireData.OH_336_ACSR_18/1 diam=0.684 radunits=in GMRac=0.266418 GMRunits=in Rac=0.2756 Runits=mi normamps=526
+New WireData.OH_477_ACSR_24/7 diam=0.846 radunits=in GMRac=0.329517 GMRunits=in Rac=0.1937 Runits=mi normamps=665
+
+
+

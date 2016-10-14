@@ -1,0 +1,1 @@
+New Transformer.TR1 Buses=[SourceBus 1] Conns=[Delta Wye] kVs=[11 0.416] kVAs=[800 800] XHL=4 sub=y

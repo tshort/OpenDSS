@@ -1,0 +1,16 @@
+// Example 480-V 1-MW generator with a Yg-Delta transformer with a reactor in the neutral
+
+
+// 12.47/480V Transformer and neutral reactor definition.
+New "Transformer.G_m1125934"  XHL=5.75  kVA=1000  Conns=[wye, Delta]
+~ wdg=1 bus=190-7361.1.2.3.4  kV=12.47  
+~ wdg=2 bus=G_190-7361        kV=0.48  
+New  Reactor.G_m1125934  Phases=1  Bus1=190-7361.4  R=0.001  X=0  !Neutral Reactor/Resistor
+
+// Generator definition
+New   "Generator.G_m1125934"  Bus1=G_190-7361  kW=1000  PF=1  kVA=1000  kV=0.48  Xdp=0.27  Xdpp=0.2  H=2
+~ Conn=Delta   ! use the interconnection transformer to achieve wye for direct connect 
+
+New "Monitor.G_m1125934"      Element="Transformer.G_m1125934"  Terminal=1  Mode=0
+New "Monitor.G_m1125934_gen"  Element="Generator.G_m1125934"    Terminal=1  Mode=3
+

@@ -1,0 +1,192 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{4A4C97E8-5393-401B-83FC-B19372865612}</ProjectGuid>
+			<MainSource>OpenDSSCmd.dpr</MainSource>
+			<Config Condition="'$(Config)'==''">Debug</Config>
+			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+			<ProjectVersion>12.0</ProjectVersion>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DependencyCheckOutputName>OpenDSSCmd.exe</DCC_DependencyCheckOutputName>
+			<DCC_ImageBase>00400000</DCC_ImageBase>
+			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;$(DCC_UnitAlias)</DCC_UnitAlias>
+			<DCC_Platform>x86</DCC_Platform>
+			<DCC_E>false</DCC_E>
+			<DCC_N>false</DCC_N>
+			<DCC_S>false</DCC_S>
+			<DCC_F>false</DCC_F>
+			<DCC_K>false</DCC_K>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+			<DCC_DebugInformation>false</DCC_DebugInformation>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+		</PropertyGroup>
+		<ItemGroup>
+			<DelphiCompile Include="OpenDSSCmd.dpr">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<DCCReference Include="..\Shared\Arraydef.pas"/>
+			<DCCReference Include="..\Common\AutoAdd.pas"/>
+			<DCCReference Include="..\Common\Bus.pas"/>
+			<DCCReference Include="..\PDElements\Capacitor.pas"/>
+			<DCCReference Include="..\Controls\CapControl.pas"/>
+			<DCCReference Include="..\Common\Circuit.pas"/>
+			<DCCReference Include="..\Common\CktElement.pas"/>
+			<DCCReference Include="..\Common\CktElementClass.pas"/>
+			<DCCReference Include="..\Shared\CktTree.pas"/>
+			<DCCReference Include="..\Shared\Command.pas"/>
+			<DCCReference Include="..\Common\Conductor.pas"/>
+			<DCCReference Include="..\Controls\ControlClass.pas"/>
+			<DCCReference Include="..\Controls\ControlElem.pas"/>
+			<DCCReference Include="..\Common\ControlQueue.pas"/>
+			<DCCReference Include="..\Common\DSSClass.pas"/>
+			<DCCReference Include="DSSForms.pas"/>
+			<DCCReference Include="..\Common\DSSGlobals.pas"/>
+			<DCCReference Include="..\General\DSSObject.pas"/>
+			<DCCReference Include="DSSPlot.pas"/>
+			<DCCReference Include="..\Shared\Dynamics.pas"/>
+			<DCCReference Include="..\Meters\EnergyMeter.pas"/>
+			<DCCReference Include="..\PCElements\Equivalent.pas"/>
+			<DCCReference Include="..\Common\EventQueue.pas"/>
+			<DCCReference Include="..\Executive\ExecCommands.pas"/>
+			<DCCReference Include="..\Executive\ExecHelper.pas"/>
+			<DCCReference Include="..\Executive\ExecOptions.pas"/>
+			<DCCReference Include="..\Executive\Executive.pas"/>
+			<DCCReference Include="..\Common\ExportResults.pas"/>
+			<DCCReference Include="..\PDElements\Fault.pas"/>
+			<DCCReference Include="..\Common\Feeder.pas"/>
+			<DCCReference Include="..\PDElements\fuse.pas"/>
+			<DCCReference Include="..\Controls\GenDispatcher.pas"/>
+			<DCCReference Include="..\PCElements\generator.pas"/>
+			<DCCReference Include="..\General\GrowthShape.pas"/>
+			<DCCReference Include="..\Shared\HashList.pas"/>
+			<DCCReference Include="ImplGlobals.pas"/>
+			<DCCReference Include="..\Shared\IniRegSave.pas"/>
+			<DCCReference Include="..\PCElements\Isource.pas"/>
+			<DCCReference Include="..\PDElements\Line.pas"/>
+			<DCCReference Include="..\General\XfmrCode.pas"/>
+			<DCCReference Include="..\General\LineSpacing.pas"/>
+			<DCCReference Include="..\Shared\LineUnits.pas"/>
+			<DCCReference Include="..\PCElements\Load.pas"/>
+			<DCCReference Include="..\General\LoadShape.pas"/>
+			<DCCReference Include="..\Shared\mathutil.pas"/>
+			<DCCReference Include="..\Meters\MeterClass.pas"/>
+			<DCCReference Include="..\Meters\MeterElement.pas"/>
+			<DCCReference Include="..\Meters\Monitor.pas"/>
+			<DCCReference Include="..\Common\Notes.pas"/>
+			<DCCReference Include="..\General\OHLineConstants.pas"/>
+			<DCCReference Include="..\Parser\ParserDel.pas"/>
+			<DCCReference Include="..\PCElements\PCClass.pas"/>
+			<DCCReference Include="..\PCElements\PCElement.pas"/>
+			<DCCReference Include="..\PDElements\PDClass.pas"/>
+			<DCCReference Include="..\PDElements\PDElement.pas"/>
+			<DCCReference Include="..\Shared\PointerList.pas"/>
+			<DCCReference Include="..\PDElements\Reactor.pas"/>
+			<DCCReference Include="..\Controls\Recloser.pas"/>
+			<DCCReference Include="..\Meters\ReduceAlgs.pas"/>
+			<DCCReference Include="..\Controls\RegControl.pas"/>
+			<DCCReference Include="..\Controls\Relay.pas"/>
+			<DCCReference Include="..\Parser\RPN.pas"/>
+			<DCCReference Include="..\Meters\Sensor.pas"/>
+			<DCCReference Include="..\Common\ShowResults.pas"/>
+			<DCCReference Include="..\Common\Solution.pas"/>
+			<DCCReference Include="..\Common\SolutionAlgs.pas"/>
+			<DCCReference Include="..\General\Spectrum.pas"/>
+			<DCCReference Include="..\Shared\StackDef.pas"/>
+			<DCCReference Include="..\General\TCC_Curve.pas"/>
+			<DCCReference Include="..\Common\Terminal.pas"/>
+			<DCCReference Include="TOPExport.pas"/>
+			<DCCReference Include="..\PDElements\Transformer.pas"/>
+			<DCCReference Include="..\Shared\Ucmatrix.pas"/>
+			<DCCReference Include="..\Shared\Ucomplex.pas"/>
+			<DCCReference Include="..\Common\Utilities.pas"/>
+			<DCCReference Include="..\PCElements\VSource.pas"/>
+			<DCCReference Include="..\General\WireData.pas"/>
+			<DCCReference Include="..\Common\Ymatrix.pas"/>
+			<DCCReference Include="..\Common\DSSCallBackRoutines.pas"/>
+			<DCCReference Include="..\Common\ExportCIMXML.pas"/>
+			<DCCReference Include="..\Common\DSSClassDefs.pas"/>
+			<DCCReference Include="..\General\NamedObject.pas"/>
+			<DCCReference Include="..\General\LineCode.pas"/>
+			<DCCReference Include="..\PCElements\GenUserModel.pas"/>
+			<DCCReference Include="..\PCElements\Storage.pas"/>
+			<DCCReference Include="..\Controls\StorageController.pas"/>
+			<DCCReference Include="..\PCElements\StoreUserModel.pas"/>
+			<DCCReference Include="..\General\LineGeometry.pas"/>
+			<DCCReference Include="..\Controls\SwtControl.pas"/>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType>VCLApplication</Borland.ProjectType>
+			<BorlandProject>
+				<Delphi.Personality>
+					<Source>
+						<Source Name="MainSource">OpenDSSCmd.dpr</Source>
+					</Source>
+					<Parameters>
+						<Parameters Name="UseLauncher">False</Parameters>
+						<Parameters Name="LoadAllSymbols">True</Parameters>
+						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+					</Parameters>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="MajorVer">1</VersionInfo>
+						<VersionInfo Name="MinorVer">0</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">0</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1033</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName"/>
+						<VersionInfoKeys Name="FileDescription"/>
+						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName"/>
+						<VersionInfoKeys Name="LegalCopyright"/>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="Comments"/>
+					</VersionInfoKeys>
+				</Delphi.Personality>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+	</Project>

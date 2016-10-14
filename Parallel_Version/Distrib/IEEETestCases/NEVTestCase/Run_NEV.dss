@@ -1,0 +1,20 @@
+Compile (NEVMASTER.DSS)
+
+solve
+Show Voltage LN Nodes
+
+set mode=Faultstudy
+solve
+Show faults 
+
+solve mode=harmonics
+
+Get frequency
+
+
+export Y
+export yprims
+
+show y
+select line.quad-1
+show yprim

@@ -1,0 +1,3 @@
+{DONE :
+Transf model - new technique for preventing floating windings other than increasing the 
+admittance by one part in a million. Fails if you use a very large transf.}{DONE : Fix up transformer model for radial solution}{DONE : Add regulator model with compensation current option}{DONE : Better convergence checking criteria so that neutral nodes at zero voltage are not considered.}{DONE : Add Command to Save present Editor Window to a file}{DONE : Add Menu Bar}

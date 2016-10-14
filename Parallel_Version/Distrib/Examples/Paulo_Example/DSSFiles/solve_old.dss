@@ -1,0 +1,16 @@
+/*
+solve 
+plot circuit Power max=2000 n n C1=$00FF0000
+plot circuit Voltage Max=2000 dots=nlabels=n subs=y C1=$00FF0000
+plot profile 
+*/
+!--------------------------------
+
+
+!--------------------------------
+!Interpolate  ! this will pick up buses added for regulators
+!ClearBusMarkers
+!AddBusMarker Bus=..... Code=5  color=Lime  size=3
+!--------------------------------
+!Set Markcapacitor=yes 
+!Set MarkRegulators=yes RegMarkerCode=17 RegMarkerSize=7

@@ -1,0 +1,72 @@
+<!-- Notepad Plus Plus Syntax file for OpenDSS -->
+<!-- Latest update: 2/4/2015 -->
+
+<!-- TO INSTALL: open latest version of NotepadPP and go to Language menu, Define your language... -->
+<!-- If there are any languages on the "User language" drop-down menu, select and remove them -->
+<!-- Import this file and close the window.  Now open a *.dss file and verify that the syntax is highlighted correctly -->
+
+<NotepadPlus>
+    <UserLang name="OpenDSS" ext="dss" udlVersion="2.1">
+        <Settings>
+            <Global caseIgnored="yes" allowFoldOfComments="yes" foldCompact="no" forcePureLC="0" decimalSeparator="0" />
+            <Prefix Keywords1="no" Keywords2="no" Keywords3="no" Keywords4="no" Keywords5="no" Keywords6="no" Keywords7="no" Keywords8="no" />
+        </Settings>
+        <KeywordLists>
+            <Keywords name="Comments">00// 00! 01 02 03/* 04*/</Keywords>
+            <Keywords name="Numbers, prefix1"></Keywords>
+            <Keywords name="Numbers, prefix2"></Keywords>
+            <Keywords name="Numbers, extras1"></Keywords>
+            <Keywords name="Numbers, extras2"></Keywords>
+            <Keywords name="Numbers, suffix1"></Keywords>
+            <Keywords name="Numbers, suffix2"></Keywords>
+            <Keywords name="Numbers, range"></Keywords>
+            <Keywords name="Operators1">( ) { } , = [ ] .</Keywords>
+            <Keywords name="Operators2"></Keywords>
+            <Keywords name="Folders in code1, open"></Keywords>
+            <Keywords name="Folders in code1, middle"></Keywords>
+            <Keywords name="Folders in code1, close"></Keywords>
+            <Keywords name="Folders in code2, open"></Keywords>
+            <Keywords name="Folders in code2, middle"></Keywords>
+            <Keywords name="Folders in code2, close"></Keywords>
+            <Keywords name="Folders in comment, open"></Keywords>
+            <Keywords name="Folders in comment, middle"></Keywords>
+            <Keywords name="Folders in comment, close"></Keywords>
+            <Keywords name="Keywords1">new edit more m ~ select save show solve enable disable plot reset compile set dump open close redirect help quit ? next panel sample clear about calcv calcvoltagebases SetkVBase BuildY get init export fileedit voltages currents powers seqvoltages seqcurrents seqpowers losses phaselosses cktlosses allocateloads formedit totals capacity classes userclasses Zsc Zsc10 ZscRefresh Ysc puvoltages VarValues Varnames Buscoords MakeBusList MakePosSeq Reduce Interpolate AlignFile TOP Rotate Vdiff Summary Distribute DI_plot Comparecases YearlyCurves CD Visualize CloseDI DOScmd Estimate Reconductor  _InitSnap _SolveNoControl _SampleControls _DoControlActions _ShowControlQueue _SolveDirect _SolvePFlow AddBusMarker Guids SetLoadAndGenKV CvrtLoadshapes NodeDiff Rephase SetBusXY UpdateStorage Obfuscate LatLongCoords BatchEdit Pstcalc Variable ReprocessBuses ClearBusMarkers RelCalc var</Keywords>
+            <Keywords name="Keywords2">CAPACITOR CAPCONTROL CIRCUIT CNDATA ENERGYMETER EXECUTIVE FAULT FUSE GENDISPATCHER GENERATOR GICLINE GICTRANSFORMER GROWTHSHAPE INVCONTROL ISOURCE LINE LINECODE LINEGEOMETRY LINESPACING LOAD LOADSHAPE MONITOR PRICESHAPE PVSYSTEM REACTOR RECLOSER REGCONTROL RELAY SENSOR SOLUTION SPECTRUM STORAGE STORAGECONTROLLER SWTCONTROL TCC_CURVE TRANSFORMER TSDATA TSHAPE VSCONVERTER VSOURCE WIREDATA XFMRCODE XYCURVE</Keywords>
+            <Keywords name="Keywords3">%growth %imag %mag %mean %Normal %R %stddev 46%Pickup 46BaseAmps 46isqt 47%Pickup action addtype algorithm allocationfactor allocationfactors allowduplicates amps angle autobuslist band baseFreq basefrequency basekv Breakertime bus bus1 bus2 buses C_array c0 c1 capacitor capkVAR casename cktmodel class cmatrix conn conns controlmode csvfile CT CTprim CTratio cuf D daily datapath dblfile DeadTime debugtrace defaultdaily defaultyearly delay DelayOFF DemandInterval dispmode dispvalue DIVerbose duty editor elem element emergamps emerghkVA emergvmaxpu emergvminpu enabled faultrate Feeder flrise forceon frequency FuseCurve genkw GenList genmult genpf Gmatrix Groundcurve GroundDelayed GroundFast GroundInst GroundTrip growth h Harm harmonic harmonics hour hsrise interval inversetime Isc1 Isc3 KeepList Kron kV kVA kvar kvarlimit kVAs kvbase kVs kW kWBand kwemerg kWLimit kwnormal LDCurve length like linecode ln loadloss loadmodel loadmult LocalOnly log lossregs lossweight m markercode Mask maxcontroliter maxiter maxkvar MaxTap maxtapchange mean MinAmps minkvar MinTap mode model MonitoredObj MonitoredTerm mult MVA MVAsc1 MVAsc3 n nodes nodewidth noloadloss normamps normhkVA normvmaxpu normvminpu nphases npts number NumFast NumHarm Numsteps NumTaps object OFFsetting ONsetting ONtime option overtrip Overvoltcurve pctperm peakcurrent pf Phasecurve PhaseDelayed PhaseFast PhaseInst phases PhaseTrip ppm ppm_antifloat PPolar pricecurve pricesignal pt ptratio pu pvfactor qmult R r0 r1 radial random RatedCurrent RecloseIntervals ReduceOption repair Reset residual revband reversible revR revvreg revX Rg rho rmatrix Rneut ScanType sec ShaftData ShaftModel Shots sngfile spectrum states status stddev stepsize sub subname Switch SwitchedObj SwitchedTerm T_array tap tapdelay taps temporary terminal thermal time tolerance tracecontrol transformer trapezoidal type ueregs ueweight undertrip Undervoltcurve units UserData UserModel Variable VIPolar Vmax Vmaxpu Vmin Vminemerg Vminnorm Vminpu voltagebases VoltOverride Vpu vreg wdg winding windings X x0 x0r0 x1 x1r1 Xd Xdp Xdpp xfkVA Xg Xhl Xht XL Xlt xmatrix Xneut Xscarray year yearly Zonelist zonelock buses currents convergence elements faults generators losses meters powers voltages zone taps isolated ratings variables loops busflow lineconstants y yprim controlqueue topology mismatch kvbasemismatch deltaV QueryLog Controlled</Keywords>
+            <Keywords name="Keywords4"></Keywords>
+            <Keywords name="Keywords5"></Keywords>
+            <Keywords name="Keywords6"></Keywords>
+            <Keywords name="Keywords7"></Keywords>
+            <Keywords name="Keywords8"></Keywords>
+            <Keywords name="Delimiters">00&apos; 00&quot; 01 02&apos; 02&quot; 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23</Keywords>
+        </KeywordLists>
+        <Styles>
+            <WordsStyle name="DEFAULT" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="COMMENTS" fgColor="008040" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="LINE COMMENTS" fgColor="008040" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="NUMBERS" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS1" fgColor="FF0000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS2" fgColor="0000FF" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS3" fgColor="FF00FF" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS4" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS4" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS5" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS6" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS7" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS8" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="OPERATORS" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE1" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE2" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN COMMENT" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS1" fgColor="800080" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS2" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS3" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS4" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS5" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS6" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS7" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS8" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+        </Styles>
+    </UserLang>
+</NotepadPlus>

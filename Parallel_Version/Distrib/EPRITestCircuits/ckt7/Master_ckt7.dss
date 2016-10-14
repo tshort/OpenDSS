@@ -1,0 +1,31 @@
+Clear
+
+Redirect LoadShapes_ckt7.dss
+Redirect Substation_ckt7.dss
+Redirect LineCodes_ckt7.dss
+Redirect Lines_ckt7.dss
+Redirect Services_ckt7.dss
+Redirect Load_XFMR_ckt7.dss
+Redirect Loads_ckt7.dss
+Redirect Capacitors_ckt7.dss
+
+! Initial allocation factors for allocated loads
+redirect AllocationFactors.dss
+
+! Define an energy meter -- needed for plot profile and yearly simulations
+New Energymeter.25607 element=line.333 terminal=1 peakcurrent=[272.4, 243.4, 272.0]
+
+! Let OpenDSS assign the bus voltage bases for reports
+Set voltagebases = [115, 12.47, 0.480, 0.4157, 0.208, 0.12]
+Calcvoltagebases
+
+! Now that buses are defined, define coordinates
+Buscoords  Buscoords_ckt7.dss
+BatchEdit Load..* Vminpu=0.85
+
+
+
+
+
+
+

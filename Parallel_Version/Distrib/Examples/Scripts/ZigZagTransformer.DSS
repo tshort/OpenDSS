@@ -1,0 +1,12 @@
+/*
+
+   Nice compact Zigzag definition with 3 single-phase transformers.
+
+*/
+
+New Transformer.ZZ1A phases=1 buses=[B1.1.5  B1.4.7] conns=[delta delta] kVs=[16.4 16.4] kvas=[920.4 920.4] XHL=0.468
+New Transformer.ZZ1B phases=1 buses=[B1.2.6  B1.4.5] conns=[delta delta] kVs=[16.4 16.4] kvas=[920.4 920.4] XHL=0.468
+New Transformer.ZZ1C phases=1 buses=[B1.3.7  B1.4.6] conns=[delta delta] kVs=[16.4 16.4] kvas=[920.4 920.4] XHL=0.468
+
+! ZZ1 Neutral
+New Reactor.ZZ1 phases=1 bus1=B1.4  R=23.8  X=0   !  0.001

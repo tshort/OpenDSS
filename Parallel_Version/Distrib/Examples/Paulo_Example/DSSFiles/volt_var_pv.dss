@@ -1,0 +1,2 @@
+New XYCurve.VoltVarCurve npts=4 Xarray=(0.5,0.95,1.05,1.5) Yarray=(1.0,1.0,-1.0,-1.0)
+New InvControl.InvPVCtr mode=VOLTVAR voltage_curvex_ref=rated vvc_curve1=VoltVarCurve

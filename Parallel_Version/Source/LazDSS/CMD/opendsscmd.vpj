@@ -1,0 +1,260 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+    Version="10.0"
+    VendorName="SlickEdit"
+    TemplateName="(Other)"
+    WorkingDir="."
+    BuildSystem="vsbuild"
+    BuildMakeFile=""
+    VCSProject="Subversion:">
+    <Config
+        Name="Release"
+        OutputFile=""
+        CompilerConfigName="">
+        <Menu>
+            <Target
+                Name="Compile"
+                MenuCaption="&amp;Compile"
+                CaptureOutputWith="ProcessBuffer"
+                SaveOption="SaveCurrent"
+                RunFromDir="%rw">
+                <Exec CmdLine="/usr/local/bin/ppcx64 @fpcopts.cfg -g -B %f"/>
+            </Target>
+            <Target
+                Name="Build"
+                MenuCaption="&amp;Build"
+                CaptureOutputWith="ProcessBuffer"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine='"%(VSLICKBIN1)vsbuild" build "%w" "%r"'/>
+            </Target>
+            <Target
+                Name="Rebuild"
+                MenuCaption="&amp;Rebuild"
+                CaptureOutputWith="ProcessBuffer"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine='"%(VSLICKBIN1)vsbuild" rebuild "%w" "%r"'/>
+            </Target>
+            <Target
+                Name="Debug"
+                MenuCaption="&amp;Debug"
+                SaveOption="SaveNone"
+                RunFromDir="%rw">
+                <Exec CmdLine="gdb opendsscmd"/>
+            </Target>
+            <Target
+                Name="Execute"
+                MenuCaption="E&amp;xecute"
+                SaveOption="SaveNone"
+                RunFromDir="%rw">
+                <Exec CmdLine='"opendsscmd.exe"'/>
+            </Target>
+        </Menu>
+    </Config>
+    <Files>
+        <Folder
+            Name="Reference"
+            Filters=""
+            GUID="{7BCCF103-2758-4FF1-9178-2F496695C5CC}">
+            <F N="/Developer/Documentation/Free Pascal Compiler/Code Documenter.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Compiler Switches.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/COPYING.txt"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/FCL - Resource Handling.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Free Component Library.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Getting Started.rtf"/>
+            <F N="IEEE13Nodeckt.dss"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Language Reference Guide.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/License.txt"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Programmer's Manual.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/ReadMe.txt"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/Units Reference Guide.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/User's Manual.pdf"/>
+            <F N="/Developer/Documentation/Free Pascal Compiler/What's New.txt"/>
+        </Folder>
+        <Folder
+            Name="Source Files"
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go"
+            GUID="{E6AF6EA4-20EB-480A-8C62-7E17E6676E20}">
+            <Folder
+                Name="Common"
+                AutoCustom="1"
+                GUID="{C04125DE-012C-4474-BDDB-6FC8581FDA07}">
+                <F N="../Common/AutoAdd.pas"/>
+                <F N="../Common/Bus.pas"/>
+                <F N="../Common/Circuit.pas"/>
+                <F N="../Common/CktElement.pas"/>
+                <F N="../Common/CktElementClass.pas"/>
+                <F N="../Common/Conductor.pas"/>
+                <F N="../Common/ControlQueue.pas"/>
+                <F N="../Common/DSSCallBackRoutines.pas"/>
+                <F N="../Common/DSSCallBackStructDef.pas"/>
+                <F N="../Common/DSSClass.pas"/>
+                <F N="../Common/DSSClassDefs.pas"/>
+                <F N="../Common/DSSForms.pas"/>
+                <F N="../Common/DSSGlobals.pas"/>
+                <F N="../Common/EventQueue.pas"/>
+                <F N="../Common/ExportCIMXML.pas"/>
+                <F N="../Common/ExportResults.pas"/>
+                <F N="../Common/Feeder.pas"/>
+                <F N="../Common/GraphProperties.pas"/>
+                <F N="../Common/KLUSolve.pas"/>
+                <F N="../Common/Notes.pas"/>
+                <F N="../Common/ShowResults.pas"/>
+                <F N="../Common/Solution.pas"/>
+                <F N="../Common/SolutionAlgs.pas"/>
+                <F N="../Common/Terminal.pas"/>
+                <F N="../Common/TOPExport.pas"/>
+                <F N="../Common/Utilities.pas"/>
+                <F N="../Common/Ymatrix.pas"/>
+            </Folder>
+            <Folder
+                Name="Controls"
+                AutoCustom="1"
+                GUID="{CB90F081-231E-405B-A6F8-A6EBCB3862E3}">
+                <F N="../Controls/CapControl.pas"/>
+                <F N="../Controls/CapControlVars.pas"/>
+                <F N="../Controls/CapUserControl.pas"/>
+                <F N="../Controls/ControlClass.pas"/>
+                <F N="../Controls/ControlElem.pas"/>
+                <F N="../Controls/ExpControl.pas"/>
+                <F N="../Controls/GenDispatcher.pas"/>
+                <F N="../Controls/InvControl.pas"/>
+                <F N="../Controls/Recloser.pas"/>
+                <F N="../Controls/RegControl.pas"/>
+                <F N="../Controls/Relay.pas"/>
+                <F N="../Controls/StorageController.pas"/>
+                <F N="../Controls/SwtControl.pas"/>
+                <F N="../Controls/UPFCControl.pas"/>
+                <F N="../Controls/VVControl.pas"/>
+            </Folder>
+            <Folder
+                Name="EXE"
+                AutoCustom="1"
+                GUID="{094195BA-BC96-44DB-B8F5-B868447CFC62}">
+                <F N="../EXE/MyDSSClassDefs.pas"/>
+            </Folder>
+            <Folder
+                Name="Executive"
+                AutoCustom="1"
+                GUID="{E6D7B3E2-3B9F-49F0-B43E-8FE42F63ADB4}">
+                <F N="../Executive/ExecCommands.pas"/>
+                <F N="../Executive/ExecHelper.pas"/>
+                <F N="../Executive/ExecOptions.pas"/>
+                <F N="../Executive/Executive.pas"/>
+                <F N="../Executive/ExportOptions.pas"/>
+                <F N="../Executive/PlotOptions.pas"/>
+                <F N="../Executive/ShowOptions.pas"/>
+            </Folder>
+            <Folder
+                Name="General"
+                AutoCustom="1"
+                GUID="{B7222E86-1ED1-46DA-8563-3F42AF414323}">
+                <F N="../General/CableConstants.pas"/>
+                <F N="../General/CableData.pas"/>
+                <F N="../General/CNData.pas"/>
+                <F N="../General/CNLineConstants.pas"/>
+                <F N="../General/ConductorData.pas"/>
+                <F N="../General/DSSObject.pas"/>
+                <F N="../General/GrowthShape.pas"/>
+                <F N="../General/LineCode.pas"/>
+                <F N="../General/LineConstants.pas"/>
+                <F N="../General/LineGeometry.pas"/>
+                <F N="../General/LineSpacing.pas"/>
+                <F N="../General/LoadShape.pas"/>
+                <F N="../General/NamedObject.pas"/>
+                <F N="../General/OHLineConstants.pas"/>
+                <F N="../General/PriceShape.pas"/>
+                <F N="../General/Spectrum.pas"/>
+                <F N="../General/TCC_Curve.pas"/>
+                <F N="../General/TempShape.pas"/>
+                <F N="../General/TSData.pas"/>
+                <F N="../General/TSLineConstants.pas"/>
+                <F N="../General/WireData.pas"/>
+                <F N="../General/XfmrCode.pas"/>
+                <F N="../General/XYcurve.pas"/>
+            </Folder>
+            <Folder
+                Name="Meters"
+                AutoCustom="1"
+                GUID="{DD77648A-6B9F-448B-BA60-D9441730EE19}">
+                <F N="../Meters/EnergyMeter.pas"/>
+                <F N="../Meters/MeterClass.pas"/>
+                <F N="../Meters/MeterElement.pas"/>
+                <F N="../Meters/Monitor.pas"/>
+                <F N="../Meters/ReduceAlgs.pas"/>
+                <F N="../Meters/Sensor.pas"/>
+            </Folder>
+            <Folder
+                Name="Parser"
+                AutoCustom="1"
+                GUID="{B35595D4-AE63-40A8-A54A-9C055CB674C3}">
+                <F N="../Parser/Frm_RPNcalc.pas"/>
+                <F N="../Parser/ParserDel.pas"/>
+                <F N="../Parser/RPN.pas"/>
+            </Folder>
+            <Folder
+                Name="PCElements"
+                AutoCustom="1"
+                GUID="{050778B5-3A02-419A-97FD-DF98531F4D5A}">
+                <F N="../PCElements/Equivalent.pas"/>
+                <F N="../PCElements/generator.pas"/>
+                <F N="../PCElements/GeneratorVars.pas"/>
+                <F N="../PCElements/GenUserModel.pas"/>
+                <F N="../PCElements/GICLine.pas"/>
+                <F N="../PCElements/Isource.pas"/>
+                <F N="../PCElements/Load.pas"/>
+                <F N="../PCElements/PCClass.pas"/>
+                <F N="../PCElements/PCElement.pas"/>
+                <F N="../PCElements/PCPrototype.pas"/>
+                <F N="../PCElements/PVsystem.pas"/>
+                <F N="../PCElements/PVSystemUserModel.pas"/>
+                <F N="../PCElements/Storage.pas"/>
+                <F N="../PCElements/StorageVars.pas"/>
+                <F N="../PCElements/StoreUserModel.pas"/>
+                <F N="../PCElements/UPFC.pas"/>
+                <F N="../PCElements/vccs.pas"/>
+                <F N="../PCElements/VSConverter.pas"/>
+                <F N="../PCElements/VSource.pas"/>
+            </Folder>
+            <Folder
+                Name="PDElements"
+                AutoCustom="1"
+                GUID="{E03C1478-2927-4776-8BF0-ACE753CEFA53}">
+                <F N="../PDElements/Capacitor.pas"/>
+                <F N="../PDElements/Fault.pas"/>
+                <F N="../PDElements/fuse.pas"/>
+                <F N="../PDElements/GICTransformer.pas"/>
+                <F N="../PDElements/Line.pas"/>
+                <F N="../PDElements/PDClass.pas"/>
+                <F N="../PDElements/PDElement.pas"/>
+                <F N="../PDElements/Reactor.pas"/>
+                <F N="../PDElements/Transformer.pas"/>
+            </Folder>
+            <Folder
+                Name="Shared"
+                AutoCustom="1"
+                GUID="{6405865D-27DC-4395-B37F-9E35D40AFF7A}">
+                <F N="../Shared/Arraydef.pas"/>
+                <F N="../Shared/CktTree.pas"/>
+                <F N="../Shared/Command.pas"/>
+                <F N="../Shared/Dynamics.pas"/>
+                <F N="../Shared/HashList.pas"/>
+                <F N="../Shared/IniRegSave.pas"/>
+                <F N="../Shared/LineUnits.pas"/>
+                <F N="../Shared/mathutil.pas"/>
+                <F N="../Shared/MathutilInterface.pas"/>
+                <F N="../Shared/PointerList.pas"/>
+                <F N="../Shared/Pstcalc.pas"/>
+                <F N="../Shared/RCDList.pas"/>
+                <F N="../Shared/StackDef.pas"/>
+                <F N="../Shared/TestHashForm.pas"/>
+                <F N="../Shared/Ucmatrix.pas"/>
+                <F N="../Shared/Ucomplex.pas"/>
+            </Folder>
+            <F N="MyDSSClassDefs.pas"/>
+            <F N="opendsscmd.pas"/>
+        </Folder>
+        <F N="fpcopts.cfg"/>
+    </Files>
+</Project>

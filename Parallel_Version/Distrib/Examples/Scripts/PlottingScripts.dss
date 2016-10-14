@@ -1,0 +1,26 @@
+! Plot meter zone -- specify meter name
+plot type=zone quantity=Power max=2000 dots=no labels=no object=metername showloops=y C1=$00FF0000
+
+! typical circuit plotting scripts
+plot type=circuit quantity=Losses Max=20   dots=yes labels=no subs=no C1=$00FF0000
+plot type=circuit quantity=Power  Max=2000 dots=yes labels=no subs=no C1=$00FF0000
+! make max line width >7
+plot type=circuit quantity=Power  Max=2000 dots=no labels=no subs=no C1=$00FF0000 thickness=10
+
+
+! Script for "general" bus data plot for a specified column in a CSV file
+! First column of CSV file is bus name
+Set NodeWidth=4     ! Make the node markers larger (optional) Turn "dots" on in plot command.
+plot type=General quantity=1 Max=.003 dots=y labels=no subs=yes object=MYFILE.csv  C1=$0080FFFF C2=$000000FF
+
+
+! Plot circuit with branch width proportional to a column in a CSV file
+! First column of CSV file is LINE element name (full LINE.LINENAME format may be used)
+Plot type=circuit quantity=1 Max=.001  dots=no  labels=no Object=MYFILE.CSV
+
+
+! Plot voltages with different colors for voltage below 99% amd 101%
+! Tri-color plot with color breaks at NormVminpu and EmergVminpu
+Set normvminpu=1.01
+Set emergvminpu=.99
+plot type=circuit quantity=Voltage Max=0 dots=no labels=no subs=no C1=$00FF0000  C2=$00808000 C3=$000000FF

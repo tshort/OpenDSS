@@ -1,0 +1,2 @@
+New monitor.subestacaop element=transformer.subestacao terminal=1  mode=1 ppolar=no
+New monitor.subestacaov element=transformer.subestacao terminal=1  mode=0 ppolar=no

@@ -1,0 +1,76 @@
+! Solution Run Script for Ckt5
+
+! Open this file first
+
+! generally when running from OpenDSS.EXE you will open this file first and control
+! the execution from here. Add any commands you wish.
+
+! Ckt 5 consists of:
+
+!  Devices = 4414
+!  Buses = 2998
+!  Nodes = 3437
+
+Compile [Master_ckt5.dss]    
+
+Energymeter.sub.local=yes losses=no   ! -- Minimize work required of energymeter
+
+! Note:adding full path name in brackets will avoid having to manually change to this directory
+
+New monitor.ckt5_totalizedmonitor Transformer.MDV_SUB_1 term=2 mode=1 
+New monitor.ckt5_mon element=Line.MDV201_connector terminal=1 mode=0 Residual=yes
+New monitor.ckt5_mon_p element=Line.MDV201_connector terminal=1 mode=1 Ppolar=No
+
+! Add monitor to capture timer
+New Monitor.Timer element=vsource.source terminal=1 mode=5
+
+Solve  ! This executes a snaphot power flow solution of the circuit
+
+/******************* Optional items in Block Comment *********************
+!  (Select these individually as needed)
+
+Export seqvoltage
+plot general quantity=7 max=.1 dots=n labels=n subs=y object=@lastexportfile 
+
+plot circuit Power Max=2000 dots=n labels=n subs=y C1=Blue 1phlinestyle=3
+plot circuit Voltage Max=200 dots=n labels=n subs=y C1=Blue 1phlinestyle=3
+
+! Loss Density Plot
+plot circuit Losses Max=20 dots=n labels=n subs=y C1=Blue 1phlinestyle=3
+
+show voltages ln nodes
+show powers kva elements
+show overloads
+show currents elements
+show losses
+Export Capacity
+
+*************************End Block Comment ************************
+
+!********** ANNUAL SOLUTION SCRIPT ***********************
+set totaltime=0   ' Initialize total timer
+
+set mode=yearly number=8760
+set casename=ckt5-simplemeter   ! Change this name to put things into different results files
+
+set demand=true
+set DIVerbose=true
+set voltexceptionreport = true
+solve
+closeDI
+
+get totaltime  ! see results window
+
+!********** END ANNUAL SOLUTION SCRIPT ***********************
+
+! Export some monitors to CSV files
+
+Set ShowExport=True  ! automatically display exported files
+
+Export monitor ckt5_totalizedmonitor
+Export monitor ckt5mon
+Export monitor ckt5mon_p 
+
+! Export timer monitor
+Export Monitor Timer
+FileEdit @lastexportfile

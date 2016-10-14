@@ -1,0 +1,2 @@
+New "LoadShape.LoadShape4" npts=8760 interval=1.0 mult=(File=LoadShape4.csv) Action=Normalize
+

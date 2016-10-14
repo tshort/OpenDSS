@@ -1,0 +1,4 @@
+
+
+New Linecode.UG_1/0AL  nphases=3  r1=0.560042  x1=0.244945  r0=0.961448  x0=0.261162  c1=68.8819914593514  c0=68.8819914593514  units=km  baseFreq=60  normamps=150  emergamps=150  faultrate=0.1  pctperm=20  repair=3
+New Linecode.BUSBAR  nphases=3  r1=1e-4  x1=1e-4  r0=1e-4  x0=1e-4  c1=0  c0=0  units=km  baseFreq=60  normamps=2000  emergamps=2000  faultrate=0.1  pctperm=20  repair=3

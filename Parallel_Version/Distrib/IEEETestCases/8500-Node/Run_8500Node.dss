@@ -1,0 +1,48 @@
+! REV 2
+!----------------------------------------------------------------------------------------------------------------------------
+! OpenDSS script to control the running of the IEEE 8500-Node Distrubution Test Feeder
+! Balanced Load Case
+!----------------------------------------------------------------------------------------------------------------------------
+
+! To execute, select one or more line and right-click, select Do Selected
+!  1. Select from Compile through Solve and execute
+!  2. Select one or more of the statements to display results and execute
+
+!----------------------------------------------------------------------------------------------------------------------------
+
+! Edit the path name to indicate the correct location of the Master file.
+
+Compile (master.dss)
+
+New Energymeter.m1 Line.ln5815900-1 1
+
+Set Maxiterations=20     ! Sometimes the solution takes more than the default 15 iterations
+
+Solve
+
+Show Voltage LN Nodes
+Show Currents Elem Resid
+Show Powers kVA elem
+
+Set ShowExport=yes
+Export Currents
+Export Powers
+Export voltages
+
+// *********************** Plotting *****************************
+
+Set markCapacitors=yes  CapMarkersize=3
+Set markRegulators=yes  RegMarkersize=5
+Interpolate
+Plot Circuit Power Max=5000 dots=n labels=n  C1=Blue  1ph=3   ! $00FF0000
+
+Plot Circuit voltage Max=0 dots=n n  C1=Blue C2=$FF00FF  1ph=3
+
+plot circuit Losses Max=50 dots=n labels=n subs=y C1=Blue
+
+plot profile ph=all
+plot profile ph=1
+
+summary
+
+show taps

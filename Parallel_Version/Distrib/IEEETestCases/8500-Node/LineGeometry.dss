@@ -1,0 +1,311 @@
+! definitions of line geomtries
+! Geometries are defined with a neutral wire, which is eliminated by Kron reduction
+! To see line constants produced by this script, do Show Lineconstants command
+
+New LineGeometry.1PH-x4_ACSRx4_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_ACSR x=0.1524  h=8.2296  units=m
+~ reduce=y
+New LineGeometry.1PH-xx4_ACSR4_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x2_ACSRx2_ACSR  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_ACSRx4_WPAL  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-4_ACSR4_ACSR4_ACSR4_ACSR  nconds=4  nphases=3
+~ cond=1  wire=4_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=4_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-2/0_ACSR2/0_ACSR2/0_ACSR2_ACSR  nconds=4  nphases=3
+~ cond=1  wire=2/0_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=2/0_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=2/0_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_WPALxx2_WPAL  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-4_ACSR2_ACSR2_ACSR4_WPAL  nconds=4  nphases=3
+~ cond=1  wire=4_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=2_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_ACSRxx4_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-4_ACSR4_ACSR4_ACSR4_WPAL  nconds=4  nphases=3
+~ cond=1  wire=4_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=4_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-2_ACSRxx2_ACSR  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_WPALxx4_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-397_ACSR397_ACSR397_ACSR2/0_ACSR  nconds=4  nphases=3
+~ cond=1  wire=397_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=397_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=397_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=2/0_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-2_ACSRxx4_ACSR  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx2_ACSR2_ACSR  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx4_WPAL4_WPAL  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_WPALx4_WPAL  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx4_WPAL4_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x2_ACSRx1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_ACSRxx4_WPAL  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx4_ACSR1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-4_WPAL4_WPAL4_WPAL4_ACSR  nconds=4  nphases=3
+~ cond=1  wire=4_WPAL x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=10.3632 units=m
+~ cond=3  wire=4_WPAL x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_WPALx4_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_WPALxx4_WPAL  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-4_WPAL4_WPAL4_WPAL4_WPAL  nconds=4  nphases=3
+~ cond=1  wire=4_WPAL x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=10.3632 units=m
+~ cond=3  wire=4_WPAL x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-2_ACSR2_ACSR2_ACSR2_ACSR  nconds=4  nphases=3
+~ cond=1  wire=2_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=2_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_ACSRxx1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-4_ACSR2_ACSR2_ACSR4_ACSR  nconds=4  nphases=3
+~ cond=1  wire=4_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=2_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx4_ACSR4_WPAL  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_ACSRxx2_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_WPALx1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx4_ACSR1/0_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-2_ACSRxx4_WPAL  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx2/0_ACSR1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=2/0_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.2PH_H-2_ACSRx2_ACSR2_ACSR  nconds=3  nphases=2
+~ cond=1  wire=2_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=2_ACSR x=0.6096 h=9.7536 units=m
+~ cond=3  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-2_WPALxx2_WPAL  nconds=2  nphases=1
+~ cond=1  wire=2_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-2_ACSRxx4/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-397_ACSR397_ACSR397_ACSR4_WPAL  nconds=4  nphases=3
+~ cond=1  wire=397_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=397_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=397_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-397_ACSR397_ACSR397_ACSR397_ACSR  nconds=4  nphases=3
+~ cond=1  wire=397_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=397_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=397_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=397_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx2_ACSR1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_ACSRx2_WPAL  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_ACSRx4_DPX  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_DPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-2_ACSR2_ACSR4_ACSR4_ACSR  nconds=4  nphases=3
+~ cond=1  wire=2_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=4_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_WPALxx1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_ACSRx1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_ACSRxx1/0_3W_CS  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_3W_CS x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x2_ACSRx4_ACSR  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x2_ACSRx1/0_3W_CS  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_3W_CS x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-2/0_ACSR2/0_ACSR2/0_ACSR2/0_ACSR  nconds=4  nphases=3
+~ cond=1  wire=2/0_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=2/0_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=2/0_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=2/0_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-2_ACSRxx1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-4_WPAL4_WPAL4_WPAL1/0_TPX  nconds=4  nphases=3
+~ cond=1  wire=4_WPAL x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=4_WPAL x=0.1524 h=10.3632 units=m
+~ cond=3  wire=4_WPAL x=0.6096 h=9.7536 units=m
+~ cond=4  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_WPALx2_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-2/0_ACSR2/0_ACSR2/0_ACSR2_WPAL  nconds=4  nphases=3
+~ cond=1  wire=2/0_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=2/0_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=2/0_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=2_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx4_ACSR2_ACSR  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_ACSRx4_TPX  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-4_ACSR4_ACSR4_ACSR4_TPX  nconds=4  nphases=3
+~ cond=1  wire=4_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=4_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-4_ACSRxx6_WPAL  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=6_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx4_ACSR4_TPX  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-397_ACSR397_ACSR397_ACSR2/0_WPAL  nconds=4  nphases=3
+~ cond=1  wire=397_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=397_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=397_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=2/0_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-2/0_ACSRxx2_ACSR  nconds=2  nphases=1
+~ cond=1  wire=2/0_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=2_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-2/0_ACSR2/0_ACSR2/0_ACSR4_ACSR  nconds=4  nphases=3
+~ cond=1  wire=2/0_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=2/0_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=2/0_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=4_ACSR x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx4_WPAL1/0_TPX  nconds=2  nphases=1
+~ cond=1  wire=4_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx6_WPAL6_WPAL  nconds=2  nphases=1
+~ cond=1  wire=6_WPAL x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=6_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x2_ACSRx4_TPX  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_TPX x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.3PH_H-4_ACSR4_ACSR4_ACSR2_WPAL  nconds=4  nphases=3
+~ cond=1  wire=4_ACSR x=-0.6096 h=9.7536 units=m
+~ cond=2  wire=4_ACSR x=0.1524 h=10.3632 units=m
+~ cond=3  wire=4_ACSR x=0.6096 h=9.7536 units=m
+~ cond=4  wire=2_WPAL x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-x4_ACSRx1/0_3W_CS  nconds=2  nphases=1
+~ cond=1  wire=4_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=1/0_3W_CS x=0.1524 h=8.2296 units=m
+~ reduce=y
+New LineGeometry.1PH-xx2_ACSR4_DPX  nconds=2  nphases=1
+~ cond=1  wire=2_ACSR x=-0.1524 h=10.5156 units=m
+~ cond=2  wire=4_DPX x=0.1524 h=8.2296 units=m
+~ reduce=y

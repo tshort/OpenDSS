@@ -1,0 +1,4 @@
+New capacitor.Capacitor1 bus1=trafo_wind phases=3 kvar=350 kv=0.69 numsteps=24
+
+New capcontrol.Capacitor1 element=transformer.wind_up 1 capacitor=Capacitor1 type=kvar ptratio=1 ctratio=1 
+~ onsetting=20 offsetting=-20  delay=1200 deadtime=1200

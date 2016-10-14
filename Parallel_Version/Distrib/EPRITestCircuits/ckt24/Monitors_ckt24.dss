@@ -1,0 +1,11 @@
+
+New Monitor.fdr_05410_Mon_VI  element=line.fdr_05410 term=1  mode=0 Residual=Yes
+
+New Monitor.fdr_05410_Mon_PQ  element=line.fdr_05410 term=1  mode=1 PPolar=No
+
+New Monitor.fdr_05410_Mon_VA  element=line.fdr_05410 term=1  mode=1 PPolar=Yes
+
+New Monitor.Other_Feeders element=Line.Other_Feeders term=1  mode=1 PPolar=No
+
+
+New energymeter.fdr_05410 element=line.fdr_05410 term=1 option=R action=C PhaseVolt=YES peakcurrent=(466,469,452)

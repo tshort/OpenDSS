@@ -1,0 +1,53 @@
+
+!------------------------------------------------------------------------------------
+! Script to run IEEE 34-bus Test Feeder Mod 2
+!------------------------------------------------------------------------------------
+!
+! change the path to the appropriate location on your computer.
+
+Compile ieee34Mod2.dss
+
+New Energymeter.M1  Line.L1  1
+
+set maxcontroliter=300
+solve
+Buscoords IEEE34_BusXY.csv
+
+show voltages LN Nodes
+show currents residual=y elements
+show powers kva element
+show taps
+
+Set MarkTransformers=yes
+// let OpenDSS compute coordinates for the mid points (not in the buscoords file)
+Interpolate  ! requires an energyMeter
+plot circuit Power max=2000 y y C1=$00FF0000
+
+Plot profile phases=all
+
+!-----------------------------------------------------------------------------
+!--------2nd Run Script for 34-bus Test Case---------------------------------
+!-----------------------------------------------------------------------------
+
+! This script forces the regulator taps to the same values reported in the 
+! published results
+
+Compile ieee34Mod2.dss
+
+! Force Regulator Transformer taps
+Transformer.reg1a.wdg=2 Tap=(0.00625  12  * 1 +)   ! Tap 12
+Transformer.reg1b.wdg=2 Tap=(0.00625   5 * 1 +)    ! Tap 5
+Transformer.reg1c.wdg=2 Tap=(0.00625   5  * 1 +)   ! Tap 5
+Transformer.reg2a.wdg=2 Tap=(0.00625  13 * 1 +)    ! Tap 13
+Transformer.reg2b.wdg=2 Tap=(0.00625  11 * 1 +)    ! Tap 11
+Transformer.reg2c.wdg=2 Tap=(0.00625  12 * 1 +)    ! Tap 12
+
+Set Controlmode=OFF  ! prevents further tap changes
+
+set maxcontroliter=300
+solve
+
+show voltages LN Nodes
+show currents residual=y elements
+show powers kva element
+show taps

@@ -1,0 +1,2 @@
+New "LoadShape.LoadShape2" npts=8760 interval=1.0 mult=(File=LoadShape2.csv)
+

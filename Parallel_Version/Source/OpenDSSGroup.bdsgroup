@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <PersonalityInfo>
+    <Option>
+      <Option Name="Personality">Default.Personality</Option>
+      <Option Name="ProjectType"></Option>
+      <Option Name="Version">1.0</Option>
+      <Option Name="GUID">{DF8C0380-72F9-4055-A94D-5A5D909C6957}</Option>
+    </Option>
+  </PersonalityInfo>
+  <Default.Personality>
+    
+    
+    
+    
+    
+    <Projects>
+      <Projects Name="OpenDSS.exe">EXE\OpenDSS.bdsproj</Projects>
+      <Projects Name="OpenDSSengine.dll">DLL\OpenDSSengine.bdsproj</Projects>
+      <Projects Name="Targets">OpenDSS.exe OpenDSSengine.dll</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>

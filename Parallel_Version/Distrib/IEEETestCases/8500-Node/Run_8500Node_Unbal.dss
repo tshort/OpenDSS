@@ -1,0 +1,52 @@
+! REV 2
+!----------------------------------------------------------------------------------------------------------------------------
+! OpenDSS script to control the running of the IEEE 4800-bus Distrubution Test Feeder
+! Unbalanced Load Case
+!----------------------------------------------------------------------------------------------------------------------------
+
+! To execute, select one or more line and right-click, select Do Selected
+!  1. Select from Compile through Solve and execute
+!  2. Select one or more of the statements to display results and execute
+
+!----------------------------------------------------------------------------------------------------------------------------
+
+! Edit the path name to indicate the correct location of the Master file.
+
+Compile (Master-unbal.dss)     ! unbalanced load master
+
+New Energymeter.m1 Line.ln5815900-1 1
+New Monitor.m1 Line.ln5815900-1 1
+
+Set Maxiterations=20     ! Sometimes the solution takes more than the default 15 iterations
+
+Solve
+
+Show Voltage LN Nodes
+Show Currents Elem Resid
+Show Powers kVA elem
+
+Set ShowExport=yes
+Export Currents
+Export Powers
+Export voltages
+
+! Plot the circuit with blue lines and with 1-phase lines dashed
+interpolate
+Plot Circuit Power Max=2000 dots=n labels=n  C1=Blue  1ph=3
+
+! Plot the voltage profile and include all phases
+Plot profile phases=all
+
+Export profile phases=all
+
+! Plot the voltage profile and include only phase "1"
+Plot profile phases=1
+
+Plot Circuit voltage Max=0 n n  C1=$00FF0000 C2=$FF00FF
+
+plot circuit Losses Max=20 dots=n labels=n subs=y C1=$00FF0000
+
+summary
+
+show taps
+help

@@ -1,0 +1,16 @@
+! SHUNT CAPACITOR BANKS
+
+! THIS SCRIPT DEFINES FOUR 1200-KVAR SHUNT CAPACITOR BANKS, WYE-CONNECTED
+! CONNECTED LINE TO NEUTRAL
+
+! ON CIRCUIT 1
+New Capacitor.C1 Bus1=ckt1-10.1.2.3  Bus2=ckt1-10.10.10.10  kvar=1200  kV=13.2
+
+! ON CIRCUIT 2
+New Capacitor.C2 Bus1=ckt2-15.1.2.3  Bus2=ckt2-15.10.10.10  kvar=1200  kV=13.2
+
+! ON CIRCUIT 3
+New Capacitor.C3 Bus1=ckt3-20.1.2.3  Bus2=ckt3-20.10.10.10  kvar=1200  kV=13.2
+
+! ON CIRCUIT 4
+New Capacitor.C4 Bus1=ckt4-15.1.2.3  Bus2=ckt4-15.10.10.10  kvar=1200  kV=13.2

@@ -1,0 +1,18 @@
+/***
+
+Example of "4-wire" delta connection.
+
+T2 supplies both 240 V and 120 V loads with center tap grounded
+
+*/
+
+New Transformer.T1 phases=1  2 buses=(sourcebus.1.4  loadbus.1.2 )  kvas=(166 166)  kvs=(7.2  .24)  XHL=3 
+New Transformer.T2 phases=1  3 buses=(sourcebus.2.4  loadbus.2.0  loadbus.0.3 ) kvas=(166 166 166)  kvs=(7.2  .12  .12)   XHL=3   XHT=3  XLT = 2 
+New Transformer.T3 phases=1  2 buses=(sourcebus.3.4  loadbus.3.1 ) kvas=(166 166)  kvs=(7.2  .24)  XHL=3 
+
+/**** Possible Load Definitions *********************
+New Load.3phaseload  phases=3 bus1=loadbus.1.2.3.4    kv=.24  kW=300  pf=.88 conn=delta
+New Load.1PhaseloadA phases=1 Bus1=Loadbus.2.0        kv=.12  kW=30 pf=1 conn=wye
+New Load.1PhaseLoadB phases=1 Bus1=Loadbus.3.0        kV=.12  kW=20 pf=1 conn=wye
+****  End Block Comment *******************/
+

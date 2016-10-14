@@ -1,0 +1,27 @@
+clear
+
+var @syskv=13.8
+var @loadkv="@syskv 3 sqrt /"
+
+var @loadmod=2 //Z=2, I=5, P=1
+var @vmin=0.5
+var @vlow=0.4
+
+new circuit.fbs basekv=@syskv Isc3=100000 Isc1=100000 x1r1=20 x0r0=20
+
+new linecode.602 nphases=3 units=mi r0=1.0595 x0=2.0704 r1=0.5921 x1=0.7603
+
+new line.ln1 bus1=SourceBus bus2=LoadBus linecode=602 length=2.7 units=mi
+
+new load.ld1a phases=1 conn=wye bus1=LoadBus.1 model=@loadmod kv=@loadkv kw=1400 kvar=400 vminpu=@vmin vlowpu=@vlow
+new load.ld1b phases=1 conn=wye bus1=LoadBus.2 model=@loadmod kv=@loadkv kw=1250 kvar=200 vminpu=@vmin vlowpu=@vlow
+new load.ld1c phases=1 conn=wye bus1=LoadBus.3 model=@loadmod kv=@loadkv kw=1325 kvar=300 vminpu=@vmin vlowpu=@vlow
+
+Set VoltageBases=[@syskv]
+calcv
+set maxiterations=500
+solve
+
+export voltages
+
+

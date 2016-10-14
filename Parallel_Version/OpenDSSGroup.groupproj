@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{67EACE9F-D730-4BD0-A916-6B14F2231419}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Source\EXE\OpenDSS.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Source\DLL\OpenDSSengine.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Source\DDLL\OpenDSSDirect.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="OpenDSS">
+        <MSBuild Projects="Source\EXE\OpenDSS.dproj"/>
+    </Target>
+    <Target Name="OpenDSS:Clean">
+        <MSBuild Projects="Source\EXE\OpenDSS.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="OpenDSS:Make">
+        <MSBuild Projects="Source\EXE\OpenDSS.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="OpenDSSengine">
+        <MSBuild Projects="Source\DLL\OpenDSSengine.dproj"/>
+    </Target>
+    <Target Name="OpenDSSengine:Clean">
+        <MSBuild Projects="Source\DLL\OpenDSSengine.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="OpenDSSengine:Make">
+        <MSBuild Projects="Source\DLL\OpenDSSengine.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="OpenDSSDirect">
+        <MSBuild Projects="Source\DDLL\OpenDSSDirect.dproj"/>
+    </Target>
+    <Target Name="OpenDSSDirect:Clean">
+        <MSBuild Projects="Source\DDLL\OpenDSSDirect.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="OpenDSSDirect:Make">
+        <MSBuild Projects="Source\DDLL\OpenDSSDirect.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="OpenDSS;OpenDSSengine;OpenDSSDirect"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="OpenDSS:Clean;OpenDSSengine:Clean;OpenDSSDirect:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="OpenDSS:Make;OpenDSSengine:Make;OpenDSSDirect:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
