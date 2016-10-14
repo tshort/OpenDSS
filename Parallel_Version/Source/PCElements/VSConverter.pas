@@ -20,7 +20,7 @@ TYPE
       constructor Create;
       destructor Destroy; override;
       Function Edit(ActorID : Integer):Integer; override;
-      Function Init(Handle:Integer):Integer; override;
+      Function Init(Handle:Integer; ActorID : Integer):Integer; override;
       Function NewObject(const ObjName:String):Integer; override;
   end;
 
@@ -294,7 +294,7 @@ begin
     DoSimpleMsg('Error in VSConverter MakeLike: "' + VSCName + '" Not Found.', 351);
 end;
 
-Function TVSConverter.Init(Handle:Integer):Integer;
+Function TVSConverter.Init(Handle:Integer; ActorID : Integer):Integer;
 begin
    DoSimpleMsg('Need to implement TVSConverter.Init', -1);
    Result := 0;

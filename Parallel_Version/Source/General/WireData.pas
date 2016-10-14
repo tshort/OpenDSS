@@ -27,7 +27,7 @@ TYPE
       destructor Destroy; override;
 
       Function Edit(ActorID : Integer):Integer; override;     // uses global parser
-      Function Init(Handle:Integer):Integer; override;
+      Function Init(Handle:Integer; ActorID : Integer):Integer; override;
       Function NewObject(const ObjName:String):Integer; override;
 
       // Set this property to point ActiveWireDataObj to the right value
@@ -135,7 +135,7 @@ BEGIN
   ELSE  DoSimpleMsg('Error in Wire MakeLike: "' + WireName + '" Not Found.', 102);
 END;
 
-Function TWireData.Init(Handle:Integer):Integer;
+Function TWireData.Init(Handle:Integer; ActorID : Integer):Integer;
 BEGIN
   DoSimpleMsg('Need to implement TWireData.Init', -1);
   REsult := 0;

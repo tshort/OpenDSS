@@ -75,7 +75,7 @@ TYPE
        destructor Destroy; override;
 
        FUNCTION Edit(ActorID : Integer):Integer; override;
-       FUNCTION Init(Handle:Integer):Integer; override;
+       FUNCTION Init(Handle:Integer; ActorID : Integer):Integer; override;
        FUNCTION NewObject(const ObjName:String):Integer; override;
 
    End;
@@ -1091,7 +1091,7 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-FUNCTION TDSSSolution.Init(Handle:Integer):Integer;
+FUNCTION TDSSSolution.Init(Handle:Integer; ActorID : Integer):Integer;
 
 Begin
    DoSimpleMsg('Need to implement TSolution.Init', -1);

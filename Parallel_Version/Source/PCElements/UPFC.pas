@@ -28,7 +28,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
 
    End;
@@ -344,7 +344,7 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-Function TUPFC.Init(Handle:Integer):Integer;
+Function TUPFC.Init(Handle:Integer; ActorID : Integer):Integer;
 
 Begin
    DoSimpleMsg('Need to implement TUPFC.Init', -1);

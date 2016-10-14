@@ -23,7 +23,7 @@ TYPE
       destructor Destroy; override;
 
       Function Edit(ActorID : Integer):Integer; override;     // uses global parser
-      Function Init(Handle:Integer):Integer; override;
+      Function Init(Handle:Integer; ActorID : Integer):Integer; override;
       Function NewObject(const ObjName:String):Integer; override;
 
        // Set this property to point ActiveTSDataObj to the right value
@@ -159,7 +159,7 @@ BEGIN
   ELSE  DoSimpleMsg('Error in TapeShield MakeLike: "' + TSName + '" Not Found.', 102);
 END;
 
-Function TTSData.Init(Handle:Integer):Integer;
+Function TTSData.Init(Handle:Integer; ActorID : Integer):Integer;
 BEGIN
   DoSimpleMsg('Need to implement TTSData.Init', -1);
   Result := 0;

@@ -57,7 +57,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;     // uses global parser
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
 
    end;
@@ -381,7 +381,7 @@ BEGIN
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Function TFault.Init(Handle:Integer):Integer;
+Function TFault.Init(Handle:Integer; ActorID : Integer):Integer;
 
 BEGIN
    DoSimpleMsg('Need to implement TFault.Init', -1);

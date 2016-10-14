@@ -37,7 +37,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;     // uses global parser
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
 
        
@@ -243,7 +243,7 @@ BEGIN
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Function TTCC_Curve.Init(Handle:Integer):Integer;
+Function TTCC_Curve.Init(Handle:Integer; ActorID : Integer):Integer;
 
 BEGIN
    DoSimpleMsg('Need to implement TTCC_Curve.Init', -1);

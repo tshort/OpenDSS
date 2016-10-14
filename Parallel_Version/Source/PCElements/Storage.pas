@@ -70,7 +70,7 @@ TYPE
        destructor Destroy; override;
 
        FUNCTION Edit(ActorID : Integer):Integer; override;
-       FUNCTION Init(Handle:Integer):Integer; override;
+       FUNCTION Init(Handle:Integer; ActorID : Integer):Integer; override;
        FUNCTION NewObject(const ObjName:String):Integer; override;
 
        PROCEDURE ResetRegistersAll;
@@ -856,7 +856,7 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-FUNCTION TStorage.Init(Handle:Integer):Integer;
+FUNCTION TStorage.Init(Handle:Integer; ActorID : Integer):Integer;
 VAR
    p:TStorageObj;
 

@@ -242,7 +242,7 @@ Begin
              Begin
                pMon:=MonitorClass.Find(Param);
                IF pMon<>Nil THEN
-                 pMon.TranslateToCSV(TRUE)
+                 pMon.TranslateToCSV(TRUE, ActiveActor)
                ELSE DoSimpleMsg('Monitor "'+param+'" not found.'+ CRLF + parser.CmdString, 248);
              End
              ELSE   DoSimpleMsg('Monitor Name Not Specified.'+ CRLF + parser.CmdString, 249);

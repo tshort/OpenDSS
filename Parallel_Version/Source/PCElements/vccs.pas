@@ -24,7 +24,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
    End;
 
@@ -274,7 +274,7 @@ Begin
   ELSE DoSimpleMsg('Error in VCCS MakeLike: "' + OtherSource + '" Not Found.', 332);
 End;
 
-Function TVCCS.Init(Handle:Integer):Integer;
+Function TVCCS.Init(Handle:Integer; ActorID : Integer):Integer;
 Begin
   DoSimpleMsg('Need to implement TVCCS.Init', -1);
   Result := 0;

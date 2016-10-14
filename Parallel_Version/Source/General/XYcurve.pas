@@ -62,7 +62,7 @@ TYPE
        destructor  Destroy; override;
 
        FUNCTION Edit(ActorID : Integer):Integer; override;     // uses global parser
-       FUNCTION Init(Handle:Integer):Integer; override;
+       FUNCTION Init(Handle:Integer; ActorID : Integer):Integer; override;
        FUNCTION NewObject(const ObjName:String):Integer; override;
 
        FUNCTION Find(const ObjName:String):Pointer; override;  // Find an obj of this class by name
@@ -363,7 +363,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-FUNCTION TXYcurve.Init(Handle:Integer):Integer;
+FUNCTION TXYcurve.Init(Handle:Integer; ActorID : Integer):Integer;
 
 Begin
      DoSimpleMsg('Need to implement TXYcurve.Init', -1);

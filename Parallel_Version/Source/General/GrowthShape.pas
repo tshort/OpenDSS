@@ -65,7 +65,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;     // uses global parser
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
 
        // Set this property to point ActiveGrowthShapeObj to the right value
@@ -269,7 +269,7 @@ BEGIN
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Function TGrowthShape.Init(Handle:Integer):Integer;
+Function TGrowthShape.Init(Handle:Integer; ActorID : Integer):Integer;
 
 BEGIN
    DoSimpleMsg('Need to implement TGrowthShape.Init', -1);

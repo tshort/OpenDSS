@@ -36,7 +36,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
    End;
 
@@ -325,7 +325,7 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-Function TIsource.Init(Handle:Integer):Integer;
+Function TIsource.Init(Handle:Integer; ActorID : Integer):Integer;
 
 Begin
    DoSimpleMsg('Need to implement TIsource.Init', -1);

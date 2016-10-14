@@ -617,7 +617,7 @@ Begin
        10: CmdResult := DoEnableCmd;
        11: CmdResult := DoDisableCmd;
        12: CmdResult := DoPlotCmd; //'plot';
-       13: CmdResult := DoResetCmd; //'resetmonitors';
+       13: CmdResult := DoResetCmd(ActiveActor); //'resetmonitors';
        15: CmdResult := DoSetCmd(0);  //'set WITH no solve'
        16: CmdResult := DoPropertyDump;
        17: CmdResult := DoOpenCmd;

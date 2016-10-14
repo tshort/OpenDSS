@@ -83,7 +83,7 @@ TYPE
          Procedure ReallocateElementNameList;
          
          Function Edit(ActorID : Integer):Integer;Virtual;      // uses global parser
-         Function Init(Handle:Integer):Integer; Virtual;
+         Function Init(Handle:Integer; ActorID : Integer):Integer; Virtual;
          Function NewObject(const ObjName:String):Integer; Virtual;
 
          Function SetActive(const ObjName:String):Boolean; Virtual;
@@ -207,7 +207,7 @@ BEGIN
 END;
 
 
-Function TDSSClass.Init(Handle:Integer):Integer;
+Function TDSSClass.Init(Handle:Integer; ActorID : Integer):Integer;
 BEGIN
     Result := 0;
     DoSimpleMsg('virtual function TDSSClass.Init called.  Should be overriden.', 782);

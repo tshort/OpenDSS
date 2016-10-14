@@ -35,7 +35,7 @@ TYPE
 
 
        FUNCTION Edit(ActorID : Integer):Integer; override;     // uses global parser
-       FUNCTION Init(Handle:Integer):Integer; override;
+       FUNCTION Init(Handle:Integer; ActorID : Integer):Integer; override;
        FUNCTION NewObject(const ObjName:String):Integer; override;
 
    end;
@@ -701,7 +701,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-FUNCTION TLine.Init(Handle:Integer):Integer;
+FUNCTION TLine.Init(Handle:Integer; ActorID : Integer):Integer;
 
 Begin
    DoSimpleMsg('Need to implement TLine.Init', -1);

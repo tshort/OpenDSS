@@ -228,7 +228,7 @@ Type
        destructor Destroy;     override;
 
        Function Edit(ActorID : Integer):Integer;  override;     // uses global parser
-       Function Init(Handle:Integer):Integer;            override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer;            override;
        Function NewObject(const ObjName:String):Integer; override;
 
        Procedure ResetMeterZonesAll(ActorID : Integer);
@@ -735,7 +735,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Function TEnergyMeter.Init(Handle:Integer):Integer;
+Function TEnergyMeter.Init(Handle:Integer; ActorID : Integer):Integer;
 
 Begin
    DoSimpleMsg('Need to implement TEnergyMeter.Init', -1);

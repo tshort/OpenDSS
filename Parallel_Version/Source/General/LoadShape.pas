@@ -67,7 +67,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;     // uses global parser
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
 
        Function Find(const ObjName:String):Pointer; override;  // Find an obj of this class by name
@@ -423,7 +423,7 @@ BEGIN
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Function TLoadShape.Init(Handle:Integer):Integer;
+Function TLoadShape.Init(Handle:Integer; ActorID : Integer):Integer;
 
 BEGIN
    DoSimpleMsg('Need to implement TLoadShape.Init', -1);

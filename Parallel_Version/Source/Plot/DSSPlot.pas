@@ -2387,7 +2387,7 @@ begin
       Begin
 
          Save; // Save present buffer
-         CloseMonitorStream;
+         CloseMonitorStream(ActiveActor);
 
          FirstRecord := TRUE;
          Hours := TRUE;
@@ -2464,7 +2464,7 @@ begin
             FirstRecord := FALSE;
          End;
 
-         CloseMonitorStream;
+         CloseMonitorStream(ActiveActor);
 
      // Add the curves to the plot
         ActiveColorIdx := 0;

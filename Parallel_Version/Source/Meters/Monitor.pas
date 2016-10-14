@@ -100,14 +100,14 @@ TYPE
        destructor  Destroy; override;
 
        Function Edit(ActorID : Integer):Integer;                 override;     // uses global parser
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer;ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer;  override;
 
        Procedure ResetAll(ActorID : Integer);   Override;
        Procedure SampleAll(ActorID : Integer);  Override;  // Force all monitors to take a sample
        Procedure SampleAllMode5(ActorID : Integer);  // Sample just Mode 5 monitors
        Procedure SaveAll(ActorID : Integer);    Override;   // Force all monitors to save their buffers to disk
-       Procedure PostProcessAll;
+       Procedure PostProcessAll(ActorID : Integer);
        Procedure TOPExport(Objname:String);
 
    end;
@@ -150,7 +150,7 @@ TYPE
        Procedure AddDblsToBuffer(Dbl:pDoubleArray; Ndoubles:Integer);
        Procedure AddDblToBuffer(const Dbl:Double);
 
-       Procedure DoFlickerCalculations;  // call from CloseMonitorStream
+       Procedure DoFlickerCalculations(ActorID : Integer);  // call from CloseMonitorStream
 
        function  Get_FileName: String;
 
@@ -166,15 +166,15 @@ TYPE
        Procedure RecalcElementData(ActorID : Integer);  Override;
        Procedure CalcYPrim(ActorID : Integer);          Override;    // Always Zero for a monitor
        Procedure TakeSample(ActorID : Integer);         Override; // Go add a sample to the buffer
-       Procedure ResetIt;
+       Procedure ResetIt(ActorID : Integer);
        Procedure Save;     // Saves present buffer to file
-       Procedure PostProcess; // calculates Pst or other post-processing
+       Procedure PostProcess(ActorID : Integer); // calculates Pst or other post-processing
 
        Procedure OpenMonitorStream;
-       Procedure ClearMonitorStream;
-       Procedure CloseMonitorStream;
+       Procedure ClearMonitorStream(ActorID : Integer);
+       Procedure CloseMonitorStream(ActorID : Integer);
 
-       Procedure TranslateToCSV(Show:Boolean);
+       Procedure TranslateToCSV(Show:Boolean; ActorID : Integer);
 
        Procedure GetCurrents(Curr: pComplexArray; ActorID : Integer);                Override; // Get present value of terminal Curr
        Procedure GetInjCurrents(Curr: pComplexArray; ActorID : Integer);             Override;   // Returns Injextion currents
@@ -341,9 +341,9 @@ Begin
                   param := lowercase(param);
                   Case param[1] of
                     's':Save;
-                    'c','r':ResetIt;
+                    'c','r':ResetIt(ActorID);
                     't': TakeSample(ActorID);
-                    'p': begin PostProcess; dec(recalc) end
+                    'p': begin PostProcess(ActorID); dec(recalc) end
                   End;
                End;  // buffer
             5: IncludeResidual := InterpretYesNo(Param);
@@ -373,7 +373,7 @@ Begin
       Mon := ActiveCircuit[ActorID].Monitors.First;
       WHILE Mon<>Nil DO
       Begin
-          If Mon.enabled Then Mon.ResetIt;
+          If Mon.enabled Then Mon.ResetIt(ActorID);
           Mon := ActiveCircuit[ActorID].Monitors.Next;
       End;
 
@@ -410,14 +410,14 @@ Begin
 End;
 
 {--------------------------------------------------------------------------}
-Procedure TDSSMonitor.PostProcessAll;
+Procedure TDSSMonitor.PostProcessAll(ActorID : Integer);
 VAR
    Mon:TMonitorObj;
 Begin
-   Mon := ActiveCircuit[ActiveActor].Monitors.First;
+   Mon := ActiveCircuit[ActorID].Monitors.First;
    WHILE Mon<>Nil DO Begin
-       If Mon.Enabled Then Mon.PostProcess;
-       Mon := ActiveCircuit[ActiveActor].Monitors.Next;
+       If Mon.Enabled Then Mon.PostProcess(ActorID);
+       Mon := ActiveCircuit[ActorID].Monitors.Next;
    End;
 End;
 
@@ -467,7 +467,7 @@ Begin
 End;
 
 {--------------------------------------------------------------------------}
-Function TDSSMonitor.Init(Handle:Integer):Integer;
+Function TDSSMonitor.Init(Handle:Integer; ActorID : Integer):Integer;
 VAR
    Mon:TMonitorObj;
 
@@ -476,12 +476,12 @@ Begin
 
       IF Handle>0  THEN Begin
          Mon := ElementList.Get(Handle);
-         Mon.ResetIt;
+         Mon.ResetIt(ActorID);
       End
       ELSE Begin  // Do 'em all
         Mon := ElementList.First;
         WHILE Mon<>Nil DO Begin
-            Mon.ResetIt;
+            Mon.ResetIt(ActorID);
             Mon := ElementList.Next;
         End;
       End;
@@ -624,7 +624,7 @@ Begin
                  Setbus(1, MeteredElement.GetBus(MeteredTerminal));
                // Make a name for the Buffer File
                  BufferFile := {ActiveCircuit[ActiveActor].CurrentDirectory + }
-                               CircuitName_[ActiveActor] + 'Mon_' + Name + '.mon';
+                               CircuitName_[ActorID] + 'Mon_' + Name + '.mon';
                  // removed 10/19/99 ConvertBlanks(BufferFile); // turn blanks into '_'
 
                  {Allocate Buffers}
@@ -645,7 +645,7 @@ Begin
                      ReallocMem(VoltageBuffer, SizeOf(VoltageBuffer^[1])*MeteredElement.NConds);
                  End;
 
-                 ClearMonitorStream;
+                 ClearMonitorStream(ActorID);
 
                  ValidMonitor := TRUE;
 
@@ -680,7 +680,7 @@ begin
          ReallocMem(CurrentBuffer, SizeOf(CurrentBuffer^[1])*MeteredElement.Yorder);
          ReallocMem(VoltageBuffer, SizeOf(VoltageBuffer^[1])*MeteredElement.NConds);
       End;
-    ClearMonitorStream;
+    ClearMonitorStream(ActorID);
     ValidMonitor := TRUE;
   end;
   Inherited;
@@ -697,7 +697,7 @@ Begin
 End;
 
 {--------------------------------------------------------------------------}
-Procedure TMonitorObj.ClearMonitorStream;
+Procedure TMonitorObj.ClearMonitorStream(ActorID : Integer);
 
 VAR
     i           :Integer;
@@ -721,7 +721,7 @@ Begin
      fillchar(StrBuffer, Sizeof(TMonitorStrBuffer), 0);  {clear buffer}
      strPtr := @StrBuffer;
      strPtr^ := chr(0);     // Init string
-     If ActiveCircuit[ActiveActor].Solution.IsHarmonicModel Then strLcat(strPtr, pAnsichar('Freq, Harmonic, '), Sizeof(TMonitorStrBuffer))
+     If ActiveCircuit[ActorID].Solution.IsHarmonicModel Then strLcat(strPtr, pAnsichar('Freq, Harmonic, '), Sizeof(TMonitorStrBuffer))
                                                Else strLcat(strPtr, pAnsichar('hour, t(sec), '),   Sizeof(TMonitorStrBuffer));
      
      CASE (Mode and MODEMASK) of
@@ -933,11 +933,11 @@ Begin
 End;
 
 {--------------------------------------------------------------------------}
-Procedure TMonitorObj.CloseMonitorStream;
+Procedure TMonitorObj.CloseMonitorStream(ActorID : Integer);
 Begin
   Try
      If IsFileOpen THEN Begin  // only close open files
-        PostProcess;
+        PostProcess(ActorID);
         MonitorStream.Seek(0, soFromBeginning);   // just move stream position to the beginning
         IsFileOpen := false;
      End;
@@ -967,17 +967,17 @@ End;
 
 
 {--------------------------------------------------------------------------}
-Procedure TMonitorObj.ResetIt;
+Procedure TMonitorObj.ResetIt(ActorID : Integer);
 Begin
      BufPtr := 0;
-     ClearMonitorStream;
+     ClearMonitorStream(ActorID);
 End;
 
 {--------------------------------------------------------------------------}
-Procedure TMonitorObj.PostProcess;
+Procedure TMonitorObj.PostProcess(ActorID : Integer);
 Begin
   if IsProcessed = FALSE then begin
-    if (mode = 4) and (MonitorStream.Position > 0) then DoFlickerCalculations;
+    if (mode = 4) and (MonitorStream.Position > 0) then DoFlickerCalculations(ACtorID);
   end;
   IsProcessed := TRUE;
 End;
@@ -1068,7 +1068,7 @@ Begin
 
      5: Begin
             (* Capture Solution Variables *)
-            With ActiveCircuit[ActiveActor].Solution Do Begin
+            With ActiveCircuit[ActorID].Solution Do Begin
              SolutionBuffer^[1]   :=  Iteration;
              SolutionBuffer^[2]   :=  ControlIteration;
              SolutionBuffer^[3]   :=  MaxIterations;
@@ -1236,7 +1236,7 @@ Begin
     MonBuffer^[BufPtr]:=Dbl;
 End;
 
-Procedure TMonitorObj.DoFlickerCalculations;
+Procedure TMonitorObj.DoFlickerCalculations(ActorID : Integer);
 var
   FSignature  :Integer;
   Fversion    :Integer;
@@ -1290,7 +1290,7 @@ begin
     for p := 0 to FnPhases-1 do begin
       pst[p] := AllocMem (Sizeof(SngBuffer[1]) * Npst);
       busref := MeteredElement.Terminals[MeteredTerminal].BusRef;
-      Vbase := 1000.0 * ActiveCircuit[ActiveActor].Buses^[busref].kVBase;
+      Vbase := 1000.0 * ActiveCircuit[ActorID].Buses^[busref].kVBase;
       FlickerMeter (N, BaseFrequency, Vbase, data[0], data[p+1], pst[p]);
     end;
 
@@ -1322,7 +1322,7 @@ begin
 end;
 
 {--------------------------------------------------------------------------}
-Procedure TMonitorObj.TranslateToCSV(Show:Boolean);
+Procedure TMonitorObj.TranslateToCSV(Show:Boolean; ActorID : Integer);
 
 
 VAR
@@ -1343,7 +1343,7 @@ VAR
 Begin
 
      Save;  // Save present buffer
-     CloseMonitorStream;   // Position at beginning
+     CloseMonitorStream(ActiveActor);   // Position at beginning
 
      CSVName := CSVFileName;
 
@@ -1398,7 +1398,7 @@ Begin
 
      FINALLY
 
-       CloseMonitorStream;
+       CloseMonitorStream(ActorID);
        CloseFile(F);
 
      END;
@@ -1559,7 +1559,7 @@ begin
      With Obj Do Begin
 
            Save;  // Save present buffer
-           CloseMonitorStream;
+           CloseMonitorStream(ActiveActor);
 
            pStrBuffer := @StrBuffer;
            With MonitorStream Do Begin
@@ -1652,7 +1652,7 @@ begin
                END;
            Until (MonitorStream.Position>=MonitorStream.Size);
 
-           CloseMonitorStream;
+           CloseMonitorStream(ActiveActor);
 
            TopTransferFile.Close;
            TopTransferFile.SendToTop;

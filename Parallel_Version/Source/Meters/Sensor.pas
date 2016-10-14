@@ -38,7 +38,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;     // uses global parser
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
 
        Procedure ResetAll(ActorID : Integer); Override;
@@ -427,7 +427,7 @@ End;
 
 {==============================================================================}
 
-Function TSensor.Init(Handle:Integer):Integer;
+Function TSensor.Init(Handle:Integer; ActorID : Integer):Integer;
 VAR
    pSensor:TSensorObj;
 

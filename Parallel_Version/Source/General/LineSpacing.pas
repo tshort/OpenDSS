@@ -31,7 +31,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;     // uses global parser
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
 
 
@@ -234,7 +234,7 @@ BEGIN
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Function TLineSpacing.Init(Handle:Integer):Integer;
+Function TLineSpacing.Init(Handle:Integer; ActorID : Integer):Integer;
 
 BEGIN
    DoSimpleMsg('Need to implement TLineSpacing.Init', -1);

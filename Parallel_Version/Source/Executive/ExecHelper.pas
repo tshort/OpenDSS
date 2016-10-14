@@ -38,7 +38,7 @@ interface
          FUNCTION DoDisableCmd:Integer;
 
          FUNCTION DoOpenCmd:Integer;
-         FUNCTION DoResetCmd:Integer;
+         FUNCTION DoResetCmd(ActorID : Integer):Integer;
          FUNCTION DoNextCmd:Integer;
          FUNCTION DoFormEditCmd:Integer;  
          FUNCTION DoClassesCmd:Integer;
@@ -50,7 +50,7 @@ interface
          FUNCTION DoInterpolateCmd:Integer;
 
          FUNCTION DoCloseCmd:Integer;
-         FUNCTION DoResetMonitors:Integer;
+         FUNCTION DoResetMonitors(ActorID : Integer):Integer;
 
          FUNCTION DoFileEditCmd:Integer;
          FUNCTION DoQueryCmd:Integer;
@@ -1117,7 +1117,7 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-FUNCTION DoResetCmd:Integer;
+FUNCTION DoResetCmd(ActorID : Integer):Integer;
 VAR
     ParamName, Param  :String;
 
@@ -1129,8 +1129,8 @@ Begin
     Param := UpperCase(Parser.StrValue);
     IF Length(Param) = 0
        THEN Begin
-            DoResetMonitors;
-            DoResetMeters(ActiveActor);
+            DoResetMonitors(ACtorID);
+            DoResetMeters(ActorID);
             DoResetFaults ;
             DoResetControls;
             ClearEventLog;
@@ -1139,7 +1139,7 @@ Begin
     ELSE
       CASE Param[1] of
        'M': CASE Param[2] of
-               'O'{MOnitor}:  DoResetMonitors;
+               'O'{MOnitor}:  DoResetMonitors(ActiveActor);
                'E'{MEter}:    DoResetMeters(ActiveActor);
             END;
        'F'{Faults}:   DoResetFaults;
@@ -1248,19 +1248,19 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-FUNCTION DoResetMonitors:Integer;
+FUNCTION DoResetMonitors(ActorID : Integer):Integer;
 VAR
    pMon:TMonitorObj;
 
 Begin
 
-     WITH ActiveCircuit[ActiveActor] DO
+     WITH ActiveCircuit[ActorID] DO
      Begin
 
         pMon := Monitors.First;
         WHILE pMon<>nil DO
         Begin
-            pMon.ResetIt;
+            pMon.ResetIt(ActorID);
             pMon := Monitors.Next;
         End;
         Result :=0;
@@ -3936,5 +3936,6 @@ finalization
     PstCalcCommands.Free;
 
 end.
+
 
 

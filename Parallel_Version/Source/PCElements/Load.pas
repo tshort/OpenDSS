@@ -57,7 +57,7 @@ TYPE
        destructor Destroy; override;
 
        FUNCTION Edit(ActorID : Integer):Integer; override;
-       FUNCTION Init(Handle:Integer):Integer; override;
+       FUNCTION Init(Handle:Integer; ActorID : Integer):Integer; override;
        FUNCTION NewObject(const ObjName:String):Integer; override;
    End;
 
@@ -742,7 +742,7 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-FUNCTION TLoad.Init(Handle:Integer):Integer;
+FUNCTION TLoad.Init(Handle:Integer; ActorID : Integer):Integer;
 Var
    p:TLoadObj;
 

@@ -27,7 +27,7 @@ TYPE
        constructor Create;
        destructor Destroy; override;
        Function Edit(ActorID : Integer):Integer; override;     // uses global parser
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
 
        // Set this property to point ActiveXfmrCodeObj to the right value
@@ -451,7 +451,7 @@ BEGIN
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Function TXfmrCode.Init(Handle:Integer):Integer;
+Function TXfmrCode.Init(Handle:Integer; ActorID : Integer):Integer;
 BEGIN
    DoSimpleMsg('Need to implement TXfmrCode.Init', -1);
    REsult := 0;

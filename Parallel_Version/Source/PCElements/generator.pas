@@ -112,7 +112,7 @@ TYPE
        destructor Destroy; override;
 
        Function Edit(ActorID : Integer):Integer; override;
-       Function Init(Handle:Integer):Integer; override;
+       Function Init(Handle:Integer; ActorID : Integer):Integer; override;
        Function NewObject(const ObjName:String):Integer; override;
 
        Procedure ResetRegistersAll(ActorID : Integer);
@@ -771,7 +771,7 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-Function TGenerator.Init(Handle:Integer):Integer;
+Function TGenerator.Init(Handle:Integer; ActorID : Integer):Integer;
 VAR
    p:TGeneratorObj;
 
