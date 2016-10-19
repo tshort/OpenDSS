@@ -1048,13 +1048,13 @@ Var
   pBusCap: TBusCap;
 Begin
   Try
-    clsCode := DSSClassList.Get(ClassNames.Find('linecode'));
-    clsWire := DSSClassList.Get(ClassNames.Find('wiredata'));
-    clsGeom := DSSClassList.Get(ClassNames.Find('linegeometry'));
-    clsXfmr := DSSClassList.Get(ClassNames.Find('xfmrcode'));
-    clsSpac := DSSClassList.Get(ClassNames.Find('linespacing'));
-    clsTape := DSSClassList.Get(ClassNames.Find('TSData'));
-    clsConc := DSSClassList.Get(ClassNames.Find('CNData'));
+    clsCode := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('linecode'));
+    clsWire := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('wiredata'));
+    clsGeom := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('linegeometry'));
+    clsXfmr := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('xfmrcode'));
+    clsSpac := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('linespacing'));
+    clsTape := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('TSData'));
+    clsConc := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('CNData'));
     pName1 := TNamedObject.Create('Temp1');
     pName2 := TNamedObject.Create('Temp2');
     i1 := clsXfmr.ElementCount * 6; // 3 wdg info, 3 sctest

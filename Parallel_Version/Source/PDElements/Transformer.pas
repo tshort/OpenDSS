@@ -403,7 +403,7 @@ Begin
    WITH ActiveCircuit[ActiveActor] Do Begin
 
       ActiveCktElement := TTransfObj.Create(Self, ObjName);
-      Result           := AddObjectToList(ActiveDSSObject);  // Return index of transformer in transformer list
+      Result           := AddObjectToList(ActiveDSSObject[ActiveActor]);  // Return index of transformer in transformer list
 
    End;
 
@@ -1943,7 +1943,7 @@ var
   Obj: TXfmrCodeObj;
   i: Integer;
 begin
-  if XfmrCodeClass=Nil then XfmrCodeClass := DSSClassList.Get(ClassNames.Find('xfmrcode'));
+  if XfmrCodeClass=Nil then XfmrCodeClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('xfmrcode'));
 
   if XfmrCodeClass.SetActive(Code) then begin
     Obj := XfmrCodeClass.GetActiveObj;

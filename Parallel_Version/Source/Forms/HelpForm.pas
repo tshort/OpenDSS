@@ -189,11 +189,11 @@ begin
 
  // put the other DSS Classes in alphabetical order within Base Class
         HelpList := TList.Create();
-        pDSSClass := DSSClassList.First;
+        pDSSClass := DSSClassList[ActiveActor].First;
         WHILE pDSSClass<>Nil DO Begin
           If (pDSSClass.DSSClassType AND BASECLASSMASK) = BaseClass
            Then HelpList.Add (pDSSClass);
-          pDSSClass := DSSClassList.Next;
+          pDSSClass := DSSClassList[ActiveActor].Next;
         End;
         HelpList.Sort(@CompareClassNames);
 

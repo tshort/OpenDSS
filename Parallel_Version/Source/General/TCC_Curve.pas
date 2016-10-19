@@ -145,8 +145,8 @@ BEGIN
    // create a new object of this class and add to list
    With ActiveCircuit[ActiveActor] Do
    Begin
-    ActiveDSSObject := TTCC_CurveObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    ActiveDSSObject[ActiveActor] := TTCC_CurveObj.Create(Self, ObjName);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
 END;
 
@@ -174,7 +174,7 @@ BEGIN
   Result := 0;
   // continue parsing with contents of Parser
   ActiveTCC_CurveObj := ElementList.Active;
-  ActiveDSSObject := ActiveTCC_CurveObj;
+  ActiveDSSObject[ActorID] := ActiveTCC_CurveObj;
 
   WITH ActiveTCC_CurveObj DO BEGIN
 

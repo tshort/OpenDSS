@@ -66,7 +66,7 @@ Begin
 
      OtherCktObj := TDSSCktElement(OtherObj);
 
-     With TDSSCktElement(ActiveDSSObject) Do
+     With TDSSCktElement(ActiveDSSObject[ActiveActor]) Do
      Begin
        BaseFrequency:= OtherCktObj.BaseFrequency;
        Enabled := TRUE;

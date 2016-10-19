@@ -115,13 +115,13 @@ VAR
 
    ActiveCircuit   :Array of TDSSCircuit;
    ActiveDSSClass  :Array of TDSSClass;
-   LastClassReferenced:Integer;  // index of class of last thing edited
-   ActiveDSSObject :TDSSObject;
+   LastClassReferenced:Array of Integer;  // index of class of last thing edited
+   ActiveDSSObject :Array of TDSSObject;
    MaxCircuits     :Integer;
    MaxBusLimit     :Integer; // Set in Validation
    MaxAllocationIterations :Integer;
    Circuits        :TPointerList;
-   DSSObjs         :TPointerList;
+   DSSObjs         :Array of TPointerList;
 
    AuxParser       :TParser;  // Auxiliary parser for use by anybody for reparsing values
 
@@ -134,7 +134,7 @@ VAR
    LastErrorMessage   :String;
 
    DefaultEarthModel  :Integer;
-   ActiveEarthModel   :Integer;
+   ActiveEarthModel   :Array of Integer;
 
    LastFileCompiled   :String;
    LastCommandWasCompile :Boolean;
@@ -178,32 +178,32 @@ VAR
    DaisySize        :Double;
 
    // Some commonly used classes   so we can find them easily
-   LoadShapeClass     :TLoadShape;
-   TShapeClass        :TTshape;
-   PriceShapeClass    :TPriceShape;
-   XYCurveClass       :TXYCurve;
-   GrowthShapeClass   :TGrowthShape;
-   SpectrumClass      :TSpectrum;
-   SolutionClass      :TDSSClass;
-   EnergyMeterClass   :TEnergyMeter;
+   LoadShapeClass     :Array of TLoadShape;
+   TShapeClass        :Array of TTshape;
+   PriceShapeClass    :Array of TPriceShape;
+   XYCurveClass       :Array of TXYCurve;
+   GrowthShapeClass   :Array of TGrowthShape;
+   SpectrumClass      :Array of TSpectrum;
+   SolutionClass      :Array of TDSSClass;
+   EnergyMeterClass   :Array of TEnergyMeter;
    // FeederClass        :TFeeder;
-   MonitorClass       :TDSSMonitor;
-   SensorClass        :TSensor;
-   TCC_CurveClass     :TTCC_Curve;
-   WireDataClass      :TWireData;
-   CNDataClass        :TCNData;
-   TSDataClass        :TTSData;
-   LineSpacingClass   :TLineSpacing;
-   StorageClass       :TStorage;
-   PVSystemClass      :TPVSystem;
-   InvControlClass     :TInvControl;
-   ExpControlClass    :TExpControl;
+   MonitorClass       :Array of TDSSMonitor;
+   SensorClass        :Array of TSensor;
+   TCC_CurveClass     :Array of TTCC_Curve;
+   WireDataClass      :Array of TWireData;
+   CNDataClass        :Array of TCNData;
+   TSDataClass        :Array of TTSData;
+   LineSpacingClass   :Array of TLineSpacing;
+   StorageClass       :Array of TStorage;
+   PVSystemClass      :Array of TPVSystem;
+   InvControlClass    :Array of TInvControl;
+   ExpControlClass    :Array of TExpControl;
 
-   EventStrings: TStringList;
-   SavedFileList:TStringList;
+   EventStrings       :Array of TStringList;
+   SavedFileList      :Array of TStringList;
 
-   DSSClassList       :TPointerList; // pointers to the base class types
-   ClassNames         :THashList;
+   DSSClassList       :Array of TPointerList; // pointers to the base class types
+   ClassNames         :Array of THashList;
 
    UpdateRegistry     :Boolean;  // update on program exit
    CPU_Freq           : int64;          // Used to store the CPU frequency
@@ -406,7 +406,7 @@ Begin
 
       IF Length(ObjClass) > 0 THEN SetObjectClass(ObjClass);
 
-      ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+      ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
       IF ActiveDSSClass[ActiveActor] <> Nil THEN
       Begin
         IF Not ActiveDSSClass[ActiveActor].SetActive(Objname) THEN
@@ -416,7 +416,7 @@ Begin
         ELSE
         With ActiveCircuit[ActiveActor] Do
         Begin
-           CASE ActiveDSSObject.DSSObjType OF
+           CASE ActiveDSSObject[ActiveActor].DSSObjType OF
                 DSS_OBJECT: ;  // do nothing for general DSS object
 
            ELSE Begin   // for circuit types, set ActiveCircuit Element, too
@@ -491,7 +491,7 @@ Begin
        If ActiveCircuit[ActiveActor] = nil Then
        Begin
            ActiveCircuit[ActiveActor] := TDSSCircuit.Create(Name);
-           ActiveDSSObject            := ActiveSolutionObj;
+           ActiveDSSObject[ActiveActor]:= ActiveSolutionObj;
            {*Handle := *}
            Circuits.Add(ActiveCircuit[ActiveActor]);
            Inc(ActiveCircuit[ActiveActor].NumCircuits);
@@ -722,6 +722,33 @@ initialization
    setlength(OutputDirectory,CPU_Cores + 1);
    setlength(CircuitName_,CPU_Cores + 1);
    setlength(ActorPctProgress,CPU_Cores + 1);
+   setlength(ActiveDSSObject,CPU_Cores + 1);
+   setlength(LastClassReferenced,CPU_Cores + 1);
+   setlength(DSSObjs,CPU_Cores + 1);
+   setlength(ActiveEarthModel,CPU_Cores + 1);
+   setlength(DSSClassList,CPU_Cores + 1);
+   setlength(ClassNames,CPU_Cores + 1);
+   setlength(MonitorClass,CPU_Cores + 1);
+   setlength(LoadShapeClass,CPU_Cores + 1);
+   setlength(TShapeClass,CPU_Cores + 1);
+   setlength(PriceShapeClass,CPU_Cores + 1);
+   setlength(XYCurveClass,CPU_Cores + 1);
+   setlength(GrowthShapeClass,CPU_Cores + 1);
+   setlength(SpectrumClass,CPU_Cores + 1);
+   setlength(SolutionClass,CPU_Cores + 1);
+   setlength(EnergyMeterClass,CPU_Cores + 1);
+   setlength(SensorClass,CPU_Cores + 1);
+   setlength(TCC_CurveClass,CPU_Cores + 1);
+   setlength(WireDataClass,CPU_Cores + 1);
+   setlength(CNDataClass,CPU_Cores + 1);
+   setlength(TSDataClass,CPU_Cores + 1);
+   setlength(LineSpacingClass,CPU_Cores + 1);
+   setlength(StorageClass,CPU_Cores + 1);
+   setlength(PVSystemClass,CPU_Cores + 1);
+   setlength(InvControlClass,CPU_Cores + 1);
+   setlength(ExpControlClass,CPU_Cores + 1);
+   setlength(EventStrings,CPU_Cores + 1);
+   setlength(SavedFileList,CPU_Cores + 1);
 
    for ActiveActor := 1 to CPU_Cores do
    begin
@@ -729,6 +756,8 @@ initialization
     ActorProgress[ActiveActor]        :=  nil;
     ActiveDSSClass[ActiveActor]       :=  nil;
     ActorStatus[ActiveActor]          :=  1;
+    EventStrings[ActiveActor]         := TStringList.Create;
+    SavedFileList[ActiveActor]        := TStringList.Create;
    end;
 
    ActiveActor      :=  1;
@@ -763,7 +792,7 @@ initialization
    DefaultBaseFreq       := 60.0;
    DaisySize             := 1.0;
    DefaultEarthModel     := DERI;
-   ActiveEarthModel      := DefaultEarthModel;
+   ActiveEarthModel[ActiveActor]      := DefaultEarthModel;
 
    {Initialize filenames and directories}
 
@@ -789,8 +818,7 @@ initialization
 
    NoFormsAllowed   := FALSE;
 
-   EventStrings     := TStringList.Create;
-   SavedFileList    := TStringList.Create;
+
 
    LogQueries       := FALSE;
    QueryLogFileName := '';
@@ -805,8 +833,8 @@ Finalization
   // Dosimplemsg('Enter DSSGlobals Unit Finalization.');
   Auxparser.Free;
 
-  EventStrings.Free;
-  SavedFileList.Free;
+  EventStrings[ActiveActor].Free;
+  SavedFileList[ActiveActor].Free;
 
   With DSSExecutive Do If RecorderOn Then Recorderon := FALSE;
 

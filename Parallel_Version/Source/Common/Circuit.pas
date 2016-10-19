@@ -302,7 +302,7 @@ BEGIN
      inherited Create('Circuit');
 
      IsSolved := False;
-     {*Retval   := *} SolutionClass.NewObject(Name);
+     {*Retval   := *} SolutionClass[ActiveActor].NewObject(Name);
      Solution := ActiveSolutionObj;
 
      LocalName   := LowerCase(aName);
@@ -456,8 +456,8 @@ BEGIN
      DefaultGrowthRate          := 1.025;
      DefaultGrowthFactor        := 1.0;
 
-     DefaultDailyShapeObj  := LoadShapeClass.Find('default');
-     DefaultYearlyShapeObj := LoadShapeClass.Find('default');
+     DefaultDailyShapeObj  := LoadShapeClass[ActiveActor].Find('default');
+     DefaultYearlyShapeObj := LoadShapeClass[ActiveActor].Find('default');
 
      CurrentDirectory := '';
 
@@ -676,7 +676,7 @@ BEGIN
         ReallocMem(DeviceRef, Sizeof(DeviceRef^[1]) * MaxDevices);
     END;
     DeviceRef^[NumDevices].devHandle := Handle;    // Index into CktElements
-    DeviceRef^[NumDevices].CktElementClass := LastClassReferenced;
+    DeviceRef^[NumDevices].CktElementClass := LastClassReferenced[ActiveActor];
 END;
 
 
@@ -695,16 +695,16 @@ BEGIN
      Result := 0;
 
      ParseObjectClassandName(FullObjectName, DevType, DevName);
-     DevClassIndex := ClassNames.Find(DevType);
-     If DevClassIndex = 0 Then DevClassIndex := LastClassReferenced;
+     DevClassIndex := ClassNames[ActiveActor].Find(DevType);
+     If DevClassIndex = 0 Then DevClassIndex := LastClassReferenced[ActiveActor];
      if DevName <> '' then
      begin
        Devindex := DeviceList.Find(DevName);
        WHILE DevIndex>0 DO BEGIN
            IF DeviceRef^[Devindex].CktElementClass=DevClassIndex THEN   // we got a match
             BEGIN
-              ActiveDSSClass[ActiveActor] := DSSClassList.Get(DevClassIndex);
-              LastClassReferenced := DevClassIndex;
+              ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(DevClassIndex);
+              LastClassReferenced[ActiveActor] := DevClassIndex;
               Result := DeviceRef^[Devindex].devHandle;
              // ActiveDSSClass[ActiveActor].Active := Result;
             //  ActiveCktElement := ActiveDSSClass.GetActiveObj;
@@ -723,7 +723,7 @@ END;
 Procedure TDSSCircuit.Set_ActiveCktElement(Value:TDSSCktElement);
 BEGIN
     FActiveCktElement := Value;
-    ActiveDSSObject := Value;
+    ActiveDSSObject[ActiveActor] := Value;
 END;
 
 //----------------------------------------------------------------------------
@@ -790,7 +790,7 @@ BEGIN
   If Not MeterZonesComputed or Not ZonesLocked Then
   Begin
      If LogEvents Then LogThisEvent('Resetting Meter Zones');
-     EnergyMeterClass.ResetMeterZonesAll(ActorID);
+     EnergyMeterClass[ActorID].ResetMeterZonesAll(ActorID);
      MeterZonesComputed := True;
      If LogEvents Then LogThisEvent('Done Resetting Meter Zones');
   End;
@@ -1055,9 +1055,9 @@ begin
      CapacityFound := False;
 
      Repeat
-          EnergyMeterClass.ResetAll(ActorID);
+          EnergyMeterClass[ActorID].ResetAll(ActorID);
           Solution.Solve(ActorID);
-          EnergyMeterClass.SampleAll(ActorID);
+          EnergyMeterClass[ActorID].SampleAll(ActorID);
           TotalizeMeters;
 
            // Check for non-zero in UEregs
@@ -1122,13 +1122,13 @@ begin
        Exit;
      End;
 
-    SavedFileList.Clear;  {This list keeps track of all files saved}
+    SavedFileList[ActiveActor].Clear;  {This list keeps track of all files saved}
 
     // Initialize so we will know when we have saved the circuit elements
     For i := 1 to CktElements.ListSize Do TDSSCktElement(CktElements.Get(i)).HasBeenSaved := False;
 
     // Initialize so we don't save a class twice
-    For i := 1 to DSSClassList.ListSize Do TDssClass(DSSClassList.Get(i)).Saved := FALSE;
+    For i := 1 to DSSClassList[ActiveActor].ListSize Do TDssClass(DSSClassList[ActiveActor].Get(i)).Saved := FALSE;
 
     {Ignore Feeder Class -- gets saved with Energymeters}
    // FeederClass.Saved := TRUE;  // will think this class is already saved
@@ -1179,10 +1179,10 @@ begin
   Result := FALSE;
 
   // Write Files for all populated DSS Classes  Except Solution Class
-  For i := 1 to DSSClassList.ListSize Do
+  For i := 1 to DSSClassList[ActiveActor].ListSize Do
    Begin
-      Dss_Class := DSSClassList.Get(i);
-      If (DSS_Class = SolutionClass) or Dss_Class.Saved Then Continue;   // Cycle to next
+      Dss_Class := DSSClassList[ActiveActor].Get(i);
+      If (DSS_Class = SolutionClass[ActiveActor]) or Dss_Class.Saved Then Continue;   // Cycle to next
             {use default filename=classname}
       IF Not WriteClassFile(Dss_Class,'', (DSS_Class is TCktElementClass) ) Then Exit;  // bail on error
       DSS_Class.Saved := TRUE;
@@ -1237,9 +1237,9 @@ begin
       Writeln(F);
 
       // Write Redirect for all populated DSS Classes  Except Solution Class
-      For i := 1 to SavedFileList.Count  Do
+      For i := 1 to SavedFileList[ActiveActor].Count  Do
        Begin
-          Writeln(F, 'Redirect ', SavedFileList.Strings[i-1]);
+          Writeln(F, 'Redirect ', SavedFileList[ActiveActor].Strings[i-1]);
        End;
 
       Writeln(F,'MakeBusList');

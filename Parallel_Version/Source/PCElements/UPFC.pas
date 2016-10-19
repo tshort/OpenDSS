@@ -216,7 +216,7 @@ Begin
     With ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TUPFCObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -277,7 +277,7 @@ Begin
          End;
 
          CASE ParamPointer OF
-            propLossCurve:UPFCLossCurveObj := XYCurveClass.Find(LossCurve);
+            propLossCurve:UPFCLossCurveObj := XYCurveClass[ActorID].Find(LossCurve);
          END;
 
          ParamName := Parser.NextParam;

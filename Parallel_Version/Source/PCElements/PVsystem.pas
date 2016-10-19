@@ -578,7 +578,7 @@ Begin
     With ActiveCircuit[ActiveActor] Do
     Begin
         ActiveCktElement := TPVsystemObj.Create(Self, ObjName);
-        Result := AddObjectToList(ActiveDSSObject);
+        Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -750,16 +750,16 @@ Begin
                 1: SetNcondsForConnection;  // Force Reallocation of terminal info
 
                 {Set loadshape objects;  returns nil If not valid}
-                propYEARLY: YearlyShapeObj := LoadShapeClass.Find(YearlyShape);
-                propDAILY:  DailyShapeObj  := LoadShapeClass.Find(DailyShape);
-                propDUTY:   DutyShapeObj   := LoadShapeClass.Find(DutyShape);
+                propYEARLY: YearlyShapeObj := LoadShapeClass[ActorID].Find(YearlyShape);
+                propDAILY:  DailyShapeObj  := LoadShapeClass[ActorID].Find(DailyShape);
+                propDUTY:   DutyShapeObj   := LoadShapeClass[ActorID].Find(DutyShape);
 
-                propTYEARLY: YearlyTShapeObj := TShapeClass.Find(YearlyTShape);
-                propTDAILY:  DailyTShapeObj  := TShapeClass.Find(DailyTShape);
-                propTDUTY:   DutyTShapeObj   := TShapeClass.Find(DutyTShape);
+                propTYEARLY: YearlyTShapeObj := TShapeClass[ActorID].Find(YearlyTShape);
+                propTDAILY:  DailyTShapeObj  := TShapeClass[ActorID].Find(DailyTShape);
+                propTDUTY:   DutyTShapeObj   := TShapeClass[ActorID].Find(DutyTShape);
 
-                propInvEffCurve  : InverterCurveObj   := XYCurveClass.Find(InverterCurve);
-                propP_T_Curve    : Power_TempCurveObj := XYCurveClass.Find(Power_TempCurve);
+                propInvEffCurve  : InverterCurveObj   := XYCurveClass[ActorID].Find(InverterCurve);
+                propP_T_Curve    : Power_TempCurveObj := XYCurveClass[ActorID].Find(Power_TempCurve);
 
                 propDEBUGTRACE: IF DebugTrace THEN
                 Begin   // Init trace file
@@ -1262,7 +1262,7 @@ Begin
       If Length(DutyTShape)>0 Then DoSimpleMsg('WARNING! Duty temperature shape: "'+ DutyTShape +'" Not Found.', 5651);
 
     If Length(Spectrum)> 0 Then Begin
-          SpectrumObj := SpectrumClass.Find(Spectrum);
+          SpectrumObj := SpectrumClass[ActorID].Find(Spectrum);
           If SpectrumObj=Nil Then DoSimpleMsg('ERROR! Spectrum "'+Spectrum+'" Not Found.', 566);
     End
     Else SpectrumObj := Nil;

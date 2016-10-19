@@ -235,8 +235,8 @@ Begin
    // create a new object of this class and add to list
    With ActiveCircuit[ActiveActor] Do
    Begin
-        ActiveDSSObject := TTShapeObj.Create(Self, ObjName);
-        Result          := AddObjectToList(ActiveDSSObject);
+        ActiveDSSObject[ActiveActor] := TTShapeObj.Create(Self, ObjName);
+        Result          := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
 End;
 
@@ -252,7 +252,7 @@ Begin
   Result := 0;
   // continue parsing with contents of Parser
   ActiveTShapeObj := ElementList.Active;
-  ActiveDSSObject := ActiveTShapeObj;
+  ActiveDSSObject[ActorID] := ActiveTShapeObj;
 
   WITH ActiveTShapeObj DO Begin
 

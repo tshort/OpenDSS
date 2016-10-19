@@ -361,7 +361,7 @@ begin
     Fyi := Abs(Fy^[i]);
     Fyj := Abs(Fy^[j]);
 
-    CASE ActiveEarthModel of
+    CASE ActiveEarthModel[ActiveActor] of
 
         SIMPLECARSON:Begin
              Result := cmplx(Fw*Mu0/8.0, (Fw*Mu0/twopi) * ln(658.5 * sqrt(Frhoearth/FFrequency)) );
@@ -416,7 +416,7 @@ VAR
    Alpha, I0I1:Complex;
 begin
 
-    CASE ActiveEarthModel of
+    CASE ActiveEarthModel[ActiveActor] of
         SIMPLECARSON:Begin
             Result := cmplx(FRac^[i], Fw*Mu0/(8*pi) );
         End;

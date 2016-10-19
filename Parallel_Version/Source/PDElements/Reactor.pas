@@ -243,7 +243,7 @@ BEGIN
     With ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TReactorObj.Create(Self, ObjName);
-      Result           := AddObjectToList(ActiveDSSObject);
+      Result           := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 END;
 
@@ -413,8 +413,8 @@ BEGIN
                     X := Z.im;
                     SpecType := 2;
                  End;
-            17: RCurveObj   := XYCurveClass.Find(RCurve);
-            18: LCurveObj   := XYCurveClass.Find(LCurve);
+            17: RCurveObj   := XYCurveClass[ActorID].Find(RCurve);
+            18: LCurveObj   := XYCurveClass[ActorID].Find(LCurve);
             19: Begin
                    SpecType := 2;
                    X := L * TwoPi * BaseFrequency;

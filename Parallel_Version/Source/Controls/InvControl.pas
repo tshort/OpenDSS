@@ -497,7 +497,7 @@ Begin
     WITH ActiveCircuit[ActiveACtor] Do
     Begin
       ActiveCktElement := TInvControlObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 

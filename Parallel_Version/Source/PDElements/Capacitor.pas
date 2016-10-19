@@ -226,7 +226,7 @@ BEGIN
     With ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TCapacitorObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 END;
 

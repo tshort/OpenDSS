@@ -202,7 +202,7 @@ Begin
    If Enabled Then
    Begin
    
-     WITH ActiveCircuit[ActiveActor].Solution DO
+     WITH ActiveCircuit[ActorID].Solution DO
      FOR i := 1 TO Yorder DO Vterminal^[i] := NodeV^[NodeRef^[i]];
 
      YPrim.MVMult(Curr, Vterminal);

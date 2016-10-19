@@ -141,8 +141,8 @@ BEGIN
    // create a new object of this class and add to list
    With ActiveCircuit[ActiveActor] Do
    Begin
-    ActiveDSSObject := TSpectrumObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    ActiveDSSObject[ActiveActor] := TSpectrumObj.Create(Self, ObjName);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
 END;
 
@@ -159,7 +159,7 @@ BEGIN
   Result := 0;
   // continue parsing with contents of Parser
   ActiveSpectrumObj := ElementList.Active;
-  ActiveDSSObject := ActiveSpectrumObj;
+  ActiveDSSObject[ActorID] := ActiveSpectrumObj;
 
   WITH ActiveSpectrumObj DO BEGIN
 

@@ -57,7 +57,7 @@ PROCEDURE FinishTimeStep(ActorID: integer);
 
 }
 Begin
-    MonitorClass.SampleAll(ActorID);
+    MonitorClass[ActorID].SampleAll(ActorID);
     EndOfTimeStepCleanup(ActorID);
     ActiveCircuit[ActorID].Solution.Increment_time;
 End;
@@ -70,13 +70,13 @@ PROCEDURE EndOfTimeStepCleanup(ActorID: integer);
    in main solution loops (see below)
 }
 Begin
-    StorageClass.UpdateAll(ActorID);
-    InvControlClass.UpdateAll(ActorID);
-    ExpControlClass.UpdateAll(ActorID);
+    StorageClass[ActorID].UpdateAll(ActorID);
+    InvControlClass[ActorID].UpdateAll(ActorID);
+    ExpControlClass[ActorID].UpdateAll(ActorID);
 
     // End of Time Step Timer
     ActiveCircuit[ActorID].Solution.UpdateLoopTime;
-    MonitorClass.SampleAllMode5(ActorID);  // sample all mode 5 monitors to get timings
+    MonitorClass[ActorID].SampleAllMode5(ActorID);  // sample all mode 5 monitors to get timings
 End;
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -109,7 +109,7 @@ Begin
  Begin
   Try
     IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage elements
-    IF Not DIFilesAreOpen then EnergyMeterClass.OpenAllDIFiles;   // Open Demand Interval Files, if desired   Creates DI_Totals
+    IF Not DIFilesAreOpen then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired   Creates DI_Totals
     Twopct := Max(NumberOfTimes div 50, 1);
     FOR N := 1 TO NumberOfTimes Do
       IF Not SolutionAbort Then With Dynavars do Begin
@@ -117,16 +117,16 @@ Begin
           DefaultHourMult := DefaultYearlyShapeObj.getmult(dblHour);
           IF PriceCurveObj <> NIL THEN PriceSignal := PriceCurveObj.GetPrice(dblHour);
           SolveSnap(ActorID);
-          MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
-          EnergyMeterClass.SampleAll(ActorID); // Make all Energy Meters take a sample
+          MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
+          EnergyMeterClass[ActorID].SampleAll(ActorID); // Make all Energy Meters take a sample
 
           EndOfTimeStepCleanup(ActorID);
           ActorPctProgress[ActorID]  :=  (N*100) div NumberofTimes;
 //          If (N mod Twopct)=0 Then ShowPctProgress((N*100) div NumberofTimes,ActorID);
       End;
   Finally
-    MonitorClass.SaveAll(ActorID);
-    EnergyMeterClass.CloseAllDIFiles;   // Save Demand interval Files    See DIFilesAreOpen Logic
+    MonitorClass[ActorID].SaveAll(ActorID);
+    EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files    See DIFilesAreOpen Logic
   End;
  End;
 End;
@@ -155,7 +155,7 @@ Begin
     Try
 
       IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters
-      IF Not DIFilesAreOpen then EnergyMeterClass.OpenAllDIFiles;   // Append Demand Interval Files, if desired
+      IF Not DIFilesAreOpen then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Append Demand Interval Files, if desired
 
       FOR N := 1 TO NumberOfTimes Do
         IF Not SolutionAbort Then With DynaVars Do Begin
@@ -163,16 +163,16 @@ Begin
             DefaultHourMult := DefaultDailyShapeObj.getmult(dblHour);
             IF PriceCurveObj<> NIL THEN PriceSignal := PriceCurveObj.GetPrice(dblHour);
             SolveSnap(ActorID);
-            MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
-            EnergyMeterClass.SampleAll(ActorID); // Make all Energy Meters take a sample
+            MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
+            EnergyMeterClass[ActorID].SampleAll(ActorID); // Make all Energy Meters take a sample
 
             EndOfTimeStepCleanup(ActorID);
 
         End;
 
     Finally
-      MonitorClass.SaveAll(ActorID);
-      EnergyMeterClass.CloseAllDIFiles;   // Save Demand interval Files
+      MonitorClass[ActorID].SaveAll(ActorID);
+      EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
     End; {Try}
    End;  {WITH}
 End;
@@ -204,7 +204,7 @@ Begin
      Try
         DynaVars.intHour := 0; DynaVars.dblHour := 0.0;
         IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage devices
-        If Not DIFilesAreOpen Then EnergyMeterClass.OpenAllDIFiles;   // Open Demand Interval Files, if desired
+        If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
 
         FOR N := 1 TO NumberOfTimes Do
         IF Not SolutionAbort Then With DynaVars Do Begin
@@ -212,15 +212,15 @@ Begin
             DefaultHourMult := DefaultDailyShapeObj.GetMult(dblHour);
             IF PriceCurveObj<> NIL THEN PriceSignal := PriceCurveObj.GetPrice(dblHour);
             SolveSnap(ActorID);
-            MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
-            EnergyMeterClass.SampleAll(ActorID); // Make all Energy Meters take a sample
+            MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
+            EnergyMeterClass[ActorID].SampleAll(ActorID); // Make all Energy Meters take a sample
 
             EndOfTimeStepCleanup(ActorID);
 
         End;
       Finally
-        MonitorClass.SaveAll(ActorID);
-        EnergyMeterClass.CloseAllDIFiles;   // Save Demand interval Files
+        MonitorClass[ActorID].SaveAll(ActorID);
+        EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
       End;
      End;  {WITH}
 End;
@@ -252,14 +252,14 @@ Begin
             DefaultHourMult := DefaultDailyShapeObj.getmult(dblHour);
             // Assume pricesignal stays constant for dutycycle calcs
             SolveSnap(ActorID);
-            MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
+            MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
             EndOfTimeStepCleanup(ActorID);
 
             ActorPctProgress[ActorID] :=  (N*100) div NumberofTimes;
 //            If (N mod Twopct)=0 Then ShowPctProgress((N*100) div NumberofTimes, ActorID);
         End;
       Finally
-        MonitorClass.SaveAll(ActorID);
+        MonitorClass[ActorID].SaveAll(ActorID);
 //        ProgressHide(ActorID);
       End;
     End;
@@ -341,13 +341,13 @@ Begin
           IterationFlag := 1;
           IntegratePCStates(ActorID);
           SolveSnap(ActorID);
-          MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
+          MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
 
           EndOfTimeStepCleanup(ActorID);
 
         End;
       Finally
-        MonitorClass.SaveAll(ActorID);
+        MonitorClass[ActorID].SaveAll(ActorID);
       End;
     End;
 End;
@@ -379,8 +379,8 @@ Begin
         If Not SolutionAbort Then  Begin
             Inc(DynaVars.intHour);
             SolveSnap(ActorID);
-            MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
-            EnergyMeterClass.SampleAll(ActorID);  // Make all meters take a sample
+            MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
+            EnergyMeterClass[ActorID].SampleAll(ActorID);  // Make all meters take a sample
             ActorPctProgress[ActorID] :=  (N*100) div NumberofTimes;
 //            Show10PctProgress(N, NumberOfTimes, ActorID);
         End
@@ -391,7 +391,7 @@ Begin
            Break;
         End;
      Finally
-        MonitorClass.SaveAll(ActorID);
+        MonitorClass[ActorID].SaveAll(ActorID);
 //        ProgressHide(ActorID);
      End;
    End;
@@ -419,7 +419,7 @@ Begin
         IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage devices
         Ndaily := Round(24.0 / IntervalHrs);
 
-        If Not DIFilesAreOpen Then EnergyMeterClass.OpenAllDIFiles;   // Open Demand Interval Files, if desired
+        If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
 
 {        ProgressCaption('Monte Carlo Mode 2, ' + IntToStr(NumberofTimes) + ' Days.', ActorID);
         ProgressCount := 0;       }
@@ -441,8 +441,8 @@ Begin
             DefaultHourMult := DefaultDailyShapeObj.GetMult(dblHour);
             SolveSnap(ActorID);
 
-            MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
-            EnergyMeterClass.SampleAll(ActorID);  // Make all meters take a sample
+            MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
+            EnergyMeterClass[ActorID].SampleAll(ActorID);  // Make all meters take a sample
 
             EndOfTimeStepCleanup(ActorID);
 
@@ -459,8 +459,8 @@ Begin
            Break;
         End;
       Finally
-        MonitorClass.SaveAll(ActorID);
-        EnergyMeterClass.CloseAllDIFiles;   // Save Demand interval Files
+        MonitorClass[ActorID].SaveAll(ActorID);
+        EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
 //        ProgressHide(ActorID);
       End;
     End;
@@ -486,7 +486,7 @@ Begin
         // EnergyMeterClass.ResetAll;
         IntervalHrs := 1.0;  // just get per unit energy and multiply result as necessary
 
-        If Not DIFilesAreOpen Then EnergyMeterClass.OpenAllDIFiles;   // Open Demand Interval Files, if desired
+        If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
 
 {        ProgressCaption( 'Monte Carlo Mode 3, ' + IntToStr(NumberofTimes) + ' Different Load Levels.', ActorID);
         ProgressCount := 0;    }
@@ -507,8 +507,8 @@ Begin
 
             SolveSnap(ActorID);
 
-            MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
-            EnergyMeterClass.SampleAll(ActorID);  // Make all meters take a sample
+            MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
+            EnergyMeterClass[ActorID].SampleAll(ActorID);  // Make all meters take a sample
 
             ActorPctProgress[ActorID] :=  (N*100) div NumberofTimes;
 //            Show10PctProgress(N, NumberOfTimes, ActorID);
@@ -521,8 +521,8 @@ Begin
            Break;
         End;
       Finally
-        MonitorClass.SaveAll(ActorID);
-        EnergyMeterClass.CloseAllDIFiles;   // Save Demand interval Files
+        MonitorClass[ActorID].SaveAll(ActorID);
+        EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
 //        ProgressHide(ActorID);
       End;
     End; {WITH}
@@ -555,7 +555,7 @@ Begin
 
       NDaily := Round(24.0 / DynaVars.h * 3600.0);
 
-      If Not DIFilesAreOpen Then EnergyMeterClass.OpenAllDIFiles;   // Open Demand Interval Files, if desired
+      If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
 
 //      ProgressCaption( 'Load-Duration Mode 1 Solution. ', ActorID);
 
@@ -583,8 +583,8 @@ Begin
 
               SolveSnap(ActorID);
 
-              MonitorClass.SampleAll(ActorID);     // Make all monitors take a sample
-              EnergyMeterClass.SampleAll(ActorID);  // Make all meters take a sample
+              MonitorClass[ActorID].SampleAll(ActorID);     // Make all monitors take a sample
+              EnergyMeterClass[ActorID].SampleAll(ActorID);  // Make all meters take a sample
 
               EndOfTimeStepCleanup(ActorID);
 
@@ -604,8 +604,8 @@ Begin
 
       End;
     Finally
-      MonitorClass.SaveAll(ActorID);
-      EnergyMeterClass.CloseAllDIFiles;   // Save Demand interval Files
+      MonitorClass[ActorID].SaveAll(ActorID);
+      EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
 //      ProgressHide(ActorID);
     End;
  End; {WITH ActiveCircuit[ActiveActor]}
@@ -638,7 +638,7 @@ Begin
     // EnergyMeterClass.ResetAll;
 
     DefaultHourMult := DefaultDailyShapeObj.GetMult(DynaVars.dblHour);
-    If Not DIFilesAreOpen Then EnergyMeterClass.OpenAllDIFiles;   // Open Demand Interval Files, if desired
+    If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
 
     // (set in Solve Method) DefaultGrowthFactor :=  IntPower(DefaultGrowthRate, (Year-1));
 
@@ -662,15 +662,15 @@ Begin
 
         SolveSnap(ActorID);
 
-        MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
-        EnergyMeterClass.SampleAll(ActorID);  // Make all meters take a sample
+        MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
+        EnergyMeterClass[ActorID].SampleAll(ActorID);  // Make all meters take a sample
 
         EndOfTimeStepCleanup(ActorID);
 
       End;
     Finally
-      MonitorClass.SaveAll(ActorID);
-      EnergyMeterClass.CloseAllDIFiles;   // Save Demand interval Files
+      MonitorClass[ActorID].SaveAll(ActorID);
+      EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
     End;
   End; {WITH ActiveCircuit[ActiveActor]}
 
@@ -731,13 +731,13 @@ Begin
           PickAFault(ActorID);  // Randomly enable one of the faults
           ActiveFaultObj.Randomize(ActorID);  // Randomize the fault resistance
           SolveDirect(ActorID);
-          MonitorClass.SampleAll(ActorID);  // Make all monitors take a sample
+          MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
 
           ActorPctProgress[ActorID] :=  (N * 100) div NumberOfTimes;
 //          Show10PctProgress(N, NumberOfTimes, ActorID);
       End;
     Finally
-      MonitorClass.SaveAll(ActorID);
+      MonitorClass[ActorID].SaveAll(ActorID);
 //      ProgressHide(ActorID);
     End;
   End;
@@ -964,8 +964,8 @@ Begin
         p := Sources.First;
         WHILE p <> NIL Do Begin
               If p.Enabled then
-              If SpectrumClass.Find(p.Spectrum) <> NIL Then Begin
-                  pSpectrum := SpectrumClass.GetActiveObj;
+              If SpectrumClass[ActorID].Find(p.Spectrum) <> NIL Then Begin
+                  pSpectrum := SpectrumClass[ActorID].GetActiveObj;
                   f := GetSourceFrequency(p);
                   For j := 1 to pSpectrum.NumHarm Do Begin
                      AddFrequency(FreqList, NumFreq, MaxFreq, pSpectrum.HarmArray^[j] * f);
@@ -977,23 +977,23 @@ Begin
 
     {Mark Spectra being used}
         {Check loads and generators - these are assumed to be at fundamental frequency}
-    SpectrumInUse := AllocMem(SizeOf(SpectruminUse^[1])*SpectrumClass.ElementCount);  //Allocate and zero
+    SpectrumInUse := AllocMem(SizeOf(SpectruminUse^[1])*SpectrumClass[ActorID].ElementCount);  //Allocate and zero
     WITH ActiveCircuit[ActorID] Do Begin
         p := PCelements.First;
         WHILE p <> NIL Do Begin
               If p.enabled Then
-              If SpectrumClass.Find(p.Spectrum) <> NIL Then Begin
-                  SpectrumInUse^[SpectrumClass.Active] := 1;
+              If SpectrumClass[ActorID].Find(p.Spectrum) <> NIL Then Begin
+                  SpectrumInUse^[SpectrumClass[ActorID].Active] := 1;
               End;
               p := PCelements.Next;
         End;
     End; {With}
 
     {Add marked Spectra to list}
-    For i := 1 to SpectrumClass.ElementCount Do Begin
+    For i := 1 to SpectrumClass[ActorID].ElementCount Do Begin
         If SpectrumInUse^[i]=1 Then Begin
-            SpectrumClass.Active := i;
-            pSpectrum := SpectrumClass.GetActiveObj;
+            SpectrumClass[ActorID].Active := i;
+            pSpectrum := SpectrumClass[ActorID].GetActiveObj;
             For j := 1 to pSpectrum.NumHarm Do Begin
                 AddFrequency(FreqList, NumFreq, MaxFreq, pSpectrum.HarmArray^[j]*ActiveCircuit[ActorID].Fundamental);
             End;
@@ -1029,7 +1029,7 @@ Begin
            IF Not RetrieveSavedVoltages THEN Exit;  {Get Saved fundamental frequency solution}
        End;
 
-       MonitorClass.SampleAll(ActorID);   // Store the fundamental frequency in the monitors
+       MonitorClass[ActorID].SampleAll(ActorID);   // Store the fundamental frequency in the monitors
 
        { Get the list of Harmonic Frequencies to solve at}
        IF DoAllHarmonics THEN CollectAllFrequencies(FrequencyList, NFreq, ActorID)   // Allocates FrequencyList
@@ -1047,7 +1047,7 @@ Begin
                ShowPctProgress ( Round((100.0*i)/Nfreq), ActorID);}
               ActorPctProgress[ActorID] :=  Round((100.0*i)/Nfreq);
                SolveDirect(ActorID);
-               MonitorClass.SampleAll(ActorID);
+               MonitorClass[ActorID].SampleAll(ActorID);
                // Storage devices are assumed to stay the same since there is no time variation in this mode
            End;
 
@@ -1057,7 +1057,7 @@ Begin
        ProgressCaption ( 'Done.',ActorID);    }
      Finally
 //       ProgressHide(ActorID);
-       MonitorClass.SaveAll(ActorID);
+       MonitorClass[ActorID].SaveAll(ActorID);
        ReallocMem(FrequencyList, 0);
      End;
      // Now should have all we need to make a short circuit report
@@ -1109,7 +1109,7 @@ Begin
 //            Load_Changed:=FALSE;     // Added 05 dec 2013 - D. Montenegro
 //     End;
        SolveSnap(ActorID);
-       MonitorClass.SampleAll(ActorID);   // Store the fundamental frequency in the monitors
+       MonitorClass[ActorID].SampleAll(ActorID);   // Store the fundamental frequency in the monitors
        { Get the list of Harmonic Frequencies to solve at}
        IF DoAllHarmonics THEN CollectAllFrequencies(FrequencyList, NFreq, ActorID)   // Allocates FrequencyList
        ELSE Begin
@@ -1124,14 +1124,14 @@ Begin
            If Abs(Harmonic - 1.0) > EPSILON THEN Begin    // Skip fundamental
 //               DefaultHourMult := DefaultDailyShapeObj.getmult(DynaVars.dblHour);
                SolveHarmTime(ActorID);
-               MonitorClass.SampleAll(ActorID);
+               MonitorClass[ActorID].SampleAll(ActorID);
                EndOfTimeStepCleanup(ActorID);
               // Storage devices are assumed to stay the same since there is no time variation in this mode  (Not necessarelly now)
            End;
        End; {FOR}
      Increment_time;
      Finally
-       MonitorClass.SaveAll(ActorID);
+       MonitorClass[ActorID].SaveAll(ActorID);
        ReallocMem(FrequencyList, 0);
      End;
   End;

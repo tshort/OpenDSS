@@ -229,8 +229,8 @@ Begin
    // create a new object of this class and add to list
    With ActiveCircuit[ActiveActor] Do
    Begin
-        ActiveDSSObject := TXYcurveObj.Create(Self, ObjName);
-        Result          := AddObjectToList(ActiveDSSObject);
+        ActiveDSSObject[ActiveActor] := TXYcurveObj.Create(Self, ObjName);
+        Result          := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
 End;
 
@@ -248,7 +248,7 @@ Begin
   Result := 0;
   // continue parsing with contents of Parser
   ActiveXYcurveObj := ElementList.Active;
-  ActiveDSSObject := ActiveXYcurveObj;
+  ActiveDSSObject[ActorID] := ActiveXYcurveObj;
 
   WITH ActiveXYcurveObj DO Begin
 

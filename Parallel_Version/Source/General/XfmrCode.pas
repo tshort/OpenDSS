@@ -227,8 +227,8 @@ BEGIN
    // create a new object of this class and add to list
    With ActiveCircuit[ActiveActor] Do
    Begin
-    ActiveDSSObject := TXfmrCodeObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    ActiveDSSObject[ActiveActor] := TXfmrCodeObj.Create(Self, ObjName);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
 END;
 
@@ -297,7 +297,7 @@ VAR
 
 Begin
   ActiveXfmrCodeObj := ElementList.Active;
-  ActiveDSSObject := ActiveXfmrCodeObj;
+  ActiveDSSObject[ActorID] := ActiveXfmrCodeObj;
   UpdateXsc := False;
 
   WITH ActiveXfmrCodeObj Do

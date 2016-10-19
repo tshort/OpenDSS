@@ -1481,8 +1481,8 @@ begin
    {Moved here 9-8-2007 so that mode is changed before reseting monitors, etc.}
    
    // Reset Meters and Monitors
-   MonitorClass.ResetAll(ActiveActor);
-   EnergyMeterClass.ResetAll(ActiveActor);
+   MonitorClass[ActiveActor].ResetAll(ActiveActor);
+   EnergyMeterClass[ActiveActor].ResetAll(ActiveActor);
    DoResetFaults;
    DoResetControls;
 
@@ -1657,12 +1657,12 @@ end;
 
 procedure TSolutionObj.Set_Year(const Value: Integer);
 begin
-      If DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
+      If DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles;
       FYear := Value;
       DynaVars.intHour := 0;  {Change year, start over}
       Dynavars.t := 0.0;
       Update_dblHour;
-      EnergyMeterClass.ResetAll(ActiveActor);  // force any previous year data to complete
+      EnergyMeterClass[ActiveActor].ResetAll(ActiveActor);  // force any previous year data to complete
 end;
 
 procedure TSolutionObj.Set_Total_Time(const Value: Double);

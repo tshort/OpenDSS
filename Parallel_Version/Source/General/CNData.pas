@@ -97,8 +97,8 @@ End;
 Function TCNData.NewObject(const ObjName:String):Integer;
 BEGIN
   With ActiveCircuit[ActiveActor] Do Begin
-    ActiveDSSObject := TCNDataObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    ActiveDSSObject[ActiveActor] := TCNDataObj.Create(Self, ObjName);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
   End;
 END;
 
@@ -111,7 +111,7 @@ BEGIN
   Result := 0;
   // continue parsing with contents of Parser
   ActiveConductorDataObj := ElementList.Active;
-  ActiveDSSObject := ActiveConductorDataObj;
+  ActiveDSSObject[ActiveActor] := ActiveConductorDataObj;
   WITH TCNDataObj(ActiveConductorDataObj) DO BEGIN
     ParamPointer := 0;
     ParamName := Parser.NextParam;

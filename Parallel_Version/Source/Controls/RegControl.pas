@@ -324,7 +324,7 @@ Begin
     WITH ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TRegControlObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 

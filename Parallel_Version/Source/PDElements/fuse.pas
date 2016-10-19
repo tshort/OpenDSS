@@ -201,7 +201,7 @@ Begin
     WITH ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TFuseObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 {--------------------------------------------------------------------------}

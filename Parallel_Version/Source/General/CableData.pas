@@ -115,7 +115,7 @@ VAR
   OtherCableData:TCableDataObj;
 BEGIN
   OtherCableData := TCableDataObj(OtherObj);
-  WITH TCableDataObj(ActiveDSSObject) DO BEGIN
+  WITH TCableDataObj(ActiveDSSObject[ActiveActor]) DO BEGIN
     FEpsR:= OtherCableData.FEpsR;
     FInsLayer:= OtherCableData.FInsLayer;
     FDiaIns:= OtherCableData.FDiaIns;

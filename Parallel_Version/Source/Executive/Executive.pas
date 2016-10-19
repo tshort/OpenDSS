@@ -249,6 +249,7 @@ begin
        End;
        DisposeDSSClasses;
          {Now, Start over}
+       ActiveActor  :=  1;
        CreateDSSClasses;
        CreateDefaultDSSItems;
        RebuildHelpForm := True; // because class strings have changed

@@ -99,7 +99,7 @@ Begin
 
      OtherPCObj := TPCElement(OtherObj);
 
-     With TPCElement(ActiveDSSObject) Do
+     With TPCElement(ActiveDSSObject[ActiveActor]) Do
      Begin
        Spectrum     := OtherPCObj.Spectrum;
        SpectrumObj  := OtherPCObj.SpectrumObj;

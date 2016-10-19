@@ -152,7 +152,7 @@ TYPE
 
        Procedure DoFlickerCalculations(ActorID : Integer);  // call from CloseMonitorStream
 
-       function  Get_FileName: String;
+       function  Get_FileName(ActorID : Integer): String;
 
      public
        Mode          :Integer;
@@ -182,7 +182,7 @@ TYPE
        Procedure DumpProperties(Var F:TextFile; Complete:Boolean);Override;
        //Property  MonitorFileName:String read BufferFile;
 
-       Property CSVFileName:String Read Get_FileName;
+//       Property CSVFileName:String Read Get_FileName;
    end;
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -295,7 +295,7 @@ Begin
     With ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TMonitorObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -1343,9 +1343,9 @@ VAR
 Begin
 
      Save;  // Save present buffer
-     CloseMonitorStream(ActiveActor);   // Position at beginning
+     CloseMonitorStream(ActorID);   // Position at beginning
 
-     CSVName := CSVFileName;
+     CSVName := Get_FileName(ActorID);
 
      TRY
       AssignFile(F, CSVName);    // Make CSV file
@@ -1668,9 +1668,9 @@ begin
 
 end;
 
-function TMonitorObj.Get_FileName: String;
+function TMonitorObj.Get_FileName(ActorID : Integer): String;
 begin
-  Result := GetOutputDirectory +  CircuitName_[ActiveActor] + 'Mon_' + Name + '.csv'
+  Result := GetOutputDirectory +  CircuitName_[ActorID] + 'Mon_' + Name + '_' +inttostr(ActorID) + '.csv'
 end;
 
 initialization

@@ -240,7 +240,7 @@ Begin
              Param := Parser.StrValue;
              IF Length(Param)>0 THEN
              Begin
-               pMon:=MonitorClass.Find(Param);
+               pMon:=MonitorClass[ActiveActor].Find(Param);
                IF pMon<>Nil THEN
                  pMon.TranslateToCSV(TRUE, ActiveActor)
                ELSE DoSimpleMsg('Monitor "'+param+'" not found.'+ CRLF + parser.CmdString, 248);

@@ -129,9 +129,9 @@ End;
 PROCEDURE TDSSClasses.Set_New(Value:Pointer);
 
 Begin
-    DSSClassList.New := Value; // Add to pointer list
+    DSSClassList[ActiveActor].New := Value; // Add to pointer list
     ActiveDSSClass[ActiveActor] := Value;   // Declare to be active
-    ClassNames.Add(ActiveDSSClass[ActiveActor].Name); // Add to classname list
+    ClassNames[ActiveActor].Add(ActiveDSSClass[ActiveActor].Name); // Add to classname list
 End;
 
 {--------------------------------------------------------------}
@@ -192,11 +192,11 @@ BEGIN
      THEN
        Begin
          ActiveElement := Value;
-         ActiveDSSObject := ElementList.Get(ActiveElement);
+         ActiveDSSObject[ActiveActor] := ElementList.Get(ActiveElement);
          // Make sure Active Ckt Element agrees if is a ckt element
          // So COM interface will work
-         if ActiveDSSObject is TDSSCktElement then
-         ActiveCircuit[ActiveActor].ActiveCktElement := TDSSCktElement(ActiveDSSObject);
+         if ActiveDSSObject[ActiveActor] is TDSSCktElement then
+         ActiveCircuit[ActiveActor].ActiveCktElement := TDSSCktElement(ActiveDSSObject[ActiveActor]);
        End;
 END;
 
@@ -236,7 +236,7 @@ BEGIN
     If idx>0 Then
     Begin
        ActiveElement := idx;
-       ActiveDSSObject := ElementList.get(idx);
+       ActiveDSSObject[ActiveActor] := ElementList.get(idx);
        Result := TRUE;
     End;
 
@@ -344,11 +344,11 @@ begin
 
     ELSE Begin
       ActiveElement := 1;
-      ActiveDSSObject := ElementList.First;
+      ActiveDSSObject[ActiveActor] := ElementList.First;
       // Make sure Active Ckt Element agrees if is a ckt element
       // So COM interface will work
-      if ActiveDSSObject is TDSSCktElement then
-         ActiveCircuit[ActiveActor].ActiveCktElement := TDSSCktElement(ActiveDSSObject);
+      if ActiveDSSObject[ActiveActor] is TDSSCktElement then
+         ActiveCircuit[ActiveActor].ActiveCktElement := TDSSCktElement(ActiveDSSObject[ActiveActor]);
       Result := ActiveElement;
     End;
 end;
@@ -359,11 +359,11 @@ begin
     IF ActiveElement > ElementList.ListSize
     THEN Result := 0
     ELSE Begin
-      ActiveDSSObject := ElementList.Next;
+      ActiveDSSObject[ActiveActor] := ElementList.Next;
       // Make sure Active Ckt Element agrees if is a ckt element
       // So COM interface will work
-      if ActiveDSSObject is TDSSCktElement then
-         ActiveCircuit[ActiveActor].ActiveCktElement := TDSSCktElement(ActiveDSSObject);
+      if ActiveDSSObject[ActiveActor] is TDSSCktElement then
+         ActiveCircuit[ActiveActor].ActiveCktElement := TDSSCktElement(ActiveDSSObject[ActiveActor]);
       Result := ActiveElement;
     End;
 

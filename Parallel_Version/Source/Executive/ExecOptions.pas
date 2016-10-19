@@ -516,7 +516,7 @@ Begin
            26: ActiveCircuit[ActiveActor].DefaultDailyShapeObj.StdDev  := Parser.DblValue / 100.0;
            27: WITH ActiveCircuit[ActiveActor] DO Begin
                   LoadDurCurve    := Param;
-                  LoadDurCurveObj := LoadShapeClass.Find(Param);
+                  LoadDurCurveObj := LoadShapeClass[ActiveActor].Find(Param);
                   IF LoadDurCurveObj=nil THEN
                    DoSimpleMsg('Load-Duration Curve not found.', 131);
                End;
@@ -545,11 +545,11 @@ Begin
            44: ActiveCircuit[ActiveActor].ControlQueue.TraceLog := InterpretYesNo(Param);
            45: ActiveCircuit[ActiveActor].GenMultiplier := Parser.DblValue ;
            46: Begin
-                 TestLoadShapeObj := LoadShapeClass.Find(Param);
+                 TestLoadShapeObj := LoadShapeClass[ActiveActor].Find(Param);
                  IF TestLoadShapeObj <> NIL THEN ActiveCircuit[ActiveActor].DefaultDailyShapeObj  := TestLoadShapeObj;
                END;
            47: Begin
-                 TestLoadShapeObj := LoadShapeClass.Find(Param);
+                 TestLoadShapeObj := LoadShapeClass[ActiveActor].Find(Param);
                  IF TestLoadShapeObj <> NIL THEN ActiveCircuit[ActiveActor].DefaultYearlyShapeObj  := TestLoadShapeObj;
                END;
            48: DoSetAllocationFactors(Parser.DblValue);
@@ -557,7 +557,7 @@ Begin
            50: ActiveCircuit[ActiveActor].PriceSignal := Parser.DblValue ;
            51: WITH ActiveCircuit[ActiveActor] DO  Begin
                   PriceCurve    := Param;
-                  PriceCurveObj := PriceShapeClass.Find(Param);
+                  PriceCurveObj := PriceShapeClass[ActiveActor].Find(Param);
                   IF PriceCurveObj=nil THEN
                    DoSimpleMsg('Priceshape.' +param+ ' not found.', 132);
                End;
@@ -576,19 +576,19 @@ Begin
            57: SetDataPath(Param);  // Set a legal data path
            58: DoKeeperBusList(Param);
            59: DoSetReduceStrategy(param);
-           60: EnergyMeterClass.SaveDemandInterval := InterpretYesNo(Param);
+           60: EnergyMeterClass[ActiveActor].SaveDemandInterval := InterpretYesNo(Param);
            61: Begin
                  ActiveCircuit[ActiveActor].PctNormalFactor := Parser.DblValue;
                  DoSetNormal(ActiveCircuit[ActiveActor].PctNormalFactor);
                End;
-           62: EnergyMeterClass.DI_Verbose   := InterpretYesNo(Param);
+           62: EnergyMeterClass[ActiveActor].DI_Verbose   := InterpretYesNo(Param);
            63: ActiveCircuit[ActiveActor].CaseName        := Parser.StrValue;
            64: ActiveCircuit[ActiveActor].NodeMarkerCode  := Parser.IntValue;
            65: ActiveCircuit[ActiveActor].NodeMarkerWidth := Parser.IntValue;
            66: ActiveCircuit[ActiveActor].LogEvents       := InterpretYesNo(Param);
            67: DSSExecutive.RecorderOn       := InterpretYesNo(Param);
-           68: EnergyMeterClass.Do_OverloadReport := InterpretYesNo(Param);
-           69: EnergyMeterClass.Do_VoltageExceptionReport := InterpretYesNo(Param);
+           68: EnergyMeterClass[ActiveActor].Do_OverloadReport := InterpretYesNo(Param);
+           69: EnergyMeterClass[ActiveActor].Do_VoltageExceptionReport := InterpretYesNo(Param);
            70: DoSetCFactors(Parser.DblValue);
            71: AutoShowExport := InterpretYesNo(Param);
            72: MaxAllocationIterations := Parser.IntValue;
@@ -770,16 +770,16 @@ Begin
            57: AppendGlobalResult(DataDirectory[ActiveActor]); // NOTE - not necessarily output directory
            58: With ActiveCircuit[ActiveActor] Do For i := 1 to NumBuses Do If Buses^[i].Keep Then AppendGlobalResult(BusList.Get(i));
            59: AppendGlobalResult(ActiveCircuit[ActiveActor].ReductionStrategyString );
-           60: If EnergyMeterClass.SaveDemandInterval Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           60: If EnergyMeterClass[ActiveActor].SaveDemandInterval Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
            61: AppendGlobalResult(Format('%-.g', [ActiveCircuit[ActiveActor].PctNormalFactor]));
-           62: If EnergyMeterClass.DI_Verbose Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           62: If EnergyMeterClass[ActiveActor].DI_Verbose Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
            63: AppendGlobalResult(ActiveCircuit[ActiveActor].CaseName);
            64: AppendGlobalResult(Format('%d' ,[ActiveCircuit[ActiveActor].NodeMarkerCode]));
            65: AppendGlobalResult(Format('%d' ,[ActiveCircuit[ActiveActor].NodeMarkerWidth]));
            66: If ActiveCircuit[ActiveActor].LogEvents Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
            67: If DSSExecutive.RecorderON Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
-           68: If EnergyMeterClass.Do_OverloadReport Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
-           69: If EnergyMeterClass.Do_VoltageExceptionReport Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           68: If EnergyMeterClass[ActiveActor].Do_OverloadReport Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           69: If EnergyMeterClass[ActiveActor].Do_VoltageExceptionReport Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
            70: AppendGlobalResult('Get function not applicable.');
            71: If AutoShowExport Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
            72: AppendGlobalResult(Format('%d' ,[MaxAllocationIterations])) ;

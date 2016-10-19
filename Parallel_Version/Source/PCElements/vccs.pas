@@ -172,7 +172,7 @@ Function TVCCS.NewObject(const ObjName:String):Integer;
 Begin
     With ActiveCircuit[ActiveActor] Do Begin
       ActiveCktElement := TVCCSObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -323,7 +323,7 @@ End;
 
 Procedure TVCCSObj.RecalcElementData(ActorID : Integer);
 Begin
-  SpectrumObj := SpectrumClass.Find(Spectrum);
+  SpectrumObj := SpectrumClass[ActorID].Find(Spectrum);
   if SpectrumObj=NIL Then Begin
     DoSimpleMsg('Spectrum Object "' + Spectrum + '" for Device VCCS.'+Name+' Not Found.', 333);
   end;

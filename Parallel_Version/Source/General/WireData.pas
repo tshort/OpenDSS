@@ -82,8 +82,8 @@ Function TWireData.NewObject(const ObjName:String):Integer;
 BEGIN
   // create a new object of this class and add to list
   With ActiveCircuit[ActiveActor] Do Begin
-    ActiveDSSObject := TWireDataObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    ActiveDSSObject[ActiveActor] := TWireDataObj.Create(Self, ObjName);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
   End;
 END;
 
@@ -96,7 +96,7 @@ BEGIN
   Result := 0;
   // continue parsing with contents of Parser
   ActiveConductorDataObj := ElementList.Active;
-  ActiveDSSObject := ActiveConductorDataObj;
+  ActiveDSSObject[ActorID] := ActiveConductorDataObj;
   WITH ActiveConductorDataObj DO BEGIN
     ParamPointer := 0;
     ParamName := Parser.NextParam;

@@ -306,7 +306,7 @@ Begin
     WITH ActiveCircuit[ActiveActor] Do
       Begin
         ActiveCktElement := TLineObj.Create(Self, ObjName);
-        Result := AddObjectToList(ActiveDSSObject);
+        Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
       End;
 End;
 
@@ -326,7 +326,7 @@ VAR
   LineCodeObj     :TLineCodeObj;
 
 Begin
-   IF LineCodeClass=Nil THEN LineCodeClass := DSSClassList.Get(ClassNames.Find('linecode'));
+   IF LineCodeClass=Nil THEN LineCodeClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('linecode'));
 
    IF LineCodeClass.SetActive(Code) THEN
    Begin
@@ -1566,10 +1566,10 @@ end;
 
 procedure TLineObj.FetchLineSpacing(const Code: string);
 begin
-  if LineSpacingClass.SetActive(Code) then
+  if LineSpacingClass[ActiveActor].SetActive(Code) then
     begin
 
-      FLineSpacingObj    := LineSpacingClass.GetActiveObj;
+      FLineSpacingObj    := LineSpacingClass[ActiveActor].GetActiveObj;
       FLineCodeSpecified := False;
       KillGeometrySpecified;
       SpacingCode        := LowerCase(Code);
@@ -1609,7 +1609,7 @@ begin
   for i := istart to FLineSpacingObj.NWires do
     begin
       AuxParser.NextParam; // ignore any parameter name  not expecting any
-      WireDataClass.code := AuxParser.StrValue;
+      WireDataClass[ActiveActor].code := AuxParser.StrValue;
       if Assigned(ActiveConductorDataObj) then
         FLineWireData^[i] := ActiveConductorDataObj
       else
@@ -1633,7 +1633,7 @@ begin
   for i := 1 to FLineSpacingObj.NPhases do
     begin // fill extra neutrals later
       AuxParser.NextParam; // ignore any parameter name  not expecting any
-      CNDataClass.code := AuxParser.StrValue;
+      CNDataClass[ActiveActor].code := AuxParser.StrValue;
       if Assigned(ActiveConductorDataObj) then
         FLineWireData^[i] := ActiveConductorDataObj
       else
@@ -1656,7 +1656,7 @@ begin
   for i := 1 to FLineSpacingObj.NPhases do
     begin // fill extra neutrals later
       AuxParser.NextParam; // ignore any parameter name  not expecting any
-      TSDataClass.code := AuxParser.StrValue;
+      TSDataClass[ActiveActor].code := AuxParser.StrValue;
       if Assigned(ActiveConductorDataObj) then
         FLineWireData^[i] := ActiveConductorDataObj
       else
@@ -1667,7 +1667,7 @@ end;
 procedure TLineObj.FetchGeometryCode(const Code: String);
 
 Begin
-   IF LineGeometryClass=Nil THEN LineGeometryClass := DSSClassList.Get(ClassNames.Find('LineGeometry'));
+   IF LineGeometryClass=Nil THEN LineGeometryClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('LineGeometry'));
 
    IF LineGeometryClass.SetActive(Code) THEN
      Begin
@@ -1708,7 +1708,7 @@ Begin
           IF assigned(Zinv) THEN Begin Zinv.Free; Zinv := nil; End;
           IF assigned(Yc)   THEN Begin Yc.Free;   Yc   := nil; End;
 
-          ActiveEarthModel := FEarthModel;
+          ActiveEarthModel[ActiveActor] := FEarthModel;
 
           Z    := FLineGeometryObj.Zmatrix[ f, len, LengthUnits];
           Yc   := FLineGeometryObj.YCmatrix[f, len, LengthUnits];
@@ -1736,7 +1736,7 @@ Begin
   IF assigned(Yc)   THEN Begin Yc.Free;   Yc   := nil; End;
 
   // make a temporary LineGeometry to calculate line constants
-  IF LineGeometryClass=Nil THEN LineGeometryClass := DSSClassList.Get(ClassNames.Find('LineGeometry'));
+  IF LineGeometryClass=Nil THEN LineGeometryClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('LineGeometry'));
   pGeo := TLineGeometryObj.Create(LineGeometryClass, Name);
   pGeo.LoadSpacingAndWires (FLineSpacingObj, FLineWireData); // this sets OH, CN, or TS
 
@@ -1745,7 +1745,7 @@ Begin
   EmergAmps     := pGeo.EmergAmps;
   UpdatePDProperties;
 
-  ActiveEarthModel := FEarthModel;
+  ActiveEarthModel[ActiveActor] := FEarthModel;
 
   Z    := pGeo.Zmatrix[ f, len, LengthUnits];
   Yc   := pGeo.YCmatrix[f, len, LengthUnits];

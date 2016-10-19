@@ -192,7 +192,7 @@ Begin
     With ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TIsourceObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -262,13 +262,13 @@ Begin
          CASE ParamPointer OF
             {Set shape objects;  returns nil if not valid}
             {Sets the kW and kvar properties to match the peak kW demand from the Loadshape}
-             8: YearlyShapeObj := LoadShapeClass.Find(YearlyShape);
+             8: YearlyShapeObj := LoadShapeClass[ActorID].Find(YearlyShape);
              9: Begin
-                    DailyShapeObj := LoadShapeClass.Find(DailyShape);
+                    DailyShapeObj := LoadShapeClass[ActorID].Find(DailyShape);
                   {If Yearly load shape is not yet defined, make it the same as Daily}
                     IF YearlyShapeObj=Nil THEN YearlyShapeObj := DailyShapeObj;
                  End;
-             10: DutyShapeObj := LoadShapeClass.Find(DutyShape);
+             10: DutyShapeObj := LoadShapeClass[ActorID].Find(DutyShape);
          END;
          ParamName := Parser.NextParam;
          Param     := Parser.StrValue;
@@ -377,7 +377,7 @@ Procedure TIsourceObj.RecalcElementData(ActorID : Integer);
 
 Begin
 
-      SpectrumObj := SpectrumClass.Find(Spectrum);
+      SpectrumObj := SpectrumClass[ActorID].Find(Spectrum);
 
       IF SpectrumObj=NIL Then Begin
           DoSimpleMsg('Spectrum Object "' + Spectrum + '" for Device Isource.'+Name+' Not Found.', 333);

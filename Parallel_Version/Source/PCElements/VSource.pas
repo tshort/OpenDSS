@@ -284,7 +284,7 @@ Begin
     With ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TVsourceObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -432,13 +432,13 @@ Begin
              25:puZ2Specified := TRUE;
     {Set shape objects;  returns nil if not valid}
     {Sets the kW and kvar properties to match the peak kW demand from the Loadshape}
-             27: YearlyShapeObj := LoadShapeClass.Find(YearlyShape);
+             27: YearlyShapeObj := LoadShapeClass[ActorID].Find(YearlyShape);
              28: Begin
-                    DailyShapeObj := LoadShapeClass.Find(DailyShape);
+                    DailyShapeObj := LoadShapeClass[ActorID].Find(DailyShape);
                   {If Yearly load shape is not yet defined, make it the same as Daily}
                     IF YearlyShapeObj=Nil THEN YearlyShapeObj := DailyShapeObj;
                  End;
-             29: DutyShapeObj := LoadShapeClass.Find(DutyShape);
+             29: DutyShapeObj := LoadShapeClass[ActorID].Find(DutyShape);
          END;
 
          case ParamPointer of
@@ -818,7 +818,7 @@ Begin
         Vmag := kVBase * PerUnit * 1000.0 / 2.0 / Sin((180.0/Fnphases)* PI/180.0);
    End;
 
-   SpectrumObj := SpectrumClass.Find(Spectrum);
+   SpectrumObj := SpectrumClass[ActorID].Find(Spectrum);
    IF SpectrumObj=NIL Then Begin
           DoSimpleMsg('Spectrum Object "' + Spectrum + '" for Device Vsource.'+Name+' Not Found.', 324);
    End;

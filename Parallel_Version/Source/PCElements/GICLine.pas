@@ -211,7 +211,7 @@ Begin
     With ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TGICLineObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -476,7 +476,7 @@ Begin
 
    Vmag := Volts;
 
-   SpectrumObj := SpectrumClass.Find(Spectrum);
+   SpectrumObj := SpectrumClass[ActorID].Find(Spectrum);
    IF (SpectrumObj=NIL) and (Length(Spectrum)>0) Then
      Begin
           DoSimpleMsg('Spectrum Object "' + Spectrum + '" for Device GICLine.'+Name+' Not Found.', 324);

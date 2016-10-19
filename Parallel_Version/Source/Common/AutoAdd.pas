@@ -106,8 +106,8 @@ constructor TAutoAdd.Create;
 Begin
 
     BusIdxListCreated := False;
-    GeneratorClass   := DSSClassList.Get(ClassNames.Find('generator'));
-    CapacitorClass   := DSSClassList.Get(ClassNames.Find('capacitor'));
+    GeneratorClass   := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('generator'));
+    CapacitorClass   := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('capacitor'));
 
          // AutoAdd defaults
     GenkW   := 1000.0;
@@ -373,13 +373,13 @@ Begin
 
     {Do a preliminary snapshot solution to Force definition of meter zones
      And set bus lists}
-    EnergyMeterClass.ResetAll(ActorID);
+    EnergyMeterClass[ActorID].ResetAll(ActorID);
     If SystemYChanged or ActiveCircuit[ActorID].BusNameRedefined THEN Begin
        SolveSnap(ActorID);
        ModeChanged := TRUE;
     End;
 
-    EnergyMeterClass.SampleAll(ActorID);
+    EnergyMeterClass[ActorID].SampleAll(ActorID);
 
     { Check to see if bus base voltages have been defined }
     If Buses^[NumBuses].kVBase = 0.0 THEN SetVoltageBases(ActorID) ;
@@ -454,7 +454,7 @@ Begin
                             ShowPctProgress (Round((100 * ProgressCount)/ProgressMax), ActorID);
                          End;
 
-                         EnergyMeterClass.ResetAll(ActorID);
+                         EnergyMeterClass[ActorID].ResetAll(ActorID);
 
                          {Get the Number of Phases at this bus and the Node Ref and add into the Aux Current Array}
 
@@ -475,7 +475,7 @@ Begin
                               {Only do this if solution converged ELSE something might break
                                in meter sampling}
 
-                             EnergyMeterClass.SampleAll(ActorID);
+                             EnergyMeterClass[ActorID].SampleAll(ActorID);
 
                              LossImproveFactor := WeightedLosses;
 
@@ -565,7 +565,7 @@ Begin
                          ProgressFormCaption('Testing bus ' + TestBus, ActorID);
                          ShowPctProgress ( Round((100 * ProgressCount)/ProgressMax), ActorID);
 
-                         EnergyMeterClass.ResetAll(ActorID);
+                         EnergyMeterClass[ActorID].ResetAll(ActorID);
 
                        {Get the Number of Phases at this bus and the Node Ref and add into the Aux Current Array}
 
@@ -590,7 +590,7 @@ Begin
                               {Only do this if solution converged ELSE something might break
                                in meter sampling}
 
-                             EnergyMeterClass.SampleAll(ActorID);
+                             EnergyMeterClass[ActorID].SampleAll(ActorID);
 
                              LossImproveFactor := WeightedLosses;
 

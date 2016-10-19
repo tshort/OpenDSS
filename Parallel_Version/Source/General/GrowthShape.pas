@@ -178,8 +178,8 @@ BEGIN
    // create a new object of this class and add to list
    With ActiveCircuit[ActiveActor] Do
    Begin
-    ActiveDSSObject := TGrowthShapeObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    ActiveDSSObject[ActiveActor] := TGrowthShapeObj.Create(Self, ObjName);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
    end;
 END;
 
@@ -197,7 +197,7 @@ BEGIN
   Result := 0;
   // continue parsing with contents of Parser
   ActiveGrowthShapeObj := ElementList.Active;
-  ActiveDSSObject := ActiveGrowthShapeObj;
+  ActiveDSSObject[ActorID] := ActiveGrowthShapeObj;
 
   WITH ActiveGrowthShapeObj DO BEGIN
 

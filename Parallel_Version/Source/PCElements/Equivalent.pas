@@ -167,7 +167,7 @@ Begin
     With ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TEquivalentObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -396,7 +396,7 @@ Begin
      Vmag := kVBase * PerUnit * 1000.0 / 2.0 / Sin((180.0/Fnphases)* PI/180.0);
    End;
 
-   SpectrumObj := SpectrumClass.Find(Spectrum);
+   SpectrumObj := SpectrumClass[ActorID].Find(Spectrum);
    IF SpectrumObj=NIL Then Begin
           DoSimpleMsg('Spectrum Object "' + Spectrum + '" for Device Equivalent.'+Name+' Not Found.', 802);
    End;

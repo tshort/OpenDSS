@@ -78,4 +78,8 @@ FUNCTION GetMatrixElement(id:NativeUInt; i,j:LongWord; Value:pComplex):LongWord;
 
 implementation
 
+initialization
+
+  IsMultiThread :=  True;
+
 end.

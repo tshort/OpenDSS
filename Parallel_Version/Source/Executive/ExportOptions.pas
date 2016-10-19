@@ -228,7 +228,7 @@ Begin
              Parm2 := Parser.StrValue;
 
              If CompareTextShortest(ParamName, 'meter')=0 Then
-                pMeter := EnergyMeterClass.Find(Parm2);
+                pMeter := EnergyMeterClass[ActiveActor].Find(Parm2);
           End;
 
    End;
@@ -316,7 +316,7 @@ Begin
      13: ExportLoads(FileName);
      14: ExportMeters(FileName);
      15: IF   Length(Parm2) > 0 THEN Begin
-           pMon:=MonitorClass.Find(Parm2);
+           pMon:=MonitorClass[ActiveActor].Find(Parm2);
            IF   pMon <> NIL  THEN Begin pMon.TranslateToCSV(FALSE, ActiveActor); FileName := GlobalResult; End
                              ELSE DoSimpleMsg('Monitor "'+Parm2+'" not found.'+ CRLF + parser.CmdString, 250);
          End

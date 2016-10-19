@@ -200,7 +200,7 @@ Begin
     WITH ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TExpControlObj.Create(Self, ObjName);
-      Result := AddobjectToList(ActiveDSSObject);
+      Result := AddobjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 

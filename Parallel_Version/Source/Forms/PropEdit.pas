@@ -79,7 +79,7 @@ Var
 begin
 
    TRY
-     ObjectBeingEdited  := ActiveDSSObject;
+     ObjectBeingEdited  := ActiveDSSObject[ActiveActor];
      Caption := Uppercase(ObjectBeingEdited.ParentClass.name + '.' + ObjectBeingEdited.Name);
      Edit1.Text := Caption;
      StringGrid1.rowcount := ObjectBeingEdited.ParentClass.NumProperties + 1;

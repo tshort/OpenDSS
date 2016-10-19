@@ -473,7 +473,7 @@ Begin
     // Make a new load object and add it to Load class list
     WITH ActiveCircuit[ActiveActor] Do Begin
       ActiveCktElement := TLoadObj.Create(Self, ObjName);
-      Result           := AddObjectToList(ActiveDSSObject);
+      Result           := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -629,29 +629,29 @@ Begin
     {Set shape objects;  returns nil if not valid}
     {Sets the kW and kvar properties to match the peak kW demand from the Loadshape}
             7: Begin
-                    YearlyShapeObj := LoadShapeClass.Find(YearlyShape);
+                    YearlyShapeObj := LoadShapeClass[ActorID].Find(YearlyShape);
                     If Assigned(YearlyShapeObj) then With YearlyShapeObj Do
                         If UseActual then SetkWkvar(MaxP, MaxQ);
                End;
             8: Begin
-                    DailyShapeObj := LoadShapeClass.Find(DailyShape);
+                    DailyShapeObj := LoadShapeClass[ActorID].Find(DailyShape);
                       If Assigned(DailyShapeObj) then With DailyShapeObj Do
                         If UseActual then SetkWkvar(MaxP, MaxQ);
                 {If Yearly load shape is not yet defined, make it the same as Daily}
                 IF YearlyShapeObj=Nil THEN YearlyShapeObj := DailyShapeObj;
                End;
             9: Begin
-                    DutyShapeObj := LoadShapeClass.Find(DutyShape);
+                    DutyShapeObj := LoadShapeClass[ActorID].Find(DutyShape);
                     If Assigned(DutyShapeObj) then With DutyShapeObj Do
                         If UseActual then SetkWkvar(MaxP, MaxQ);
                End;
-            10: GrowthShapeObj := GrowthShapeClass.Find(GrowthShape);
+            10: GrowthShapeObj := GrowthShapeClass[ActorID].Find(GrowthShape);
 
             12: Begin LoadSpecType := 1;  PFSpecified := FALSE; End;// kW, kvar
  {*** see set_xfkva, etc           21, 22: LoadSpectype := 3;  // XFKVA*AllocationFactor, PF  }
             23: LoadSpecType := 2;  // kVA, PF
  {*** see set_kwh, etc           28..30: LoadSpecType := 4;  // kWh, days, cfactor, PF }
-            31: CVRShapeObj := LoadShapeClass.Find(CVRshape);
+            31: CVRShapeObj := LoadShapeClass[ActorID].Find(CVRshape);
          End;
 
          ParamName := Parser.NextParam;
@@ -1135,7 +1135,7 @@ Begin
     IF CVRShapeObj = Nil THEN
       IF Length(CVRShape)>0 THEN DoSimpleMsg('WARNING! CVR Shape shape: "'+ CVRShape +'" Not Found.', 586);
 
-    SpectrumObj := SpectrumClass.Find(Spectrum);
+    SpectrumObj := SpectrumClass[ActorID].Find(Spectrum);
     If SpectrumObj=Nil Then DoSimpleMsg('ERROR! Spectrum "'+Spectrum+'" Not Found.', 587);
 
     IF Rneut<0.0 THEN  // flag FOR open neutral

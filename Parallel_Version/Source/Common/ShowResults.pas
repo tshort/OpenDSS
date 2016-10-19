@@ -73,7 +73,7 @@ Begin
      MaxDeviceNameLength := 0;
      With ActiveCircuit[ActiveActor] Do FOR i := 1 to NumDevices DO Begin
         DevName := DeviceList.Get(i);
-        DevClassName := TDSSClass(DSSClassList.Get(DeviceRef^[i].CktElementClass)).Name;
+        DevClassName := TDSSClass(DSSClassList[ActiveActor].Get(DeviceRef^[i].CktElementClass)).Name;
         MaxDeviceNameLength := Max(MaxDeviceNameLength, (Length(DevName) + Length(DevClassName) + 1));
      End;
 End;
@@ -1742,16 +1742,16 @@ Begin
             Writeln(F);
             Writeln(Fdisabled, 'All DISABLED Elements in Class "', ClassName, '"');
             Writeln(Fdisabled);
-            ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+            ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
             FOR i := 1 to ActiveDSSClass[ActiveActor].ElementCount Do
             Begin
                   ActiveDSSClass[ActiveActor].Active := i;
                   If (ActiveDSSClass[ActiveActor].DSSClassType And BASECLASSMASK)>0 Then
                    Begin
-                     If TDSSCktElement(ActiveDSSObject).Enabled Then  Writeln(F, UpperCase(ActiveDssObject.Name))
-                     Else Writeln(Fdisabled, UpperCase(ActiveDssObject.Name));
+                     If TDSSCktElement(ActiveDSSObject[ActiveActor]).Enabled Then  Writeln(F, UpperCase(ActiveDssObject[ActiveActor].Name))
+                     Else Writeln(Fdisabled, UpperCase(ActiveDssObject[ActiveActor].Name));
                    End
-                  Else Writeln(F, UpperCase(ActiveDssObject.Name));   // non cktelements
+                  Else Writeln(F, UpperCase(ActiveDssObject[ActiveActor].Name));   // non cktelements
             End;
           End;
    End
@@ -2076,7 +2076,7 @@ Begin
 
      GlobalResult := FileNm;
 
-     pMtrClass := DSSClassList.Get(ClassNames.Find('energymeter'));
+     pMtrClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('energymeter'));
 
      IF Length(Param)>0 THEN
      Begin
@@ -2652,11 +2652,11 @@ Begin
      Writeln(F,'Loops and Paralleled Lines in all EnergyMeter Zones');
      Writeln(F);
 
-     hMeter := EnergyMeterClass.First;
+     hMeter := EnergyMeterClass[ActiveActor].First;
 
      While hMeter>0 Do Begin
 
-       pMtr:=TEnergyMeterObj(ActiveDSSObject);
+       pMtr:=TEnergyMeterObj(ActiveDSSObject[ActiveActor]);
 
          If pMtr.BranchList<>Nil Then  Begin
          
@@ -2671,7 +2671,7 @@ Begin
                End;
            End;
 
-      hMeter := EnergyMeterClass.Next
+      hMeter := EnergyMeterClass[ActiveActor].Next
      End;
 
    Finally
@@ -2864,11 +2864,11 @@ Begin
      Writeln(F2, Format('!--- Frequency = %.6g Hz, Earth resistivity = %.6g ohm-m',[Freq, Rho]));
      Writeln(F2, '!--- Earth Model = ', GetEarthModel(DefaultEarthModel));
 
-         LineGeometryClass := DSSClassList.Get(ClassNames.Find('LineGeometry'));
+         LineGeometryClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('LineGeometry'));
          Z:=Nil;
          YC:=Nil;
 
-         ActiveEarthModel := DefaultEarthModel;
+         ActiveEarthModel[ActiveActor] := DefaultEarthModel;
 
          p := LineGeometryClass.first;
          While p>0 Do
@@ -3504,7 +3504,7 @@ Procedure ShowEventLog(FileNm:String);
 Begin
   Try
 
-     EventStrings.SaveToFile(FileNm);
+     EventStrings[ActiveActor].SaveToFile(FileNm);
      GlobalResult := FileNm;
 
   FINALLY

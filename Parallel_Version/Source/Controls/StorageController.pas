@@ -397,7 +397,7 @@ Begin
     WITH ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TStorageControllerObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -495,17 +495,17 @@ Begin
                    End;
             propYEARLY:
                    Begin
-                       YearlyShapeObj := LoadShapeClass.Find(YearlyShape);
+                       YearlyShapeObj := LoadShapeClass[ActorID].Find(YearlyShape);
                        If YearlyShapeObj = nil Then  DoSimpleMsg('Yearly loadshape "' + YearlyShape + '" not found.', 14404);
                    End;
             propDAILY:
                    Begin
-                       DailyShapeObj  := LoadShapeClass.Find(DailyShape);
+                       DailyShapeObj  := LoadShapeClass[ActorID].Find(DailyShape);
                        If DailyShapeObj = nil Then  DoSimpleMsg('Daily loadshape "' + DailyShape + '" not found.', 14405);
                    End;
             propDUTY:
                    Begin
-                       DutyShapeObj   := LoadShapeClass.Find(DutyShape);
+                       DutyShapeObj   := LoadShapeClass[ActorID].Find(DutyShape);
                        If DutyShapeObj = nil Then  DoSimpleMsg('Dutycycle loadshape "' + DutyShape + '" not found.', 14406);
                    End
 
@@ -1592,7 +1592,7 @@ Begin
      FleetPointerList.Clear;
      For i := 1 to FleetSize Do
        Begin
-             StorageObj := StorageClass.Find(FStorageNameList.Strings[i-1]);
+             StorageObj := StorageClass[ActiveActor].Find(FStorageNameList.Strings[i-1]);
              If Assigned(StorageObj) Then Begin
                 If StorageObj.Enabled Then FleetPointerList.New := StorageObj;
              End Else Begin
@@ -1608,8 +1608,8 @@ Begin
      {Search through the entire circuit for enabled Storage Elements and add them to the list}
      FStorageNameList.Clear;
      FleetPointerList.Clear;
-     For i := 1 to StorageClass.ElementCount Do Begin
-        StorageObj :=  StorageClass.ElementList.Get(i);
+     For i := 1 to StorageClass[ActiveActor].ElementCount Do Begin
+        StorageObj :=  StorageClass[ActiveActor].ElementList.Get(i);
         // Look for a storage element not already assigned
         If StorageObj.Enabled and (StorageObj.DispatchMode <> STORE_EXTERNALMODE) Then Begin
            FStorageNameList.Add(StorageObj.Name);  // Add to list of names

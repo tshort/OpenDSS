@@ -274,16 +274,16 @@ Begin
     // Do nothing
   End ELSE Begin
 
-    LastClassReferenced := ClassNames.Find(ObjType);
+    LastClassReferenced[ActiveActor] := ClassNames[ActiveActor].Find(ObjType);
 
-    CASE LastClassReferenced of
+    CASE LastClassReferenced[ActiveActor] of
       0: Begin
         DoSimpleMsg('BatchEdit Command: Object Type "' + ObjType + '" not found.'+ CRLF + parser.CmdString, 267);
         Exit;
         End;{Error}
     ELSE
       Params:=Parser.Position;
-      ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+      ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
       RegEx1:=TPerlRegEx.Create;
       RegEx1.Options:=[preCaseLess];
       RegEx1.RegEx:=UTF8String(Pattern);
@@ -455,7 +455,7 @@ Begin
         // Everything else must be a circuit element
         IF Length(ObjClass)>0 THEN SetObjectClass(ObjClass);
 
-        ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+        ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
         IF ActiveDSSClass[ActiveActor]<>Nil THEN
         Begin
           IF Not ActiveDSSClass[ActiveActor].SetActive(Objname) THEN
@@ -466,7 +466,7 @@ Begin
           ELSE
           WITH ActiveCircuit[ActiveActor] Do
           Begin
-             CASE ActiveDSSObject.DSSObjType OF
+             CASE ActiveDSSObject[ActiveActor].DSSObjType OF
                   DSS_OBJECT: ;  // do nothing for general DSS object
 
              ELSE Begin   // for circuit types, set ActiveCircuit[ActiveActor] Element, too
@@ -631,9 +631,9 @@ FUNCTION DoSampleCmd(ActorID : Integer):Integer;
 
 Begin
 
-   MonitorClass.SampleAll(ActorID);
+   MonitorClass[ActorID].SampleAll(ActorID);
 
-   EnergyMeterClass.SampleAll(ActorID);  // gets generators too
+   EnergyMeterClass[ActorID].SampleAll(ActorID);  // gets generators too
 
 
 
@@ -647,7 +647,7 @@ FUNCTION DoSolveCmd:Integer;
 Begin
    // just invoke solution obj's editor to pick up parsing and execute rest of command
    ActiveSolutionObj := ActiveCircuit[ActiveActor].Solution;
-   Result := SolutionClass.Edit(ActiveActor);
+   Result := SolutionClass[ActiveActor].Edit(ActiveActor);
 
 End;
 
@@ -674,9 +674,9 @@ Begin
      Begin
 
         IF CompareText(ObjType, ActiveDSSClass[ActiveActor].Name)<>0 THEN
-             LastClassReferenced := ClassNames.Find(ObjType);
+             LastClassReferenced[ActiveActor] := ClassNames[ActiveActor].Find(ObjType);
 
-        CASE LastClassReferenced of
+        CASE LastClassReferenced[ActiveActor] of
           0: Begin
                  DoSimpleMsg('Object Type "' + ObjType + '" not found.'+ CRLF + parser.CmdString, 253);
                  Result := 0;
@@ -685,11 +685,11 @@ Begin
         ELSE
 
         // intrinsic and user Defined models
-           ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+           ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
            IF ActiveDSSClass[ActiveActor].SetActive(ObjName) THEN
            WITH ActiveCircuit[ActiveActor] Do
            Begin // scroll through list of objects until a match
-             CASE ActiveDSSObject.DSSObjType OF
+             CASE ActiveDSSObject[ActiveActor].DSSObjType OF
                     DSS_OBJECT: DoSimpleMsg('Error in SetActiveCktElement: Object not a circuit Element.'+ CRLF + parser.CmdString, 254);
              ELSE Begin
                     ActiveCktElement := ActiveDSSClass[ActiveActor].GetActiveObj;
@@ -870,8 +870,8 @@ Begin
        IF CompareText(Param,'solution')=0 THEN
          Begin
           // Assume active circuit solution IF not qualified
-          ActiveDSSClass[ActiveActor] := SolutionClass;
-          ActiveDSSObject := ActiveCircuit[ActiveActor].Solution;
+          ActiveDSSClass[ActiveActor] := SolutionClass[ActiveActor];
+          ActiveDSSObject[ActiveActor] := ActiveCircuit[ActiveActor].Solution;
           IsSolution := TRUE;
          End
        ELSE
@@ -887,7 +887,7 @@ Begin
             // IF DoSelectCmd=0 THEN Exit;  8-17-00
             IF SetObjectClass(ObjClass)
             THEN Begin
-              ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+              ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
               IF ActiveDSSClass[ActiveActor] = NIL Then Exit;
             End
             ELSE Exit;
@@ -918,7 +918,7 @@ Begin
                   FOR i := 1 to ActiveDSSClass[ActiveActor].ElementCount Do
                   Begin
                       ActiveDSSClass[ActiveActor].Active := i;
-                      ActiveDSSObject.DumpProperties(F, DebugDump);
+                      ActiveDSSObject[ActiveActor].DumpProperties(F, DebugDump);
                   End;
                End;
         ELSE
@@ -927,12 +927,12 @@ Begin
                DoSimpleMsg('Error! Object "' + ObjName + '" not found.', 256) ;
                Exit;
            End
-           ELSE ActiveDSSObject.DumpProperties(F, DebugDump);  // Dump only properties of active circuit element
+           ELSE ActiveDSSObject[ActiveActor].DumpProperties(F, DebugDump);  // Dump only properties of active circuit element
         END;
 
       End
       ELSE IF IsSolution THEN  Begin
-         ActiveDSSObject.DumpProperties(F, DebugDump);
+         ActiveDSSObject[ActiveActor].DumpProperties(F, DebugDump);
       End
       ELSE Begin
 
@@ -947,11 +947,11 @@ Begin
               pObject.DumpProperties(F, DebugDump);
               pObject := ActiveCircuit[ActiveActor].CktElements.Next;
           End;
-          pObject := DSSObjs.First;
+          pObject := DSSObjs[ActiveActor].First;
           WHILE pObject <> Nil DO
           Begin
               pObject.DumpProperties(F, DebugDump);
-              pObject := DSSObjs.Next;
+              pObject := DSSObjs[ActiveActor].Next;
           End;
         EXCEPT
             On E:Exception DO
@@ -1170,7 +1170,7 @@ begin
        ObjRef := pClass.First;
        While Objref>0 Do
        Begin
-          pCapElement := TCapacitorObj(ActiveDSSObject);
+          pCapElement := TCapacitorObj(ActiveDSSObject[ActiveActor]);
           If pCapElement.IsShunt Then
           Begin
              If pCapElement.Enabled Then  ActiveCircuit[ActiveActor].Buses^[pCapElement.Terminals^[1].Busref].Keep := TRUE;
@@ -1187,7 +1187,7 @@ begin
        ObjRef := pClass.First;
        While Objref>0 Do
        Begin
-          pReacElement := TReactorObj(ActiveDSSObject);
+          pReacElement := TReactorObj(ActiveDSSObject[ActiveActor]);
           If pReacElement.IsShunt Then
           Try
              If pReacElement.Enabled Then ActiveCircuit[ActiveActor].Buses^[pReacElement.Terminals^[1].Busref].Keep := TRUE;
@@ -1232,10 +1232,10 @@ Begin
 
     ELSE
        {Reduce a specific meter}
-       DevClassIndex := ClassNames.Find('energymeter');
+       DevClassIndex := ClassNames[ActiveActor].Find('energymeter');
        IF DevClassIndex > 0 THEN
        Begin
-          MeterClass := DSSClassList.Get(DevClassIndex);
+          MeterClass := DSSClassList[ActiveActor].Get(DevClassIndex);
           If MeterClass.SetActive (Param) Then   // Try to set it active
           Begin
             MetObj := MeterClass.GetActiveObj;
@@ -1351,8 +1351,8 @@ Begin
 
      IF CompareText(ObjName,'solution')=0 THEN
      Begin  // special for solution
-         ActiveDSSClass[ActiveActor]  := SolutionClass;
-         ActiveDSSObject := ActiveCircuit[ActiveActor].Solution;
+         ActiveDSSClass[ActiveActor]  := SolutionClass[ActiveActor];
+         ActiveDSSObject[ActiveActor] := ActiveCircuit[ActiveActor].Solution;
      End ELSE
      Begin
          // Set Object Active
@@ -1363,7 +1363,7 @@ Begin
      // Put property value in global VARiable
      PropIndex := ActiveDSSClass[ActiveActor].Propertyindex(PropName);
      IF PropIndex>0 THEN
-        GlobalPropertyValue := ActiveDSSObject.GetPropertyValue(PropIndex)
+        GlobalPropertyValue := ActiveDSSObject[ActiveActor].GetPropertyValue(PropIndex)
      ELSE
         GlobalPropertyValue := 'Property Unknown';
 
@@ -1378,7 +1378,7 @@ FUNCTION DoResetMeters(ActorID : Integer):Integer;
 
 Begin
      Result := 0;
-     EnergyMeterClass.ResetAll(ActorID)
+     EnergyMeterClass[ActorID].ResetAll(ActorID)
 End;
 
 
@@ -1440,9 +1440,9 @@ Begin
    // Search for class IF not already active
    // IF nothing specified, LastClassReferenced remains
    IF   CompareText(Objtype, ActiveDssClass[ActiveActor].Name) <> 0
-   THEN LastClassReferenced := ClassNames.Find(ObjType);
+   THEN LastClassReferenced[ActiveActor] := ClassNames[ActiveActor].Find(ObjType);
 
-   CASE LastClassReferenced of
+   CASE LastClassReferenced[ActiveActor] of
      0: Begin
             DoSimpleMsg('New Command: Object Type "' + ObjType + '" not found.' + CRLF + parser.CmdString, 263);
             Result := 0;
@@ -1452,7 +1452,7 @@ Begin
 
      // intrinsic and user Defined models
      // Make a new circuit element
-        ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+        ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
 
       // Name must be supplied
         IF   Length(Name) = 0
@@ -1469,7 +1469,7 @@ Begin
              DSS_OBJECT :  IF  NOT  ActiveDSSClass[ActiveActor].SetActive(Name)
                            THEN Begin
                                Result := ActiveDSSClass[ActiveActor].NewObject(Name);
-                               DSSObjs.Add(ActiveDSSObject);  // Stick in pointer list to keep track of it
+                               DSSObjs[ActiveActor].Add(ActiveDSSObject[ActiveActor]);  // Stick in pointer list to keep track of it
                            End;
         ELSE
             // These are circuit elements
@@ -1504,7 +1504,7 @@ Begin
         // ActiveDSSObject now points to the object just added
         // IF a circuit element, ActiveCktElement in ActiveCircuit[ActiveActor] is also set
 
-        If Result>0 Then ActiveDSSObject.ClassIndex := Result;
+        If Result>0 Then ActiveDSSObject[ActiveActor].ClassIndex := Result;
 
         ActiveDSSClass[ActiveActor].Edit(ActiveActor);    // Process remaining instructions on the command line
 
@@ -1518,9 +1518,9 @@ FUNCTION EditObject(const ObjType, Name:String):Integer;
 Begin
 
    Result :=0;
-   LastClassReferenced := ClassNames.Find(ObjType);
+   LastClassReferenced[ActiveActor] := ClassNames[ActiveActor].Find(ObjType);
 
-   CASE LastClassReferenced of
+   CASE LastClassReferenced[ActiveActor] of
      0: Begin
             DoSimpleMsg('Edit Command: Object Type "' + ObjType + '" not found.'+ CRLF + parser.CmdString, 267);
             Result := 0;
@@ -1530,7 +1530,7 @@ Begin
 
    // intrinsic and user Defined models
    // Edit the DSS object
-      ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+      ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
       IF ActiveDSSClass[ActiveActor].SetActive(Name) THEN
       Begin
           Result := ActiveDSSClass[ActiveActor].Edit(ActiveActor);   // Edit the active object
@@ -2271,7 +2271,7 @@ Begin
     Result := 0;
     If NoFormsAllowed Then Exit;
     DoSelectCmd;  // Select ActiveObject
-    IF ActiveDSSObject <> NIL THEN  Begin
+    IF ActiveDSSObject[ActiveActor] <> NIL THEN  Begin
 
          ShowPropEditForm;
 
@@ -2349,7 +2349,7 @@ FUNCTION DoClassesCmd:Integer;
 VAR  i:Integer;
 Begin
      For i := 1 to NumIntrinsicClasses Do Begin
-       AppendGlobalResult(TDSSClass(DSSClassList.Get(i)).Name);
+       AppendGlobalResult(TDSSClass(DSSClassList[ActiveActor].Get(i)).Name);
      End;
      Result := 0;
 End;
@@ -2363,8 +2363,8 @@ Begin
         AppendGlobalResult('No User Classes Defined.');
     End
     ELSE
-     For i := NumIntrinsicClasses+1 to DSSClassList.ListSize Do Begin
-       AppendGlobalResult(TDSSClass(DSSClassList.Get(i)).Name);
+     For i := NumIntrinsicClasses+1 to DSSClassList[ActiveActor].ListSize Do Begin
+       AppendGlobalResult(TDSSClass(DSSClassList[ActiveActor].Get(i)).Name);
      End;
 End;
 
@@ -2676,10 +2676,10 @@ Begin
 
     ELSE
        {Interpolate a specific meter}
-       DevClassIndex := ClassNames.Find('energymeter');
+       DevClassIndex := ClassNames[ActiveActor].Find('energymeter');
        IF DevClassIndex > 0 THEN
        Begin
-          MeterClass := DSSClassList.Get(DevClassIndex);
+          MeterClass := DSSClassList[ActiveActor].Get(DevClassIndex);
           If MeterClass.SetActive (Param) Then   // Try to set it active
           Begin
             MetObj := MeterClass.GetActiveObj;
@@ -2734,14 +2734,14 @@ Begin
 
 
     Case  Param[1] of
-        'L': LoadShapeClass.TOPExport(ObjName);
-        'T': TshapeClass.TOPExport(ObjName);
+        'L': LoadShapeClass[ActiveActor].TOPExport(ObjName);
+        'T': TshapeClass[ActiveActor].TOPExport(ObjName);
         {
           'G': GrowthShapeClass.TOPExportAll;
           'T': TCC_CurveClass.TOPExportAll;
         }
     ELSE
-        MonitorClass.TOPExport(ObjName);
+        MonitorClass[ActiveActor].TOPExport(ObjName);
     End;
 
 
@@ -3000,7 +3000,7 @@ Var
 {$ENDIF}
 Begin
 {$IFNDEF DLL_ENGINE}
-     IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
+     IF DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles;
 
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
 
@@ -3060,7 +3060,7 @@ Var
 {$ENDIF}
 Begin
 {$IFNDEF DLL_ENGINE}
-     IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
+     IF DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles;
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
      CaseName1 := 'base';
      CaseName2 := '';
@@ -3118,7 +3118,7 @@ Var
 {$ENDIF}
 Begin
 {$IFNDEF DLL_ENGINE}
-     IF DIFilesAreOpen Then EnergyMeterClass.CloseAllDIFiles;
+     IF DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles;
 
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
 
@@ -3255,7 +3255,7 @@ FUNCTION DoCloseDICmd:Integer;
 
 Begin
     Result  := 0;
-    EnergyMeterClass.CloseAllDIFiles;
+    EnergyMeterClass[ActiveActor].CloseAllDIFiles;
 End;
 
 FUNCTION DoADOScmd:Integer;
@@ -3348,7 +3348,7 @@ Begin
        Exit;
      End;
 
-     LineClass := DSSClassList.Get(ClassNames.Find('Line'));
+     LineClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('Line'));
      pLine1 := LineClass.Find(Line1);
      pLine2 := LineCLass.Find(Line2);
 
@@ -3498,8 +3498,8 @@ Begin
         IF CompareText (DevClass, 'circuit')=0 THEN begin
           pName := ActiveCircuit[ActiveActor]
         end else begin
-          LastClassReferenced := ClassNames.Find (DevClass);
-          ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+          LastClassReferenced[ActiveActor] := ClassNames[ActiveActor].Find (DevClass);
+          ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
           if ActiveDSSClass[ActiveActor] <> nil then begin
             ActiveDSSClass[ActiveActor].SetActive (DevName);
             pName := ActiveDSSClass[ActiveActor].GetActiveObj;
@@ -3660,7 +3660,7 @@ Begin
       Param := Parser.StrValue;
      End;
 
-     LineClass := DSSClassList.Get(ClassNames.Find('Line'));
+     LineClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('Line'));
      pStartLine := LineClass.Find(StripClassName(StartLine));
      If pStartLine=Nil then  Begin
          DosimpleMsg('Starting Line ('+StartLine+') not found.', 28712);
@@ -3732,7 +3732,7 @@ End;
 FUNCTION DoUpdateStorageCmd:Integer;
 
 Begin
-       StorageClass.UpdateAll(ActiveActor);
+       StorageClass[ActiveActor].UpdateAll(ActiveActor);
        Result := 0;
 End;
 
@@ -3936,6 +3936,7 @@ finalization
     PstCalcCommands.Free;
 
 end.
+
 
 
 

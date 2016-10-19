@@ -175,7 +175,7 @@ VAR
   OtherConductorData:TConductorDataObj;
 BEGIN
   OtherConductorData := TConductorDataObj(OtherObj);
-  WITH TConductorDataObj(ActiveDSSObject) DO BEGIN
+  WITH TConductorDataObj(ActiveDSSObject[ActiveActor]) DO BEGIN
     FRDC:= OtherConductorData.FRDC;
     FR60:= OtherConductorData.FR60;
     FResistanceUnits:= OtherConductorData.FResistanceUnits;

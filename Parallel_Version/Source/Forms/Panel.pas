@@ -1065,7 +1065,7 @@ begin
     StatusBar1.Panels[2].Text := ' ';
   End;
 
-  DemandInterval1.Checked   := EnergyMeterclass.SaveDemandInterval ;
+  DemandInterval1.Checked   := EnergyMeterclass[ActiveActor].SaveDemandInterval ;
   Caption := ProgramName + ' Data Directory: ' + DataDirectory[ActiveActor]; // NOTE: not necessarily same as output directory
   If ActiveCircuit[ActiveActor] <> nil then
     With ActiveCircuit[ActiveActor] Do Begin
@@ -1125,11 +1125,11 @@ begin
 
         IF SetObjectClass(Classbox.Items[Classbox.ItemIndex]) Then
         Begin
-           ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
+           ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
            idx := ActiveDSSClass[ActiveActor].First;
            While idx>0 Do
            Begin
-             ElementBox.Items.Add(UpperCase(ActiveDSSObject.Name));
+             ElementBox.Items.Add(UpperCase(ActiveDSSObject[ActiveActor].Name));
              idx := ActiveDSSClass[ActiveActor].Next;
            End;
            ElementBox.Sorted := TRUE;
@@ -1565,7 +1565,7 @@ begin
             Combobox1.Items.BeginUpdate;
             i := DssCls.First;
             While i>0 Do Begin
-              ComboBox1.Items.Add(ActiveDSSObject.Name);
+              ComboBox1.Items.Add(ActiveDSSObject[ActiveActor].Name);
               i := DSSCls.Next;
             End;
             ComboBox1.Items.EndUpdate;
@@ -1602,7 +1602,7 @@ begin
             Combobox1.Items.BeginUpdate;
             i := DssCls.First;
             While i>0 Do Begin
-              ComboBox1.Items.Add(ActiveDSSObject.Name);
+              ComboBox1.Items.Add(ActiveDSSObject[ActiveActor].Name);
               i := DSSCls.Next;
             End;
             ComboBox1.Items.EndUpdate;
@@ -1930,7 +1930,7 @@ end;
 procedure TControlPanel.DemandInterval1Click(Sender: TObject);
 begin
      DemandInterval1.Checked := NOT DemandInterval1.checked;
-     EnergyMeterclass.SaveDemandInterval:= DemandInterval1.Checked;
+     EnergyMeterclass[ActiveActor].SaveDemandInterval:= DemandInterval1.Checked;
 end;
 
 procedure TControlPanel.ZonesLocked1Click(Sender: TObject);
@@ -2086,7 +2086,7 @@ end;
 
 procedure TControlPanel.SaveAllMonitors1Click(Sender: TObject);
 begin
-        MonitorClass.SaveAll(ActiveActor);
+        MonitorClass[ActiveActor].SaveAll(ActiveActor);
 end;
 
 procedure TControlPanel.CircuitPlot1Click(Sender: TObject);
@@ -2343,11 +2343,11 @@ begin
      Begin
 
  // put the  DSS Classes in alphabetical order within Base Class
-          pDSSClass := DSSClassList.First;
+          pDSSClass := DSSClassList[ActiveActor].First;
           WHILE pDSSClass<>Nil DO Begin
             If (pDSSClass.DSSClassType AND BASECLASSMASK) = BaseClass
              Then     Items.Add(pDSSClass.Name );
-            pDSSClass := DSSClassList.Next;
+            pDSSClass := DSSClassList[ActiveActor].Next;
           End;
 
           If BaseClass <> NON_PCPD_ELEM Then ClassBox.Sorted := TRUE;

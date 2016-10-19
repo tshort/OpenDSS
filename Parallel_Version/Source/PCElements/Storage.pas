@@ -537,7 +537,7 @@ Begin
     With ActiveCircuit[ActiveActor] Do
     Begin
       ActiveCktElement := TStorageObj.Create(Self, ObjName);
-      Result := AddObjectToList(ActiveDSSObject);
+      Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
     End;
 End;
 
@@ -726,9 +726,9 @@ Begin
                 propKW,propPF: SyncUpPowerQuantities;   // keep kvar nominal up to date with kW and PF
 
         {Set loadshape objects;  returns nil If not valid}
-                propYEARLY: YearlyShapeObj := LoadShapeClass.Find(YearlyShape);
-                propDAILY:  DailyShapeObj := LoadShapeClass.Find(DailyShape);
-                propDUTY:   DutyShapeObj := LoadShapeClass.Find(DutyShape);
+                propYEARLY: YearlyShapeObj := LoadShapeClass[ActorID].Find(YearlyShape);
+                propDAILY:  DailyShapeObj := LoadShapeClass[ActorID].Find(DailyShape);
+                propDUTY:   DutyShapeObj := LoadShapeClass[ActorID].Find(DutyShape);
                 propKWRATED:  StorageVars.kVArating := StorageVars.kWrating;
                 propKWHRATED: Begin StorageVars.kWhStored := StorageVars.kWhRating; // Assume fully charged
                                     kWhBeforeUpdate := StorageVars.kWhStored;
@@ -1393,7 +1393,7 @@ Begin
       If Length(DutyShape)>0 Then DoSimpleMsg('WARNING! Duty load shape: "'+ DutyShape +'" Not Found.', 565);
 
     If Length(Spectrum)> 0 Then Begin
-          SpectrumObj := SpectrumClass.Find(Spectrum);
+          SpectrumObj := SpectrumClass[ActorID].Find(Spectrum);
           If SpectrumObj=Nil Then DoSimpleMsg('ERROR! Spectrum "'+Spectrum+'" Not Found.', 566);
     End
     Else SpectrumObj := Nil;

@@ -135,8 +135,8 @@ BEGIN
    // create a new object of this class and add to list
    With ActiveCircuit[ActiveActor] Do
    Begin
-    ActiveDSSObject := TLineSpacingObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    ActiveDSSObject[ActiveActor] := TLineSpacingObj.Create(Self, ObjName);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
 END;
 
@@ -170,7 +170,7 @@ BEGIN
   Result := 0;
   // continue parsing with contents of Parser
   ActiveLineSpacingObj := ElementList.Active;
-  ActiveDSSObject := ActiveLineSpacingObj;
+  ActiveDSSObject[ActorID] := ActiveLineSpacingObj;
 
   WITH ActiveLineSpacingObj DO BEGIN
 

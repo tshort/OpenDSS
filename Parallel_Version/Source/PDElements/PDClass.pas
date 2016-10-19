@@ -109,7 +109,7 @@ Begin
 
      OtherPDObj := TPDElement(OtherObj);
 
-     With TPDElement(ActiveDSSObject) Do
+     With TPDElement(ActiveDSSObject[ActiveActor]) Do
      Begin
        NormAmps:= OtherPDObj.NormAmps;
        EmergAmps:= OtherPDObj.EmergAmps;

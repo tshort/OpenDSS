@@ -881,6 +881,7 @@ initialization
 
     // Variables
      ParserVars := TParserVar.Create(100);  // start with space for 100 variables
+     IsMultiThread  :=  True;
 
 Finalization
 

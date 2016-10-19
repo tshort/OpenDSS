@@ -184,7 +184,7 @@ BEGIN
    With ActiveCircuit[ActiveActor] Do
    Begin
     ActiveCktElement := TGICTransformerObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
 
 END;
@@ -343,7 +343,7 @@ BEGIN
           7..8:   FpctRSpecified := FALSE;
           9..10:  FkVSpecified   := TRUE;
           12:     Begin
-                       FVarCurveObj   := XYCurveClass.Find(FVarCurve);
+                       FVarCurveObj   := XYCurveClass[ActorID].Find(FVarCurve);
                        Kspecified     := FALSE;
                   End;
           13..14: FpctRSpecified := TRUE;

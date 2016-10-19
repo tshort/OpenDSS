@@ -1194,8 +1194,8 @@ VAR
 Begin
      Result := 0; // Default return value
      ParseObjectClassandName (FullObjName, DevClassName, DevName);
-     DevClassIndex := ClassNames.Find(DevClassName);
-     IF DevClassIndex = 0 THEN DevClassIndex := LastClassReferenced;
+     DevClassIndex := ClassNames[ActiveActor].Find(DevClassName);
+     IF DevClassIndex = 0 THEN DevClassIndex := LastClassReferenced[ActiveActor];
 
      // Since there could be devices of the same name of different classes,
      // loop until we find one of the correct class
@@ -1345,7 +1345,7 @@ Begin
     End;
 
   // Dump All presend DSSClasses
-  pClass := DSSClassList.First;
+  pClass := DSSClassList[ActiveActor].First;
   While pClass<>Nil Do
     Begin
       Writeln(F,'[',pClass.name,']');
@@ -1354,7 +1354,7 @@ Begin
           Writeln(F,i:0,', "',pClass.PropertyName^[i], '", "',
              ReplaceCRLF(pClass.PropertyHelp^[i]),'"');
         End;
-      pClass := DSSClassList.Next;
+      pClass := DSSClassList[ActiveActor].Next;
     End;
 
 
@@ -1737,10 +1737,10 @@ PROCEDURE ClearEventLog;
 Begin
   Try
 {****  WriteDLLDebugFile(Format('ClearEventLog: EventStrings= %p', [@EventStrings])); }
-       EventStrings.Clear;
+       EventStrings[ActiveActor].Clear;
   Except
        On E:Exception Do
-          Dosimplemsg(Format('Exception clearing event log: %s, @EventStrings=%p', [E.Message, @EventStrings]), 7151);
+          Dosimplemsg(Format('Exception clearing event log: %s, @EventStrings=%p', [E.Message, @EventStrings[ActiveActor]]), 7151);
   End;
 End;
 
@@ -1749,7 +1749,7 @@ PROCEDURE LogThisEvent(Const EventName:String);
 Begin
     {****  WriteDLLDebugFile(Format('LogThisEvent: EventStrings= %p', [@EventStrings])); }
     With ActiveCircuit[ActiveActor].Solution do
-    EventStrings.Add(Format('Hour=%d, Sec=%-.8g, Iteration=%d, ControlIter=%d, Event=%s',
+    EventStrings[ActiveActor].Add(Format('Hour=%d, Sec=%-.8g, Iteration=%d, ControlIter=%d, Event=%s',
           [DynaVars.intHour, Dynavars.t, iteration, ControlIteration, EventName ]));
 
      //     'Time=' + TimeToStr(Time)+': '+EventName);
@@ -1765,7 +1765,7 @@ Begin
           With  ActiveCircuit[ActiveActor].Solution  Do
           S :=  Format('Hour=%d, Sec=%-.5g, ControlIter=%d, Element=%s, Action=%s',
           [DynaVars.intHour, Dynavars.t, ControlIteration, OpDev, Uppercase(action) ]);
-          EventStrings.Add(S);
+          EventStrings[ActiveActor].Add(S);
   {****  ShowMessageForm(EventStrings); }
 End;
 
@@ -1845,14 +1845,14 @@ Begin
      ClassName := DSS_Class.Name;
      AssignFile(F, ClassName + '.dss');
      Rewrite(F);
-     SavedFileList.Add(ClassName + '.dss');
+     SavedFileList[ActiveActor].Add(ClassName + '.dss');
      DSS_Class.First;   // Sets ActiveDSSObject
      WriteActiveDSSObject(F, 'Edit'); // Write First Vsource out as an Edit
       While DSS_Class.Next >0 Do
       Begin
        // Skip Cktelements that have been checked before and written out by
        // something else
-       If TDSSCktElement(ActiveDSSObject).HasBeenSaved Then Continue;
+       If TDSSCktElement(ActiveDSSObject[ActiveActor]).HasBeenSaved Then Continue;
        // Skip disabled circuit elements; write all general DSS objects
        WriteActiveDSSObject(F, 'New');    // sets HasBeenSaved := TRUE
       End;
@@ -1896,7 +1896,7 @@ Begin
 
        // Skip Cktelements that have been checked before and written out by
        // something else
-       If IsCktElement Then With TDSSCktElement(ActiveDSSObject) Do
+       If IsCktElement Then With TDSSCktElement(ActiveDSSObject[ActiveActor]) Do
                             If HasBeenSaved or (not Enabled) Then Continue;
 
         WriteActiveDSSObject(F, 'New');  // sets HasBeenSaved := TRUE
@@ -1906,7 +1906,7 @@ Begin
 
      CloseFile(F);
 
-     If Nrecords>0 Then SavedFileList.Add(FileName) else DeleteFile(FileName);
+     If Nrecords>0 Then SavedFileList[ActiveActor].Add(FileName) else DeleteFile(FileName);
 
      DSS_Class.Saved := TRUE;
 
@@ -1939,20 +1939,20 @@ Var
 
 
 Begin
-   ParClass := ActiveDSSObject.ParentClass;
-  //  Write(F, NeworEdit, ' "', ParClass.Name + '.' + ActiveDSSObject.Name,'"');
-   Write(F, Format('%s "%s.%s"',[NeworEdit, ParClass.Name, ActiveDSSObject.Name ]));
+   ParClass := ActiveDSSObject[ActiveActor].ParentClass;
+  //  Write(F, NeworEdit, ' "', ParClass.Name + '.' + ActiveDSSObject[ActiveActor].Name,'"');
+   Write(F, Format('%s "%s.%s"',[NeworEdit, ParClass.Name, ActiveDSSObject[ActiveActor].Name ]));
 
-   ActiveDSSObject.SaveWrite(F);
+   ActiveDSSObject[ActiveActor].SaveWrite(F);
 
 
 
    // Handle disabled circuit elements;   Modified to allow applets to save disabled elements 12-28-06
-   IF (ActiveDSSObject.DSSObjType AND ClassMask) <> DSS_Object Then
-      If Not TDSSCktElement( ActiveDSSObject).Enabled Then Write(F, ' ENABLED=NO');
+   IF (ActiveDSSObject[ActiveActor].DSSObjType AND ClassMask) <> DSS_Object Then
+      If Not TDSSCktElement(ActiveDSSObject[ActiveActor]).Enabled Then Write(F, ' ENABLED=NO');
    Writeln(F); // Terminate line
 
-   ActiveDSSObject.HasBeenSaved := TRUE;
+   ActiveDSSObject[ActiveActor].HasBeenSaved := TRUE;
 
 End;
 
@@ -2803,7 +2803,7 @@ End;
 Function MakeNewCktElemName(const oldname:string):string;
 Begin
      SetObject(OldName);  // set opject active
-     With ActiveDSSObject Do Result := Format('%s.%s%d',[ParentClass.Name, copy(ParentClass.Name, 1, 4), ClassIndex]);
+     With ActiveDSSObject[ActiveActor] Do Result := Format('%s.%s%d',[ParentClass.Name, copy(ParentClass.Name, 1, 4), ClassIndex]);
 End;
 
 Function ConstructElemName(const Param:string):string;

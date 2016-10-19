@@ -779,18 +779,18 @@ Var
 
 begin
 
-   hMeter := EnergyMeterClass.First;
+   hMeter := EnergyMeterClass[ActiveActor].First;
    ActiveColorIdx := 0; { Nextcolor does an Inc() }
    While hMeter > 0 Do
    Begin
       If (Length(ObjectName) > 0) then // look for a specific object {Else Draw Them All}
-         If CompareText(ObjectName, ActiveDSSObject.Name) <> 0 Then
+         If CompareText(ObjectName, ActiveDSSObject[ActiveActor].Name) <> 0 Then
          Begin
-            hMeter := EnergyMeterClass.Next;
+            hMeter := EnergyMeterClass[ActiveActor].Next;
             continue;
          End;
 
-      pMeter := TEnergyMeterObj(ActiveDSSObject);
+      pMeter := TEnergyMeterObj(ActiveDSSObject[ActiveActor]);
 
       FeederName := pMeter.Name;
 
@@ -837,7 +837,7 @@ begin
          End;
          pLine := pMeter.BranchList.GoForward;
       End;
-      hMeter := EnergyMeterClass.Next;
+      hMeter := EnergyMeterClass[ActiveActor].Next;
    End;
 
    If (Length(ObjectName) > 0) Then
@@ -1299,7 +1299,7 @@ Var
    S: String;
 
 begin
-   Temp_Shape := TShapeClass.Find(TempShapeName);
+   Temp_Shape := TShapeClass[ActiveActor].Find(TempShapeName);
    If Temp_Shape = Nil Then
    Begin
       DoSimpleMsg('Tshape object not found: "' + TempShapeName + '"', 87341);
@@ -1370,7 +1370,7 @@ Var
    S: String;
 
 begin
-   Load_Shape := LoadShapeClass.Find(LoadShapeName);
+   Load_Shape := LoadShapeClass[ActiveActor].Find(LoadShapeName);
    If Load_Shape = Nil Then
    Begin
       DoSimpleMsg('Loadshape object not found: "' + LoadShapeName + '"', 87341);
@@ -2380,10 +2380,10 @@ Var
 
 begin
    { Plot designated channels in monitor designated by ObjectName }
-   If MonitorClass.SetActive(ObjectName) Then
+   If MonitorClass[ActiveActor].SetActive(ObjectName) Then
    Begin
 
-      With TMonitorObj(MonitorClass.GetActiveObj) Do
+      With TMonitorObj(MonitorClass[ActiveActor].GetActiveObj) Do
       Begin
 
          Save; // Save present buffer
@@ -2518,7 +2518,7 @@ Var
    S: String;
 
 begin
-   Price_Shape := PriceShapeClass.Find(PriceShapeName);
+   Price_Shape := PriceShapeClass[ActiveActor].Find(PriceShapeName);
    If Price_Shape = Nil Then
    Begin
       DoSimpleMsg('PriceShape object not found: "' + PriceShapeName + '"',
@@ -2625,11 +2625,11 @@ begin
    Set_TextAlignment(1);
    Set_KeyClass(DSSG_LINECLASS); { Line for searches }
 
-   iEnergyMeter := EnergyMeterClass.First;
+   iEnergyMeter := EnergyMeterClass[ActiveActor].First;
    while iEnergyMeter > 0 do
    Begin
 
-      ActiveEnergyMeter := EnergyMeterClass.GetActiveObj;
+      ActiveEnergyMeter := EnergyMeterClass[ActiveActor].GetActiveObj;
       { Go down each branch list and draw a line }
       PresentCktElement := ActiveEnergyMeter.BranchList.First;
       while PresentCktElement <> Nil Do
@@ -2879,7 +2879,7 @@ begin
 
          PresentCktElement := ActiveEnergyMeter.BranchList.GoForward;
       End;
-      iEnergyMeter := EnergyMeterClass.Next;
+      iEnergyMeter := EnergyMeterClass[ActiveActor].Next;
    End;
    set_KeepAspectRatio(FALSE);
    Set_Autorange(2.0); // 2% rim
@@ -3406,7 +3406,7 @@ Var
 
 begin
 
-   LineClass := DSSClassList.Get(ClassNames.Find('Line'));
+   LineClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('Line'));
 
    { Initialize General Line Quantity }
    pLine := ActiveCircuit[ActiveActor].Lines.First;

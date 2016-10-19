@@ -593,7 +593,7 @@ Begin
        Begin
          ParseObjName(ParamName, ObjName, PropName);
          IF Length(ObjName)>0 THEN SetObject(ObjName);  // Set active element
-         IF ActiveDSSObject<>nil THEN
+         IF ActiveDSSObject[ActiveActor]<>nil THEN
          Begin
              // rebuild command line and pass to editor
              // use quotes to ensure first parameter is interpreted OK after rebuild

@@ -278,8 +278,8 @@ BEGIN
    // create a new object of this class and add to list
    With ActiveCircuit[ActiveActor] Do
    Begin
-    ActiveDSSObject := TLoadShapeObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    ActiveDSSObject[ActiveActor] := TLoadShapeObj.Create(Self, ObjName);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
 END;
 
@@ -295,7 +295,7 @@ BEGIN
   Result := 0;
   // continue parsing with contents of Parser
   ActiveLoadShapeObj := ElementList.Active;
-  ActiveDSSObject := ActiveLoadShapeObj;
+  ActiveDSSObject[ActorID] := ActiveLoadShapeObj;
 
   WITH ActiveLoadShapeObj DO BEGIN
 

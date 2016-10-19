@@ -222,8 +222,8 @@ BEGIN
    // create a new object of this class and add to list
    With ActiveCircuit[ActiveActor] Do
    Begin
-    ActiveDSSObject := TLineGeometryObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    ActiveDSSObject[ActiveActor] := TLineGeometryObj.Create(Self, ObjName);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
 END;
 
@@ -241,7 +241,7 @@ BEGIN
   Result := 0;
   // continue parsing with contents of Parser
   ActiveLineGeometryObj := ElementList.Active;
-  ActiveDSSObject := ActiveLineGeometryObj;
+  ActiveDSSObject[ActorID] := ActiveLineGeometryObj;
 
   WITH ActiveLineGeometryObj DO BEGIN
 
@@ -271,8 +271,8 @@ BEGIN
            10: Freduce     := InterpretYesNo(Param);
            11: Begin
                   FSpacingType := Parser.StrValue;
-                  if LineSpacingClass.SetActive(FSpacingType) then begin
-                    ActiveLineSpacingObj := LineSpacingClass.GetActiveObj;
+                  if LineSpacingClass[ActorID].SetActive(FSpacingType) then begin
+                    ActiveLineSpacingObj := LineSpacingClass[ActorID].GetActiveObj;
                     if (FNConds = ActiveLineSpacingObj.NWires) then begin
                       FLastUnit := ActiveLineSpacingObj.Units;
                       for i:=1 to FNConds do begin
@@ -308,11 +308,11 @@ BEGIN
                 AuxParser.NextParam; // ignore any parameter name  not expecting any
                 FCondName[i] := AuxParser.StrValue;
                 if ParamPointer=15 then
-                  CNDataClass.code := FCondName[i]
+                  CNDataClass[ActorID].code := FCondName[i]
                 else if ParamPointer=16 then
-                  TSDataClass.code := FCondName[i]
+                  TSDataClass[ActorID].code := FCondName[i]
                 else
-                  WireDataClass.Code := FCondName[i];
+                  WireDataClass[ActorID].Code := FCondName[i];
                 if Assigned(ActiveConductorDataObj) then begin
                   FWireData^[i] := ActiveConductorDataObj;
                   if (i=1) then begin
@@ -340,11 +340,11 @@ BEGIN
             3: If (ActiveCond < 1) or (ActiveCond > FNconds) Then DoSimpleMsg('Illegal cond= specification in Line Geometry:'+CRLF+Parser.cmdstring, 10102);
             4,13,14: Begin
                 if ParamPointer=4 then
-                  WireDataClass.code := Param
+                  WireDataClass[ActorID].code := Param
                 else if ParamPointer=13 then
-                  CNDataClass.code := Param
+                  CNDataClass[ActorID].code := Param
                 else
-                  TSDataClass.Code := Param;
+                  TSDataClass[ActorID].Code := Param;
                 If Assigned(ActiveConductorDataObj) Then Begin
                   FWireData^[ActiveCond] := ActiveConductorDataObj;
                   {Default the current ratings for this geometry to the rating of the first conductor}

@@ -186,7 +186,7 @@ BEGIN
    With ActiveCircuit[ActiveActor] Do
    Begin
     ActiveCktElement := TFaultObj.Create(Self, ObjName);
-    Result := AddObjectToList(ActiveDSSObject);
+    Result := AddObjectToList(ActiveDSSObject[ActiveActor]);
    End;
    
 END;

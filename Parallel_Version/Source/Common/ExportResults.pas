@@ -1986,7 +1986,7 @@ Begin
                 Rewrite(F);
                 {Write New Header}
                 Write(F, 'Year, LDCurve, Hour, PVSystem');
-                For i := 1 to NumPVSystemRegisters Do Write(F, Separator, '"' + PVSystemClass.RegisterNames[i]+'"');
+                For i := 1 to NumPVSystemRegisters Do Write(F, Separator, '"' + PVSystemClass[ActiveActor].RegisterNames[i]+'"');
                 Writeln(F);
                 CloseFile(F);
             End;
@@ -2059,7 +2059,7 @@ Begin
         ReWrite(F);
         {Write New Header}
         Write(F, 'Year, LDCurve, Hour, PVSystem');
-        For i := 1 to NumGenRegisters Do Write(F, Separator, '"'+ PVSystemClass.RegisterNames[i]+'"');
+        For i := 1 to NumGenRegisters Do Write(F, Separator, '"'+ PVSystemClass[ActiveActor].RegisterNames[i]+'"');
         Writeln(F);
     END
     ELSE Append(F);
@@ -2121,7 +2121,7 @@ Begin
                 Rewrite(F);
                 {Write New Header}
                 Write(F, 'Year, LDCurve, Hour, Storage');
-                For i := 1 to NumStorageRegisters Do Write(F, Separator, '"' + StorageClass.RegisterNames[i]+'"');
+                For i := 1 to NumStorageRegisters Do Write(F, Separator, '"' + StorageClass[ActiveActor].RegisterNames[i]+'"');
                 Writeln(F);
                 CloseFile(F);
             End;
@@ -2194,7 +2194,7 @@ Begin
         ReWrite(F);
         {Write New Header}
         Write(F, 'Year, LDCurve, Hour, Storage');
-        For i := 1 to NumStorageRegisters Do Write(F, Separator, '"'+ StorageClass.RegisterNames[i]+'"');
+        For i := 1 to NumStorageRegisters Do Write(F, Separator, '"'+ StorageClass[ActiveActor].RegisterNames[i]+'"');
         Writeln(F);
     END
     ELSE Append(F);
@@ -2712,10 +2712,10 @@ Var
   pName   : TNamedObject;
 Begin
   Try
-    clsCode := DSSClassList.Get(ClassNames.Find('linecode'));
-    clsWire := DSSClassList.Get(ClassNames.Find('wiredata'));
-    clsGeom := DSSClassList.Get(ClassNames.Find('linegeometry'));
-    clsXfmr := DSSClassList.Get(ClassNames.Find('xfmrcode'));
+    clsCode := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('linecode'));
+    clsWire := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('wiredata'));
+    clsGeom := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('linegeometry'));
+    clsXfmr := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('xfmrcode'));
 
     Assignfile(F, FileNm);
     ReWrite(F);
@@ -2768,10 +2768,10 @@ Begin
     ReWrite(F);
     Writeln (F, 'Format: DSS Class Name = Instance Count');
     Writeln (F);
-    cls := DSSClassList.First;
+    cls := DSSClassList[ActiveActor].First;
     while cls <> nil do begin
       Writeln (F, Format ('%s = %d', [cls.Name, cls.ElementCount]));
-      cls := DSSClassList.Next;
+      cls := DSSClassList[ActiveActor].Next;
     end;
   Finally
     CloseFile(F);
@@ -2921,10 +2921,10 @@ begin
 
        Writeln(F, 'Title=',S, ', Distance in km');
 
-      iEnergyMeter := EnergyMeterClass.First;
+      iEnergyMeter := EnergyMeterClass[ActiveActor].First;
       while iEnergyMeter >0  do  Begin
 
-          ActiveEnergyMeter := EnergyMeterClass.GetActiveObj;
+          ActiveEnergyMeter := EnergyMeterClass[ActiveActor].GetActiveObj;
           {Go down each branch list and draw a line}
           PresentCktElement := ActiveEnergyMeter.BranchList.First;
           while PresentCktElement <> Nil Do Begin
@@ -3033,7 +3033,7 @@ begin
              PresentCktElement := ActiveEnergyMeter.BranchList.GoForward;
           End;
 
-          iEnergyMeter := EnergyMeterClass.Next;
+          iEnergyMeter := EnergyMeterClass[ActiveActor].Next;
       End;
 
       GlobalResult := FileNm;
@@ -3049,7 +3049,7 @@ end;
 Procedure ExportEventLog(FileNm:String);
 // Export the present set of EventStrings
 Begin
-     EventStrings.SaveToFile(FileNm);
+     EventStrings[ActiveActor].SaveToFile(FileNm);
      GlobalResult := FileNm;
 End;
 
@@ -3506,10 +3506,10 @@ Begin
    Else    // export sections for all meters
      Begin
 
-        iMeter := EnergyMeterClass.First;
+        iMeter := EnergyMeterClass[ActiveActor].First;
         while iMeter>0 do
           Begin
-             MyMeterPtr:=EnergyMeterClass.GetActiveObj;
+             MyMeterPtr:=EnergyMeterClass[ActiveActor].GetActiveObj;
              With MyMeterPtr Do
              Begin
                  for i  := 1 to SectionCount  do
@@ -3518,7 +3518,7 @@ Begin
                   [Name, i, GetOCPDeviceTypeString(OCPDeviceType), NCustomers, NBranches, AverageRepairTime, TotalCustomers, SumFltRatesXRepairHrs, SumBranchFltRates,
                    FullName(ActiveCircuit[ActiveActor].ActiveCktElement)  ]));
             End;
-             iMeter := EnergyMeterClass.Next;
+             iMeter := EnergyMeterClass[ActiveActor].Next;
           End;
 
      End;

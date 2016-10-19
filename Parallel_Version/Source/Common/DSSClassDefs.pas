@@ -138,98 +138,98 @@ PROCEDURE CreateDSSClasses;
 
 Begin
 
-     Classnames   := THashList.Create(25);   // Makes 5 sub lists
-     DSSClassList := TPointerList.Create(10);  // 10 is initial size and increment
-     DSSClasses   := TDSSClasses.Create;  // class to handle junk for defining DSS classes
+     Classnames[ActiveActor]      := THashList.Create(25);   // Makes 5 sub lists
+     DSSClassList[ActiveActor]    := TPointerList.Create(10);  // 10 is initial size and increment
+     DSSClasses                   := TDSSClasses.Create;  // class to handle junk for defining DSS classes
 
      {General DSS objects, not circuit elements}
-     DSSObjs := TPointerList.Create(25);  // 25 is initial size and increment
+     DSSObjs[ActiveActor]         := TPointerList.Create(25);  // 25 is initial size and increment
 
      {instantiate all Intrinsic Object Classes}
 
      {Generic Object classes first in case others refer to them}
-     DSSClasses.New := TDSSSolution.Create;
-     SolutionClass  := ActiveDSSClass[ActiveActor];     // this is a special class
-     DSSClasses.New := TLineCode.Create;
-     LoadShapeClass := TLoadShape.Create;
-     DSSClasses.New := LoadShapeClass;
-     TShapeClass    := TTShape.Create;
-     DSSClasses.New := TShapeClass;
-     PriceShapeClass:= TPriceShape.Create;
-     DSSClasses.New := PriceShapeClass;
-     XYCurveClass   := TXYCurve.Create;
-     DSSClasses.New := XYCurveClass;
-     GrowthShapeClass := TGrowthShape.Create;
-     DSSClasses.New := GrowthShapeClass;
-     TCC_CurveClass := TTCC_Curve.Create;
-     DSSClasses.New := TCC_CurveClass;
-     SpectrumClass  := TSpectrum.Create;
-     DSSClasses.New := SpectrumClass;
-     WireDataClass  := TWireData.Create;
-     DSSClasses.New := WireDataClass;
-     CNDataClass    := TCNData.Create;
-     DSSClasses.New := CNDataClass;
-     TSDataClass    := TTSData.Create;
-     DSSClasses.New := TSDataClass;
-     DSSClasses.New := TLineGeometry.Create;
-     LineSpacingClass := TLineSpacing.Create;
-     DSSClasses.New := LineSpacingClass;
-     DSSClasses.New := TXfmrCode.Create;
+     DSSClasses.New               := TDSSSolution.Create;
+     SolutionClass[ActiveActor]   := ActiveDSSClass[ActiveActor];     // this is a special class
+     DSSClasses.New               := TLineCode.Create;
+     LoadShapeClass[ActiveActor]  := TLoadShape.Create;
+     DSSClasses.New               := LoadShapeClass[ActiveActor];
+     TShapeClass[ActiveActor]     := TTShape.Create;
+     DSSClasses.New               := TShapeClass[ActiveActor];
+     PriceShapeClass[ActiveActor] := TPriceShape.Create;
+     DSSClasses.New               := PriceShapeClass[ActiveActor];
+     XYCurveClass[ActiveActor]    := TXYCurve.Create;
+     DSSClasses.New               := XYCurveClass[ActiveActor];
+     GrowthShapeClass[ActiveActor]:= TGrowthShape.Create;
+     DSSClasses.New               := GrowthShapeClass[ActiveActor];
+     TCC_CurveClass[ActiveActor]  := TTCC_Curve.Create;
+     DSSClasses.New               := TCC_CurveClass[ActiveActor];
+     SpectrumClass[ActiveActor]   := TSpectrum.Create;
+     DSSClasses.New               := SpectrumClass[ActiveActor];
+     WireDataClass[ActiveActor]   := TWireData.Create;
+     DSSClasses.New               := WireDataClass[ActiveActor];
+     CNDataClass[ActiveActor]     := TCNData.Create;
+     DSSClasses.New               := CNDataClass[ActiveActor];
+     TSDataClass[ActiveActor]     := TTSData.Create;
+     DSSClasses.New               := TSDataClass[ActiveActor];
+     DSSClasses.New               := TLineGeometry.Create;
+     LineSpacingClass[ActiveActor]:= TLineSpacing.Create;
+     DSSClasses.New               := LineSpacingClass[ActiveActor];
+     DSSClasses.New               := TXfmrCode.Create;
 
      {Circuit Element Classes}
-     DSSClasses.New := TLine.Create;
-     DSSClasses.New := TVSource.Create;
-     DSSClasses.New := TISource.Create;
-     DSSClasses.New := TVCCS.Create;
-     DSSClasses.New := TLoad.Create;
-     DSSClasses.New := TTransf.Create;
-     DSSClasses.New := TRegControl.Create;
-     DSSClasses.New := TCapacitor.Create;
-     DSSClasses.New := TReactor.Create;
-     DSSClasses.New := TCapControl.Create;
-     DSSClasses.New := TFault.Create;
-     DSSClasses.New := TGenerator.Create;
-     DSSClasses.New := TGenDispatcher.Create;
-     StorageClass   := TStorage.Create;
-     DSSClasses.New := StorageClass;
-     DSSClasses.New := TStorageController.Create;
-     DSSClasses.New := TRelay.Create;
-     DSSClasses.New := TRecloser.Create;
-     DSSClasses.New := TFuse.Create;
+     DSSClasses.New               := TLine.Create;
+     DSSClasses.New               := TVSource.Create;
+     DSSClasses.New               := TISource.Create;
+     DSSClasses.New               := TVCCS.Create;
+     DSSClasses.New               := TLoad.Create;
+     DSSClasses.New               := TTransf.Create;
+     DSSClasses.New               := TRegControl.Create;
+     DSSClasses.New               := TCapacitor.Create;
+     DSSClasses.New               := TReactor.Create;
+     DSSClasses.New               := TCapControl.Create;
+     DSSClasses.New               := TFault.Create;
+     DSSClasses.New               := TGenerator.Create;
+     DSSClasses.New               := TGenDispatcher.Create;
+     StorageClass[ActiveActor]    := TStorage.Create;
+     DSSClasses.New               := StorageClass[ActiveActor];
+     DSSClasses.New               := TStorageController.Create;
+     DSSClasses.New               := TRelay.Create;
+     DSSClasses.New               := TRecloser.Create;
+     DSSClasses.New               := TFuse.Create;
 //     FeederClass    := TFeeder.Create;
 //     DSSClasses.New := FeederClass;
-     DSSClasses.New := TSwtControl.Create;
-     PVSystemClass  := TPVSystem.Create;
-     DSSClasses.New := PVSystemClass;
-     DSSClasses.New := TUPFC.Create;
-     DSSClasses.New := TUPFCControl.Create;
+     DSSClasses.New               := TSwtControl.Create;
+     PVSystemClass[ActiveActor]   := TPVSystem.Create;
+     DSSClasses.New               := PVSystemClass[ActiveActor];
+     DSSClasses.New               := TUPFC.Create;
+     DSSClasses.New               := TUPFCControl.Create;
 
 
 
-     InvControlClass := TInvControl.Create;
-     DSSClasses.New  := InvControlClass;
+     InvControlClass[ActiveActor] := TInvControl.Create;
+     DSSClasses.New               := InvControlClass[ActiveActor];
 
-     ExpControlClass := TExpControl.Create;
-     DSSClasses.New  := ExpControlClass;
+     ExpControlClass[ActiveActor] := TExpControl.Create;
+     DSSClasses.New               := ExpControlClass[ActiveActor];
 
-     DSSClasses.New := TGICLine.Create;
-     DSSClasses.New := TGICTransformer.Create;
+     DSSClasses.New               := TGICLine.Create;
+     DSSClasses.New               := TGICTransformer.Create;
 
-     DSSClasses.New := TVSConverter.Create;
+     DSSClasses.New               := TVSConverter.Create;
 
-     MonitorClass   := TDSSMonitor.Create;  // Have to do this AFTER Generator
-     DSSClasses.New := MonitorClass;
-     EnergyMeterClass := TEnergyMeter.Create;  // Have to do this AFTER Generator
-     DSSClasses.New := EnergyMeterClass;
-     SensorClass    := TSensor.Create;      // Create state estimation sensors
-     DSSClasses.New := SensorClass;
+     MonitorClass[ActiveActor]    := TDSSMonitor.Create;  // Have to do this AFTER Generator
+     DSSClasses.New               := MonitorClass[ActiveActor];
+     EnergyMeterClass[ActiveActor]:= TEnergyMeter.Create;  // Have to do this AFTER Generator
+     DSSClasses.New               := EnergyMeterClass[ActiveActor];
+     SensorClass[ActiveActor]     := TSensor.Create;      // Create state estimation sensors
+     DSSClasses.New               := SensorClass[ActiveActor];
 
 
 
  { Create Classes for custom implementations }
      CreateMyDSSClasses;
 
-     NumIntrinsicClasses := DSSClassList.ListSize;
+     NumIntrinsicClasses := DSSClassList[ActiveActor].ListSize;
      NumUserClasses := 0;
 
    {Add user-defined objects}
@@ -254,40 +254,45 @@ VAR
     DSSObj :TDSSObject;
     TraceName :String;
     SuccessFree :String;
+    DSSCidx,temp     : Integer;
 
 BEGIN
+  temp  :=  ActiveActor;
+  for DSSCidx := 1 to NumOfActors do
+  begin
+    ActiveActor :=  DSSCidx;
+    TRY
+       SuccessFree := 'First Object';
+       For i := 1 to DSSObjs[ActiveActor].ListSize Do
+       Begin
+           DSSObj    := DSSObjs[ActiveActor].Get(i);
+           TraceName := DSSObj.ParentClass.Name + '.' + DSSObj.Name;
+           DSSObj.Free;
+           SuccessFree := TraceName;
+       End;
+       TraceName := '(DSSObjs Class)';
+       DSSObjs[ActiveActor].Free;
+    EXCEPT
+        On E: Exception Do
+          Dosimplemsg('Exception disposing of DSS Obj "'+TraceName+'". '+CRLF +
+                      'Last Successful dispose was for object "' + SuccessFree + '" ' +CRLF+
+                       E.Message, 901);
+    END;
 
-  TRY
-     SuccessFree := 'First Object';
-     For i := 1 to DSSObjs.ListSize Do
-     Begin
-         DSSObj    := DSSObjs.Get(i);
-         TraceName := DSSObj.ParentClass.Name + '.' + DSSObj.Name;
-         DSSObj.Free;
-         SuccessFree := TraceName;
-     End;
-     TraceName := '(DSSObjs Class)';
-     DSSObjs.Free;
-  EXCEPT
-      On E: Exception Do
-        Dosimplemsg('Exception disposing of DSS Obj "'+TraceName+'". '+CRLF +
-                    'Last Successful dispose was for object "' + SuccessFree + '" ' +CRLF+
-                     E.Message, 901);
-  END;
-
-  TRY
-     For i := 1 to DSSClassList.ListSize Do TDSSClass(DSSClassList.Get(i)).Free;
-     TraceName := '(DSS Class List)';
-     DSSClassList.Free;
-     TraceName := '(DSS Classes)';
-     DSSClasses.Free;
-     TraceName := '(ClassNames)';
-     ClassNames.Free;
-  EXCEPT
-      On E: Exception Do
-        Dosimplemsg('Exception disposing of DSS Class"'+TraceName+'". '+CRLF + E.Message, 902);
-  END;
-
+    TRY
+       For i := 1 to DSSClassList[ActiveActor].ListSize Do TDSSClass(DSSClassList[ActiveActor].Get(i)).Free;
+       TraceName := '(DSS Class List)';
+       DSSClassList[ActiveActor].Free;
+       TraceName := '(ClassNames)';
+       ClassNames[ActiveActor].Free;
+    EXCEPT
+        On E: Exception Do
+          Dosimplemsg('Exception disposing of DSS Class"'+TraceName+'". '+CRLF + E.Message, 902);
+    END;
+  End;
+  TraceName := '(DSS Classes)';
+  DSSClasses.Free;
+  ActiveActor :=  temp;
 End;
 
 
@@ -341,7 +346,7 @@ VAR Classref :Integer;
 
 Begin
 
-   Classref := ClassNames.Find(ObjType);
+   Classref := ClassNames[ActiveActor].Find(ObjType);
 
    Case Classref of
      0: Begin
@@ -350,7 +355,7 @@ Begin
             Exit;
         End;{Error}
    ELSE
-        LastClassReferenced := Classref;
+        LastClassReferenced[ActiveActor] := Classref;
    End;
 
    Result := TRUE;
@@ -360,7 +365,7 @@ End;
 //----------------------------------------------------------------------------
 FUNCTION  GetDSSClassPtr(Const ClassName:String):TDSSClass;
 Begin
-     Result := TDSSClass(DSSClassList.Get(ClassNames.Find(lowercase(ClassName))));
+     Result := TDSSClass(DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find(lowercase(ClassName))));
 End;
 
 
