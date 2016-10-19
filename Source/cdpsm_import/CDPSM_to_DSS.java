@@ -406,130 +406,66 @@ public class CDPSM_to_DSS extends Object {
     return "x";
   }
 
-  static String GetPowerTransformerData (Model mdl, String xf_id) {
-    // used to collect the PowerTransformerEnds belonging to xf_id
-    Property ptXfmr = mdl.getProperty (nsCIM, "PowerTransformerEnd.PowerTransformer");
+  static String GetPowerTransformerData (Model mdl, String xf_id, double smult, double vmult) {
 
-    // navigate from PowerTransformer via AssetDatasheet to PowerTransformerInfo
-    // then TransformerTankInfo back-references to that PowerTransformerInfo
-    //   and TransformerTankInfo (plural) back-reference to the TransformerTankInfo
-    // TODO - core Y and mesh Z option if there is no datasheet
-
-    Property ptData = mdl.getProperty (nsCIM, "PowerSystemResource.AssetDatasheet");
-    Property ptInf1 = mdl.getProperty (nsCIM, "TransformerTankInfo.PowerTransformerInfo");
-    Property ptInf2 = mdl.getProperty (nsCIM, "TransformerEndInfo.TransformerTankInfo");
-
-    Property ptEndG = mdl.getProperty (nsCIM, "PowerTransformerEnd.g");
-    Property ptEndB = mdl.getProperty (nsCIM, "PowerTransformerEnd.b");
-    Property ptEndR = mdl.getProperty (nsCIM, "PowerTransformerEnd.r");
-    Property ptEndX = mdl.getProperty (nsCIM, "PowerTransformerEnd.x");
+		// used to collect the PowerTransformerEnds belonging to xf_id
+		Property ptXfmr = mdl.getProperty (nsCIM, "PowerTransformerEnd.PowerTransformer");
+		// PowerTransformerEnd instance data0
+    Property ptEndRw = mdl.getProperty (nsCIM, "PowerTransformerEnd.r");
     Property ptEndC = mdl.getProperty (nsCIM, "PowerTransformerEnd.connectionKind");
-    Property ptEndV = mdl.getProperty (nsCIM, "PowerTransformerEnd.ratedU");
+//		Property ptEndK = mdl.getProperty (nsCIM, "PowerTransformerEnd.phaseAngleClock");
+
+		Property ptEndV = mdl.getProperty (nsCIM, "PowerTransformerEnd.ratedU");
     Property ptEndS = mdl.getProperty (nsCIM, "PowerTransformerEnd.ratedS");
-    Property ptEndGrnd = mdl.getProperty (nsCIM, "TransformerEnd.grounded");
+		Property ptEndGrnd = mdl.getProperty (nsCIM, "TransformerEnd.grounded");
     Property ptEndRn   = mdl.getProperty (nsCIM, "TransformerEnd.rground");
     Property ptEndXn   = mdl.getProperty (nsCIM, "TransformerEnd.xground");
     Property ptEndN    = mdl.getProperty (nsCIM, "TransformerEnd.endNumber");
 
-    Property ptInfR = mdl.getProperty (nsCIM, "TransformerEndInfo.r");
-    Property ptInfN = mdl.getProperty (nsCIM, "TransformerEndInfo.endNumber");
-    Property ptInfC = mdl.getProperty (nsCIM, "TransformerEndInfo.connectionKind");
-    Property ptInfV = mdl.getProperty (nsCIM, "TransformerEndInfo.ratedU");
-    Property ptInfS = mdl.getProperty (nsCIM, "TransformerEndInfo.ratedS");
-
     Resource rXf = mdl.getResource (xf_id);
 
     // first count the number of windings
-    ResIterator itTank, itEnd;
-    Resource rDS, rEnd, rTank;
+    ResIterator itEnd;
+    Resource rEnd;
     int i, nwdg = 0;
     itEnd = mdl.listResourcesWithProperty (ptXfmr, rXf);
     while (itEnd.hasNext()) {
       ++nwdg;
       itEnd.nextResource();
     }
-    double v[] = new double[nwdg];
-    double s[] = new double[nwdg];
-    double r[] = new double[nwdg];
-    double x[] = new double[nwdg];
-    double zb[] = new double[nwdg];
-    double g[] = new double[nwdg];
-    double b[] = new double[nwdg];
-    double rn[] = new double[nwdg];
-    double xn[] = new double[nwdg];
-    String wye[] = new String[nwdg];
-    for (i = 0; i < nwdg; i++) {
-      v[i] = 1.0;
-      s[i] = 1.0;
-      r[i] = 0.0;
-      x[i] = 0.01;
-      zb[i] = 1.0;
-      g[i] = 0.0;
-      b[i] = 0.0;
-      rn[i] = 0.0;
-      xn[i] = 0.0;
-      wye[i] = "W";
-    }
 
-    // get the available datasheet values first
-    if (rXf.hasProperty(ptData)) { 
-      rDS = rXf.getProperty(ptData).getResource();
-      itTank = mdl.listResourcesWithProperty (ptInf1, rDS);
-      while (itTank.hasNext()) {
-        rTank = itTank.nextResource();
-        itEnd = mdl.listResourcesWithProperty (ptInf2, rTank);
-        while (itEnd.hasNext()) {
-          rEnd = itEnd.nextResource();
-          if (rEnd.hasProperty(ptInfN)) {
-            i = rEnd.getProperty(ptInfN).getInt() - 1;
-            v[i] = SafeDouble (rEnd, ptInfV, v[i]);
-            s[i] = SafeDouble (rEnd, ptInfS, s[i]);
-            r[i] = SafeDouble (rEnd, ptInfR, r[i]);
-            wye[i] = GetWdgConnection (rEnd, ptInfC, wye[i]);
-          }
-        }
-      }
-    }
-
-    // now go through the PowerTransformerEnds and back-fill / over-write the asset data
+		// now go through the PowerTransformerEnds; we can only deal with two or three
+		double v[] = new double[nwdg];
+		double s[] = new double[nwdg];
+		double zb[] = new double[nwdg];
+		double rw[] = new double[nwdg];
+		double rn[] = new double[nwdg];
+		double xn[] = new double[nwdg];
+		String wye[] = new String[nwdg];
+		Resource rEnds[] = new Resource[nwdg];
     itEnd = mdl.listResourcesWithProperty (ptXfmr, rXf);
     while (itEnd.hasNext()) {
       rEnd = itEnd.nextResource();
       i = SafeInt (rEnd, ptEndN, 1) - 1;
-      v[i] = SafeDouble (rEnd, ptEndV, v[i]);
-      s[i] = SafeDouble (rEnd, ptEndS, s[i]);
-      r[i] = SafeDouble (rEnd, ptEndR, r[i]);
-      x[i] = SafeDouble (rEnd, ptEndX, x[i]);
-      g[i] = SafeDouble (rEnd, ptEndG, g[i]);
-      b[i] = SafeDouble (rEnd, ptEndB, b[i]);
-      rn[i] = SafeDouble (rEnd, ptEndRn, rn[i]);
-      xn[i] = SafeDouble (rEnd, ptEndXn, xn[i]);
-      wye[i] = GetWdgConnection (rEnd, ptEndC, wye[i]);
+      v[i] = vmult * SafeDouble (rEnd, ptEndV, 1.0 / vmult); // kv
+      s[i] = smult * SafeDouble (rEnd, ptEndS, 1.0 / smult); // kva
+			zb[i] = 1000.0 * v[i] * v[i] / s[i];
+			rw[i] = 100.0 * SafeDouble (rEnd, ptEndRw, 0.0) / zb[i];
+      rn[i] = SafeDouble (rEnd, ptEndRn, 0.0);
+      xn[i] = SafeDouble (rEnd, ptEndXn, 0.0);
+      wye[i] = GetWdgConnection (rEnd, ptEndC, "W");
+			rEnds[i] = rEnd; // save to construct the impedance data
     }
 
     StringBuilder bufU = new StringBuilder (" kvs=[");
     StringBuilder bufS = new StringBuilder (" kvas=[");
     StringBuilder bufC = new StringBuilder (" conns=[");
     StringBuilder bufR = new StringBuilder (" %Rs=[");
-    double maxB = 0.0;
-    double maxG = 0.0;
 
     for (i = 0; i < nwdg; i++) {
-      s[i] = s[i] * 1000.0; // EdF uses MVA
-      zb[i] = 1000.0 * v[i] * v[i] / s[i];
-      r[i] = 100.0 * r[i] / zb[i]; // percent R, X, G, B
-      x[i] = 100.0 * x[i] / zb[i];
-      g[i] = 100.0 * g[i] * zb[i];
-      b[i] = 100.0 * b[i] * zb[i];
-      if (g[i] > maxG) {
-        maxG = g[i];
-      }
-      if (b[i] > maxB) {
-        maxB = b[i];
-      }
       String U = Double.toString(v[i]);
       String S = Double.toString(s[i]);
-      String R = Double.toString(r[i]);
+      String R = Double.toString(rw[i]);
 
       if (i < nwdg - 1) {
         bufU.append (U + ",");
@@ -543,11 +479,26 @@ public class CDPSM_to_DSS extends Object {
         bufR.append (R + "]");
       }
     }
-    StringBuilder bufX = new StringBuilder (" %imag=" + Double.toString(maxB) + " %noloadloss=" + Double.toString(maxG));
-    bufX.append (" Xhl=" + Double.toString(x[0]+x[1]));
+
+		// find the Xhl, Xht, Xlt, and core values from TransformerMeshImpedance, TransformerCoreAdmittance
+		Property ptFrom = mdl.getProperty (nsCIM, "TransformerMeshImpedance.FromTransformerEnd");
+		Property ptTo = mdl.getProperty (nsCIM, "TransformerMeshImpedance.ToTransformerEnd");
+		Property ptMeshX = mdl.getProperty (nsCIM, "TransformerMeshImpedance.x");
+		Property ptCoreB = mdl.getProperty (nsCIM, "TransformerCoreAdmittance.b");
+		Property ptCoreG = mdl.getProperty (nsCIM, "TransformerCoreAdmittance.g");
+		Resource rMesh, rCore;
+		double x;
+
+    StringBuilder bufX = new StringBuilder (" %imag=" + Double.toString(0.0) + " %noloadloss=" + Double.toString(0.0));
+		itEnd = mdl.listResourcesWithProperty (ptFrom, rEnds[0]);
+		while (itEnd.hasNext()) {
+			rMesh = itEnd.nextResource();
+			x = 100.0 * SafeDouble (rMesh, ptMeshX, 1.0) / zb[0];
+			bufX.append (" Xhl=" + Double.toString(x));
+		}
     if (nwdg > 2) { // TODO - more than 3 windings
-      bufX.append (" Xht=" + Double.toString(x[0]+x[2]));
-      bufX.append (" Xlt=" + Double.toString(x[1]+x[2]));
+//      bufX.append (" Xht=" + Double.toString(x[0]+x[2]));
+//      bufX.append (" Xlt=" + Double.toString(x[1]+x[2]));
     }
     return " phases=3 windings=" + Integer.toString(nwdg) + bufX + bufU + bufS + bufC + bufR;
   }
@@ -657,29 +608,30 @@ public class CDPSM_to_DSS extends Object {
     // used to collect the TransformerTankEnds belonging to rTank
     Property ptXfmr = mdl.getProperty (nsCIM, "TransformerTankEnd.TransformerTank");
 
-    // navigate from PowerTransformer via AssetDatasheet to PowerTransformerInfo
-    // then TransformerTankInfo back-references to that PowerTransformerInfo
-    //   and TransformerTankInfo (plural) back-reference to the TransformerTankInfo
     // TODO - core Y and mesh Z option if there is no datasheet
     // TODO - parse the ShortCircuitTest and NoLoadTest data if available
 
-//    Property ptData = mdl.getProperty (nsCIM, "PowerSystemResource.AssetDatasheet");
-    Property ptInf1 = mdl.getProperty (nsCIM, "TransformerTankInfo.PowerTransformerInfo");
+		// navigate from TransformerTank via AssetDatasheet to TransformerTankInfo,
+		// then collect its TransformerEndInfos, ShortCircuitTests and NoLoadTests
+		Property ptAssetPSR = mdl.getProperty (nsCIM, "Asset.PowerSystemResources");
+		Property ptAssetInf = mdl.getProperty (nsCIM, "Asset.AssetInfo");
+//    Property ptInf1 = mdl.getProperty (nsCIM, "TransformerTank.TransformerTankInfo");
     Property ptInf2 = mdl.getProperty (nsCIM, "TransformerEndInfo.TransformerTankInfo");
-
-    Property ptAssetPSR = mdl.getProperty (nsCIM, "Asset.PowerSystemResources");
-    Property ptAssetInf = mdl.getProperty (nsCIM, "Asset.AssetInfo");
 
     Property ptEndGrnd = mdl.getProperty (nsCIM, "TransformerEnd.grounded");
     Property ptEndRn   = mdl.getProperty (nsCIM, "TransformerEnd.rground");
     Property ptEndXn   = mdl.getProperty (nsCIM, "TransformerEnd.xground");
     Property ptEndN    = mdl.getProperty (nsCIM, "TransformerEnd.endNumber");
+		Property ptEndV    = mdl.getProperty (nsCIM, "TransformerEnd.BaseVoltage");
 
     Property ptInfR = mdl.getProperty (nsCIM, "TransformerEndInfo.r");
     Property ptInfN = mdl.getProperty (nsCIM, "TransformerEndInfo.endNumber");
     Property ptInfC = mdl.getProperty (nsCIM, "TransformerEndInfo.connectionKind");
+		Property ptEndK = mdl.getProperty (nsCIM, "TransformerEndInfo.phaseAngleClock");
     Property ptInfV = mdl.getProperty (nsCIM, "TransformerEndInfo.ratedU");
     Property ptInfS = mdl.getProperty (nsCIM, "TransformerEndInfo.ratedS");
+		Property ptInfS1 = mdl.getProperty (nsCIM, "TransformerEndInfo.shortTermS");
+		Property ptInfS2 = mdl.getProperty (nsCIM, "TransformerEndInfo.emergencyS");
 
     // first count the number of windings
     ResIterator itEnd;
@@ -713,7 +665,7 @@ public class CDPSM_to_DSS extends Object {
       wye[i] = "W";
     }
 
-    // get the available datasheet values first - TODO, what if it's on the PowerXfmr only, not the tank?
+    // get the available datasheet values first - must be on the tank
     ResIterator itAsset = mdl.listResourcesWithProperty (ptAssetPSR, rTank);
     while (itAsset.hasNext()) {
       Resource rAsset = itAsset.nextResource();
@@ -1772,13 +1724,13 @@ public class CDPSM_to_DSS extends Object {
           name = DSS_Name (rTank.getProperty(ptName).getString());
           xfBus = GetTankBusesAndPhaseCount (model, rTank);
           out.println ("new Transformer." + name + xfmrbank + xfBus);
-          out.println ("~ " + GetTankData (model, rTank, smult, vmult));
+          out.println ("~ " + GetTankData (model, rTank, smult, vmult) + " // Tanked");
           outGuid.println ("Transformer." + name + "\t" + DSS_Guid (id));
         }
       } else { // standalone power transformer
         xfBus = GetWindingBuses (model, id);
         out.println ("new Transformer." + name + xfmrbank + " buses=" 
-                     + xfBus + GetPowerTransformerData (model, id));
+                     + xfBus + "\n ~ " + GetPowerTransformerData (model, id, smult, vmult) + " // Standalone");
         outGuid.println ("Transformer." + name + "\t" + DSS_Guid (id));
       }
     }
