@@ -59,7 +59,7 @@ Var
   BankList: array of TBankObject;
 
 Const
-  CIM_NS = 'http://iec.ch/TC57/2013/CIM-schema-cim16';
+  CIM_NS = 'http://iec.ch/TC57/2012/CIM-schema-cim16';
 
 function PhaseString (pElem:TDSSCktElement; bus: Integer):String; // if order doesn't matter
 var
@@ -1458,6 +1458,9 @@ Begin
       pBank := BankList[i];
       if pBank = nil then break;
       pBank.BuildVectorGroup;
+			// we don't want = sign in the name.  These should still be unique names
+			if AnsiPos ('=', pBank.localName) = 1 then 
+				pBank.localName := Copy(pBank.localName, 2, MaxInt);
       StartInstance (F, 'PowerTransformer', pBank);
       CircuitNode (F, ActiveCircuit);
       StringNode (F, 'PowerTransformer.vectorGroup', pBank.vectorGroup);
