@@ -29,7 +29,7 @@ implementation
 
 Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions,  PlotOptions,
      ExportOptions, ParserDel, LoadShape, DSSForms, sysutils, Utilities, SolutionAlgs,
-     DSSClassDefs;
+     DSSClassDefs, windows;
 
 
 PROCEDURE DefineCommands;
@@ -473,12 +473,10 @@ End;
 //----------------------------------------------------------------------------
 PROCEDURE ProcessCommand(Const CmdLine:String);
 VAR
-   ParamPointer:Integer;
+   ParamPointer, i:Integer;
    ParamName:String;
    Param:String;
    ObjName, PropName:String;
-   ActorsRdy  : Boolean;
-   ExIdx      : Integer;
 
 Begin
 
@@ -573,13 +571,8 @@ Begin
             end;
        106: DoClearAllCmd;
        107: begin
-              ActorsRdy :=  False;
-              while Not ActorsRdy do
-              Begin
-                ActorsRdy :=  True;
-                for ExIdx := 1 to NumOfActors do ActorsRdy  :=  (ActorStatus[ExIdx] = 1) and ActorsRdy;
-                sleep(10);
-              End;
+              for i := 1 to NumOfActors do
+                ActorHandle[i].WaitFor;
             end;
 
 

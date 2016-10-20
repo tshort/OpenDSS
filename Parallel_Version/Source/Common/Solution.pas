@@ -514,7 +514,8 @@ Try
          DosimpleMsg('Unknown solution mode.', 481);
      End;
 }
-    Process :=  TSolver.Create(false,ActorCPU[ActorID],ActorID,ScriptEd.UpdateSummaryForm);
+    if ActorHandle[ActorID] <> nil  then ActorHandle[ActorID].Free;
+    ActorHandle[ActorID] :=  TSolver.Create(false,ActorCPU[ActorID],ActorID,ScriptEd.UpdateSummaryForm);
 Except
 
     On E:Exception Do Begin
@@ -1825,7 +1826,7 @@ var
 begin
   Inherited Create(Susp);
   FInfoProc       :=  CallBack;
-  FreeOnTerminate := True;
+  FreeOnTerminate := False;
   ActorID         :=  ID;
   Parallel.Set_Process_Priority(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
   Parallel.Set_Thread_Priority(handle,THREAD_PRIORITY_TIME_CRITICAL);

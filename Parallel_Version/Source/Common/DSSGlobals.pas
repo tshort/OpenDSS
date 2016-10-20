@@ -215,6 +215,7 @@ VAR
    ActorProgressCount : Array of integer;
    ActorProgress      : Array of TProgress;
    ActorPctProgress   : Array of integer;
+   ActorHandle        : Array of TThread;
 
 
 
@@ -749,6 +750,7 @@ initialization
    setlength(ExpControlClass,CPU_Cores + 1);
    setlength(EventStrings,CPU_Cores + 1);
    setlength(SavedFileList,CPU_Cores + 1);
+   setlength(ActorHandle,CPU_Cores + 1);
 
    for ActiveActor := 1 to CPU_Cores do
    begin
@@ -758,6 +760,7 @@ initialization
     ActorStatus[ActiveActor]          :=  1;
     EventStrings[ActiveActor]         := TStringList.Create;
     SavedFileList[ActiveActor]        := TStringList.Create;
+    ActorHandle[ActiveActor]          :=  nil;
    end;
 
    ActiveActor      :=  1;
