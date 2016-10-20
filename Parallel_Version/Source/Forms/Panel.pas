@@ -1014,7 +1014,7 @@ begin
   Until Length(CmdLineFileName)=0;
 
   MainEditForm.HasBeenModified := FALSE; // so it doesn't show yellow
-  ActiveScriptForm.UpdateSummaryForm(ActiveActor);
+  ActiveScriptForm.UpdateSummaryForm(inttostr(ActiveActor));
 
 // If a command line file name give, attempt to execute the script
   If CmdLineFileFound Then Begin
@@ -2135,7 +2135,7 @@ end;
 procedure TControlPanel.Summary1Click(Sender: TObject);
 begin
    If ActiveCircuit[ActiveActor] <> Nil Then
-      ActiveScriptForm.UpdateSummaryForm(ActiveActor);
+      ActiveScriptForm.UpdateSummaryForm(inttostr(ActiveActor));
    ResultPages.ActivePage := SummaryTab;
 end;
 

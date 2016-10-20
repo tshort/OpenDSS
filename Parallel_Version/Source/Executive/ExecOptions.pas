@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 113;
+        NumExecOptions = 114;
 
 VAR
          ExecOption,
@@ -27,7 +27,7 @@ FUNCTION DoGetCmd_NoCircuit:Boolean;  // Get Commands that do not require a circ
 implementation
 
 Uses DSSClassDefs, DSSGlobals, ParserDel, Math,     Executive,  ExecHelper,
-     LoadShape,    Utilities,  Sysutils,  Solution, Energymeter;
+     LoadShape,    Utilities,  Sysutils, ScriptEdit,  Solution, Energymeter;
 
 
 PROCEDURE DefineOptions;
@@ -147,6 +147,7 @@ Begin
      ExecOption[111] := 'NumActors';
      ExecOption[112] := 'ActiveActor';
      ExecOption[113] := 'CPU';
+     ExecOption[114] := 'ActorProgress';
 
 
 
@@ -398,6 +399,7 @@ Begin
      OptionHelp[111] := 'Delivers the number of Actors created by the user, 1 is the default';
      OptionHelp[112] := 'Gets/Sets the number of the active actor';
      OptionHelp[113] := 'Gets/Sets the CPU to be used by the active actor';
+     OptionHelp[114] := 'Gets progress (%) for all the actors when performing a task';
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -674,6 +676,7 @@ VAR
    ParamPointer, i:Integer;
    ParamName:String;
    Param:String;
+   ScriptEd : TScriptEdit;
 
 Begin
 
@@ -690,6 +693,7 @@ Begin
      WHILE Length(Param)>0 DO
      Begin
          ParamPointer := OptionList.GetCommand(Param);
+
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Get Command ', 133);
@@ -828,6 +832,7 @@ Begin
           111: AppendGlobalResult(Format('%d' ,[NumOfActors]));
           112: AppendGlobalResult(Format('%d' ,[ActiveActor]));
           113: AppendGlobalResult(Format('%d' ,[ActorCPU[ActiveActor]]));
+          114: ScriptEd.UpdateProgressSummary;
          ELSE
            // Ignore excess parameters
          End;

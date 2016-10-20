@@ -79,16 +79,19 @@ TYPE
        FUNCTION NewObject(const ObjName:String):Integer; override;
 
    End;
-
+   TInfoMessageCall = Procedure(const info:String) of object;  // Creates the procedure for sending a message
    TSolver=class(TThread)
-      Constructor Create(Susp:Boolean;local_CPU: integer; ID : integer);overload;
+      Constructor Create(Susp:Boolean;local_CPU: integer; ID : integer; CallBack: TInfoMessageCall);overload;
       procedure Execute; override;
 //*******************************Private components*****************************
     private
       FMessage  : String;
+      FInfoProc : TInfoMessageCall;
       Msg_Cmd   : string;
       ActorID   : integer;
 //*******************************Public components******************************
+    Public
+      procedure CallCallBack;
    end;
 
    TSolutionObj = class(TDSSObject)
@@ -444,6 +447,8 @@ End;
 
 // ===========================================================================================
 PROCEDURE TSolutionObj.Solve(ActorID : Integer);
+var
+  ScriptEd  : TScriptEdit;
 
 Begin
 
@@ -509,7 +514,7 @@ Try
          DosimpleMsg('Unknown solution mode.', 481);
      End;
 }
-    Process :=  TSolver.Create(false,ActorCPU[ActorID],ActorID);
+    Process :=  TSolver.Create(false,ActorCPU[ActorID],ActorID,ScriptEd.UpdateSummaryForm);
 Except
 
     On E:Exception Do Begin
@@ -1812,13 +1817,14 @@ END;
 ********************************************************************************
 }
 
-constructor TSolver.Create(Susp: Boolean; local_CPU: integer; ID : integer);
+constructor TSolver.Create(Susp: Boolean; local_CPU: integer; ID : integer; CallBack: TInfoMessageCall);
 
 var
   Parallel  : TParallel_Lib;
   Thpriority: String;
 begin
   Inherited Create(Susp);
+  FInfoProc       :=  CallBack;
   FreeOnTerminate := True;
   ActorID         :=  ID;
   Parallel.Set_Process_Priority(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
@@ -1840,6 +1846,8 @@ var
       if ActorStatus[ActorID] = 1 then
       begin
         ActorStatus[ActorID] := 0;
+        FMessage  :=  '1';
+        synchronize(CallCallBack);
 //        InitProgressForm(ActorID); // initialize Progress Form;
            Case Dynavars.SolutionMode OF
                SNAPSHOT       : SolveSnap(ActorID);
@@ -1868,9 +1876,14 @@ var
         Total_Time_Elapsed := Total_Time_Elapsed + Total_Solve_Time_Elapsed;
 //        ProgressHide(ActorID);
         ActorStatus[ActorID]  :=  1;
-        ScriptEd.UpdateSummaryForm(ActorID);
+        FMessage  :=  '1';
+        synchronize(CallCallBack);
       end;
     end;
+  end;
+procedure TSolver.CallCallBack;
+  begin
+    if Assigned(FInfoProc) then  FInfoProc(FMessage);
   end;
 
 initialization

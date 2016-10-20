@@ -46,8 +46,9 @@ type
     Procedure ExecuteDSSCommand(Const S:String);
     Procedure UpdateResultform;
     Procedure SaveEditorContents;
-    Procedure UpdateSummaryForm(ActorID: integer);
+    Procedure UpdateSummaryForm(Const s: string);
     Property HasBeenModified:Boolean Read Get_HasBeenModified Write Set_HasBeenModified;
+    Procedure UpdateProgressSummary;
   end;
 
 var
@@ -168,7 +169,7 @@ Begin
   begin
     If Not IsDLL Then  Begin
       UpdateResultForm;
-      UpdateSummaryForm(ActiveActor);
+      UpdateSummaryForm(inttostr(ActiveActor));
     End;
   end;
 End;
@@ -181,11 +182,12 @@ begin
   If Not IsDLL Then ControlPanel.Edit_Result.Text := GlobalResult;
 end;
 
-procedure TScriptEdit.UpdateSummaryForm(ActorID: integer);
+Procedure TScriptEdit.UpdateSummaryForm(Const s: string);
 Var
   cLosses, cPower :Complex;
   ActorsRdy       : Boolean;
   USIdx           : Integer;
+  TStr            : String;
 begin
   With ControlPanel.SummaryEdit Do Begin
     ActorsRdy :=  True;
@@ -255,10 +257,23 @@ begin
           Lines.EndUpdate;
         End;
       End;
-
-      ActiveActor :=  ActorID;
-
-    End;
+    End
+    else
+    begin
+      Clear;
+      Lines.BeginUpdate;
+      With Lines Do Begin
+          Add('Process Status');
+          for USIdx := 1 to NumOfActors do
+          Begin
+            if ActorStatus[USIdx] <> 1 then TStr :=  'Processing'
+            else TStr :=  'Ready';
+            Add('Actor ' + inttostr(USIdx) + ' CPU ' + inttostr(ActorCPU[USIdx]) + ': ' + TStr);
+            If Not IsDLL Then ControlPanel.UpdateStatus;
+            Lines.EndUpdate;
+          End;
+      End;
+    end;
   End;
 end;
 
@@ -442,6 +457,26 @@ begin
       inc(i);
       Editor.SelLength := Editor.SelLength + 1;
     End;
+  End;
+end;
+
+Procedure TScriptEdit.UpdateProgressSummary;
+var
+  USPIdx  : Integer;
+begin
+  With ControlPanel.SummaryEdit Do Begin
+      Clear;
+      Lines.BeginUpdate;
+      With Lines Do Begin
+          Add('Process Progress');
+          for USPIdx := 1 to NumOfActors do
+          Begin
+            Add('Actor ' + inttostr(USPIdx) + ' CPU ' + inttostr(ActorCPU[USPIdx]) + ': ' +
+            IntToStr(ActorPctProgress[USPIdx]) + ' %');
+            If Not IsDLL Then ControlPanel.UpdateStatus;
+            Lines.EndUpdate;
+          End;
+      End;
   End;
 end;
 
