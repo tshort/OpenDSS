@@ -13,7 +13,7 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.util.FileManager;
 
 public class CDPSM_to_DSS extends Object {
-  static final String nsCIM = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
+  static final String nsCIM = "http://iec.ch/TC57/2012/CIM-schema-cim16#";
   static final String nsRDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   static final String baseURI = "http://opendss";
 
@@ -551,7 +551,7 @@ public class CDPSM_to_DSS extends Object {
     return buf.toString();
   }
 
-  static String GetTankBusesAndPhaseCount (Model mdl, Resource xfRes) {
+  static String GetTankBusesAndPhaseCount (Model mdl, Resource xfRes, boolean bXfmrCode) {
     Property ptXfmr = mdl.getProperty (nsCIM, "TransformerTankEnd.TransformerTank");
     Property ptEnd = mdl.getProperty (nsCIM, "TransformerEnd.endNumber");
     Property ptTerm = mdl.getProperty (nsCIM, "TransformerEnd.Terminal");
@@ -590,8 +590,13 @@ public class CDPSM_to_DSS extends Object {
       }
     }
 
-    StringBuilder buf = new StringBuilder (" windings=" + Integer.toString(nwdg) 
-                                           + " phases=" + Integer.toString(nphase) + " buses=[");
+		StringBuilder buf;
+		if (bXfmrCode) {
+			buf = new StringBuilder(" buses=[");
+		} else {
+			buf = new StringBuilder(" windings=" + Integer.toString(nwdg)
+																						 + " phases=" + Integer.toString(nphase) + " buses=[");
+		}
     for (i = 0; i < nwdg; i++) {
       buf.append (bus[i]);
       buf.append (Bus_Phases (phs[i]));
@@ -603,6 +608,16 @@ public class CDPSM_to_DSS extends Object {
     }
     return buf.toString();
   }
+
+	static String GetTankBusesAndXfmrCode (Model mdl, Resource rTank, Resource rDS) {
+		StringBuilder buf = new StringBuilder (GetTankBusesAndPhaseCount (mdl, rTank, true));
+
+		Property ptName = mdl.getProperty (nsCIM, "IdentifiedObject.name");
+		String xfName = mdl.getProperty(rDS,ptName).getString();
+		buf.append (" xfmrcode=" + xfName);
+
+		return buf.toString();
+	}
 
   static String GetTankData (Model mdl, Resource rTank, double smult, double vmult) {
     // used to collect the TransformerTankEnds belonging to rTank
@@ -749,11 +764,13 @@ public class CDPSM_to_DSS extends Object {
 		Property ptTank = mdl.getProperty (nsCIM, "TransformerTankEnd.TransformerTank");
 		Property ptXf = mdl.getProperty (nsCIM, "TransformerTank.PowerTransformer");
     Property ptName = mdl.getProperty (nsCIM, "IdentifiedObject.name");
+		Property ptTap = mdl.getProperty (nsCIM, "TapChanger.step");
     Resource rEnd = mdl.getProperty(reg,ptEnd).getResource();
 		int nWdg = SafeInt (rEnd, ptWdg, 1);
+		double dTap = SafeDouble(reg, ptTap, 1.0);
 		Resource rTank = mdl.getProperty(rEnd,ptTank).getResource();
 		Resource rXf = mdl.getProperty(rTank,ptXf).getResource();
-    String xfName = mdl.getProperty(rTank,ptName).getString(); // TODO - verify why rXf name prepends =
+    String xfName = mdl.getProperty(rTank,ptName).getString();
     buf.append (" transformer=" + xfName + " winding=" + Integer.toString(nWdg));
 
 		// look up the asset datasheet
@@ -784,10 +801,8 @@ public class CDPSM_to_DSS extends Object {
     double ldcX = SafeDouble (ctl, ptX, 0.0);
     double Vreg = SafeDouble (ctl, ptSet, 120.0);
     double Vband = SafeDouble (ctl, ptBand, 2.0);
-    Vreg /= PT;
-    Vband /= PT;
-
-		// TODO - pull SvTapStep
+//    Vreg /= PT;
+//    Vband /= PT;
 
     buf.append (" ctprim=" + Double.toString(CT) +
                 " ptratio=" + Double.toString(PT) +
@@ -795,22 +810,26 @@ public class CDPSM_to_DSS extends Object {
                 " band=" + Double.toString(Vband) +
                 " r=" + Double.toString(ldcR) +
                 " x=" + Double.toString(ldcX));
+		buf.append ("\nedit transformer." + xfName + " winding=" + Integer.toString(nWdg) + " tap=" + Double.toString(dTap));
     return buf.toString();
   }
 
-  static String GetXfmrCode (Model mdl, String id) {  // TODO - 2011 instance files don't actually use SC/NL tests
+  static String GetXfmrCode (Model mdl, String id, double smult, double vmult) {  
     Property ptInfo = mdl.getProperty (nsCIM, "TransformerEndInfo.TransformerTankInfo");
     Property ptU = mdl.getProperty (nsCIM, "TransformerEndInfo.ratedU");
     Property ptS = mdl.getProperty (nsCIM, "TransformerEndInfo.ratedS");
     Property ptR = mdl.getProperty (nsCIM, "TransformerEndInfo.r");
     Property ptC = mdl.getProperty (nsCIM, "TransformerEndInfo.connectionKind");
-    Property ptFrom = mdl.getProperty (nsCIM, "DistributionWindingTest.EnergisedEnd");
-    Property ptType = mdl.getProperty (nsRDF, "type");
-    Property ptTo = mdl.getProperty (nsCIM, "ShortCircuitTest.FromWinding"); // TODO - handle more than 3 windings
-    Property ptNLL = mdl.getProperty (nsCIM, "NoLoadTest.loss");
-    Property ptImag = mdl.getProperty (nsCIM, "OpenCircuitTest.excitingCurrent");
-    Property ptZsc = mdl.getProperty (nsCIM, "ShortCircuitTest.leakageImpedance");
-    StringBuilder bufU = new StringBuilder ("kvs=[");
+		Property ptCk = mdl.getProperty (nsCIM, "TransformerEndInfo.phaseAngleClock");
+    Property ptFrom = mdl.getProperty (nsCIM, "ShortCircuitTest.EnergisedEnd");
+    Property ptTo = mdl.getProperty (nsCIM, "ShortCircuitTest.GroundedEnds"); // TODO - this is actually a collection
+		Property ptZsc = mdl.getProperty (nsCIM, "ShortCircuitTest.leakageImpedance");
+    Property ptLL = mdl.getProperty (nsCIM, "ShortCircuitTest.loss");
+		Property ptEnd = mdl.getProperty (nsCIM, "NoLoadTest.EnergisedEnd");
+		Property ptNLL = mdl.getProperty (nsCIM, "NoLoadTest.loss");
+    Property ptImag = mdl.getProperty (nsCIM, "NoLoadTest.excitingCurrent");
+
+		StringBuilder bufU = new StringBuilder ("kvs=[");
     StringBuilder bufS = new StringBuilder ("kvas=[");
     StringBuilder bufC = new StringBuilder ("conns=[");
     StringBuilder bufR = new StringBuilder ("%Rs=[");
@@ -818,15 +837,14 @@ public class CDPSM_to_DSS extends Object {
     StringBuilder bufSC = new StringBuilder ("");
     String sPhases = "phases=3 ";
     int nWindings = 0;
-    int nOffset = nsRDF.length() - 2;
 
     Resource xfRes = mdl.getResource (id);
     ResIterator iter = mdl.listResourcesWithProperty (ptInfo, xfRes);
     while (iter.hasNext()) {
       Resource wdg = iter.nextResource();
       ++nWindings;
-      double dU = SafeDouble (wdg, ptU, 1);
-      double dS = SafeDouble (wdg, ptS, 1);
+      double dU = vmult * SafeDouble (wdg, ptU, 1);
+      double dS = smult * SafeDouble (wdg, ptS, 1);
       double dR = SafeDouble (wdg, ptR, 0);
       double Zbase = 1000.0 * dU * dU / dS;
       dR = 100.0 * dR / Zbase;
@@ -849,21 +867,23 @@ public class CDPSM_to_DSS extends Object {
         bufC.append (C + "] ");
         bufR.append (R + "] ");
       }
+			// find the short circuit tests - TODO only for up to 3 windings?
       ResIterator iterTest = mdl.listResourcesWithProperty (ptFrom, wdg);
       while (iterTest.hasNext()) {
         Resource test = iterTest.nextResource();
-        String sType = test.getProperty (ptType).getObject().toString().substring(nOffset);
-        if (sType.equals("NoLoadTest")) {
-          double dNLL = SafeDouble (test, ptNLL, 0);
-          double dImag = SafeDouble (test, ptImag, 0);
-          dNLL = 100 * dNLL / dS;
-          bufOC.append ("%imag=" + Double.toString(dImag) + " %noloadloss=" + Double.toString(dNLL) + " ");
-        } else if (sType.equals("ShortCircuitTest")) {
-          double dXsc = SafeDouble (test, ptZsc, 0.0001);
-          dXsc = 100.0 * dXsc / Zbase;
-          bufSC.append ("Xhl=" + Double.toString(dXsc) + " ");
-        }
+        double dXsc = SafeDouble (test, ptZsc, 0.0001);
+        dXsc = 100.0 * dXsc / Zbase;
+        bufSC.append ("Xhl=" + Double.toString(dXsc) + " ");
       }
+			// find the first no-load test
+			iterTest = mdl.listResourcesWithProperty (ptEnd, wdg);
+			while (iterTest.hasNext()) {
+				Resource test = iterTest.nextResource();
+				double dNLL = SafeDouble (test, ptNLL, 0);
+				double dImag = SafeDouble (test, ptImag, 0);
+				dNLL = 100 * dNLL / dS;
+				bufOC.append ("%imag=" + Double.toString(dImag) + " %noloadloss=" + Double.toString(dNLL) + " ");
+			}
     }
     if (bufSC.length() < 1) {
       bufSC.append ("xhl=1.0 ");
@@ -1691,9 +1711,8 @@ public class CDPSM_to_DSS extends Object {
 
       id = soln.get ("?s").toString();
       name = DSS_Name (soln.get ("?name").toString());
-// in 2011 GE and EdF instance files, we don't really have XfmrCodes
-//      out.println ("new XfmrCode." + name + " " + GetXfmrCode (model, id));
-//      outGuid.println ("XfmrCode." + name + "\t" + DSS_Guid (id));
+      out.println ("new XfmrCode." + name + " " + GetXfmrCode (model, id, smult, vmult));
+      outGuid.println ("XfmrCode." + name + "\t" + DSS_Guid (id));
     }
 
     // Transformers
@@ -1716,15 +1735,29 @@ public class CDPSM_to_DSS extends Object {
       xfmrbank = " bank=" + name;
 
       // using tanks or not?
+			Property ptAssetPSR = model.getProperty (nsCIM, "Asset.PowerSystemResources");
+			Property ptAssetInf = model.getProperty (nsCIM, "Asset.AssetInfo");
       Property ptTank = model.getProperty (nsCIM, "TransformerTank.PowerTransformer");
       ResIterator itTank = model.listResourcesWithProperty (ptTank, res);
+			Resource rDS, rAsset;
       if (itTank.hasNext()) { // write all the tanks to this bank
         while (itTank.hasNext()) {
           Resource rTank = itTank.nextResource();
           name = DSS_Name (rTank.getProperty(ptName).getString());
-          xfBus = GetTankBusesAndPhaseCount (model, rTank);
-          out.println ("new Transformer." + name + xfmrbank + xfBus);
-          out.println ("~ " + GetTankData (model, rTank, smult, vmult) + " // Tanked");
+					// using XfmrCode or not?
+					ResIterator itAsset = model.listResourcesWithProperty (ptAssetPSR, rTank);
+					if (itAsset.hasNext()) {
+						rAsset = itAsset.nextResource();
+						if (rAsset.hasProperty(ptAssetInf)) {
+							rDS = rAsset.getProperty(ptAssetInf).getResource();
+							xfBus = GetTankBusesAndXfmrCode (model, rTank, rDS);
+							out.println ("new Transformer." + name + xfmrbank + xfBus); // TODO - recover if no datasheet
+						}
+					} else {
+						xfBus = GetTankBusesAndPhaseCount (model, rTank, false);
+						out.println ("new Transformer." + name + xfmrbank + xfBus);
+						out.println ("~ " + GetTankData (model, rTank, smult, vmult) + " // Tanked");
+					}
           outGuid.println ("Transformer." + name + "\t" + DSS_Guid (id));
         }
       } else { // standalone power transformer
