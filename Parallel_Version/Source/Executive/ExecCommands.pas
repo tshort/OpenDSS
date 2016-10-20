@@ -467,7 +467,7 @@ Begin
                          ' however, if the number of actors is the same as the number of available CPUs the new actor will not be created ' +
                          'generating an error message. This instruction will deliver the ID of the active actor. This command does not requires a precedent command.';
      CommandHelp[106] := 'Clears all the circuits and all the actors, after this instruction there will be only 1 actor (actor 1) and will be the active actor';
-     CommandHelp[107] := 'Pauses the script thread until all the active actors are Ready to receive new commands';
+     CommandHelp[107] := 'Pauses the script thread until all the active actors are Ready to receive new commands (Under Testing)';
 End;
 
 //----------------------------------------------------------------------------
