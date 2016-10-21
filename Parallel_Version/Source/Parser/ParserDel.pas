@@ -203,6 +203,7 @@ begin
    {Replace TokenBuffer with Variable value if first character is VariableDelimiter character}
    If Length(TokenBuffer) > 1 Then
       If TokenBuffer[1] = VariableDelimiter Then  // looking for '@'
+      Begin
             Dotpos   := pos('.', TokenBuffer);
             CaratPos := pos('^', TokenBuffer);
             If CaratPos > 0 Then  DotPos := CaratPos;   // Carat takes precedence
@@ -219,6 +220,7 @@ begin
                End
                Else ReplaceToDotPos(VariableValue);
             End;
+      End;
 end;
 
 {=======================================================================================================================}
@@ -881,7 +883,6 @@ initialization
 
     // Variables
      ParserVars := TParserVar.Create(100);  // start with space for 100 variables
-     IsMultiThread  :=  True;
 
 Finalization
 
