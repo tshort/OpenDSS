@@ -1272,10 +1272,33 @@ Begin
       pCapC := ActiveCircuit.CapControls.Next;
     end;
 
-    // begin the transformers; write all the XfmrCodes first (CIM TransformerTankInfo)
+    // begin the transformers; 
+		//   1. if balanced three-phase and no XfmrCode, use PowerTransformerEnd(s), mesh impedances and core admittances with no tanks
+    //   2. with XfmrCode, write TransformerTank, TransformerTankEnd(s) and references to TransformerTankInfoInfo
+    //   3. otherwise, write TransformerTank, then create and reference TransformerTankInfo classes
+
+		// for case 3, it's better to identify and create the info classes first
+		//    TODO: side effect is that these transformers will reference XfmrCode until the text file is reloaded. Solution results should be the same.
+		pXf := ActiveCircuit.Transformers.First;
+		while pXf <> nil do begin
+			if pXf.Enabled then begin
+				if (length(pXf.XfmrCode) < 1) and (pXf.NPhases <> 3) then begin
+					sBank := 'CIMXfmrCode_' + pXf.Name;
+					clsXfmr.NewObject (sBank);
+					clsXfmr.Code := sBank;
+					pXfmr := ActiveXfmrCodeObj;
+					CreateGUID (tmpGUID);
+					pXfmr.GUID := tmpGUID;
+					pXfmr.PullFromTransformer (pXf);
+					pXf.XfmrCode := pXfmr.Name;
+				end;
+			end;
+			pXf := ActiveCircuit.Transformers.Next;
+		end;
+
+		// write all the XfmrCodes first (CIM TransformerTankInfo)
     pXfmr := clsXfmr.ElementList.First;
     while pXfmr <> nil do begin
-
       WriteXfmrCode (F, pXfmr);
       // link to the transformers using this XfmrCode
       pName1.LocalName := 'TankAsset_' + pXfmr.Name;
@@ -1329,21 +1352,19 @@ Begin
       pXf := ActiveCircuit.Transformers.Next;
     end;
 
-    // write all the transformers 
-		//   1. if balanced three-phase and no XfmrCode, use PowerTransformerEnd(s), mesh impedances and core admittances with no tanks
-    //   2. with XfmrCode, write TransformerTank, TransformerTankEnd(s) and references to TransformerTankInfoInfo
-    //   3. otherwise, write TransformerTank, then create and reference TransformerTankInfo classes
+    // write all the transformers, according to the three cases
     pXf := ActiveCircuit.Transformers.First;
     while pXf <> nil do begin
-      if pXf.Enabled then
-      with pXf do begin
+      if pXf.Enabled then with pXf do begin
         // collect this transformer into tanks and banks, and make a location
         if pXf.XfmrBank = '' then
           sBank := '=' + pXf.Name
         else
           sBank := pXf.XfmrBank;
-				bTanks := true;
-				if (length(pXf.XfmrCode) < 1) and (pXf.NPhases = 3) then bTanks := false;
+				bTanks := true;  // defaults to case 2 or 3 if XfmrCode exists
+				if (length(pXf.XfmrCode) < 1) and (pXf.NPhases = 3) then
+					bTanks := false; // case 1, balanced three-phase
+
 				pBank := GetBank (sBank);
 				pBank.AddTransformer (pXf);
 				geoGUID := GetDevGuid (XfLoc, pXf.Name, 1);
