@@ -1,0 +1,69 @@
+Clear
+
+!Example taken from the IEEE 519 Std (Example 1)
+
+!NEW SYSTEM DEFINITION------------------------------------------------------------
+
+New circuit.IEEE_519
+~ bus1=SourceBus.1.2.3 Phases=3 basekv=115 pu=1.0001 Angle=30 Frequency=60 Mvasc3=20000 Mvasc1=21000 
+
+set DefaultBaseFreq=60
+
+!REDIRECT TO SPECTRUM CODES--------------------------------------------
+
+redirect Default_Spectrum.DSS
+
+
+!LOAD DEFINITIONS------------------------------------------------------------
+
+New Load.LD_3 bus1=N_4.1.2.3  Phases=3 Kv=0.4 Kw=12500 Pf=1.0 Model=1 spectrum=spectrum_2 
+New Load.LD_2 bus1=N_11.1.2.3  Phases=3 Kv=0.4 Kw=12500 Pf=1.0 Model=1 spectrum=spectrum_2 
+New Load.LD_Linear bus1=N_12.1.2.3  Phases=3 Kv=0.4 Kw=25000 Pf=1.0 Model=1 spectrum=spectrum_1 
+
+
+!SWITCH DEFINITIONS------------------------------------------------------------
+
+New Line.SW_3 bus1=N_3.1.2.3 bus2=N_11.1.2.3 Phases=3  Switch=y  r1=1e-4 r0=1e-4 x1=0.000 x0=0.000 c1=0.000 c0=0.000 
+New Line.SW_2 bus1=N_5.1.2.3 bus2=N_12.1.2.3 Phases=3  Switch=y  r1=1e-4 r0=1e-4 x1=0.000 x0=0.000 c1=0.000 c0=0.000 
+
+
+!TRANSFORMER DEFINITIONS------------------------------------------------------------
+
+New Transformer.Tr_3 Phases=3 wdg=1 bus=PCC.1.2.3 Conn=delta  KV=13.8 Kva=12500  Sub=No wdg=2 bus=N_4.1.2.3 Conn=delta KV=0.4 
+New Transformer.Tr_4 Phases=3 wdg=1 bus=PCC.1.2.3 Conn=delta  KV=13.8 Kva=25000  Sub=No wdg=2 bus=N_5.1.2.3 Conn=delta KV=0.4 
+New Transformer.Tr_2 Phases=3 wdg=1 bus=PCC.1.2.3 Conn=delta  KV=13.8 Kva=12500 wdg=2 bus=N_3.1.2.3 Conn=wye KV=0.4 
+New Transformer.Tr_1 Phases=3 wdg=1 bus=SourceBus.1.2.3 Conn=delta  KV=115 Kva=50000 wdg=2 bus=N_6.1.2.3 Conn=wye KV=13.8 
+
+
+!LINES DEFINITIONS------------------------------------------------------------
+
+New Line.006-PCC bus1=N_6.1.2.3 bus2=PCC.1.2.3 Length=1 Phases=3 R1=1e-4 X1=0.0 R0=1e-4 X0=0.0 C1=0.0 C0=0.0 
+
+
+!CONTROLS DEFINITION------------------------------------------------------------
+
+New Swtcontrol.SW_3_Ctrl basefreq=60 Delay=0.0 Action=Close SwitchedObj=Line.SW_3 SwitchedTerm=2 lock=open enabled=y
+New Swtcontrol.SW_2_Ctrl basefreq=60 Delay=0.0 Action=Close SwitchedObj=Line.SW_2 SwitchedTerm=2 lock=open enabled=y
+
+!MONITORS DEFINITION-------------------------------------------------------------
+New monitor.MPCC element=Line.006-pcc mode=0
+
+Set Controlmode=Time
+
+! Initialize harmonics mode
+solve
+
+!Set new solution mode
+set mode=harmonicT
+
+!Starts the simulation
+solve
+open Line.SW_3
+solve
+open Line.SW_2
+solve
+
+export monitor MPCC
+show monitor MPCC
+
+

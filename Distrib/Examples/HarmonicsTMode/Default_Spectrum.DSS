@@ -1,0 +1,3 @@
+New "Spectrum.Spectrum_1" NumHarm=8 CSVFile=Spectrum_Load_1.csv 
+New "Spectrum.Spectrum_2" NumHarm=8 CSVFile=Spectrum_Load_2.csv
+New "Spectrum.Spectrum_3" NumHarm=8 CSVFile=Spectrum_Load_3.csv
