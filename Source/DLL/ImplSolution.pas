@@ -225,7 +225,7 @@ procedure TSolution.Set_StepSize(Value: Double);
 begin
      If ActiveCircuit <> Nil Then Begin
          ActiveCircuit.Solution.dynavars.h  := Value;
-         Set_IntervalHrs(Value);     // Keep IntervalHrs in synch with time step size
+         Set_IntervalHrs(Value/3600.0);     // Keep IntervalHrs in synch with time step size
      End;
 end;
 
