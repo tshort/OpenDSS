@@ -486,19 +486,33 @@ public class CDPSM_to_DSS extends Object {
 		Property ptMeshX = mdl.getProperty (nsCIM, "TransformerMeshImpedance.x");
 		Property ptCoreB = mdl.getProperty (nsCIM, "TransformerCoreAdmittance.b");
 		Property ptCoreG = mdl.getProperty (nsCIM, "TransformerCoreAdmittance.g");
-		Resource rMesh, rCore;
+		Resource rMesh, rCore, rTo;
 		double x;
 
     StringBuilder bufX = new StringBuilder (" %imag=" + Double.toString(0.0) + " %noloadloss=" + Double.toString(0.0));
 		itEnd = mdl.listResourcesWithProperty (ptFrom, rEnds[0]);
 		while (itEnd.hasNext()) {
 			rMesh = itEnd.nextResource();
-			x = 100.0 * SafeDouble (rMesh, ptMeshX, 1.0) / zb[0];
-			bufX.append (" Xhl=" + Double.toString(x));
+			rTo = rMesh.getProperty(ptTo).getResource();
+			x = 100.0 * SafeDouble(rMesh, ptMeshX, 1.0) / zb[0];
+			if (rTo.equals (rEnds[1]))	{
+				bufX.append(" Xhl=" + Double.toString(x));
+			} else {
+				bufX.append(" Xht=" + Double.toString(x));
+			}
 		}
     if (nwdg > 2) { // TODO - more than 3 windings
-//      bufX.append (" Xht=" + Double.toString(x[0]+x[2]));
-//      bufX.append (" Xlt=" + Double.toString(x[1]+x[2]));
+			itEnd = mdl.listResourcesWithProperty (ptFrom, rEnds[1]);
+			while (itEnd.hasNext()) {
+				rMesh = itEnd.nextResource();
+				rTo = rMesh.getProperty(ptTo).getResource();
+				x = 100.0 * SafeDouble(rMesh, ptMeshX, 1.0) / zb[1];
+				if (rTo.equals (rEnds[2]))	{
+					bufX.append(" Xlt=" + Double.toString(x));
+				} else {
+					bufX.append(" ***** too many windings *****" + Double.toString(x));
+				}
+			}
     }
     return " phases=3 windings=" + Integer.toString(nwdg) + bufX + bufU + bufS + bufC + bufR;
   }
