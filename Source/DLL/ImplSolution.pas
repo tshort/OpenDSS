@@ -97,6 +97,8 @@ type
     function Get_Total_Time: Double; safecall;
     procedure Set_Total_Time(Value: Double); safecall;
     function Get_Time_of_Step: Double; safecall;
+    function Get_IntervalHrs: Double; safecall;
+    procedure Set_IntervalHrs(Value: Double); safecall;
   end;
 
 implementation
@@ -221,7 +223,10 @@ end;
 
 procedure TSolution.Set_StepSize(Value: Double);
 begin
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.dynavars.h  := Value;
+     If ActiveCircuit <> Nil Then Begin
+         ActiveCircuit.Solution.dynavars.h  := Value;
+         Set_IntervalHrs(Value);     // Keep IntervalHrs in synch with time step size
+     End;
 end;
 
 procedure TSolution.Set_Tolerance(Value: Double);
@@ -680,6 +685,16 @@ end;
 function TSolution.Get_Time_of_Step: Double;
 begin
     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Time_Step;
+end;
+
+function TSolution.Get_IntervalHrs: Double;
+begin
+    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.IntervalHrs;
+end;
+
+procedure TSolution.Set_IntervalHrs(Value: Double);
+begin
+     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.IntervalHrs := Value;
 end;
 
 initialization

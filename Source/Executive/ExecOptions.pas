@@ -619,6 +619,8 @@ Begin
 
          CASE ParamPointer OF
               3,4: ActiveCircuit.Solution.Update_dblHour;
+              // Update IntervalHrs for devices that integrate
+              7,18: ActiveCircuit.Solution.IntervalHrs := ActiveCircuit.Solution.DynaVars.h / 3600.0;
          END;
 
          ParamName := Parser.NextParam;

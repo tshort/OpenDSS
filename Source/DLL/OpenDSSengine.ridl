@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 10/5/2016 9:45:45 AM (- $Rev: 12980 $, 176795171).
+// File generated on 10/28/2016 10:37:01 AM (- $Rev: 12980 $, 353690640).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -948,6 +948,10 @@ library OpenDSSengine
     HRESULT _stdcall Process_Time([out, retval] double* Value);
     [propget, id(0x000000E3), helpstring("Get the solution process time + sample time for time step")]
     HRESULT _stdcall Time_of_Step([out, retval] double* Value);
+    [propget, id(0x000000E4), helpstring("Get/Set the Solution.IntervalHrs variable used for devices that integrate")]
+    HRESULT _stdcall IntervalHrs([out, retval] double* Value);
+    [propput, id(0x000000E4), helpstring("Get/Set the Solution.IntervalHrs variable for custom solution algorithms")]
+    HRESULT _stdcall IntervalHrs([in] double Value);
   };
 
   [
