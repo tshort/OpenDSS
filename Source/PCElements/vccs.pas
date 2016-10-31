@@ -40,8 +40,11 @@ TYPE
         FsampleFreq: double; // discretization frequency for Z filter
         Fwinlen: integer;
         Ffiltlen: integer;
+        Irated: double; // line current at full output
+        Fkv: double; // scale voltage to HW pu input
+        Fki: double; // scale HW pu output to current
 
-        // Support for Dynamics Mode
+        // Support for Dynamics Mode - PU of Vrated and BaseCurr
         sVwave: double;
         sIwave: double;
         sIrms: double;
@@ -294,6 +297,8 @@ Begin
   Vrated := 208.0;
   Ppct := 100.0;
   FsampleFreq := 5000.0;
+  Fkv := 1.0;
+  Fki := 1.0;
 
   Fwinlen := 0;
   Ffilter_name := '';
@@ -328,7 +333,13 @@ Begin
     DoSimpleMsg('Spectrum Object "' + Spectrum + '" for Device VCCS.'+Name+' Not Found.', 333);
   end;
   Reallocmem(InjCurrent, SizeOf(InjCurrent^[1])*Yorder);
-  BaseCurr := 0.01 * Ppct * Prated / Vrated / FNphases;
+
+  Irated := Prated / Vrated / FNphases;
+  if FNPhases = 3 then Irated := Irated * sqrt(3);
+  BaseCurr := 0.01 * Ppct * Irated;
+  Fkv := 1.0 / Vrated / sqrt(2.0);
+  Fki := BaseCurr * sqrt(2.0);
+
   if Length (Ffilter_name) > 0 then begin
     Ffiltlen := Ffilter.NumPoints;
     Fwinlen := Trunc (FsampleFreq / BaseFrequency);
@@ -338,8 +349,6 @@ Begin
     Reallocmem (wlast, sizeof(wlast^[1]) * Ffiltlen);
     Reallocmem (zlast, sizeof(zlast^[1]) * Ffiltlen);
   end;
-
-  if FNPhases = 3 then BaseCurr := BaseCurr * sqrt(3);
 End;
 
 Procedure TVCCSObj.CalcYPrim;
@@ -393,7 +402,7 @@ Begin
 //  IterminalUpdated := FALSE;
   if ActiveSolutionObj.IsDynamicModel then begin
     For i := 1 to Fnphases Do Begin
-      Curr^[i] := pdegtocomplex (sIrms, cdang(Vterminal^[i]));
+      Curr^[i] := pdegtocomplex (sIrms * BaseCurr, cdang(Vterminal^[i]));
     End;
   end else begin
     For i := 1 to Fnphases Do Begin
@@ -445,21 +454,20 @@ end;
 //     However, OpenDSS uses the load convention
 procedure TVCCSObj.InitStateVars;
 var
-  d, wt, wd, val, iang, vang, pk: double;
+  d, wt, wd, val, iang, vang: double;
   i, k: integer;
 begin
   // initialize outputs from the terminal conditions
   ComputeIterminal;
   iang := cang(Iterminal^[1]);
   vang := cang(Vterminal^[1]);
-  pk := sqrt(2);
-  sVwave := cabs(Vterminal^[1]) * pk;
-  sIrms := cabs(Iterminal^[1]);
-  sIwave := sIrms * pk;
-  sIpeak := sIrms * pk;
+  sVwave := cabs(Vterminal^[1]) / Vrated;
+  sIrms := cabs(Iterminal^[1]) / BaseCurr;
+  sIwave := sIrms;
+  sIpeak := sIrms;
   sBP1out := 0;
   sFilterout := 0;
-  vlast := Vterminal^[1];
+  vlast := cdivreal (Vterminal^[1], Vrated);
 
   // initialize the history terms for HW model source convention
   d := 1 / FsampleFreq;
@@ -472,7 +480,7 @@ begin
   end;
   for i := 1 to Fwinlen do begin
     wt := iang - wd * (Fwinlen - i);
-    val := pk * sIrms * cos(wt);  // current by passive sign convention
+    val := sIrms * cos(wt);  // current by passive sign convention
     y2[i] := val * val;
     k := i - Fwinlen + Ffiltlen;
     if k > 0 then begin
@@ -489,7 +497,7 @@ end;
 // this is called twice per dynamic time step; predictor then corrector
 procedure TVCCSObj.IntegrateStates;
 var
-  t, h, d, f, w, wt, pk: double;
+  t, h, d, f, w, wt: double;
   vre, vim, vin, scale, y: double;
   nstep, i, k, corrector: integer;
   vnow: complex;
@@ -504,9 +512,8 @@ begin
   d := 1 / FSampleFreq;
   nstep := trunc (1e-6 + h/d);
   w := 2 * Pi * f;
-  pk := sqrt(2);
 
-  vnow := Vterminal^[1];
+  vnow := cdivreal (Vterminal^[1], Vrated);
   vin := 0;
   y := 0;
   iu := sIdxU;
@@ -522,7 +529,7 @@ begin
     vre := vlast.re + (vnow.re - vlast.re) * scale;
     vim := vlast.im + (vnow.im - vlast.im) * scale;
     wt := w * (t - h + i * d);
-    vin := pk * (vre * cos(wt) + vim * sin(wt));
+    vin := (vre * cos(wt) + vim * sin(wt));
     whist[iu] := Fbp1.GetYValue(vin);
     // apply the filter and second PWL block
     z[iu] := 0;
@@ -542,7 +549,7 @@ begin
     if i = nstep then begin
       y2sum := 0.0;
       for k := 1 to Fwinlen do y2sum := y2sum + y2[k];
-      sIrms := sqrt(y2sum / Fwinlen); // TODO - this is the magnitude, what about angle?
+      sIrms := sqrt(2.0 * y2sum / Fwinlen); // TODO - this is the magnitude, what about angle?
     end;
   end;
 
