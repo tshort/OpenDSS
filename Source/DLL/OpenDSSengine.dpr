@@ -215,18 +215,16 @@ exports
   DllGetClassObject,
   DllCanUnloadNow,
   DllRegisterServer,
-  DllUnregisterServer,
+  DllUnregisterServer;
 
 {Special routines}
+{
   DSS_PutCommand,   // alternative to the Text.Command interface
   DSS_GetResult;    // alterative to the Text.Result interface
-
+}
 {$R *.TLB}
 
 {$R *.RES}
-
-
-
 
 begin
 
@@ -234,15 +232,15 @@ begin
 
 
 {Intialize the internal interfaces so they're ready to go}
-  InitializeInterfaces;
+{  InitializeInterfaces;
 
   IsDLL := TRUE;
-
+}
 {Create one instance of DSS executive whenever the DSS Engine is init'd}
-
+{
   DSSExecutive := TExecutive.Create;  // Start the DSS when DSS interface is created
   DSSExecutive.CreateDefaultDSSItems;
-
+}
   //WriteDLLDebugFile(DSSDirectory);
 
 end.
