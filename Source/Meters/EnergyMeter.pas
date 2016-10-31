@@ -462,6 +462,15 @@ Begin
      GeneratorClass := DSSClassList.Get(ClassNames.Find('generator'));
 
      SystemMeter := TSystemMeter.Create;
+     OV_MHandle             :=  nil;
+     VR_MHandle             :=  nil;
+     DI_MHandle             :=  nil;
+     SDI_MHandle            :=  nil;
+     TDI_MHandle            :=  nil;
+     SM_MHandle             :=  nil;
+     EMT_MHandle            :=  nil;
+     PHV_MHandle            :=  nil;
+     FM_MHandle             :=  nil;
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -469,6 +478,15 @@ Destructor TEnergyMeter.Destroy;
 
 Begin
     SystemMeter.Free;
+    if OV_MHandle <> nil then OV_MHandle.Free;
+    if VR_MHandle <> nil then VR_MHandle.Free;
+    if DI_MHandle <> nil then DI_MHandle.Free;
+    if SDI_MHandle <> nil then SDI_MHandle.Free;
+    if TDI_MHandle <> nil then TDI_MHandle.Free;
+    if SM_MHandle <> nil then SM_MHandle.Free;
+    if EMT_MHandle <> nil then EMT_MHandle.Free;
+    if PHV_MHandle <> nil then PHV_MHandle.Free;
+    if FM_MHandle <> nil then FM_MHandle.Free;
     // ElementList and  CommandList freed in inherited destroy
     Inherited Destroy;
 End;
@@ -2793,8 +2811,10 @@ begin
   Try
      IF This_Meter_DIFileIsOpen Then Begin
        CloseMHandler(DI_MHandle, MakeDIFileName, DI_Append);
+       DI_MHandle :=  nil;
        This_Meter_DIFileIsOpen := FALSE;
        If VPhaseReportFileIsOpen then CloseMHandler(PHV_MHandle, MakeVPhaseReportFileName, PHV_Append) ;
+       PHV_MHandle  :=  nil;
        VPhaseReportFileIsOpen := FALSE;
      End;
   Except
@@ -2828,6 +2848,7 @@ begin
 
          {Phase Voltage Report, if requested}
           If FPhaseVoltageReport Then Begin
+              if PHV_MHandle <> nil then PHV_MHandle.Free;
               PHV_MHandle :=  Create_Meter_Space('"Hour"');
               VPhaseReportFileIsOpen := TRUE;
               For i := 1 to MaxVBaseCount Do Begin
@@ -2906,14 +2927,18 @@ Begin
         SystemMeter.CloseDemandIntervalFile;
         SystemMeter.Save;
         CloseMHandler(EMT_MHandle, DI_Dir + '\EnergyMeterTotals.CSV', EMT_Append);
+        EMT_MHandle     := nil;
         CloseMHandler(TDI_MHandle, DI_Dir+'\DI_Totals.CSV', TDI_Append);
-        DIFilesAreOpen := FALSE;
+        TDI_MHandle     := nil;
+        DIFilesAreOpen  := FALSE;
         if OverloadFileIsOpen then Begin
             CloseMHandler(OV_MHandle,EnergyMeterClass.DI_Dir+'\DI_Overloads.CSV', OV_Append);
+            OV_MHandle  :=  nil;
             OverloadFileIsOpen := FALSE;
         End;
         if VoltageFileIsOpen then Begin
             CloseMHandler(VR_MHandle,EnergyMeterClass.DI_Dir+'\DI_VoltExceptions.CSV', VR_Append);
+            VR_MHandle  :=  nil;
             VoltageFileIsOpen := FALSE;
         End;
       End;
@@ -2934,6 +2959,7 @@ begin
           FileNm := MakeDIFileName;   // Creates directory if it doesn't exist
           If FileExists(FileNm) Then DI_Append  :=  True
           Else DI_Append :=  False;
+          if DI_MHandle <> nil then DI_MHandle.Free;
           DI_MHandle  :=  Create_Meter_Space(' ');
           This_Meter_DIFileIsOpen := TRUE;
       End;
@@ -3069,6 +3095,7 @@ Var i:Integer;
 
 begin
  Try
+    if TDI_MHandle <> nil then TDI_MHandle.Free;
     TDI_MHandle :=  Create_Meter_Space('Time');
     mtr := ActiveCircuit.EnergyMeters.First;  // just get the first one
     if Assigned(mtr) then
@@ -3135,6 +3162,7 @@ begin
      IF This_Meter_DIFileIsOpen Then Begin
        File_Path  :=  EnergyMeterClass.DI_Dir+'\DI_SystemMeter.CSV';
        CloseMHandler(SDI_MHandle, File_Path, SDI_Append);
+       SDI_MHandle  :=  nil;
        This_Meter_DIFileIsOpen := FALSE;
      End;
 end;
@@ -3212,6 +3240,7 @@ begin
   End;
 
  Try
+      if SM_MHandle <> nil then SM_MHandle.Free;
       SM_MHandle  :=  Create_Meter_Space('Year, ');
       WriteintoMemStr(SM_MHandle, 'kWh, kvarh, "Peak kW", "peak kVA", "Losses kWh", "Losses kvarh", "Peak Losses kW"' + Char(10));
       WriteintoMemStr(SM_MHandle, inttostr(ActiveCircuit.Solution.Year));
@@ -3220,6 +3249,7 @@ begin
 
  Finally
       CloseMHandler(SM_MHandle, Folder + CSVName, SM_Append);
+      SM_MHandle  :=  nil;
  End;
 end;
 
@@ -3256,6 +3286,7 @@ Var
     i:Integer;
     mtr:TEnergyMeterObj;
 begin
+    if EMT_MHandle <> nil then EMT_MHandle.Free;
     EMT_MHandle :=  Create_Meter_Space('Name');
     mtr := ActiveCircuit.EnergyMeters.First;
     if Assigned(mtr) then
@@ -3321,6 +3352,7 @@ begin
   End;
 
   Try     // Writes the file
+        if FM_MHandle <> nil then FM_MHandle.Free;
         FM_MHandle  :=  Create_Meter_Space('Year');
         mtr := ActiveCircuit.EnergyMeters.First;
         if assigned(mtr) then
@@ -3331,6 +3363,7 @@ begin
         For i := 1 to NumEMRegisters Do WriteintoMem(FM_MHandle,Double(RegSum[i]));
         WriteintoMemStr(FM_MHandle, Char(10));
         CloseMHandler(FM_MHandle, DI_Dir + '\Totals.CSV', FM_Append);
+        FM_MHandle  :=  nil;
 
   Except
       On E:Exception Do DosimpleMsg('Error writing demand interval file Totals.CSV.'+CRLF+E.Message, 543);
