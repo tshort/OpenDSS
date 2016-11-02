@@ -31,6 +31,25 @@ public class CDPSM_to_DSS extends Object {
     return "#PhaseCode.ABCN";
   }
 
+	static String SafeRegulatingMode (Resource r, Property p, String def) {
+		if (r.hasProperty(p)) {
+			String arg = r.getProperty(p).getObject().toString();
+			int hash = arg.lastIndexOf ("#RegulatingControlModeKind.");
+			return arg.substring (hash + 27);
+		}
+		return def;
+	}
+
+	static String DSSCapMode (String s) {
+		if (s.equals("currentFlow")) return "current";
+    if (s.equals("voltage")) return "voltage";
+    if (s.equals("reactivePower")) return "kvar";
+    if (s.equals("timeScheduled")) return "time";
+    if (s.equals("powerFactor")) return "pf";
+    if (s.equals("userDefined")) return "time"; // i.e. unsupported in CIM
+		return "time";
+	}
+
   static double SafeDouble (Resource r, Property p, double def) {
     if (r.hasProperty(p)) return r.getProperty(p).getDouble();
     return def;
@@ -40,6 +59,23 @@ public class CDPSM_to_DSS extends Object {
     if (r.hasProperty(p)) return r.getProperty(p).getInt();
     return def;
   }
+
+	static boolean SafeBoolean (Resource r, Property p, boolean def) {
+		if (r.hasProperty(p)) return r.getProperty(p).getString().equals("true");
+		return def;
+	}
+
+	static String GetEquipmentType (Resource r) {
+		// TODO: .listRDFTypes() might be more robust
+		String s = r.as(OntResource.class).getRDFType().toString();
+		int hash = s.lastIndexOf ("#");
+		String t = s.substring (hash + 1);
+		if (t.equals("LinearShuntCompensator")) return "capacitor";
+		if (t.equals("ACLineSegment")) return "line";
+		if (t.equals("EnergyConsumer")) return "load";
+		if (t.equals("PowerTransformer")) return "transformer";
+		return "##UNKNOWN##";
+	}
 
   static String DSS_Guid (String arg) {
     int hash = arg.lastIndexOf ("#_");
@@ -211,6 +247,12 @@ public class CDPSM_to_DSS extends Object {
     String phs = Phase_String (arg);
     return Phase_xCount (phs, shunt);
   }
+
+	static String FirstPhase (String phs) {
+		if (phs.contains ("A")) return "1";
+		if (phs.contains ("B")) return "2";
+		return "3";
+	}
 
   static String Bus_xPhases (String phs) {
     if (phs.contains ("ABC")) {
@@ -828,6 +870,101 @@ public class CDPSM_to_DSS extends Object {
     return buf.toString();
   }
 
+	static String GetWireData (Model mdl, Resource res) {
+		StringBuffer buf = new StringBuffer("");
+
+		Property ptGMR = mdl.getProperty (nsCIM, "WireInfo.gmr");
+		Property ptWireRadius = mdl.getProperty (nsCIM, "WireInfo.radius");
+		Property ptWireDiameter = mdl.getProperty (nsCIM, "WireInfo.diameter");
+		Property ptWireCurrent = mdl.getProperty (nsCIM, "WireInfo.ratedCurrent");
+		Property ptWireR25 = mdl.getProperty (nsCIM, "WireInfo.rAC25");
+		Property ptWireR50 = mdl.getProperty (nsCIM, "WireInfo.rAC50");
+		Property ptWireR75 = mdl.getProperty (nsCIM, "WireInfo.rAC75");
+		Property ptWireRdc = mdl.getProperty (nsCIM, "WireInfo.rDC20");
+
+		double normamps = SafeDouble (res, ptWireCurrent, 0.0);
+		double radius = SafeDouble (res, ptWireRadius, 0.0);
+		if (radius <= 0) {
+			radius = 0.5 * SafeDouble (res, ptWireDiameter, 0.0);
+		}
+		double gmr = SafeDouble (res, ptGMR, 0.0);
+		if (gmr <= 0) {
+			gmr = 0.7788 * radius;
+		}
+		double wireRac = SafeDouble (res, ptWireR50, 0.0);
+		if (wireRac <= 0) {
+			wireRac = SafeDouble (res, ptWireR25, 0.0);
+		}
+		if (wireRac <= 0) {
+			wireRac = SafeDouble (res, ptWireR75, 0.0);
+		}
+		double wireRdc = SafeDouble (res, ptWireRdc, 0.0);
+		if (wireRdc <= 0) {
+			wireRdc = wireRac;
+		} else if (wireRac <= 0) {
+			wireRac = wireRdc;
+		}
+
+		buf.append (" gmr=" + Double.toString(gmr) + " radius=" + Double.toString(radius) +
+								" rac=" + Double.toString(wireRac) + " rdc=" + Double.toString(wireRdc) + " normamps=" + Double.toString(normamps) + 
+								" Runits=m Radunits=m gmrunits=m");
+		return buf.toString();
+	}
+
+	static String GetCapControlData (Model mdl, Resource ctl) {
+		StringBuffer buf = new StringBuffer("");
+
+		// looking for the capacitor to control and terminal to monitor
+		Property ptCap = mdl.getProperty (nsCIM, "RegulatingControl.RegulatingCondEq");
+		Property ptTerm = mdl.getProperty (nsCIM, "RegulatingControl.Terminal");
+		Property ptDiscrete = mdl.getProperty (nsCIM, "RegulatingControl.discrete");
+		Property ptEnabled = mdl.getProperty (nsCIM, "RegulatingControl.enabled");
+		Property ptMode = mdl.getProperty (nsCIM, "RegulatingControl.mode");
+		Property ptPhase = mdl.getProperty (nsCIM, "RegulatingControl.monitoredPhase");
+		Property ptBW = mdl.getProperty (nsCIM, "RegulatingControl.targetDeadband");
+		Property ptVal = mdl.getProperty (nsCIM, "RegulatingControl.targetValue");
+		Property ptMult = mdl.getProperty (nsCIM, "RegulatingControl.targetValueUnitMultiplier");
+		Property ptName = mdl.getProperty (nsCIM, "IdentifiedObject.name");
+
+		Resource rCap = mdl.getProperty(ctl,ptCap).getResource();
+		String ctlName = SafeResName (ctl, ptName);
+		String capName = SafeResName (rCap, ptName);
+		double dBW = SafeDouble(ctl, ptBW, 1.0);
+		double dVal = SafeDouble(ctl, ptVal, 120.0);
+		double dMult = SafeDouble(ctl, ptMult, 1.0);
+		double dOn = dMult * (dVal - 0.5 * dBW);
+		double dOff = dMult * (dVal + 0.5 * dBW);
+		boolean bDiscrete = SafeBoolean (ctl, ptDiscrete, true);
+		boolean bEnabled = SafeBoolean (ctl, ptEnabled, true);  // TODO -check enabled for everything
+		String sPhase = Phase_String (SafePhasesX (ctl, ptPhase));
+		String sMode = SafeRegulatingMode (ctl, ptMode, "voltage");
+
+		// find the monitored element
+		Property ptCondEq = mdl.getProperty (nsCIM, "Terminal.ConductingEquipment");
+		Resource rTerm = mdl.getProperty(ctl,ptTerm).getResource();
+		Resource rCondEq = mdl.getProperty (rTerm,ptCondEq).getResource();
+		String sEqType = GetEquipmentType (rCondEq);
+
+		int nterm = 0;
+		String sMatch = SafeResName (rTerm, ptName);
+		ResIterator iter = mdl.listResourcesWithProperty (ptCondEq, rCondEq);
+		while (iter.hasNext()) {
+			++nterm;
+			Resource r = iter.nextResource();
+			String s = SafeResName (r, ptName);
+			if (s.equals(sMatch)) break;
+		}
+
+		buf.append (" capacitor=" + capName +
+								" type=" + DSSCapMode(sMode) + 
+								" on=" + Double.toString(dOn) +
+								" off=" + Double.toString(dOff) + 
+								" element=" + sEqType + "." + SafeResName (rCondEq, ptName) +
+								" terminal=" + Integer.toString(nterm) + 
+								" ptratio=1 ptphase=" + FirstPhase (sPhase));
+		return buf.toString();
+	}
+
   static String GetXfmrCode (Model mdl, String id, double smult, double vmult) {  
     Property ptInfo = mdl.getProperty (nsCIM, "TransformerEndInfo.TransformerTankInfo");
     Property ptU = mdl.getProperty (nsCIM, "TransformerEndInfo.ratedU");
@@ -1343,17 +1480,9 @@ public class CDPSM_to_DSS extends Object {
 
     // WireData
     out.println ();
-    query = QueryFactory.create (qPrefix + "select ?s where {?s r:type c:WireInfo}");
+    query = QueryFactory.create (qPrefix + "select ?s where {?s r:type c:OverheadWireInfo}");
     qexec = QueryExecutionFactory.create (query, model);
     results=qexec.execSelect();
-    Property ptGMR = model.getProperty (nsCIM, "WireInfo.gmr");
-    Property ptWireRadius = model.getProperty (nsCIM, "WireInfo.radius");
-    Property ptWireDiameter = model.getProperty (nsCIM, "WireInfo.diameter");
-    Property ptWireCurrent = model.getProperty (nsCIM, "WireInfo.ratedCurrent");
-    Property ptWireR25 = model.getProperty (nsCIM, "WireInfo.rAC25");
-    Property ptWireR50 = model.getProperty (nsCIM, "WireInfo.rAC50");
-    Property ptWireR75 = model.getProperty (nsCIM, "WireInfo.rAC75");
-    Property ptWireRdc = model.getProperty (nsCIM, "WireInfo.rDC20");
     while (results.hasNext()) {
       soln = results.next();
 
@@ -1361,39 +1490,63 @@ public class CDPSM_to_DSS extends Object {
       res = model.getResource (id);
       name = SafeResName (res, ptName);
 
-      double normamps = SafeDouble (res, ptWireCurrent, 0.0);
-
-      double radius = SafeDouble (res, ptWireRadius, 0.0);
-      if (radius <= 0) {
-        radius = 0.5 * SafeDouble (res, ptWireDiameter, 0.0);
-      }
-
-      double gmr = SafeDouble (res, ptGMR, 0.0);
-      if (gmr <= 0) {
-        gmr = 0.7788 * radius;
-      }
-
-      double wireRac = SafeDouble (res, ptWireR50, 0.0);
-      if (wireRac <= 0) {
-        wireRac = SafeDouble (res, ptWireR25, 0.0);
-      }
-      if (wireRac <= 0) {
-        wireRac = SafeDouble (res, ptWireR75, 0.0);
-      }
-      double wireRdc = SafeDouble (res, ptWireRdc, 0.0);
-      if (wireRdc <= 0) {
-        wireRdc = wireRac;
-      } else if (wireRac <= 0) {
-        wireRac = wireRdc;
-      }
-
-      if (radius > 0.0 && gmr > 0.0) { // don't write WireData if it's just used for ratedCurrent
-        out.println ("new WireData." + name + " gmr=" + Double.toString(gmr) + " radius=" + Double.toString(radius) +
-                     " rac=" + Double.toString(wireRac) + " rdc=" + Double.toString(wireRdc) + " normamps=" + Double.toString(normamps) + 
-                     " Runits=m Radunits=m gmrunits=m");
+//      if (radius > 0.0 && gmr > 0.0) { // don't write WireData if it's just used for ratedCurrent
+        out.println ("new WireData." + name  + GetWireData (model, res));
         outGuid.println ("WireData." + name + "\t" + DSS_Guid (id));
-      }
+//      }
     }
+
+		// TSData
+		out.println ();
+		query = QueryFactory.create (qPrefix + "select ?s where {?s r:type c:TapeShieldCableInfo}");
+		qexec = QueryExecutionFactory.create (query, model);
+		results=qexec.execSelect();
+		Property ptLap = model.getProperty (nsCIM, "TapeShieldCableInfo.tapeLap");
+		Property ptThickness = model.getProperty (nsCIM, "TapeShieldCableInfo.tapeThickness");
+		while (results.hasNext()) {
+			soln = results.next();
+
+			id = soln.get ("?s").toString();
+			res = model.getResource (id);
+			name = SafeResName (res, ptName);
+
+			double tapeLap = SafeDouble (res, ptLap, 0.0);
+			double tapeThickness = SafeDouble (res, ptThickness, 0.0);
+
+			out.println ("new TSData." + name + GetWireData (model, res) +
+									 " tapeLayer=" + Double.toString(tapeThickness) + " tapeLap=" + Double.toString(tapeLap));
+			outGuid.println ("TSData." + name + "\t" + DSS_Guid (id));
+		}
+
+		// CNData
+		out.println ();
+		query = QueryFactory.create (qPrefix + "select ?s where {?s r:type c:ConcentricNeutralCableInfo}");
+		qexec = QueryExecutionFactory.create (query, model);
+		results=qexec.execSelect();
+		Property ptOverNeutral = model.getProperty (nsCIM, "ConcentricNeutralCableInfo.diameterOverNeutral");
+		Property ptStrandCount = model.getProperty (nsCIM, "ConcentricNeutralCableInfo.neutralStrandCount");
+		Property ptStrandGmr = model.getProperty (nsCIM, "ConcentricNeutralCableInfo.neutralStrandGmr");
+		Property ptStrandRadius = model.getProperty (nsCIM, "ConcentricNeutralCableInfo.neutralStrandRadius");
+		Property ptStrandRes = model.getProperty (nsCIM, "ConcentricNeutralCableInfo.neutralStrandRDC20");
+		while (results.hasNext()) {
+			soln = results.next();
+
+			id = soln.get ("?s").toString();
+			res = model.getResource (id);
+			name = SafeResName (res, ptName);
+
+			double cnDia = SafeDouble (res, ptOverNeutral, 0.0);
+			int cnCount = SafeInt (res, ptStrandCount, 0);
+			double cnGmr = SafeDouble (res, ptStrandGmr, 0.0);
+			double cnRadius = SafeDouble (res, ptStrandRadius, 0.0);
+			double cnRes = SafeDouble (res, ptStrandRes, 0.0);
+
+			out.println ("new CNData." + name + GetWireData (model, res) +
+									 " k=" + Integer.toString(cnCount) + " GmrStrand=" + Double.toString(cnGmr) +
+									 " DiaStrand=" + Double.toString(2 * cnRadius) + " Rstrand=" + Double.toString(cnRes) +
+									 " DiaCable=" + Double.toString(cnDia));
+			outGuid.println ("CNData." + name + "\t" + DSS_Guid (id));
+		}
 
     // LineGeometries
     out.println ();
@@ -1782,7 +1935,7 @@ public class CDPSM_to_DSS extends Object {
       }
     }
 
-    // TODO - regulators were not updated or tested in 2011
+		// RegControls
     out.println ();
     query = QueryFactory.create (qPrefix + "select ?s ?name where {?s r:type c:RatioTapChanger. " + 
                                  "?s c:IdentifiedObject.name ?name}");
@@ -1799,6 +1952,24 @@ public class CDPSM_to_DSS extends Object {
       out.println ("new RegControl." + name + " " + sReg);
       outGuid.println ("RegControl." + name + "\t" + DSS_Guid (id));
     }
+
+		// CapControls
+		out.println ();
+		query = QueryFactory.create (qPrefix + "select ?s ?name where {?s r:type c:RegulatingControl. " + 
+																 "?s c:IdentifiedObject.name ?name}");
+		qexec = QueryExecutionFactory.create (query, model);
+		results=qexec.execSelect();
+		while (results.hasNext()) {
+			soln = results.next();
+
+			id = soln.get ("?s").toString();
+			name = DSS_Name (soln.get ("?name").toString());
+			res = model.getResource (id);
+			String sReg = GetCapControlData (model, res);
+
+			out.println ("new CapControl." + name + " " + sReg);
+			outGuid.println ("CapControl." + name + "\t" + DSS_Guid (id));
+		}
 
     // unsupported stuff - TODO - add Jumper and Disconnector
     out.println ();
