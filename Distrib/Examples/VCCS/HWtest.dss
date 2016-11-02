@@ -1,0 +1,17 @@
+Clear 
+new circuit.HWTest 
+~ basekv=0.360 pu=1.0 angle=0 phases=3 bus1=SourceBus r1=0.02 r0=0.02 x1=0.02 x0=0.02
+
+redirect HW_Inverters.txt
+
+New VCCS.PV1 Phases=1 Bus1=SourceBus.1 Prated=3000 Vrated=208 
+~ Ppct=100 bp1='bp1_1phase' bp2='bp2_1phase' filter='z_1phase' fsample=10000
+
+New VCCS.PV3 Phases=3 Bus1=SourceBus   Prated=3000 Vrated=360 
+~ Ppct= 50 bp1='bp1_1phase' bp2='bp2_1phase' filter='z_1phase' fsample=10000
+
+Set Voltagebases=[0.360]
+set maxiterations=100
+calcv
+Solve
+

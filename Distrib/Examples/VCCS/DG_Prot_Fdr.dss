@@ -1,0 +1,120 @@
+clear
+new circuit.DGProtFdr bus1=Bx basekv=34.5 pu=1.0475 angle=0 frequency=60 phases=3 MVAsc3=36.61 MVAsc1=10.64 x1r1=4 x0r0=3
+
+new WireData.336_ACSR_Linnet  gmrunits=ft radunits=in runits=mi rac=0.306 diam=0.721 gmrac=0.0244  normamps=530
+new WireData.4_0_ACSR_Penguin gmrunits=ft radunits=in runits=mi rac=0.592 diam=0.563 gmrac=0.00814 normamps=340
+new WireData.2_ACSR_Sparrow   gmrunits=ft radunits=in runits=mi rac=1.690 diam=0.316 gmrac=0.00418 normamps=180
+
+new LineSpacing.500 nconds=4 nphases=3 units=ft h=(28 28 28 24) x=(-3.5 -1.0 3.5 0.5)
+new LineSpacing.510 nconds=2 nphases=1 units=ft h=(29 24) x=(0 0.5)
+
+new LineGeometry.Trunk   nconds=4 nphases=3 reduce=yes spacing=500 
+~   wires=(336_ACSR_Linnet 336_ACSR_Linnet 336_ACSR_Linnet 4_0_ACSR_Penguin)
+new LineGeometry.Lateral nconds=2 nphases=1 reduce=yes spacing=510 
+~   wires=(2_ACSR_Sparrow 2_ACSR_Sparrow)
+
+new LineCode.Sym nphases=3 units=mi r1=0.301 x1=0.627 r0=0.766 x0=1.944 // c1=18.35 c0=7.08
+
+new TCC_Curve.Klink  npts=6 c_array=( 2 2.2 3 4 6 30) t_array=( 300 20 4 1.3 0.41 0.02)
+new TCC_Curve.uv1547 npts=2 c_array=( 0.5 0.9)        t_array=( 0.166 2)
+new TCC_Curve.ov1547 npts=2 c_array=( 1.1 1.2)        t_array=( 1 0.166)
+
+new TCC_Curve.101 npts=8 c_array=(1.0   1.5   1.7   2.0   2.5   3.0   6.0   10.0) 
+~                        t_array=(0.140 0.036 0.025 0.022 0.018 0.016 0.015 0.015)
+new TCC_Curve.133 npts=7 c_array=(1.0  10.0  15.0  25.0  35.0  50.0  100.0) 
+~                        t_array=(14.0 0.16  0.09  0.052 0.042 0.039 0.039)
+new TCC_Curve.104 npts=10 c_array=(1.0  2.0  3.0  3.5   4.0   5.0   6.0    10.0  15.0  100.0) 
+~                         t_array=(0.51 0.16 0.07 0.045 0.027 0.019 0.0155 0.012 0.011 0.011)
+new TCC_Curve.106 npts=11 c_array=(1.0 1.5 3.0  4.0  4.5   5.0   6.0   8.0   10.0  15.0   100.0) 
+~                         t_array=(1.5 0.4 0.08 0.03 0.021 0.017 0.014 0.012 0.011 0.0105 0.0105)
+new TCC_Curve.117 npts=13 c_array=(1.0 1.5 2.0 2.5 3.0  4.0  5.0  6.0  10.0 20.0  30.0  40.0  100.0) 
+~                         t_array=(6.0 2.5 1.5 1.0 0.69 0.40 0.26 0.20 0.09 0.026 0.017 0.016 0.016)
+new TCC_Curve.135 npts=13 c_array=(1.0  1.5 2.0 2.5 3.0 4.0 5.0 6.0  8.0  10.0 15.0 30.0 100.0)
+~                         t_array=(15.0 6.5 3.9 2.6 2.0 1.4 1.1 0.91 0.72 0.63 0.54 0.52 0.52)
+
+new Transformer.Sub phases=3 windings=2 buses=(Bx B0) conns=(Delta Wye) kvs='34.5 12.47' kvas='5000 5000' taps='1 1' XHL=7.19
+// new RegControl.Sub transformer=sub winding=2 vreg=125.0 band=5 ptratio=60 delay=10 tapdelay=2 CTprim=100
+
+// new Line.L1 bus1=B0 bus2=B1   geometry=Trunk   units=kft length=1.0
+// new Line.L2 bus1=B1 bus2=Bm   geometry=Trunk   units=kft length=13.5
+// new Line.L3 bus1=Bm bus2=B2   geometry=Trunk   units=kft length=13.5
+// new Line.L4 bus1=B2 bus2=Bt   geometry=Trunk   units=kft length=1.0
+// new Line.L5 bus1=B0 bus2=Bp   geometry=Trunk   units=kft length=0.1
+
+new Line.L1 bus1=B0 bus2=B1   linecode=Sym   units=kft length=1.0
+new Line.L2 bus1=B1 bus2=Bm   linecode=Sym   units=kft length=13.5
+new Line.L3 bus1=Bm bus2=B2   linecode=Sym   units=kft length=13.5
+new Line.L4 bus1=B2 bus2=Bt   linecode=Sym   units=kft length=1.0
+new Line.L5 bus1=B0 bus2=Bp   linecode=Sym   units=kft length=0.1
+
+new Line.La bus1=B1 bus2=Lat1 geometry=Lateral units=kft length=21.2
+new Line.Lb bus1=B2 bus2=Lat2 geometry=Lateral units=kft length=105.6
+
+/////////////////////////////////////////////////////////////////////////
+
+// DG interconnection transformer and a conventional machine
+new Transformer.Tg phases=3 windings=2 buses=(Bt Bg) conns=(Wye Wye) 
+~ kvs='12.47 0.36' kvas='1700 1700' taps='1 1' XHL=5
+new Vsource.WindGen1 bus1=Bg basekv=0.36 pu=1.0 angle=-60.0 
+~ X1=0.0127 R1=0.0 X0=100.0 R0=0.0
+
+redirect HW_Inverters.txt
+//New vccs.pv1 Phases=1 Bus1=Bg.1 Prated=567e3 Vrated=208 Ppct=100 
+//~ bp1='bp1_1phase' bp2='bp2_1phase' filter='z_1phase' fsample=10000
+//New vccs.pv2 Phases=1 Bus1=Bg.2 like=pv1
+//New vccs.pv3 Phases=1 Bus1=Bg.3 like=pv1
+
+// Inverter Model Monitors
+//new monitor.invst1 element=vccs.pv1 terminal=1 mode=3
+//new monitor.invst2 element=vccs.pv2 terminal=1 mode=3
+//new monitor.invst3 element=vccs.pv3 terminal=1 mode=3
+//new monitor.invvi element=vccs.pv1 terminal=1 mode=0
+//new monitor.invpq element=vccs.pv1 terminal=1 mode=1
+
+/////////////////////////////////////////////////////////////////////////
+
+new monitor.A element=Line.L1 Terminal=1 residual=yes Mode=32
+new monitor.B element=Line.L4 Terminal=1 residual=yes Mode=32
+new monitor.D element=Line.L5 Terminal=1 residual=yes Mode=32
+new monitor.F1 element=Line.La Terminal=1 Mode=32
+new monitor.F2 element=Line.Lb Terminal=1 Mode=32
+new monitor.LV element=Transformer.Tg Terminal=2 residual=yes Mode=32
+new monitor.Bseq element=Line.L4 Terminal=1 Mode=48
+new monitor.LVseq element=Transformer.Tg Terminal=2 Mode=48
+
+new Recloser.A monitoredobj=Line.L1 monitoredterm=1 switchedobj=Line.L1 switchedterm=1 delay=0.042
+~ numfast=1 phasefast=101 phasedelayed=133 phasetrip=200 tdphfast=1 tdphdelayed=1 
+~ shots=4 recloseintervals=(2, 2, 5)
+new Recloser.D like=A monitoredobj=Line.L5 monitoredterm=1 switchedobj=Line.L5 switchedterm=1
+new Recloser.B monitoredobj=Line.L4 monitoredterm=1 switchedobj=Line.L4 switchedterm=1 delay=0.042 
+~ numfast=2 phasefast=104 phasedelayed=117 phasetrip=150 tdphfast=1 tdphdelayed=1 PhaseInst=1000.0
+~ groundfast=106 grounddelayed=135 groundtrip=150 tdgrfast=1 tdgrdelayed=1
+~ shots=4 recloseintervals=(2, 2, 5)
+
+new Fuse.F1 monitoredobj=Line.La monitoredterm=1 fusecurve=Klink ratedcurrent=40
+new Fuse.F2 monitoredobj=Line.Lb monitoredterm=1 fusecurve=Klink ratedcurrent=40
+
+new Relay.LV monitoredobj=Transformer.Tg monitoredterm=2 type=voltage kvbase=0.6 switchedobj=Transformer.Tg switchedterm=2 
+~ overvoltcurve=ov1547 undervoltcurve=uv1547 shots=1 delay=0.0 // delay=0.050
+
+// comment these out if you want the fault to be cleared
+edit Recloser.A enabled=no
+edit Recloser.B enabled=no
+edit Recloser.D enabled=no
+edit Fuse.F1 enabled=no
+edit Fuse.F2 enabled=no
+edit Relay.LV enabled=no
+
+set voltagebases=(0.36 12.47 34.5)
+calcv
+
+new Fault.Flt bus1=Bm.1 phases=1 r=0.0001 ontime=0.2 temporary=yes
+//new Fault.Flt bus1=Bm phases=3 r=0.0001 ontime=0.0 temporary=yes
+
+// comment out the next two lines if solving in Matlab
+set mode=dynamic controlmode=time time=(0,0) stepsize=0.0001 number=9600
+solve
+//export monitors invst1
+//export monitors lv
+//export monitors a
+//export monitors b

@@ -1,0 +1,30 @@
+Clear 
+// EPSL impedance is 10% on 75 kVA positive sequence, 5% zero sequence, assume X/R = 2
+new circuit.HWDynamic 
+~ basekv=0.360 pu=1.0 angle=0 phases=3 bus1=SourceBus r1=0.029 x1=0.058 r0=0.014 x0=0.029
+
+redirect HW_Inverters.txt
+//New vccs.pv Phases=1 Bus1=SourceBus.1 Prated=3000 Vrated=208 Ppct=100 
+//~ bp1='bp1_1phase' bp2='bp2_1phase' filter='z_1phase' fsample=10000
+New vccs.pv Phases=1 Bus1=SourceBus.1 Prated=190 Vrated=208 Ppct=89.5 
+~ bp1='bp1_micro' bp2='bp2_micro' filter='z_micro' fsample=10000
+
+new fault.flt bus1=Sourcebus.1 phases=1 r=0.001 temporary=yes ontime=0.1 //ontime=0.0821 // ontime=0.0768
+
+new monitor.invvi element=vccs.pv terminal=1 mode=0
+new monitor.invpq element=vccs.pv terminal=1 mode=1
+new monitor.invst element=vccs.pv terminal=1 mode=3
+new monitor.fltvi element=fault.flt terminal=1 mode=0
+
+Set Voltagebases=[0.360]
+set maxiterations=100
+calcv
+
+set mode=snap
+solve 
+
+set mode=dynamic
+set stepsize=0.002 // 0.0001 matches fsample
+set number=125     // 2500 matches fsample
+Solve
+
