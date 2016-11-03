@@ -143,8 +143,8 @@ public class CDPSM_to_DSS extends Object {
       double b1 = SafeDouble (r, ptB1, b0) / len;
       double c0 = 1.0e9 * b0 / 314.159; // EdF 50-Hz
       double c1 = 1.0e9 * b1 / 314.159; // EdF 50-Hz
-      return " r1=" + Double.toString(r1) + " x1=" + Double.toString(x1) + " c1=" + Double.toString(c1) +
-             " r0=" + Double.toString(r1) + " x0=" + Double.toString(r1) + " c0=" + Double.toString(c0);
+      return " r1=" + String.format("%6g", r1) + " x1=" + String.format("%6g", x1) + " c1=" + String.format("%6g", c1) +
+             " r0=" + String.format("%6g", r1) + " x0=" + String.format("%6g", r1) + " c0=" + String.format("%6g", c0);
     }
     return "";
   }
@@ -200,9 +200,9 @@ public class CDPSM_to_DSS extends Object {
     for (i = 0; i < nphases; i++) {  // lower triangular, go across the rows for OpenDSS
       for (j = 0; j <= i; j++) {
         seq = GetMatIdx (nphases, i, j);
-        rBuf.append (Double.toString (rMat[seq]) + " ");
-        xBuf.append (Double.toString (xMat[seq]) + " ");
-        cBuf.append (Double.toString (cMat[seq]) + " ");
+        rBuf.append (String.format("%6g", rMat[seq]) + " ");
+        xBuf.append (String.format("%6g", xMat[seq]) + " ");
+        cBuf.append (String.format("%6g", cMat[seq]) + " ");
       }
       if ((i+1) < nphases) {
         rBuf.append ("| ");
@@ -505,9 +505,9 @@ public class CDPSM_to_DSS extends Object {
     StringBuilder bufR = new StringBuilder (" %Rs=[");
 
     for (i = 0; i < nwdg; i++) {
-      String U = Double.toString(v[i]);
-      String S = Double.toString(s[i]);
-      String R = Double.toString(rw[i]);
+      String U = String.format("%6g", v[i]);
+      String S = String.format("%6g", s[i]);
+      String R = String.format("%6g", rw[i]);
 
       if (i < nwdg - 1) {
         bufU.append (U + ",");
@@ -531,16 +531,16 @@ public class CDPSM_to_DSS extends Object {
 		Resource rMesh, rCore, rTo;
 		double x;
 
-    StringBuilder bufX = new StringBuilder (" %imag=" + Double.toString(0.0) + " %noloadloss=" + Double.toString(0.0));
+    StringBuilder bufX = new StringBuilder (" %imag=" + String.format("%6g", 0.0) + " %noloadloss=" + String.format("%6g", 0.0));
 		itEnd = mdl.listResourcesWithProperty (ptFrom, rEnds[0]);
 		while (itEnd.hasNext()) {
 			rMesh = itEnd.nextResource();
 			rTo = rMesh.getProperty(ptTo).getResource();
 			x = 100.0 * SafeDouble(rMesh, ptMeshX, 1.0) / zb[0];
 			if (rTo.equals (rEnds[1]))	{
-				bufX.append(" Xhl=" + Double.toString(x));
+				bufX.append(" Xhl=" + String.format("%6g", x));
 			} else {
-				bufX.append(" Xht=" + Double.toString(x));
+				bufX.append(" Xht=" + String.format("%6g", x));
 			}
 		}
     if (nwdg > 2) { // TODO - more than 3 windings
@@ -550,9 +550,9 @@ public class CDPSM_to_DSS extends Object {
 				rTo = rMesh.getProperty(ptTo).getResource();
 				x = 100.0 * SafeDouble(rMesh, ptMeshX, 1.0) / zb[1];
 				if (rTo.equals (rEnds[2]))	{
-					bufX.append(" Xlt=" + Double.toString(x));
+					bufX.append(" Xlt=" + String.format("%6g", x));
 				} else {
-					bufX.append(" ***** too many windings *****" + Double.toString(x));
+					bufX.append(" ***** too many windings *****" + String.format("%6g", x));
 				}
 			}
     }
@@ -786,9 +786,9 @@ public class CDPSM_to_DSS extends Object {
       if (b[i] > maxB) {
         maxB = b[i];
       }
-      String U = Double.toString(v[i]);
-      String S = Double.toString(s[i]);
-      String R = Double.toString(r[i]);
+      String U = String.format("%6g", v[i]);
+      String S = String.format("%6g", s[i]);
+      String R = String.format("%6g", r[i]);
 
       if (i < nwdg - 1) {
         bufU.append (U + ",");
@@ -802,11 +802,11 @@ public class CDPSM_to_DSS extends Object {
         bufR.append (R + "]");
       }
     }
-    StringBuilder bufX = new StringBuilder (" %imag=" + Double.toString(maxB) + " %noloadloss=" + Double.toString(maxG));
-    bufX.append (" Xhl=" + Double.toString(x[0]+x[1]));
+    StringBuilder bufX = new StringBuilder (" %imag=" + String.format("%6g", maxB) + " %noloadloss=" + String.format("%6g", maxG));
+    bufX.append (" Xhl=" + String.format("%6g", x[0]+x[1]));
     if (nwdg > 2) { // TODO - more than 3 windings
-      bufX.append (" Xht=" + Double.toString(x[0]+x[2]));
-      bufX.append (" Xlt=" + Double.toString(x[1]+x[2]));
+      bufX.append (" Xht=" + String.format("%6g", x[0]+x[2]));
+      bufX.append (" Xlt=" + String.format("%6g", x[1]+x[2]));
     }
     return bufX.toString() + bufU + bufS + bufC + bufR;
   }
@@ -860,13 +860,13 @@ public class CDPSM_to_DSS extends Object {
 //    Vreg /= PT;
 //    Vband /= PT;
 
-    buf.append (" ctprim=" + Double.toString(CT) +
-                " ptratio=" + Double.toString(PT) +
-                " vreg=" + Double.toString(Vreg) +
-                " band=" + Double.toString(Vband) +
-                " r=" + Double.toString(ldcR) +
-                " x=" + Double.toString(ldcX));
-		buf.append ("\nedit transformer." + xfName + " winding=" + Integer.toString(nWdg) + " tap=" + Double.toString(dTap));
+    buf.append (" ctprim=" + String.format("%6g", CT) +
+                " ptratio=" + String.format("%6g", PT) +
+                " vreg=" + String.format("%6g", Vreg) +
+                " band=" + String.format("%6g", Vband) +
+                " r=" + String.format("%6g", ldcR) +
+                " x=" + String.format("%6g", ldcX));
+		buf.append ("\nedit transformer." + xfName + " winding=" + Integer.toString(nWdg) + " tap=" + String.format("%6g", dTap));
     return buf.toString();
   }
 
@@ -905,9 +905,30 @@ public class CDPSM_to_DSS extends Object {
 			wireRac = wireRdc;
 		}
 
-		buf.append (" gmr=" + Double.toString(gmr) + " radius=" + Double.toString(radius) +
-								" rac=" + Double.toString(wireRac) + " rdc=" + Double.toString(wireRdc) + " normamps=" + Double.toString(normamps) + 
+		buf.append (" gmr=" + String.format("%6g", gmr) + " radius=" + String.format("%6g", radius) +
+								" rac=" + String.format("%6g", wireRac) + " rdc=" + String.format("%6g", wireRdc) + " normamps=" + String.format("%6g", normamps) + 
 								" Runits=m Radunits=m gmrunits=m");
+		return buf.toString();
+	}
+
+	static String GetCableData (Model mdl, Resource res) {
+		StringBuffer buf = new StringBuffer("");
+
+		Property ptOverCore = mdl.getProperty (nsCIM, "CableInfo.diameterOverCore");
+		Property ptOverIns = mdl.getProperty (nsCIM, "CableInfo.diameterOverInsulation");
+		Property ptOverJacket = mdl.getProperty (nsCIM, "CableInfo.diameterOverJacket");
+		Property ptOverScreen = mdl.getProperty (nsCIM, "CableInfo.diameterOverScreen");
+		Property ptInsLayer = mdl.getProperty (nsCIM, "WireInfo.insulationThickness");
+
+		double dCore = SafeDouble (res, ptOverCore, 0.0);
+		double dIns = SafeDouble (res, ptOverIns, 0.0);
+		double dJacket = SafeDouble (res, ptOverJacket, 0.0);
+		double dScreen = SafeDouble (res, ptOverScreen, 0.0);
+		double tIns = SafeDouble (res, ptInsLayer, 0.0);
+		double dEps = 2.3; // TODO - how to put this into the CIM
+
+		buf.append (" EpsR=" + String.format("%6g", dEps) + " Ins=" + String.format("%6g", tIns) +
+								" DiaIns=" + String.format("%6g", dIns) + " DiaCable=" + String.format("%6g", dJacket));
 		return buf.toString();
 	}
 
@@ -957,8 +978,8 @@ public class CDPSM_to_DSS extends Object {
 
 		buf.append (" capacitor=" + capName +
 								" type=" + DSSCapMode(sMode) + 
-								" on=" + Double.toString(dOn) +
-								" off=" + Double.toString(dOff) + 
+								" on=" + String.format("%6g", dOn) +
+								" off=" + String.format("%6g", dOff) + 
 								" element=" + sEqType + "." + SafeResName (rCondEq, ptName) +
 								" terminal=" + Integer.toString(nterm) + 
 								" ptratio=1 ptphase=" + FirstPhase (sPhase));
@@ -999,9 +1020,9 @@ public class CDPSM_to_DSS extends Object {
       double dR = SafeDouble (wdg, ptR, 0);
       double Zbase = 1000.0 * dU * dU / dS;
       dR = 100.0 * dR / Zbase;
-      String U = Double.toString(dU);
-      String S = Double.toString(dS);
-      String R = Double.toString(dR);
+      String U = String.format("%6g", dU);
+      String S = String.format("%6g", dS);
+      String R = String.format("%6g", dR);
       String C = GetWdgConnection (wdg, ptC, "W");
       if (C.equals ("I")) {
         sPhases = "phases=1 ";
@@ -1024,7 +1045,7 @@ public class CDPSM_to_DSS extends Object {
         Resource test = iterTest.nextResource();
         double dXsc = SafeDouble (test, ptZsc, 0.0001);
         dXsc = 100.0 * dXsc / Zbase;
-        bufSC.append ("Xhl=" + Double.toString(dXsc) + " ");
+        bufSC.append ("Xhl=" + String.format("%6g", dXsc) + " ");
       }
 			// find the first no-load test
 			iterTest = mdl.listResourcesWithProperty (ptEnd, wdg);
@@ -1033,7 +1054,7 @@ public class CDPSM_to_DSS extends Object {
 				double dNLL = SafeDouble (test, ptNLL, 0);
 				double dImag = SafeDouble (test, ptImag, 0);
 				dNLL = 100 * dNLL / dS;
-				bufOC.append ("%imag=" + Double.toString(dImag) + " %noloadloss=" + Double.toString(dNLL) + " ");
+				bufOC.append ("%imag=" + String.format("%6g", dImag) + " %noloadloss=" + String.format("%6g", dNLL) + " ");
 			}
     }
     if (bufSC.length() < 1) {
@@ -1132,7 +1153,7 @@ public class CDPSM_to_DSS extends Object {
         }
       }
     }
-    return " normamps=" + Double.toString(iMin);
+    return " normamps=" + String.format("%6g", iMin);
   } 
 
   static double FindBaseVoltage (Resource res, Property ptEquip, Property ptEqBaseV, Property ptLevBaseV, Property ptBaseNomV) {
@@ -1206,7 +1227,7 @@ public class CDPSM_to_DSS extends Object {
       ++i;
     }
 
-    System.out.println (fEnc + " f=" + Double.toString(freq) + " v="  + Double.toString(vmult) + " s=" + Double.toString(smult));
+    System.out.println (fEnc + " f=" + String.format("%6g", freq) + " v="  + String.format("%6g", vmult) + " s=" + String.format("%6g", smult));
 
 //    ModelMaker maker = ModelFactory.createFileModelMaker (fProfile);
 //    Model tmpModel = maker.createDefaultModel();
@@ -1332,9 +1353,9 @@ public class CDPSM_to_DSS extends Object {
       }
 
       out.println ("new " + srcClass + name + " phases=3 bus1=" + bus1 + 
-                   " basekv=" + Double.toString(vnom) + " pu=" + Double.toString(vpu) + " angle=" + Double.toString(vang) +
-                   " r0=" + Double.toString(r0) + " r1=" + Double.toString(r1) +
-                   " x0=" + Double.toString(x0) + " x1=" + Double.toString(x1));
+                   " basekv=" + String.format("%6g", vnom) + " pu=" + String.format("%6g", vpu) + " angle=" + String.format("%6g", vang) +
+                   " r0=" + String.format("%6g", r0) + " r1=" + String.format("%6g", r1) +
+                   " x0=" + String.format("%6g", x0) + " x1=" + String.format("%6g", x1));
       outGuid.println (srcClass + name + "\t" + DSS_Guid (id));
     }
     if (NumCircuits < 1) {  // try the first breaker
@@ -1354,7 +1375,7 @@ public class CDPSM_to_DSS extends Object {
       }
     }
 
-    out.println ("// set frequency=" + Double.toString(freq));
+    out.println ("// set frequency=" + String.format("%6g", freq));
 
     // SynchronousMachine ==> Generator
     out.println ();
@@ -1386,9 +1407,9 @@ public class CDPSM_to_DSS extends Object {
       double genKv = vmult * FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV);
 
       out.println ("new Generator." + name + " phases=3 bus1=" + bus1 + 
-                   " conn=w kva=" + Double.toString (genS) + " kw=" + Double.toString (genP) + 
-                   " kvar=" + Double.toString (genQ) + " minkvar=" + Double.toString (genQmin) + 
-                   " maxkvar=" + Double.toString (genQmax) + " kv=" + Double.toString (genKv));
+                   " conn=w kva=" + String.format("%6g", genS) + " kw=" + String.format("%6g", genP) + 
+                   " kvar=" + String.format("%6g", genQ) + " minkvar=" + String.format("%6g", genQmin) + 
+                   " maxkvar=" + String.format("%6g", genQmax) + " kv=" + String.format("%6g", genKv));
       outGuid.println ("Load." + name + "\t" + DSS_Guid (id));
     }
 
@@ -1422,8 +1443,8 @@ public class CDPSM_to_DSS extends Object {
       pL *= smult;
       qL *= smult;
       total_load_kw += pL;
-      String pLoad = Double.toString(pL);
-      String qLoad = Double.toString(qL);
+      String pLoad = String.format("%6g", pL);
+      String qLoad = String.format("%6g", qL);
       String nCust = SafeProperty (res, ptCust, "1");
       String loadModel = GetLoadModel (model, res);
       double loadKv = vmult * FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV);
@@ -1433,11 +1454,11 @@ public class CDPSM_to_DSS extends Object {
 
       out.println ("new Load." + name + " phases=" + Integer.toString(phs_cnt) + " bus1=" + bus1 + 
                    " conn=" + phs_conn + " kw=" + pLoad + " kvar=" + qLoad + " numcust=" + nCust + 
-                   " kv=" + Double.toString(loadKv) + " " + loadModel);
+                   " kv=" + String.format("%6g", loadKv) + " " + loadModel);
       outGuid.println ("Load." + name + "\t" + DSS_Guid (id));
     }
     out.println ();
-    out.println ("// total load = " + Double.toString (total_load_kw) + " kW");
+    out.println ("// total load = " + String.format("%6g", total_load_kw) + " kW");
 
     // LinearShuntCompensator ==> Capacitor
     out.println ();
@@ -1469,8 +1490,8 @@ public class CDPSM_to_DSS extends Object {
 			if ((phs_cnt < 3) && phs_conn.contains("w")) {
 				cap_v /= Math.sqrt(3.0);
 			}
-			String nomU = Double.toString(cap_v);
-      String nomQ = Double.toString(cap_v * cap_v * cap_b * 1000.0);
+			String nomU = String.format("%6g", cap_v);
+      String nomQ = String.format("%6g", cap_v * cap_v * cap_b * 1000.0);
 
       out.println ("new Capacitor." + name + " phases=" + Integer.toString(phs_cnt) + " bus1=" + bus1 + 
                    " conn=" + phs_conn + " numsteps=" + numSteps + " kv=" + nomU + " kvar=" + nomQ);
@@ -1513,8 +1534,8 @@ public class CDPSM_to_DSS extends Object {
 			double tapeLap = SafeDouble (res, ptLap, 0.0);
 			double tapeThickness = SafeDouble (res, ptThickness, 0.0);
 
-			out.println ("new TSData." + name + GetWireData (model, res) +
-									 " tapeLayer=" + Double.toString(tapeThickness) + " tapeLap=" + Double.toString(tapeLap));
+			out.println ("new TSData." + name + GetWireData (model, res) + GetCableData (model, res) +
+									 " tapeLayer=" + String.format("%6g", tapeThickness) + " tapeLap=" + String.format("%6g", tapeLap));
 			outGuid.println ("TSData." + name + "\t" + DSS_Guid (id));
 		}
 
@@ -1541,10 +1562,10 @@ public class CDPSM_to_DSS extends Object {
 			double cnRadius = SafeDouble (res, ptStrandRadius, 0.0);
 			double cnRes = SafeDouble (res, ptStrandRes, 0.0);
 
-			out.println ("new CNData." + name + GetWireData (model, res) +
-									 " k=" + Integer.toString(cnCount) + " GmrStrand=" + Double.toString(cnGmr) +
-									 " DiaStrand=" + Double.toString(2 * cnRadius) + " Rstrand=" + Double.toString(cnRes) +
-									 " DiaCable=" + Double.toString(cnDia));
+			out.println ("new CNData." + name + GetWireData (model, res) + GetCableData (model, res) +
+									 " k=" + Integer.toString(cnCount) + " GmrStrand=" + String.format("%6g", cnGmr) +
+									 " DiaStrand=" + String.format("%6g", 2 * cnRadius) + " Rstrand=" + String.format("%6g", cnRes) +
+									 " DiaCable=" + String.format("%6g", cnDia));
 			outGuid.println ("CNData." + name + "\t" + DSS_Guid (id));
 		}
 
@@ -1647,15 +1668,15 @@ public class CDPSM_to_DSS extends Object {
       if (sqX0 <= 0) {
         sqX0 = sqX1;
       }
-      String seqR1 = Double.toString(sqR1);
-      String seqR0 = Double.toString(sqR0);
-      String seqX1 = Double.toString(sqX1);
-      String seqX0 = Double.toString(sqX0);
+      String seqR1 = String.format("%6g", sqR1);
+      String seqR0 = String.format("%6g", sqR0);
+      String seqX1 = String.format("%6g", sqX1);
+      String seqX0 = String.format("%6g", sqX0);
 
       double bch = SafeDouble (res, ptSeqB1, 0);
-      String seqC1 = Double.toString(bch * 1.0e9 / 314.0);  // TODO: only for EdF during 2009 interop tests
+      String seqC1 = String.format("%6g", bch * 1.0e9 / 314.0);  // TODO: only for EdF during 2009 interop tests
       bch = SafeDouble (res, ptSeqB0, 0);
-      String seqC0 = Double.toString(bch * 1.0e9 / 314.0);  // TODO: only for EdF during 2009 interop tests
+      String seqC0 = String.format("%6g", bch * 1.0e9 / 314.0);  // TODO: only for EdF during 2009 interop tests
 
       out.println ("new LineCode." + name + " nphases=3 r1=" + seqR1 + " x1=" + seqX1 + " c1=" + seqC1 +
                    " r0=" + seqR0 + " x0=" + seqX0 + " c0=" + seqC0);
@@ -1724,7 +1745,7 @@ public class CDPSM_to_DSS extends Object {
       }
 
       out.println ("new Line." + name + " phases=" + Integer.toString(phs_cnt) + " bus1=" + bus1 + " bus2=" + bus2 
-                          + " length=" + len + linecode + zAmps);
+                          + " length=" + String.format("%6g", dLen) + linecode + zAmps);
       outGuid.println ("Line." + name + "\t" + DSS_Guid (id));
     }
 
@@ -2018,7 +2039,7 @@ public class CDPSM_to_DSS extends Object {
       id = soln.get ("?s").toString();
       res = model.getResource (id);
 			double vnom = vmult * SafeDouble (res, ptBaseNomV, 1.0);
-			out.print (Double.toString(vnom));
+			out.print (String.format("%6g", vnom));
 			if (results.hasNext()) {
 				out.print (", ");
 			} else {
