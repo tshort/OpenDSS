@@ -207,7 +207,6 @@ begin
     Exit;
   end;
 
-  writeln('Argument: ', ParamStr(1));
   DSSExecutive.Command := 'compile ' + ParamStr(1);
   writeln(DSSExecutive.LastError);
 
@@ -238,14 +237,9 @@ var
 {$R *.res}
 
 begin
-writeln('entry');
   Application:=TMyApplication.Create(nil);
-  writeln('created');
-  writeln('titled');
   Application.Run;
-  writeln('launched');
   ExitCode := DSSExecutive.Error;
   Application.Free;
-  writeln('freed');
 end.
 
