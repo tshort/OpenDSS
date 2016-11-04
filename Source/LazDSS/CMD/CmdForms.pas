@@ -91,9 +91,10 @@ End;
 FUNCTION DSSMessageDlg(const Msg:String;err:boolean):Integer;
 Var  Str:String;
 Begin
-     If Length(msg) > 1024 Then
-        Str := 'Message too long; See Result Form.'
-     Else Str := msg;
+	If Length(msg) > 1024 Then
+		Str := 'Message too long; See Result Form.'
+	Else Str := msg;
+	Result := 0;
 
 //     If Err Then Result := MessageDlg(Str, mtError , [mbOK], 0)
 //     Else Result := IntResult(MessageDlg(Str, mtInformation , [mbAbort, mbIgnore], 0));
