@@ -6,6 +6,7 @@
 // package epri.com.opendss.cim ;
 
 import java.io.*;
+import java.util.HashMap;
 
 import org.apache.jena.ontology.*;
 import org.apache.jena.query.*;
@@ -18,6 +19,27 @@ public class CDPSM_to_DSS extends Object {
   static final String baseURI = "http://opendss";
 
   static final String combinedOwl = "Combined.owl";
+
+	// helper class to keep track of the conductor counts for WireSpacingInfo instances
+	static class SpacingCount {
+    private final int nconds;
+    private final int nphases;
+
+    public SpacingCount(int nconds, int nphases) {
+        this.nconds = nconds;
+        this.nphases = nphases;
+    }
+
+    public int getNumConductors() {
+        return nconds;
+    }
+
+    public int getNumPhases() {
+        return nphases;
+    }
+	}
+
+	static HashMap<String,SpacingCount> mapSpacings = new HashMap<>();
 
   static String SafeProperty (Resource r, Property p, String def) {
     if (r.hasProperty(p)) return r.getProperty(p).getString();
@@ -675,11 +697,19 @@ public class CDPSM_to_DSS extends Object {
 		return buf.toString();
 	}
 
+	// needs to return the spacing and wire/cncable/tscable assignments for this rLine
 	static String GetLineSpacing (Model mdl, Resource rLine) {
+		StringBuilder buf = new StringBuilder (" spacing=");
 		Property ptAssetPSR = mdl.getProperty (nsCIM, "Asset.PowerSystemResources");
 		Property ptAssetInf = mdl.getProperty (nsCIM, "Asset.AssetInfo");
 		Property ptName = mdl.getProperty (nsCIM, "IdentifiedObject.name");
 		ResIterator itAsset = mdl.listResourcesWithProperty (ptAssetPSR, rLine);
+		int nconds = 0;
+		int nphases = 0;
+		boolean bCNcables = false;
+		boolean bTScables = false;
+		String wsName = "";
+		String wireName = "";  // attached to the ACLineSegment (i.e. for all phases)
 		while (itAsset.hasNext()) {
 			Resource rAsset = itAsset.nextResource();
 			if (rAsset.hasProperty(ptAssetInf)) {
@@ -688,8 +718,87 @@ public class CDPSM_to_DSS extends Object {
 				String s = rDS.as(OntResource.class).getRDFType().toString();
 				int hash = s.lastIndexOf ("#");
 				String t = s.substring (hash + 1);
-				if (t.equals("WireSpacingInfo")) return SafeResName (rDS, ptName);
+				if (t.equals("WireSpacingInfo")) {
+					wsName = SafeResName (rDS, ptName);
+					buf.append (wsName);
+					SpacingCount spc = mapSpacings.get(wsName);
+					nconds = spc.getNumConductors();
+					nphases = spc.getNumPhases();
+				} else if (t.equals("OverheadWireInfo")) {
+					wireName = SafeResName (rDS, ptName);
+				} else if (t.equals("ConcentricNeutralCableInfo")) {
+					bCNcables = true;
+					wireName = SafeResName (rDS, ptName);
+				} else if (t.equals("TapeShieldCableInfo")) {
+					bTScables = true;
+					wireName = SafeResName (rDS, ptName);
+				}
 			}
+		}
+		if (nconds > 0) { // find all the wires by phase for individual assignments
+			Property ptSegment = mdl.getProperty (nsCIM, "ACLineSegmentPhase.ACLineSegment");
+			Property ptPhase = mdl.getProperty (nsCIM, "ACLineSegmentPhase.phase");
+			ResIterator it = mdl.listResourcesWithProperty (ptSegment, rLine);
+			String wA = "", wB = "", wC = "", wN = "", wS1 = "", wS2 = "", wS = "";
+			while (it.hasNext()) {  // we don't know what order the phases will come
+				Resource rP = it.nextResource();
+				if (rP.hasProperty(ptPhase)) {
+					String sPhase = Phase_Kind_String (rP.getProperty(ptPhase).getObject().toString());
+					itAsset = mdl.listResourcesWithProperty (ptAssetPSR, rP);
+					while (itAsset.hasNext()) {
+						Resource rAsset = itAsset.nextResource();
+						if (rAsset.hasProperty(ptAssetInf)) {
+							Resource rDS = rAsset.getProperty(ptAssetInf).getResource();
+							String s = rDS.as(OntResource.class).getRDFType().toString();
+							int hash = s.lastIndexOf ("#");
+							String t = s.substring (hash + 1);
+							if (t.equals("ConcentricNeutralCableInfo")) bCNcables = true;
+							if (t.equals("TapeShieldCableInfo")) bTScables = true;
+							wS = SafeResName(rDS, ptName); // if not "", indicates we found at least one wire/cable assigned to a phase
+							if (sPhase.equals("A")) wA = wS;
+							if (sPhase.equals("B")) wB = wS;
+							if (sPhase.equals("C")) wC = wS;
+							if (sPhase.equals("N")) wN = wS;
+							if (sPhase.equals("s1")) wS1 = wS;
+							if (sPhase.equals("s2")) wS2 = wS;
+						}
+					}
+				}
+			}
+			if (wS.length() < 1) { // no individual phase conductors were found
+				if (bCNcables) {
+					buf.append(" CNcables=[");
+				} else if (bTScables) {
+					buf.append(" TScables=[");
+				} else {
+					buf.append(" wires=[");
+				}
+				for (int i = 0; i < nconds; i++) buf.append(wireName + " ");
+				buf.append("]");
+			} else {
+				if (bCNcables) {
+					buf.append(" CNcables=[");
+				} else if (bTScables) {
+					buf.append(" TScables=[");
+				} else {
+					buf.append(" wires=[");
+				}
+				if (wA.length() > 0) buf.append (wA + " ");
+				if (wB.length() > 0) buf.append (wB + " ");
+				if (wC.length() > 0) buf.append (wC + " ");
+				if (wS1.length() > 0) buf.append (wS1 + " ");
+				if (wS2.length() > 0) buf.append (wS2 + " ");
+				if (!(bCNcables || bTScables)) { // write any overhead neutrals
+					for (int i = 0; i < (nconds - nphases); i++) buf.append(wN + " ");
+				}
+				buf.append("]");
+				if ((nconds > nphases) && (bCNcables || bTScables)) { // separate underground neutrals are actually bare wires
+					buf.append(" wires=[");
+					for (int i = 0; i < (nconds - nphases); i++) buf.append(wN + " ");
+					buf.append("]");
+				}
+			}
+			return buf.toString();
 		}
 		return "";
 	}
@@ -1659,6 +1768,7 @@ public class CDPSM_to_DSS extends Object {
       }
 
       if (nconds > 0 && nphases > 0) {
+				mapSpacings.put (name, new SpacingCount(nconds, nphases)); // keep track for wire assignments below
         out.println ("new LineSpacing." + name + " nconds=" + Integer.toString(nconds) +
 										 " nphases=" + Integer.toString(nphases) + " units=m");
 				int icond = 0;
@@ -1805,7 +1915,7 @@ public class CDPSM_to_DSS extends Object {
 //      } else if (zSequence.length() > 0) {
 //        linecode = " linecode=" + zSequence;
       } else if (zSpace.length() > 0) {
-        linecode = " spacing=" + zSpace;
+        linecode = zSpace;
       } else if (zParms.length() > 0) {
         linecode = zParms;
       } else if (phs_cnt == 1) {
@@ -2129,6 +2239,10 @@ public class CDPSM_to_DSS extends Object {
 
     outGuid.println ();
     outGuid.close ();
-  }
+
+//		for (HashMap.Entry<String,SpacingCount> pair : mapSpacings.entrySet()) {
+//			System.out.printf ("%s ==> %d, %d\n", pair.getKey(), pair.getValue().getNumConductors(), pair.getValue().getNumPhases());
+//		}
+	}
 }
 
