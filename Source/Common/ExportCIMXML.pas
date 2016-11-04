@@ -1,5 +1,7 @@
 unit ExportCIMXML;
 
+{$IFDEF FPC}{$MODE Delphi}{$ENDIF}
+
 {
   ----------------------------------------------------------
   Copyright (c) 2009-2015, Electric Power Research Institute, Inc.
@@ -57,7 +59,7 @@ Var
   BankList: array of TBankObject;
 
 Const
-  CIM_NS = 'http://iec.ch/TC57/2013/CIM-schema-cim16';
+  CIM_NS = 'http://iec.ch/TC57/2012/CIM-schema-cim16';
 
 function PhaseString (pElem:TDSSCktElement; bus: Integer):String; // if order doesn't matter
 var
@@ -541,7 +543,7 @@ end;
 
 procedure WindingConnectionKindNode (var F: TextFile; val: String); // D, Y, Z, Yn, Zn, A, I
 begin
-  Writeln (F, Format ('  <cim:TransformerEnd.connectionKind rdf:resource="%s#WindingConnection.%s"/>',
+  Writeln (F, Format ('  <cim:PowerTransformerEnd.connectionKind rdf:resource="%s#WindingConnection.%s"/>',
     [CIM_NS, val]));
 end;
 
@@ -554,6 +556,7 @@ begin
   if pLine.NPhases = 3 then if pLine.NumConductorsAvailable = 0 then exit;
   pPhase := TNamedObject.Create('dummy');
   s := PhaseString(pLine, 1);
+	if pLine.NumConductorsAvailable > length(s) then s := s + 'N'; // so we can specify the neutral conductor
   for i := 1 to length(s) do begin
     phs := s[i];
     pPhase.LocalName := pLine.Name + '_' + phs;
@@ -972,11 +975,12 @@ begin
         if pWire = ConductorData[i] then begin
           if i = 1 then RefNode (F, 'Asset.PowerSystemResources', pLine);
           if i > length(phs) then begin
-//            tmp := GetDevGuid (LinePhase, pLine.Name + '_N' , 1);
+            tmp := GetDevGuid (LinePhase, pLine.Name + '_N' , 1);
+//						writeln('neutral found ' + pLine.Name + ' ' + phs + pWire.Name);
           end else begin
             tmp := GetDevGuid (LinePhase, pLine.Name + '_' + phs[i], 1);
-            GuidNode (F, 'Asset.PowerSystemResources', tmp);
           end;
+					GuidNode (F, 'Asset.PowerSystemResources', tmp);
         end;
     end;
     pLine := ActiveCircuit.Lines.Next;
@@ -1004,6 +1008,7 @@ Var
   CoreList : array of TNamedObject;
   MeshList : array of TNamedObject;
   sBank  : String;
+	bTanks: boolean;
 
   pLoad  : TLoadObj;
   pVsrc  : TVsourceObj;
@@ -1060,13 +1065,13 @@ Begin
     StartGuidList (i1 + i2);
     StartBankList (ActiveCircuit.Transformers.ListSize);
 
+		Writeln(FileNm);
     Assignfile(F, FileNm);
     ReWrite(F);
 
     Writeln(F,'<?xml version="1.0" encoding="utf-8"?>');
     Writeln(F,'<!-- un-comment this line to enable validation');
     Writeln(F,'-->');
-//    Writeln(F,'<rdf:RDF xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">');
     Writeln(F,'<rdf:RDF xmlns:cim="' + CIM_NS + '#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">');
     Writeln(F,'<!--');
     Writeln(F,'-->');
@@ -1269,10 +1274,33 @@ Begin
       pCapC := ActiveCircuit.CapControls.Next;
     end;
 
-    // begin the transformers; write all the XfmrCodes first (CIM TransformerTankInfo)
+    // begin the transformers; 
+		//   1. if balanced three-phase and no XfmrCode, use PowerTransformerEnd(s), mesh impedances and core admittances with no tanks
+    //   2. with XfmrCode, write TransformerTank, TransformerTankEnd(s) and references to TransformerTankInfoInfo
+    //   3. otherwise, write TransformerTank, then create and reference TransformerTankInfo classes
+
+		// for case 3, it's better to identify and create the info classes first
+		//    TODO: side effect is that these transformers will reference XfmrCode until the text file is reloaded. Solution results should be the same.
+		pXf := ActiveCircuit.Transformers.First;
+		while pXf <> nil do begin
+			if pXf.Enabled then begin
+				if (length(pXf.XfmrCode) < 1) and (pXf.NPhases <> 3) then begin
+					sBank := 'CIMXfmrCode_' + pXf.Name;
+					clsXfmr.NewObject (sBank);
+					clsXfmr.Code := sBank;
+					pXfmr := ActiveXfmrCodeObj;
+					CreateGUID (tmpGUID);
+					pXfmr.GUID := tmpGUID;
+					pXfmr.PullFromTransformer (pXf);
+					pXf.XfmrCode := pXfmr.Name;
+				end;
+			end;
+			pXf := ActiveCircuit.Transformers.Next;
+		end;
+
+		// write all the XfmrCodes first (CIM TransformerTankInfo)
     pXfmr := clsXfmr.ElementList.First;
     while pXfmr <> nil do begin
-
       WriteXfmrCode (F, pXfmr);
       // link to the transformers using this XfmrCode
       pName1.LocalName := 'TankAsset_' + pXfmr.Name;
@@ -1326,26 +1354,30 @@ Begin
       pXf := ActiveCircuit.Transformers.Next;
     end;
 
-    // write all the transformers (CIM TransformerTank, with Ends)
-    //   with XfmrCode, write references to Info classes
-    //   without XfmrCode, write mesh impedances and core admittances
+    // write all the transformers, according to the three cases
     pXf := ActiveCircuit.Transformers.First;
     while pXf <> nil do begin
-      if pXf.Enabled then
-      with pXf do begin
-        // write this Tank, add to the Bank, write its location and XfmrCode (if used)
-        StartInstance (F, 'TransformerTank', pXf);
+      if pXf.Enabled then with pXf do begin
+        // collect this transformer into tanks and banks, and make a location
         if pXf.XfmrBank = '' then
           sBank := '=' + pXf.Name
         else
           sBank := pXf.XfmrBank;
-        pBank := GetBank (sBank);
-        RefNode (F, 'TransformerTank.PowerTransformer', pBank);
-        pBank.AddTransformer (pXf);
-        geoGUID := GetDevGuid (XfLoc, pXf.Name, 1);
-        GuidNode (F, 'PowerSystemResource.Location', geoGUID);
-        EndInstance (F, 'TransformerTank');
-        WritePositions (F, pXf, geoGUID, crsGUID);
+				bTanks := true;  // defaults to case 2 or 3 if XfmrCode exists
+				if (length(pXf.XfmrCode) < 1) and (pXf.NPhases = 3) then
+					bTanks := false; // case 1, balanced three-phase
+
+				pBank := GetBank (sBank);
+				pBank.AddTransformer (pXf);
+				geoGUID := GetDevGuid (XfLoc, pXf.Name, 1);
+
+				if bTanks then begin
+					StartInstance (F, 'TransformerTank', pXf);
+					RefNode (F, 'TransformerTank.PowerTransformer', pBank);
+					GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+					EndInstance (F, 'TransformerTank');
+					WritePositions (F, pXf, geoGUID, crsGUID);
+				end;
 
         // make the winding, mesh and core name objects for easy reference
         for i:=1 to NumberOfWindings do begin
@@ -1359,8 +1391,8 @@ Begin
           MeshList[i-1].GUID := GetDevGuid (XfMesh, pXf.Name, i);
         end;
 
-        if length (pXf.XfmrCode) < 1 then begin // write the impedances first, if no XfmrCode
-          val := BaseKVLL[1];  // write core Y
+        if not bTanks then begin // write the mesh impedances and core admittances
+          val := BaseKVLL[1];
           zbase := 1000.0 * val * val / WdgKva[1];
           StartInstance (F, 'TransformerCoreAdmittance', CoreList[0]);
           val := pXf.noLoadLossPct / 100.0 / zbase;
@@ -1393,10 +1425,30 @@ Begin
 
         // write the Ends, and a Terminal for each End
         for i:=1 to NumberOfWindings do begin
-          StartInstance (F, 'TransformerTankEnd', WdgList[i-1]);
-          IntegerNode (F, 'TransformerEnd.endNumber', i);
-          XfmrPhasesEnum (F, pXf, i);
-          RefNode (F, 'TransformerTankEnd.TransformerTank', pXf);
+					if bTanks then begin
+						StartInstance (F, 'TransformerTankEnd', WdgList[i-1]);
+						XfmrPhasesEnum (F, pXf, i);
+						RefNode (F, 'TransformerTankEnd.TransformerTank', pXf);
+					end else begin
+						StartInstance (F, 'PowerTransformerEnd', WdgList[i-1]);
+						RefNode (F, 'PowerTransformerEnd.PowerTransformer', pBank);
+						DoubleNode (F, 'PowerTransformerEnd.ratedS', 1000 * WdgKva[i]);
+						DoubleNode (F, 'PowerTransformerEnd.ratedU', 1000 * Winding^[i].kvll);
+						zbase := 1000.0 * BaseKVLL[i] * BaseKVLL[i] / WdgKva[i];
+						DoubleNode (F, 'PowerTransformerEnd.r', zbase * WdgResistance[i]);
+						if Winding^[i].Connection = 1 then
+							WindingConnectionKindNode (F, 'D')
+						else
+							if (Winding^[i].Rneut > 0.0) or (Winding^[i].Xneut > 0.0) then
+								WindingConnectionKindNode (F, 'Yn')
+							else
+								WindingConnectionKindNode (F, 'Y');
+						if Winding^[i].Connection <> Winding^[1].Connection then  // TODO - this assumes HV winding first, and normal usages
+							IntegerNode (F, 'PowerTransformerEnd.phaseAngleClock', 1)
+						else
+							IntegerNode (F, 'PowerTransformerEnd.phaseAngleClock', 0);
+					end;
+					IntegerNode (F, 'TransformerEnd.endNumber', i);
           if (Winding^[i].Rneut < 0.0) or (Winding^[i].Connection = 1) then begin
             BooleanNode (F, 'TransformerEnd.grounded', false);
           end else begin
@@ -1409,7 +1461,10 @@ Begin
           pName2.GUID := GetTermGuid (pXf, i);
           RefNode (F, 'TransformerEnd.Terminal', pName2);
           GuidNode (F, 'TransformerEnd.BaseVoltage', GetBaseVGuid (sqrt(3.0) * ActiveCircuit.Buses^[j].kVBase));
-          EndInstance (F, 'TransformerTankEnd');
+					if bTanks then
+						EndInstance (F, 'TransformerTankEnd')
+					else
+						EndInstance (F, 'PowerTransformerEnd');
           // write the Terminal for this End
           StartInstance (F, 'Terminal', pName2);
           RefNode (F, 'Terminal.ConductingEquipment', pBank);
@@ -1426,6 +1481,9 @@ Begin
       pBank := BankList[i];
       if pBank = nil then break;
       pBank.BuildVectorGroup;
+			// we don't want = sign in the name.  These should still be unique names
+			if AnsiPos ('=', pBank.localName) = 1 then 
+				pBank.localName := Copy(pBank.localName, 2, MaxInt);
       StartInstance (F, 'PowerTransformer', pBank);
       CircuitNode (F, ActiveCircuit);
       StringNode (F, 'PowerTransformer.vectorGroup', pBank.vectorGroup);
