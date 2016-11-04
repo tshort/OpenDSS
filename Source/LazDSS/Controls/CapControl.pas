@@ -34,7 +34,7 @@ unit CapControl;
 INTERFACE
 
 USES
-     Command, ControlClass, ControlElem, CktElement, Bus, DSSClass, ucomplex,
+     Command, ControlClass, ControlElem, CktElement, Bus, DSSClass, Arraydef, ucomplex,
      Capacitor, utilities, CapControlVars, CapUserControl;
 
 TYPE
@@ -121,6 +121,7 @@ TYPE
        Property VmaxVal:Double Read ControlVars.Vmax;
        Property UseVoltageOverride:Boolean Read ControlVars.Voverride;
        Property DeadTimeVal:Double Read ControlVars.DeadTime;
+       Property PTPhase:Integer Read ControlVars.FPTPhase;
    end;
 
 
@@ -132,7 +133,7 @@ IMPLEMENTATION
 
 USES
 
-    ParserDel, DSSClassDefs, DSSGlobals, Circuit, Sysutils, MathUtil, Math;
+    ParserDel, DSSClassDefs, DSSGlobals, Circuit,   Sysutils, uCmatrix, MathUtil, Math;
 
 CONST
     AVGPHASES = -1;
