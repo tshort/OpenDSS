@@ -675,6 +675,25 @@ public class CDPSM_to_DSS extends Object {
 		return buf.toString();
 	}
 
+	static String GetLineSpacing (Model mdl, Resource rLine) {
+		Property ptAssetPSR = mdl.getProperty (nsCIM, "Asset.PowerSystemResources");
+		Property ptAssetInf = mdl.getProperty (nsCIM, "Asset.AssetInfo");
+		Property ptName = mdl.getProperty (nsCIM, "IdentifiedObject.name");
+		ResIterator itAsset = mdl.listResourcesWithProperty (ptAssetPSR, rLine);
+		while (itAsset.hasNext()) {
+			Resource rAsset = itAsset.nextResource();
+			if (rAsset.hasProperty(ptAssetInf)) {
+				Resource rDS = rAsset.getProperty(ptAssetInf).getResource();
+				// TODO: .listRDFTypes() might be more robust
+				String s = rDS.as(OntResource.class).getRDFType().toString();
+				int hash = s.lastIndexOf ("#");
+				String t = s.substring (hash + 1);
+				if (t.equals("WireSpacingInfo")) return SafeResName (rDS, ptName);
+			}
+		}
+		return "";
+	}
+
   static String GetTankData (Model mdl, Resource rTank, double smult, double vmult) {
     // used to collect the TransformerTankEnds belonging to rTank
     Property ptXfmr = mdl.getProperty (nsCIM, "TransformerTankEnd.TransformerTank");
@@ -914,20 +933,18 @@ public class CDPSM_to_DSS extends Object {
 	static String GetCableData (Model mdl, Resource res) {
 		StringBuffer buf = new StringBuffer("");
 
-		Property ptOverCore = mdl.getProperty (nsCIM, "CableInfo.diameterOverCore");
+//		Property ptOverCore = mdl.getProperty (nsCIM, "CableInfo.diameterOverCore"); // redundant
 		Property ptOverIns = mdl.getProperty (nsCIM, "CableInfo.diameterOverInsulation");
 		Property ptOverJacket = mdl.getProperty (nsCIM, "CableInfo.diameterOverJacket");
-		Property ptOverScreen = mdl.getProperty (nsCIM, "CableInfo.diameterOverScreen");
 		Property ptInsLayer = mdl.getProperty (nsCIM, "WireInfo.insulationThickness");
 
-		double dCore = SafeDouble (res, ptOverCore, 0.0);
+//		double dCore = SafeDouble (res, ptOverCore, 0.0);
 		double dIns = SafeDouble (res, ptOverIns, 0.0);
 		double dJacket = SafeDouble (res, ptOverJacket, 0.0);
-		double dScreen = SafeDouble (res, ptOverScreen, 0.0);
 		double tIns = SafeDouble (res, ptInsLayer, 0.0);
 		double dEps = 2.3; // TODO - how to put this into the CIM
 
-		buf.append (" EpsR=" + String.format("%6g", dEps) + " Ins=" + String.format("%6g", tIns) +
+		buf.append ("\n~ EpsR=" + String.format("%6g", dEps) + " Ins=" + String.format("%6g", tIns) +
 								" DiaIns=" + String.format("%6g", dIns) + " DiaCable=" + String.format("%6g", dJacket));
 		return buf.toString();
 	}
@@ -1524,6 +1541,7 @@ public class CDPSM_to_DSS extends Object {
 		results=qexec.execSelect();
 		Property ptLap = model.getProperty (nsCIM, "TapeShieldCableInfo.tapeLap");
 		Property ptThickness = model.getProperty (nsCIM, "TapeShieldCableInfo.tapeThickness");
+		Property ptOverScreen = model.getProperty (nsCIM, "CableInfo.diameterOverScreen");
 		while (results.hasNext()) {
 			soln = results.next();
 
@@ -1533,8 +1551,10 @@ public class CDPSM_to_DSS extends Object {
 
 			double tapeLap = SafeDouble (res, ptLap, 0.0);
 			double tapeThickness = SafeDouble (res, ptThickness, 0.0);
+			double dScreen = SafeDouble (res, ptOverScreen, 0.0);
 
 			out.println ("new TSData." + name + GetWireData (model, res) + GetCableData (model, res) +
+									 " DiaShield=" + String.format("%6g", dScreen + 2.0 * tapeThickness) +
 									 " tapeLayer=" + String.format("%6g", tapeThickness) + " tapeLap=" + String.format("%6g", tapeLap));
 			outGuid.println ("TSData." + name + "\t" + DSS_Guid (id));
 		}
@@ -1564,24 +1584,21 @@ public class CDPSM_to_DSS extends Object {
 
 			out.println ("new CNData." + name + GetWireData (model, res) + GetCableData (model, res) +
 									 " k=" + Integer.toString(cnCount) + " GmrStrand=" + String.format("%6g", cnGmr) +
-									 " DiaStrand=" + String.format("%6g", 2 * cnRadius) + " Rstrand=" + String.format("%6g", cnRes) +
-									 " DiaCable=" + String.format("%6g", cnDia));
+									 " DiaStrand=" + String.format("%6g", 2 * cnRadius) + " Rstrand=" + String.format("%6g", cnRes));
 			outGuid.println ("CNData." + name + "\t" + DSS_Guid (id));
 		}
 
-    // LineGeometries
+    // LineSpacings (LineGeometries were exported as LineSpacings and individual wire assignments
     out.println ();
-    query = QueryFactory.create (qPrefix + "select ?s ?name where {?s r:type c:OverheadConductorInfo. " + 
+    query = QueryFactory.create (qPrefix + "select ?s ?name where {?s r:type c:WireSpacingInfo. " + 
                                  "?s c:IdentifiedObject.name ?name" +
                                  "}");
     qexec = QueryExecutionFactory.create (query, model);
     results=qexec.execSelect();
-    Property ptWireX = model.getProperty (nsCIM, "WireArrangement.mountingPointX");
-    Property ptWireY = model.getProperty (nsCIM, "WireArrangement.mountingPointY");
-    Property ptWireP = model.getProperty (nsCIM, "WireArrangement.position");
-//    Property ptWireInfo = model.getProperty (nsCIM, "WireArrangement.WireInfo");
-    Property ptWireInfo = model.getProperty (nsCIM, "WireArrangement.ConductorInfo");
-    Property ptGeoPhases = model.getProperty (nsCIM, "ConductorInfo.phaseCount");
+    Property ptWireX = model.getProperty (nsCIM, "WirePosition.xCoord");
+    Property ptWireY = model.getProperty (nsCIM, "WirePosition.yCoord");
+    Property ptWireP = model.getProperty (nsCIM, "WirePosition.phase");
+		Property ptWireS = model.getProperty (nsCIM, "WirePosition.WireSpacingInfo");
     while (results.hasNext()) {
       soln = results.next();
 
@@ -1589,29 +1606,87 @@ public class CDPSM_to_DSS extends Object {
       name = DSS_Name (soln.get ("?name").toString());
       res = model.getResource (id);
 
-      int nconds = 0;
-      int icond;
-      String WireInfo, wireX, wireY;
-      StringBuffer buf = new StringBuffer();
-      int nphases = SafeInt (res, ptGeoPhases, 1);
-      ResIterator wIter = model.listResourcesWithProperty (ptWireInfo, res);
+      int nconds=0;
+			int nphases=0;
+      double wireXa=0, wireXb=0, wireXc=0, wireXn=0, wireXs1=0, wireXs2=0;
+			double wireYa=0, wireYb=0, wireYc=0, wireYn=0, wireYs1=0, wireYs2=0;
+			boolean wireA = false;
+			boolean wireB = false;
+			boolean wireC = false;
+			boolean wireN = false;
+			boolean wireS1 = false;
+			boolean wireS2 = false;
+      ResIterator wIter = model.listResourcesWithProperty (ptWireS, res);
       while (wIter.hasNext()) {
         Resource wa = wIter.nextResource();
-        icond = SafeInt (wa, ptWireP, 1);
-        if (icond > nconds) {
-          nconds = icond;
-        }
-        wireX = SafeProperty (wa, ptWireX, "0");
-        wireY = SafeProperty (wa, ptWireY, "0");
-        WireInfo = SafeResourceLookup (model, ptName, wa, ptWireInfo, "**");
-        buf.append ("~ cond=" + Integer.toString(icond) + " wire=" + WireInfo + " x=" + wireX + " h=" + wireY + "\n");
+				++nconds;
+				phs = Phase_Kind_String (wa.getProperty(ptWireP).getObject().toString()); // TODO - protect
+				if (phs.equals("A")) {
+					wireXa = SafeDouble (wa, ptWireX, 0);
+					wireYa = SafeDouble (wa, ptWireY, 0);
+					wireA = true;
+					++nphases;
+				}
+				if (phs.equals("B")) {
+					wireXb = SafeDouble (wa, ptWireX, 0);
+					wireYb = SafeDouble (wa, ptWireY, 0);
+					wireB = true;
+					++nphases;
+				}
+				if (phs.equals("C")) {
+					wireXc = SafeDouble (wa, ptWireX, 0);
+					wireYc = SafeDouble (wa, ptWireY, 0);
+					wireC = true;
+					++nphases;
+				}
+				if (phs.equals("N")) {
+					wireXn = SafeDouble (wa, ptWireX, 0);
+					wireYn = SafeDouble (wa, ptWireY, 0);
+					wireN = true;
+				}
+				if (phs.equals("s1")) {
+					wireXs1 = SafeDouble (wa, ptWireX, 0);
+					wireYs1 = SafeDouble (wa, ptWireY, 0);
+					wireS1 = true;
+					++nphases;
+				}
+				if (phs.equals("s2")) {
+					wireXs2 = SafeDouble (wa, ptWireX, 0);
+					wireYs2 = SafeDouble (wa, ptWireY, 0);
+					wireS2 = true;
+					++nphases;
+				}
       }
 
       if (nconds > 0 && nphases > 0) {
-        out.println ("new LineGeometry." + name + " nconds=" + Integer.toString(nconds) + " nphases=" + Integer.toString(nphases) + 
-                     " reduce=y units=ft");
-        out.println (buf.toString());
-        outGuid.println ("LineGeometry." + name + "\t" + DSS_Guid (id));
+        out.println ("new LineSpacing." + name + " nconds=" + Integer.toString(nconds) +
+										 " nphases=" + Integer.toString(nphases) + " units=m");
+				int icond = 0;
+				if (wireA)	{
+					out.println ("~ cond=" + Integer.toString(++icond) + 
+											 " x=" + String.format("%6g", wireXa) + " h=" + String.format("%6g", wireYa));
+				}
+				if (wireB)	{
+					out.println ("~ cond=" + Integer.toString(++icond) + 
+											 " x=" + String.format("%6g", wireXb) + " h=" + String.format("%6g", wireYb));
+				}
+				if (wireC)	{
+					out.println ("~ cond=" + Integer.toString(++icond) + 
+											 " x=" + String.format("%6g", wireXc) + " h=" + String.format("%6g", wireYc));
+				}
+				if (wireS1)	{
+					out.println ("~ cond=" + Integer.toString(++icond) + 
+											 " x=" + String.format("%6g", wireXs1) + " h=" + String.format("%6g", wireYs1));
+				}
+				if (wireS2)	{
+					out.println ("~ cond=" + Integer.toString(++icond) + 
+											 " x=" + String.format("%6g", wireXs2) + " h=" + String.format("%6g", wireYs2));
+				}
+				if (wireN)	{
+					out.println ("~ cond=" + Integer.toString(++icond) + 
+											 " x=" + String.format("%6g", wireXn) + " h=" + String.format("%6g", wireYn));
+				}
+        outGuid.println ("LineSpacing." + name + "\t" + DSS_Guid (id));
       }
     }
 
@@ -1723,13 +1798,14 @@ public class CDPSM_to_DSS extends Object {
 
       String zPhase = SafeResourceLookup (model, ptName, res, ptPhsZ, "");
       String zParms = GetACLineParameters (model, res, dLen);
+			String zSpace = GetLineSpacing (model, res);
       String linecode = "";
       if (zPhase.length() > 0) {
         linecode = " linecode=" + zPhase;
 //      } else if (zSequence.length() > 0) {
 //        linecode = " linecode=" + zSequence;
-//      } else if (zParms.length() < 1 && zInfo.length() > 0) {
-//        linecode = " geometry=" + zInfo;
+      } else if (zSpace.length() > 0) {
+        linecode = " spacing=" + zSpace;
       } else if (zParms.length() > 0) {
         linecode = zParms;
       } else if (phs_cnt == 1) {
