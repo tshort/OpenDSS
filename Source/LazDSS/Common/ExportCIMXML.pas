@@ -556,6 +556,7 @@ begin
   if pLine.NPhases = 3 then if pLine.NumConductorsAvailable = 0 then exit;
   pPhase := TNamedObject.Create('dummy');
   s := PhaseString(pLine, 1);
+	if pLine.NumConductorsAvailable > length(s) then s := s + 'N'; // so we can specify the neutral conductor
   for i := 1 to length(s) do begin
     phs := s[i];
     pPhase.LocalName := pLine.Name + '_' + phs;
@@ -974,11 +975,12 @@ begin
         if pWire = ConductorData[i] then begin
           if i = 1 then RefNode (F, 'Asset.PowerSystemResources', pLine);
           if i > length(phs) then begin
-//            tmp := GetDevGuid (LinePhase, pLine.Name + '_N' , 1);
+            tmp := GetDevGuid (LinePhase, pLine.Name + '_N' , 1);
+//						writeln('neutral found ' + pLine.Name + ' ' + phs + pWire.Name);
           end else begin
             tmp := GetDevGuid (LinePhase, pLine.Name + '_' + phs[i], 1);
-            GuidNode (F, 'Asset.PowerSystemResources', tmp);
           end;
+					GuidNode (F, 'Asset.PowerSystemResources', tmp);
         end;
     end;
     pLine := ActiveCircuit.Lines.Next;
