@@ -179,7 +179,8 @@ uses
   KLUSolve in '..\Common\KLUSolve.pas',
   ScriptEdit in '..\Forms\ScriptEdit.pas',
   vccs in '..\PCElements\vccs.pas',
-  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas';
+  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
+  ESPVLControl in '..\Controls\ESPVLControl.pas';
 
 {$R *.RES}
 

@@ -62,6 +62,7 @@ CONST
       UPFC_ELEMENT     = 31 * 8;
       UPFC_CONTROL     = 32 * 8;
       VCCS_ELEMENT     = 33 * 8;
+      ESPVL_CONTROL     = 34 * 8;
 
 VAR
    NumIntrinsicClasses,
@@ -128,7 +129,8 @@ USES
      VSConverter,
      ExpControl,
      UPFC,
-     UPFCControl
+     UPFCControl,
+     ESPVLControl
 ;
 
 
@@ -203,6 +205,7 @@ Begin
      DSSClasses.New := PVSystemClass;
      DSSClasses.New := TUPFC.Create;
      DSSClasses.New := TUPFCControl.Create;
+     DSSClasses.New := TESPVLControl.Create;
 
 
 

@@ -200,7 +200,6 @@ uses
   ImplLoadShapes in 'ImplLoadShapes.pas' {LoadShapes: CoClass},
   ImplFuses in 'ImplFuses.pas' {Fuses: CoClass},
   ImplIsources in 'ImplIsources.pas' {ISource: CoClass},
-  ExpControl in '..\Controls\ExpControl.pas',
   UPFC in '..\PCElements\UPFC.pas',
   ImplDSSimComs in 'ImplDSSimComs.pas',
   GenDispatcher in '..\Controls\GenDispatcher.pas',
@@ -209,7 +208,9 @@ uses
   KLUSolve in '..\Common\KLUSolve.pas',
   ScriptEdit in '..\Forms\ScriptEdit.pas',
   vccs in '..\PCElements\vccs.pas',
-  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas';
+  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
+  ExpControl in '..\Controls\ExpControl.pas',
+  ESPVLControl in '..\Controls\ESPVLControl.pas';
 
 exports
   DllGetClassObject,
