@@ -70,6 +70,8 @@ TYPE
 
         Procedure ReallocZandYcMatrices;
 
+        PROCEDURE DoLongLine(Frequency:Double);  // Long Line Correction for 1=phase
+
       Protected
         Zinv               :TCMatrix;
 
@@ -805,6 +807,36 @@ begin
     Yc   := TCMatrix.CreateMatrix(Fnphases);
 end;
 
+PROCEDURE TLineObj.DoLongLine(Frequency:Double);
+// do long line correction for len and frequwnen
+
+Var
+   Zs, Zm, Ys, Ym : Complex;
+   GammaL, ExpP, ExpM, Exp2P, Exp2M, SinhGL, Tanh2GL : Complex;
+
+Begin
+
+ // nominal PI parameters per unit length but Len variable is used here
+        Zs := cmplx (R1, X1);
+        Ys := cmplx (0.0, TwoPi * Frequency * C1);
+        // apply the long-line correction to obtain Zm and Ym
+        GammaL  := Csqrt (Cmul(Zs, Ys));
+        GammaL  := CmulReal (GammaL, Len);
+        ExpP    := CmulReal (cmplx(cos(GammaL.im), sin(GammaL.im)), exp(GammaL.re));
+        Exp2P   := CmulReal (cmplx(cos(0.5 * GammaL.im), sin(0.5 * GammaL.im)), exp(0.5 * GammaL.re));
+        ExpM    := Cinv(ExpP);
+        Exp2M   := Cinv(Exp2P);
+        SinhGL  := CmulReal (Csub (ExpP, ExpM), 0.5);
+        Tanh2GL := Cdiv (Csub (Exp2P, Exp2M), Cadd (Exp2P, Exp2M));
+        Zm := Cdiv (Cmul (CMulReal (Zs, Len), SinhGL), GammaL);
+        Ym := Cdiv (Cmul (CMulReal (Ys, Len), Tanh2GL), CmulReal (GammaL, 0.5));
+        // rely on this function being called only once, unless R1, X1, or C1 changes
+        R1 := Zm.re / Len;
+        X1 := Zm.im / Len;
+        C1 := Ym.im / Len / TwoPi / Frequency;
+
+End;
+
 PROCEDURE TLineObj.RecalcElementData;
 
 {
@@ -817,7 +849,6 @@ VAR
    Zs, Zm, Ys, Ym, Ztemp : Complex;
    i, j : Integer;
    Yc1, Yc0, OneThird : double;
-   GammaL, ExpP, ExpM, Exp2P, Exp2M, SinhGL, Tanh2GL : Complex;
 
 Begin
 
@@ -834,24 +865,7 @@ Begin
       // long-line equivalent PI, but only for CktModel=Positive
       if ActiveCircuit.PositiveSequence and (C1 > 0) then
       begin
-        // nominal PI parameters per unit length but Len variable is used here
-        Zs := cmplx (R1, X1);
-        Ys := cmplx (0.0, TwoPi * BaseFrequency * C1);
-        // apply the long-line correction to obtain Zm and Ym
-        GammaL  := Csqrt (Cmul(Zs, Ys));
-        GammaL  := CmulReal (GammaL, Len);
-        ExpP    := CmulReal (cmplx(cos(GammaL.im), sin(GammaL.im)), exp(GammaL.re));
-        Exp2P   := CmulReal (cmplx(cos(0.5 * GammaL.im), sin(0.5 * GammaL.im)), exp(0.5 * GammaL.re));
-        ExpM    := Cinv(ExpP);
-        Exp2M   := Cinv(Exp2P);
-        SinhGL  := CmulReal (Csub (ExpP, ExpM), 0.5);
-        Tanh2GL := Cdiv (Csub (Exp2P, Exp2M), Cadd (Exp2P, Exp2M));
-        Zm := Cdiv (Cmul (CMulReal (Zs, Len), SinhGL), GammaL);
-        Ym := Cdiv (Cmul (CMulReal (Ys, Len), Tanh2GL), CmulReal (GammaL, 0.5));
-        // rely on this function being called only once, unless R1, X1, or C1 changes
-        R1 := Zm.re / Len;
-        X1 := Zm.im / Len;
-        C1 := Ym.im / Len / TwoPi / BaseFrequency;
+        DoLongLine(BaseFrequency);  // computes R1, X1, C1  per unit length
       end;
       // zero sequence the same as positive sequence
       R0 := R1;
