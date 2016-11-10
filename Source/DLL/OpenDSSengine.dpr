@@ -210,7 +210,8 @@ uses
   vccs in '..\PCElements\vccs.pas',
   MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
   ExpControl in '..\Controls\ExpControl.pas',
-  ESPVLControl in '..\Controls\ESPVLControl.pas';
+  ESPVLControl in '..\Controls\ESPVLControl.pas',
+  IndMach012 in '..\PCElements\IndMach012.pas';
 
 exports
   DllGetClassObject,

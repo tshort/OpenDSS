@@ -180,7 +180,8 @@ uses
   ScriptEdit in '..\Forms\ScriptEdit.pas',
   vccs in '..\PCElements\vccs.pas',
   MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
-  ESPVLControl in '..\Controls\ESPVLControl.pas';
+  ESPVLControl in '..\Controls\ESPVLControl.pas',
+  IndMach012 in '..\PCElements\IndMach012.pas';
 
 {$R *.RES}
 
