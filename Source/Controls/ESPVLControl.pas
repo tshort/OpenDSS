@@ -6,12 +6,16 @@ unit ESPVLControl;
   ----------------------------------------------------------
 }
 {
-  A ESPVLControl is a control element that is connected to a terminal of another
+  An ESPVLControl is a control element that is connected to a terminal of another
   circuit element (a PVSystem) and sends dispatch kW signals to a set of Storage Elements it controls
 
-  A ESPVLControl is defined by a New command:
+  An ESPVLControl is either a System Controller or a Local Controller, set by the "Type" property.
+  A System Controller controls one or more Local Controllers
+  A Local Controller controls one or more PVSystem elements and one or more Storage elements.
 
-  New ESPVLControl.Name=myname Element=devclass.name terminal=[ 1|2|...] CapacitorList = (gen1  gen2 ...)
+  An ESPVLControl is defined by a New command:
+
+  New ESPVLControl.Name=myname Element=devclass.name terminal=[ 1|2|...] StorageList = (gen1  gen2 ...)
 
  
 }
@@ -20,7 +24,7 @@ INTERFACE
 
 USES
      Command, ControlClass, ControlElem, CktElement, DSSClass, Arraydef, ucomplex,
-     utilities, PointerList, Classes;
+     utilities, PointerList, Classes, Loadshape;
 
 TYPE
 
@@ -44,15 +48,48 @@ TYPE
    TESPVLControlObj = class(TControlElem)
      private
 
+            Ftype : Integer;   {1=System controller; 2=Local controller}
+
+     {System Controller Variables}
+
+            // Local Controllers under supervision of System Controller
+            FLocalControlListSize:Integer;
+            FLocalControlNameList:TStringList;
+            FLocalControlPointerList:PointerList.TPointerList;
+            FLocalControlWeights:pDoubleArray;
+
+
+     {Local Controller Variables}
+
+             // PVSystems under supervision of this Local Controller
+            FPVsystemListSize:Integer;
+            FPVsystemNameList:TStringList;
+            FPVsystemPointerList:PointerList.TPointerList;
+            FPVSystemWeights:pDoubleArray;
+
+             // Storage Devices under supervision of this Local Controller
+            FStorageListSize:Integer;
+            FStorageNameList:TStringList;
+            FStoragePointerList:PointerList.TPointerList;
+            FStorageWeights:pDoubleArray;
+
+// dead band control parameters
             FkWLimit,
             FkWBand,
             HalfkWBand,
             FkvarLimit,
             TotalWeight   :Double;
-            FListSize:Integer;
-            FGeneratorNameList:TStringList;
-            FGenPointerList:PointerList.TPointerList;
-            FWeights:pDoubleArray;
+
+
+
+  //          YearlyShape     :String;  // ='fixed' means no variation  on all the time
+   //         YearlyShapeObj  :TLoadShapeObj;  // Shape for this Storage element
+            DailyForecastShape       :String;  // Daily (24 HR) Storage element shape
+            DailyForecasstShapeObj   :TLoadShapeObj;  // Daily Storage element Shape for this load
+  //          DutyShape       :String;  // Duty cycle load shape for changes typically less than one hour
+  //          DutyShapeObj    :TLoadShapeObj;  // Shape for this Storage element
+
+            LoadShapeMult   :Complex;
 
             MonitoredElement :TDSSCktElement;
 
@@ -75,7 +112,7 @@ TYPE
        PROCEDURE InitPropertyValues(ArrayOffset:Integer);Override;
        PROCEDURE DumpProperties(Var F:TextFile; Complete:Boolean);Override;
 
-       FUNCTION MakeGenList:Boolean;
+       FUNCTION MakeLocalControlList:Boolean;
    end;
 
 
@@ -92,7 +129,7 @@ USES
 
 CONST
 
-    NumPropsThisClass = 6;
+    NumPropsThisClass = 12;
 
 
 {--------------------------------------------------------------------------}
@@ -125,29 +162,38 @@ Begin
      CountProperties;   // Get inherited property count
      AllocatePropertyArrays;
 
-
      // Define Property names
 
      PropertyName[1] := 'Element';
      PropertyName[2] := 'Terminal';
-     PropertyName[3] := 'kWLimit';
+     PropertyName[3] := 'Type';
      PropertyName[4] := 'kWBand';
      PropertyName[5] := 'kvarlimit';
-     PropertyName[6] := 'PVList';
-     PropertyName[7] := 'Weights';
+     PropertyName[6] := 'LocalControlList';
+     PropertyName[7] := 'LocalControlWeights';
+     PropertyName[8] := 'PVSystemList';
+     PropertyName[9] := 'PVSystemWeights';
+     PropertyName[10] := 'StorageList';
+     PropertyName[11] := 'StorageWeights';
+     PropertyName[12] := 'Forecast';
 
      PropertyHelp[1] := 'Full object name of the circuit element, typically a line or transformer, '+
                         'which the control is monitoring. There is no default; must be specified.';
      PropertyHelp[2] := 'Number of the terminal of the circuit element to which the ESPVLControl control is connected. '+
                         '1 or 2, typically.  Default is 1. Make sure you have the direction on the power matching the sign of kWLimit.';
-     PropertyHelp[3] := 'kW Limit for the monitored element. The PVSystem objects are dispatched to hold the power in band.';
+     PropertyHelp[3] := 'Type of controller.  1= System Controller; 2= Local controller. ';
      PropertyHelp[4] := 'Bandwidth (kW) of the dead band around the target limit.' +
                         'No dispatch changes are attempted if the power in the monitored terminal stays within this band.';
      PropertyHelp[5] := 'Max kvar to be delivered through the element.  Uses same dead band as kW.';
-     PropertyHelp[6] := 'Array list of PVSystem objects to be dispatched.  If not specified, all PVSystems in the circuit not attached to another controller are assumed to be part of this fleet.';
-     PropertyHelp[7] := 'Array of proportional weights corresponding to each PVSystem in the PVList.' +
-                        ' The needed kW to get back to center band is dispatched to each generator according to these weights. ' +
-                        'Default is to set all weights to 1.0.';
+     PropertyHelp[6] := 'Array list of ESPVLControl local controller objects to be dispatched by System Controller. ' +
+                        'If not specified, all ESPVLControl devices with type=local in the circuit not attached to another '+
+                        'controller are assumed to be part of this controller''s fleet.';
+     PropertyHelp[7] := 'Array of proportional weights corresponding to each ESPVLControl local controller in the LocalControlList.';                        ;
+     PropertyHelp[8] := 'Array list of PVSystem objects to be dispatched by a Local Controller. ' ;
+     PropertyHelp[9] := 'Array of proportional weights corresponding to each PVSystem in the PVSystemList.';                        ;
+     PropertyHelp[10] := 'Array list of Storage objects to be dispatched by Local Controller. ' ;
+     PropertyHelp[11] := 'Array of proportional weights corresponding to each Storage object in the StorageControlList.';
+     PropertyHelp[12] := 'Loadshape object containing daily forecast.';                       ;
 
      ActiveProperty  := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -197,15 +243,36 @@ Begin
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 364);
             1: ElementName     := lowercase(param);
             2: ElementTerminal := Parser.IntValue;
-            3: FkWLimit := Parser.DblValue;
+            3: Case Lowercase(Param)[1] of
+                  's': Ftype:=1;    {for System Controller}
+                  'l': Ftype:=2;    {for Local Controller}
+               End;
+
+
             4: FkWBand := Parser.DblValue;
             5: FkvarLimit := Parser.DblValue;
-            6: InterpretTStringListArray(Param, FGeneratorNameList);
+            6: InterpretTStringListArray(Param, FLocalControlNameList);
             7: Begin
-                 FListSize := FGeneratorNameList.count;
-                 IF FListSize>0 Then Begin
-                 Reallocmem(FWeights, Sizeof(FWeights^[1])*FListSize);
-                 InterpretDblArray(Param, FListSize, FWeights);
+                 FLocalControlListSize := FLocalControlNameList.count;
+                 IF FLocalControlListSize>0 Then Begin
+                 Reallocmem(FLocalControlWeights, Sizeof(FLocalControlWeights^[1])*FLocalControlListSize);
+                 InterpretDblArray(Param, FLocalControlListSize, FLocalControlWeights);
+                 End;
+               End;
+            8: InterpretTStringListArray(Param, FPVSystemNameList);
+            9: Begin
+                 FPVSystemListSize := FPVSystemNameList.count;
+                 IF FPVSystemListSize>0 Then Begin
+                 Reallocmem(FPVSystemWeights, Sizeof(FPVSystemWeights^[1])*FPVSystemListSize);
+                 InterpretDblArray(Param, FPVSystemListSize, FPVSystemWeights);
+                 End;
+               End;
+            10: InterpretTStringListArray(Param, FStorageNameList);
+            11: Begin
+                 FStorageListSize := FStorageNameList.count;
+                 IF FStorageListSize>0 Then Begin
+                 Reallocmem(FStorageWeights, Sizeof(FStorageWeights^[1])*FStorageListSize);
+                 InterpretDblArray(Param, FStorageListSize, FStorageWeights);
                  End;
                End;
 
@@ -214,13 +281,13 @@ Begin
            ClassEdit( ActiveESPVLControlObj, ParamPointer - NumPropsthisClass)
          End;
 
+         // Side Effects
          CASE ParamPointer OF
-            4: HalfkWBand := FkWBand / 2.0;
             6: Begin   // levelize the list
-                 FGenPointerList.Clear;  // clear this for resetting on first sample
-                 FListSize := FGeneratorNameList.count;
-                 Reallocmem(FWeights, Sizeof(FWeights^[1])*FListSize);
-                 For i := 1 to FListSize Do FWeights^[i] := 1.0;
+                 FLocalControlPointerList.Clear;  // clear this for resetting on first sample
+                 FLocalControlListSize := FLocalControlNameList.count;
+                 Reallocmem(FLocalControlWeights, Sizeof(FLocalControlWeights^[1])*FLocalControlListSize);
+                 For i := 1 to FLocalControlListSize Do FLocalControlWeights^[i] := 1.0;
                End;
          ELSE
 
@@ -295,10 +362,21 @@ Begin
      ElementTerminal  := 1;
      MonitoredElement := Nil;
 
-     FGeneratorNameList := TSTringList.Create;
-     FWeights   := Nil;
-     FGenPointerList := PointerList.TPointerList.Create(20);  // Default size and increment
-     FListSize   := 0;
+     FLocalControlNameList := TSTringList.Create;
+     FLocalControlWeights   := Nil;
+     FLocalControlPointerList := PointerList.TPointerList.Create(20);  // Default size and increment
+     FLocalControlListSize   := 0;
+
+     FPVSystemNameList := TSTringList.Create;
+     FPVSystemWeights   := Nil;
+     FPVSystemPointerList := PointerList.TPointerList.Create(20);  // Default size and increment
+     FPVSystemListSize   := 0;
+
+     FStorageNameList := TSTringList.Create;
+     FStorageWeights   := Nil;
+     FStoragePointerList := PointerList.TPointerList.Create(20);  // Default size and increment
+     FStorageListSize   := 0;
+
      FkWLimit    := 8000.0;
      FkWBand     := 100.0;
      TotalWeight := 1.0;
@@ -430,9 +508,9 @@ VAR
 
 begin
      // If list is not define, go make one from all generators in circuit
-     IF FGenPointerList.ListSize=0 Then  MakeGenList;
+     IF FLocalControlPointerList.ListSize=0 Then  MakeLocalControlList;
 
-     If FListSize>0 Then Begin
+     If FLocalControlListSize>0 Then Begin
 
        //----MonitoredElement.ActiveTerminalIdx := ElementTerminal;
        S := MonitoredElement.Power[ElementTerminal];  // Power in active terminal
@@ -448,21 +526,21 @@ begin
 
        If Abs(PDiff) > HalfkWBand Then Begin // Redispatch Generators
           // PDiff is kW needed to get back into band
-          For i := 1 to FListSize Do Begin
-              Gen := FGenPointerList.Get(i);
+          For i := 1 to FLocalControlListSize Do Begin
+              Gen := FLocalControlPointerList.Get(i);
               // compute new dispatch value for this generator ...
-              GenkW := Max(1.0, (Gen.kWBase + PDiff *(FWeights^[i]/TotalWeight)));
+              GenkW := Max(1.0, (Gen.kWBase + PDiff *(FLocalControlWeights^[i]/TotalWeight)));
               If GenkW <> Gen.kWBase Then Begin
                   Gen.kWBase := GenkW;
                   GenkWChanged := TRUE;
               End;
           End;
        End;
-
+      (*
        If Abs(QDiff) > HalfkWBand Then Begin // Redispatch Generators
           // QDiff is kvar needed to get back into band
-          For i := 1 to FListSize Do Begin
-              Gen := FGenPointerList.Get(i);
+          For i := 1 to FLocalControlListSize Do Begin
+              Gen := FLocalControlPointerList.Get(i);
               // compute new dispatch value for this generator ...
               Genkvar := Max(0.0, (Gen.kvarBase + QDiff *(FWeights^[i]/TotalWeight)));
               If Genkvar <> Gen.kvarBase Then Begin
@@ -478,7 +556,7 @@ begin
             // Push present time onto control queue to force re solve at new dispatch value
             ControlQueue.Push(DynaVars.intHour, DynaVars.t, 0, 0, Self);
           End;
-       
+      *)
 
        {Else just continue}
     End;
@@ -504,46 +582,47 @@ begin
 
 end;
 
-Function TESPVLControlObj.MakeGenList:Boolean;
+Function TESPVLControlObj.MakeLocalControlList:Boolean;
 
 VAR
-   GenClass:TDSSClass;
-   Gen:TGeneratorObj;
+   pESPVLControl:TESPVLControlObj;
    i:Integer;
 
 begin
 
    Result := FALSE;
-   GenClass := GetDSSClassPtr('generator');
+   if Ftype = 1 then Begin    // only for System controller
 
-   If FListSize>0 Then Begin    // Name list is defined - Use it
 
-     For i := 1 to FListSize Do Begin
-         Gen := GenClass.Find(FGeneratorNameList.Strings[i-1]);
-         If Assigned(Gen) and Gen.Enabled Then FGenPointerList.New := Gen;
-     End;
+       If FLocalControlListSize>0 Then Begin    // Name list is defined - Use it
 
-   End
-   Else Begin
-     {Search through the entire circuit for enabled generators and add them to the list}
-     
-     For i := 1 to GenClass.ElementCount Do Begin
-        Gen :=  GenClass.ElementList.Get(i);
-        If Gen.Enabled Then FGenPointerList.New := Gen;
-     End;
+         For i := 1 to FLocalControlListSize Do Begin
+             pESPVLControl := ESPVLControlClass.Find(FLocalControlNameList.Strings[i-1]);
+             If Assigned(pESPVLControl) and pESPVLControl.Enabled Then FLocalControlPointerList.New := pESPVLControl;
+         End;
 
-     {Allocate uniform weights}
-     FListSize := FGenPointerList.ListSize;
-     Reallocmem(FWeights, Sizeof(FWeights^[1])*FListSize);
-     For i := 1 to FListSize Do FWeights^[i] := 1.0;
+       End
+       Else Begin
+         {Search through the entire circuit for enabled generators and add them to the list}
 
+         For i := 1 to ESPVLControlClass.ElementCount Do Begin
+            pESPVLControl :=  ESPVLControlClass.ElementList.Get(i);
+            If pESPVLControl.Enabled Then FLocalControlPointerList.New := pESPVLControl;
+         End;
+
+         {Allocate uniform weights}
+         FLocalControlListSize := FLocalControlPointerList.ListSize;
+         Reallocmem(FLocalControlWeights, Sizeof(FLocalControlWeights^[1])*FLocalControlListSize);
+         For i := 1 to FLocalControlListSize Do FLocalControlWeights^[i] := 1.0;
+
+       End;
+
+       // Add up total weights    ??????
+       TotalWeight := 0.0;
+       For i := 1 to FLocalControlListSize Do  TotalWeight := TotalWeight + FLocalControlWeights^[i];
+
+       If FLocalControlPointerList.ListSize>0 Then Result := TRUE;
    End;
-
-   // Add up total weights
-   TotalWeight := 0.0;
-   For i := 1 to FlistSize Do  TotalWeight := TotalWeight + FWeights^[i];
-
-   If FGenPointerList.ListSize>0 Then Result := TRUE;
 end;
 
 
