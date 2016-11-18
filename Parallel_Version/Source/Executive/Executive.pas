@@ -90,7 +90,7 @@ implementation
 USES ExecCommands, ExecOptions,
      {ExecHelper,} DSSClassDefs, DSSGlobals, ParserDel,  SysUtils,
      Utilities, Solution, DSSClass, IniRegSave,
-     DSSForms;
+     DSSForms, KLUSolve;
 
 
 //----------------------------------------------------------------------------
@@ -104,18 +104,13 @@ Begin
 
      // Exec options
      OptionList := TCommandList.Create(ExecOption);
-      ActiveActor :=  ActiveActor;
      {Instantiate All DSS Classe Definitions, Intrinsic and User-defined}
      CreateDSSClasses;     // in DSSGlobals
-      ActiveActor :=  ActiveActor;
      Circuits := TPointerList.Create(2);   // default buffer for 2 active circuits
 //     ActiveCircuit[ActiveActor] := nil;
-      ActiveActor :=  ActiveActor;
-     Parser := TParser.Create;  // Create global parser object (in DSS globals)
-      ActiveActor :=  ActiveActor;
+//     Parser := TParser.Create;  // Create global parser object (in DSS globals)
      LastCmdLine := '';
      RedirFile := '';
-      ActiveActor :=  ActiveActor;
      FRecorderOn := FALSE;
      FrecorderFile := '';
 
@@ -145,7 +140,7 @@ Begin
 
      DisposeDSSClasses;
 
-     Parser.Free;
+     Parser[ActiveActor].Free;
 
      Inherited Destroy;
 End;
@@ -229,8 +224,6 @@ begin
           RebuildHelpForm := True; // because class strings have changed
        End;
 
-
-
        If Not IsDLL Then ControlPanel.UpdateElementBox ;
 
        {Prepare for new variables}
@@ -242,24 +235,24 @@ procedure TExecutive.ClearAll;
 var
   I : integer;
 begin
-       IF   (ActiveCircuit[ActiveActor] <> nil)  THEN
-       Begin
-          {First get rid of all existing stuff}
-          ClearAllCircuits;
-       End;
+       {First get rid of all existing stuff}
+       ClearAllCircuits;
+       Destroy_KLU_Actors;
        DisposeDSSClasses;
-         {Now, Start over}
+       {Now, Start over}
        ActiveActor  :=  1;
        CreateDSSClasses;
        CreateDefaultDSSItems;
        RebuildHelpForm := True; // because class strings have changed
+       Parser[ActiveActor].Free;
+       Parser[ActiveActor]  :=  Tparser.Create;
 
        If Not IsDLL Then ControlPanel.UpdateElementBox ;
        {Prepare for new variables}
        ParserVars.Free;
        ParserVars := TParserVar.Create(100);  // start with space for 100 variables
-       ActiveActor  :=  1;
        NumOfActors  :=  1;
+       Create_KLU_Actor;
 end;
 
 procedure TExecutive.Set_RecorderOn(const Value: Boolean);

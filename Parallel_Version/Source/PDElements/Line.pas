@@ -21,9 +21,9 @@ TYPE
 
    TLine = class(TPDClass)
      private
-       PROCEDURE DoRmatrix;
-       PROCEDURE DoXmatrix;
-       PROCEDURE DoCmatrix;
+       PROCEDURE DoRmatrix(ActorID : Integer);
+       PROCEDURE DoXmatrix(ActorID : Integer);
+       PROCEDURE DoCmatrix(ActorID : Integer);
 
      Protected
         PROCEDURE DefineProperties;  // Add Properties of this class to propName
@@ -407,7 +407,7 @@ End;
 
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROCEDURE TLine.DoRmatrix;
+PROCEDURE TLine.DoRmatrix(ActorID : Integer);
 VAR
     OrderFound, Norder, j : Integer;
     MatBuffer : pDoubleArray;
@@ -420,7 +420,7 @@ Begin
        If Z.Order <> Fnphases  Then ReallocZandYcMatrices;
 
        MatBuffer  := Allocmem(Sizeof(double) * Fnphases * Fnphases);
-       OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+       OrderFound := Parser[ActorID].ParseAsSymMatrix(Fnphases, MatBuffer);
 
        If OrderFound > 0 THEN    // Parse was successful
          Begin    {R}
@@ -434,7 +434,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROCEDURE TLine.DoXmatrix;
+PROCEDURE TLine.DoXmatrix(ActorID : Integer);
 VAR
     OrderFound, Norder,j : Integer;
     MatBuffer : pDoubleArray;
@@ -446,7 +446,7 @@ Begin
        If Z.Order <> Fnphases  Then ReallocZandYcMatrices;
 
        MatBuffer := Allocmem(Sizeof(double) * Fnphases * Fnphases);
-       OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+       OrderFound := Parser[ActorID].ParseAsSymMatrix(Fnphases, MatBuffer);
 
        If OrderFound > 0 THEN    // Parse was successful
          Begin    {X}
@@ -460,7 +460,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROCEDURE TLine.DoCmatrix;
+PROCEDURE TLine.DoCmatrix(ActorID : Integer);
 VAR
     OrderFound,
     Norder,
@@ -475,7 +475,7 @@ Begin
        If Z.Order <> Fnphases  Then ReallocZandYcMatrices;
 
        MatBuffer  := Allocmem(Sizeof(double) * Fnphases * Fnphases);
-       OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+       OrderFound := Parser[ActorID].ParseAsSymMatrix(Fnphases, MatBuffer);
 
        If OrderFound > 0 THEN    // Parse was successful
          Begin    {X}
@@ -526,8 +526,8 @@ Begin
   WITH ActiveLineObj DO
   Begin
      ParamPointer := 0;
-     ParamName    := Parser.NextParam;
-     Param        := Parser.StrValue;
+     ParamName    := Parser[ActorID].NextParam;
+     Param        := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
@@ -540,21 +540,21 @@ Begin
             1: Setbus(1, param);
             2: Setbus(2, param);
             3: FetchLineCode(Param);  // Define line by conductor code
-            4: Len := Parser.DblValue;
+            4: Len := Parser[ActorID].DblValue;
             5: {Nphases: See below};
-            6: r1 := Parser.Dblvalue;
-            7: x1 := Parser.Dblvalue;
-            8: r0 := Parser.Dblvalue;
-            9: x0 := Parser.Dblvalue;
-           10: Begin c1 := Parser.Dblvalue * 1.0e-9;  FCapSpecified := TRUE; End; // Convert from nano to farads
-           11: Begin c0 := Parser.Dblvalue * 1.0e-9;  FCapSpecified := TRUE; End;
-           12: DoRmatrix;
-           13: DoXmatrix;
-           14: Begin DoCMatrix;  FCapSpecified := TRUE; End;
+            6: r1 := Parser[ActorID].Dblvalue;
+            7: x1 := Parser[ActorID].Dblvalue;
+            8: r0 := Parser[ActorID].Dblvalue;
+            9: x0 := Parser[ActorID].Dblvalue;
+           10: Begin c1 := Parser[ActorID].Dblvalue * 1.0e-9;  FCapSpecified := TRUE; End; // Convert from nano to farads
+           11: Begin c0 := Parser[ActorID].Dblvalue * 1.0e-9;  FCapSpecified := TRUE; End;
+           12: DoRmatrix(ActorID);
+           13: DoXmatrix(ActorID);
+           14: Begin DoCMatrix(ActorID);  FCapSpecified := TRUE; End;
            15: IsSwitch := InterpretYesNo(Param);
-           16: Rg := Parser.DblValue;
-           17: Xg := Parser.DblValue;
-           18: Begin rho := Parser.DblValue; FrhoSpecified:= TRUE; End;
+           16: Rg := Parser[ActorID].DblValue;
+           17: Xg := Parser[ActorID].DblValue;
+           18: Begin rho := Parser[ActorID].DblValue; FrhoSpecified:= TRUE; End;
            19: FetchGeometryCode(Param);
            20: Begin // Update units conversion factor that might have been changed previously
                      NewLengthUnits := GetUnitsCode(Param);
@@ -567,8 +567,8 @@ Begin
            23: FEarthModel := InterpretEarthModel(Param);
            24: FetchCNCableList(Param);
            25: FetchTSCableList(Param);
-           26: Begin c1 := Parser.Dblvalue / (twopi * BaseFrequency) * 1.0e-6; FCapSpecified := TRUE; End;
-           27: Begin c0 := Parser.Dblvalue / (twopi * BaseFrequency) * 1.0e-6; FCapSpecified := TRUE; End;
+           26: Begin c1 := Parser[ActorID].Dblvalue / (twopi * BaseFrequency) * 1.0e-6; FCapSpecified := TRUE; End;
+           27: Begin c0 := Parser[ActorID].Dblvalue / (twopi * BaseFrequency) * 1.0e-6; FCapSpecified := TRUE; End;
          ELSE
             // Inherited Property Edits
              ClassEdit(ActiveLineObj, ParamPointer - NumPropsThisClass)
@@ -585,9 +585,9 @@ Begin
              MilesThisLine := len * ConvertLineUnits(LengthUnits, UNITS_MILES);
 
           5: {Change the number of phases ... only valid if SymComponentsModel=TRUE}
-             IF Fnphases <> Parser.IntValue THEN
+             IF Fnphases <> Parser[ActorID].IntValue THEN
               If (Not GeometrySpecified) and SymComponentsModel Then Begin  // ignore change of nphases if geometry used
-                 Nphases      := Parser.IntValue ;
+                 Nphases      := Parser[ActorID].IntValue ;
                  NConds       := Fnphases;  // Force Reallocation of terminal info
                  Yorder       := Fnterms * Fnconds;
                  {YPrimInvalid := True;}  // now set below
@@ -635,8 +635,8 @@ Begin
          ELSE
          End;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
      // If SymComponentsChanged THEN RecalcElementData;
@@ -1335,7 +1335,7 @@ begin
     S := S + Format(' Normamps=%-.5g  %-.5g',[NormAmps, EmergAmps]);
     // Repeat the Length Units to compensate for unexpected reset
     S := S + ' Units=' + LineUnitsStr(LengthUnits);
-    Parser.CmdString := S;
+    Parser[ActorID].CmdString := S;
     Edit(ActorID);
   End;
 
@@ -1410,7 +1410,7 @@ begin
                 End;
            End;
 
-           Parser.cmdstring := S;
+           Parser[ActiveActor].cmdstring := S;
            Edit(ActiveActor);
 
       End; {If Series}
@@ -1459,11 +1459,11 @@ begin
              End;
          End;
 
-         Parser.cmdstring := S;   // This reset the length units
+         Parser[ActiveActor].cmdstring := S;   // This reset the length units
          Edit(ActiveActor);
 
           // update length units
-         Parser.cmdstring := Format(' Length=%-g  Units=%s',[TotalLen, LineUnitsStr(LenUnitsSaved)]);
+         Parser[ActiveActor].cmdstring := Format(' Length=%-g  Units=%s',[TotalLen, LineUnitsStr(LenUnitsSaved)]);
          Edit(ActiveActor);
 
           // Update symmetrical Components computation
@@ -1516,7 +1516,7 @@ begin
                   S := S + ' | ';
                  End;
                S := S + ']';
-               Parser.cmdstring := S;
+               Parser[ActiveActor].cmdstring := S;
                Edit(ActiveActor);
 
                {C Matrix}
@@ -1529,11 +1529,11 @@ begin
                   S := S + ' | ';
                  End;
                S := S + '] ';
-               Parser.cmdstring := S;
+               Parser[ActiveActor].cmdstring := S;
                Edit(ActiveActor);
 
                // update length units
-               Parser.cmdstring := Format(' Length=%-g  Units=%s',[TotalLen, LineUnitsStr(LenUnitsSaved)]);
+               Parser[ActiveActor].cmdstring := Format(' Length=%-g  Units=%s',[TotalLen, LineUnitsStr(LenUnitsSaved)]);
                Edit(ActiveActor);
           End;  {Matrix definition}
 
@@ -1557,7 +1557,7 @@ begin
        Begin
            If CompareText(OldName, pControlElem.ElementName)=0 Then
              Begin
-                 Parser.cmdstring := ' Element=' + NewName;  // Change name of the property
+                 Parser[ActiveActor].cmdstring := ' Element=' + NewName;  // Change name of the property
                  pControlElem.Edit(ActiveActor);
              End;
            pControlElem := ActiveCircuit[ActiveActor].DSSControls.Next;

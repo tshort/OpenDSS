@@ -420,8 +420,8 @@ Begin
   WITH ActiveStorageControllerObj Do Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 Do Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -432,11 +432,11 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 14407);
             propELEMENT:  ElementName      := lowercase(param);
-            propTERMINAL: ElementTerminal  := Parser.IntValue;
-            propKWTARGET: FkWTarget        := Parser.DblValue;
-            propKWBAND:   FpctkWBand       := Parser.DblValue;
-            propPFTARGET: FPFTarget        := ConvertPFToPFRange2(Parser.DblValue);
-            propPFBAND:   FPFBand          := Parser.DblValue;
+            propTERMINAL: ElementTerminal  := Parser[ActorID].IntValue;
+            propKWTARGET: FkWTarget        := Parser[ActorID].DblValue;
+            propKWBAND:   FpctkWBand       := Parser[ActorID].DblValue;
+            propPFTARGET: FPFTarget        := ConvertPFToPFRange2(Parser[ActorID].DblValue);
+            propPFBAND:   FPFBand          := Parser[ActorID].DblValue;
             propELEMENTLIST: InterpretTStringListArray(Param, FStorageNameList);
             propWEIGHTS:  Begin
                            FleetSize := FStorageNameList.count;
@@ -447,12 +447,12 @@ Begin
                          End;
             propMODEDISCHARGE: DisChargeMode := InterpretMode(propMODEDISCHARGE, Param);
             propMODECHARGE:    ChargeMode    := InterpretMode(propMODECHARGE, Param);
-            propTIMEDISCHARGETRIGGER: DischargeTriggerTime := Parser.DblValue;
-            propTIMECHARGETRIGGER:    ChargeTriggerTime    := Parser.DblValue;
-            propRATEKW:      pctkWRate      := Parser.DblValue;
-            propRATEKVAR:    pctkvarRate    := Parser.DblValue;
-            propRATECHARGE:  pctChargeRate  := Parser.DblValue;
-            propRESERVE:     pctFleetReserve:= Parser.DblValue;
+            propTIMEDISCHARGETRIGGER: DischargeTriggerTime := Parser[ActorID].DblValue;
+            propTIMECHARGETRIGGER:    ChargeTriggerTime    := Parser[ActorID].DblValue;
+            propRATEKW:      pctkWRate      := Parser[ActorID].DblValue;
+            propRATEKVAR:    pctkvarRate    := Parser[ActorID].DblValue;
+            propRATECHARGE:  pctChargeRate  := Parser[ActorID].DblValue;
+            propRESERVE:     pctFleetReserve:= Parser[ActorID].DblValue;
             propKWHTOTAL:  ;  // Do nothing (Read ONly)
             propKWTOTAL:   ;  // Do nothing (Read ONly)
             propKWHACTUAL:  ;  // Do nothing (Read ONly)
@@ -464,11 +464,11 @@ Begin
             propDUTY:    DutyShape    := Param;
             propEVENTLOG: ShowEventLog := InterpretYesNo(Param);
             propVARDISPATCH: DispatchVars := InterpretYesNo(Param);
-            propINHIBITTIME: Inhibithrs   := Max(1, Parser.IntValue);  // >=1
-            propTUPRAMP: UpRamptime    := Parser.DblValue;
-            propTFLAT:   FlatTime      := Parser.DblValue;
-            propTDNRAMP: DnrampTime    := Parser.DblValue;
-            propKWTHRESHOLD: FkWThreshold := Parser.DblValue;
+            propINHIBITTIME: Inhibithrs   := Max(1, Parser[ActorID].IntValue);  // >=1
+            propTUPRAMP: UpRamptime    := Parser[ActorID].DblValue;
+            propTFLAT:   FlatTime      := Parser[ActorID].DblValue;
+            propTDNRAMP: DnrampTime    := Parser[ActorID].DblValue;
+            propKWTHRESHOLD: FkWThreshold := Parser[ActorID].DblValue;
 
          ELSE
            // Inherited parameters
@@ -513,8 +513,8 @@ Begin
 
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);

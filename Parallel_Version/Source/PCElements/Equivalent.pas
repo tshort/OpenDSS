@@ -189,8 +189,8 @@ Begin
   WITH ActiveEquivalentObj DO Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param     := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param     := Parser[ActorID].StrValue;
      WHILE Length(Param) > 0 DO Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -199,14 +199,14 @@ Begin
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "Equivalent.'+Name+'"', 800);
-            1: Nterms := DoTerminalsDef(Parser.IntValue);  // This will allocate a bunch of stuff
+            1: Nterms := DoTerminalsDef(Parser[ActorID].IntValue);  // This will allocate a bunch of stuff
             2: InterpretAllBuses(param);
-            3: kVBase    := Parser.DblValue; // basekv
-            4: PerUnit   := Parser.DblValue; // pu
-            5: Angle     := Parser.DblValue; // Ang
-            6: EquivFrequency := Parser.DblValue; // freq
+            3: kVBase    := Parser[ActorID].DblValue; // basekv
+            4: PerUnit   := Parser[ActorID].DblValue; // pu
+            5: Angle     := Parser[ActorID].DblValue; // Ang
+            6: EquivFrequency := Parser[ActorID].DblValue; // freq
             7: Begin
-                 Nphases   := Parser.Intvalue; // num phases
+                 Nphases   := Parser[ActorID].Intvalue; // num phases
                  NConds    := Fnphases;  // Force Reallocation of terminal info
                End;
             8: ParseDblMatrix(R1);
@@ -223,8 +223,8 @@ Begin
 
          END;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
     // RecalcElementData;
@@ -658,7 +658,7 @@ begin
         S := S + Format('R1=%-.5g ', [R1]);
         S := S + Format('X1=%-.5g ', [X1]);
 
-        Parser.CmdString := S;
+        Parser[ActorID].CmdString := S;
         Edit(ActorID);
 
         inherited;
@@ -678,7 +678,7 @@ procedure TEquivalentObj.ParseDblMatrix(Mat: pDoubleArray);
 
 begin
 
-    Parser.ParseAsSymMatrix(FnTerms, Mat);
+    Parser[ActiveActor].ParseAsSymMatrix(FnTerms, Mat);
 
 end;
 

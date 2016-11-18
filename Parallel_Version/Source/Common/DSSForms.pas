@@ -197,8 +197,8 @@ VAR
 
 
 Begin
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
 
      If NoFormsAllowed Then Exit;
 

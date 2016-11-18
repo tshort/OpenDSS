@@ -574,8 +574,8 @@ Begin
   Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      While Length(Param)>0 Do
      Begin
          If  (Length(ParamName) = 0)
@@ -589,45 +589,45 @@ Begin
          If ParamPointer > 0 Then
          CASE PropertyIdxMap[ParamPointer] OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 561);
-            1: NPhases    := Parser.Intvalue; // num phases
+            1: NPhases    := Parser[ActorID].Intvalue; // num phases
             2: SetBus(1, param);
-            3: PresentkV    := Parser.DblValue;
-            4: kWBase       := Parser.DblValue;
-            5: PFNominal    := Parser.DblValue;
-            6: GenModel     := Parser.IntValue;
+            3: PresentkV    := Parser[ActorID].DblValue;
+            4: kWBase       := Parser[ActorID].DblValue;
+            5: PFNominal    := Parser[ActorID].DblValue;
+            6: GenModel     := Parser[ActorID].IntValue;
             7: YearlyShape  := Param;
             8: DailyDispShape  := Param;
             9: DutyShape     := Param;
            10: DispatchMode  := InterpretDispMode(Param);
-           11: DispatchValue := Parser.DblValue;
+           11: DispatchValue := Parser[ActorID].DblValue;
            12: InterpretConnection(Param);
-           13: Presentkvar   := Parser.DblValue;
+           13: Presentkvar   := Parser[ActorID].DblValue;
            14: DoSimpleMsg('Rneut property has been deleted. Use external impedance.', 5611);
            15: DoSimpleMsg('Xneut property has been deleted. Use external impedance.', 5612);
            16: If lowercase(Param[1])='f' Then IsFixed := TRUE ELSE IsFixed := FALSE;
-           17: GenClass     := Parser.IntValue;
-           18: Vpu          := Parser.DblValue;
-           19: kvarMax      := Parser.DblValue;
-           20: kvarMin      := Parser.DblValue;
-           21: PVFactor     := Parser.DblValue;  //decelaration factor
+           17: GenClass     := Parser[ActorID].IntValue;
+           18: Vpu          := Parser[ActorID].DblValue;
+           19: kvarMax      := Parser[ActorID].DblValue;
+           20: kvarMin      := Parser[ActorID].DblValue;
+           21: PVFactor     := Parser[ActorID].DblValue;  //decelaration factor
            22: DebugTrace   := InterpretYesNo(Param);
-           23: VMinPu       := Parser.DblValue;
-           24: VMaxPu       := Parser.DblValue;
+           23: VMinPu       := Parser[ActorID].DblValue;
+           24: VMaxPu       := Parser[ActorID].DblValue;
            25: FForcedON     := InterpretYesNo(Param);
-           26: GenVars.kVArating   := Parser.DblValue;
-           27: GenVars.kVArating   := Parser.DblValue * 1000.0;  // 'MVA';
-           28: GenVars.puXd        := Parser.DblValue;
-           29: GenVars.puXdp       := Parser.DblValue;
-           30: GenVars.puXdpp      := Parser.DblValue;
-           31: GenVars.Hmass       := Parser.DblValue;
-           32: GenVars.Dpu         := Parser.DblValue;
-           33: UserModel.Name      := Parser.StrValue;  // Connect to user written models
-           34: UserModel.Edit      := Parser.StrValue;  // Send edit string to user model
-           35: ShaftModel.Name     := Parser.StrValue;
-           36: ShaftModel.Edit     := Parser.StrValue;
-           37: DutyStart           := Parser.DblValue;
+           26: GenVars.kVArating   := Parser[ActorID].DblValue;
+           27: GenVars.kVArating   := Parser[ActorID].DblValue * 1000.0;  // 'MVA';
+           28: GenVars.puXd        := Parser[ActorID].DblValue;
+           29: GenVars.puXdp       := Parser[ActorID].DblValue;
+           30: GenVars.puXdpp      := Parser[ActorID].DblValue;
+           31: GenVars.Hmass       := Parser[ActorID].DblValue;
+           32: GenVars.Dpu         := Parser[ActorID].DblValue;
+           33: UserModel.Name      := Parser[ActorID].StrValue;  // Connect to user written models
+           34: UserModel.Edit      := Parser[ActorID].StrValue;  // Send edit string to user model
+           35: ShaftModel.Name     := Parser[ActorID].StrValue;
+           36: ShaftModel.Edit     := Parser[ActorID].StrValue;
+           37: DutyStart           := Parser[ActorID].DblValue;
            38: ForceBalanced       := InterpretYesNo(Param);
-           39: Genvars.XRdp        := Parser.DblValue;  // X/R for dynamics model
+           39: Genvars.XRdp        := Parser[ActorID].DblValue;  // X/R for dynamics model
 
          ELSE
            // Inherited parameters
@@ -677,8 +677,8 @@ Begin
             26, 27: kVANotSet := FALSE;
          End;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);
@@ -2710,7 +2710,7 @@ begin
       If PrpSequence^[27]>0 Then S := S + Format(' MVA=%-.5g  ',[genvars.kvarating/1000.0/Fnphases]);
   End;
 
-  Parser.CmdString := S;
+  Parser[ActorID].CmdString := S;
   Edit(ActorID);
 
   inherited;

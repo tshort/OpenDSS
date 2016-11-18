@@ -2066,8 +2066,8 @@ Begin
 
   Try
      FileNm := StripExtension(FileNm);
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
 
      FileNm := FileNm+'_'+Param+'.txt';
 
@@ -2117,14 +2117,14 @@ Begin
                End;
            End;
      End
-     ELSE   DoSimpleMsg('Meter Name Not Specified.'+ CRLF + parser.CmdString, 221);
+     ELSE   DoSimpleMsg('Meter Name Not Specified.'+ CRLF + parser[ActiveActor].CmdString, 221);
 
   Finally
 
      CloseFile(F);
 
-     ParamName := Parser.NextParam ;
-     Param := Parser.strvalue;
+     ParamName := Parser[ActiveActor].NextParam ;
+     Param := Parser[ActiveActor].strvalue;
 
      Case length(Param) of
         0:FireOffEditor(FileNm);
@@ -3126,15 +3126,15 @@ Begin
   End;
   // print lower triangle of G and B using new functions
   // this compresses the entries if necessary - no extra work if already solved
-  FactorSparseMatrix (hY);
-  GetNNZ (hY, @nNZ);
-  GetSize (hY, @nBus); // we should already know this
+  FactorSparseMatrix[ActiveActor](hY);
+  GetNNZ[ActiveActor](hY, @nNZ);
+  GetSize[ActiveActor](hY, @nBus); // we should already know this
 
   Try
     SetLength (ColIdx, nNZ);
     SetLength (RowIdx, nNZ);
     SetLength (cVals, nNZ);
-    GetTripletMatrix (hY, nNZ, @RowIdx[0], @ColIdx[0], @cVals[0]);
+    GetTripletMatrix[ActiveActor](hY, nNZ, @RowIdx[0], @ColIdx[0], @cVals[0]);
 
     Assignfile(F,FileNm);
     ReWrite(F);

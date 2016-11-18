@@ -189,8 +189,8 @@ Begin
 
   WITH ActiveVCCSObj DO Begin
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param     := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param     := Parser[ActorID].StrValue;
      WHILE Length(Param) > 0 DO Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -201,36 +201,36 @@ Begin
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 330);
             1: SetBus(1, param);
             2: Begin
-                 Nphases   := Parser.IntValue; // num phases
+                 Nphases   := Parser[ActorID].IntValue; // num phases
                  NConds    := Fnphases;  // Force Reallocation of terminal info
                End;
-            3: Prated := Parser.DblValue;
-            4: Vrated := Parser.DblValue;
-            5: Ppct := Parser.DblValue;
+            3: Prated := Parser[ActorID].DblValue;
+            4: Vrated := Parser[ActorID].DblValue;
+            5: Ppct := Parser[ActorID].DblValue;
             6: Begin
-                  Fbp1_name := Parser.StrValue;
+                  Fbp1_name := Parser[ActorID].StrValue;
                   if Length(Fbp1_name) > 0 then begin
                       Fbp1 := XY_CurveClass.Find(Fbp1_name);
                   end;
                End;
             7: Begin
-                  Fbp2_name := Parser.StrValue;
+                  Fbp2_name := Parser[ActorID].StrValue;
                   if Length(Fbp2_name) > 0 then begin
                       Fbp2 := XY_CurveClass.Find(Fbp2_name);
                   end;
                End;
             8: Begin
-                  Ffilter_name := Parser.StrValue;
+                  Ffilter_name := Parser[ActorID].StrValue;
                   if Length(Ffilter_name) > 0 then begin
                       Ffilter := XY_CurveClass.Find(Ffilter_name);
                   end;
                End;
-            9: FsampleFreq := Parser.DblValue;
+            9: FsampleFreq := Parser[ActorID].DblValue;
          ELSE
             ClassEdit(ActiveVCCSObj, ParamPointer - NumPropsThisClass)
          End;
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
      RecalcElementData(ActorID);
      YPrimInvalid := True;
@@ -434,7 +434,7 @@ end;
 procedure TVCCSObj.MakePosSequence(ActorID : Integer);
 begin
   If Fnphases>1 Then Begin
-    Parser.CmdString := 'phases=1';
+    Parser[ActorID].CmdString := 'phases=1';
     Edit(ActorID);
   End;
   inherited;

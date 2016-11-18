@@ -351,8 +351,8 @@ Begin
    Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 Do Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -362,38 +362,38 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 120);
             1: ElementName := 'Transformer.' + lowercase(param);
-            2: ElementTerminal := Parser.IntValue;
-            3: Vreg := Parser.DblValue;
-            4: Bandwidth := Parser.DblValue;
-            5: PTRatio := Parser.DblValue;
-            6: CTRating := Parser.DblValue;
-            7: R := Parser.DblValue;
-            8: X := Parser.DblValue;
+            2: ElementTerminal := Parser[ActorID].IntValue;
+            3: Vreg := Parser[ActorID].DblValue;
+            4: Bandwidth := Parser[ActorID].DblValue;
+            5: PTRatio := Parser[ActorID].DblValue;
+            6: CTRating := Parser[ActorID].DblValue;
+            7: R := Parser[ActorID].DblValue;
+            8: X := Parser[ActorID].DblValue;
             9: RegulatedBus := Param;
-            10: TimeDelay := Parser.DblValue;
+            10: TimeDelay := Parser[ActorID].DblValue;
             11: IsReversible := InterpretYesNo(Param);
-            12: revVreg := Parser.DblValue;
-            13: revBandwidth := Parser.DblValue;
-            14: revR := Parser.DblValue;
-            15: revX := Parser.DblValue;
-            16: TapDelay := Parser.DblValue;
+            12: revVreg := Parser[ActorID].DblValue;
+            13: revBandwidth := Parser[ActorID].DblValue;
+            14: revR := Parser[ActorID].DblValue;
+            15: revX := Parser[ActorID].DblValue;
+            16: TapDelay := Parser[ActorID].DblValue;
             17: DebugTrace   := InterpretYesNo(Param);
-            18: TapLimitPerChange := max(0, Parser.IntValue);
+            18: TapLimitPerChange := max(0, Parser[ActorID].IntValue);
             19: FInversetime := InterpretYesNo(Param);
-            20: TapWinding   := Parser.intValue;
+            20: TapWinding   := Parser[ActorID].intValue;
             21: Begin
-                  Vlimit      := Parser.DblValue;
+                  Vlimit      := Parser[ActorID].DblValue;
                   If VLimit > 0.0 then  VLimitActive := TRUE else VLimitActive := FALSE;
                 End;
             22: If      CompareTextShortest(param, 'max') = 0 Then FPTPhase := MAXPHASE
                 Else If CompareTextShortest(param, 'min') = 0 Then FPTPhase := MINPHASE
-                                                              Else FPTPhase := max(1, Parser.IntValue);
-            23: kWRevPowerThreshold := Parser.DblValue ;
-            24: RevDelay := Parser.DblValue;
+                                                              Else FPTPhase := max(1, Parser[ActorID].IntValue);
+            23: kWRevPowerThreshold := Parser[ActorID].DblValue ;
+            24: RevDelay := Parser[ActorID].DblValue;
             25: ReverseNeutral := InterpretYesNo(Param);
             26: ShowEventLog := InterpretYesNo(param);
-            27: RemotePTRatio := Parser.DblValue;
-            28: TapNum := Parser.IntValue;
+            27: RemotePTRatio := Parser[ActorID].DblValue;
+            28: TapNum := Parser[ActorID].IntValue;
          ELSE
            // Inherited parameters
            ClassEdit( ActiveRegControlObj, ParamPointer - NumPropsthisClass)
@@ -415,8 +415,8 @@ Begin
             23:  RevPowerThreshold := kWRevPowerThreshold * 1000.0;
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);

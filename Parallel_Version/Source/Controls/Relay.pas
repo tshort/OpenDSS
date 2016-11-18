@@ -348,8 +348,8 @@ Begin
   WITH ActiveRelayObj Do Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 Do Begin
          IF Length(ParamName) = 0
          THEN Inc(ParamPointer)
@@ -364,34 +364,34 @@ Begin
            {internal Relay Property commands}
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 382);
             1: MonitoredElementName     := lowercase(param);
-            2: MonitoredElementTerminal := Parser.IntValue;
+            2: MonitoredElementTerminal := Parser[ActorID].IntValue;
             3: ElementName     := lowercase(param);
-            4: ElementTerminal := Parser.IntValue;
+            4: ElementTerminal := Parser[ActorID].IntValue;
             5: InterpretRelayType(Param);
             6: PhaseCurve  := GetTccCurve(Param);
             7: GroundCurve := GetTCCCurve(Param);
-            8: PhaseTrip   := Parser.Dblvalue;
-            9: GroundTrip  := Parser.Dblvalue;
-           10: PhaseInst   := Parser.Dblvalue;
-           11: GroundInst  := Parser.Dblvalue;
-           12: ResetTime   := Parser.Dblvalue;
-           13: NumReclose  := Parser.Intvalue -1 ;   // one less than number of shots
-           14: If Comparetext(Param, 'NONE')=0 Then NumReclose := 1 Else NumReclose  := Parser.ParseAsVector(4, RecloseIntervals);   // max of 4 allowed
+            8: PhaseTrip   := Parser[ActorID].Dblvalue;
+            9: GroundTrip  := Parser[ActorID].Dblvalue;
+           10: PhaseInst   := Parser[ActorID].Dblvalue;
+           11: GroundInst  := Parser[ActorID].Dblvalue;
+           12: ResetTime   := Parser[ActorID].Dblvalue;
+           13: NumReclose  := Parser[ActorID].Intvalue -1 ;   // one less than number of shots
+           14: If Comparetext(Param, 'NONE')=0 Then NumReclose := 1 Else NumReclose  := Parser[ActorID].ParseAsVector(4, RecloseIntervals);   // max of 4 allowed
            15: OVCurve     := GetTCCCurve(Param);
            16: UVCurve     := GetTCCCurve(Param);
-           17: kVBase      := Parser.DblValue;
-           18: Breaker_time   := Parser.DblValue;
+           17: kVBase      := Parser[ActorID].DblValue;
+           18: Breaker_time   := Parser[ActorID].DblValue;
            19: InterpretRelayAction(Param);
            20: MonitorVariable := lowercase(param);  // for pc elements
-           21: PctPickup46 := Parser.DblValue;
-           22: Isqt46   :=  Parser.DblValue;
-           23: BaseAmps46 := Parser.DblValue;
-           24: Delay_Time := Parser.DblValue;
-           25: PctPickup47 := Parser.DblValue;
-           26: Overtrip  := Parser.DblValue;
-           27: Undertrip := Parser.DblValue;
-           28: TDPhase :=  Parser.DblValue;
-           29: TDGround :=  Parser.DblValue;
+           21: PctPickup46 := Parser[ActorID].DblValue;
+           22: Isqt46   :=  Parser[ActorID].DblValue;
+           23: BaseAmps46 := Parser[ActorID].DblValue;
+           24: Delay_Time := Parser[ActorID].DblValue;
+           25: PctPickup47 := Parser[ActorID].DblValue;
+           26: Overtrip  := Parser[ActorID].DblValue;
+           27: Undertrip := Parser[ActorID].DblValue;
+           28: TDPhase :=  Parser[ActorID].DblValue;
+           29: TDGround :=  Parser[ActorID].DblValue;
          ELSE
            // Inherited parameters
            ClassEdit( ActiveRelayObj, ParamPointer - NumPropsthisClass)
@@ -413,8 +413,8 @@ Begin
                  End;
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);

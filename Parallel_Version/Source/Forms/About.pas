@@ -21,7 +21,7 @@ type
     EPRILogo: TImage;
     Label1: TLabel;
     LicenseText: TRichEdit;
-    ProgramIcon: TImage;
+    Image1: TImage;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }

@@ -176,11 +176,11 @@ If no dot, last class is assumed
 }
       ObjClass := '';
       ObjName := '';
-      ParamName := LowerCase(Parser.NextParam);
-      Param := Parser.StrValue;
+      ParamName := LowerCase(Parser[ActiveActor].NextParam);
+      Param := Parser[ActiveActor].StrValue;
       IF Length(ParamName)>0 THEN  Begin   // IF specified, must be object or an abbreviation
         IF ComparetextShortest(ParamName, 'object')<>0 THEN  Begin
-          DoSimpleMsg('object=Class.Name expected as first parameter in command.'+ CRLF + parser.CmdString, 240);
+          DoSimpleMsg('object=Class.Name expected as first parameter in command.'+ CRLF + parser[ActiveActor].CmdString, 240);
           Exit;
         End;
       End;
@@ -278,11 +278,11 @@ Begin
 
     CASE LastClassReferenced[ActiveActor] of
       0: Begin
-        DoSimpleMsg('BatchEdit Command: Object Type "' + ObjType + '" not found.'+ CRLF + parser.CmdString, 267);
+        DoSimpleMsg('BatchEdit Command: Object Type "' + ObjType + '" not found.'+ CRLF + parser[ActiveActor].CmdString, 267);
         Exit;
         End;{Error}
     ELSE
-      Params:=Parser.Position;
+      Params:=Parser[ActiveActor].Position;
       ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
       RegEx1:=TPerlRegEx.Create;
       RegEx1.Options:=[preCaseLess];
@@ -292,7 +292,7 @@ Begin
       while pObj <> Nil do begin
         RegEx1.Subject:=UTF8String(pObj.Name);
         if RegEx1.Match then begin
-          Parser.Position:=Params;
+          Parser[ActiveActor].Position:=Params;
           ActiveDSSClass[ActiveActor].Edit(ActiveActor);
         end;
         ActiveDSSClass[ActiveActor].Next;
@@ -324,8 +324,8 @@ Begin
     // Going back up the redirect stack
 
     // Get next parm and try to interpret as a file name
-    ParamName := Parser.NextParam;
-    ReDirFile := ExpandFileName(Parser.StrValue);
+    ParamName := Parser[ActiveActor].NextParam;
+    ReDirFile := ExpandFileName(Parser[ActiveActor].StrValue);
 
     IF ReDirFile <> '' THEN
     Begin
@@ -460,7 +460,7 @@ Begin
         Begin
           IF Not ActiveDSSClass[ActiveActor].SetActive(Objname) THEN
           Begin // scroll through list of objects untill a match
-            DoSimpleMsg('Error! Object "' + ObjName + '" not found.'+ CRLF + parser.CmdString, 245);
+            DoSimpleMsg('Error! Object "' + ObjName + '" not found.'+ CRLF + parser[ActiveActor].CmdString, 245);
             Result := 0;
           End
           ELSE
@@ -472,10 +472,10 @@ Begin
              ELSE Begin   // for circuit types, set ActiveCircuit[ActiveActor] Element, too
                    ActiveCktElement := ActiveDSSClass[ActiveActor].GetActiveObj;
                    // Now check for active terminal designation
-                   ParamName := LowerCase(Parser.NextParam);
-                   Param := Parser.StrValue;
+                   ParamName := LowerCase(Parser[ActiveActor].NextParam);
+                   Param := Parser[ActiveActor].StrValue;
                    If Length(Param)>0
-                   THEN ActiveCktElement.ActiveTerminalIdx := Parser.Intvalue
+                   THEN ActiveCktElement.ActiveTerminalIdx := Parser[ActiveActor].Intvalue
                    ELSE ActiveCktElement.ActiveTerminalIdx := 1;  {default to 1}
                    With ActiveCktElement Do SetActiveBus(StripExtension(Getbus(ActiveTerminalIdx)));
                   End;
@@ -525,23 +525,23 @@ Begin
      SaveDir := '';
      SaveFile := '';
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          IF   (Length(ParamName) = 0)  THEN Inc(ParamPointer)
          ELSE ParamPointer := SaveCommands.GetCommand(ParamName);
 
          CASE ParamPointer OF
-           1: ObjClass := Parser.StrValue;
-           2: Savefile := Parser.StrValue;   // File name for saving  a class
-           3: SaveDir := Parser.StrValue;
+           1: ObjClass := Parser[ActiveActor].StrValue;
+           2: Savefile := Parser[ActiveActor].StrValue;   // File name for saving  a class
+           3: SaveDir := Parser[ActiveActor].StrValue;
          ELSE
 
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      End;
 
    InShowResults := True;
@@ -678,7 +678,7 @@ Begin
 
         CASE LastClassReferenced[ActiveActor] of
           0: Begin
-                 DoSimpleMsg('Object Type "' + ObjType + '" not found.'+ CRLF + parser.CmdString, 253);
+                 DoSimpleMsg('Object Type "' + ObjType + '" not found.'+ CRLF + parser[ActiveActor].CmdString, 253);
                  Result := 0;
                  Exit;
              End;{Error}
@@ -690,7 +690,7 @@ Begin
            WITH ActiveCircuit[ActiveActor] Do
            Begin // scroll through list of objects until a match
              CASE ActiveDSSObject[ActiveActor].DSSObjType OF
-                    DSS_OBJECT: DoSimpleMsg('Error in SetActiveCktElement: Object not a circuit Element.'+ CRLF + parser.CmdString, 254);
+                    DSS_OBJECT: DoSimpleMsg('Error in SetActiveCktElement: Object not a circuit Element.'+ CRLF + parser[ActiveActor].CmdString, 254);
              ELSE Begin
                     ActiveCktElement := ActiveDSSClass[ActiveActor].GetActiveObj;
                     Result:=1;
@@ -744,7 +744,7 @@ Begin
 
               // just load up the parser and call the edit routine for the object in question
 
-              Parser.CmdString := 'Enabled=true';  // Will only work for CktElements
+              Parser[ActiveActor].CmdString := 'Enabled=true';  // Will only work for CktElements
               Result := EditObject(ObjType, ObjName);
              End;
          End;
@@ -791,7 +791,7 @@ Begin
 
               // just load up the parser and call the edit routine for the object in question
 
-              Parser.CmdString := 'Enabled=false';  // Will only work for CktElements
+              Parser[ActiveActor].CmdString := 'Enabled=false';  // Will only work for CktElements
               Result := EditObject(ObjType, ObjName);
              End;
          End;
@@ -824,8 +824,8 @@ Begin
  ObjName := ' ';
  
  // Continue parsing command line - check for object name
- ParamName := Parser.NextParam;
- Param := Parser.StrValue;
+ ParamName := Parser[ActiveActor].NextParam;
+ Param := Parser[ActiveActor].StrValue;
  IF Length(Param)>0 THEN
  Begin
 
@@ -878,11 +878,11 @@ Begin
          Begin
             SingleObject := TRUE;
            // Check to see IF we want a debugdump on this object
-            ParamName := Parser.NextParam;
-            Param2 := Parser.StrValue;
+            ParamName := Parser[ActiveActor].NextParam;
+            Param2 := Parser[ActiveActor].StrValue;
             IF CompareText(Param2,'debug')=0 THEN DebugDump := TRUE;
             // Set active Element to be value in Param
-            Parser.CmdString := '"' + Param + '"';  // put param back into parser
+            Parser[ActiveActor].CmdString := '"' + Param + '"';  // put param back into parser
             GetObjClassAndName( ObjClass, ObjName);
             // IF DoSelectCmd=0 THEN Exit;  8-17-00
             IF SetObjectClass(ObjClass)
@@ -981,7 +981,7 @@ VAR
    TimeArray:Array[1..2] of double;
 
 Begin
-     Parser.ParseAsVector(2, @TimeArray);
+     Parser[ActiveActor].ParseAsVector(2, @TimeArray);
      WITH ActiveCircuit[ActiveActor].Solution DO
      Begin
         DynaVars.intHour := Round(TimeArray[1]);
@@ -1025,7 +1025,7 @@ VAR
 Begin
 
      Dummy := AllocMem(Sizeof(Dummy^[1]) * 100); // Big Buffer
-     Num   := Parser.ParseAsVector(100, Dummy);
+     Num   := Parser[ActiveActor].ParseAsVector(100, Dummy);
      {Parsing zero-fills the array}
 
      {LegalVoltageBases is a zero-terminated array, so we have to allocate
@@ -1058,10 +1058,10 @@ Begin
   retval := SetActiveCktElement;
   IF retval>0 THEN
   Begin
-        ParamName := Parser.NextParam;
-        Terminal  := Parser.IntValue;
-        ParamName := Parser.NextParam;
-        Conductor := Parser.IntValue;
+        ParamName := Parser[ActiveActor].NextParam;
+        Terminal  := Parser[ActiveActor].IntValue;
+        ParamName := Parser[ActiveActor].NextParam;
+        Conductor := Parser[ActiveActor].IntValue;
 
         With ActiveCircuit[ActiveActor] Do
         Begin
@@ -1072,7 +1072,7 @@ Begin
   End
   ELSE
   Begin
-       DoSimpleMsg('Error in Open Command: Circuit Element Not Found.' +CRLF+ Parser.CmdString, 259);
+       DoSimpleMsg('Error in Open Command: Circuit Element Not Found.' +CRLF+ Parser[ActiveActor].CmdString, 259);
   End;
   Result := 0;
 End;
@@ -1095,10 +1095,10 @@ Begin
   retval := SetActiveCktElement;
   IF retval>0 THEN
     Begin
-       ParamName := Parser.NextParam;                 
-       Terminal  := Parser.IntValue;
-       ParamName := Parser.NextParam;
-       Conductor := Parser.IntValue;
+       ParamName := Parser[ActiveActor].NextParam;
+       Terminal  := Parser[ActiveActor].IntValue;
+       ParamName := Parser[ActiveActor].NextParam;
+       Conductor := Parser[ActiveActor].IntValue;
 
         With ActiveCircuit[ActiveActor] Do
          Begin
@@ -1110,7 +1110,7 @@ Begin
     End
   ELSE
   Begin
-       DoSimpleMsg('Error in Close Command: Circuit Element Not Found.' +CRLF+ Parser.CmdString, 260);
+       DoSimpleMsg('Error in Close Command: Circuit Element Not Found.' +CRLF+ Parser[ActiveActor].CmdString, 260);
   End;
   Result := 0;
 
@@ -1125,8 +1125,8 @@ Begin
     Result := 0;
 
     // Get next parm and try to interpret as a file name
-    ParamName := Parser.NextParam;
-    Param := UpperCase(Parser.StrValue);
+    ParamName := Parser[ActorID].NextParam;
+    Param := UpperCase(Parser[ActorID].StrValue);
     IF Length(Param) = 0
        THEN Begin
             DoResetMonitors(ACtorID);
@@ -1213,8 +1213,8 @@ VAR
 Begin
     Result := 0;
     // Get next parm and try to interpret as a file name
-    ParamName := Parser.NextParam;
-    Param := UpperCase(Parser.StrValue);
+    ParamName := Parser[ActiveActor].NextParam;
+    Param := UpperCase(Parser[ActiveActor].StrValue);
 
     {Mark Capacitor and Reactor buses as Keep so we don't lose them}
     MarkCapandReactorBuses;
@@ -1279,8 +1279,8 @@ Begin
     Result := 0;
 
     // Get next parm and try to interpret as a file name
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActiveActor].NextParam;
+    Param := Parser[ActiveActor].StrValue;
 
     IF  FileExists(Param) THEN FireOffEditor(Param)
     ELSE Begin
@@ -1344,8 +1344,8 @@ VAR
 Begin
 
      Result := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
 
      ParseObjName(Param, ObjName, PropName);
 
@@ -1356,7 +1356,7 @@ Begin
      End ELSE
      Begin
          // Set Object Active
-         parser.cmdstring := '"' + Objname + '"';
+         parser[ActiveActor].cmdstring := '"' + Objname + '"';
          DoSelectCmd;
      End;
 
@@ -1391,8 +1391,8 @@ Begin
     Result := 0;
 
     // Get next parm and try to interpret as a file name
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActiveActor].NextParam;
+    Param := Parser[ActiveActor].StrValue;
 
     With ActiveCircuit[ActiveActor].Solution Do
     CASE UpCase(Param[1]) of
@@ -1444,7 +1444,7 @@ Begin
 
    CASE LastClassReferenced[ActiveActor] of
      0: Begin
-            DoSimpleMsg('New Command: Object Type "' + ObjType + '" not found.' + CRLF + parser.CmdString, 263);
+            DoSimpleMsg('New Command: Object Type "' + ObjType + '" not found.' + CRLF + parser[ActiveActor].CmdString, 263);
             Result := 0;
             Exit;
         End;{Error}
@@ -1457,7 +1457,7 @@ Begin
       // Name must be supplied
         IF   Length(Name) = 0
         THEN Begin
-            DoSimpleMsg('Object Name Missing'+ CRLF + parser.CmdString, 264);
+            DoSimpleMsg('Object Name Missing'+ CRLF + parser[ActiveActor].CmdString, 264);
             Exit;
         End;
 
@@ -1522,7 +1522,7 @@ Begin
 
    CASE LastClassReferenced[ActiveActor] of
      0: Begin
-            DoSimpleMsg('Edit Command: Object Type "' + ObjType + '" not found.'+ CRLF + parser.CmdString, 267);
+            DoSimpleMsg('Edit Command: Object Type "' + ObjType + '" not found.'+ CRLF + parser[ActiveActor].CmdString, 267);
             Result := 0;
             Exit;
         End;{Error}
@@ -1549,11 +1549,11 @@ VAR
 Begin
 
 // Parse off next two items on line
-   ParamName := Parser.NextParam;
-   BusName   := LowerCase(Parser.StrValue);
+   ParamName := Parser[ActiveActor].NextParam;
+   BusName   := LowerCase(Parser[ActiveActor].StrValue);
 
-   ParamName := Parser.NextParam;
-   kVValue   := Parser.DblValue;
+   ParamName := Parser[ActiveActor].NextParam;
+   kVValue   := Parser[ActiveActor].DblValue;
 
    // Now find the bus and set the value
 
@@ -1767,8 +1767,8 @@ Begin
 
   If ActiveCircuit[ActiveActor] <> Nil Then
   Begin
-    S := Parser.NextParam;
-    CktElementName := Parser.StrValue ;
+    S := Parser[ActiveActor].NextParam;
+    CktElementName := Parser[ActiveActor].StrValue ;
 
     If Length(CktElementName) > 0  Then  SetObject(CktElementName);
 
@@ -2251,7 +2251,7 @@ Begin
        DoAllHarmonics := FALSE;
 
        Dummy := AllocMem(Sizeof(Dummy^[1]) * 100); // Big Buffer
-       Num   := Parser.ParseAsVector(100, Dummy);
+       Num   := Parser[ActiveActor].ParseAsVector(100, Dummy);
        {Parsing zero-fills the array}
 
        HarmonicListSize := Num;
@@ -2311,8 +2311,8 @@ Begin
   Result := 0;
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE Case ParamName[1] of
@@ -2324,15 +2324,15 @@ Begin
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "'+ParamName+'" for Capacity Command', 273);
-            1: ActiveCircuit[ActiveActor].CapacityStart := Parser.DblValue;
-            2: ActiveCircuit[ActiveActor].CapacityIncrement := Parser.DblValue;
+            1: ActiveCircuit[ActiveActor].CapacityStart := Parser[ActiveActor].DblValue;
+            2: ActiveCircuit[ActiveActor].CapacityIncrement := Parser[ActiveActor].DblValue;
 
          ELSE
 
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      END;
 
     WITH ActiveCircuit[ActiveActor] Do
@@ -2447,8 +2447,8 @@ Begin
 
         {Get next parameter on command line}
 
-        ParamName := UpperCase(Parser.NextParam);
-        Param := Parser.StrValue;
+        ParamName := UpperCase(Parser[ActiveActor].NextParam);
+        Param := Parser[ActiveActor].StrValue;
 
         PropIndex := 1;
         If Length(ParamName) > 0 Then
@@ -2461,7 +2461,7 @@ Begin
 
         CASE PropIndex of
             1: VarIndex := PCElem.LookupVariable(Param);  // Look up property index
-            2: VarIndex := Parser.IntValue ;
+            2: VarIndex := Parser[ActiveActor].IntValue ;
         END;
 
         If (VarIndex>0) and (VarIndex<=PCElem.NumVariables) Then
@@ -2526,8 +2526,8 @@ Begin
 
     {Get next parameter on command line}
 
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActiveActor].NextParam;
+    Param := Parser[ActiveActor].StrValue;
 
     Try
       iLine := -1;
@@ -2648,8 +2648,8 @@ VAR
 Begin
     Result := 0;
 
-    ParamName := Parser.NextParam;
-    Param := UpperCase(Parser.StrValue);
+    ParamName := Parser[ActiveActor].NextParam;
+    Param := UpperCase(Parser[ActiveActor].StrValue);
 
     // initialize the Checked Flag FOR all circuit Elements
     With ActiveCircuit[ActiveActor] Do
@@ -2698,8 +2698,8 @@ Var
 
 Begin
   Result := 0;
-  ParamName := Parser.NextParam;
-  Param := Parser.StrValue;
+  ParamName := Parser[ActiveActor].NextParam;
+  Param := Parser[ActiveActor].StrValue;
 
 
   If FileExists(Param) Then
@@ -2724,11 +2724,11 @@ Var
 
 Begin
     Result := 0;
-    ParamName := Parser.NextParam;
-    Param := UpperCase(Parser.StrValue);
+    ParamName := Parser[ActiveActor].NextParam;
+    Param := UpperCase(Parser[ActiveActor].StrValue);
 
-    ParamName := Parser.NextParam;
-    ObjName := UpperCase(Parser.StrValue);
+    ParamName := Parser[ActiveActor].NextParam;
+    ObjName := UpperCase(Parser[ActiveActor].StrValue);
 
     If Length(ObjName)=0 Then ObjName := 'ALL';
 
@@ -2776,8 +2776,8 @@ Begin
     Result := 0;
     If ActiveCircuit[ActiveActor] <> NIl then Begin
 
-        ParamName := Parser.NextParam;
-        Angle := Parser.DblValue * PI/180.0;   // Deg to rad
+        ParamName := Parser[ActiveActor].NextParam;
+        Angle := Parser[ActiveActor].DblValue * PI/180.0;   // Deg to rad
 
         a := cmplx(cos(Angle), Sin(Angle));
         With ActiveCircuit[ActiveActor] Do Begin
@@ -2957,8 +2957,8 @@ Begin
      PF := 1.0;
      FilName := 'DistGenerators.dss';
 
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          IF   (Length(ParamName) = 0)
@@ -2966,19 +2966,19 @@ Begin
          ELSE ParamPointer := DistributeCommands.GetCommand(ParamName);
 
          CASE ParamPointer OF
-           1: kW := Parser.DblValue;
-           2: How := Parser.StrValue;
-           3: Skip := Parser.IntValue;
-           4: PF := Parser.DblValue;
-           5: FilName := Parser.StrValue;
-           6: kW := Parser.DblValue * 1000.0;
+           1: kW := Parser[ActiveActor].DblValue;
+           2: How := Parser[ActiveActor].StrValue;
+           3: Skip := Parser[ActiveActor].IntValue;
+           4: PF := Parser[ActiveActor].DblValue;
+           5: FilName := Parser[ActiveActor].StrValue;
+           6: kW := Parser[ActiveActor].DblValue * 1000.0;
 
          ELSE
              // ignore unnamed and extra parms
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      End;
 
      MakeDistributedGenerators(kW, PF, How, Skip, FilName);  // in Utilities
@@ -3014,8 +3014,8 @@ Begin
      MeterName := 'DI_Totals';
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          IF   (Length(ParamName) = 0) THEN Inc(ParamPointer)
@@ -3023,9 +3023,9 @@ Begin
 
          CASE ParamPointer OF
            1: CaseName := Param;
-           2: CaseYear := Parser.Intvalue;
+           2: CaseYear := Parser[ActiveActor].Intvalue;
            3: Begin
-                 NumRegs := Parser.ParseAsVector(NumEMREgisters, @dRegisters);
+                 NumRegs := Parser[ActiveActor].ParseAsVector(NumEMREgisters, @dRegisters);
                  SetLength(iRegisters, NumRegs);
                  For i := 1 to NumRegs Do iRegisters[i-1] := Round(dRegisters[i]);
               End;
@@ -3036,8 +3036,8 @@ Begin
              // ignore unnamed and extra parms
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      End;
 
      DSSPlotObj.DoDI_Plot(CaseName, CaseYear, iRegisters, PeakDay, MeterName);
@@ -3068,8 +3068,8 @@ Begin
      WhichFile := 'Totals';
 
      ParamPointer := 0;
-     ParamName := UpperCase(Parser.NextParam);
-     Param := Parser.StrValue;
+     ParamName := UpperCase(Parser[ActiveActor].NextParam);
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          Unknown := False;
@@ -3088,14 +3088,14 @@ Begin
          CASE ParamPointer OF
            1: CaseName1 := Param;
            2: CaseName2 := Param;
-           3: Reg := Parser.IntValue;
+           3: Reg := Parser[ActiveActor].IntValue;
            4: WhichFile := Param;
          ELSE
              // ignore unnamed and extra parms
          End;
 
-         ParamName := UpperCase(Parser.NextParam);
-         Param := Parser.StrValue;
+         ParamName := UpperCase(Parser[ActiveActor].NextParam);
+         Param := Parser[ActiveActor].StrValue;
      End;
 
      DSSPlotObj.DoCompareCases(CaseName1, CaseName2, WhichFile,  Reg);
@@ -3130,8 +3130,8 @@ Begin
 
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          Unknown := False;
@@ -3158,7 +3158,7 @@ Begin
                 End;
               End;
            2: Begin
-                NRegs := Parser.ParseAsVector(NumEMRegisters, @dRegisters);
+                NRegs := Parser[ActiveActor].ParseAsVector(NumEMRegisters, @dRegisters);
                 SetLength(iRegisters, Nregs);
                 For i := 1 to NRegs Do iRegisters[i-1] := Round(dRegisters[i]);
               end;
@@ -3167,8 +3167,8 @@ Begin
              // ignore unnamed and extra parms
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      End;
 
      DSSPlotObj.DoYearlyCurvePlot(CaseNames, WhichFile,  iRegisters);
@@ -3207,8 +3207,8 @@ Begin
      ElemName := '';
       {Parse rest of command line}
      ParamPointer := 0;
-     ParamName := UpperCase(Parser.NextParam);
-     Param := Parser.StrValue;
+     ParamName := UpperCase(Parser[ActiveActor].NextParam);
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          Unknown := False;
@@ -3232,8 +3232,8 @@ Begin
              // ignore unnamed and extra parms
          End;
 
-         ParamName := UpperCase(Parser.NextParam);
-         Param := Parser.StrValue;
+         ParamName := UpperCase(Parser[ActiveActor].NextParam);
+         Param := Parser[ActiveActor].StrValue;
      End;  {WHILE}
 
      {--------------------------------------------------------------}
@@ -3262,7 +3262,7 @@ FUNCTION DoADOScmd:Integer;
 
 Begin
     Result  := 0;
-    DoDOScmd(Parser.Remainder);
+    DoDOScmd(Parser[ActiveActor].Remainder);
 End;
 
 FUNCTION DoEstimateCmd:Integer;
@@ -3311,8 +3311,8 @@ Begin
      Line2 := '';
      MyEditString := '';
      NPhases := 0; // no filtering by number of phases
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      while Length(Param) > 0 do Begin
        IF Length(ParamName) = 0 THEN Inc(ParamPointer)
        ELSE ParamPointer := ReconductorCommands.GetCommand(ParamName);
@@ -3323,13 +3323,13 @@ Begin
           3: Begin Linecode := Param; LineCodeSpecified := TRUE; GeometrySpecified := FALSE; End;
           4: Begin Geometry := Param; LineCodeSpecified := FALSE; GeometrySpecified := TRUE; End;
           5: MyEditString := Param;
-          6: Nphases := Parser.IntValue;
+          6: Nphases := Parser[ActiveActor].IntValue;
        Else
           DoSimpleMsg('Error: Unknown Parameter on command line: '+Param, 28701);
        End;
 
-      ParamName := Parser.NextParam;
-      Param := Parser.StrValue;
+      ParamName := Parser[ActiveActor].NextParam;
+      Param := Parser[ActiveActor].StrValue;
      End;
 
      {Check for Errors}
@@ -3405,8 +3405,8 @@ Begin
      BusMarker := TBusMarker.Create;
      ActiveCircuit[ActiveActor].BusMarkerList.Add(BusMarker);
 
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          IF   (Length(ParamName) = 0)
@@ -3416,16 +3416,16 @@ Begin
          With BusMarker Do
          CASE ParamPointer OF
            1: BusName := Param;
-           2: AddMarkerCode := Parser.IntValue;
+           2: AddMarkerCode := Parser[ActiveActor].IntValue;
            3: AddMarkerColor:= InterpretColorName(Param);
-           4: AddMarkerSize := Parser.IntValue;
+           4: AddMarkerSize := Parser[ActiveActor].IntValue;
 
          ELSE
              // ignore unnamed and extra parms
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      End;
 
 End;
@@ -3478,8 +3478,8 @@ Var
   pName: TNamedObject;
 Begin
   Result := 0;
-  ParamName := Parser.NextParam;
-  Param := Parser.StrValue;
+  ParamName := Parser[ActiveActor].NextParam;
+  Param := Parser[ActiveActor].StrValue;
   Try
     AssignFile(F, Param);
     Reset(F);
@@ -3526,8 +3526,8 @@ Var
    Fname          :String;
 
 Begin
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActiveActor].NextParam;
+    Param := Parser[ActiveActor].StrValue;
 
     If length(param)=0 then  Param := 's';
 
@@ -3547,7 +3547,7 @@ Begin
      iLoadshape := LoadShapeClass.First;
      while iLoadshape > 0 do  Begin
         pLoadShape := LoadShapeClass.GetActiveObj;
-        Parser.CmdString := Action;
+        Parser[ActiveActor].CmdString := Action;
         pLoadShape.Edit(ActiveActor);
         Writeln(F, Format('New Loadshape.%s Npts=%d Interval=%.8g %s',[pLoadShape.Name, pLoadShape.NumPoints, pLoadShape.Interval, GlobalResult]));
         iLoadshape := LoadShapeClass.Next;
@@ -3577,13 +3577,13 @@ Var
 Begin
 
     Result := 0;
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActiveActor].NextParam;
+    Param := Parser[ActiveActor].StrValue;
     sNode1 := Param;
     If Pos('2',ParamName)>0 then sNode2 := Param;
 
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActiveActor].NextParam;
+    Param := Parser[ActiveActor].StrValue;
     sNode2 := Param;
     If Pos('1',ParamName)>0 then sNode1 := Param;
 
@@ -3640,8 +3640,8 @@ Begin
      ScriptfileName := 'RephaseEditScript.DSS';
      TransfStop     := TRUE;  // Stop at Transformers
 
-     ParamName      := Parser.NextParam;
-     Param          := Parser.StrValue;
+     ParamName      := Parser[ActiveActor].NextParam;
+     Param          := Parser[ActiveActor].StrValue;
      while Length(Param) > 0 do Begin
        IF Length(ParamName) = 0 THEN Inc(ParamPointer)
        ELSE ParamPointer := RephaseCommands.GetCommand(ParamName);
@@ -3656,8 +3656,8 @@ Begin
           DoSimpleMsg('Error: Unknown Parameter on command line: '+Param, 28711);
        End;
 
-      ParamName := Parser.NextParam;
-      Param := Parser.StrValue;
+      ParamName := Parser[ActiveActor].NextParam;
+      Param := Parser[ActiveActor].StrValue;
      End;
 
      LineClass := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('Line'));
@@ -3695,8 +3695,8 @@ Var
 Begin
 
      Result := 0;
-     ParamName      := Parser.NextParam;
-     Param          := Parser.StrValue;
+     ParamName      := Parser[ActiveActor].NextParam;
+     Param          := Parser[ActiveActor].StrValue;
      ParamPointer   := 0;
      Xval := 0.0;  Yval := 0.0;
      while Length(Param) > 0 do Begin
@@ -3705,8 +3705,8 @@ Begin
 
        Case ParamPointer of
           1: BusName := Param;
-          2: Xval := Parser.DblValue;
-          3: Yval := Parser.DblValue;
+          2: Xval := Parser[ActiveActor].DblValue;
+          3: Yval := Parser[ActiveActor].DblValue;
        Else
           DoSimpleMsg('Error: Unknown Parameter on command line: '+Param, 28721);
        End;
@@ -3722,8 +3722,8 @@ Begin
            DosimpleMsg('Error: Bus "' + BusName + '" Not Found.', 28722);
        End;
 
-      ParamName := Parser.NextParam;
-      Param := Parser.StrValue;
+      ParamName := Parser[ActiveActor].NextParam;
+      Param := Parser[ActiveActor].StrValue;
      End;
 
 
@@ -3762,8 +3762,8 @@ Begin
      CyclesPerSample := 60;
      Freq := DefaultBaseFreq;
 
-     ParamName      := Parser.NextParam;
-     Param          := Parser.StrValue;
+     ParamName      := Parser[ActiveActor].NextParam;
+     Param          := Parser[ActiveActor].StrValue;
      ParamPointer   := 0;
      while Length(Param) > 0 do Begin
          IF    Length(ParamName) = 0 THEN Inc(ParamPointer)
@@ -3771,19 +3771,19 @@ Begin
          // 'Npts', 'Voltages', 'cycles', 'lamp'
          Case ParamPointer of
             1: Begin
-                 Npts  := Parser.IntValue;
+                 Npts  := Parser[ActiveActor].IntValue;
                  Reallocmem(Varray, SizeOf(Varray^[1])*Npts);
                End;
             2: Npts    := InterpretDblArray(Param, Npts, Varray);
-            3: CyclesPerSample := Round(ActiveCircuit[ActiveActor].Solution.Frequency * Parser.dblvalue);
-            4: Freq   := Parser.DblValue;
-            5: Lamp    := Parser.IntValue;
+            3: CyclesPerSample := Round(ActiveCircuit[ActiveActor].Solution.Frequency * Parser[ActiveActor].dblvalue);
+            4: Freq   := Parser[ActiveActor].DblValue;
+            5: Lamp    := Parser[ActiveActor].IntValue;
          Else
             DoSimpleMsg('Error: Unknown Parameter on command line: '+Param, 28722);
          End;
 
-        ParamName := Parser.NextParam;
-        Param := Parser.StrValue;
+        ParamName := Parser[ActiveActor].NextParam;
+        Param := Parser[ActiveActor].StrValue;
      End;
 
      If Npts>10 Then
@@ -3821,8 +3821,8 @@ Begin
         Exit;
       End;
 
-      ParamName := Parser.NextParam;
-      Param := Parser.StrValue ;
+      ParamName := Parser[ActiveActor].NextParam;
+      Param := Parser[ActiveActor].StrValue ;
 
       If Length(Param)>0 Then
           Assumerestoration := InterpretYesNo(param)
@@ -3857,8 +3857,8 @@ Begin
 
      Result := 0;
 
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
 
       If Length(Param)=0 Then  // show all vars
       Begin
@@ -3889,8 +3889,8 @@ Begin
                    DosimpleMsg('Illegal Variable Name: ' + ParamName + '; Must begin with "@"', 28725);
                    Exit;
                end;
-               ParamName := Parser.NextParam;
-               Param := Parser.StrValue;
+               ParamName := Parser[ActiveActor].NextParam;
+               Param := Parser[ActiveActor].StrValue;
            End;
 
       End;

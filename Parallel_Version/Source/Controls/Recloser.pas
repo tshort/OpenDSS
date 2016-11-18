@@ -289,8 +289,8 @@ Begin
   WITH ActiveRecloserObj Do Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 Do Begin
          IF Length(ParamName) = 0
          THEN Inc(ParamPointer)
@@ -302,27 +302,27 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 390);
             1: MonitoredElementName     := lowercase(param);
-            2: MonitoredElementTerminal := Parser.IntValue;
+            2: MonitoredElementTerminal := Parser[ActorID].IntValue;
             3: ElementName     := lowercase(param);
-            4: ElementTerminal := Parser.IntValue;
-            5: NumFast   := Parser.Intvalue;
+            4: ElementTerminal := Parser[ActorID].IntValue;
+            5: NumFast   := Parser[ActorID].Intvalue;
 	          6: PhaseFast  := GetTccCurve(Param);
             7: PhaseDelayed := GetTCCCurve(Param);
 	          8: GroundFast  := GetTccCurve(Param);
             9: GroundDelayed := GetTCCCurve(Param);
-           10: PhaseTrip   := Parser.Dblvalue;
-           11: GroundTrip  := Parser.Dblvalue;
-           12: PhaseInst   := Parser.Dblvalue;
-           13: GroundInst  := Parser.Dblvalue;
-           14: Resettime   := Parser.Dblvalue;
-           15: NumReclose  := Parser.Intvalue -1 ;   // one less than number of shots
-           16: NumReclose  := Parser.ParseAsVector(4, RecloseIntervals);   // max of 4 allowed
-           17: DelayTime   := Parser.DblValue;
+           10: PhaseTrip   := Parser[ActorID].Dblvalue;
+           11: GroundTrip  := Parser[ActorID].Dblvalue;
+           12: PhaseInst   := Parser[ActorID].Dblvalue;
+           13: GroundInst  := Parser[ActorID].Dblvalue;
+           14: Resettime   := Parser[ActorID].Dblvalue;
+           15: NumReclose  := Parser[ActorID].Intvalue -1 ;   // one less than number of shots
+           16: NumReclose  := Parser[ActorID].ParseAsVector(4, RecloseIntervals);   // max of 4 allowed
+           17: DelayTime   := Parser[ActorID].DblValue;
            18: InterpretRecloserAction(Param);
-           19: TDPhFast    := Parser.DblValue;
-           20: TDGrFast    := Parser.DblValue;
-           21: TDPhDelayed    := Parser.DblValue;
-           22: TDGrDelayed    := Parser.DblValue;
+           19: TDPhFast    := Parser[ActorID].DblValue;
+           20: TDGrFast    := Parser[ActorID].DblValue;
+           21: TDPhDelayed    := Parser[ActorID].DblValue;
+           22: TDGrDelayed    := Parser[ActorID].DblValue;
 
          ELSE
            // Inherited parameters
@@ -335,8 +335,8 @@ Begin
               2: ElementTerminal := MonitoredElementTerminal;
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);

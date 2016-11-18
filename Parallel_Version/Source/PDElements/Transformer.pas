@@ -433,8 +433,8 @@ Begin
    Begin
      XHLChanged   := False;
      ParamPointer := 0;
-     ParamName    := Parser.NextParam;
-     Param        := Parser.StrValue;
+     ParamName    := Parser[ActorID].NextParam;
+     Param        := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 Do Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -443,49 +443,49 @@ Begin
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "Transformer.' + Name + '"', 110);
-            1: Nphases   := Parser.IntValue;
-            2: SetNumWindings(Parser.IntValue); // Reallocate stuff if bigger
-            3: SetActiveWinding(Parser.IntValue);
+            1: Nphases   := Parser[ActorID].IntValue;
+            2: SetNumWindings(Parser[ActorID].IntValue); // Reallocate stuff if bigger
+            3: SetActiveWinding(Parser[ActorID].IntValue);
             4: Setbus(ActiveWinding, param);
             5: InterpretConnection(Param);
-            6: Winding^[ActiveWinding].kvll  := parser.Dblvalue;
-            7: Winding^[ActiveWinding].kVA   := parser.Dblvalue;
-            8: Winding^[ActiveWinding].puTap := parser.Dblvalue;
-            9: Winding^[ActiveWinding].Rpu   := parser.Dblvalue * 0.01;  // %R
-           10: Winding^[ActiveWinding].Rneut := parser.Dblvalue;
-           11: Winding^[ActiveWinding].Xneut := parser.Dblvalue;
+            6: Winding^[ActiveWinding].kvll  := parser[ActorID].Dblvalue;
+            7: Winding^[ActiveWinding].kVA   := parser[ActorID].Dblvalue;
+            8: Winding^[ActiveWinding].puTap := parser[ActorID].Dblvalue;
+            9: Winding^[ActiveWinding].Rpu   := parser[ActorID].Dblvalue * 0.01;  // %R
+           10: Winding^[ActiveWinding].Rneut := parser[ActorID].Dblvalue;
+           11: Winding^[ActiveWinding].Xneut := parser[ActorID].Dblvalue;
            12: InterpretAllBuses(Param);
            13: InterpretAllConns(Param);
            14: InterpretAllkVRatings(Param);
            15: InterpretAllkVARatings(Param);
            16: InterpretAllTaps(Param);
-           17: XHL :=  TrapZero(parser.Dblvalue, 7.0) * 0.01;
-           18: XHT :=  TrapZero(parser.Dblvalue, 35.0) * 0.01;
-           19: XLT :=  TrapZero(parser.Dblvalue, 30.0) * 0.01;
-           20: Parser.ParseAsVector(((NumWindings - 1) * NumWindings div 2), Xsc);
-           21: ThermalTimeConst := Parser.DblValue;
-           22: n_thermal        := Parser.DblValue;
-           23: m_thermal        := Parser.DblValue;
-           24: FLrise           := Parser.DblValue;
-           25: HSRise           := Parser.DblValue;
-           26: pctLoadLoss      := Parser.DblValue;
-           27: pctNoLoadLoss    := Parser.DblValue;
-           28: NormMaxHkVA      := Parser.Dblvalue;
-           29: EmergMaxHkVA     := Parser.Dblvalue;
+           17: XHL :=  TrapZero(parser[ActorID].Dblvalue, 7.0) * 0.01;
+           18: XHT :=  TrapZero(parser[ActorID].Dblvalue, 35.0) * 0.01;
+           19: XLT :=  TrapZero(parser[ActorID].Dblvalue, 30.0) * 0.01;
+           20: Parser[ActorID].ParseAsVector(((NumWindings - 1) * NumWindings div 2), Xsc);
+           21: ThermalTimeConst := Parser[ActorID].DblValue;
+           22: n_thermal        := Parser[ActorID].DblValue;
+           23: m_thermal        := Parser[ActorID].DblValue;
+           24: FLrise           := Parser[ActorID].DblValue;
+           25: HSRise           := Parser[ActorID].DblValue;
+           26: pctLoadLoss      := Parser[ActorID].DblValue;
+           27: pctNoLoadLoss    := Parser[ActorID].DblValue;
+           28: NormMaxHkVA      := Parser[ActorID].Dblvalue;
+           29: EmergMaxHkVA     := Parser[ActorID].Dblvalue;
            30: IsSubstation     := InterpretYesNo(Param);
-           31: Winding^[ActiveWinding].MaxTap  := Parser.DblValue;
-           32: Winding^[ActiveWinding].MinTap  := Parser.DblValue;
-           33: Winding^[ActiveWinding].NumTaps := Parser.IntValue;
+           31: Winding^[ActiveWinding].MaxTap  := Parser[ActorID].DblValue;
+           32: Winding^[ActiveWinding].MinTap  := Parser[ActorID].DblValue;
+           33: Winding^[ActiveWinding].NumTaps := Parser[ActorID].IntValue;
            34: SubstationName   := Param;
-           35: pctImag          := Parser.DblValue;
-           36: ppm_FloatFactor  := Parser.DblValue * 1.0e-6;
+           35: pctImag          := Parser[ActorID].DblValue;
+           36: ppm_FloatFactor  := Parser[ActorID].DblValue * 1.0e-6;
            37: InterpretAllRs(Param);
            38: XfmrBank := Param;
            39: FetchXfmrCode (Param);
            40: XRConst := InterpretYesNo(Param);
-           41: XHL :=  TrapZero(parser.Dblvalue, 7.0) * 0.01;
-           42: XHT :=  TrapZero(parser.Dblvalue, 35.0) * 0.01;
-           43: XLT :=  TrapZero(parser.Dblvalue, 30.0) * 0.01;
+           41: XHL :=  TrapZero(parser[ActorID].Dblvalue, 7.0) * 0.01;
+           42: XHT :=  TrapZero(parser[ActorID].Dblvalue, 35.0) * 0.01;
+           43: XLT :=  TrapZero(parser[ActorID].Dblvalue, 30.0) * 0.01;
          ELSE
            // Inherited properties
               ClassEdit(ActiveTransfObj, ParamPointer - NumPropsThisClass)
@@ -532,8 +532,8 @@ Begin
          End;
 
          {Advance to next property on input line}
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);
@@ -1668,7 +1668,7 @@ begin
 
    S := S + ' NormHkVA='+Format(' %-.5g %-.5g',[NormMaxHkVA/FNPhases, EmergMaxHkVA/FNPhases]);
 
-  Parser.CmdString := S;
+  Parser[ActorID].CmdString := S;
   Edit(ActorID);
 
   inherited;

@@ -253,9 +253,9 @@ Begin
   WITH ActiveXYcurveObj DO Begin
 
      ParamPointer := 0;
-     ParamName    := Parser.NextParam;
+     ParamName    := Parser[ActorID].NextParam;
 
-     Param := Parser.StrValue;
+     Param := Parser[ActorID].StrValue;
      While Length(Param)>0 DO Begin
          IF Length(ParamName) = 0 Then Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -264,7 +264,7 @@ Begin
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 610);
-            1: NumPoints := Parser.Intvalue;
+            1: NumPoints := Parser[ActorID].Intvalue;
             2: Begin
                  ReAllocmem(TempPointsBuffer, Sizeof(TempPointsBuffer^[1]) * FNumPoints * 2);
                  // Allow possible Resetting (to a lower value) of num points when specifying temperatures not Hours
@@ -292,12 +292,12 @@ Begin
             5: DoCSVFile(Param);   // file of x,y points, one to a line
             6: DoSngFile(Param);
             7: DoDblFile(Param);
-            8: X := Parser.dblvalue;
-            9: Y := Parser.dblvalue;
-            10: FXshift := Parser.dblvalue;
-            11: FYshift := Parser.dblvalue;
-            12: FXscale := Parser.dblvalue;
-            13: FYscale := Parser.dblvalue;
+            8: X := Parser[ActorID].dblvalue;
+            9: Y := Parser[ActorID].dblvalue;
+            10: FXshift := Parser[ActorID].dblvalue;
+            11: FYshift := Parser[ActorID].dblvalue;
+            12: FXscale := Parser[ActorID].dblvalue;
+            13: FYscale := Parser[ActorID].dblvalue;
          ELSE
            // Inherited parameters
                ClassEdit( ActiveXYcurveObj, ParamPointer - NumPropsThisClass)
@@ -318,8 +318,8 @@ Begin
                  End;
          End;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End; {While}
 
   End; {WITH}

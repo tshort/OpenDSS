@@ -1012,7 +1012,7 @@ Begin
       End;
 
       // Check object name in case it is a variable
-      Parser.CheckforVar(ObjName);
+      Parser[ActiveActor].CheckforVar(ObjName);
 
 End;
 
@@ -2561,7 +2561,7 @@ Begin
    pLine := FromLine;
    while pLine <> NIL do Begin
      if (pLine.NPhases = NPhases) or (Nphases=0) then begin
-      Parser.CmdString := EditStr;
+      Parser[ActiveActor].CmdString := EditStr;
       pLine.Edit(ActiveActor);   // Uses Parser
      end;
      If pLine = ToLine then Break;
@@ -2887,7 +2887,7 @@ Begin
                         S := S + Format('Bus%d=%s ', [i, NewBusName]);
                     END;
                 End;
-             Parser.CmdString := S;
+             Parser[ActiveActor].CmdString := S;
              pCktElem.Edit(ActiveActor);
          End;
          pCktElem := CktElements.Next;
@@ -2967,7 +2967,7 @@ Begin
                     Begin
                         If (pCtrlElem.DSSObjType And CLASSMASK) = REG_CONTROL Then
                         Begin
-                            Parser.CmdString := Format('Transformer=%s',[pCktElem.Name]);
+                            Parser[ActiveActor].CmdString := Format('Transformer=%s',[pCktElem.Name]);
                             pCtrlElem.Edit(ActiveActor);
                         End;
                         pCtrlElem := pCktElem.ControlElementList.Next;
@@ -2986,7 +2986,7 @@ Begin
     For i  := 0 to ControlUpDatePtrs.Count-1 Do
      Begin
          pCktElem         := ControlUpDatePtrs.Items[i];
-         Parser.CmdString := ControlUpDateStrings.Strings[i];
+         Parser[ActiveActor].CmdString := ControlUpDateStrings.Strings[i];
          pCktElem.Edit(ActiveActor);
      End;
 

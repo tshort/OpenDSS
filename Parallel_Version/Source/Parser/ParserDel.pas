@@ -106,7 +106,7 @@ Type
        Property AutoIncrement:Boolean   read FAutoIncrement   write FAutoIncrement;
      end;
 
-     Var  Parser : TParser;
+     Var  //Parser : TParser;
           ParserVars : TParserVar;
 
 

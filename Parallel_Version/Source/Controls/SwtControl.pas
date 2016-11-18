@@ -159,8 +159,8 @@ Begin
   WITH ActiveSwtControlObj Do Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 Do Begin
          IF Length(ParamName) = 0
          THEN Inc(ParamPointer)
@@ -173,10 +173,10 @@ Begin
            {internal SwtControl Property commands}
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 382);
             1: ElementName     := lowercase(Param);
-            2: ElementTerminal := Parser.IntValue;
+            2: ElementTerminal := Parser[ActorID].IntValue;
             3: InterpretSwitchAction (param);
             4: Locked := InterpretYesNo (Param);
-            5: TimeDelay := Parser.DblValue;
+            5: TimeDelay := Parser[ActorID].DblValue;
             6: Begin    // set the normal state
                  InterpretSwitchAction (param);
                  NormalState := ActionCommand;
@@ -213,8 +213,8 @@ Begin
                 End;
          end;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);

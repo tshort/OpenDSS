@@ -29,7 +29,7 @@ implementation
 
 Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions,  PlotOptions,
      ExportOptions, ParserDel, LoadShape, DSSForms, sysutils, Utilities, SolutionAlgs,
-     DSSClassDefs, windows;
+     DSSClassDefs, windows, KLUSolve;
 
 
 PROCEDURE DefineCommands;
@@ -489,12 +489,12 @@ Begin
 
 {Load up the parser and process the first parameter only}
      LastCmdLine := CmdLine;
-     Parser.CmdString := LastCmdLine;  // Load up command parser
+     Parser[ActiveActor].CmdString := LastCmdLine;  // Load up command parser
      LastCommandWasCompile := False;
      
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      IF Length(Param)=0 THEN Exit;  // Skip blank line
 
    // Check for Command verb or Property Value
@@ -545,8 +545,8 @@ Begin
        70: CmdResult := DoCompareCasesCmd;
        71: CmdResult := DoYearlyCurvesCmd;
        72: Begin
-            ParamName := Parser.NextParam;
-            Param := Parser.StrValue;
+            ParamName := Parser[ActiveActor].NextParam;
+            Param := Parser[ActiveActor].StrValue;
             If SetCurrentDir(Param) Then Begin
                CmdResult := 0  ;
                SetDataPath(Param);  // change datadirectory
@@ -565,7 +565,9 @@ Begin
                 ActiveActor   :=  NumOfActors;
                 ActorCPU[ActiveActor] :=  ActiveActor -1;
                 DSSExecutive := TExecutive.Create;  // Make a DSS object
+                Parser[ActiveActor]   :=  TParser.Create;
                 DSSExecutive.CreateDefaultDSSItems;
+                Create_KLU_Actor;
               end
               else DoSimpleMsg('There are no more CPUs available', 7001)
             end;
@@ -593,7 +595,7 @@ Begin
        {If a command or no text beFORe the = sign, THEN error}
        IF (Length(ParamName)=0) OR (Comparetext(paramName,'command')=0) THEN
        Begin
-         DoSimpleMsg('Unknown Command: "' + Param + '" '+ CRLF + parser.CmdString, 302);
+         DoSimpleMsg('Unknown Command: "' + Param + '" '+ CRLF + parser[ActiveActor].CmdString, 302);
          CmdResult := 1;
        End ELSE
        Begin
@@ -603,7 +605,7 @@ Begin
          Begin
              // rebuild command line and pass to editor
              // use quotes to ensure first parameter is interpreted OK after rebuild
-             Parser.CmdString := PropName + '="' + Param + '" ' + Parser.Remainder;
+             Parser[ActiveActor].CmdString := PropName + '="' + Param + '" ' + Parser[ActiveActor].Remainder;
              ActiveDSSClass[ActiveActor].Edit(ActiveActor);
          End;
        End;
@@ -715,7 +717,7 @@ Begin
      End;
 
   EXCEPT
-    On E:Exception DO DoErrorMsg(('ProcessCommand'+CRLF+'Exception Raised While Processing DSS Command:'+ CRLF + parser.CmdString),
+    On E:Exception DO DoErrorMsg(('ProcessCommand'+CRLF+'Exception Raised While Processing DSS Command:'+ CRLF + parser[ActiveActor].CmdString),
                       E.Message,
                       'Error in command string or circuit data.' , 303);
   End;

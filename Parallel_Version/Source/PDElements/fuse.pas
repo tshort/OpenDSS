@@ -225,8 +225,8 @@ Begin
   WITH ActiveFuseObj Do Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 Do
       Begin
          IF Length(ParamName) = 0
@@ -239,12 +239,12 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"',402);
             1: MonitoredElementName     := lowercase(param);
-            2: MonitoredElementTerminal := Parser.IntValue;
+            2: MonitoredElementTerminal := Parser[ActorID].IntValue;
             3: ElementName     := lowercase(param);
-            4: ElementTerminal := Parser.IntValue;
+            4: ElementTerminal := Parser[ActorID].IntValue;
             5: FuseCurve := GetTCCCurve(Param);
-            6: RatedCurrent   := Parser.Dblvalue;
-            7: DelayTime   := Parser.DblValue;
+            6: RatedCurrent   := Parser[ActorID].Dblvalue;
+            7: DelayTime   := Parser[ActorID].DblValue;
             8: InterpretFuseAction(Param);
 
          ELSE
@@ -258,8 +258,8 @@ Begin
               2: ElementTerminal := MonitoredElementTerminal;
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);

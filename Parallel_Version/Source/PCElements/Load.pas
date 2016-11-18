@@ -553,8 +553,8 @@ Begin
 
   WITH ActiveLoadObj  DO Begin
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE   (Length(Param) > 0) DO Begin
          IF  (Length(ParamName) = 0) THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -563,52 +563,52 @@ Begin
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 580);
-            1: Nphases      := Parser.Intvalue; // num phases
+            1: Nphases      := Parser[ActorID].Intvalue; // num phases
             2: SetBus(1, param);
-            3: kVLoadBase   := Parser.DblValue;
-            4: kWBase       := Parser.DblValue;
-            5: PFNominal    := Parser.DblValue;
-            6: FLoadModel   := Parser.IntValue;
+            3: kVLoadBase   := Parser[ActorID].DblValue;
+            4: kWBase       := Parser[ActorID].DblValue;
+            5: PFNominal    := Parser[ActorID].DblValue;
+            6: FLoadModel   := Parser[ActorID].IntValue;
             7: YearlyShape  := Param;
             8: DailyShape   := Param;
             9: DutyShape    := Param;
            10: GrowthShape  := Param;
            11: InterpretConnection(Param);
-           12: kvarBase     := Parser.DblValue;
-           13: Rneut        := Parser.DblValue;
-           14: Xneut        := Parser.DblValue;
+           12: kvarBase     := Parser[ActorID].DblValue;
+           13: Rneut        := Parser[ActorID].DblValue;
+           14: Xneut        := Parser[ActorID].DblValue;
            15: CASE lowercase(Param)[1] OF
                   'f':Begin Fixed := TRUE;  ExemptFromLDCurve := FALSE; End;
                   'e':Begin Fixed := FALSE; ExemptFromLDCurve := TRUE;  End;
                ELSE
                             Fixed := FALSE; ExemptFromLDCurve := FALSE;
                END;
-           16: LoadClass     := Parser.IntValue;
-           17: VMinPu        := Parser.DblValue;
-           18: VMaxPu        := Parser.DblValue;
-           19: VminNormal    := Parser.DblValue;
-           20: VminEmerg     := Parser.DblValue;
-           21: ConnectedkVA  := Parser.DblValue;
-           22: kVAAllocationFactor := Parser.DblValue;
-           23: kVABase       := Parser.DblValue;
-           24: FpuMean       := Parser.DblValue/100.0;
-           25: FpuStdDev     := Parser.DblValue/100.0;
-           26: FCVRwattFactor:= Parser.DblValue;
-           27: FCVRvarFactor := Parser.DblValue;
-           28: kWh           := Parser.DblValue;
-           29: kWhdays       := Parser.DblValue;
-           30: Cfactor       := Parser.DblValue;
+           16: LoadClass     := Parser[ActorID].IntValue;
+           17: VMinPu        := Parser[ActorID].DblValue;
+           18: VMaxPu        := Parser[ActorID].DblValue;
+           19: VminNormal    := Parser[ActorID].DblValue;
+           20: VminEmerg     := Parser[ActorID].DblValue;
+           21: ConnectedkVA  := Parser[ActorID].DblValue;
+           22: kVAAllocationFactor := Parser[ActorID].DblValue;
+           23: kVABase       := Parser[ActorID].DblValue;
+           24: FpuMean       := Parser[ActorID].DblValue/100.0;
+           25: FpuStdDev     := Parser[ActorID].DblValue/100.0;
+           26: FCVRwattFactor:= Parser[ActorID].DblValue;
+           27: FCVRvarFactor := Parser[ActorID].DblValue;
+           28: kWh           := Parser[ActorID].DblValue;
+           29: kWhdays       := Parser[ActorID].DblValue;
+           30: Cfactor       := Parser[ActorID].DblValue;
            31: CVRShape      := Param;
-           32: NumCustomers  := Parser.IntValue;
+           32: NumCustomers  := Parser[ActorID].IntValue;
            33: Begin
                  SetZIPVSize (7);
-                 Parser.ParseAsVector (7, ZIPV);
+                 Parser[ActorID].ParseAsVector (7, ZIPV);
                End;
-           34: puSeriesRL    := Parser.DblValue / 100.0;
-           35: RelWeighting  := Parser.DblValue;
-           36: VLowpu        := Parser.DblValue;
-           37: FpuXHarm      := Parser.DblValue;  // 0 means not set
-           38: FXRharmRatio  := Parser.DblValue;
+           34: puSeriesRL    := Parser[ActorID].DblValue / 100.0;
+           35: RelWeighting  := Parser[ActorID].DblValue;
+           36: VLowpu        := Parser[ActorID].DblValue;
+           37: FpuXHarm      := Parser[ActorID].DblValue;  // 0 means not set
+           38: FXRharmRatio  := Parser[ActorID].DblValue;
 
          ELSE
            // Inherited edits
@@ -654,8 +654,8 @@ Begin
             31: CVRShapeObj := LoadShapeClass[ActorID].Find(CVRshape);
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);
@@ -2245,7 +2245,7 @@ begin
      S := S + Format(' xfkVA=%-.5g  ',[FConnectedkVA/3.0]);
 
 
-  Parser.CmdString := S;
+  Parser[ActorID].CmdString := S;
   Edit(ActorID);
 
   inherited;

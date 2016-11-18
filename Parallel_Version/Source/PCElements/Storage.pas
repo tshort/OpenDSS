@@ -657,8 +657,8 @@ Begin
   Begin
 
      ParamPointer := 0;
-     ParamName    := Parser.NextParam;  // Parse next property off the command line
-     Param        := Parser.StrValue;   // Put the string value of the property value in local memory for faster access
+     ParamName    := Parser[ActorID].NextParam;  // Parse next property off the command line
+     Param        := Parser[ActorID].StrValue;   // Put the string value of the property value in local memory for faster access
      While Length(Param)>0 Do
      Begin
 
@@ -674,44 +674,44 @@ Begin
              iCase := PropertyIdxMap[ParamPointer];
              CASE iCASE OF
                 0               : DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 561);
-                1               : NPhases    := Parser.Intvalue; // num phases
+                1               : NPhases    := Parser[ActorID].Intvalue; // num phases
                 2               : SetBus(1, param);
-               propKV           : PresentkV    := Parser.DblValue;
-               propKW           : PresentkW    := Parser.DblValue;
-               propPF           : PFNominal    := Parser.DblValue;
-               propMODEL        : VoltageModel := Parser.IntValue;
+               propKV           : PresentkV    := Parser[ActorID].DblValue;
+               propKW           : PresentkW    := Parser[ActorID].DblValue;
+               propPF           : PFNominal    := Parser[ActorID].DblValue;
+               propMODEL        : VoltageModel := Parser[ActorID].IntValue;
                propYEARLY       : YearlyShape  := Param;
                propDAILY        : DailyShape  := Param;
                propDUTY         : DutyShape     := Param;
                propDISPMODE     : DispatchMode  := InterpretDispMode(Param);
-               propIDLEKVAR     : pctIdlekvar   := Parser.DblValue;
+               propIDLEKVAR     : pctIdlekvar   := Parser[ActorID].DblValue;
                propCONNECTION   : InterpretConnection(Param);
-               propKVAR         : Presentkvar   := Parser.DblValue;
-               propPCTR         : pctR          := Parser.DblValue;
-               propPCTX         : pctX          := Parser.DblValue;
-               propIDLEKW       : pctIdlekW     := Parser.DblValue;
-               propCLASS        : StorageClass  := Parser.IntValue;
-               propDISPOUTTRIG  : DischargeTrigger := Parser.DblValue;
-               propDISPINTRIG   : ChargeTrigger    := Parser.DblValue;
-               propCHARGEEFF    : pctChargeEff     := Parser.DblValue;
-               propDISCHARGEEFF : pctDischargeEff   := Parser.DblValue;
-               propPCTKWOUT     : pctkWout     := Parser.DblValue;
-               propVMINPU       : VMinPu       := Parser.DblValue;
-               propVMAXPU       : VMaxPu       := Parser.DblValue;
+               propKVAR         : Presentkvar   := Parser[ActorID].DblValue;
+               propPCTR         : pctR          := Parser[ActorID].DblValue;
+               propPCTX         : pctX          := Parser[ActorID].DblValue;
+               propIDLEKW       : pctIdlekW     := Parser[ActorID].DblValue;
+               propCLASS        : StorageClass  := Parser[ActorID].IntValue;
+               propDISPOUTTRIG  : DischargeTrigger := Parser[ActorID].DblValue;
+               propDISPINTRIG   : ChargeTrigger    := Parser[ActorID].DblValue;
+               propCHARGEEFF    : pctChargeEff     := Parser[ActorID].DblValue;
+               propDISCHARGEEFF : pctDischargeEff   := Parser[ActorID].DblValue;
+               propPCTKWOUT     : pctkWout     := Parser[ActorID].DblValue;
+               propVMINPU       : VMinPu       := Parser[ActorID].DblValue;
+               propVMAXPU       : VMaxPu       := Parser[ActorID].DblValue;
                propSTATE        : FState       := InterpretState(Param); //****
-               propKVA          : StorageVars.kVArating    := Parser.DblValue;
-               propKWRATED      : StorageVars.kWrating      := Parser.DblValue ;
-               propKWHRATED     : StorageVars.kWhrating    := Parser.DblValue;
-               propKWHSTORED    : StorageVars.kWhstored    := Parser.DblValue;
-               propPCTRESERVE   : pctReserve    := Parser.DblValue;
-               propUSERMODEL    : UserModel.Name := Parser.StrValue;  // Connect to user written models
-               propUSERDATA     : UserModel.Edit := Parser.StrValue;  // Send edit string to user model
+               propKVA          : StorageVars.kVArating    := Parser[ActorID].DblValue;
+               propKWRATED      : StorageVars.kWrating      := Parser[ActorID].DblValue ;
+               propKWHRATED     : StorageVars.kWhrating    := Parser[ActorID].DblValue;
+               propKWHSTORED    : StorageVars.kWhstored    := Parser[ActorID].DblValue;
+               propPCTRESERVE   : pctReserve    := Parser[ActorID].DblValue;
+               propUSERMODEL    : UserModel.Name := Parser[ActorID].StrValue;  // Connect to user written models
+               propUSERDATA     : UserModel.Edit := Parser[ActorID].StrValue;  // Send edit string to user model
                propDEBUGTRACE   : DebugTrace   := InterpretYesNo(Param);
-               propPCTKWIN      : pctkWIn     := Parser.DblValue;
-               propPCTSTORED    : StorageVars.kWhStored   := Parser.DblValue * 0.01 * StorageVars.kWhRating;
-               propCHARGETIME   : ChargeTime := Parser.DblValue;
-               propDynaDLL      : DynaModel.Name := Parser.StrValue;
-               propDynaData     : DynaModel.Edit := Parser.StrValue;
+               propPCTKWIN      : pctkWIn     := Parser[ActorID].DblValue;
+               propPCTSTORED    : StorageVars.kWhStored   := Parser[ActorID].DblValue * 0.01 * StorageVars.kWhRating;
+               propCHARGETIME   : ChargeTime := Parser[ActorID].DblValue;
+               propDynaDLL      : DynaModel.Name := Parser[ActorID].StrValue;
+               propDynaData     : DynaModel.Edit := Parser[ActorID].StrValue;
                propBalanced     : ForceBalanced  := InterpretYesNo(Param);
                propLimited      : CurrentLimited := InterpretYesNo(Param);
 
@@ -758,8 +758,8 @@ Begin
              END;
          End;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);
@@ -2702,7 +2702,7 @@ Begin
        S := S + Format(' kWrating=%-.5g  PF=%-.5g',[StorageVars.kWrating/Fnphases, PFNominal]);
   End;
 
-  Parser.CmdString := S;
+  Parser[ActorID].CmdString := S;
   Edit(ActorID);
 
   inherited;   // write out other properties

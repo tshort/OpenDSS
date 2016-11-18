@@ -167,7 +167,7 @@ begin
                                    {Redefine bus connection for PC elements hanging on the bus that is eliminated}
                                    LoadElement :=  ParentNode.FirstShuntObject;
                                    While LoadElement <> Nil Do  Begin
-                                     Parser.CmdString := 'bus1="' +ActiveCircuit[ActiveActor].BusList.Get(ToBusReference)+'"';
+                                     Parser[ActiveActor].CmdString := 'bus1="' +ActiveCircuit[ActiveActor].BusList.Get(ToBusReference)+'"';
                                      LoadElement.Edit(ActiveActor);
                                      LoadElement :=  ParentNode.NextShuntObject;
                                    End;  {While}
@@ -186,7 +186,7 @@ begin
                                {Redefine bus connection to upline bus}
                                LoadElement :=  FirstChildBranch.FirstShuntObject;
                                While LoadElement <> Nil Do Begin
-                                 Parser.CmdString := 'bus1="' +ActiveCircuit[ActiveActor].BusList.Get(FromBusReference)+'"';
+                                 Parser[ActiveActor].CmdString := 'bus1="' +ActiveCircuit[ActiveActor].BusList.Get(FromBusReference)+'"';
                                  LoadElement.Edit(ActiveActor);
                                  LoadElement :=  FirstChildBranch.NextShuntObject;
                                End;  {While}

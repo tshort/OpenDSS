@@ -203,7 +203,7 @@ Type
         Procedure OpenVoltageReportFile;
         Procedure WriteOverloadReport(ActorID : Integer);
         Procedure WriteVoltageReport;
-        Procedure InterpretRegisterMaskArray(Var Mask:TRegisterArray);
+        Procedure InterpretRegisterMaskArray(Var Mask:TRegisterArray; ActorID : Integer);
         procedure Set_DI_Verbose(const Value: Boolean);
 
      Protected
@@ -631,8 +631,8 @@ Begin
 
      MeteredElementChanged := FALSE;
      ParamPointer := 0;
-     ParamName    := Parser.NextParam;
-     Param        := Parser.StrValue;
+     ParamName    := Parser[ActorID].NextParam;
+     Param        := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          IF   (Length(ParamName) = 0)
@@ -645,7 +645,7 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 520);
             1: ElementName := lowercase(param);
-            2: MeteredTerminal := Parser.IntValue;
+            2: MeteredTerminal := Parser[ActorID].IntValue;
             3: Begin  {Actions}
                   param := lowercase(param);
                   CASE param[1] of
@@ -658,12 +658,12 @@ Begin
                   End;
                End;
             4: ProcessOptions(Param);
-            5: MaxZonekVA_Norm  := Parser.DblValue;
-            6: MaxZonekVA_Emerg := Parser.DblValue;
-            7: parser.ParseAsVector(Fnphases, SensorCurrent);   // Inits to zero
+            5: MaxZonekVA_Norm  := Parser[ActorID].DblValue;
+            6: MaxZonekVA_Emerg := Parser[ActorID].DblValue;
+            7: parser[ActorID].ParseAsVector(Fnphases, SensorCurrent);   // Inits to zero
             8: InterpretAndAllocStrArray(Param, DefinedZoneListSize, DefinedZoneList);
             9: LocalOnly := InterpretYesNo(Param);
-           10: InterpretRegisterMaskArray(TotalsMask);
+           10: InterpretRegisterMaskArray(TotalsMask, ActorID);
            11: FLosses        := InterpretYesNo(Param);
            12: FLineLosses    := InterpretYesNo(Param);
            13: FXfmrLosses    := InterpretYesNo(Param);
@@ -671,8 +671,8 @@ Begin
            15: F3PhaseLosses  := InterpretYesNo(Param);
            16: FVBaseLosses   := InterpretYesNo(Param);
            17: FPhaseVoltageReport  := InterpretYesNo(Param);
-           18: Source_NumInterruptions  := Parser.dblvalue; // Annual interruptions for upline circuit
-           19: Source_IntDuration       := Parser.dblValue; // hours
+           18: Source_NumInterruptions  := Parser[ActorID].dblvalue; // Annual interruptions for upline circuit
+           19: Source_IntDuration       := Parser[ActorID].dblValue; // hours
            20: PropertyValue[20] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
            21: PropertyValue[21] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
            22: PropertyValue[22] := '';  // placeholder, do nothing just throw value away if someone tries to set it.
@@ -691,8 +691,8 @@ Begin
              (****11: If HasFeeder Then DoRecalc := True Else RemoveFeederObj; *)
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      If DoRecalc Then RecalcElementData(ActorID);   // When some basic data have changed
@@ -2734,7 +2734,7 @@ begin
                      LoadElement := TLoadObj(shuntElement);
                      If LoadElement.HasBeenAllocated Then Begin
                        {Manually set the allocation factor so it shows up}
-                       Parser.CmdString := 'allocationfactor='+Format('%-.4g',[LoadElement.AllocationFactor]);
+                       Parser[ActiveActor].CmdString := 'allocationfactor='+Format('%-.4g',[LoadElement.AllocationFactor]);
                        LoadElement.Edit(ActiveActor);
                      End;
                      ActiveCktElement := shuntElement; // reset in case Edit mangles it
@@ -3500,11 +3500,11 @@ begin
 
 end;
 
-procedure TEnergyMeter.InterpretRegisterMaskArray(Var Mask: TRegisterArray);
+procedure TEnergyMeter.InterpretRegisterMaskArray(Var Mask: TRegisterArray; ActorID : Integer);
 
 Var i,n:integer;
 begin
-     n := Parser.ParseAsVector(NumEMRegisters, @Mask);
+     n := Parser[ActorID].ParseAsVector(NumEMRegisters, @Mask);
      For i := n+1 to NumEMRegisters Do Mask[i] := 1.0;  // Set the rest to 1
 end;
 

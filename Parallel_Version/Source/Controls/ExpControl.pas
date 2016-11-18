@@ -218,8 +218,8 @@ Begin
   Result := 0;
   WITH ActiveExpControlObj do Begin
     ParamPointer := 0;
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActorID].NextParam;
+    Param := Parser[ActorID].StrValue;
     WHILE Length(Param)>0 do Begin
       IF Length(ParamName) = 0 THEN Inc(ParamPointer)
       ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -234,22 +234,22 @@ Begin
            FPVSystemPointerList.Clear; // clear this for resetting on first sample
            FListSize := FPVSystemNameList.count;
            end;
-        2: If Parser.DblValue > 0 then FVregInit := Parser.DblValue;
-        3: If Parser.DblValue > 0 then FSlope := Parser.DblValue;
-        4: If Parser.DblValue >= 0 then FVregTau := Parser.DblValue; // zero means fixed Vreg
-        5: FQbias := Parser.DblValue;
-        6: If Parser.DblValue > 0 then FVregMin := Parser.DblValue;
-        7: If Parser.DblValue > 0 then FVregMax := Parser.DblValue;
-        8: If Parser.DblValue >= 0 then FQmaxLead := Parser.DblValue;
-        9: If Parser.DblValue >= 0 then FQmaxLag := Parser.DblValue;
+        2: If Parser[ActorID].DblValue > 0 then FVregInit := Parser[ActorID].DblValue;
+        3: If Parser[ActorID].DblValue > 0 then FSlope := Parser[ActorID].DblValue;
+        4: If Parser[ActorID].DblValue >= 0 then FVregTau := Parser[ActorID].DblValue; // zero means fixed Vreg
+        5: FQbias := Parser[ActorID].DblValue;
+        6: If Parser[ActorID].DblValue > 0 then FVregMin := Parser[ActorID].DblValue;
+        7: If Parser[ActorID].DblValue > 0 then FVregMax := Parser[ActorID].DblValue;
+        8: If Parser[ActorID].DblValue >= 0 then FQmaxLead := Parser[ActorID].DblValue;
+        9: If Parser[ActorID].DblValue >= 0 then FQmaxLag := Parser[ActorID].DblValue;
        10: ShowEventLog := InterpretYesNo(param);
-       11: FdeltaQ_factor := Parser.DblValue;
+       11: FdeltaQ_factor := Parser[ActorID].DblValue;
       ELSE
         // Inherited parameters
         ClassEdit( ActiveExpControlObj, ParamPointer - NumPropsthisClass)
       End;
-      ParamName := Parser.NextParam;
-      Param := Parser.StrValue;
+      ParamName := Parser[ActorID].NextParam;
+      Param := Parser[ActorID].StrValue;
     End;
     RecalcElementData(ActorID);
   End;

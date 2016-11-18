@@ -83,7 +83,7 @@ BEGIN
   WITH TPCElement(ActivePCObj) DO BEGIN
 
       CASE ParamPointer OF
-          1: Spectrum := Parser.StrValue;
+          1: Spectrum := Parser[ActiveActor].StrValue;
       ELSE
         Inherited ClassEdit(ActivePCObj, ParamPointer - NumPCClassProps)
       END;

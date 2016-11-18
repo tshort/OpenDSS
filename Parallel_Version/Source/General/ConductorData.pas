@@ -137,16 +137,16 @@ BEGIN
   If ParamPointer > 0 Then
     WITH TConductorDataObj(ActiveObj) DO BEGIN
       CASE ParamPointer OF
-        1: FRDC             := Parser.Dblvalue;
-        2: FR60             := Parser.DblValue;
-        3: FresistanceUnits := GetUnitsCode(Parser.StrValue);
-        4: FGMR60           := Parser.DblValue;
-        5: FGMRUnits        := GetUnitsCode(Parser.StrValue);
-        6: Fradius          := Parser.DblValue;
-        7: FRadiusUnits     := GetUnitsCode(Parser.StrValue);
-        8: NormAmps         := Parser.DblValue ;
-        9: EmergAmps        := Parser.DblValue ;
-       10: Fradius          := Parser.DblValue / 2.0;
+        1: FRDC             := Parser[ActiveActor].Dblvalue;
+        2: FR60             := Parser[ActiveActor].DblValue;
+        3: FresistanceUnits := GetUnitsCode(Parser[ActiveActor].StrValue);
+        4: FGMR60           := Parser[ActiveActor].DblValue;
+        5: FGMRUnits        := GetUnitsCode(Parser[ActiveActor].StrValue);
+        6: Fradius          := Parser[ActiveActor].DblValue;
+        7: FRadiusUnits     := GetUnitsCode(Parser[ActiveActor].StrValue);
+        8: NormAmps         := Parser[ActiveActor].DblValue ;
+        9: EmergAmps        := Parser[ActiveActor].DblValue ;
+       10: Fradius          := Parser[ActiveActor].DblValue / 2.0;
       ELSE
         Inherited ClassEdit(ActiveObj, ParamPointer - NumConductorClassProps)
       END;

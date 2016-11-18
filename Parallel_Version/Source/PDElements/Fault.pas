@@ -46,7 +46,7 @@ TYPE
 
    TFault = class(TPDClass)
      private
-       Procedure DoGmatrix;
+       Procedure DoGmatrix(ActorID : Integer);
 
         Procedure FltSetBus1( const s:String);
      Protected
@@ -193,7 +193,7 @@ END;
 
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Procedure TFault.DoGmatrix;
+Procedure TFault.DoGmatrix(ActorID : Integer);
 VAR
     OrderFound, j:Integer;
     MatBuffer:pDoubleArray;
@@ -201,7 +201,7 @@ VAR
 BEGIN
    WITH ActiveFaultObj DO BEGIN
      MatBuffer := Allocmem(Sizeof(double)*Fnphases*Fnphases);
-     OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+     OrderFound := Parser[ActorID].ParseAsSymMatrix(Fnphases, MatBuffer);
 
      If OrderFound>0 THEN    // Parse was successful
      BEGIN    {X}
@@ -265,8 +265,8 @@ BEGIN
   WITH ActiveFaultObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -279,14 +279,14 @@ BEGIN
             2: Setbus(2, param);
             3: ;{Numphases := Parser.IntValue;}  // see below
             4: BEGIN
-                 G := Parser.Dblvalue;
+                 G := Parser[ActorID].Dblvalue;
                  IF G<>0.0 THEN G := 1.0/G ELSE G := 10000.0;  // Default to a low resistance
                END;
-            5: StdDev := Parser.Dblvalue* 0.01;
-            6: DoGmatrix;
-            7: ON_Time := Parser.Dblvalue;
+            5: StdDev := Parser[ActorID].Dblvalue* 0.01;
+            6: DoGmatrix(ActorID);
+            7: ON_Time := Parser[ActorID].Dblvalue;
             8: IsTemporary := InterpretYesNo(Param);
-            9: MinAmps := Parser.DblValue;
+            9: MinAmps := Parser[ActorID].DblValue;
          ELSE
            // Inherited
               ClassEdit(ActiveFaultObj, ParamPointer - NumPropsThisClass)
@@ -301,7 +301,7 @@ BEGIN
                 Bus2Defined := TRUE;
             End;
           3: Begin
-               PhasesTemp := Parser.IntValue;
+               PhasesTemp := Parser[ActorID].IntValue;
                IF Fnphases <> PhasesTemp THEN BEGIN
                  Nphases := PhasesTemp;
                  NConds := Fnphases;  // Force Reallocation of terminal info
@@ -320,8 +320,8 @@ BEGIN
          ELSE
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END;
 
      RecalcElementData(ActorID);
@@ -722,7 +722,7 @@ procedure TFaultObj.MakePosSequence(ActorID : Integer);
 begin
   IF FnPhases<>1 Then
   Begin
-    Parser.CmdString := 'Phases=1';
+    Parser[ActorID].CmdString := 'Phases=1';
     Edit(ActorID);
   End;
   inherited;

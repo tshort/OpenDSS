@@ -2599,9 +2599,9 @@ Begin
      Exit;
   End;
   // this compresses the entries if necessary - no extra work if already solved
-  FactorSparseMatrix (hY);
-  GetNNZ (hY, @nNZ);
-  GetSize (hY, @nBus); // we should already know this
+  FactorSparseMatrix[ActiveActor](hY);
+  GetNNZ[ActiveActor](hY, @nNZ);
+  GetSize[ActiveActor](hY, @nBus); // we should already know this
 
   Try
      Assignfile(F,FileNm);
@@ -2610,7 +2610,7 @@ Begin
      SetLength (ColPtr, nBus + 1);
      SetLength (RowIdx, nNZ);
      SetLength (cVals, nNZ);
-     GetCompressedMatrix (hY, nBus + 1, nNZ, @ColPtr[0], @RowIdx[0], @cVals[0]);
+     GetCompressedMatrix[ActiveActor](hY, nBus + 1, nNZ, @ColPtr[0], @RowIdx[0], @cVals[0]);
 
      {Write out fully qualified Bus Names}
       With ActiveCircuit[ActiveActor] Do Begin

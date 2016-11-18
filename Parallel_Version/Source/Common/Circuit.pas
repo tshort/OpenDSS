@@ -262,7 +262,7 @@ TYPE
 
           Function Save(Dir:String): Boolean;
 
-          Procedure ProcessBusDefs;
+          Procedure ProcessBusDefs(ActorID : Integer);
           Procedure ReProcessBusDefs(ActorID : Integer);
           Procedure DoResetMeterZones(ActorID : Integer);
           Function  SetElementActive(Const FullObjectName:String) : Integer;
@@ -551,7 +551,7 @@ BEGIN
 END;
 
 //----------------------------------------------------------------------------
-Procedure TDSSCircuit.ProcessBusDefs;
+Procedure TDSSCircuit.ProcessBusDefs(ActorID : Integer);
 VAR
    BusName:String;
    NNodes, NP,  Ncond, i, j, iTerm, RetVal:Integer;
@@ -563,7 +563,7 @@ BEGIN
       np    := NPhases;
       Ncond := NConds;
 
-      Parser.Token := FirstBus;     // use parser functions to decode
+      Parser[ActorID].Token := FirstBus;     // use parser functions to decode
       FOR iTerm := 1 to Nterms DO
         BEGIN
            NodesOK := TRUE;
@@ -575,7 +575,7 @@ BEGIN
            For i := np + 1 to NCond DO NodeBuffer^[i] := 0;
 
            // Parser will override bus connection if any specified
-           BusName :=  Parser.ParseAsBusName(NNodes, NodeBuffer);
+           BusName :=  Parser[ActorID].ParseAsBusName(NNodes, NodeBuffer);
 
            // Check for error in node specification
            For j := 1 to NNodes Do
@@ -584,7 +584,7 @@ BEGIN
                Begin
                    retval := DSSMessageDlg('Error in Node specification for Element: "'
                      +ParentClass.Name+'.'+Name+'"'+CRLF+
-                     'Bus Spec: "'+Parser.Token+'"',FALSE);
+                     'Bus Spec: "'+Parser[ActorID].Token+'"',FALSE);
                    NodesOK := FALSE;
                    If  retval=-1 Then Begin
                        AbortBusProcess := TRUE;
@@ -605,7 +605,7 @@ BEGIN
              ActiveTerminal.BusRef := AddBus(BusName,   Ncond);
              SetNodeRef(iTerm, NodeBuffer);  // for active circuit
            End;
-           Parser.Token := NextBus;
+           Parser[ActorID].Token := NextBus;
          END;
      END;
 END;
@@ -884,7 +884,7 @@ BEGIN
      CktElementSave := ActiveCktElement;
      ActiveCktElement := CktElements.First;
      WHILE ActiveCktElement <> nil DO  BEGIN
-       IF ActiveCktElement.Enabled THEN ProcessBusDefs;
+       IF ActiveCktElement.Enabled THEN ProcessBusDefs(ActorID);
        IF AbortBusProcess then Exit;
        ActiveCktElement := CktElements.Next;
      END;

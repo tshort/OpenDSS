@@ -300,8 +300,8 @@ BEGIN
   WITH ActiveLoadShapeObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -310,8 +310,8 @@ BEGIN
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 610);
-            1: NumPoints := Parser.Intvalue;
-            2: Interval := Parser.DblValue;
+            1: NumPoints := Parser[ActorID].Intvalue;
+            2: Interval := Parser[ActorID].DblValue;
             3: BEGIN
                  ReAllocmem(PMultipliers, Sizeof(PMultipliers^[1])*NumPoints);
                  // Allow possible Resetting (to a lower value) of num points when specifying multipliers not Hours
@@ -322,8 +322,8 @@ BEGIN
                  InterpretDblArray(Param, NumPoints, Hours);   // Parser.ParseAsVector(Npts, Hours);
                  Interval := 0.0;
                END;
-            5: Mean := Parser.DblValue;
-            6: StdDev := Parser.DblValue;
+            5: Mean := Parser[ActorID].DblValue;
+            6: StdDev := Parser[ActorID].DblValue;
             7: DoCSVFile(Param);
             8: DoSngFile(Param);
             9: DoDblFile(Param);
@@ -337,12 +337,12 @@ BEGIN
                  InterpretDblArray(Param, NumPoints, QMultipliers);   // Parser.ParseAsVector(Npts, Multipliers);
                END;
            12: UseActual := InterpretYesNo(Param);
-           13: MaxP := Parser.DblValue;
-           14: MaxQ := Parser.DblValue;
-           15: Interval := Parser.DblValue / 3600.0;  // Convert seconds to hr
-           16: Interval := Parser.DblValue / 60.0;  // Convert minutes to hr
-           17: BaseP := Parser.DblValue;
-           18: BaseQ := Parser.DblValue;
+           13: MaxP := Parser[ActorID].DblValue;
+           14: MaxQ := Parser[ActorID].DblValue;
+           15: Interval := Parser[ActorID].DblValue / 3600.0;  // Convert seconds to hr
+           16: Interval := Parser[ActorID].DblValue / 60.0;  // Convert minutes to hr
+           17: BaseP := Parser[ActorID].DblValue;
+           18: BaseQ := Parser[ActorID].DblValue;
            19: BEGIN   // same as mult
                  ReAllocmem(PMultipliers, Sizeof(PMultipliers^[1])*NumPoints);
                  // Allow possible Resetting (to a lower value) of num points when specifying multipliers not Hours
@@ -365,8 +365,8 @@ BEGIN
 
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END; {WHILE}
 
      If Assigned(PMultipliers) then  SetMaxPandQ;

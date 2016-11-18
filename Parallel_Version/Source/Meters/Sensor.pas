@@ -243,8 +243,8 @@ Begin
   WITH ActiveSensorObj DO Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -254,17 +254,17 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 661);
             1: ElementName := lowercase(param);
-            2: MeteredTerminal := Parser.IntValue;
-            3: kVBase := Parser.DblValue;
+            2: MeteredTerminal := Parser[ActorID].IntValue;
+            3: kVBase := Parser[ActorID].DblValue;
             4: ClearSpecified := InterpretYesNo(Param);
-            5: Parser.ParseAsVector(Fnphases, SensorVoltage);  // Inits to zero
-            6: Parser.ParseAsVector(Fnphases, SensorCurrent);  // Inits to zero
-            7: Parser.ParseAsVector(Fnphases, SensorkW );
-            8: Parser.ParseAsVector(Fnphases, Sensorkvar );
+            5: Parser[ActorID].ParseAsVector(Fnphases, SensorVoltage);  // Inits to zero
+            6: Parser[ActorID].ParseAsVector(Fnphases, SensorCurrent);  // Inits to zero
+            7: Parser[ActorID].ParseAsVector(Fnphases, SensorkW );
+            8: Parser[ActorID].ParseAsVector(Fnphases, Sensorkvar );
             9: Conn         := InterpretConnection(Param);
-           10: FDeltaDirection := LimitToPlusMinusOne(Parser.IntValue);
-           11: pctError     := Parser.dblValue;
-           12: Weight       := Parser.dblValue;
+           10: FDeltaDirection := LimitToPlusMinusOne(Parser[ActorID].IntValue);
+           11: pctError     := Parser[ActorID].dblValue;
+           12: Weight       := Parser[ActorID].dblValue;
            13: Action       := Param;  // Put sq error in Global Result
          ELSE
            // Inherited parameters
@@ -289,8 +289,8 @@ Begin
              10: DoRecalcElementData := TRUE;
          end;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      If DoRecalcElementData Then RecalcElementData(ActorID);

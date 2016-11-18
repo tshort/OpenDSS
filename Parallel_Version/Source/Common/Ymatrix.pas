@@ -27,7 +27,7 @@ TYPE
 
 
 PROCEDURE BuildYMatrix(BuildOption :Integer; AllocateVI:Boolean; ActorID : Integer);
-PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer);
+PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer; ActorID : Integer);
 PROCEDURE InitializeNodeVbase(ActorID : Integer);
 
 Function CheckYMatrixforZeroes(ActorID : Integer):String;
@@ -83,20 +83,20 @@ End;
 
 
 //= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer);
+PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer; ActorID : Integer);
 
 
 Begin
 
      IF hY<>0 THEN Begin
-         IF DeleteSparseSet(hY) < 1  {Get rid of existing one beFore making a new one}
+         IF DeleteSparseSet[ActorID](hY) < 1  {Get rid of existing one beFore making a new one}
          THEN Raise EEsolv32Problem.Create('Error Deleting System Y Matrix in ResetSparseMatrix. Problem with Sparse matrix solver.');
 
          hY := 0;
      End;
 
      // Make a new sparse set
-     hY := NewSparseSet(Size);
+     hY := NewSparseSet[ActorID](Size);
      If hY<1 THEN Begin   // Raise and exception
         Raise EEsolv32Problem.Create('Error Creating System Y Matrix. Problem WITH Sparse matrix solver.');
      End;
@@ -110,7 +110,7 @@ Var
 
 Begin
 
-    WITH ActiveCircuit[ActorID], Solution  Do Begin
+    WITH ActiveCircuit[ActorID], ActiveCircuit[ActorID].Solution  Do Begin
        FOR i := 1 to NumNodes Do
          WITH MapNodeToBus^[i]  Do
          Begin
@@ -125,9 +125,9 @@ PROCEDURE BuildYMatrix(BuildOption :Integer; AllocateVI:Boolean; ActorID : Integ
 {Builds designated Y matrix for system and allocates solution arrays}
 
 VAR
-   YMatrixsize:Integer;
-   CmatArray:pComplexArray;
-   pElem:TDSSCktElement;
+   YMatrixsize  :Integer;
+   CmatArray    :pComplexArray;
+   pElem        :TDSSCktElement;
 
    //{****} FTrace: TextFile;
 
@@ -152,11 +152,11 @@ Begin
 
      Case BuildOption of
          WHOLEMATRIX: begin
-           ResetSparseMatrix (hYsystem, YMatrixSize);
+           ResetSparseMatrix (hYsystem, YMatrixSize, ActorID);
            hY := hYsystem;
          end;
          SERIESONLY: begin
-           ResetSparseMatrix (hYseries, YMatrixSize);
+           ResetSparseMatrix (hYseries, YMatrixSize, ActorID);
            hY := hYSeries;
          end;
      End;
@@ -189,7 +189,7 @@ Begin
            End;
            // new function adding primitive Y matrix to KLU system Y matrix
            if CMatArray <> Nil then
-              if AddPrimitiveMatrix (hY, Yorder, @NodeRef[1], @CMatArray[1]) < 1 then
+              if AddPrimitiveMatrix[ActorID](hY, Yorder, @NodeRef[1], @CMatArray[1]) < 1 then
                  Raise EEsolv32Problem.Create('Node index out of range adding to System Y Matrix')
          End;   // If Enabled
          pElem := CktElements.Next;
@@ -248,20 +248,20 @@ Begin
   With ActiveCircuit[ActorID] Do begin
     hY := Solution.hY;
     For i := 1 to Numnodes Do Begin
-       GetMatrixElement(hY, i, i, @c);
+       GetMatrixElement[ActorID](hY, i, i, @c);
        If Cabs(C)=0.0 Then With MapNodeToBus^[i] Do Begin
            Result := Result + Format('%sZero diagonal for bus %s, node %d',[CRLF, BusList.Get(Busref), NodeNum]);
        End;
     End;
 
     // new diagnostics
-    GetSingularCol (hY, @sCol); // returns a 1-based node number
+    GetSingularCol[ActorID](hY, @sCol); // returns a 1-based node number
     if sCol > 0 then With MapNodeToBus^[sCol] Do Begin
       Result := Result + Format('%sMatrix singularity at bus %s, node %d',[CRLF, BusList.Get(Busref), sCol]);
     end;
 
     SetLength (Cliques, NumNodes);
-    nIslands := FindIslands (hY, NumNodes, @Cliques[0]);
+    nIslands := FindIslands[ActorID](hY, NumNodes, @Cliques[0]);
     if nIslands > 1 then begin
       Result := Result + Format('%sFound %d electrical islands:', [CRLF, nIslands]);
       for i:= 1 to nIslands do begin

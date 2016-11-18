@@ -110,8 +110,8 @@ BEGIN
   ActiveDSSObject[ActorID] := ActiveConductorDataObj;
   WITH TTSDataObj(ActiveConductorDataObj) DO BEGIN
     ParamPointer := 0;
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActorID].NextParam;
+    Param := Parser[ActorID].StrValue;
     WHILE Length(Param)>0 DO BEGIN
       IF Length(ParamName) = 0 THEN Inc(ParamPointer)
       ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -120,9 +120,9 @@ BEGIN
 
       CASE ParamPointer OF
         0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 101);
-        1: FDiaShield := Parser.DblValue;
-        2: FTapeLayer := Parser.DblValue;
-        3: FTapeLap := Parser.DblValue;
+        1: FDiaShield := Parser[ActorID].DblValue;
+        2: FTapeLayer := Parser[ActorID].DblValue;
+        3: FTapeLap := Parser[ActorID].DblValue;
       ELSE
         // Inherited parameters
         ClassEdit(ActiveConductorDataObj, ParamPointer - NumPropsThisClass)
@@ -134,8 +134,8 @@ BEGIN
         2: If (FTapeLayer <= 0.0) Then DoSimpleMsg('Error: Tape shield thickness must be positive for TapeShieldData ' + Name,999);
         3: If ((FTapeLap < 0.0) Or (FTapeLap > 100.0)) Then DoSimpleMsg('Error: Tap lap must range from 0 to 100 for TapeShieldData ' + Name,999);
       END;
-      ParamName := Parser.NextParam;
-      Param := Parser.StrValue;
+      ParamName := Parser[ActorID].NextParam;
+      Param := Parser[ActorID].StrValue;
     END;
   END;
 END;

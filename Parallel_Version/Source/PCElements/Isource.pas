@@ -214,8 +214,8 @@ Begin
   WITH ActiveIsourceObj DO Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param     := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param     := Parser[ActorID].StrValue;
      WHILE Length(Param) > 0 DO Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -225,11 +225,11 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 330);
             1: SetBus(1, param);
-            2: Amps     := Parser.DblValue;
-            3: Angle     := Parser.DblValue; // Ang
-            4: SrcFrequency     := Parser.DblValue; // freq
+            2: Amps     := Parser[ActorID].DblValue;
+            3: Angle     := Parser[ActorID].DblValue; // Ang
+            4: SrcFrequency     := Parser[ActorID].DblValue; // freq
             5: Begin
-                 Nphases   := Parser.IntValue; // num phases
+                 Nphases   := Parser[ActorID].IntValue; // num phases
                  Case FNphases of
                         1: FphaseShift := 0.0;
                         2,3: FphaseShift := 120.0;
@@ -270,8 +270,8 @@ Begin
                  End;
              10: DutyShapeObj := LoadShapeClass[ActorID].Find(DutyShape);
          END;
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);
@@ -580,7 +580,7 @@ begin
 
   If Fnphases>1 Then
   Begin
-     Parser.CmdString := 'phases=1';
+     Parser[ActorID].CmdString := 'phases=1';
      Edit(ActorID);
   End;
   inherited;

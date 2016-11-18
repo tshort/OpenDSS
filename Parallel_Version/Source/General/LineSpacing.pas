@@ -175,8 +175,8 @@ BEGIN
   WITH ActiveLineSpacingObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -185,8 +185,8 @@ BEGIN
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 10101);
-            1: NWires        := Parser.IntValue;  // Use property value to force reallocations
-            2: FNPhases := Parser.IntValue;
+            1: NWires        := Parser[ActorID].IntValue;  // Use property value to force reallocations
+            2: FNPhases := Parser[ActorID].IntValue;
             3: InterpretArray (Param, X);
             4: InterpretArray (Param, H);
             5: FUnits := GetUnitsCode(Param);
@@ -199,8 +199,8 @@ BEGIN
             1..5: DataChanged := TRUE;
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END;
 
   END;

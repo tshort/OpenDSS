@@ -257,9 +257,9 @@ Begin
   WITH ActiveTShapeObj DO Begin
 
      ParamPointer := 0;
-     ParamName    := Parser.NextParam;
+     ParamName    := Parser[ActorID].NextParam;
 
-     Param := Parser.StrValue;
+     Param := Parser[ActorID].StrValue;
      While Length(Param)>0 DO Begin
          IF Length(ParamName) = 0 Then Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -268,8 +268,8 @@ Begin
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 57610);
-            1: NumPoints := Parser.Intvalue;
-            2: Interval := Parser.DblValue;
+            1: NumPoints := Parser[ActorID].Intvalue;
+            2: Interval := Parser[ActorID].DblValue;
             3: Begin
                  ReAllocmem(TValues, Sizeof(TValues^[1]) * NumPoints);
                  // Allow possible Resetting (to a lower value) of num points when specifying temperatures not Hours
@@ -279,13 +279,13 @@ Begin
                    ReAllocmem(Hours, Sizeof(Hours^[1]) * NumPoints);
                    InterpretDblArray(Param, NumPoints, Hours);   // Parser.ParseAsVector(Npts, Hours);
                End;
-            5: Mean   := Parser.DblValue;
-            6: StdDev := Parser.DblValue;
+            5: Mean   := Parser[ActorID].DblValue;
+            6: StdDev := Parser[ActorID].DblValue;
             7: DoCSVFile(Param);
             8: DoSngFile(Param);
             9: DoDblFile(Param);
-           10: Interval := Parser.DblValue / 3600.0;  // Convert seconds to hr
-           11: Interval := Parser.DblValue / 60.0;  // Convert minutes to hr
+           10: Interval := Parser[ActorID].DblValue / 3600.0;  // Convert seconds to hr
+           11: Interval := Parser[ActorID].DblValue / 60.0;  // Convert minutes to hr
            12: CASE lowercase(Param)[1] of
                    'd': SaveToDblFile;
                    's': SaveToSngFile;
@@ -304,8 +304,8 @@ Begin
 
          End;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End; {While}
 
   End; {WITH}

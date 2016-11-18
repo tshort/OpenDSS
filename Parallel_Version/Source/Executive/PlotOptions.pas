@@ -165,8 +165,8 @@ Begin
 
     {Get next parameter on command line}
     ParamPointer := 0;
-    ParamName := Uppercase(Parser.NextParam);
-    Param := Uppercase(Parser.StrValue);
+    ParamName := Uppercase(Parser[ActiveActor].NextParam);
+    Param := Uppercase(Parser[ActiveActor].StrValue);
     While Length(Param) > 0 Do
      Begin
       {Interpret Parameter}
@@ -227,27 +227,27 @@ Begin
                'L': Quantity := pqlosses;
              Else
                Quantity := pqNone;
-               Valueindex := Parser.IntValue;
+               Valueindex := Parser[ActiveActor].IntValue;
              End;
          3:  Begin
-                 MaxScale := Parser.DblValue;
+                 MaxScale := Parser[ActiveActor].DblValue;
                  If MaxScale>0.0 Then MaxScaleIsSpecified := TRUE    // Indicate the user wants a particular value
                                  Else MaxScaleIsSpecified := FALSE;
              End;
          4:  Dots := InterpretYesNo(Param);
          5:  Labels := InterpretYesNo(Param);
-         6:  ObjectName := Parser.StrValue;
+         6:  ObjectName := Parser[ActiveActor].StrValue;
          7:   Begin
                 ShowLoops := InterpretYesNo(Param);
                 If ShowLoops then PlotType := ptMeterzones;
               End;
-         8:   TriColorMax := Parser.DblValue;
-         9:   TriColorMid := Parser.DblValue;
+         8:   TriColorMax := Parser[ActiveActor].DblValue;
+         9:   TriColorMid := Parser[ActiveActor].DblValue;
          10:  Color1 := InterpretColorName(Param);
          11:  Color2 := InterpretColorName(Param);
          12:  Color3 := InterpretColorName(Param);
          13: Begin    {Channel definitions for Plot Monitor}
-               NumChannels := Parser.ParseAsVector(51, @DblBuffer);  // allow up to 50 channels
+               NumChannels := Parser[ActiveActor].ParseAsVector(51, @DblBuffer);  // allow up to 50 channels
                If NumChannels>0 Then Begin   // Else take the defaults
                  SetLength(Channels, NumChannels);
                  For i := 0 to NumChannels-1 Do Channels[i] := Round(DblBuffer[i]);
@@ -256,21 +256,21 @@ Begin
                End;
              End;
          14: Begin
-               NumChannels  := Parser.ParseAsVector(51, @DblBuffer);  // allow up to 50 channels
+               NumChannels  := Parser[ActiveActor].ParseAsVector(51, @DblBuffer);  // allow up to 50 channels
                If NumChannels>0 Then Begin
                   SetLength(Bases, NumChannels);
                  For i := 0 to NumChannels-1 Do Bases[i] := DblBuffer[i];
                End;
              End;
          15: ShowSubs := InterpretYesNo(Param);
-         16: MaxLineThickness := Parser.IntValue ;
+         16: MaxLineThickness := Parser[ActiveActor].IntValue ;
          17: InterpretTStringListArray(Param,  DaisyBusList);  {read in Bus list}
          18: Begin
-                 MinScale := Parser.DblValue;
+                 MinScale := Parser[ActiveActor].DblValue;
                  MinScaleIsSpecified := TRUE;    // Indicate the user wants a particular value
              End;
-         19: ThreePhLineStyle  := Parser.IntValue;
-         20: SinglePhLineStyle := Parser.IntValue;
+         19: ThreePhLineStyle  := Parser[ActiveActor].IntValue;
+         20: SinglePhLineStyle := Parser[ActiveActor].IntValue;
          21: Begin  // Parse off phase(s) to plot
                   PhasesToPlot := PROFILE3PH; // the default
                   if      CompareTextShortest(Param, 'default')=0 then PhasesToPlot := PROFILE3PH
@@ -279,15 +279,15 @@ Begin
                   Else if CompareTextShortest(Param, 'll3ph')=0      then PhasesToPlot := PROFILELL
                   Else if CompareTextShortest(Param, 'llall')=0   then PhasesToPlot := PROFILELLALL
                   Else if CompareTextShortest(Param, 'llprimary')=0 then PhasesToPlot := PROFILELLPRI
-                  Else If Length(Param)=1 then PhasesToPlot := Parser.IntValue;
+                  Else If Length(Param)=1 then PhasesToPlot := Parser[ActiveActor].IntValue;
              End;
 
        Else
        End;
 
 
-      ParamName := Uppercase(Parser.NextParam);
-      Param := Uppercase(Parser.StrValue);
+      ParamName := Uppercase(Parser[ActiveActor].NextParam);
+      Param := Uppercase(Parser[ActiveActor].StrValue);
      End;
 
      If Not ActiveCircuit[ActiveActor].Issolved Then DSSPlotObj.Quantity := pqNone;

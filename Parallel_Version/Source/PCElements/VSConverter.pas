@@ -191,36 +191,36 @@ begin
 
   with ActiveVSConverterObj do begin
     ParamPointer := 0;
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActorID].NextParam;
+    Param := Parser[ActorID].StrValue;
     while Length(Param)>0 do begin
       if Length(ParamName) = 0 then Inc(ParamPointer)
       else ParamPointer := CommandList.GetCommand(ParamName);
       if (ParamPointer>0) and (ParamPointer<=NumProperties) then PropertyValue[ParamPointer]:= Param;
       case ParamPointer of
         0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 350);
-        1: if Fnphases <> Parser.IntValue then begin
-             Nphases := Parser.IntValue ;
+        1: if Fnphases <> Parser[ActorID].IntValue then begin
+             Nphases := Parser[ActorID].IntValue ;
              NConds := Fnphases;
              ActiveCircuit[ActorID].BusNameRedefined := True;
           end;
         2: VscSetBus1(param);
-        3: FkVac := Parser.DblValue;
-        4: FkVdc := Parser.DblValue;
-        5: FkW := Parser.DblValue;
-        6: FNdc := Parser.IntValue;
-        7: FRac := Parser.DblValue;
-        8: FXac := Parser.DblValue;
-        9: Fm := Parser.DblValue;
-        10: Fd := Parser.DblValue;
-        11: FMinM := Parser.DblValue;
-        12: FMaxM := Parser.DblValue;
-        13: FMaxIac := Parser.DblValue;
-        14: FMaxIdc := Parser.DblValue;
-        15: FRefVac := Parser.DblValue;
-        16: FRefPac := Parser.DblValue;
-        17: FRefQac := Parser.DblValue;
-        18: FRefVdc := Parser.DblValue;
+        3: FkVac := Parser[ActorID].DblValue;
+        4: FkVdc := Parser[ActorID].DblValue;
+        5: FkW := Parser[ActorID].DblValue;
+        6: FNdc := Parser[ActorID].IntValue;
+        7: FRac := Parser[ActorID].DblValue;
+        8: FXac := Parser[ActorID].DblValue;
+        9: Fm := Parser[ActorID].DblValue;
+        10: Fd := Parser[ActorID].DblValue;
+        11: FMinM := Parser[ActorID].DblValue;
+        12: FMaxM := Parser[ActorID].DblValue;
+        13: FMaxIac := Parser[ActorID].DblValue;
+        14: FMaxIdc := Parser[ActorID].DblValue;
+        15: FRefVac := Parser[ActorID].DblValue;
+        16: FRefPac := Parser[ActorID].DblValue;
+        17: FRefQac := Parser[ActorID].DblValue;
+        18: FRefVdc := Parser[ActorID].DblValue;
         19: begin
             Tok := Uppercase (LeftStr (param, 4));
             if CompareStr (LeftStr(Tok, 1), 'F') = 0 then
@@ -245,8 +245,8 @@ begin
       else
       end;
 
-      ParamName := Parser.NextParam;
-      Param := Parser.StrValue;
+      ParamName := Parser[ActorID].NextParam;
+      Param := Parser[ActorID].StrValue;
     end;
     RecalcElementData(ActorID);
   end;
@@ -590,9 +590,9 @@ end;
 procedure TVSConverterObj.MakePosSequence(ActorID : Integer);
 begin
   if FnPhases<>2 then begin
-    Parser.CmdString := 'Phases=2';
+    Parser[ActorID].CmdString := 'Phases=2';
     Edit(ActorID);
-    Parser.CmdString := 'Ndc=1';
+    Parser[ActorID].CmdString := 'Ndc=1';
     Edit(ActorID);
   end;
   inherited;

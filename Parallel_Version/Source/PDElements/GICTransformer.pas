@@ -273,8 +273,8 @@ BEGIN
   WITH ActiveGICTransformerObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -294,20 +294,20 @@ BEGIN
                    'Y':SpecType := SPEC_YY;
                END;
             7: BEGIN
-                 G1 := Parser.Dblvalue;
+                 G1 := Parser[ActorID].Dblvalue;
                  IF G1<>0.0 THEN G1 := 1.0/G1 ELSE G1 := 10000.0;  // Default to a low resistance
                END;
             8: BEGIN
-                 G2 := Parser.Dblvalue;
+                 G2 := Parser[ActorID].Dblvalue;
                  IF G2<>0.0 THEN G2 := 1.0/G2 ELSE G2 := 10000.0;  // Default to a low resistance
                END;
-            9: FkV1 := Parser.DblValue ;
-           10: FkV2 := Parser.DblValue ;
-           11: FMVArating := Parser.DblValue;
+            9: FkV1 := Parser[ActorID].DblValue ;
+           10: FkV2 := Parser[ActorID].DblValue ;
+           11: FMVArating := Parser[ActorID].DblValue;
            12: FVarCurve := Param;
-           13: FpctR1 := Parser.DblValue;
-           14: FpctR2 := Parser.DblValue;
-           15: FKFactor := Parser.DblValue;
+           13: FpctR1 := Parser[ActorID].DblValue;
+           14: FpctR2 := Parser[ActorID].DblValue;
+           15: FKFactor := Parser[ActorID].DblValue;
          ELSE
            // Inherited
               ClassEdit(ActiveGICTransformerObj, ParamPointer - NumPropsThisClass)
@@ -324,8 +324,8 @@ BEGIN
                    PropertyValue[2] := GetBus(2);
                End;
              End;
-          5: IF Fnphases <> Parser.IntValue THEN BEGIN
-               Nphases := Parser.IntValue ;
+          5: IF Fnphases <> Parser[ActorID].IntValue THEN BEGIN
+               Nphases := Parser[ActorID].IntValue ;
                NConds := Fnphases;  // Force Reallocation of terminal info if different size
                ActiveCircuit[ActiveActor].BusNameRedefined := True;  // Set Global Flag to signal circuit to rebuild busdefs
              END;
@@ -357,8 +357,8 @@ BEGIN
          ELSE
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END;
 
      RecalcElementData(ActorID);
@@ -739,7 +739,7 @@ procedure TGICTransformerObj.MakePosSequence(ActorID : Integer);
 begin
   IF FnPhases<>1 Then
   Begin
-    Parser.CmdString := 'Phases=1';
+    Parser[ActorID].CmdString := 'Phases=1';
     Edit(ActorID);
   End;
   inherited;

@@ -277,8 +277,8 @@ Begin
   WITH ActiveCapControlObj Do Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 Do Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -289,7 +289,7 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 352);
             1: ElementName     := ConstructElemName(lowercase(param));  // substitute @var value if any
-            2: ElementTerminal := Parser.IntValue;
+            2: ElementTerminal := Parser[ActorID].IntValue;
             3: ControlVars.CapacitorName   := 'capacitor.'+ param;   // will automatically substitute @var value
             4: CASE lowercase(param)[1] of
                     'c': ControlType := CURRENTCONTROL;
@@ -300,32 +300,32 @@ Begin
                ELSE
                    DoSimpleMsg(Format('Unrecognized CapControl Type: "%s" (Capcontrol.%s)', [param, ActiveCapControlObj.name]), 352);
                End;
-            5: ControlVars.PTRatio := Parser.DblValue;
-            6: ControlVars.CTRatio := Parser.DblValue;
-            7: ControlVars.ON_Value := Parser.DblValue;
-            8: ControlVars.OFF_Value := Parser.DblValue;
-            9: ControlVars.ONDelay := Parser.DblValue;
+            5: ControlVars.PTRatio := Parser[ActorID].DblValue;
+            6: ControlVars.CTRatio := Parser[ActorID].DblValue;
+            7: ControlVars.ON_Value := Parser[ActorID].DblValue;
+            8: ControlVars.OFF_Value := Parser[ActorID].DblValue;
+            9: ControlVars.ONDelay := Parser[ActorID].DblValue;
            10: ControlVars.Voverride := InterpretYesNo(param);
-           11: ControlVars.Vmax      := Parser.DblValue;
-           12: ControlVars.Vmin      := Parser.DblValue;
-           13: ControlVars.OFFDelay  := Parser.DblValue;
-           14: ControlVars.DeadTime  := Parser.DblValue;
+           11: ControlVars.Vmax      := Parser[ActorID].DblValue;
+           12: ControlVars.Vmin      := Parser[ActorID].DblValue;
+           13: ControlVars.OFFDelay  := Parser[ActorID].DblValue;
+           14: ControlVars.DeadTime  := Parser[ActorID].DblValue;
            15: If      CompareTextShortest(param, 'avg') = 0 Then ControlVars.FCTPhase := AVGPHASES
                Else If CompareTextShortest(param, 'max') = 0 Then ControlVars.FCTPhase := MAXPHASE
                Else If CompareTextShortest(param, 'min') = 0 Then ControlVars.FCTPhase := MINPHASE
-                                                             Else ControlVars.FCTPhase := max(1, Parser.IntValue);
+                                                             Else ControlVars.FCTPhase := max(1, Parser[ActorID].IntValue);
            16: If      CompareTextShortest(param, 'avg') = 0 Then ControlVars.FPTPhase := AVGPHASES
                Else If CompareTextShortest(param, 'max') = 0 Then ControlVars.FPTPhase := MAXPHASE
                Else If CompareTextShortest(param, 'min') = 0 Then ControlVars.FPTPhase := MINPHASE
-                                                             Else ControlVars.FPTPhase := max(1, Parser.IntValue);
+                                                             Else ControlVars.FPTPhase := max(1, Parser[ActorID].IntValue);
            17: Begin
                  ControlVars.VoverrideBusSpecified := TRUE;
                  ControlVars.VOverrideBusName := Param;
                End;
            18: ShowEventLog := InterpretYesNo(param);
-           19: UserModel.Name := Parser.StrValue;  // Connect to user written model
-           20: UserModel.Edit := Parser.StrValue;  // Send edit string to user model
-           21: FpctMinKvar := Parser.DblValue;
+           19: UserModel.Name := Parser[ActorID].StrValue;  // Connect to user written model
+           20: UserModel.Edit := Parser[ActorID].StrValue;  // Send edit string to user model
+           21: FpctMinKvar := Parser[ActorID].DblValue;
 
          ELSE
            // Inherited parameters
@@ -376,8 +376,8 @@ Begin
          If IsUserModel Then  ControlType := USERCONTROL;
 
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);

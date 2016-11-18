@@ -50,7 +50,7 @@ TYPE
 
    TCapacitor = class(TPDClass)
      private
-        Procedure DoCmatrix;
+        Procedure DoCmatrix(ActorID : Integer);
 
         Procedure InterpretConnection(const S:String);
         Procedure CapSetBus1( const s:String);
@@ -232,7 +232,7 @@ END;
 
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Procedure TCapacitor.DoCmatrix;
+Procedure TCapacitor.DoCmatrix(ActorID : Integer);
 VAR
     OrderFound, j:Integer;
     MatBuffer:pDoubleArray;
@@ -240,7 +240,7 @@ VAR
 BEGIN
    WITH ActiveCapacitorObj DO BEGIN
      MatBuffer := Allocmem(Sizeof(double)*Fnphases*Fnphases);
-     OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+     OrderFound := Parser[ActorID].ParseAsSymMatrix(Fnphases, MatBuffer);
 
      If OrderFound>0 THEN    // Parse was successful
      BEGIN    {C}
@@ -330,8 +330,8 @@ BEGIN
   WITH ActiveCapacitorObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -344,14 +344,14 @@ BEGIN
             2: Setbus(2, param);
             3:{ Numphases := Parser.IntValue};  // see below
             4: InterpretDblArray (Param, FNumSteps, FkvarRating);
-            5: kvRating := Parser.Dblvalue;
+            5: kvRating := Parser[ActorID].Dblvalue;
             6: InterpretConnection(Param);
-            7: DoCMatrix;
+            7: DoCMatrix(ActorID);
             8: InterpretDblArray (Param, FNumSteps, FC);
             9: InterpretDblArray (Param, FNumSteps, FR);
            10: InterpretDblArray (Param, FNumSteps, FXL);
            11: ProcessHarmonicSpec(Param);
-           12: NumSteps := Parser.IntValue;
+           12: NumSteps := Parser[ActorID].IntValue;
            13: ProcessStatesSpec(Param);
          ELSE
             // Inherited Property Edits
@@ -369,9 +369,9 @@ BEGIN
               IsShunt     := FALSE;
               Bus2Defined := TRUE;
             End;
-          3: IF Fnphases <> Parser.IntValue
+          3: IF Fnphases <> Parser[ActorID].IntValue
              THEN BEGIN
-               Nphases := Parser.IntValue ;
+               Nphases := Parser[ActorID].IntValue ;
                NConds := Fnphases;  // Force Reallocation of terminal info
                Yorder := Fnterms*Fnconds;
              END;
@@ -393,8 +393,8 @@ BEGIN
          END;
 
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END;
 
      RecalcElementData(ActorID);
@@ -798,7 +798,7 @@ begin
            END;
          END;
 
-       Parser.CmdString := S;
+       Parser[ActorID].CmdString := S;
        Edit(ActorID);
 
     End;

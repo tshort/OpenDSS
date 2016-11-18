@@ -202,8 +202,8 @@ BEGIN
   WITH ActiveGrowthShapeObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -212,7 +212,7 @@ BEGIN
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 600);
-            1: Npts := Parser.Intvalue;
+            1: Npts := Parser[ActorID].Intvalue;
             2: BEGIN
                  ReAllocmem(Year, Sizeof(Year^[1])*Npts);
                  YrBuffer := Allocmem(Sizeof(YrBuffer^[1])*Npts);
@@ -235,8 +235,8 @@ BEGIN
               ClassEdit( ActiveGrowthShapeObj, ParamPointer - NumPropsThisClass)
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END; {WHILE}
 
      ReCalcYearMult;

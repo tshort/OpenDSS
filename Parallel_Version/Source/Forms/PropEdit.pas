@@ -152,7 +152,7 @@ end;
 
 procedure TPropEditForm.UpdateSelectedRow;
 begin
-     Parser.CmdString :=  StringGrid1.Cells[0, SelectedRow] + '=' + StringGrid1.Cells[1, SelectedRow];
+     Parser[ActiveActor].CmdString :=  StringGrid1.Cells[0, SelectedRow] + '=' + StringGrid1.Cells[1, SelectedRow];
      ObjectBeingEdited.Edit(ActiveActor);
      RefreshPropValues;
      CellEdited := FALSE;

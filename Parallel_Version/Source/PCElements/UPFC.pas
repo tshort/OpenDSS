@@ -242,8 +242,8 @@ Begin
   WITH ActiveUPFCObj DO Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param     := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param     := Parser[ActorID].StrValue;
      WHILE Length(Param) > 0 DO Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -254,23 +254,23 @@ Begin
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "UPFC.'+Name+'"', 320);
             1: SetBus(1,param);  // special handling of Bus 1
             2: SetBus(2,param);     // special handling of Bus 2
-            3: VRef     := Parser.DblValue; // kv Output reference
-            4: pf       := Parser.DblValue; // power factor
-            5: Freq     := Parser.DblValue; // Freq
+            3: VRef     := Parser[ActorID].DblValue; // kv Output reference
+            4: pf       := Parser[ActorID].DblValue; // power factor
+            5: Freq     := Parser[ActorID].DblValue; // Freq
             6: Begin
-                 Nphases   := Parser.Intvalue; // num phases
+                 Nphases   := Parser[ActorID].Intvalue; // num phases
                  NConds    := Fnphases;  // Force Reallocation of terminal info
                End;
-            7: Xs       := Parser.DblValue; // Xs
-            8: Tol1     := Parser.DblValue; // Tolerance Ctrl 2
-            9: ModeUPFC := Parser.IntValue;
-            10:VpqMax   := Parser.DblValue;
+            7: Xs       := Parser[ActorID].DblValue; // Xs
+            8: Tol1     := Parser[ActorID].DblValue; // Tolerance Ctrl 2
+            9: ModeUPFC := Parser[ActorID].IntValue;
+            10:VpqMax   := Parser[ActorID].DblValue;
             propLossCurve:LossCurve:= Param;
-            12: VHLimit := Parser.DblValue;
-            13: VLLimit := Parser.DblValue;
-            14: CLimit  := Parser.DblValue;
-            15: VRef2   := Parser.DblValue;
-            16: kvarLim := Parser.DblValue;
+            12: VHLimit := Parser[ActorID].DblValue;
+            13: VLLimit := Parser[ActorID].DblValue;
+            14: CLimit  := Parser[ActorID].DblValue;
+            15: VRef2   := Parser[ActorID].DblValue;
+            16: kvarLim := Parser[ActorID].DblValue;
 
          ELSE
             ClassEdit(ActiveUPFCObj, ParamPointer - NumPropsThisClass)
@@ -280,8 +280,8 @@ Begin
             propLossCurve:UPFCLossCurveObj := XYCurveClass[ActorID].Find(LossCurve);
          END;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);

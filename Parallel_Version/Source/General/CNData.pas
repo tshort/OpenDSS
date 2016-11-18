@@ -114,8 +114,8 @@ BEGIN
   ActiveDSSObject[ActiveActor] := ActiveConductorDataObj;
   WITH TCNDataObj(ActiveConductorDataObj) DO BEGIN
     ParamPointer := 0;
-    ParamName := Parser.NextParam;
-    Param := Parser.StrValue;
+    ParamName := Parser[ActorID].NextParam;
+    Param := Parser[ActorID].StrValue;
     WHILE Length(Param)>0 DO BEGIN
       IF Length(ParamName) = 0 THEN Inc(ParamPointer)
       ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -124,10 +124,10 @@ BEGIN
 
       CASE ParamPointer OF
         0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 101);
-        1: FkStrand := Parser.IntValue;
-        2: FDiaStrand := Parser.DblValue;
-        3: FGmrStrand := Parser.DblValue;
-        4: FRStrand := Parser.DblValue;
+        1: FkStrand := Parser[ActorID].IntValue;
+        2: FDiaStrand := Parser[ActorID].DblValue;
+        3: FGmrStrand := Parser[ActorID].DblValue;
+        4: FRStrand := Parser[ActorID].DblValue;
       ELSE
         // Inherited parameters
         ClassEdit(ActiveConductorDataObj, ParamPointer - NumPropsThisClass)
@@ -144,8 +144,8 @@ BEGIN
         2: If (FDiaStrand <= 0.0) Then DoSimpleMsg('Error: Neutral strand diameter must be positive for CNData ' + Name,999);
         3: If (FGmrStrand <= 0.0) Then DoSimpleMsg('Error: Neutral strand GMR must be positive for CNData ' + Name,999);
       END;
-      ParamName := Parser.NextParam;
-      Param := Parser.StrValue;
+      ParamName := Parser[ActorID].NextParam;
+      Param := Parser[ActorID].StrValue;
     END;
   END;
 END;

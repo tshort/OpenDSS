@@ -89,11 +89,11 @@ BEGIN
   WITH TPDElement(ActivePDObj) DO BEGIN
 
       CASE ParamPointer OF
-       1: NormAmps    := Parser.Dblvalue;
-       2: EmergAmps   := Parser.Dblvalue;
-       3: FaultRate   := Parser.Dblvalue;
-       4: PctPerm     := Parser.Dblvalue;
-       5: HrsToRepair := Parser.DblValue;
+       1: NormAmps    := Parser[ActiveActor].Dblvalue;
+       2: EmergAmps   := Parser[ActiveActor].Dblvalue;
+       3: FaultRate   := Parser[ActiveActor].Dblvalue;
+       4: PctPerm     := Parser[ActiveActor].Dblvalue;
+       5: HrsToRepair := Parser[ActiveActor].DblValue;
        ELSE
        Inherited ClassEdit(ActivePDObj, ParamPointer - NumPDClassProps)
       END;

@@ -350,7 +350,7 @@ Begin
 
    Case Classref of
      0: Begin
-            DoSimpleMsg('Error! Object Class "' + ObjType + '" not found.'+ CRLF + parser.CmdString, 903);
+            DoSimpleMsg('Error! Object Class "' + ObjType + '" not found.'+ CRLF + parser[ActiveActor].CmdString, 903);
             Result := FALSE;
             Exit;
         End;{Error}

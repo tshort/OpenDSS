@@ -321,7 +321,7 @@ BEGIN
   WITH TDSSObject(ActiveObj) DO BEGIN
 
       CASE ParamPointer OF
-       1: MakeLike(Parser.StrValue);    // Like command (virtual)
+       1: MakeLike(Parser[ActiveActor].StrValue);    // Like command (virtual)
       END;
 
   End;

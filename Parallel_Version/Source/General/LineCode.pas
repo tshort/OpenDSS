@@ -37,7 +37,7 @@ TYPE
        Procedure SetZ1Z0(i:Integer; Value:Double);
        Procedure SetUnits(Const s:String);  // decode units specification
 
-       Procedure DoMatrix(i:Integer);  // set impedances as matrices
+       Procedure DoMatrix(i:Integer; ActorID : Integer);  // set impedances as matrices
 
        
      Protected
@@ -324,7 +324,7 @@ BEGIN
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Procedure TLineCode.DoMatrix(i:Integer);
+Procedure TLineCode.DoMatrix(i:Integer; ActorID : Integer);
 
 VAR
     OrderFound, Norder,j:Integer;
@@ -336,7 +336,7 @@ BEGIN
    WITH ActiveLineCodeObj DO BEGIN
      MatrixChanged := True;
      MatBuffer := Allocmem(Sizeof(double)*FNphases*FNphases);
-     OrderFound := Parser.ParseAsSymMatrix(FNphases, MatBuffer);
+     OrderFound := Parser[ActorID].ParseAsSymMatrix(FNphases, MatBuffer);
 
      If OrderFound>0 THEN    // Parse was successful
      CASE i OF
@@ -383,8 +383,8 @@ BEGIN
   WITH ActiveLineCodeObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -393,30 +393,30 @@ BEGIN
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 101);
-            1: Numphases := Parser.IntValue;  // Use property value to force reallocations
-            2: SetZ1Z0(1, Parser.Dblvalue);  {R1}
-            3: SetZ1Z0(2, Parser.Dblvalue);  {X0}
-            4: SetZ1Z0(3, Parser.Dblvalue);  {R1}
-            5: SetZ1Z0(4, Parser.Dblvalue);  {X0}
-            6: SetZ1Z0(5, Parser.Dblvalue * 1.0e-9); {C1}   // Convert from nano to farads
-            7: SetZ1Z0(6, Parser.Dblvalue * 1.0e-9); {C0}
+            1: Numphases := Parser[ActorID].IntValue;  // Use property value to force reallocations
+            2: SetZ1Z0(1, Parser[ActorID].Dblvalue);  {R1}
+            3: SetZ1Z0(2, Parser[ActorID].Dblvalue);  {X0}
+            4: SetZ1Z0(3, Parser[ActorID].Dblvalue);  {R1}
+            5: SetZ1Z0(4, Parser[ActorID].Dblvalue);  {X0}
+            6: SetZ1Z0(5, Parser[ActorID].Dblvalue * 1.0e-9); {C1}   // Convert from nano to farads
+            7: SetZ1Z0(6, Parser[ActorID].Dblvalue * 1.0e-9); {C0}
             8: SetUnits(Param);
-            9: {Rmatrix} DoMatrix(1);
-           10: {Xmatrix} DoMatrix(2);
-           11: {Cmatrix} DoMatrix(3);
-           12: BaseFrequency := Parser.DblValue;
-           13: NormAmps      := Parser.Dblvalue;
-           14: EmergAmps     := Parser.Dblvalue;
-           15: FaultRate     := Parser.Dblvalue;
-           16: PctPerm       := Parser.Dblvalue;
-           17: HrsToRepair   := Parser.Dblvalue;
+            9: {Rmatrix} DoMatrix(1,ActorID);
+           10: {Xmatrix} DoMatrix(2,ActorID);
+           11: {Cmatrix} DoMatrix(3,ActorID);
+           12: BaseFrequency := Parser[ActorID].DblValue;
+           13: NormAmps      := Parser[ActorID].Dblvalue;
+           14: EmergAmps     := Parser[ActorID].Dblvalue;
+           15: FaultRate     := Parser[ActorID].Dblvalue;
+           16: PctPerm       := Parser[ActorID].Dblvalue;
+           17: HrsToRepair   := Parser[ActorID].Dblvalue;
            18: ReduceByKron  := InterpretYesNo(Param);
-           19: Rg := Parser.DblValue;
-           20: Xg := Parser.DblValue;
-           21: rho := Parser.DblValue;
-           22: FNeutralConductor := Parser.IntValue;
-           23: SetZ1Z0(5, Parser.Dblvalue / (twopi * BaseFrequency) * 1.0e-6); {B1 -> C1}
-           24: SetZ1Z0(6, Parser.Dblvalue / (twopi * BaseFrequency) * 1.0e-6); {B0 -> C0}
+           19: Rg := Parser[ActorID].DblValue;
+           20: Xg := Parser[ActorID].DblValue;
+           21: rho := Parser[ActorID].DblValue;
+           22: FNeutralConductor := Parser[ActorID].IntValue;
+           23: SetZ1Z0(5, Parser[ActorID].Dblvalue / (twopi * BaseFrequency) * 1.0e-6); {B1 -> C1}
+           24: SetZ1Z0(6, Parser[ActorID].Dblvalue / (twopi * BaseFrequency) * 1.0e-6); {B0 -> C0}
          ELSE
            ClassEdit(ActiveLineCodeObj, Parampointer - NumPropsThisClass)
          END;
@@ -427,8 +427,8 @@ BEGIN
          END;
 
          
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END;
 
      IF SymComponentsModel THEN CalcMatricesFromZ1Z0;

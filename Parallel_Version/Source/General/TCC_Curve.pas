@@ -179,17 +179,17 @@ BEGIN
   WITH ActiveTCC_CurveObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
- 
+
          If (ParamPointer>0) and (ParamPointer<=NumProperties) Then PropertyValue[ParamPointer]:= Param;
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 420);
-            1: Npts := Parser.Intvalue;
+            1: Npts := Parser[ActorID].Intvalue;
             2: InterpretDblArray(Param, Npts, C_Values);   // Parser.ParseAsVector(Npts, Multipliers);
             3: InterpretDblArray(Param, Npts, T_values);   // Parser.ParseAsVector(Npts, Hours);
          ELSE
@@ -208,8 +208,8 @@ BEGIN
            3: CalcLogPoints(T_Values, LogT, Npts);
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END; {WHILE}
   END; {WITH}
 END;

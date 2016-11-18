@@ -93,10 +93,10 @@ BEGIN
   If ParamPointer > 0 Then
     WITH TCableDataObj(ActiveObj) DO BEGIN
       CASE ParamPointer OF
-        1: FEpsR            := Parser.Dblvalue;
-        2: FInsLayer        := Parser.DblValue;
-        3: FDiaIns          := Parser.DblValue;
-        4: FDiaCable        := Parser.DblValue;
+        1: FEpsR            := Parser[ActiveActor].Dblvalue;
+        2: FInsLayer        := Parser[ActiveActor].DblValue;
+        3: FDiaIns          := Parser[ActiveActor].DblValue;
+        4: FDiaCable        := Parser[ActiveActor].DblValue;
       ELSE
         Inherited ClassEdit(ActiveObj, ParamPointer - NumCableClassProps)
       END;

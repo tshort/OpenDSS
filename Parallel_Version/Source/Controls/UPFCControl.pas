@@ -182,8 +182,8 @@ Begin
   WITH ActiveUPFCControlObj Do Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 Do Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -194,10 +194,10 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 364);
             1: ElementName     := lowercase(param);
-            2: ElementTerminal := Parser.IntValue;
-            3: FkWLimit := Parser.DblValue;
-            4: FkWBand := Parser.DblValue;
-            5: FkvarLimit := Parser.DblValue;
+            2: ElementTerminal := Parser[ActorID].IntValue;
+            3: FkWLimit := Parser[ActorID].DblValue;
+            4: FkWBand := Parser[ActorID].DblValue;
+            5: FkvarLimit := Parser[ActorID].DblValue;
             6: InterpretTStringListArray(Param, FGeneratorNameList);
             7: Begin
                  FListSize := FGeneratorNameList.count;
@@ -224,8 +224,8 @@ Begin
 
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);

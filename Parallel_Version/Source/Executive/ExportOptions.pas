@@ -162,8 +162,8 @@ Begin
    Result := 0;
    AbortExport := FALSE;
 
-   ParamName := Parser.NextParam;
-   Parm1 := LowerCase(Parser.StrValue);
+   ParamName := Parser[ActiveActor].NextParam;
+   Parm1 := LowerCase(Parser[ActiveActor].StrValue);
    ParamPointer := ExportCommands.Getcommand (Parm1);
 
    {Check commands requiring a solution and abort if no solution or circuit}
@@ -191,27 +191,27 @@ Begin
 
    CASE ParamPointer OF
       9, 19: Begin { Trap export powers command and look for MVA/kVA option }
-            ParamName := parser.nextParam;
-            Parm2 := LowerCase(Parser.strvalue);
+            ParamName := parser[ActiveActor].nextParam;
+            Parm2 := LowerCase(Parser[ActiveActor].strvalue);
             MVAOpt := 0;
             IF Length(Parm2) > 0 THEN IF Parm2[1]='m' THEN MVAOpt := 1;
           End;
 
       8: Begin { Trap UE only flag  }
-            ParamName := parser.nextParam;
-            Parm2 := LowerCase(Parser.strvalue);
+            ParamName := parser[ActiveActor].nextParam;
+            Parm2 := LowerCase(Parser[ActiveActor].strvalue);
             UEonlyOpt := FALSE;
             IF Length(Parm2) > 0 THEN IF Parm2[1]='u' THEN UEonlyOpt := TRUE;
           End;
 
       15: Begin {Get monitor name for export monitors command}
-             ParamName := Parser.NextParam;
-             Parm2 := Parser.StrValue;
+             ParamName := Parser[ActiveActor].NextParam;
+             Parm2 := Parser[ActiveActor].StrValue;
           End;
 
       32: Begin {Get phases to plot}
-             ParamName := Parser.NextParam;
-             Parm2 := Parser.StrValue;
+             ParamName := Parser[ActiveActor].NextParam;
+             Parm2 := Parser[ActiveActor].StrValue;
              PhasesToPlot := PROFILE3PH; // the default
              if      CompareTextShortest(Parm2, 'default')=0 then PhasesToPlot := PROFILE3PH
              Else if CompareTextShortest(Parm2, 'all')=0     then PhasesToPlot := PROFILEALL
@@ -219,13 +219,13 @@ Begin
              Else if CompareTextShortest(Parm2, 'll3ph')=0   then PhasesToPlot := PROFILELL
              Else if CompareTextShortest(Parm2, 'llall')=0   then PhasesToPlot := PROFILELLALL
              Else if CompareTextShortest(Parm2, 'llprimary')=0 then PhasesToPlot := PROFILELLPRI
-             Else If Length(Parm2)=1 then PhasesToPlot := Parser.IntValue;
+             Else If Length(Parm2)=1 then PhasesToPlot := Parser[ActiveActor].IntValue;
 
           End;
 
       51: Begin {Sections}
-             ParamName := Parser.NextParam;
-             Parm2 := Parser.StrValue;
+             ParamName := Parser[ActiveActor].NextParam;
+             Parm2 := Parser[ActiveActor].StrValue;
 
              If CompareTextShortest(ParamName, 'meter')=0 Then
                 pMeter := EnergyMeterClass[ActiveActor].Find(Parm2);
@@ -234,8 +234,8 @@ Begin
    End;
 
    {Pick up next parameter on line, alternate file name, if any}
-   ParamName := Parser.NextParam;
-   FileName := LowerCase(Parser.StrValue);    // should be full path name to work universally
+   ParamName := Parser[ActiveActor].NextParam;
+   FileName := LowerCase(Parser[ActiveActor].StrValue);    // should be full path name to work universally
 
    InShowResults := True;
 
@@ -318,9 +318,9 @@ Begin
      15: IF   Length(Parm2) > 0 THEN Begin
            pMon:=MonitorClass[ActiveActor].Find(Parm2);
            IF   pMon <> NIL  THEN Begin pMon.TranslateToCSV(FALSE, ActiveActor); FileName := GlobalResult; End
-                             ELSE DoSimpleMsg('Monitor "'+Parm2+'" not found.'+ CRLF + parser.CmdString, 250);
+                             ELSE DoSimpleMsg('Monitor "'+Parm2+'" not found.'+ CRLF + parser[ActiveActor].CmdString, 250);
          End
-         ELSE   DoSimpleMsg('Monitor Name Not Specified.'+ CRLF + parser.CmdString, 251);
+         ELSE   DoSimpleMsg('Monitor Name Not Specified.'+ CRLF + parser[ActiveActor].CmdString, 251);
      16: ExportYprim(Filename);
      17: ExportY(Filename);
      18: ExportSeqZ(Filename);

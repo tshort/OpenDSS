@@ -164,8 +164,8 @@ BEGIN
   WITH ActiveSpectrumObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -175,7 +175,7 @@ BEGIN
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "'+ParamName+'" for Object "'+Name+'"', 650);
             1: BEGIN
-                 NumHarm := Parser.IntValue;
+                 NumHarm := Parser[ActorID].IntValue;
                  ReAllocmem(AngleArray, Sizeof(AngleArray^[1])*NumHarm); // Make a dummy Angle array
                  For i := 1 to NumHarm Do AngleArray^[i] := 0.0;
                END;
@@ -200,8 +200,8 @@ BEGIN
 
 
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END;       {WHILE}
 
 

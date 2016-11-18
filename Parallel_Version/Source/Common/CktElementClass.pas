@@ -50,8 +50,8 @@ BEGIN
   WITH TDSSCktElement(ActiveCktElemObj) DO BEGIN
 
       CASE ParamPointer OF
-       1: BaseFrequency := Parser.Dblvalue;
-       2: Enabled := InterpretYesNo(Parser.StrValue);
+       1: BaseFrequency := Parser[ActiveActor].Dblvalue;
+       2: Enabled := InterpretYesNo(Parser[ActiveActor].StrValue);
        ELSE
        Inherited ClassEdit(ActiveCktElemObj, ParamPointer - NumCktElemClassProps)
       END;

@@ -320,8 +320,8 @@ Begin
   WITH ActiveMonitorObj DO Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -335,8 +335,8 @@ Begin
                  ElementName := ConstructElemName(lowercase(param));   // subtitute @var values if any
                  PropertyValue[1] := ElementName;
                End;
-            2: MeteredTerminal := Parser.IntValue;
-            3: Mode := Parser.IntValue;
+            2: MeteredTerminal := Parser[ActorID].IntValue;
+            3: Mode := Parser[ActorID].IntValue;
             4: Begin
                   param := lowercase(param);
                   Case param[1] of
@@ -354,8 +354,8 @@ Begin
            ClassEdit( ActiveMonitorObj, ParamPointer - NumPropsthisClass)
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      End;
 
      if recalc > 0 then RecalcElementData(ActorID);

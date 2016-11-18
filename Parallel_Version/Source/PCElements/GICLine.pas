@@ -256,8 +256,8 @@ Begin
   WITH ActiveGICLineObj DO Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param     := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param     := Parser[ActorID].StrValue;
      WHILE Length(Param) > 0 DO Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -269,16 +269,16 @@ Begin
             1: GICLineSetBus1(param);   // special handling of Bus 1
             2: SetBus(2, param);
 
-            3: Volts        := Parser.DblValue; // basekv
-            4: Angle        := Parser.DblValue; // Ang
-            5: SrcFrequency := Parser.DblValue; // freq
+            3: Volts        := Parser[ActorID].DblValue; // basekv
+            4: Angle        := Parser[ActorID].DblValue; // Ang
+            5: SrcFrequency := Parser[ActorID].DblValue; // freq
             6: Begin
-                 Nphases    := Parser.Intvalue; // num phases
+                 Nphases    := Parser[ActorID].Intvalue; // num phases
                  NConds     := Fnphases;  // Force Reallocation of terminal info
                End;
-            7: R := Parser.DblValue;
-            8: X := Parser.DblValue;
-            9: C := Parser.DblValue;
+            7: R := Parser[ActorID].DblValue;
+            8: X := Parser[ActorID].DblValue;
+            9: C := Parser[ActorID].DblValue;
 
     (*     10:  Case Uppercase(Param)[1] of
                   'P': ScanType :=  1;
@@ -295,12 +295,12 @@ Begin
                    DoSimpleMsg('Unknown Sequence Type for "' + Class_Name +'.'+ Name + '": '+Param, 321);
                 END;
     *)
-           10: ENorth := Parser.DblValue;
-           11: EEast  := Parser.DblValue;
-           12: Lat1   := Parser.DblValue;
-           13: Lon1   := Parser.DblValue;
-           14: Lat2   := Parser.DblValue;
-           15: Lon2   := Parser.DblValue;
+           10: ENorth := Parser[ActorID].DblValue;
+           11: EEast  := Parser[ActorID].DblValue;
+           12: Lat1   := Parser[ActorID].DblValue;
+           13: Lon1   := Parser[ActorID].DblValue;
+           14: Lat2   := Parser[ActorID].DblValue;
+           15: Lon2   := Parser[ActorID].DblValue;
 
          ELSE
             ClassEdit(ActiveGICLineObj, ParamPointer - NumPropsThisClass)
@@ -311,8 +311,8 @@ Begin
               10..15: VoltsSpecified := FALSE;
          END;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);
@@ -769,7 +769,7 @@ begin
         S := S + Format('R=%-.8g ', [R]);
         S := S + Format('X=%-.8g ', [X]);
 
-        Parser.CmdString := S;
+        Parser[ActorID].CmdString := S;
         Edit(ActorID);
 
         inherited;

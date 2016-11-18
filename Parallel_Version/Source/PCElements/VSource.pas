@@ -334,8 +334,8 @@ Begin
   WITH ActiveVSourceObj DO Begin
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param     := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param     := Parser[ActorID].StrValue;
      WHILE Length(Param) > 0 DO Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -345,24 +345,24 @@ Begin
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "VSource.'+Name+'"', 320);
             1: VSourceSetBus1(param);   // special handling of Bus 1
-            2: kVBase    := Parser.DblValue; // basekv
-            3: PerUnit   := Parser.DblValue; // pu
-            4: Angle     := Parser.DblValue; // Ang
-            5: SrcFrequency := Parser.DblValue; // freq
+            2: kVBase    := Parser[ActorID].DblValue; // basekv
+            3: PerUnit   := Parser[ActorID].DblValue; // pu
+            4: Angle     := Parser[ActorID].DblValue; // Ang
+            5: SrcFrequency := Parser[ActorID].DblValue; // freq
             6: Begin
-                 Nphases   := Parser.Intvalue; // num phases
+                 Nphases   := Parser[ActorID].Intvalue; // num phases
                  NConds    := Fnphases;  // Force Reallocation of terminal info
                End;
-            7: MVAsc3 := Parser.DblValue; // MVAsc3
-            8: MVAsc1 := Parser.DblValue; // MVAsc1
-            9: X1R1   := Parser.DblValue; // X1/R1
-           10: X0R0   := Parser.DblValue; // X0/R0
-           11: Isc3   := Parser.DblValue;
-           12: Isc1   := Parser.DblValue;
-           13: R1    := Parser.DblValue;
-           14: X1    := Parser.DblValue;
-           15: R0    := Parser.DblValue;
-           16: X0    := Parser.DblValue;
+            7: MVAsc3 := Parser[ActorID].DblValue; // MVAsc3
+            8: MVAsc1 := Parser[ActorID].DblValue; // MVAsc1
+            9: X1R1   := Parser[ActorID].DblValue; // X1/R1
+           10: X0R0   := Parser[ActorID].DblValue; // X0/R0
+           11: Isc3   := Parser[ActorID].DblValue;
+           12: Isc1   := Parser[ActorID].DblValue;
+           13: R1    := Parser[ActorID].DblValue;
+           14: X1    := Parser[ActorID].DblValue;
+           15: R0    := Parser[ActorID].DblValue;
+           16: X0    := Parser[ActorID].DblValue;
            17: Case Uppercase(Param)[1] of
                   'P': ScanType := 1;
                   'Z': ScanType := 0;
@@ -384,7 +384,7 @@ Begin
            23: puZ1  := InterpretComplex(Param);
            24: puZ0  := InterpretComplex(Param);
            25: puZ2  := InterpretComplex(Param);
-           26: BaseMVA := Parser.DblValue ;
+           26: BaseMVA := Parser[ActorID].DblValue ;
 
            27: YearlyShape  := Param;
            28: DailyShape   := Param;
@@ -463,8 +463,8 @@ Begin
              26: ZBase   := SQR(kvBase) / BaseMVA;
          END;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);
@@ -1220,7 +1220,7 @@ begin
         S := S + Format('R1=%-.5g ', [R1]);
         S := S + Format('X1=%-.5g ', [X1]);
 
-        Parser.CmdString := S;
+        Parser[ActorID].CmdString := S;
         Edit(ActorID);
 
         inherited;

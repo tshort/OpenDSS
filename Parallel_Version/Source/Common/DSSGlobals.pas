@@ -43,8 +43,31 @@ Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerLis
      PVSystem,
      InvControl,
      ExpControl,
-     ProgressForm;
+     ProgressForm,
+     variants;
 
+TYPE
+//  KLUSolve base type definition
+   TNewSparseSet        = function(nBus:LongWord):NativeUInt;stdcall;
+   TDeleteSparseSet     = function(id:NativeUInt):LongWord;stdcall;
+   TSolveSparseSet      = function(id:NativeUInt; x,b:pComplexArray):LongWord;stdcall;
+   TZeroSparseSet       = function(id:NativeUInt):LongWord;stdcall;
+   TFactorSparseMatrix  = function(id:NativeUInt):LongWord;stdcall;
+   TGetSize             = function(id:NativeUInt; Res: pLongWord):LongWord;stdcall;
+   TGetFlops            = function(id:NativeUInt; Res: pDouble):LongWord;stdcall;
+   TGetNNZ              = function(id:NativeUInt; Res: pLongWord):LongWord;stdcall;
+   TGetSparseNNZ        = function(id:NativeUInt; Res: pLongWord):LongWord;stdcall;
+   TGetSingularCol      = function(id:NativeUInt; Res: pLongWord):LongWord;stdcall;
+   TGetRGrowth          = function(id:NativeUInt; Res: pDouble):LongWord;stdcall;
+   TGetRCond            = function(id:NativeUInt; Res: pDouble):LongWord;stdcall;
+   TGetCondEst          = function(id:NativeUInt; Res: pDouble):LongWord;stdcall;
+   TAddPrimitiveMatrix  = function(id:NativeUInt; nOrder:LongWord; Nodes: pLongWord; Mat: pComplex):LongWord;stdcall;
+   TSetLogFile          = function(Path: pChar; Action:LongWord):LongWord;stdcall;
+   TGetCompressedMatrix = function(id:NativeUInt; nColP, nNZ:LongWord; pColP, pRowIdx: pLongWord; Mat: pComplex):LongWord;stdcall;
+   TGetTripletMatrix    = function(id:NativeUInt; nNZ:LongWord; pRows, pCols: pLongWord; Mat: pComplex):LongWord;stdcall;
+   TFindIslands         = function(id:NativeUInt; nOrder:LongWord; pNodes: pLongWord):LongWord;stdcall;
+   TAddMatrixElement    = function(id:NativeUInt; i,j:LongWord; Value:pComplex):LongWord;stdcall;
+   TGetMatrixElement    = function(id:NativeUInt; i,j:LongWord; Value:pComplex):LongWord;stdcall;
 
 CONST
       CRLF = #13#10;
@@ -216,9 +239,29 @@ VAR
    ActorProgress      : Array of TProgress;
    ActorPctProgress   : Array of integer;
    ActorHandle        : Array of TThread;
-
-
-
+// KLU Variable arrays per actor
+   ActorKLU           : Array of THandle;
+   NewSparseSet       : Array of TNewSparseSet;
+   DeleteSparseSet    : Array of TDeleteSparseSet;
+   SolveSparseSet     : Array of TSolveSparseSet;
+   ZeroSparseSet      : Array of TZeroSparseSet;
+   FactorSparseMatrix : Array of TFactorSparseMatrix;
+   GetSize            : Array of TGetSize;
+   GetFlops           : Array of TGetFlops;
+   GetNNZ             : Array of TGetNNZ;
+   GetSparseNNZ       : Array of TGetSparseNNZ;
+   GetSingularCol     : Array of TGetSingularCol;
+   GetRGrowth         : Array of TGetRGrowth;
+   GetRCond           : Array of TGetRCond;
+   GetCondEst         : Array of TGetCondEst;
+   AddPrimitiveMatrix : Array of TAddPrimitiveMatrix;
+   SetLogFile         : Array of TSetLogFile;
+   GetCompressedMatrix: Array of TGetCompressedMatrix;
+   GetTripletMatrix   : Array of TGetTripletMatrix;
+   FindIslands        : Array of TFindISlands;
+   AddMatrixElement   : Array of TAddMatrixElement;
+   GetMatrixElement   : Array of TGetMatrixElement;
+   Parser             : Array of TParser;
 
 PROCEDURE DoErrorMsg(Const S, Emsg, ProbCause :String; ErrNum:Integer);
 PROCEDURE DoSimpleMsg(Const S :String; ErrNum:Integer);
@@ -272,7 +315,6 @@ TYPE
 
    TDSSRegister = function(var ClassName: pchar):Integer;  // Returns base class 1 or 2 are defined
    // Users can only define circuit elements at present
-
 VAR
 
    LastUserDLLHandle: THandle;
@@ -412,7 +454,7 @@ Begin
       Begin
         IF Not ActiveDSSClass[ActiveActor].SetActive(Objname) THEN
         Begin // scroll through list of objects untill a match
-          DoSimpleMsg('Error! Object "' + ObjName + '" not found.'+ CRLF + parser.CmdString, 904);
+          DoSimpleMsg('Error! Object "' + ObjName + '" not found.'+ CRLF + parser[ActiveActor].CmdString, 904);
         End
         ELSE
         With ActiveCircuit[ActiveActor] Do
@@ -496,7 +538,7 @@ Begin
            {*Handle := *}
            Circuits.Add(ActiveCircuit[ActiveActor]);
            Inc(ActiveCircuit[ActiveActor].NumCircuits);
-           S                          := Parser.Remainder;    // Pass remainder of string on to vsource.
+           S                          := Parser[ActiveActor].Remainder;    // Pass remainder of string on to vsource.
            {Create a default Circuit}
            SolutionABort              := FALSE;
            {Voltage source named "source" connected to SourceBus}
@@ -751,6 +793,29 @@ initialization
    setlength(EventStrings,CPU_Cores + 1);
    setlength(SavedFileList,CPU_Cores + 1);
    setlength(ActorHandle,CPU_Cores + 1);
+   setlength(Parser,CPU_Cores + 1);
+// Initializes the arrays for attending multiple instances of KLUSolver
+   setlength(ActorKLU,CPU_Cores + 1);
+   setlength(NewSparseSet,CPU_Cores + 1);
+   setlength(DeleteSparseSet,CPU_Cores + 1);
+   setlength(SolveSparseSet,CPU_Cores + 1);
+   setlength(ZeroSparseSet,CPU_Cores + 1);
+   setlength(FactorSparseMatrix,CPU_Cores + 1);
+   setlength(GetSize,CPU_Cores + 1);
+   setlength(GetFlops,CPU_Cores + 1);
+   setlength(GetNNZ,CPU_Cores + 1);
+   setlength(GetSparseNNZ,CPU_Cores + 1);
+   setlength(GetSingularCol,CPU_Cores + 1);
+   setlength(GetRGrowth,CPU_Cores + 1);
+   setlength(GetRCond,CPU_Cores + 1);
+   setlength(GetCondEst,CPU_Cores + 1);
+   setlength(AddPrimitiveMatrix,CPU_Cores + 1);
+   setlength(SetLogFile,CPU_Cores + 1);
+   setlength(GetCompressedMatrix,CPU_Cores + 1);
+   setlength(GetTripletMatrix,CPU_Cores + 1);
+   setlength(FindIslands,CPU_Cores + 1);
+   setlength(AddMatrixElement,CPU_Cores + 1);
+   setlength(GetMatrixElement,CPU_Cores + 1);
 
    for ActiveActor := 1 to CPU_Cores do
    begin
@@ -766,6 +831,32 @@ initialization
    ActiveActor      :=  1;
    NumOfActors      :=  1;
    ActorCPU[ActiveActor] :=  0;
+   Parser[ActiveActor]  :=  Tparser.Create;
+
+// Maps KLUSovle, it must be performed this way to avoid circular references with KLUSolve.pas
+   ActorKLU[ActiveActor]            :=  LoadLibrary('klusolve.dll'); // creates the instance using the LOAD_LIBRARY_AS_IMAGE_RESOURCE flag
+// The mapping for all the exported procedures/functions begins
+   @NewSparseSet[ActiveActor]       := GetProcAddress(ActorKLU[ActiveActor],'NewSparseSet');
+   @DeleteSparseSet[ActiveActor]    := GetProcAddress(ActorKLU[ActiveActor],'DeleteSparseSet');
+   @SolveSparseSet[ActiveActor]     := GetProcAddress(ActorKLU[ActiveActor],'SolveSparseSet');
+   @ZeroSparseSet[ActiveActor]      := GetProcAddress(ActorKLU[ActiveActor],'ZeroSparseSet');
+   @FactorSparseMatrix[ActiveActor] := GetProcAddress(ActorKLU[ActiveActor],'FactorSparseMatrix');
+   @GetSize[ActiveActor]            := GetProcAddress(ActorKLU[ActiveActor],'GetSize');
+   @GetFlops[ActiveActor]           := GetProcAddress(ActorKLU[ActiveActor],'GetFlops');
+   @GetNNZ[ActiveActor]             := GetProcAddress(ActorKLU[ActiveActor],'GetNNZ');
+   @GetSparseNNZ[ActiveActor]       := GetProcAddress(ActorKLU[ActiveActor],'GetSparseNNZ');
+   @GetSingularCol[ActiveActor]     := GetProcAddress(ActorKLU[ActiveActor],'GetSingularCol');
+   @GetRGrowth[ActiveActor]         := GetProcAddress(ActorKLU[ActiveActor],'GetRGrowth');
+   @GetRCond[ActiveActor]           := GetProcAddress(ActorKLU[ActiveActor],'GetRCond');
+   @GetCondEst[ActiveActor]         := GetProcAddress(ActorKLU[ActiveActor],'GetCondEst');
+   @AddPrimitiveMatrix[ActiveActor] := GetProcAddress(ActorKLU[ActiveActor],'AddPrimitiveMatrix');
+   @SetLogFile[ActiveActor]         := GetProcAddress(ActorKLU[ActiveActor],'SetLogFile');
+   @GetCompressedMatrix[ActiveActor]:= GetProcAddress(ActorKLU[ActiveActor],'GetCompressedMatrix');
+   @GetTripletMatrix[ActiveActor]   := GetProcAddress(ActorKLU[ActiveActor],'GetTripletMatrix');
+   @FindIslands[ActiveActor]        := GetProcAddress(ActorKLU[ActiveActor],'FindIslands');
+   @AddMatrixElement[ActiveActor]   := GetProcAddress(ActorKLU[ActiveActor],'AddMatrixElement');
+   @GetMatrixElement[ActiveActor]   := GetProcAddress(ActorKLU[ActiveActor],'GetMatrixElement');
+
 
    {Various Constants and Switches}
 
@@ -840,9 +931,14 @@ Finalization
   SavedFileList[ActiveActor].Free;
 
   With DSSExecutive Do If RecorderOn Then Recorderon := FALSE;
-
+  ClearAllCircuits;
   DSSExecutive.Free;  {Writes to Registry}
   DSS_Registry.Free;  {Close Registry}
+  for ActiveActor := 1 to NumOfActors do
+  begin
+    FreeLibrary(ActorKLU[ActiveActor]);
+    if ActiveActor <> 1 then deletefile(PChar(DSSDirectory + 'KLUSolve'+IntToStr(ActiveActor)+'.dll'));
+  end;
 
 
 End.

@@ -274,6 +274,7 @@ begin
           End;
       End;
     end;
+    ControlPanel.ResultPages.ActivePage := ControlPanel.SummaryTab;
   End;
 end;
 

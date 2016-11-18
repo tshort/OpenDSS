@@ -166,8 +166,8 @@ VAR
 Begin
    Result := 0;
 
-   ParamName := Parser.NextParam;
-   Param := LowerCase(Parser.StrValue);
+   ParamName := Parser[ActiveActor].NextParam;
+   Param := LowerCase(Parser[ActiveActor].StrValue);
    ParamPointer := ShowCommands.Getcommand (Param);
 
    If ParamPointer=0 Then Begin
@@ -204,8 +204,8 @@ Begin
      3: Begin
            ShowOptionCode := 0;
            ShowResid := FALSE;
-           ParamName := Parser.NextParam;   // Look for residual
-           Param := Uppercase(Parser.StrValue);
+           ParamName := Parser[ActiveActor].NextParam;   // Look for residual
+           Param := Uppercase(Parser[ActiveActor].StrValue);
            // logic handles show curr y|n|T elements or show curr elements
            If  (Length(Param)> 0) Then
              Case Param[1] of
@@ -213,8 +213,8 @@ Begin
                'N': ShowResid := FALSE;
                'E': ShowOptionCode := 1;
              End;
-           ParamName := Parser.NextParam;   // Look for another param
-           Param := Uppercase(Parser.StrValue);
+           ParamName := Parser[ActiveActor].NextParam;   // Look for another param
+           Param := Uppercase(Parser[ActiveActor].StrValue);
            If (Length(Param)>0) Then
              Case Param[1] of
                 'E':ShowOptionCode := 1;
@@ -227,8 +227,8 @@ Begin
           End;
      4: ActiveCircuit[ActiveActor].Solution.WriteConvergenceReport(GetOutputDirectory + CircuitName_[ActiveActor] + 'Convergence.TXT');
      5 : Begin
-             ParamName := Parser.NextParam;   // Look for another param
-             Param := LowerCase(Parser.StrValue);
+             ParamName := Parser[ActiveActor].NextParam;   // Look for another param
+             Param := LowerCase(Parser[ActiveActor].StrValue);
              ShowElements(GetOutputDirectory + CircuitName_[ActiveActor] + 'Elements.Txt', Param);
            End;
      6: ShowFaultStudy(GetOutputDirectory + CircuitName_[ActiveActor] + 'FaultStudy.Txt');
@@ -236,31 +236,31 @@ Begin
      8: ShowGenMeters(GetOutputDirectory + CircuitName_[ActiveActor] + 'GenMeterOut.Txt');
      9: ShowMeters(GetOutputDirectory + CircuitName_[ActiveActor] + 'EMout.Txt');
      10:  Begin     // Show Monitor
-             ParamName := Parser.NextParam;
-             Param := Parser.StrValue;
+             ParamName := Parser[ActiveActor].NextParam;
+             Param := Parser[ActiveActor].StrValue;
              IF Length(Param)>0 THEN
              Begin
                pMon:=MonitorClass[ActiveActor].Find(Param);
                IF pMon<>Nil THEN
                  pMon.TranslateToCSV(TRUE, ActiveActor)
-               ELSE DoSimpleMsg('Monitor "'+param+'" not found.'+ CRLF + parser.CmdString, 248);
+               ELSE DoSimpleMsg('Monitor "'+param+'" not found.'+ CRLF + parser[ActiveActor].CmdString, 248);
              End
-             ELSE   DoSimpleMsg('Monitor Name Not Specified.'+ CRLF + parser.CmdString, 249);
+             ELSE   DoSimpleMsg('Monitor Name Not Specified.'+ CRLF + parser[ActiveActor].CmdString, 249);
           End;
      11: ShowControlPanel;
      12: Begin
             ShowOptionCode := 0;
             MVAOpt := 0;
             FilName := 'Power';
-            Paramname := parser.nextParam;
-            Param := LowerCase(Parser.strvalue);
+            Paramname := parser[ActiveActor].nextParam;
+            Param := LowerCase(Parser[ActiveActor].strvalue);
             IF Length(Param) > 0 THEN
               CASE Param[1] of
                 'm': MVAOpt := 1;
                 'e': ShowOptionCode := 1;
               End;
-            Paramname := parser.nextParam;
-            Param := LowerCase(Parser.strvalue);
+            Paramname := parser[ActiveActor].nextParam;
+            Param := LowerCase(Parser[ActiveActor].strvalue);
             IF Length(Param) > 0 THEN IF Param[1]='e' THEN ShowOptionCode := 1;
             If ShowOptionCode=1 Then FilName := FilName + '_elem'
             Else FilName := FilName + '_seq';
@@ -273,8 +273,8 @@ Begin
             LLOpt := FALSE;      // Line-Line voltage option
             ShowOptionCode := 0;
             {Check for LL or LN option}
-            Paramname := parser.nextParam;
-            Param := Parser.strvalue;
+            Paramname := parser[ActiveActor].nextParam;
+            Param := Parser[ActiveActor].strvalue;
 
             FilName := 'VLN';
             IF Length(Param) > 0 THEN IF CompareText(Param, 'LL')=0 THEN
@@ -283,8 +283,8 @@ Begin
                FilName := 'VLL';
               End;
             {Check for Seq | nodes | elements}
-            Paramname := parser.nextParam;
-            Param := UpperCase(Parser.strvalue);
+            Paramname := parser[ActiveActor].nextParam;
+            Param := UpperCase(Parser[ActiveActor].strvalue);
             If Length(Param)>0 Then
                Case Param[1] of
                  'N': Begin ShowOptionCode := 1;  FilName := FilName + '_Node'; End;
@@ -298,8 +298,8 @@ Begin
      15: ShowRegulatorTaps(GetOutputDirectory + CircuitName_[ActiveActor] + 'RegTaps.Txt');
      16: ShowOverloads(GetOutputDirectory + CircuitName_[ActiveActor] + 'Overload.Txt');
      17: Begin
-             ParamName := Parser.NextParam;
-             Param := Parser.StrValue;
+             ParamName := Parser[ActiveActor].NextParam;
+             Param := Parser[ActiveActor].StrValue;
              IF Length(Param)>0
              THEN ShowUnserved(GetOutputDirectory + CircuitName_[ActiveActor] + 'Unserved.Txt', TRUE)
              ELSE ShowUnserved(GetOutputDirectory + CircuitName_[ActiveActor] + 'Unserved.Txt', FALSE);
@@ -312,19 +312,19 @@ Begin
      23: Begin  // Show Bus Power Report
             ShowOptionCode := 0;
             MVAOpt := 0;
-            Paramname := parser.nextParam; // Get busname
-            Busname := Parser.strvalue;
+            Paramname := parser[ActiveActor].nextParam; // Get busname
+            Busname := Parser[ActiveActor].strvalue;
             If Length(BusName)>0 Then FilName := BusName
                                  Else FilName := 'BusPower';
-            Paramname := parser.nextParam;
-            Param := LowerCase(Parser.strvalue);
+            Paramname := parser[ActiveActor].nextParam;
+            Param := LowerCase(Parser[ActiveActor].strvalue);
             IF Length(Param) > 0 THEN
               CASE Param[1] of
                 'm': MVAOpt := 1;
                 'e': ShowOptionCode := 1;
               End;
-            Paramname := parser.nextParam;
-            Param := LowerCase(Parser.strvalue);
+            Paramname := parser[ActiveActor].nextParam;
+            Param := LowerCase(Parser[ActiveActor].strvalue);
             IF Length(Param) > 0 THEN IF Param[1]='e' THEN ShowOptionCode := 1;
             If ShowOptionCode=1 Then FilName := FilName + '_elem'
             Else FilName := FilName + '_seq';
@@ -337,12 +337,12 @@ Begin
              Freq := DefaultBaseFreq;  // Default
              Units := UNITS_KFT; // 'kft'; // default
              Rho_line   := 100.0;
-             ParamName := parser.nextparam;
-             If Length(Parser.strvalue)>0 Then Freq := Parser.dblvalue;
-             ParamName := parser.nextparam;
-             If Length(Parser.strvalue)>0 Then Units := GetUnitsCode(Parser.strvalue);
-             ParamName := parser.nextparam;
-             If Length(Parser.strvalue)>0 Then Rho_line := Parser.dblValue;
+             ParamName := parser[ActiveActor].nextparam;
+             If Length(Parser[ActiveActor].strvalue)>0 Then Freq := Parser[ActiveActor].dblvalue;
+             ParamName := parser[ActiveActor].nextparam;
+             If Length(Parser[ActiveActor].strvalue)>0 Then Units := GetUnitsCode(Parser[ActiveActor].strvalue);
+             ParamName := parser[ActiveActor].nextparam;
+             If Length(Parser[ActiveActor].strvalue)>0 Then Rho_line := Parser[ActiveActor].dblValue;
              ShowLineConstants(GetOutputDirectory + CircuitName_[ActiveActor] + 'LineConstants.txt', freq, units, Rho_line);
           End;
 

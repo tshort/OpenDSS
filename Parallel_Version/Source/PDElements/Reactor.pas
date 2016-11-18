@@ -62,7 +62,7 @@ TYPE
 
    TReactor = class(TPDClass)
      private
-        Procedure Domatrix(Var Matrix:pDoubleArray);
+        Procedure Domatrix(Var Matrix:pDoubleArray; ActorID : Integer);
 
         Procedure InterpretConnection(const S:String);
         Procedure ReactorSetbus1( const s:String);
@@ -249,7 +249,7 @@ END;
 
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Procedure TReactor.Domatrix(Var Matrix:pDoubleArray);
+Procedure TReactor.Domatrix(Var Matrix:pDoubleArray; ActorID : Integer);
 VAR
     OrderFound, j:Integer;
     MatBuffer:pDoubleArray;
@@ -257,7 +257,7 @@ VAR
 BEGIN
    WITH ActiveReactorObj DO BEGIN
      MatBuffer  := Allocmem(Sizeof(double)*Fnphases*Fnphases);
-     OrderFound := Parser.ParseAsSymMatrix(Fnphases, MatBuffer);
+     OrderFound := Parser[ActorID].ParseAsSymMatrix(Fnphases, MatBuffer);
 
      If OrderFound>0 THEN    // Parse was successful Else don't change Matrix
      BEGIN    {X}
@@ -346,8 +346,8 @@ BEGIN
   WITH ActiveReactorObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -359,22 +359,22 @@ BEGIN
             1: ReactorSetbus1(param);
             2: Setbus(2, param);
             3:{ Numphases := Parser.IntValue};  // see below
-            4: kvarRating := Parser.Dblvalue;
-            5: kvRating := Parser.Dblvalue;
+            4: kvarRating := Parser[ActorID].Dblvalue;
+            5: kvRating := Parser[ActorID].Dblvalue;
             6: InterpretConnection(Param);
-            7: DoMatrix(RMatrix);
-            8: DoMatrix(XMatrix);
+            7: DoMatrix(RMatrix, ActorID);
+            8: DoMatrix(XMatrix, ActorID);
             9: IsParallel := InterpretYesNo(Param);
-           10: R := Parser.Dblvalue;
-           11: X := Parser.Dblvalue;
-           12: Rp := Parser.Dblvalue;
+           10: R := Parser[ActorID].Dblvalue;
+           11: X := Parser[ActorID].Dblvalue;
+           12: Rp := Parser[ActorID].Dblvalue;
            13: Z1 := InterpretComplex(Param);
            14: Z2 := InterpretComplex(Param);
            15: Z0 := InterpretComplex(Param);
            16: Z  := InterpretComplex(Param);
            17: RCurve := Param;
            18: LCurve := Param;
-           19: L := Parser.DblValue / 1000.0;  // convert from mH to H
+           19: L := Parser[ActorID].DblValue / 1000.0;  // convert from mH to H
          ELSE
             // Inherited Property Edits
             ClassEdit(ActiveReactorObj, ParamPointer - NumPropsThisClass)
@@ -391,9 +391,9 @@ BEGIN
                 IsShunt     := FALSE;
                 Bus2Defined := TRUE;
               End;
-            3: IF Fnphases <> Parser.IntValue
+            3: IF Fnphases <> Parser[ActorID].IntValue
                THEN BEGIN
-                 Nphases := Parser.IntValue ;
+                 Nphases := Parser[ActorID].IntValue ;
                  NConds := Fnphases;  // Force Reallocation of terminal info
                  Yorder := Fnterms*Fnconds;
                END;
@@ -431,8 +431,8 @@ BEGIN
          ELSE
          END;
 
-       ParamName := Parser.NextParam;
-       Param := Parser.StrValue;
+       ParamName := Parser[ActorID].NextParam;
+       Param := Parser[ActorID].StrValue;
      END;
 
      RecalcElementData(ActorID);
@@ -1109,7 +1109,7 @@ begin
 
          END;
 
-       Parser.CmdString := S;
+       Parser[ActorID].CmdString := S;
        Edit(ActorID);
 
     End;

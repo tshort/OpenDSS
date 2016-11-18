@@ -673,8 +673,8 @@ Begin
   Begin
 
      ParamPointer := 0;
-     ParamName    := Parser.NextParam;  // Parse next property off the command line
-     Param        := Parser.StrValue;   // Put the string value of the property value in local memory for faster access
+     ParamName    := Parser[ActorID].NextParam;  // Parse next property off the command line
+     Param        := Parser[ActorID].StrValue;   // Put the string value of the property value in local memory for faster access
      While Length(Param)>0 Do
      Begin
 
@@ -690,16 +690,16 @@ Begin
              iCase := PropertyIdxMap[ParamPointer];
              CASE iCASE OF
                 0               : DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 561);
-                1               : NPhases    := Parser.Intvalue; // num phases
+                1               : NPhases    := Parser[ActorID].Intvalue; // num phases
                 2               : SetBus(1, param);
-               propKV           : PresentkV     := Parser.DblValue;
-               propIrradiance   : PVSystemVars.FIrradiance   := Parser.DblValue;
+               propKV           : PresentkV     := Parser[ActorID].DblValue;
+               propIrradiance   : PVSystemVars.FIrradiance   := Parser[ActorID].DblValue;
                propPF           : Begin
                                     PFSpecified   := TRUE;
                                     kvarSpecified := FALSE;
-                                    PFnominal     := Parser.DblValue;
+                                    PFnominal     := Parser[ActorID].DblValue;
                                   end;
-               propMODEL        : VoltageModel := Parser.IntValue;
+               propMODEL        : VoltageModel := Parser[ActorID].IntValue;
                propYEARLY       : YearlyShape  := Param;
                propDAILY        : DailyShape   := Param;
                propDUTY         : DutyShape    := Param;
@@ -710,33 +710,33 @@ Begin
                propKVAR         : Begin
                                     kvarSpecified := TRUE;
                                     PFSpecified   := FALSE;
-                                    Presentkvar   := Parser.DblValue;
+                                    Presentkvar   := Parser[ActorID].DblValue;
                                   End;
-               propPCTR         : pctR         := Parser.DblValue;
-               propPCTX         : pctX         := Parser.DblValue;
-               propCLASS        : FClass       := Parser.IntValue;
+               propPCTR         : pctR         := Parser[ActorID].DblValue;
+               propPCTX         : pctX         := Parser[ActorID].DblValue;
+               propCLASS        : FClass       := Parser[ActorID].IntValue;
                propInvEffCurve  : InverterCurve:= Param;
-               propTemp         : PVSystemVars.FTemperature := Parser.DblValue ;
-               propPmpp         : PVSystemVars.FPmpp        := Parser.DblValue ;
+               propTemp         : PVSystemVars.FTemperature := Parser[ActorID].DblValue ;
+               propPmpp         : PVSystemVars.FPmpp        := Parser[ActorID].DblValue ;
                propP_T_Curve    : Power_TempCurve := Param;
-               propCutin        : FpctCutIn    := Parser.DblValue;
-               propCutout       : FpctCutOut   := Parser.DblValue;
-               propVMINPU       : VMinPu       := Parser.DblValue;
-               propVMAXPU       : VMaxPu       := Parser.DblValue;
+               propCutin        : FpctCutIn    := Parser[ActorID].DblValue;
+               propCutout       : FpctCutOut   := Parser[ActorID].DblValue;
+               propVMINPU       : VMinPu       := Parser[ActorID].DblValue;
+               propVMAXPU       : VMaxPu       := Parser[ActorID].DblValue;
                propKVA          : Begin
-                                    PVSystemVars.FkVArating    := Parser.DblValue;
-                                    PVSystemVars.Fkvarlimit    := Parser.DblValue;
+                                    PVSystemVars.FkVArating    := Parser[ActorID].DblValue;
+                                    PVSystemVars.Fkvarlimit    := Parser[ActorID].DblValue;
                                   End;
-               propUSERMODEL    : UserModel.Name := Parser.StrValue;  // Connect to user written models
-               propUSERDATA     : UserModel.Edit := Parser.StrValue;  // Send edit string to user model
+               propUSERMODEL    : UserModel.Name := Parser[ActorID].StrValue;  // Connect to user written models
+               propUSERDATA     : UserModel.Edit := Parser[ActorID].StrValue;  // Send edit string to user model
                propDEBUGTRACE   : DebugTrace   := InterpretYesNo(Param);
-               proppctPmpp      : PVSystemVars.FpuPmpp  := Parser.DblValue / 100.0;  // convert to pu
+               proppctPmpp      : PVSystemVars.FpuPmpp  := Parser[ActorID].DblValue / 100.0;  // convert to pu
                propBalanced     : ForceBalanced  := InterpretYesNo(Param);
                propLimited      : CurrentLimited := InterpretYesNo(Param);
                propVarFollowInverter
                                 : FVarFollowInverter := InterpretYesNo(Param);
-               propkvarLimit      : PVSystemVars.Fkvarlimit     := Abs(Parser.DblValue);
-               propDutyStart: DutyStart := Parser.DblValue;
+               propkvarLimit      : PVSystemVars.Fkvarlimit     := Abs(Parser[ActorID].DblValue);
+               propDutyStart: DutyStart := Parser[ActorID].DblValue;
 
 
 
@@ -777,8 +777,8 @@ Begin
              END;
          End;
 
-         ParamName := Parser.NextParam;
-         Param     := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param     := Parser[ActorID].StrValue;
      End;
 
      RecalcElementData(ActorID);
@@ -2647,7 +2647,7 @@ Begin
       If (Fnphases>1)
       Then S := S + Format(' kva=%-.5g  PF=%-.5g',[FkVArating/Fnphases, PFnominal]);
 
-      Parser.CmdString := S;
+      Parser[ActorID].CmdString := S;
       Edit(ActorID);
   End;
 

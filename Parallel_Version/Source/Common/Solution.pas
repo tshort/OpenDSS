@@ -227,7 +227,7 @@ TYPE
  // Procedures that use to be private before 01-20-2016
 
        PROCEDURE AddInAuxCurrents(SolveType:Integer; ActorID : Integer);
-       Function SolveSystem(V:pNodeVArray):Integer;
+       Function SolveSystem(V:pNodeVArray; ActorID : Integer):Integer;
        PROCEDURE GetPCInjCurr(ActorID : Integer);
        PROCEDURE GetSourceInjCurrents(ActorID : Integer);
        PROCEDURE ZeroInjCurr(ActorID : Integer);
@@ -417,8 +417,8 @@ Begin
       Reallocmem(NodeVbase, 0);
       Reallocmem(VMagSaved, 0);
 
-      If hYsystem <> 0 THEN   DeleteSparseSet(hYsystem);
-      If hYseries <> 0 THEN   DeleteSparseSet(hYseries);
+      If hYsystem <> 0 THEN   DeleteSparseSet[ActiveActor](hYsystem);
+      If hYseries <> 0 THEN   DeleteSparseSet[ActiveActor](hYseries);
 
 //      SetLogFile ('c:\\temp\\KLU_Log.txt', 0);
 
@@ -676,7 +676,7 @@ Begin
                        ZeroInjCurr(ActorID);
                        GetSourceInjCurrents(ActorID);
                        pGen.InjCurrents(ActorID);   // get generator currents with nominal vars
-                       SolveSystem(NodeV);
+                       SolveSystem(NodeV, ActorID);
                    Until Converged(ActorID) or (Iteration >= Maxiterations);
 
                    pGen.RememberQV(ActorID);  // Remember Q and V
@@ -689,7 +689,7 @@ Begin
                        ZeroInjCurr(ActorID);
                        GetSourceInjCurrents(ActorID);
                        pGen.InjCurrents(ActorID);   // get generator currents with nominal vars
-                       SolveSystem(NodeV);
+                       SolveSystem(NodeV, ActorID);
                    Until Converged(ActorID) or (Iteration >= Maxiterations);
 
                    pGen.CalcdQdV(ActorID); // bssed on remembered Q and V and present values of same
@@ -755,7 +755,7 @@ Begin
 
       // Solve for voltages                      {Note:NodeV[0] = 0 + j0 always}
        If LogEvents Then LogThisEvent('Solve Sparse Set DoNormalSolution ...');
-       SolveSystem(NodeV);
+       SolveSystem(NodeV, ActorID);
        LoadsNeedUpdating := FALSE;
 
    Until (Converged(ActorID) and (Iteration > 1)) or (Iteration >= MaxIterations);
@@ -811,7 +811,7 @@ Begin
            IF UseAuxCurrents THEN AddInAuxCurrents(NEWTONSOLVE, ActorID);
 
         // Solve for change in voltages
-           SolveSystem(dV);
+           SolveSystem(dV, ActorID);
 
            LoadsNeedUpdating := FALSE;
 
@@ -898,7 +898,7 @@ Begin
 
     If ActiveCircuit[ActiveActor].LogEvents Then LogThisEvent('Solve Sparse Set ZeroLoadSnapshot ...');
 
-    SolveSystem(NodeV);  // also sets voltages in radial part of the circuit if radial solution
+    SolveSystem(NodeV, ActorID);  // also sets voltages in radial part of the circuit if radial solution
 
     { Reset the main system Y as the solution matrix}
     IF   (hYsystem > 0) and Not SolutionAbort THEN
@@ -1043,7 +1043,7 @@ Begin
    // Ignore these injections for powerflow; Use only admittance in Y matrix
    If IsDynamicModel or IsHarmonicModel Then  GetPCInjCurr(ActorID);
 
-   IF   SolveSystem(NodeV) = 1   // Solve with Zero injection current
+   IF   SolveSystem(NodeV, ActorID) = 1   // Solve with Zero injection current
    THEN Begin
        ActiveCircuit[ActorID].IsSolved := TRUE;
        ConvergedFlag := TRUE;
@@ -1226,13 +1226,13 @@ Begin
       hY := Solution.hY;
 
       // get the compressed columns out of KLU
-      FactorSparseMatrix (hY); // no extra work if already done
-      GetNNZ (hY, @nNZ);
-      GetSize (hY, @nBus);
+      FactorSparseMatrix[ActiveActor](hY); // no extra work if already done
+      GetNNZ[ActiveActor](hY, @nNZ);
+      GetSize[ActiveActor](hY, @nBus);
       SetLength (ColPtr, nBus + 1);
       SetLength (RowIdx, nNZ);
       SetLength (cVals, nNZ);
-      GetCompressedMatrix (hY, nBus + 1, nNZ, @ColPtr[0], @RowIdx[0], @cVals[0]);
+      GetCompressedMatrix[ActiveActor](hY, nBus + 1, nNZ, @ColPtr[0], @RowIdx[0], @cVals[0]);
 
       Writeln(F,'System Y Matrix (Lower Triangle by Columns)');
       Writeln(F);
@@ -1721,7 +1721,7 @@ end;
 
 {  *************  MAIN SOLVER CALL  ************************}
 
-FUNCTION TSolutionObj.SolveSystem(V:pNodeVArray): Integer;
+FUNCTION TSolutionObj.SolveSystem(V:pNodeVArray; actorID : Integer): Integer;
 
 Var
   RetCode:Integer;
@@ -1735,16 +1735,16 @@ BEGIN
   Try
     // new function to log KLUSolve.DLL function calls; same information as stepping through in Delphi debugger
     // SetLogFile ('KLU_Log.txt', 1);
-    RetCode := SolveSparseSet(hY, @V^[1], @Currents^[1]);  // Solve for present InjCurr
+    RetCode := SolveSparseSet[ActorID](hY, @V^[1], @Currents^[1]);  // Solve for present InjCurr
     // new information functions
-    GetFlops (hY, @dRes);
-    GetRGrowth (hY, @dRes);
-    GetRCond (hY, @dRes);
+    GetFlops[ActorID](hY, @dRes);
+    GetRGrowth[ActorID](hY, @dRes);
+    GetRCond[ActorID](hY, @dRes);
     // GetCondEst (hY, @dRes); // this can be expensive
-    GetSize (hY, @iRes);
-    GetNNZ (hY, @iRes);
-    GetSparseNNZ (hY, @iRes);
-    GetSingularCol (hY, @iRes);
+    GetSize[ActorID](hY, @iRes);
+    GetNNZ[ActorID](hY, @iRes);
+    GetSparseNNZ[ActorID](hY, @iRes);
+    GetSingularCol[ActorID](hY, @iRes);
   Except
     On E:Exception Do Raise  EEsolv32Problem.Create('Error Solving System Y Matrix.  Sparse matrix solver reports numerical error: '
                    +E.Message);
@@ -1809,7 +1809,7 @@ BEGIN
    GetSourceInjCurrents(ActorID);
    If IsDynamicModel Then GetPCInjCurr(ActorID);  // Need this in dynamics mode to pick up additional injections
 
-   SolveSystem(NodeV); // Solve with Zero injection current
+   SolveSystem(NodeV, ActorID); // Solve with Zero injection current
 
 END;
 
@@ -1848,7 +1848,7 @@ var
       begin
         ActorStatus[ActorID] := 0;
         FMessage  :=  '1';
-        synchronize(CallCallBack);
+        if Not IsDLL then synchronize(CallCallBack);
 //        InitProgressForm(ActorID); // initialize Progress Form;
            Case Dynavars.SolutionMode OF
                SNAPSHOT       : SolveSnap(ActorID);
@@ -1878,7 +1878,7 @@ var
 //        ProgressHide(ActorID);
         ActorStatus[ActorID]  :=  1;
         FMessage  :=  '1';
-        synchronize(CallCallBack);
+        if Not IsDLL then synchronize(CallCallBack);
       end;
     end;
   end;

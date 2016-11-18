@@ -417,8 +417,8 @@ Begin
      Result := TRUE;
      // Continue parsing command line
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
@@ -429,17 +429,17 @@ Begin
            15: DefaultEditor := Param;     // 'Editor='
            57: SetDataPath(Param);  // Set a legal data path
            67: DSSExecutive.RecorderOn := InterpretYesNo(Param);
-           73: DefaultBaseFreq  := Parser.DblValue;
+           73: DefaultBaseFreq  := Parser[ActiveActor].DblValue;
           102: UpdateRegistry   := InterpretYesNo(Param);
           112:  Begin
-                  if Parser.IntValue <= NumOfActors then ActiveActor  :=  Parser.IntValue
+                  if Parser[ActiveActor].IntValue <= NumOfActors then ActiveActor  :=  Parser[ActiveActor].IntValue
                   else
                   begin
                     DoSimpleMsg('The actor does not exists',7002);
                   end;
                 End;
           113:  Begin
-                  if Parser.IntValue < CPU_Cores then ActorCPU[ActiveActor]  :=  Parser.IntValue
+                  if Parser[ActiveActor].IntValue < CPU_Cores then ActorCPU[ActiveActor]  :=  Parser[ActiveActor].IntValue
                   else
                   begin
                     DoSimpleMsg('The CPU does not exists',7003);
@@ -453,8 +453,8 @@ Begin
            End;
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      End; {WHILE}
 
 END;
@@ -478,8 +478,8 @@ Begin
      Result := 0;
      // Continue parsing command line
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      WHILE Length(Param)>0 DO
      Begin
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
@@ -489,33 +489,33 @@ Begin
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Set Command ', 130);
             1,12: SetObjectClass(Param);
             2,13: SetObject(Param);
-            3: ActiveCircuit[ActiveActor].solution.DynaVars.intHour := Parser.IntValue;
-            4: ActiveCircuit[ActiveActor].solution.DynaVars.t    := Parser.DblValue;
+            3: ActiveCircuit[ActiveActor].solution.DynaVars.intHour := Parser[ActiveActor].IntValue;
+            4: ActiveCircuit[ActiveActor].solution.DynaVars.t    := Parser[ActiveActor].DblValue;
             5: WITH ActiveCircuit[ActiveActor] Do Begin
-                  Solution.Year := Parser.IntValue;
+                  Solution.Year := Parser[ActiveActor].IntValue;
                   DefaultGrowthFactor :=  IntPower(DefaultGrowthRate, (Solution.Year-1));
                End;
-            6: ActiveCircuit[ActiveActor].solution.Frequency      := Parser.DblValue;
+            6: ActiveCircuit[ActiveActor].solution.Frequency      := Parser[ActiveActor].DblValue;
             7,18: ActiveCircuit[ActiveActor].solution.DynaVars.h  := InterpretTimeStepSize(Param);
             8: ActiveCircuit[ActiveActor].solution.Mode          := InterpretSolveMode(Param);  // see DSSGlobals
             9: ActiveCircuit[ActiveActor].solution.RandomType    := InterpretRandom(Param);
-           10: ActiveCircuit[ActiveActor].solution.NumberOfTimes := Parser.IntValue;
+           10: ActiveCircuit[ActiveActor].solution.NumberOfTimes := Parser[ActiveActor].IntValue;
            11: Set_Time;
            14: SetActiveCircuit(Param);
            15: DefaultEditor := Param;     // 'Editor='
-           16: ActiveCircuit[ActiveActor].solution.ConvergenceTolerance := Parser.DblValue;
-           17: ActiveCircuit[ActiveActor].solution.MaxIterations        := Parser.IntValue;
+           16: ActiveCircuit[ActiveActor].solution.ConvergenceTolerance := Parser[ActiveActor].DblValue;
+           17: ActiveCircuit[ActiveActor].solution.MaxIterations        := Parser[ActiveActor].IntValue;
            19: WITH ActiveCircuit[ActiveActor].solution DO Begin
                     DefaultLoadModel := InterpretLoadModel(Param); // for reverting to last on specified
                     LoadModel := DefaultLoadModel;
                End;
-           20: ActiveCircuit[ActiveActor].LoadMultiplier   := Parser.DblValue;  // Set using LoadMultiplier property
-           21: ActiveCircuit[ActiveActor].NormalMinVolts := Parser.DblValue;
-           22: ActiveCircuit[ActiveActor].NormalMaxVolts := Parser.DblValue;
-           23: ActiveCircuit[ActiveActor].EmergMinVolts  := Parser.DblValue;
-           24: ActiveCircuit[ActiveActor].EmergMaxVolts  := Parser.DblValue;
-           25: ActiveCircuit[ActiveActor].DefaultDailyShapeObj.Mean    := Parser.DblValue / 100.0;
-           26: ActiveCircuit[ActiveActor].DefaultDailyShapeObj.StdDev  := Parser.DblValue / 100.0;
+           20: ActiveCircuit[ActiveActor].LoadMultiplier   := Parser[ActiveActor].DblValue;  // Set using LoadMultiplier property
+           21: ActiveCircuit[ActiveActor].NormalMinVolts := Parser[ActiveActor].DblValue;
+           22: ActiveCircuit[ActiveActor].NormalMaxVolts := Parser[ActiveActor].DblValue;
+           23: ActiveCircuit[ActiveActor].EmergMinVolts  := Parser[ActiveActor].DblValue;
+           24: ActiveCircuit[ActiveActor].EmergMaxVolts  := Parser[ActiveActor].DblValue;
+           25: ActiveCircuit[ActiveActor].DefaultDailyShapeObj.Mean    := Parser[ActiveActor].DblValue / 100.0;
+           26: ActiveCircuit[ActiveActor].DefaultDailyShapeObj.StdDev  := Parser[ActiveActor].DblValue / 100.0;
            27: WITH ActiveCircuit[ActiveActor] DO Begin
                   LoadDurCurve    := Param;
                   LoadDurCurveObj := LoadShapeClass[ActiveActor].Find(Param);
@@ -523,17 +523,17 @@ Begin
                    DoSimpleMsg('Load-Duration Curve not found.', 131);
                End;
            28: WITH ActiveCircuit[ActiveActor] Do Begin
-                    DefaultGrowthRate := 1.0 + Parser.DblValue/100.0;
+                    DefaultGrowthRate := 1.0 + Parser[ActiveActor].DblValue/100.0;
                     DefaultGrowthFactor :=  IntPower(DefaultGrowthRate, (Solution.Year-1));
                End;
-           29: ActiveCircuit[ActiveActor].AutoAddObj.GenkW    := Parser.DblValue;
-           30: ActiveCircuit[ActiveActor].AutoAddObj.GenPF    := Parser.DblValue;
-           31: ActiveCircuit[ActiveActor].AutoAddObj.CapkVAR  := Parser.DblValue;
+           29: ActiveCircuit[ActiveActor].AutoAddObj.GenkW    := Parser[ActiveActor].DblValue;
+           30: ActiveCircuit[ActiveActor].AutoAddObj.GenPF    := Parser[ActiveActor].DblValue;
+           31: ActiveCircuit[ActiveActor].AutoAddObj.CapkVAR  := Parser[ActiveActor].DblValue;
            32: ActiveCircuit[ActiveActor].AutoAddObj.AddType  := InterpretAddType(Param);
            33: ActiveCircuit[ActiveActor].DuplicatesAllowed := InterpretYesNo(Param);
            34: ActiveCircuit[ActiveActor].ZonesLocked := InterpretYesNo(Param);
-           35: ActiveCircuit[ActiveActor].UEWeight    := Parser.DblValue;
-           36: ActiveCircuit[ActiveActor].LossWeight  := Parser.DblValue;
+           35: ActiveCircuit[ActiveActor].UEWeight    := Parser[ActiveActor].DblValue;
+           36: ActiveCircuit[ActiveActor].LossWeight  := Parser[ActiveActor].DblValue;
            37: ParseIntArray(ActiveCircuit[ActiveActor].UERegs, ActiveCircuit[ActiveActor].NumUEregs, Param);
            38: ParseIntArray(ActiveCircuit[ActiveActor].LossRegs, ActiveCircuit[ActiveActor].NumLossregs, Param);
            39: DoLegalVoltageBases;
@@ -545,7 +545,7 @@ Begin
                     DefaultControlMode := ControlMode;  // always revert to last one specified in a script
                END;
            44: ActiveCircuit[ActiveActor].ControlQueue.TraceLog := InterpretYesNo(Param);
-           45: ActiveCircuit[ActiveActor].GenMultiplier := Parser.DblValue ;
+           45: ActiveCircuit[ActiveActor].GenMultiplier := Parser[ActiveActor].DblValue ;
            46: Begin
                  TestLoadShapeObj := LoadShapeClass[ActiveActor].Find(Param);
                  IF TestLoadShapeObj <> NIL THEN ActiveCircuit[ActiveActor].DefaultDailyShapeObj  := TestLoadShapeObj;
@@ -554,9 +554,9 @@ Begin
                  TestLoadShapeObj := LoadShapeClass[ActiveActor].Find(Param);
                  IF TestLoadShapeObj <> NIL THEN ActiveCircuit[ActiveActor].DefaultYearlyShapeObj  := TestLoadShapeObj;
                END;
-           48: DoSetAllocationFactors(Parser.DblValue);
+           48: DoSetAllocationFactors(Parser[ActiveActor].DblValue);
            49: ActiveCircuit[ActiveActor].PositiveSequence := InterpretCktModel(Param);
-           50: ActiveCircuit[ActiveActor].PriceSignal := Parser.DblValue ;
+           50: ActiveCircuit[ActiveActor].PriceSignal := Parser[ActiveActor].DblValue ;
            51: WITH ActiveCircuit[ActiveActor] DO  Begin
                   PriceCurve    := Param;
                   PriceCurveObj := PriceShapeClass[ActiveActor].Find(Param);
@@ -565,46 +565,46 @@ Begin
                End;
            52: With ActiveCircuit[ActiveActor] DO IF ActiveCktElement<> NIL THEN With ActiveCktElement Do
                 Begin
-                   ActiveTerminalIdx := Parser.IntValue;
+                   ActiveTerminalIdx := Parser[ActiveActor].IntValue;
                    SetActiveBus(StripExtension(Getbus(ActiveTerminalIdx)));   // bus connected to terminal
                 End;
            53: Begin
-                ActiveCircuit[ActiveActor].Fundamental        := Parser.DblValue;     // Set Base Frequency for system (used henceforth)
-                ActiveCircuit[ActiveActor].Solution.Frequency := Parser.DblValue;
+                ActiveCircuit[ActiveActor].Fundamental        := Parser[ActiveActor].DblValue;     // Set Base Frequency for system (used henceforth)
+                ActiveCircuit[ActiveActor].Solution.Frequency := Parser[ActiveActor].DblValue;
                End;
            54: DoHarmonicsList(Param);
-           55: ActiveCircuit[ActiveActor].Solution.MaxControlIterations := Parser.IntValue;
+           55: ActiveCircuit[ActiveActor].Solution.MaxControlIterations := Parser[ActiveActor].IntValue;
            56: Result := SetActiveBus(Param);   // See DSSGlobals
            57: SetDataPath(Param);  // Set a legal data path
            58: DoKeeperBusList(Param);
            59: DoSetReduceStrategy(param);
            60: EnergyMeterClass[ActiveActor].SaveDemandInterval := InterpretYesNo(Param);
            61: Begin
-                 ActiveCircuit[ActiveActor].PctNormalFactor := Parser.DblValue;
+                 ActiveCircuit[ActiveActor].PctNormalFactor := Parser[ActiveActor].DblValue;
                  DoSetNormal(ActiveCircuit[ActiveActor].PctNormalFactor);
                End;
            62: EnergyMeterClass[ActiveActor].DI_Verbose   := InterpretYesNo(Param);
-           63: ActiveCircuit[ActiveActor].CaseName        := Parser.StrValue;
-           64: ActiveCircuit[ActiveActor].NodeMarkerCode  := Parser.IntValue;
-           65: ActiveCircuit[ActiveActor].NodeMarkerWidth := Parser.IntValue;
+           63: ActiveCircuit[ActiveActor].CaseName        := Parser[ActiveActor].StrValue;
+           64: ActiveCircuit[ActiveActor].NodeMarkerCode  := Parser[ActiveActor].IntValue;
+           65: ActiveCircuit[ActiveActor].NodeMarkerWidth := Parser[ActiveActor].IntValue;
            66: ActiveCircuit[ActiveActor].LogEvents       := InterpretYesNo(Param);
            67: DSSExecutive.RecorderOn       := InterpretYesNo(Param);
            68: EnergyMeterClass[ActiveActor].Do_OverloadReport := InterpretYesNo(Param);
            69: EnergyMeterClass[ActiveActor].Do_VoltageExceptionReport := InterpretYesNo(Param);
-           70: DoSetCFactors(Parser.DblValue);
+           70: DoSetCFactors(Parser[ActiveActor].DblValue);
            71: AutoShowExport := InterpretYesNo(Param);
-           72: MaxAllocationIterations := Parser.IntValue;
+           72: MaxAllocationIterations := Parser[ActiveActor].IntValue;
            73: Begin
-                   DefaultBaseFreq  := Parser.DblValue;
-                   ActiveCircuit[ActiveActor].Fundamental        := Parser.DblValue;     // Set Base Frequency for system (used henceforth)
-                   ActiveCircuit[ActiveActor].Solution.Frequency := Parser.DblValue;
+                   DefaultBaseFreq  := Parser[ActiveActor].DblValue;
+                   ActiveCircuit[ActiveActor].Fundamental        := Parser[ActiveActor].DblValue;     // Set Base Frequency for system (used henceforth)
+                   ActiveCircuit[ActiveActor].Solution.Frequency := Parser[ActiveActor].DblValue;
                End ;
            74: ActiveCircuit[ActiveActor].MarkSwitches     := InterpretYesNo(Param);
-           75: ActiveCircuit[ActiveActor].SwitchMarkerCode := Parser.IntValue;
-           76: DaisySize := Parser.DblValue;
+           75: ActiveCircuit[ActiveActor].SwitchMarkerCode := Parser[ActiveActor].IntValue;
+           76: DaisySize := Parser[ActiveActor].DblValue;
            77: ActiveCircuit[ActiveActor].MarkTransformers := InterpretYesNo(Param);
-           78: ActiveCircuit[ActiveActor].TransMarkerCode  := Parser.IntValue;
-           79: ActiveCircuit[ActiveActor].TransMarkerSize  := Parser.IntValue;
+           78: ActiveCircuit[ActiveActor].TransMarkerCode  := Parser[ActiveActor].IntValue;
+           79: ActiveCircuit[ActiveActor].TransMarkerSize  := Parser[ActiveActor].IntValue;
            80: ActiveCircuit[ActiveActor].ActiveLoadShapeClass := InterpretLoadShapeClass(Param);
            81: DefaultEarthModel := InterpretEarthModel(Param);
            82: Begin
@@ -615,35 +615,35 @@ Begin
            84: ActiveCircuit[ActiveActor].MarkRegulators  := InterpretYesNo(Param);
            85: ActiveCircuit[ActiveActor].MarkPVSystems   := InterpretYesNo(Param);
            86: ActiveCircuit[ActiveActor].MarkStorage     := InterpretYesNo(Param);
-           87: ActiveCircuit[ActiveActor].CapMarkerCode   := Parser.IntValue;
-           88: ActiveCircuit[ActiveActor].RegMarkerCode   := Parser.IntValue;
-           89: ActiveCircuit[ActiveActor].PVMarkerCode    := Parser.IntValue;
-           90: ActiveCircuit[ActiveActor].StoreMarkerCode := Parser.IntValue;
-           91: ActiveCircuit[ActiveActor].CapMarkerSize   := Parser.IntValue;
-           92: ActiveCircuit[ActiveActor].RegMarkerSize   := Parser.IntValue;
-           93: ActiveCircuit[ActiveActor].PVMarkerSize    := Parser.IntValue;
-           94: ActiveCircuit[ActiveActor].StoreMarkerSize := Parser.IntValue;
+           87: ActiveCircuit[ActiveActor].CapMarkerCode   := Parser[ActiveActor].IntValue;
+           88: ActiveCircuit[ActiveActor].RegMarkerCode   := Parser[ActiveActor].IntValue;
+           89: ActiveCircuit[ActiveActor].PVMarkerCode    := Parser[ActiveActor].IntValue;
+           90: ActiveCircuit[ActiveActor].StoreMarkerCode := Parser[ActiveActor].IntValue;
+           91: ActiveCircuit[ActiveActor].CapMarkerSize   := Parser[ActiveActor].IntValue;
+           92: ActiveCircuit[ActiveActor].RegMarkerSize   := Parser[ActiveActor].IntValue;
+           93: ActiveCircuit[ActiveActor].PVMarkerSize    := Parser[ActiveActor].IntValue;
+           94: ActiveCircuit[ActiveActor].StoreMarkerSize := Parser[ActiveActor].IntValue;
            95: ActiveCircuit[ActiveActor].NeglectLoadY    := InterpretYesNo(Param);
            96: ActiveCircuit[ActiveActor].MarkFuses       := InterpretYesNo(Param);
-           97: ActiveCircuit[ActiveActor].FuseMarkerCode  := Parser.IntValue;
-           98: ActiveCircuit[ActiveActor].FuseMarkerSize  := Parser.IntValue;
+           97: ActiveCircuit[ActiveActor].FuseMarkerCode  := Parser[ActiveActor].IntValue;
+           98: ActiveCircuit[ActiveActor].FuseMarkerSize  := Parser[ActiveActor].IntValue;
            99: ActiveCircuit[ActiveActor].MarkReclosers       := InterpretYesNo(Param);
-          100: ActiveCircuit[ActiveActor].RecloserMarkerCode  := Parser.IntValue;
-          101: ActiveCircuit[ActiveActor].RecloserMarkerSize  := Parser.IntValue;
+          100: ActiveCircuit[ActiveActor].RecloserMarkerCode  := Parser[ActiveActor].IntValue;
+          101: ActiveCircuit[ActiveActor].RecloserMarkerSize  := Parser[ActiveActor].IntValue;
           102: UpdateRegistry                    := InterpretYesNo(Param);
           103: ActiveCircuit[ActiveActor].MarkRelays       := InterpretYesNo(Param);
-          104: ActiveCircuit[ActiveActor].RelayMarkerCode  := Parser.IntValue;
-          105: ActiveCircuit[ActiveActor].RelayMarkerSize  := Parser.IntValue;
-          107: ActiveCircuit[ActiveActor].Solution.Total_Time  :=  Parser.DblValue;
+          104: ActiveCircuit[ActiveActor].RelayMarkerCode  := Parser[ActiveActor].IntValue;
+          105: ActiveCircuit[ActiveActor].RelayMarkerSize  := Parser[ActiveActor].IntValue;
+          107: ActiveCircuit[ActiveActor].Solution.Total_Time  :=  Parser[ActiveActor].DblValue;
           112:  Begin
-                  if Parser.IntValue <= NumOfActors then ActiveActor  :=  Parser.IntValue
+                  if Parser[ActiveActor].IntValue <= NumOfActors then ActiveActor  :=  Parser[ActiveActor].IntValue
                   else
                   begin
                     DoSimpleMsg('The actor does not exists',7002);
                   end;
                 End;
           113:  Begin
-                  if Parser.IntValue < CPU_Cores then ActorCPU[ActiveActor]  :=  Parser.IntValue
+                  if Parser[ActiveActor].IntValue < CPU_Cores then ActorCPU[ActiveActor]  :=  Parser[ActiveActor].IntValue
                   else
                   begin
                     DoSimpleMsg('The CPU does not exists',7003);
@@ -657,8 +657,8 @@ Begin
               3,4: ActiveCircuit[ActiveActor].Solution.Update_dblHour;
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      End; {WHILE}
 
      IF SolveOption = 1 THEN  DoSolveCmd;
@@ -686,8 +686,8 @@ Begin
      GlobalResult := '';  //initialize for appending
 
      // Continue parsing command line
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      // there will be no named paramters in this command and the params
      // themselves will be the parameter name to return
      WHILE Length(Param)>0 DO
@@ -837,8 +837,8 @@ Begin
            // Ignore excess parameters
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      End; {WHILE}
 
   Except
@@ -866,8 +866,8 @@ Begin
      GlobalResult := '';  //initialize for appending
 
      // Continue parsing command line
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActiveActor].NextParam;
+     Param := Parser[ActiveActor].StrValue;
      // there will be no named paramters in this command and the params
      // themselves will be the parameter name to return
      WHILE Length(Param)>0 DO
@@ -892,8 +892,8 @@ Begin
            End;
          End;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActiveActor].NextParam;
+         Param := Parser[ActiveActor].StrValue;
      End; {WHILE}
 
   Except
@@ -924,6 +924,7 @@ Finalization
 
 
 end.
+
 
 
 

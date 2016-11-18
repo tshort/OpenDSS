@@ -246,8 +246,8 @@ BEGIN
   WITH ActiveLineGeometryObj DO BEGIN
 
      ParamPointer := 0;
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
+     ParamName := Parser[ActorID].NextParam;
+     Param := Parser[ActorID].StrValue;
      WHILE Length(Param)>0 DO BEGIN
          IF Length(ParamName) = 0 THEN Inc(ParamPointer)
          ELSE ParamPointer := CommandList.GetCommand(ParamName);
@@ -256,21 +256,21 @@ BEGIN
 
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 10101);
-            1: NConds        := Parser.IntValue;  // Use property value to force reallocations
-            2: FNphases      := Parser.IntValue;
-            3: ActiveCond    := Parser.IntValue;
+            1: NConds        := Parser[ActorID].IntValue;  // Use property value to force reallocations
+            2: FNphases      := Parser[ActorID].IntValue;
+            3: ActiveCond    := Parser[ActorID].IntValue;
             4: Begin
                 FCondName^[ActiveCond] := Param;
                 if FPhaseChoice = Unknown then ChangeLineConstantsType (Overhead);
             end;
-            5: FX^[ActiveCond] := Parser.DblValue;
-            6: FY^[ActiveCond] := Parser.DblValue;
+            5: FX^[ActiveCond] := Parser[ActorID].DblValue;
+            6: FY^[ActiveCond] := Parser[ActorID].DblValue;
             7: Begin FUnits^[ActiveCond] := GetUnitsCode(Param); FLastUnit := FUnits^[ActiveCond]; End;
-            8: NormAmps    := Parser.DblValue ;
-            9: EmergAmps   := Parser.DblValue ;
+            8: NormAmps    := Parser[ActorID].DblValue ;
+            9: EmergAmps   := Parser[ActorID].DblValue ;
            10: Freduce     := InterpretYesNo(Param);
            11: Begin
-                  FSpacingType := Parser.StrValue;
+                  FSpacingType := Parser[ActorID].StrValue;
                   if LineSpacingClass[ActorID].SetActive(FSpacingType) then begin
                     ActiveLineSpacingObj := LineSpacingClass[ActorID].GetActiveObj;
                     if (FNConds = ActiveLineSpacingObj.NWires) then begin
@@ -303,7 +303,7 @@ BEGIN
                   istart := FNPhases + 1;
               end;
 
-              AuxParser.CmdString := Parser.StrValue;
+              AuxParser.CmdString := Parser[ActorID].StrValue;
               for i := istart to istop do begin
                 AuxParser.NextParam; // ignore any parameter name  not expecting any
                 FCondName[i] := AuxParser.StrValue;
@@ -337,7 +337,7 @@ BEGIN
          CASE ParamPointer OF
 
             2: If (FNPhases > FNconds) then FNPhases := FNConds;
-            3: If (ActiveCond < 1) or (ActiveCond > FNconds) Then DoSimpleMsg('Illegal cond= specification in Line Geometry:'+CRLF+Parser.cmdstring, 10102);
+            3: If (ActiveCond < 1) or (ActiveCond > FNconds) Then DoSimpleMsg('Illegal cond= specification in Line Geometry:'+CRLF+Parser[ActorID].cmdstring, 10102);
             4,13,14: Begin
                 if ParamPointer=4 then
                   WireDataClass[ActorID].code := Param
@@ -366,8 +366,8 @@ BEGIN
             1,4..7,11..16: DataChanged := TRUE;
          END;
 
-         ParamName := Parser.NextParam;
-         Param := Parser.StrValue;
+         ParamName := Parser[ActorID].NextParam;
+         Param := Parser[ActorID].StrValue;
      END;
 
   END;
