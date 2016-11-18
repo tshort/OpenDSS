@@ -387,7 +387,7 @@ public class CDPSM_to_DSS extends Object {
     if (r.hasProperty(p)) {
       String arg = r.getProperty(p).getObject().toString();
       int hash = arg.lastIndexOf ("#WindingConnection.");
-      return arg.substring (hash + 19);  // TODO - change Y to W
+      return arg.substring (hash + 19);    // D, Y, Z, Yn, Zn, A, I
     }
     return def;
   }
@@ -517,7 +517,7 @@ public class CDPSM_to_DSS extends Object {
 			rw[i] = 100.0 * SafeDouble (rEnd, ptEndRw, 0.0) / zb[i];
       rn[i] = SafeDouble (rEnd, ptEndRn, 0.0);
       xn[i] = SafeDouble (rEnd, ptEndXn, 0.0);
-      wye[i] = GetWdgConnection (rEnd, ptEndC, "W");
+      wye[i] = GetWdgConnection (rEnd, ptEndC, "Y");
 			rEnds[i] = rEnd; // save to construct the impedance data
     }
 
@@ -548,7 +548,7 @@ public class CDPSM_to_DSS extends Object {
 		Property ptFrom = mdl.getProperty (nsCIM, "TransformerMeshImpedance.FromTransformerEnd");
 		Property ptTo = mdl.getProperty (nsCIM, "TransformerMeshImpedance.ToTransformerEnd");
 		Property ptMeshX = mdl.getProperty (nsCIM, "TransformerMeshImpedance.x");
-		Property ptCoreB = mdl.getProperty (nsCIM, "TransformerCoreAdmittance.b");
+		Property ptCoreB = mdl.getProperty (nsCIM, "TransformerCoreAdmittance.b");  // TODO
 		Property ptCoreG = mdl.getProperty (nsCIM, "TransformerCoreAdmittance.g");
 		Resource rMesh, rCore, rTo;
 		double x;
@@ -978,8 +978,8 @@ public class CDPSM_to_DSS extends Object {
 		Property ptCtl = mdl.getProperty (nsCIM, "TapChanger.TapChangerControl");
     Property ptBand = mdl.getProperty (nsCIM, "RegulatingControl.targetDeadband");
     Property ptSet = mdl.getProperty (nsCIM, "RegulatingControl.targetValue");
-    Property ptR = mdl.getProperty (nsCIM, "TapChangerControl.lineDropX");
-    Property ptX = mdl.getProperty (nsCIM, "TapChangerControl.lineDropR");
+    Property ptR = mdl.getProperty (nsCIM, "TapChangerControl.lineDropR");
+    Property ptX = mdl.getProperty (nsCIM, "TapChangerControl.lineDropX");
 		Resource ctl = mdl.getProperty(reg,ptCtl).getResource();
     double ldcR = SafeDouble (ctl, ptR, 0.0);
     double ldcX = SafeDouble (ctl, ptX, 0.0);
@@ -1076,15 +1076,16 @@ public class CDPSM_to_DSS extends Object {
 		Resource rCap = mdl.getProperty(ctl,ptCap).getResource();
 		String ctlName = SafeResName (ctl, ptName);
 		String capName = SafeResName (rCap, ptName);
+		String sPhase = Phase_String (SafePhasesX (ctl, ptPhase));
+		String sMode = SafeRegulatingMode (ctl, ptMode, "voltage");
 		double dBW = SafeDouble(ctl, ptBW, 1.0);
 		double dVal = SafeDouble(ctl, ptVal, 120.0);
 		double dMult = SafeDouble(ctl, ptMult, 1.0);
+		if (sMode.equals("reactivePower")) dMult /= 1000.0; // for kVAR
 		double dOn = dMult * (dVal - 0.5 * dBW);
 		double dOff = dMult * (dVal + 0.5 * dBW);
 		boolean bDiscrete = SafeBoolean (ctl, ptDiscrete, true);
 		boolean bEnabled = SafeBoolean (ctl, ptEnabled, true);  // TODO -check enabled for everything
-		String sPhase = Phase_String (SafePhasesX (ctl, ptPhase));
-		String sMode = SafeRegulatingMode (ctl, ptMode, "voltage");
 
 		// find the monitored element
 		Property ptCondEq = mdl.getProperty (nsCIM, "Terminal.ConductingEquipment");
@@ -1114,6 +1115,7 @@ public class CDPSM_to_DSS extends Object {
 
   static String GetXfmrCode (Model mdl, String id, double smult, double vmult) {  
     Property ptInfo = mdl.getProperty (nsCIM, "TransformerEndInfo.TransformerTankInfo");
+		Property ptN = mdl.getProperty (nsCIM, "TransformerEndInfo.endNumber");
     Property ptU = mdl.getProperty (nsCIM, "TransformerEndInfo.ratedU");
     Property ptS = mdl.getProperty (nsCIM, "TransformerEndInfo.ratedS");
     Property ptR = mdl.getProperty (nsCIM, "TransformerEndInfo.r");
@@ -1127,67 +1129,78 @@ public class CDPSM_to_DSS extends Object {
 		Property ptNLL = mdl.getProperty (nsCIM, "NoLoadTest.loss");
     Property ptImag = mdl.getProperty (nsCIM, "NoLoadTest.excitingCurrent");
 
-		StringBuilder bufU = new StringBuilder ("kvs=[");
-    StringBuilder bufS = new StringBuilder ("kvas=[");
-    StringBuilder bufC = new StringBuilder ("conns=[");
-    StringBuilder bufR = new StringBuilder ("%Rs=[");
-    StringBuilder bufOC = new StringBuilder ("");
-    StringBuilder bufSC = new StringBuilder ("");
-    String sPhases = "phases=3 ";
-    int nWindings = 0;
+		// count windings and allocate storage
+		int nWindings = 0;
+		int nPhases = 3;
+		Resource xfRes = mdl.getResource (id);
+		ResIterator iter = mdl.listResourcesWithProperty (ptInfo, xfRes);
+		while (iter.hasNext()) {
+			Resource wdg = iter.nextResource();
+			++nWindings;
+		}
+		double dU[] = new double[nWindings];
+		double dS[] = new double[nWindings];
+		double dR[] = new double[nWindings];
+		String sC[] = new String[nWindings];
+		double dNLL = 0.0, dImag = 0.0, dXhl = 0.0, dXlt = 0.0, dXht = 0.0;
+		String sPhases = "phases=3 ";
 
-    Resource xfRes = mdl.getResource (id);
-    ResIterator iter = mdl.listResourcesWithProperty (ptInfo, xfRes);
+    iter = mdl.listResourcesWithProperty (ptInfo, xfRes);
     while (iter.hasNext()) {
       Resource wdg = iter.nextResource();
-      ++nWindings;
-      double dU = vmult * SafeDouble (wdg, ptU, 1);
-      double dS = smult * SafeDouble (wdg, ptS, 1);
-      double dR = SafeDouble (wdg, ptR, 0);
-      double Zbase = 1000.0 * dU * dU / dS;
-      dR = 100.0 * dR / Zbase;
-      String U = String.format("%6g", dU);
-      String S = String.format("%6g", dS);
-      String R = String.format("%6g", dR);
-      String C = GetWdgConnection (wdg, ptC, "W");
-      if (C.equals ("I")) {
+			int i1 = wdg.getProperty(ptN).getInt() - 1;
+      dU[i1] = vmult * SafeDouble (wdg, ptU, 1);
+      dS[i1] = smult * SafeDouble (wdg, ptS, 1);
+      dR[i1] = SafeDouble (wdg, ptR, 0);
+      double Zbase = 1000.0 * dU[i1] * dU[i1] / dS[i1];
+      dR[i1] = 100.0 * dR[i1] / Zbase;
+      sC[i1] = GetWdgConnection (wdg, ptC, "Y");
+      if (sC[i1].equals ("I")) {
         sPhases = "phases=1 ";
-        C = "W";
-      }
-      if (iter.hasNext()) {
-        bufU.append (U + ",");
-        bufS.append (S + ",");
-        bufC.append (C + ",");
-        bufR.append (R + ",");
-      } else {
-        bufU.append (U + "] ");
-        bufS.append (S + "] ");
-        bufC.append (C + "] ");
-        bufR.append (R + "] ");
+        sC[i1] = "Y";
       }
 			// find the short circuit tests - TODO only for up to 3 windings?
       ResIterator iterTest = mdl.listResourcesWithProperty (ptFrom, wdg);
       while (iterTest.hasNext()) {
         Resource test = iterTest.nextResource();
         double dXsc = SafeDouble (test, ptZsc, 0.0001);
+				Resource wdg2 = mdl.getProperty (test,ptTo).getResource();
+				int i2 = SafeInt (wdg2, ptN, 0) - 1;
         dXsc = 100.0 * dXsc / Zbase;
-        bufSC.append ("Xhl=" + String.format("%6g", dXsc) + " ");
-      }
+				if ((i1 == 0 && i2 == 1) || (i1 == 1 && i2 == 0))	dXhl = dXsc;
+				if ((i1 == 0 && i2 == 2) || (i1 == 2 && i2 == 0)) dXht = dXsc;
+				if ((i1 == 1 && i2 == 2) || (i1 == 2 && i2 == 1)) dXlt = dXsc;
+			}
 			// find the first no-load test
 			iterTest = mdl.listResourcesWithProperty (ptEnd, wdg);
 			while (iterTest.hasNext()) {
 				Resource test = iterTest.nextResource();
-				double dNLL = SafeDouble (test, ptNLL, 0);
-				double dImag = SafeDouble (test, ptImag, 0);
-				dNLL = 100 * dNLL / dS;
-				bufOC.append ("%imag=" + String.format("%6g", dImag) + " %noloadloss=" + String.format("%6g", dNLL) + " ");
+				dNLL = SafeDouble (test, ptNLL, 0);
+				dImag = SafeDouble (test, ptImag, 0);
+				dNLL = 100 * dNLL / (1000.0 * dS[i1]);
 			}
     }
-    if (bufSC.length() < 1) {
-      bufSC.append ("xhl=1.0 ");
-    }
-    String sWindings = "windings=" + Integer.toString(nWindings) + " ";
-    return sWindings + sPhases + bufSC.toString() + bufOC.toString() + bufU.toString() + bufS.toString() + bufC.toString() + bufR.toString();
+    if (dXhl <= 0.0) dXhl = 1.0;
+
+		// write out the data
+		StringBuilder buf = new StringBuilder ("windings=" + Integer.toString(nWindings) + " " + sPhases);
+		buf.append (" kvas=[");
+		for (int i = 0; i < nWindings; i++) buf.append (String.format("%6g", dS[i]) + " ");
+		buf.append ("]");
+		buf.append(" kvs=[");
+		for (int i = 0; i < nWindings; i++) buf.append (String.format("%6g", dU[i]) + " ");
+		buf.append ("]");
+		buf.append (" conns=[");
+		for (int i = 0; i < nWindings; i++) buf.append (sC[i] + " ");
+		buf.append ("]");
+		buf.append (" xhl=" + String.format("%6g", dXhl));
+		if (dXht > 0.0) buf.append (" xht=" + String.format("%6g", dXht));
+		if (dXlt > 0.0) buf.append (" xlt=" + String.format("%6g", dXlt));
+		buf.append (" %Rs=[");
+		for (int i = 0; i < nWindings; i++) buf.append (String.format("%6g", dR[i]) + " ");
+		buf.append ("]");
+		buf.append (" %imag=" + String.format("%6g", dImag) + " %noloadloss=" + String.format("%6g", dNLL));
+    return buf.toString();
   }
 
   static String GetBusPositionString (Model mdl, String id) {
