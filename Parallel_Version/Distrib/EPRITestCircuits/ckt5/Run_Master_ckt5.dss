@@ -1,0 +1,86 @@
+clearAll
+
+! get numcpu numcores
+
+compile "C:\Users\prdu001\OpenDSS\Parallel_Version\Distrib\EPRITestCircuits\ckt5\Master_ckt5.dss"
+New Monitor.MS2 vsource.source mode=5
+set CPU=0
+Solve
+Wait
+
+NewActor
+compile "C:\Users\prdu001\OpenDSS\Parallel_Version\Distrib\EPRITestCircuits\ckt5\Master_ckt5.dss"
+New Monitor.MS2 vsource.source mode=5
+set CPU=2
+Solve
+Wait
+
+NewActor
+
+compile "C:\Users\prdu001\OpenDSS\Parallel_Version\Distrib\EPRITestCircuits\ckt5\Master_ckt5.dss"
+New Monitor.MS2 vsource.source mode=5
+set CPU=4
+Solve
+Wait
+
+NewActor
+
+compile "C:\Users\prdu001\OpenDSS\Parallel_Version\Distrib\EPRITestCircuits\ckt5\Master_ckt5.dss"
+New Monitor.MS2 vsource.source mode=5
+set CPU=6
+Solve
+Wait
+
+
+set activeActor=1
+
+set mode=time
+set stepsize=1h 
+set number=2000
+set hour = 0
+
+set activeActor=2
+
+set mode=time
+set stepsize=1h 
+set number=2000
+set hour = 2000
+
+set activeActor=3
+
+set mode=time
+set stepsize=1h 
+set number=2000
+set hour = 4000
+
+set activeActor=4
+
+set mode=time
+set stepsize=1h 
+set number=2000
+set hour = 6000
+
+
+
+set activeActor=1
+solve 
+
+set activeActor=2
+solve 
+
+set activeActor=3
+solve
+
+set activeActor=4
+Set totaltime=0
+solve
+
+Wait
+get totaltime
+set activeActor=1
+show monitor MS2
+set activeActor=2
+show monitor MS2
+set activeActor=3
+show monitor MS2
+
