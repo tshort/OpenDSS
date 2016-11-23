@@ -6,6 +6,9 @@
 
 // package pnnl.gov.gridlabd.cim ;
 
+// additions 11/22/2016: aVRDelay, TopologicalNodes, TopologicalIslands
+// removals  11/22/2016: targetValueUnitMultiplier
+
 import java.io.*;
 import java.util.HashMap;
 
@@ -1775,7 +1778,7 @@ public class CDPSM_to_GLM extends Object {
     Property ptSecB = model.getProperty (nsCIM, "LinearShuntCompensator.bPerSection");
     Property ptSecN = model.getProperty (nsCIM, "LinearShuntCompensator.normalSections");
     Property ptNumSteps = model.getProperty (nsCIM, "ShuntCompensator.maximumSections");
-		Property ptPhsShunt1 = model.getProperty (nsCIM, "LinearShuntCompensatorPhase.ShuntCompensator");
+		Property ptPhsShunt1 = model.getProperty (nsCIM, "ShuntCompensatorPhase.ShuntCompensator");
 		Property ptPhsShunt2 = model.getProperty (nsCIM, "ShuntCompensatorPhase.phase");
 		Property ptConnShunt = model.getProperty (nsCIM, "ShuntCompensator.phaseConnection");
 		Property ptNomU = model.getProperty (nsCIM, "ShuntCompensator.nomU");  // TODO - put in OpenDSS importer
