@@ -10,7 +10,7 @@ new circuit.IEEE13NodecktAssets
 New XfmrCode.SubXfmr Phases=3 Windings=2  XHL=(8 1000 /)
 ~ wdg=1 conn=delta kv=115  kva=5000  %r=(.5 1000 /)
 ~ wdg=2 conn=wye   kv=4.16 kva=5000  %r=(.5 1000 /)
-New XfmrCode.FdrXfmr Phases=3   Windings=2  XHL=2
+New XfmrCode.FdrXfmr Phases=3   Windings=2  XHL=2  %NoLoadLoss=0.6 %imag=1.1
 ~ wdg=1 conn=Wye kv=4.16   kva=500   %r=.55
 ~ wdg=2 conn=Wye kv=0.480  kva=500   %r=.55
 New XfmrCode.RegLeg  phases=1 xhl=0.01 kvas=[1666 1666] kvs=[2.4 2.4] %LoadLoss=0.01
