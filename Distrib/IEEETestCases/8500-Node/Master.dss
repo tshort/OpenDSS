@@ -13,8 +13,8 @@ Redirect  Triplex_Linecodes.dss
 
 Redirect  Lines.dss
 Redirect  Transformers.dss
-//Redirect  LoadXfmrs.dss    ! Load Transformers
-Redirect  LoadXfmrCodes.dss  ! Referencing XfmrCodes
+Redirect  LoadXfmrs.dss    ! Load Transformers
+//Redirect  LoadXfmrCodes.dss  ! Referencing XfmrCodes
 Redirect  Triplex_Lines.dss
 Redirect  Loads.dss     ! Balanced Loads
 Redirect  Capacitors.dss
