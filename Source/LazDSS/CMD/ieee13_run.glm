@@ -1,0 +1,13 @@
+clock {
+	timestamp '2000-01-01 0:00:00';
+	timezone EST+5EDT;
+}
+
+#set relax_naming_rules=1
+#set profiler=1
+
+module powerflow {
+	solver_method NR;
+}
+
+#include "ieee13_base.glm";

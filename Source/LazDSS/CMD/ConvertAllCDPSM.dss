@@ -1,0 +1,87 @@
+//var @root=~/src/opendss/Distrib/
+//set datapath=@root
+
+redirect ~/src/opendss/Test/IEEE13_CDPSM.dss
+export CDPSMCombined
+export summary
+
+redirect ~/src/opendss/Test/IEEE13_Assets.dss
+export CDPSMCombined
+export summary
+
+redirect ~/src/opendss/Distrib/IEEETestCases/8500-Node/Master-unbal.dss
+set maxiterations=20
+solve
+export CDPSMCombined
+export summary
+
+redirect ~/src/opendss/Distrib/IEEETestCases/8500-Node/Master.dss
+export CDPSMCombined
+set maxiterations=20
+solve
+export summary
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/13Bus/IEEE13Nodeckt.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/34Bus/ieee34Mod2.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/37Bus/ieee37.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/123Bus/IEEE123Master.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/4Bus-DY-Bal/4Bus-DY-Bal.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/4Bus-GrdYD-Bal/4Bus-GrdYD-Bal.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/4Bus-OYOD-Bal/4Bus-OYOD-Bal.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/4Bus-OYOD-UnBal/4Bus-OYOD-UnBal.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/4Bus-YD-Bal/4Bus-YD-Bal.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/4Bus-YY-Bal/4Bus-YY-Bal.dss
+//export CDPSMCombined
+
+// the next three require IndMach012a, which is not implemented on Mac OS X or Linux
+//redirect ~/src/opendss/Distrib/IEEETestCases/4wire-Delta/Kersting4wire_Lagging.dss
+//export CDPSMCombined
+//redirect ~/src/opendss/Distrib/IEEETestCases/4wire-Delta/Kersting4wire_Leading.dss
+//export CDPSMCombined
+//redirect ~/src/opendss/Distrib/IEEETestCases/4wire-Delta/Kersting4wireIndMotor.dss
+//export CDPSMCombined
+
+// the next two cause access violations
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/DG_Protection/DG_Prot_Fdr.dss
+//export CDPSMCombined
+
+//redirect "~/src/opendss/Distrib/IEEETestCases/IEEE 30 Bus/Master.dss"
+//export CDPSMCombined
+
+// this is a European LV system that performs lengthy DI simulations
+//redirect ~/src/opendss/Distrib/IEEETestCases/LVTestCase/Master.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/IEEETestCases/NEVTestCase/NEVMASTER.dss
+//export CDPSMCombined
+
+// access violation
+//redirect ~/src/opendss/Distrib/EPRITestCircuits/ckt5/Master_ckt5.dss
+//export CDPSMCombined
+
+// access violation
+//redirect ~/src/opendss/Distrib/EPRITestCircuits/ckt7/Master_ckt7.dss
+//export CDPSMCombined
+
+//redirect ~/src/opendss/Distrib/EPRITestCircuits/ckt24/master_ckt24.dss
+//export CDPSMCombined
+
