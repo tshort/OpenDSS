@@ -12,9 +12,9 @@ New Transformer.HVMV_Sub  phases=3  windings=2  buses=(HVMV_Sub_HSB, regxfmr_HVM
 
 ! Three single-phase voltage regulators on feeder
 ! Define transformer part as low-impedance 2-winding Y-Y transformer
-New Transformer.FEEDER_REGA phases=1  windings=2  buses=(regxfmr_HVMV_Sub_LSB.1,  _HVMV_Sub_LSB.1)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(27500, 27500)  xhl=0.1 %loadloss=.001 wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0
-New Transformer.FEEDER_REGB phases=1  windings=2  buses=(regxfmr_HVMV_Sub_LSB.2,  _HVMV_Sub_LSB.2)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(27500, 27500)  xhl=0.1 %loadloss=.001 wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0
-New Transformer.FEEDER_REGC phases=1  windings=2  buses=(regxfmr_HVMV_Sub_LSB.3,  _HVMV_Sub_LSB.3)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(27500, 27500)  xhl=0.1 %loadloss=.001 wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0
+New Transformer.FEEDER_REGA phases=1  windings=2  Bank=FEEDER_REG buses=(regxfmr_HVMV_Sub_LSB.1,  _HVMV_Sub_LSB.1)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(27500, 27500)  xhl=0.1 %loadloss=.001 wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0
+New Transformer.FEEDER_REGB phases=1  windings=2  Bank=FEEDER_REG buses=(regxfmr_HVMV_Sub_LSB.2,  _HVMV_Sub_LSB.2)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(27500, 27500)  xhl=0.1 %loadloss=.001 wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0
+New Transformer.FEEDER_REGC phases=1  windings=2  Bank=FEEDER_REG buses=(regxfmr_HVMV_Sub_LSB.3,  _HVMV_Sub_LSB.3)  conns=(wye, wye)  kvs=(7.2, 7.2)  kvas=(27500, 27500)  xhl=0.1 %loadloss=.001 wdg=2 Maxtap=1.1 Mintap=0.9 ppm=0
 
 ! Voltage regulator controls
 New RegControl.FEEDER_REGA transformer=FEEDER_REGA  winding=2 vreg=126.5  ptratio=60 band=2 
