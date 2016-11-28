@@ -1327,6 +1327,11 @@ Begin
                       IF NOT ControlQueue.DoActions (DynaVars.intHour, DynaVars.t)
                       THEN ControlActionsDone := TRUE;
                  End;
+              MULTIRATE:
+                 Begin  //  execute the nearest set of control actions but leaves time where it is
+                      IF NOT ControlQueue.DoMultiRate(DynaVars.intHour, DynaVars.t)
+                      THEN ControlActionsDone := TRUE;
+                 End;
 
           END;
       End;

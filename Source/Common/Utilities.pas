@@ -413,6 +413,7 @@ Begin
       'o': Result := CONTROLSOFF;
       'e': Result := EVENTDRIVEN;    // "event"
       't': Result := TIMEDRIVEN;     // "time"
+      'm': Result := MULTIRATE;     // "MultiRate"
     ELSE
        Result := CTRLSTATIC;
     End;
@@ -1059,10 +1060,11 @@ Begin
    Result := 'Unknown';
    If ActiveCircuit <> Nil Then
     CASE ActiveCircuit.Solution.Controlmode OF
-      CTRLSTATIC:    Result := 'STATIC';
-      EVENTDRIVEN:   Result := 'EVENT';
-      TIMEDRIVEN:    Result := 'TIME';
-      CONTROLSOFF:   Result := 'OFF';
+      CTRLSTATIC  : Result := 'STATIC';
+      EVENTDRIVEN : Result := 'EVENT';
+      TIMEDRIVEN  : Result := 'TIME';
+      MULTIRATE   : Result :=  'MULTIRATE';
+      CONTROLSOFF : Result := 'OFF';
     ELSE
                     Result := 'UNKNOWN'
     End;

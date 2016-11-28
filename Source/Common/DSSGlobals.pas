@@ -69,6 +69,7 @@ CONST
       CONTROLSOFF = -1;
       EVENTDRIVEN =  1;
       TIMEDRIVEN  =  2;
+      MULTIRATE   =  3;
       CTRLSTATIC  =  0;
 
       {Randomization Constants}
