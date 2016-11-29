@@ -272,6 +272,9 @@ Begin
                         'are executed and the time is advanced automatically to the time of the event. ' + crlf +crlf+
                         'TIME = solution is time driven.  Control actions are executed when the time for the pending ' +
                         'action is reached or surpassed.' + CRLF + CRLF +
+                        'MULTIRATE = solution is time driven.  Control actions are executed when the time for the pending ' +
+                        'action is reached or surpassed. In this control mode a solution is performed after each control action' +
+                        'is performed to reduce the error accumulated when the time step is to long' + CRLF + CRLF +
                         'Controls may reset and may choose not to act when it comes their time. ' +CRLF+
                         'Use TIME mode when modeling a control externally to the DSS and a solution mode such as ' +
                         'DAILY or DUTYCYCLE that advances time, or set the time (hour and sec) explicitly from the external program. ';
@@ -824,3 +827,5 @@ Finalization
 
 
 end.
+
+
