@@ -38,6 +38,9 @@ Type
        DebugTrace :Boolean;
        Tracefile  :TextFile;
        ctrlHandle :Integer;
+       Temp_Int     : Array[0..2] of Integer; // Temporary registers, Int Type
+       Temp_dbl     : Array[0..7] of double;  // Temporary registers, dbl type
+       Ltimer       : TTimeRec;
 
        FUNCTION  Pop(const ActionTime:TTimeRec; Var Code, ProxyHdl, Hdl:Integer): TControlElem;  // Pop action from queue <= given time
        FUNCTION  Pop_Time(const ActionTime:TTimeRec; Var Code, ProxyHdl, Hdl:Integer; var ATime : Double; KeepIn : Boolean): TControlElem;  // Pop action from queue <= given time
@@ -46,6 +49,7 @@ Type
        PROCEDURE Set_Trace(const Value: Boolean);
        PROCEDURE WriteTraceRecord(const ElementName: String;const Code:Integer; TraceParameter:Double;const s:String);
        FUNCTION Get_QueueSize:Integer;
+       PROCEDURE Recalc_Time_Step;
 
 
     public
@@ -338,12 +342,9 @@ FUNCTION TControlQueue.DoMultiRate(const Hour:Integer; const sec: Double):Boolea
 
 VAR
    pElem        : TControlElem;
-   Ltimer       : TTimeRec;
    Code,
    hdl,
    ProxyHdl     : Integer;
-   Temp_Int     : Array[0..2] of Integer; // Temporary registers, Int Type
-   Temp_dbl     : Array[0..7] of double;  // Temporary registers, dbl type
 
 Begin
    Result       :=  FALSE;
@@ -357,8 +358,8 @@ Begin
    THEN Begin
        Ltimer.Hour  := Hour;
        Ltimer.Sec   := Sec;
-       Temp_dbl[4]  :=  TimeRecToTime(Ltimer); // Simulation step time
-       Temp_dbl[6]  :=  Temp_dbl[4];          // Simulation step time incremental
+       Temp_dbl[4]  :=  ActiveCircuit.solution.DynaVars.h; // Simulation step time
+       Temp_dbl[6]  :=  TimeRecToTime(Ltimer); // Simulation step time incremental
        pElem        :=  Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE);
        While pElem <> NIL Do
        Begin
@@ -372,30 +373,23 @@ Begin
        Temp_dbl[7]  :=  ActiveCircuit.solution.DynaVars.t;                // Saving the current time (secs) on a temporal register
        With ActiveCircuit.solution.DynaVars do Temp_Int[2]  :=  intHour;  // Saving the current time (hour) on a temporal register
 
-       Temp_dbl[1]  :=  Temp_dbl[1] + Temp_dbl[3];
-       Temp_dbl[2]  :=  Temp_dbl[4] + ActiveCircuit.solution.DynaVars.h;
-       ActiveCircuit.solution.DynaVars.t  :=  Temp_dbl[2];
-       ActiveCircuit.solution.Update_dblHour;
-       while Temp_Dbl[2] >= 3600.0 do
-       Begin
-         Inc(Temp_Int[0]);
-         Temp_dbl[2]  := Temp_dbl[2] - 3600.0;
-       End;
-       Ltimer.Hour  :=  Temp_Int[0];
-       Ltimer.sec   :=  Temp_dbl[2];
+       Temp_dbl[2]  :=  Temp_dbl[6];
 
-       pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE);
+       Recalc_Time_Step;
+
+       pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], TRUE);
 
 // If the next control action is within the time window it will be executed, otherwise the
 // routine must end
        while pElem <> nil do
        begin
-          Temp_dbl[5] :=  (Temp_dbl[3] - Temp_dbl[6]) + Temp_dbl[1];  // The new time within the time window
+          while Temp_Dbl[3] >= 3600.0 do Temp_dbl[3]  := Temp_dbl[3] - 3600.0; 
+          Temp_dbl[5] :=  (Temp_dbl[3] - Temp_dbl[6]);  // The new time within the time window
           if Temp_dbl[5] < Temp_dbl[4] then
           begin
-             pElem.DoPendingAction(code, ProxyHdl);
              pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE);
-             while Temp_Dbl[3] >= 3600.0 do Temp_dbl[3]  := Temp_dbl[3] - 3600.0; 
+             pElem.DoPendingAction(code, ProxyHdl);
+             pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], TRUE);
           end
           else
           begin
@@ -413,22 +407,9 @@ Begin
              SolveCircuit;
              SampleControlDevices;
 
-             Temp_dbl[2]  :=  Temp_dbl[2] + ActiveCircuit.solution.DynaVars.h;
+             Recalc_Time_Step;
 
-             while Temp_Dbl[2] >= 3600.0 do
-             Begin
-               Inc(Temp_Int[0]);
-               Temp_dbl[2]  := Temp_dbl[2] - 3600.0;
-             End;
-             Ltimer.Hour  :=  Temp_Int[0];
-             Ltimer.sec   :=  Temp_dbl[2];
-
-             With ActiveCircuit.solution.DynaVars do intHour  :=  Temp_Int[0];
-             ActiveCircuit.solution.DynaVars.t  :=  Temp_dbl[2];
-             ActiveCircuit.solution.Update_dblHour;
-
-             pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE);
-             while Temp_Dbl[3] >= 3600.0 do Temp_dbl[3]  := Temp_dbl[3] - 3600.0;
+             pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], TRUE);
             end;
           end;
        end;
@@ -441,6 +422,21 @@ Begin
 
 end;
 
+PROCEDURE TControlQueue.Recalc_Time_Step;
+Begin
+
+  Temp_dbl[2]  :=  Temp_dbl[2] + Temp_dbl[4];
+  while Temp_Dbl[2] >= 3600.0 do
+  Begin
+    Inc(Temp_Int[0]);
+    Temp_dbl[2]  := Temp_dbl[2] - 3600.0;
+  End;
+  Ltimer.Hour  :=  Temp_Int[0];
+  Ltimer.sec   :=  Temp_dbl[2];
+  With ActiveCircuit.solution.DynaVars do intHour  :=  Temp_Int[0];
+  ActiveCircuit.solution.DynaVars.t  :=  Temp_dbl[2];
+  ActiveCircuit.solution.Update_dblHour;
+End;
 
 FUNCTION TControlQueue.TimeRecToTime(Trec: TTimeRec): Double;
 begin
