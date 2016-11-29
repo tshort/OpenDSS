@@ -31,7 +31,7 @@ Uses SysUtils, Utilities, Circuit, DSSClassDefs, DSSGlobals, CktElement,
 
 Type
   GuidChoice = (Bank, Wdg, XfCore, XfMesh, WdgInf, ScTest, OcTest,
-    BaseV, LinePhase, LoadPhase, CapPhase, XfLoc, LoadLoc, LineLoc, CapLoc, Topo);
+    BaseV, LinePhase, LoadPhase, CapPhase, XfLoc, LoadLoc, LineLoc, CapLoc, Topo, ReacLoc);
   TBankObject = class(TNamedObject)
   public
     vectorGroup: String;
@@ -65,20 +65,31 @@ function PhaseString (pElem:TDSSCktElement; bus: Integer):String; // if order do
 var
   val, phs: String;
   dot: Integer;
+	bSec: boolean;
 begin
   phs := pElem.FirstBus;
   for dot:= 2 to bus do phs := pElem.NextBus;
+	bSec := false;
+	if ActiveCircuit.Buses^[pElem.Terminals^[bus].BusRef].kVBase < 0.5 then bSec := true;
 
-  dot := pos('.',phs);
+	dot := pos('.',phs);
   if dot < 1 then begin
     val := 'ABC';
   end else begin
     phs := Copy (phs, dot+1, Length(phs));
-    val := '';
-    if Pos ('1', phs) > 0 then val := val + 'A';
-    if Pos ('2', phs) > 0 then val := val + 'B';
-    if Pos ('3', phs) > 0 then val := val + 'C';
-    if Pos ('4', phs) > 0 then val := val + 'N';
+		if Pos ('3', phs) > 0 then bSec := false; // i.e. it's a three-phase secondary, not split-phase
+		if bSec then begin
+			if Pos ('1', phs) > 0 then begin
+				val := 's1';
+				if Pos ('2', phs) > 0 then val := val + '2';
+			end else if Pos ('2', phs) > 0 then val := 's2';
+		end else begin
+			val := '';
+			if Pos ('1', phs) > 0 then val := val + 'A';
+			if Pos ('2', phs) > 0 then val := val + 'B';
+			if Pos ('3', phs) > 0 then val := val + 'C';
+			if Pos ('4', phs) > 0 then val := val + 'N';
+		end;
   end;
   Result := val;
 end;
@@ -313,6 +324,7 @@ begin
     XfLoc: key := 'XfLoc=';
     LoadLoc: key := 'LoadLoc=';
     LineLoc: key := 'LineLoc=';
+		ReacLoc: key := 'ReacLoc=';
     CapLoc: key := 'CapLoc=';
 		Topo: key := 'Topo=';
   end;
@@ -561,6 +573,9 @@ begin
 	if pLine.NumConductorsAvailable > length(s) then s := s + 'N'; // so we can specify the neutral conductor
   for i := 1 to length(s) do begin
     phs := s[i];
+		if phs = 's' then continue;
+		if phs = '1' then phs := 's1';
+		if phs = '2' then phs := 's2';
     pPhase.LocalName := pLine.Name + '_' + phs;
     pPhase.GUID := GetDevGuid (LinePhase, pPhase.LocalName, 1);
     StartInstance (F, 'ACLineSegmentPhase', pPhase);
@@ -629,6 +644,19 @@ begin
   end;
 end;
 
+procedure AttachSecondaryPhases (var F: TextFile; pLoad:TLoadObj; geoGUID: TGuid; pPhase: TNamedObject; p, q: double; phs:String);
+begin
+	pPhase.LocalName := pLoad.Name + '_' + phs;
+	pPhase.GUID := GetDevGuid (LoadPhase, pPhase.LocalName, 1);
+	StartInstance (F, 'EnergyConsumerPhase', pPhase);
+	PhaseKindNode (F, 'EnergyConsumerPhase', phs);
+	DoubleNode (F, 'EnergyConsumerPhase.pfixed', p);
+	DoubleNode (F, 'EnergyConsumerPhase.qfixed', q);
+	RefNode (F, 'EnergyConsumerPhase.EnergyConsumer', pLoad);
+	GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+	EndInstance (F, 'EnergyConsumerPhase');
+end;
+
 procedure AttachLoadPhases (var F: TextFile; pLoad:TLoadObj; geoGUID: TGuid);
 var
   s, phs: String;
@@ -637,7 +665,18 @@ var
   p, q: double;
 begin
   if pLoad.NPhases = 3 then exit;
-  pPhase := TNamedObject.Create('dummy');
+
+	pPhase := TNamedObject.Create('dummy');
+	if pLoad.NPhases = 2 then begin  // filter out what appear to be split secondary loads
+		if ActiveCircuit.Buses^[pLoad.Terminals^[1].BusRef].kVBase < 0.5 then begin
+			p := 1000.0 * pLoad.kWBase / 2.0;
+			q := 1000.0 * pLoad.kvarBase / 2.0;
+			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, 's1');
+			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, 's2');
+			exit;
+		end;
+	end;
+
   s := PhaseString(pLoad, 1);
   with pLoad do begin
     p := 1000.0 * kWBase / NPhases;
@@ -1031,6 +1070,7 @@ Var
   pXf   : TTransfObj;
   pReg  : TRegControlObj;
   pLine : TLineObj;
+	pReac : TReactorObj;
 
   clsCode : TLineCode;
   clsGeom : TLineGeometry;
@@ -1630,6 +1670,31 @@ Begin
     end;
 
     // done with the transformers
+
+		// series reactors, exported as lines
+		pReac := ActiveCircuit.Reactors.First;
+		while pReac <> nil do begin
+			if pReac.Enabled then begin
+				StartInstance (F, 'ACLineSegment', pReac);
+				CircuitNode (F, ActiveCircuit);
+				VbaseNode (F, pReac);
+				geoGUID := GetDevGuid (ReacLoc, pReac.Name, 1);
+				GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+				DoubleNode (F, 'Conductor.length', 1.0);
+				DoubleNode (F, 'ACLineSegment.r', pReac.SimpleR);
+				DoubleNode (F, 'ACLineSegment.x', pReac.SimpleX);
+				DoubleNode (F, 'ACLineSegment.bch', 0.0);
+				DoubleNode (F, 'ACLineSegment.gch', 0.0);
+				DoubleNode (F, 'ACLineSegment.r0', pReac.SimpleR);
+				DoubleNode (F, 'ACLineSegment.x0', pReac.SimpleX);
+				DoubleNode (F, 'ACLineSegment.b0ch', 0.0);
+				DoubleNode (F, 'ACLineSegment.b0ch', 0.0);
+				EndInstance (F, 'ACLineSegment');
+				// AttachLinePhases (F, pReac); // for the 8500-node circuit, we only need 3 phase series reactors
+				WriteTerminals (F, pReac, geoGUID, crsGUID);
+			end;
+			pReac := ActiveCircuit.Reactors.Next;
+		end;
 
     pLine := ActiveCircuit.Lines.First;
     while pLine <> nil do begin
