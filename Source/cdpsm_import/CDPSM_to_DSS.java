@@ -166,10 +166,10 @@ public class CDPSM_to_DSS extends Object {
       double x0 = SafeDouble (r, ptX0, x1) / len;
       double b0 = SafeDouble (r, ptB0, 0) / len; // EdF writes b0ch but not bch
       double b1 = SafeDouble (r, ptB1, b0) / len;
-      double c0 = 1.0e9 * b0 / 314.159; // EdF 50-Hz
-      double c1 = 1.0e9 * b1 / 314.159; // EdF 50-Hz
+      double c0 = 1.0e9 * b0 / 377; // 314.159; // EdF 50-Hz
+      double c1 = 1.0e9 * b1 / 377; // 314.159; // EdF 50-Hz
       return " r1=" + String.format("%6g", r1) + " x1=" + String.format("%6g", x1) + " c1=" + String.format("%6g", c1) +
-             " r0=" + String.format("%6g", r1) + " x0=" + String.format("%6g", r1) + " c0=" + String.format("%6g", c0);
+             " r0=" + String.format("%6g", r0) + " x0=" + String.format("%6g", x0) + " c0=" + String.format("%6g", c0);
     }
     return "";
   }
@@ -260,17 +260,12 @@ public class CDPSM_to_DSS extends Object {
     int cnt = phs.length();
     if (phs.contains ("N")) {
       --cnt;
-    } else if (shunt == true) { // shunt without N ==> delta, either 1 or 3 phases
-      if (cnt == 2) {
+    } else if (shunt == true) { // shunt on the primary without N ==> delta, either 1 or 3 phases
+      if ((cnt == 2) && !phs.contains ("1") && !phs.contains ("2")) {
         cnt = 1;
       }
     }
     return cnt;
-  }
-
-  static int Phase_Count (String arg, boolean shunt) {
-    String phs = Phase_String (arg);
-    return Phase_xCount (phs, shunt);
   }
 
 	static String FirstPhase (String phs) {
@@ -284,6 +279,8 @@ public class CDPSM_to_DSS extends Object {
       return ".1.2.3";
     } else if (phs.contains ("AB")) {
       return ".1.2";
+		} else if (phs.contains ("12")) {
+			return ".1.2";
     } else if (phs.contains ("AC")) {
       return ".1.3";
     } else if (phs.contains ("BC")) {
@@ -294,10 +291,20 @@ public class CDPSM_to_DSS extends Object {
       return ".2";
     } else if (phs.contains ("C")) {
       return ".3";
+		} else if (phs.contains ("1")) {
+			return ".1";
+		} else if (phs.contains ("2")) {
+			return ".2";
     } else {
       return "";  // defaults to 3 phases
     }
   }
+
+	static String Bus_xfmrPhases (String arg) {
+		if (arg.contains("s2")) return (".0.2");
+		if (arg.contains("s1")) return (".1.0");
+		return Bus_xPhases (arg);
+	}
 
   static String Bus_Phases (String arg) {
     String phs = Phase_String (arg);
@@ -308,7 +315,7 @@ public class CDPSM_to_DSS extends Object {
 		if (phs_cnt == 3) {
 			return ".1.2.3";
 		}
-		if (phs_conn.contains("w")) {
+		if (phs_conn.contains("w") || phs.contains("1") || phs.contains("2")) {
 			return Bus_xPhases(phs);
 		}
 		if (phs_cnt == 1) {
@@ -347,6 +354,9 @@ public class CDPSM_to_DSS extends Object {
       boolean bA = false;
       boolean bB = false;
       boolean bC = false;
+			boolean bN = false;
+			boolean b1 = false;
+			boolean b2 = false;
       while (it.hasNext()) {
         Resource rP = it.nextResource();
         if (rP.hasProperty(p2)) {
@@ -354,36 +364,46 @@ public class CDPSM_to_DSS extends Object {
           if (s.equals("A")) bA = true;
           if (s.equals("B")) bB = true;
           if (s.equals("C")) bC = true;
+					if (s.equals("N")) bN = true;
+					if (s.equals("s1")) b1 = true;
+					if (s.equals("s2")) b2 = true;
         }
       }
       StringBuilder buf = new StringBuilder ("");
       if (bA) buf.append ("A");
       if (bB) buf.append ("B");
       if (bC) buf.append ("C");
+			if (b1) buf.append ("1");
+			if (b2) buf.append ("2");
+			if (bN) buf.append ("N");
       return buf.toString();
     }
     return "ABC";
   }
 
+	static int Count_xPhases (String phs) {
+		if (phs.contains ("ABC")) {
+			return 3;
+		} else if (phs.contains ("AB")) {
+			return 2;
+		} else if (phs.contains ("AC")) {
+			return 2;
+		} else if (phs.contains ("BC")) {
+			return 2;
+		} else if (phs.contains ("A")) {
+			return 1;
+		} else if (phs.contains ("B")) {
+			return 1;
+		} else if (phs.contains ("C")) {
+			return 1;
+		} else {
+			return 3;  // defaults to 3 phases
+		}
+	}
+
   static int Count_Phases (String arg) {
     String phs = Phase_String (arg);
-    if (phs.contains ("ABC")) {
-      return 3;
-    } else if (phs.contains ("AB")) {
-      return 2;
-    } else if (phs.contains ("AC")) {
-      return 2;
-    } else if (phs.contains ("BC")) {
-      return 2;
-    } else if (phs.contains ("A")) {
-      return 1;
-    } else if (phs.contains ("B")) {
-      return 1;
-    } else if (phs.contains ("C")) {
-      return 1;
-    } else {
-      return 3;  // defaults to 3 phases
-    }
+		return Count_xPhases (arg);
   }
 
   static String GetWdgConnection (Resource r, Property p, String def) {
@@ -658,8 +678,8 @@ public class CDPSM_to_DSS extends Object {
       Resource wdg = it.nextResource();
       i = SafeInt (wdg, ptEnd, 1) - 1;
       Resource trm = wdg.getProperty(ptTerm).getResource();
-      phs[i] = SafePhasesX (wdg, ptPhs);
-      n = Count_Phases (phs[i]);
+      phs[i] = Phase_String (SafePhasesX (wdg, ptPhs));
+      n = Count_xPhases (phs[i]);
       if (n < nphase) {
         nphase = n;
       }
@@ -680,22 +700,24 @@ public class CDPSM_to_DSS extends Object {
 		}
     for (i = 0; i < nwdg; i++) {
       buf.append (bus[i]);
-      buf.append (Bus_Phases (phs[i]));
+      buf.append (Bus_xfmrPhases (phs[i]));
       if (i < nwdg-1) {
         buf.append (",");
       } else {
         buf.append ("]");
       }
     }
-    return buf.toString();
+		buf.append (" //");
+		for (i = 0; i < nwdg; i++) buf.append (" " + phs[i]);
+		return buf.toString();
   }
 
 	static String GetTankBusesAndXfmrCode (Model mdl, Resource rTank, Resource rDS) {
-		StringBuilder buf = new StringBuilder (GetTankBusesAndPhaseCount (mdl, rTank, true));
-
 		Property ptName = mdl.getProperty (nsCIM, "IdentifiedObject.name");
 		String xfName = mdl.getProperty(rDS,ptName).getString();
-		buf.append (" xfmrcode=" + xfName);
+		StringBuilder buf = new StringBuilder (" xfmrcode=" + xfName);
+
+		buf.append (GetTankBusesAndPhaseCount (mdl, rTank, true));
 
 		return buf.toString();
 	}
@@ -1590,9 +1612,9 @@ public class CDPSM_to_DSS extends Object {
       String nCust = SafeProperty (res, ptCust, "1");
       String loadModel = GetLoadModel (model, res);
       double loadKv = vmult * FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV);
-			if ((phs_cnt < 3) && phs_conn.contains("w")) {
-				loadKv /= Math.sqrt(3.0);
-			}
+//			if ((phs_cnt < 3) && phs_conn.contains("w")) {
+//				loadKv /= Math.sqrt(3.0);
+//			}
 
       out.println ("new Load." + name + " phases=" + Integer.toString(phs_cnt) + " bus1=" + bus1 + 
                    " conn=" + phs_conn + " kw=" + pLoad + " kvar=" + qLoad + " numcust=" + nCust + 
@@ -1787,31 +1809,33 @@ public class CDPSM_to_DSS extends Object {
 				mapSpacings.put (name, new SpacingCount(nconds, nphases)); // keep track for wire assignments below
         out.println ("new LineSpacing." + name + " nconds=" + Integer.toString(nconds) +
 										 " nphases=" + Integer.toString(nphases) + " units=m");
-				int icond = 0;
+				StringBuffer xBuf = new StringBuffer (" x=[");
+				StringBuffer hBuf = new StringBuffer (" h=[");
 				if (wireA)	{
-					out.println ("~ cond=" + Integer.toString(++icond) + 
-											 " x=" + String.format("%6g", wireXa) + " h=" + String.format("%6g", wireYa));
+					xBuf.append (String.format("%6g", wireXa) + ",");
+					hBuf.append (String.format("%6g", wireYa) + ",");
 				}
 				if (wireB)	{
-					out.println ("~ cond=" + Integer.toString(++icond) + 
-											 " x=" + String.format("%6g", wireXb) + " h=" + String.format("%6g", wireYb));
+					xBuf.append (String.format("%6g", wireXb) + ",");
+					hBuf.append (String.format("%6g", wireYb) + ",");
 				}
 				if (wireC)	{
-					out.println ("~ cond=" + Integer.toString(++icond) + 
-											 " x=" + String.format("%6g", wireXc) + " h=" + String.format("%6g", wireYc));
+					xBuf.append (String.format("%6g", wireXc) + ",");
+					hBuf.append (String.format("%6g", wireYc) + ",");
 				}
 				if (wireS1)	{
-					out.println ("~ cond=" + Integer.toString(++icond) + 
-											 " x=" + String.format("%6g", wireXs1) + " h=" + String.format("%6g", wireYs1));
+					xBuf.append (String.format("%6g", wireXs1) + ",");
+					hBuf.append (String.format("%6g", wireYs1) + ",");
 				}
 				if (wireS2)	{
-					out.println ("~ cond=" + Integer.toString(++icond) + 
-											 " x=" + String.format("%6g", wireXs2) + " h=" + String.format("%6g", wireYs2));
+					xBuf.append (String.format("%6g", wireXs2) + ",");
+					hBuf.append (String.format("%6g", wireYs2) + ",");
 				}
 				if (wireN)	{
-					out.println ("~ cond=" + Integer.toString(++icond) + 
-											 " x=" + String.format("%6g", wireXn) + " h=" + String.format("%6g", wireYn));
+					xBuf.append (String.format("%6g", wireXn) + ",");
+					hBuf.append (String.format("%6g", wireYn) + ",");
 				}
+				out.println ("~" + xBuf.toString() + "]" + hBuf.toString() + "]");
         outGuid.println ("LineSpacing." + name + "\t" + DSS_Guid (id));
       }
     }
@@ -1875,9 +1899,9 @@ public class CDPSM_to_DSS extends Object {
       String seqX0 = String.format("%6g", sqX0);
 
       double bch = SafeDouble (res, ptSeqB1, 0);
-      String seqC1 = String.format("%6g", bch * 1.0e9 / 314.0);  // TODO: only for EdF during 2009 interop tests
+      String seqC1 = String.format("%6g", bch * 1.0e9 / 377.0); // 314.0);  // TODO: only for EdF during 2009 interop tests
       bch = SafeDouble (res, ptSeqB0, 0);
-      String seqC0 = String.format("%6g", bch * 1.0e9 / 314.0);  // TODO: only for EdF during 2009 interop tests
+      String seqC0 = String.format("%6g", bch * 1.0e9 / 377.0); // 314.0);  // TODO: only for EdF during 2009 interop tests
 
       out.println ("new LineCode." + name + " nphases=3 r1=" + seqR1 + " x1=" + seqX1 + " c1=" + seqC1 +
                    " r0=" + seqR0 + " x0=" + seqX0 + " c0=" + seqC0);
