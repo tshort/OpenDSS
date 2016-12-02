@@ -2259,7 +2259,8 @@ begin
      CASE StorageState of
           STORE_CHARGING:   Result := abs(Power[1].re * (100.0 - pctChargeEff)/100000.0) + pctChargeEff*kWIdlingLosses/100.0; // kW
           STORE_IDLING:     Result := kWIdlingLosses;
-          STORE_DISCHARGING:Result := abs(Power[1].re * (100.0 - pctDisChargeEff)/100000.0) + (2.0 - pctChargeEff/100.0) * kWIdlingLosses;  // kW
+        //****  STORE_DISCHARGING:Result := abs(Power[1].re * (100.0 - pctDisChargeEff)/100000.0) + (2.0 - pctChargeEff/100.0) * kWIdlingLosses;  // kW
+          STORE_DISCHARGING:Result := abs(Power[1].re * (100.0 / pctDisChargeEff - 1.0)/1000.0) + (100.0/pctDisChargeEff) * kWIdlingLosses;  // kW
      END;
 end;
 
