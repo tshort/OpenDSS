@@ -171,6 +171,19 @@ uses
   XYcurve in '..\General\XYcurve.pas',
   Ymatrix in '..\Common\Ymatrix.pas';
 
+
+function UserFinished(Cmd:String):boolean;
+Begin
+	result := false;
+	cmd := LowerCase (Cmd);
+	if cmd='' then 
+		result := true
+	else if cmd='exit' then 
+		result := true
+	else if cmd[1]='q' then
+		result := true;
+End;
+
 type
   TMyApplication = class(TCustomApplication)
   protected
@@ -183,7 +196,7 @@ type
 
 procedure TMyApplication.DoRun;
 var
-  ErrorMsg: String;
+  ErrorMsg, Cmd: String;
 begin
 	NoFormsAllowed := True;
 	DSSExecutive := TExecutive.Create;  // Make a DSS object
@@ -191,6 +204,8 @@ begin
 	writeln('Startup Directory: ', StartupDirectory);
 	DataDirectory := StartupDirectory;
 	OutputDirectory := StartupDirectory;
+
+	NoFormsAllowed := False;  // messages will go to the console
 
 	// quick check parameters
   ErrorMsg:=CheckOptions('h', 'help');
@@ -207,8 +222,18 @@ begin
     Exit;
   end;
 
-	DSSExecutive.Command := 'compile ' + ParamStr(1);
-	writeln(DSSExecutive.LastError);
+	if paramcount > 0 then begin
+		DSSExecutive.Command := 'compile ' + ParamStr(1);
+		writeln(DSSExecutive.LastError);
+		Exit;
+	end else begin
+		repeat begin
+			write('>>');
+			readln(Cmd);
+			DSSExecutive.Command := Cmd;
+			writeln(DSSExecutive.LastError);
+		end until UserFinished (Cmd);
+	end;
 
   // stop program loop
   Terminate;

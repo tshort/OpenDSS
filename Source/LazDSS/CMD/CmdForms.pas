@@ -21,12 +21,8 @@ interface
 Uses Classes;
 
 VAR
-
    ControlPanelCreated     :Boolean;  // signify whether this is the DLL or EXE
-
    RebuildHelpForm:Boolean;
-
-
    PROCEDURE CreateControlPanel;
    PROCEDURE ExitControlPanel;
    PROCEDURE InitProgressForm;
@@ -46,16 +42,13 @@ VAR
    Procedure ShowTreeView(Const Fname:String);
    FUNCTION  MakeChannelSelection(NumFieldsToSkip:Integer; const Filename:String):Boolean;
 
-
 implementation
 
-Uses      ExecOptions,
-          DSSGlobals,ParserDel,
-          Sysutils;
-
+Uses ExecCommands, ExecOptions, ShowOptions, ExportOptions,
+	DSSGlobals, DSSClass, DSSClassDefs, ParserDel, Sysutils;
 
 Procedure InitProgressForm;
-Begin
+begin
 End;
 
 PROCEDURE ShowPctProgress(Count:Integer);
@@ -64,10 +57,12 @@ End;
 
 Procedure ProgressCaption(const S:String);
 Begin
+	Writeln('Progress: ', S);
 End;
 
 Procedure ProgressFormCaption(const S:String);
-Begin
+begin
+	Writeln('Progress: ', S);
 End;
 
 Procedure ProgressHide;
@@ -75,7 +70,12 @@ Begin
 End;
 
 Procedure ShowAboutBox;
-Begin
+begin
+	writeln ('Console OpenDSS (Electric Power Distribution System Simulator)');
+	writeln (VersionString);
+	writeln ('Copyright (c) 2008-2016, Electric Power Research Institute, Inc.');
+	writeln ('Copyright (c) 2016, Battelle Memorial Institute');
+	writeln ('All rights reserved.');
 End;
 
 Procedure ShowTreeView(Const Fname:String);
@@ -84,26 +84,20 @@ end;
 
 FUNCTION GetDSSExeFile: String;
 Begin
-   Result := 'todo'; // ExtractFilePath (Application.ExeName);
+  Result := 'todo'; // ExtractFilePath (Application.ExeName);
 End;
 
 
-FUNCTION DSSMessageDlg(const Msg:String;err:boolean):Integer;
-Var  Str:String;
+function DSSMessageDlg(const Msg:String;err:boolean):Integer;
 Begin
-	If Length(msg) > 1024 Then
-		Str := 'Message too long; See Result Form.'
-	Else Str := msg;
-	Result := 0;
-
-//     If Err Then Result := MessageDlg(Str, mtError , [mbOK], 0)
-//     Else Result := IntResult(MessageDlg(Str, mtInformation , [mbAbort, mbIgnore], 0));
+	result := 0;
+	if err then write ('** Error: ');
+	writeln (Msg);
 End;
 
-Procedure DSSInfoMessageDlg(const Msg:String);
+procedure DSSInfoMessageDlg(const Msg:String);
 Begin
-//    If length(msg)<=1024 Then MessageDlg(Msg, mtInformation , [mbOK], 0)
-//    Else  MessageDlg('Message too long; See Result Form.', mtInformation , [mbOK], 0)
+	writeln (Msg);
 End;
 
 PROCEDURE CreateControlPanel;
@@ -118,36 +112,74 @@ PROCEDURE ShowControlPanel;
 Begin
 End;
 
+function CompareClassNames(Item1, Item2: Pointer): Integer;
+begin
+  Result := CompareText(TDSSClass(Item1).name, TDSSClass(Item2).name);
+end;
+
+procedure AddHelpForClasses(BaseClass: WORD);
+Var
+	HelpList  : TList;
+  pDSSClass :TDSSClass;
+  i,j       :Integer;
+begin
+	HelpList := TList.Create();
+  pDSSClass := DSSClassList.First;
+  WHILE pDSSClass<>Nil DO Begin
+    If (pDSSClass.DSSClassType AND BASECLASSMASK) = BaseClass Then HelpList.Add (pDSSClass);
+    pDSSClass := DSSClassList.Next;
+  End;
+  HelpList.Sort(@CompareClassNames);
+
+	for i := 1 to HelpList.Count do begin
+    pDSSClass := HelpList.Items[i-1];
+    writeln (pDSSClass.name);
+    for j := 1 to pDSSClass.NumProperties do
+      writeln ('  ', pDSSClass.PropertyName[j]); // pDSSClass.PropertyHelp^[j]);
+  end;
+  HelpList.Free;
+end;
+
 PROCEDURE ShowHelpForm;
 VAR
-   Param,ParamName:String;
+//  Param,ParamName:String;
+	i: integer;
 Begin
-     ParamName := Parser.NextParam;
-     Param := Parser.StrValue;
-
-     // build tree view WITH nodelist containing data pointing to help strings
-     // so that when you click on a node, the help string will come up.
-
-//     IF HelpFormObj <> Nil THEN   // It's already created.  Let's not do another
-//     Begin
-//          If RebuildHelpForm then HelpFormObj.BuildTreeViewList;
-//          RebuildHelpForm := FALSE;
-//          HelpFormObj.Show;
-//          Exit;
-//     End;
-//     IF Length(param)=0 THEN
-//     Begin
-//         // Executive help
-//         HelpFormObj := THelpForm1.Create(Nil);
-//         HelpFormObj.BuildTreeViewList;
-//         HelpFormObj.Show;
-//     End;
-End;
+//	ParamName := Parser.NextParam;
+//  Param := Parser.StrValue;
+	writeln('== Executive Commands ==');
+	for i := 1 to NumExecCommands do begin
+		writeln (ExecCommand[i]); // , ':', CommandHelp[i]);
+	end;
+	writeln('== Executive Options ==');
+	for i := 1 to NumExecOptions do begin
+		writeln (ExecOption[i]); // , ':', OptionHelp[i]);
+	end;
+	writeln('== Show Options ==');
+	for i := 1 to NumShowOptions do begin
+		writeln (ShowOption[i]); // , ':', ShowHelp[i]);
+	end;
+	writeln('== Export Options ==');
+	for i := 1 to NumExportOptions do begin
+		writeln (ExportOption[i]); // , ':', ExportHelp[i]);
+	end;
+	writeln('== PD Elements ==');
+	AddHelpForClasses (PD_ELEMENT);
+	writeln('== PC Elements ==');
+	AddHelpForClasses (PC_ELEMENT);
+	writeln('== Controls ==');
+	AddHelpForClasses (CTRL_ELEMENT);
+	writeln('== Meters ==');
+	AddHelpForClasses (METER_ELEMENT);
+	writeln('== General ==');
+	AddHelpForClasses (0);
+	writeln('== Other ==');
+	AddHelpForClasses (NON_PCPD_ELEM);
+end;
 
 Procedure ShowMessageForm(S:TStrings);
-Begin
-//  ControlPanel.ResultsEdit.Clear;
-//  ControlPanel.ResultsEdit.Lines := s;
+begin
+	writeln(s.text);
 End;
 
 Procedure ShowPropEditForm;
@@ -158,7 +190,6 @@ Procedure CloseDownForms;
 Begin
 End;
 
-//----------------------------------------------------------------------------
 Function MakeChannelSelection(NumFieldsToSkip:Integer; const Filename:String):Boolean;
 Begin
 End;
