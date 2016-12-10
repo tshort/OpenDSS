@@ -45,7 +45,7 @@ VAR
 implementation
 
 Uses ExecCommands, ExecOptions, ShowOptions, ExportOptions,
-	DSSGlobals, DSSClass, DSSClassDefs, ParserDel, Sysutils;
+	DSSGlobals, DSSClass, DSSClassDefs, ParserDel, Sysutils, Strutils;
 
 Procedure InitProgressForm;
 begin
@@ -117,7 +117,7 @@ begin
   Result := CompareText(TDSSClass(Item1).name, TDSSClass(Item2).name);
 end;
 
-procedure AddHelpForClasses(BaseClass: WORD);
+procedure AddHelpForClasses(BaseClass: WORD; bProperties: boolean);
 Var
 	HelpList  : TList;
   pDSSClass :TDSSClass;
@@ -134,47 +134,114 @@ begin
 	for i := 1 to HelpList.Count do begin
     pDSSClass := HelpList.Items[i-1];
     writeln (pDSSClass.name);
-    for j := 1 to pDSSClass.NumProperties do
-      writeln ('  ', pDSSClass.PropertyName[j]); // pDSSClass.PropertyHelp^[j]);
+    if bProperties=true then for j := 1 to pDSSClass.NumProperties do
+      writeln ('  ', pDSSClass.PropertyName[j], ': ', pDSSClass.PropertyHelp^[j]);
   end;
   HelpList.Free;
 end;
 
+procedure ShowGeneralHelp;
+begin
+	writeln('This is a console-mode version of OpenDSS, available for Windows, Linux and Mac OS X');
+	writeln('Enter a command at the >> prompt, followed by any required command parameters');
+	writeln('Enter either a carriage return, "exit" or "q(uit)" to exit the program');
+	writeln('For specific help, enter:');
+	writeln('  "help commands"   lists all executive commands');
+	writeln('  "help options"    lists all simulator options');
+	writeln('  "help show"       lists the options to "show" various outputs');
+	writeln('  "help export"     lists the options to "export" in various formats');
+	writeln('  "help classes"    lists the names of all available circuit model classes');
+	writeln('  "help conversion" lists the names and parameters for all power conversion elements');
+	writeln('  "help delivery"   lists the names and parameters for all power delivery elements');
+	writeln('  "help controls"   lists the names and parameters for all power control elements');
+	writeln('  "help meters"     lists the names and parameters for all power metering elements');
+	writeln('  "help general"    lists the names and parameters for all supporting circuit elements');
+	writeln('  "help other"      lists the names and parameters for all other circuit elements');
+end;
+
+procedure ShowCommandHelp;
+VAR
+	i: integer;
+begin
+	for i := 1 to NumExecCommands do begin
+		writeln (ExecCommand[i], ':', CommandHelp[i]);
+	end;
+end;
+
+procedure ShowOptionHelp;
+VAR
+	i: integer;
+begin
+	for i := 1 to NumExecOptions do begin
+		writeln (ExecOption[i], ':', OptionHelp[i]);
+	end;
+end;
+
+procedure ShowShowHelp;
+VAR
+	i: integer;
+begin
+	for i := 1 to NumShowOptions do begin
+		writeln (ShowOption[i], ':', ShowHelp[i]);
+	end;
+end;
+
+procedure ShowExportHelp;
+VAR
+	i: integer;
+begin
+	for i := 1 to NumExportOptions do begin
+		writeln (ExportOption[i], ':', ExportHelp[i]);
+	end;
+end;
+
+procedure ShowClassHelp;
+begin
+	writeln('== Power Delivery Elements ==');
+	AddHelpForClasses (PD_ELEMENT, false);
+	writeln('== Power Conversion Elements ==');
+	AddHelpForClasses (PC_ELEMENT, false);
+	writeln('== Control Elements ==');
+	AddHelpForClasses (CTRL_ELEMENT, false);
+	writeln('== Metering Elements ==');
+	AddHelpForClasses (METER_ELEMENT, false);
+	writeln('== Supporting Elements ==');
+	AddHelpForClasses (0, false);
+	writeln('== Other Elements ==');
+	AddHelpForClasses (NON_PCPD_ELEM, false);
+end;
+
 PROCEDURE ShowHelpForm;
 VAR
-//  Param,ParamName:String;
+  Param,ParamName:String;
 	i: integer;
 Begin
-//	ParamName := Parser.NextParam;
-//  Param := Parser.StrValue;
-	writeln('== Executive Commands ==');
-	for i := 1 to NumExecCommands do begin
-		writeln (ExecCommand[i]); // , ':', CommandHelp[i]);
-	end;
-	writeln('== Executive Options ==');
-	for i := 1 to NumExecOptions do begin
-		writeln (ExecOption[i]); // , ':', OptionHelp[i]);
-	end;
-	writeln('== Show Options ==');
-	for i := 1 to NumShowOptions do begin
-		writeln (ShowOption[i]); // , ':', ShowHelp[i]);
-	end;
-	writeln('== Export Options ==');
-	for i := 1 to NumExportOptions do begin
-		writeln (ExportOption[i]); // , ':', ExportHelp[i]);
-	end;
-	writeln('== PD Elements ==');
-	AddHelpForClasses (PD_ELEMENT);
-	writeln('== PC Elements ==');
-	AddHelpForClasses (PC_ELEMENT);
-	writeln('== Controls ==');
-	AddHelpForClasses (CTRL_ELEMENT);
-	writeln('== Meters ==');
-	AddHelpForClasses (METER_ELEMENT);
-	writeln('== General ==');
-	AddHelpForClasses (0);
-	writeln('== Other ==');
-	AddHelpForClasses (NON_PCPD_ELEM);
+	ParamName := LowerCase(Parser.NextParam);
+  Param := LowerCase(Parser.StrValue);
+	if ANSIStartsStr ('com', param) then
+		ShowCommandHelp
+	else if ANSIStartsStr ('op', param) then
+		ShowOptionHelp
+	else if ANSIStartsStr ('sh', param) then
+		ShowShowHelp
+	else if ANSIStartsStr ('e', param) then
+		ShowExportHelp
+	else if ANSIStartsStr ('cl', param) then
+		ShowClassHelp
+	else if ANSIStartsStr ('conv', param) then
+		AddHelpForClasses (PC_ELEMENT, true)
+	else if ANSIStartsStr ('d', param) then
+		AddHelpForClasses (PD_ELEMENT, true)
+	else if ANSIStartsStr ('cont', param) then
+		AddHelpForClasses (CTRL_ELEMENT, true)
+	else if ANSIStartsStr ('m', param) then
+		AddHelpForClasses (METER_ELEMENT, true)
+	else if ANSIStartsStr ('g', param) then
+		AddHelpForClasses (0, true)
+	else if ANSIStartsStr ('ot', param) then
+		AddHelpForClasses (NON_PCPD_ELEM, true)
+	else
+		ShowGeneralHelp;
 end;
 
 Procedure ShowMessageForm(S:TStrings);
