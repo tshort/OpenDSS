@@ -1612,6 +1612,7 @@ begin
      PropertyValue[41] := '7';   // Same as XHT ...
      PropertyValue[42] := '35';
      PropertyValue[43] := '30';
+     PropertyValue[44] := 'Lag';
 
 
   inherited  InitPropertyValues(NumPropsThisClass);
