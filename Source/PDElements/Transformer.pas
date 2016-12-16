@@ -42,6 +42,7 @@ TYPE
        PROCEDURE InterpretAllkVARatings(const S:String);
        PROCEDURE InterpretAllRs(const S:String);
        FUNCTION  TrapZero(const Value:Double; DefaultValue:Double):Double;
+       FUNCTION  InterpretLeadLag(const S:String):Boolean;
 
        {PROCEDURE MakeNewBusNameForNeutral(Var NewBusName:String; Nphases:Integer);}
      Protected
@@ -144,6 +145,8 @@ TYPE
         pctLoadLoss       :Double;
         pctNoLoadLoss     :Double;
 
+        HVLeadsLV         :Boolean;
+
         XHLChanged        :Boolean;
 
         PROCEDURE SetTermRef;
@@ -225,7 +228,7 @@ USES    DSSClassDefs, DSSGlobals, Sysutils, Utilities, XfmrCode;
 var
    XfmrCodeClass:TXfmrCode;
 
-Const NumPropsThisClass = 43;
+Const NumPropsThisClass = 44;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TTransf.Create;  // Creates superstructure for all Transformer objects
@@ -311,6 +314,7 @@ Begin
      PropertyName[41] := 'X12';
      PropertyName[42] := 'X13';
      PropertyName[43] := 'X23';
+     PropertyName[44] := 'LeadLag';
 
      // define Property help values
      PropertyHelp[1] := 'Number of phases this transformer. Default is 3.';
@@ -390,6 +394,9 @@ Begin
                          'for 3-winding transformers only. Percent on the kVA base of winding 1. ';
      PropertyHelp[43] := 'Alternative to XLT for specifying the percent reactance from winding 2 to winding 3.Use '+
                          'for 3-winding transformers only. Percent on the kVA base of winding 1.  ';
+     PropertyHelp[44] := '{Lead | Lag (default) | ANSI (default) | Euro } Designation in mixed Delta-wye connections the '+
+                         'relationship between HV to LV winding. Default is ANSI 30 deg lag, e.g., Dy1 of Yd1 vector group. ' +
+                         'To get typical European Dy11 connection, specify either "lead" or "Euro"';
 
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -486,6 +493,7 @@ Begin
            41: XHL :=  TrapZero(parser.Dblvalue, 7.0) * 0.01;
            42: XHT :=  TrapZero(parser.Dblvalue, 35.0) * 0.01;
            43: XLT :=  TrapZero(parser.Dblvalue, 30.0) * 0.01;
+           44: HVLeadsLV := InterpretLeadLag(Param);
          ELSE
            // Inherited properties
               ClassEdit(ActiveTransfObj, ParamPointer - NumPropsThisClass)
@@ -626,6 +634,22 @@ Begin
            BusNam := AuxParser.StrValue;
            IF Length(BusNam)>0 THEN SetBus(ActiveWinding, BusNam);
       End;
+
+End;
+
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+FUNCTION TTransf.InterpretLeadLag(const S:String):Boolean;
+//  routine expecting all winding bus connections expressed in one array of strings
+VAR
+    BusNam  :String;
+    i       :Integer;
+Begin
+
+    Result := FALSE;   // default to ANSI 30 Deg Lag if can't understand S
+
+    if CompareTextShortest(S, 'lead')=0       then Result := TRUE
+    Else if CompareTextShortest(S, 'euro')=0  then   Result := TRUE;
 
 End;
 
@@ -853,6 +877,8 @@ Begin
   IsSubstation  := FALSE;
   XRConst       := FALSE;
 
+  HVLeadsLV     := FALSE; // Defaults to ANSI connection
+
   Y_Terminal_FreqMult := 0.0;
 
   Yorder := fNTerms * fNconds;
@@ -933,8 +959,8 @@ Begin
    Else Begin
      If Winding^[1].kvll >= Winding^[2].kvll Then iHvolt:=1 else iHVolt := 2;
      CASE Winding^[iHvolt].Connection of
-       0:  DeltaDirection := 1;
-       1:  DeltaDirection := -1;
+       0:  If HVLeadsLV then DeltaDirection := -1 Else DeltaDirection := 1;
+       1:  If HVLeadsLV then DeltaDirection := 1  Else DeltaDirection := -1;
      ELSE
          // ---old code --- If Winding^[2].Connection = 0 Then DeltaDirection := -1 Else DeltaDirection := 1;
      END;
