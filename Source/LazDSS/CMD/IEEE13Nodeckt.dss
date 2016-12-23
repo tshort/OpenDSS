@@ -161,7 +161,7 @@ BusCoords IEEE13Node_BusXY.csv
 // Show Losses
 // Show Taps
 
-export summary
+export summary 
 export voltages /Users/mcde601/src/opendss/Source/LazDSS/CMD/output.csv
 
 !---------------------------------------------------------------------------------------------------------------------------------------------------

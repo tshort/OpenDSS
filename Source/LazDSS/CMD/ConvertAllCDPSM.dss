@@ -9,17 +9,17 @@ redirect ~/src/opendss/Test/IEEE13_Assets.dss
 export CDPSMCombined
 export summary
 
-redirect ~/src/opendss/Distrib/IEEETestCases/8500-Node/Master-unbal.dss
-set maxiterations=20
-solve
-export CDPSMCombined
-export summary
+//redirect ~/src/opendss/Distrib/IEEETestCases/8500-Node/Master-unbal.dss
+//set maxiterations=20
+//solve
+//export CDPSMCombined
+//export summary
 
-redirect ~/src/opendss/Distrib/IEEETestCases/8500-Node/Master.dss
-export CDPSMCombined
-set maxiterations=20
-solve
-export summary
+//redirect ~/src/opendss/Distrib/IEEETestCases/8500-Node/Master.dss
+//export CDPSMCombined
+//set maxiterations=20
+//solve
+//export summary
 
 //redirect ~/src/opendss/Distrib/IEEETestCases/13Bus/IEEE13Nodeckt.dss
 //export CDPSMCombined

@@ -1,9 +1,9 @@
 javac -classpath "/Users/mcde601/src/apache-jena-3.1.0/lib/*:/Users/mcde601/src/commons-math3-3.6.1/*" CDPSM_to_GLM.java
 
 java -classpath ".:/Users/mcde601/src/apache-jena-3.1.0/lib/*:/Users/mcde601/src/commons-math3-3.6.1/*" CDPSM_to_GLM -p=c -e=u -f=60 -v=1 -s=1 -q=y IEEE13Nodeckt_CDPSM_Combined.XML ieee13
-java -classpath ".:/Users/mcde601/src/apache-jena-3.1.0/lib/*:/Users/mcde601/src/commons-math3-3.6.1/*" CDPSM_to_GLM -p=c -e=u -f=60 -v=1 -s=1 -q=y IEEE13NodecktAssets_CDPSM_Combined.XML ieee13assets
-java -classpath ".:/Users/mcde601/src/apache-jena-3.1.0/lib/*:/Users/mcde601/src/commons-math3-3.6.1/*" CDPSM_to_GLM -p=c -e=u -f=60 -v=1 -s=1 -q=y IEEE8500u_CDPSM_Combined.XML ieee8500u
-java -classpath ".:/Users/mcde601/src/apache-jena-3.1.0/lib/*:/Users/mcde601/src/commons-math3-3.6.1/*" CDPSM_to_GLM -p=c -e=u -f=60 -v=1 -s=1 -q=y IEEE8500_CDPSM_Combined.XML ieee8500
+#java -classpath ".:/Users/mcde601/src/apache-jena-3.1.0/lib/*:/Users/mcde601/src/commons-math3-3.6.1/*" CDPSM_to_GLM -p=c -e=u -f=60 -v=1 -s=1 -q=y IEEE13NodecktAssets_CDPSM_Combined.XML ieee13assets
+#java -classpath ".:/Users/mcde601/src/apache-jena-3.1.0/lib/*:/Users/mcde601/src/commons-math3-3.6.1/*" CDPSM_to_GLM -p=c -e=u -f=60 -v=1 -s=1 -q=y IEEE8500u_CDPSM_Combined.XML ieee8500u
+#java -classpath ".:/Users/mcde601/src/apache-jena-3.1.0/lib/*:/Users/mcde601/src/commons-math3-3.6.1/*" CDPSM_to_GLM -p=c -e=u -f=60 -v=1 -s=1 -q=y IEEE8500_CDPSM_Combined.XML ieee8500
 
 #java -classpath ".:/Users/mcde601/src/apache-jena-3.1.0/lib/*" CDPSM_to_GLM -p=c -e=u -f=60 -v=1 -s=1 -q=y 4BusYYbal_CDPSM_Combined.XML ieee4yy
 #java -classpath ".:/Users/mcde601/src/apache-jena-3.1.0/lib/*" CDPSM_to_GLM -p=c -e=u -f=60 -v=1 -s=1 -q=y 4busDYBal_CDPSM_Combined.XML ieee4dy

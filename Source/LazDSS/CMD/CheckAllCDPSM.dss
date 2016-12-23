@@ -5,9 +5,9 @@ redirect ~/src/opendss/Source/LazDSS/CMD/ieee13_base.dss
 solve
 export summary
 
-//redirect ~/src/opendss/Source/LazDSS/CMD/ieee13assets_base.dss
-//solve
-//export summary
+redirect ~/src/opendss/Source/LazDSS/CMD/ieee13assets_base.dss
+solve
+export summary
 
 redirect ~/src/opendss/Source/LazDSS/CMD/ieee8500_base.dss
 solve
