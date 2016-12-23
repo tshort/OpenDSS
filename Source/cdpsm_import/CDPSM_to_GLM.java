@@ -2164,13 +2164,16 @@ public class CDPSM_to_GLM extends Object {
 			nd2.nomvln = nd1.nomvln;
 			nd2.AddPhases(phs);
 
-//      out.println ("new Line." + name + " phases=" + Integer.toString(phs_cnt) + " bus1=" + bus1 + " bus2=" + bus2 
-//                          + " switch=y // CIM LoadBreakSwitch");
+			out.println ("object switch {\n  name switch:" + name + ";");
+			out.println ("  phases " + phs + ";");
+			out.println ("  from " + bus1 + ";");
+			out.println ("  to " + bus2 + ";");
       if (open.equals("false")) {
-//        out.println ("  close Line." + name + " 1");
+        out.println ("  status CLOSED;");
       } else {
-//        out.println ("  open Line." + name + " 1");
+				out.println ("  status OPEN;");
       }
+			out.println ("}");
     }
 
     // Fuse ==> Line switch=y
