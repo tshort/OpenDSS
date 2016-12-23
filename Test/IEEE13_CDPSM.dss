@@ -30,30 +30,37 @@ New Transformer.XFM1  Phases=3   Windings=2  XHL=2
 New linecode.mtx601 nphases=3 BaseFreq=60 
 ~ rmatrix = (0.3465 | 0.1535 0.3375 | 0.1580 0.1560 0.3414 ) 
 ~ xmatrix = (1.0179 | 0.3849 1.0478 | 0.4236 0.5017 1.0348 ) 
+~ cmatrix = (0 | 0 0 | 0 0 0) 
 ~ units=mi normamps=730
 New linecode.mtx602 nphases=3 BaseFreq=60 
 ~ rmatrix = (0.7526 | 0.1535 0.7475 | 0.1560 0.1580 0.7436 ) 
 ~ xmatrix = (1.1814 | 0.3849 1.1983 | 0.5017 0.4236 1.2112 ) 
+~ cmatrix = (0 | 0 0 | 0 0 0) 
 ~ units=mi normamps=340
 New linecode.mtx603 nphases=2 BaseFreq=60 
 ~ rmatrix = (1.3238 | 0.2066 1.3294 ) 
 ~ xmatrix = (1.3569 | 0.4591 1.3471 ) 
+~ cmatrix = (0 | 0 0) 
 ~ units=mi normamps=230
 New linecode.mtx604 nphases=2 BaseFreq=60 
 ~ rmatrix = (1.3238 | 0.2066 1.3294 ) 
 ~ xmatrix = (1.3569 | 0.4591 1.3471 ) 
+~ cmatrix = (0 | 0 0) 
 ~ units=mi normamps=230
 New linecode.mtx605 nphases=1 BaseFreq=60 
 ~ rmatrix = (1.3292 ) 
-~ xmatrix = (1.3475 ) 
+~ xmatrix = (1.3475 )
+~ cmatrix = (0) 
 ~ units=mi normamps=230
 New linecode.mtx606 nphases=3 BaseFreq=60 
-~ rmatrix = (0.7982 | 0.3192 0.7891 | 0.2849 0.3192 0.7982 ) 
-~ xmatrix = (0.4463 | 0.0328 0.4041 | -0.0143 0.0328 0.4463 ) 
+~ Rmatrix=[0.791721  |0.318476  0.781649  |0.28345  0.318476  0.791721  ]
+~ Xmatrix=[0.438352  |0.0276838  0.396697  |-0.0184204  0.0276838  0.438352  ]
+~ Cmatrix=[383.948  |0  383.948  |0  0  383.948  ]
 ~ units=mi normamps=260
 New linecode.mtx607 nphases=1 BaseFreq=60 
 ~ rmatrix = (1.3425 ) 
-~ xmatrix = (0.5124 ) 
+~ xmatrix = (0.5124 )
+~ cmatrix = [236] 
 ~ units=mi normamps=165
 
 New Load.671 Bus1=671.1.2.3       Phases=3 Conn=Delta Model=1 kV=4.16   kW=1155 kvar=660 
@@ -91,7 +98,7 @@ New Line.684652    Phases=1 Bus1=684.1        Bus2=652.1      LineCode=mtx607 Le
 
 New Line.671692    Phases=3 Bus1=671   Bus2=692  Switch=y  r1=1e-4 r0=1e-4 x1=0.000 x0=0.000 c1=0.000 c0=0.000
 
-Set Voltagebases=[115, 4.16, .48]
+Set Voltagebases=[115, 4.16, 13.2, 0.48]
 calcv
 Solve
 BusCoords IEEE13Node_BusXY.csv
