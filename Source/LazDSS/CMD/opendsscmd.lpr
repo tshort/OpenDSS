@@ -2,8 +2,10 @@ program opendsscmd;
 
 {$IFDEF FPC}{$MODE Delphi}{$ENDIF}
 
+{$IFDEF Darwin}
 {$linkframework CoreFoundation}
 {$linkframework Carbon}
+{$ENDIF}
 
 { ----------------------------------------------------------
   Copyright (c) 2008-2014, Electric Power Research Institute, Inc.
@@ -171,6 +173,19 @@ uses
   XYcurve in '..\General\XYcurve.pas',
   Ymatrix in '..\Common\Ymatrix.pas';
 
+
+function UserFinished(Cmd:String):boolean;
+Begin
+	result := false;
+	cmd := LowerCase (Cmd);
+	if cmd='' then 
+		result := true
+	else if cmd='exit' then 
+		result := true
+	else if cmd[1]='q' then
+		result := true;
+End;
+
 type
   TMyApplication = class(TCustomApplication)
   protected
@@ -183,16 +198,18 @@ type
 
 procedure TMyApplication.DoRun;
 var
-  ErrorMsg: String;
+  ErrorMsg, Cmd: String;
 begin
-  NoFormsAllowed := True;
-  DSSExecutive := TExecutive.Create;  // Make a DSS object
-  DSSExecutive.CreateDefaultDSSItems;
-  writeln('Startup Directory: ', StartupDirectory);
-  DataDirectory := StartupDirectory;
-  OutputDirectory := StartupDirectory;
+	NoFormsAllowed := True;
+	DSSExecutive := TExecutive.Create;  // Make a DSS object
+	DSSExecutive.CreateDefaultDSSItems;
+	writeln('Startup Directory: ', StartupDirectory);
+	DataDirectory := StartupDirectory;
+	OutputDirectory := StartupDirectory;
 
-  // quick check parameters
+	NoFormsAllowed := False;  // messages will go to the console
+
+	// quick check parameters
   ErrorMsg:=CheckOptions('h', 'help');
   if ErrorMsg<>'' then begin
     ShowException(Exception.Create(ErrorMsg));
@@ -207,8 +224,20 @@ begin
     Exit;
   end;
 
-  DSSExecutive.Command := 'compile ' + ParamStr(1);
-  writeln(DSSExecutive.LastError);
+	if paramcount > 0 then begin
+	  Cmd := 'compile ' + ParamStr(1);
+    writeln(Cmd);
+    DSSExecutive.Command := Cmd;
+		writeln('Last Error: ' + DSSExecutive.LastError);
+		Terminate;
+	end else begin
+		repeat begin
+			write('>>');
+			readln(Cmd);
+			DSSExecutive.Command := Cmd;
+			writeln(DSSExecutive.LastError);
+		end until UserFinished (Cmd);
+	end;
 
   // stop program loop
   Terminate;
@@ -234,12 +263,9 @@ end;
 var
   Application: TMyApplication;
 
-{$R *.res}
-
 begin
   Application:=TMyApplication.Create(nil);
   Application.Run;
   ExitCode := DSSExecutive.Error;
   Application.Free;
 end.
-

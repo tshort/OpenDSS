@@ -774,7 +774,7 @@ initialization
 
    AuxParser       := TParser.Create;
 {$IFDEF Darwin}
-   DefaultEditor   := 'open -e /Applications/TextEdit.app';
+   DefaultEditor   := 'open -e';
    DefaultFontSize := 12;
    DefaultFontName := 'Geneva';
 {$ELSE}
