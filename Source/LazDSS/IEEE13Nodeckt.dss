@@ -159,7 +159,7 @@ BusCoords IEEE13Node_BusXY.csv
 // Show Currents Elem
 // Show Powers kVA Elem
 // Show Losses
-// Show Taps
+Show Taps
 
 export summary 
 // export voltages /Users/mcde601/src/opendss/Source/LazDSS/CMD/output.csv

@@ -629,10 +629,16 @@ Var  TestDataDirectory:string;
 Begin
   DSS_Registry.Section := 'MainSect';
   {$IFDEF Darwin}
-     DefaultEditor    := DSS_Registry.ReadString('Editor', 'open -e /Applications/TextEdit.app');
+     DefaultEditor    := DSS_Registry.ReadString('Editor', 'open -e');
      DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '12'));
      DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'Geneva');
-  {$ELSE}
+  {$ENDIF}
+  {$IFDEF Unix}
+     DefaultEditor    := DSS_Registry.ReadString('Editor', 'xdg-open');
+     DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '12'));
+     DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'Geneva');
+  {$ENDIF}
+  {$IFDEF Windows}
      DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
      DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '8' ));
      DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'MS Sans Serif' );
