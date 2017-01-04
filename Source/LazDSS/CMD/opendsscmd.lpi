@@ -531,13 +531,13 @@
       </Checks>
       <TargetCPU Value="x86_64"/>
       <Optimizations>
-        <OptimizationLevel Value="0"/>
+        <OptimizationLevel Value="2"/>
       </Optimizations>
     </CodeGeneration>
     <Linking>
-      <Options>
-        <LinkerOptions Value="-lklusolve -lm"/>
-      </Options>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
     </Linking>
     <Other>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
