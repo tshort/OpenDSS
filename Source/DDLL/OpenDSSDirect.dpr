@@ -194,7 +194,9 @@ uses
   KLUSolve in '..\Common\KLUSolve.pas',
   ScriptEdit in '..\Forms\ScriptEdit.pas',
   vccs in '..\PCElements\vccs.pas',
-  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas';
+  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
+  ESPVLControl in '..\Controls\ESPVLControl.pas',
+  IndMach012 in '..\PCElements\IndMach012.pas';
 
 //**************************end of the functions*************************************
 exports
@@ -243,9 +245,12 @@ begin
 
 {Library initialization code}
 {Intialize the internal interfaces so they're ready to go}
+
   IsDLL := TRUE;
   IsMultiThread := True;
+
 {Create one instance of DSS executive whenever the DSS Engine is init'd}
+
   DSSExecutive := TExecutive.Create;  // Start the DSS when DSS interface is created
   DSSExecutive.CreateDefaultDSSItems;
 

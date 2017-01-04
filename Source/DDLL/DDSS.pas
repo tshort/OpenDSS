@@ -50,6 +50,7 @@ begin
   end;
   6: begin  // DSS.Reset
         {Put any code here necessary to reset for specific systems};
+
   end;
   7: begin  // DSS.Allowforms read
      if NoFormsAllowed then Result:=1
