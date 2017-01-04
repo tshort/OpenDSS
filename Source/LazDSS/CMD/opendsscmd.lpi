@@ -529,7 +529,6 @@
       <Checks>
         <StackChecks Value="True"/>
       </Checks>
-      <TargetCPU Value="x86_64"/>
       <Optimizations>
         <OptimizationLevel Value="2"/>
       </Optimizations>
@@ -538,6 +537,10 @@
       <Debugging>
         <GenerateDebugInfo Value="False"/>
       </Debugging>
+      <Options>
+        <PassLinkerOptions Value="True"/>
+        <LinkerOptions Value="-lc -lm -lgcc_s -lstdc++"/>
+      </Options>
     </Linking>
     <Other>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
