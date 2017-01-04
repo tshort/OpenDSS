@@ -635,8 +635,8 @@ Begin
   {$ENDIF}
   {$IFDEF Unix}
      DefaultEditor    := DSS_Registry.ReadString('Editor', 'xdg-open');
-     DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '12'));
-     DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'Geneva');
+     DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '10'));
+     DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'Arial');
   {$ENDIF}
   {$IFDEF Windows}
      DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
@@ -783,7 +783,13 @@ initialization
    DefaultEditor   := 'open -e';
    DefaultFontSize := 12;
    DefaultFontName := 'Geneva';
-{$ELSE}
+{$ENDIF}
+{$IFDEF Unix}
+   DefaultEditor   := 'xdg-open';
+   DefaultFontSize := 10;
+   DefaultFontName := 'Arial';
+{$ENDIF}
+{$IFDEF Windows}
    DefaultEditor   := 'NotePad';
    DefaultFontSize := 8;
    DefaultFontName := 'MS Sans Serif';
