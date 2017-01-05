@@ -45,7 +45,9 @@ VAR
 implementation
 
 Uses ExecCommands, ExecOptions, ShowOptions, ExportOptions,
-	DSSGlobals, DSSClass, DSSClassDefs, ParserDel, Sysutils, Strutils;
+	DSSGlobals, DSSClass, DSSClassDefs, ParserDel, Sysutils, Strutils, ArrayDef;
+
+const colwidth = 25; numcols = 4;  // for listing commands to the console
 
 Procedure InitProgressForm;
 begin
@@ -119,7 +121,7 @@ end;
 
 procedure AddHelpForClasses(BaseClass: WORD; bProperties: boolean);
 Var
-	HelpList  : TList;
+	HelpList  :TList;
   pDSSClass :TDSSClass;
   i,j       :Integer;
 begin
@@ -146,100 +148,96 @@ begin
 	writeln('Enter a command at the >> prompt, followed by any required command parameters');
 	writeln('Enter either a carriage return, "exit" or "q(uit)" to exit the program');
 	writeln('For specific help, enter:');
-	writeln('  "help commands"   lists all executive commands');
-	writeln('  "help options"    lists all simulator options');
-	writeln('  "help show"       lists the options to "show" various outputs');
-	writeln('  "help export"     lists the options to "export" in various formats');
-	writeln('  "help classes"    lists the names of all available circuit model classes');
-	writeln('  "help conversion" lists the names and parameters for all power conversion elements');
-	writeln('  "help delivery"   lists the names and parameters for all power delivery elements');
-	writeln('  "help controls"   lists the names and parameters for all power control elements');
-	writeln('  "help meters"     lists the names and parameters for all power metering elements');
-	writeln('  "help general"    lists the names and parameters for all supporting circuit elements');
-	writeln('  "help other"      lists the names and parameters for all other circuit elements');
+	writeln('  "help command [cmd]" lists all executive commands, or');
+	writeln('                       if [cmd] provided, details on that command');
+	writeln('  "help option [opt]"  lists all simulator options, or');
+	writeln('                       if [opt] provided, details on that option');
+	writeln('  "help show [opt]"    lists the options to "show" various outputs, or');
+	writeln('                       if [opt] provided, details on that output');
+	writeln('  "help export [fmt]"  lists the options to "export" in various formats, or');
+	writeln('                       if [fmt] provided, details on that format');
+	writeln('  "help class [cls]"   lists the names of all available circuit model classes, or');
+	writeln('                       if [cls] provided, details on that class');
+  writeln('You may truncate any help topic name, which returns all matching entries');
+  writeln('// begins a comment, which is ignored by the parser (including help)');
 end;
 
-procedure ShowCommandHelp;
+procedure ShowAnyHelp (const num:integer; cmd:pStringArray; hlp:pStringArray; const opt:String);
 VAR
 	i: integer;
+  lst: TStringList;
 begin
-	for i := 1 to NumExecCommands do begin
-		writeln (ExecCommand[i], ':', CommandHelp[i]);
-	end;
+  if Length(opt) < 1 then begin
+    lst := TStringList.Create;
+  	for i := 1 to num do lst.Add (PadRight (cmd[i], colwidth));
+    lst.Sort;
+  	for i :=  1 to num do
+      if ((i mod numcols) = 0) then
+         writeln (lst[i-1])
+      else
+        write (lst[i-1] + ' ');
+    lst.Free;
+  end else begin
+  	for i :=  1 to num do begin
+      if AnsiStartsStr (opt, LowerCase(cmd[i])) then begin
+  		   writeln (UpperCase (cmd[i]));
+         writeln ('======================');
+         writeln (hlp[i]);
+      end;
+  	end;
+  end;
 end;
 
-procedure ShowOptionHelp;
-VAR
-	i: integer;
+procedure ShowClassHelp (const opt:String);
+var
+  pDSSClass :TDSSClass;
+  i :Integer;
 begin
-	for i := 1 to NumExecOptions do begin
-		writeln (ExecOption[i], ':', OptionHelp[i]);
-	end;
-end;
-
-procedure ShowShowHelp;
-VAR
-	i: integer;
-begin
-	for i := 1 to NumShowOptions do begin
-		writeln (ShowOption[i], ':', ShowHelp[i]);
-	end;
-end;
-
-procedure ShowExportHelp;
-VAR
-	i: integer;
-begin
-	for i := 1 to NumExportOptions do begin
-		writeln (ExportOption[i], ':', ExportHelp[i]);
-	end;
-end;
-
-procedure ShowClassHelp;
-begin
-	writeln('== Power Delivery Elements ==');
-	AddHelpForClasses (PD_ELEMENT, false);
-	writeln('== Power Conversion Elements ==');
-	AddHelpForClasses (PC_ELEMENT, false);
-	writeln('== Control Elements ==');
-	AddHelpForClasses (CTRL_ELEMENT, false);
-	writeln('== Metering Elements ==');
-	AddHelpForClasses (METER_ELEMENT, false);
-	writeln('== Supporting Elements ==');
-	AddHelpForClasses (0, false);
-	writeln('== Other Elements ==');
-	AddHelpForClasses (NON_PCPD_ELEM, false);
+  if Length(opt) > 0 then begin
+    pDSSClass := DSSClassList.First;
+    while pDSSClass<>nil do begin
+      if AnsiStartsStr (opt, LowerCase(pDSSClass.name)) then begin
+        writeln (UpperCase (pDSSClass.name));
+        writeln ('======================');
+        for i := 1 to pDSSClass.NumProperties do
+          writeln ('  ', pDSSClass.PropertyName[i], ': ', pDSSClass.PropertyHelp^[i]);
+      end;
+      pDSSClass := DSSClassList.Next;
+    end;
+  end else begin
+  	writeln('== Power Delivery Elements ==');
+	  AddHelpForClasses (PD_ELEMENT, false);
+	  writeln('== Power Conversion Elements ==');
+	  AddHelpForClasses (PC_ELEMENT, false);
+	  writeln('== Control Elements ==');
+	  AddHelpForClasses (CTRL_ELEMENT, false);
+	  writeln('== Metering Elements ==');
+	  AddHelpForClasses (METER_ELEMENT, false);
+	  writeln('== Supporting Elements ==');
+	  AddHelpForClasses (0, false);
+	  writeln('== Other Elements ==');
+	  AddHelpForClasses (NON_PCPD_ELEM, false);
+  end;
 end;
 
 PROCEDURE ShowHelpForm;
 VAR
-  Param,ParamName:String;
-	i: integer;
+  Param, OptName:String;
 Begin
-	ParamName := LowerCase(Parser.NextParam);
+	Parser.NextParam;
   Param := LowerCase(Parser.StrValue);
+	Parser.NextParam;
+  OptName := LowerCase(Parser.StrValue);
 	if ANSIStartsStr ('com', param) then
-		ShowCommandHelp
+		ShowAnyHelp (NumExecCommands, @ExecCommand, @CommandHelp, OptName)
 	else if ANSIStartsStr ('op', param) then
-		ShowOptionHelp
+		ShowAnyHelp (NumExecOptions, @ExecOption, @OptionHelp, OptName)
 	else if ANSIStartsStr ('sh', param) then
-		ShowShowHelp
+		ShowAnyHelp (NumShowOptions, @ShowOption, @ShowHelp, OptName)
 	else if ANSIStartsStr ('e', param) then
-		ShowExportHelp
+		ShowAnyHelp (NumExportOptions, @ExportOption, @ExportHelp, OptName)
 	else if ANSIStartsStr ('cl', param) then
-		ShowClassHelp
-	else if ANSIStartsStr ('conv', param) then
-		AddHelpForClasses (PC_ELEMENT, true)
-	else if ANSIStartsStr ('d', param) then
-		AddHelpForClasses (PD_ELEMENT, true)
-	else if ANSIStartsStr ('cont', param) then
-		AddHelpForClasses (CTRL_ELEMENT, true)
-	else if ANSIStartsStr ('m', param) then
-		AddHelpForClasses (METER_ELEMENT, true)
-	else if ANSIStartsStr ('g', param) then
-		AddHelpForClasses (0, true)
-	else if ANSIStartsStr ('ot', param) then
-		AddHelpForClasses (NON_PCPD_ELEM, true)
+		ShowClassHelp (OptName)
 	else
 		ShowGeneralHelp;
 end;
@@ -259,6 +257,7 @@ End;
 
 Function MakeChannelSelection(NumFieldsToSkip:Integer; const Filename:String):Boolean;
 Begin
+  Result := false;
 End;
 
 initialization

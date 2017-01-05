@@ -30,7 +30,7 @@
         <CommandLineParams Value="IEEE13Nodeckt.dss"/>
       </local>
     </RunParams>
-    <Units Count="118">
+    <Units Count="119">
       <Unit0>
         <Filename Value="opendsscmd.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -506,6 +506,10 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="VCCS"/>
       </Unit117>
+      <Unit118>
+        <Filename Value="CmdForms.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit118>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
