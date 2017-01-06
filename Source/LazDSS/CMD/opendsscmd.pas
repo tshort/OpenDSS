@@ -223,9 +223,11 @@ begin
   end;
 
 	if paramcount > 0 then begin
-		DSSExecutive.Command := 'compile ' + ParamStr(1);
-		writeln(DSSExecutive.LastError);
-		Exit;
+		Cmd := 'compile ' + ParamStr(1);
+		writeln(Cmd);
+		DSSExecutive.Command := Cmd;
+		writeln('Last Error: ' + DSSExecutive.LastError);
+		Terminate;
 	end else begin
 		repeat begin
 			write('>>');

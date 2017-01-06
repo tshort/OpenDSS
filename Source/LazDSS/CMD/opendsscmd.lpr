@@ -263,6 +263,8 @@ end;
 var
   Application: TMyApplication;
 
+{$R *.res}
+
 begin
   Application:=TMyApplication.Create(nil);
   Application.Run;

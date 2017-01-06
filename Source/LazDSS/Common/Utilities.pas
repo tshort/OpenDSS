@@ -152,7 +152,7 @@ Procedure BackwardSweepAllFeeders;
 
 implementation
 
-Uses Process, SysUtils, Dialogs,      DSSClassDefs,
+Uses Process, SysUtils, DSSClassDefs,
      DSSGlobals, Dynamics, Executive, ExecCommands, ExecOptions,
      Solution,   DSSObject,math,      CmdForms,     ParserDel,
      Capacitor,  Reactor,  Generator, Load,
@@ -237,25 +237,16 @@ End;
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 Procedure FireOffEditor(FileNm:String);
 Var
-   retval:boolean; //Word;
    s: string;
 Begin
   TRY
   If FileExists(FileNm) Then
   Begin
-      retval := RunCommand (DefaultEditor, [FileNm], s);
-      (*
-      retval := ShellExecute (0, Nil, PChar(encloseQuotes(DefaultEditor)), PChar(encloseQuotes(FileNm)), Nil, SW_SHOW);
-      SetLastResultFile( FileNm);
-
-      Case Retval of
-          0: DoSimpleMsg('System out of memory. Cannot start Editor.', 700);
-          ERROR_BAD_FORMAT: DoSimpleMsg('Editor File is Invalid.', 701);
-          ERROR_FILE_NOT_FOUND: DoSimpleMsg('Editor "'+DefaultEditor+'"  Not Found.'
-                                            +CRLF+'Did you set complete path name?', 702);
-          ERROR_PATH_NOT_FOUND: DoSimpleMsg('Path for Editor "'+DefaultEditor+'" Not Found.', 703);
-      End;
-      *)
+{$IFDEF Windows}
+      RunCommand (DefaultEditor, [FileNm], s);
+{$ELSE}
+      RunCommand ('/bin/bash',['-c', DefaultEditor + ' ' + FileNm],s);
+{$ENDIF}
   End;
   EXCEPT
       On E: Exception DO
@@ -269,12 +260,13 @@ End;
 Procedure DoDOSCmd(CmdString:String);
 Var //Handle:Word;
    s: string;
-   ret: boolean;
 Begin
   TRY
-//      Handle := 0;
-//      ShellExecute(Handle, 'open', PChar('cmd.exe'), PChar(CmdString), nil, SW_SHOW);
-    ret := RunCommand('/bin/bash',['-c',CmdString],s);
+{$IFDEF Windows}
+    RunCommand('cmd',['/c',CmdString],s);
+{$ELSE}
+    RunCommand('/bin/bash',['-c',CmdString],s);
+{$ENDIF}
   EXCEPT
       On E: Exception DO
         DoSimpleMsg(Format('DoDOSCmd Error:%s. Error in Command "%s"',[E.Message, CmdString]), 704);
@@ -552,15 +544,11 @@ End;
 Function InterpretComplex(const s:String):Complex;
 
 // interpret first two entries as complex numbers
-
-VAR
-   ParmName :String;
-
 Begin
      Auxparser.CmdString := S;
-     ParmName := Auxparser.NextParam ;
+     Auxparser.NextParam ;
      Result.re  := AuxParser.dblvalue;
-     ParmName := Auxparser.NextParam ;
+     Auxparser.NextParam ;
      Result.im  := AuxParser.dblvalue;
 End;
 
@@ -1108,7 +1096,6 @@ End;
 PROCEDURE ParseIntArray(VAR iarray:pIntegerArray; VAR count:Integer; const s:string);
 
 VAR
-   paramName :String;
    param     :String;
    i         :Integer;
 
@@ -1118,7 +1105,7 @@ Begin
      AuxParser.cmdString := S;
      Count := 0;
      REPEAT
-           ParamName := AuxParser.NextParam;
+           AuxParser.NextParam;
            Param     := AuxParser.StrValue;
            IF Length(Param) > 0 Then Inc(Count);
      UNTIL Length(Param) = 0;
@@ -1130,7 +1117,7 @@ Begin
      AuxParser.cmdString := S;
      FOR i := 1 to Count Do
        Begin
-             ParamName  := AuxParser.NextParam;
+             AuxParser.NextParam;
              iarray^[i] := AuxParser.IntValue;
        End;
 

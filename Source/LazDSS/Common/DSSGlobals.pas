@@ -629,11 +629,11 @@ Var  TestDataDirectory:string;
 Begin
   DSS_Registry.Section := 'MainSect';
   {$IFDEF Darwin}
-     DefaultEditor    := DSS_Registry.ReadString('Editor', 'open -e');
+     DefaultEditor    := DSS_Registry.ReadString('Editor', 'open -t');
      DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '12'));
      DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'Geneva');
   {$ENDIF}
-  {$IFDEF Unix}
+  {$IFDEF Linux}
      DefaultEditor    := DSS_Registry.ReadString('Editor', 'xdg-open');
      DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '10'));
      DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'Arial');
@@ -762,9 +762,9 @@ initialization
    DSSDirectory     := ExtractFilePath(DSSFileName);
    // want to know if this was built for 64-bit, not whether running on 64 bits
    // (i.e. we could have a 32-bit build running on 64 bits; not interested in that
-{$IFDEF CPUX64}
+{$IFDEF CPU64}
    VersionString    := 'Version ' + GetDSSVersion + ' (64-bit build)';
-{$ELSE ! CPUX86}
+{$ELSE ! CPU32}
    VersionString    := 'Version ' + GetDSSVersion + ' (32-bit build)';
 {$ENDIF}
 {$IFDEF WINDOWS}
@@ -780,11 +780,11 @@ initialization
 
    AuxParser       := TParser.Create;
 {$IFDEF Darwin}
-   DefaultEditor   := 'open -e';
+   DefaultEditor   := 'open -t';
    DefaultFontSize := 12;
    DefaultFontName := 'Geneva';
 {$ENDIF}
-{$IFDEF Unix}
+{$IFDEF Linux}
    DefaultEditor   := 'xdg-open';
    DefaultFontSize := 10;
    DefaultFontName := 'Arial';

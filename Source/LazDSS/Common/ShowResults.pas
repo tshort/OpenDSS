@@ -2019,7 +2019,6 @@ Var
 
 
 Begin
-
      TRY
          Assignfile(F,FileNm);
          ReWrite(F);
