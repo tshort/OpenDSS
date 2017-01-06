@@ -8,6 +8,46 @@ clock {
 
 module powerflow {
 	solver_method NR;
-}
+	line_capacitance TRUE;
+};
+module tape;
 
 #include "ieee8500_base.glm";
+
+object voltdump {
+  filename Voltage_8500.csv;
+}
+
+object currdump {
+  filename Current_8500.csv;
+}
+
+object recorder {
+  parent regulator:FEEDER_REG;
+  file vregr_output.csv;
+  interval 1;
+  limit 1;
+  property tap_A,tap_B,tap_C,power_in_A.real,power_in_A.imag,power_in_B.real,power_in_B.imag,power_in_C.real,power_in_C.imag,power_in.real,power_in.imag;
+};
+object recorder {
+  parent regulator:VREG2;
+  file vreg2_output.csv;
+  interval 1;
+  limit 1;
+  property tap_A,tap_B,tap_C,power_in_A.real,power_in_A.imag,power_in_B.real,power_in_B.imag,power_in_C.real,power_in_C.imag,power_in.real,power_in.imag;
+};
+object recorder {
+  parent regulator:VREG3;
+  file vreg3_output.csv;
+  interval 1;
+  limit 1;
+  property tap_A,tap_B,tap_C,power_in_A.real,power_in_A.imag,power_in_B.real,power_in_B.imag,power_in_C.real,power_in_C.imag,power_in.real,power_in.imag;
+};
+object recorder {
+  parent regulator:VREG4;
+  file vreg4_output.csv;
+  interval 1;
+  limit 1;
+  property tap_A,tap_B,tap_C,power_in_A.real,power_in_A.imag,power_in_B.real,power_in_B.imag,power_in_C.real,power_in_C.imag,power_in.real,power_in.imag;
+};
+
