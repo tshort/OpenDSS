@@ -202,6 +202,7 @@ VAR
 
    EventStrings: TStringList;
    SavedFileList:TStringList;
+   ErrorStrings: TStringList;
 
    DSSClassList       :TPointerList; // pointers to the base class types
    ClassNames         :THashList;
@@ -350,6 +351,8 @@ Begin
     If Length(GlobalResult) > 0
     THEN GlobalResult := GlobalResult + CRLF + S
     ELSE GlobalResult := S;
+
+    ErrorStrings.Add(Format('(%d) %s' ,[ErrorNumber, S]));  // Add to Error log
 End;
 
 //----------------------------------------------------------------------------
@@ -745,6 +748,8 @@ initialization
 
    EventStrings     := TStringList.Create;
    SavedFileList    := TStringList.Create;
+   ErrorStrings     := TStringList.Create;
+   ErrorStrings.Clear;
 
    LogQueries       := FALSE;
    QueryLogFileName := '';
@@ -762,6 +767,7 @@ Finalization
 
   EventStrings.Free;
   SavedFileList.Free;
+  ErrorStrings.Free;
 
   With DSSExecutive Do If RecorderOn Then Recorderon := FALSE;
 

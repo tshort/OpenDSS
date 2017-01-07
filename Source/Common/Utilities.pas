@@ -107,6 +107,8 @@ PROCEDURE ClearEventLog;
 PROCEDURE AppendToEventLog(const opdev:string; Const action:String);
 PROCEDURE LogThisEvent(Const EventName:String);
 
+PROCEDURE ClearErrorLog;
+
 {Routines for doing common things to complex numbers}
 PROCEDURE RotatePhasorDeg(Var Phasor:Complex; const  h, AngleDeg:Double);
 PROCEDURE RotatePhasorRad(Var Phasor:Complex; const  h, AngleRad:Double);
@@ -1743,6 +1745,18 @@ Begin
   Except
        On E:Exception Do
           Dosimplemsg(Format('Exception clearing event log: %s, @EventStrings=%p', [E.Message, @EventStrings]), 7151);
+  End;
+End;
+
+PROCEDURE ClearErrorLog;
+
+Begin
+  Try
+{****  WriteDLLDebugFile(Format('ClearEventLog: EventStrings= %p', [@EventStrings])); }
+       ErrorStrings.Clear;
+  Except
+       On E:Exception Do
+          Dosimplemsg(Format('Exception clearing error log: %s, @EventStrings=%p', [E.Message, @EventStrings]), 71511);
   End;
 End;
 

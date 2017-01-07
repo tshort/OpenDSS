@@ -57,6 +57,7 @@ Procedure ExportYNodeList(FileNM:String);
 Procedure ExportYVoltages(FileNM:String);
 Procedure ExportYCurrents(FileNM:String);
 Procedure ExportSections(FileNM:String; pMeter:TEnergyMeterObj);
+Procedure ExportErrorLog(FileNm:String);
 
 
 IMPLEMENTATION
@@ -3050,6 +3051,13 @@ Procedure ExportEventLog(FileNm:String);
 // Export the present set of EventStrings
 Begin
      EventStrings.SaveToFile(FileNm);
+     GlobalResult := FileNm;
+End;
+
+Procedure ExportErrorLog(FileNm:String);
+// Export the present set of EventStrings
+Begin
+     ErrorStrings.SaveToFile(FileNm);
      GlobalResult := FileNm;
 End;
 

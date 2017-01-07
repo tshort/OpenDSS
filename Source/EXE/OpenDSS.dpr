@@ -207,11 +207,9 @@ begin
     DSSExecutive.Command := 'compile ' + ParamStr(1);
     ExitCode := DSSExecutive.Error;
     If ExitCode <> 0 Then Begin
-        {write error message to a file}
-        AssignFile(ErrorFile, 'STDERR_OpenDSS.Txt');
-        Rewrite(Errorfile);
-        Writeln(ErrorFile, GlobalResult); // output error message to stderr
-        Closefile(ErrorFile);
+        {write error log to a file}
+
+        ErrorStrings.SaveToFile('STDERR_OpenDSS.Txt')
     End;
   end else begin
     {Instantiate basic forms}

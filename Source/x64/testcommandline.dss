@@ -24,4 +24,10 @@ solve
 
 export voltages
 
+! force writing of errorlog on exit with errornumber > 0
+xxx
+yyy
+zzz
+
+Export Errorlog
 
