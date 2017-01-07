@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 51;
+        NumExportOptions = 52;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -81,6 +81,7 @@ Begin
       ExportOption[49] := 'PVSystem_Meters';
       ExportOption[50] := 'Storage_Meters';
       ExportOption[51] := 'Sections';
+      ExportOption[52] := 'ErrorLog';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -117,7 +118,7 @@ Begin
       ExportHelp[31] := '(Default file = CDPSM_StateVariables.XML) (IEC 61968-13, CDPSM State Variables profile)';
       ExportHelp[32] := '[Default file = EXP_Profile.CSV] Coordinates, color of each line section in Profile plot. Same options as Plot Profile Phases property.' +  CRLF + CRLF +
                         'Example:  Export Profile Phases=All [optional file name]';
-      ExportHelp[33] := '(Default file = EXP_EVTLOG.CSV) All entries in the present event log.';
+      ExportHelp[33] := '(Default file = EXP_EventLog.CSV) All entries in the present event log.';
       ExportHelp[34] := 'Exports load allocation factors. File name is assigned.';
       ExportHelp[35] := '(Default file = EXP_VOLTAGES_ELEM.CSV) Voltages to ground by circuit element.';
       ExportHelp[36] := '(Default file = EXP_GIC_Mvar.CSV) Mvar for each GICtransformer object by bus for export to power flow programs ';
@@ -139,6 +140,8 @@ Begin
                         ' cause a separate file to be written for each Storage device.';
       ExportHelp[51] := '(Default file = EXP_SECTIONS.CSV) Data for each section between overcurrent protection devices. ' +CRLF+CRLF+
                         'Examples: ' + CRLF + '  Export Sections [optional filename]' + CRLF + 'Export Sections meter=M1 [optional filename]';
+      ExportHelp[52] := '(Default file = EXP_ErrorLog.TXT) All entries in the present Error log.';
+
 End;
 
 //----------------------------------------------------------------------------
@@ -274,7 +277,7 @@ Begin
          30: FileName := 'CDPSM_Topology.XML';
          31: FileName := 'CDPSM_StateVariables.XML';
          32: FileName := 'EXP_Profile.CSV';
-         33: FileName := 'EXP_EVTLOG.CSV';
+         33: FileName := 'EXP_EventLog.CSV';
          34: FileName := 'AllocationFactors.Txt';
          35: FileName := 'EXP_VOLTAGES_ELEM.CSV';
          36: FileName := 'EXP_GIC_Mvar.CSV';
@@ -293,6 +296,7 @@ Begin
          49: FileName := 'EXP_PVMeters.CSV';
          50: FileName := 'EXP_STORAGEMeters.CSV';
          51: FileName := 'EXP_SECTIONS.CSV';
+         52: FileName := 'EXP_ErrorLog.txt';
 
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
@@ -357,6 +361,7 @@ Begin
      49: ExportPVSystemMeters(FileName);
      50: ExportStorageMeters(FileName);
      51: ExportSections(FileName, pMeter);
+     52: ExportErrorLog(FileName);
 
    ELSE
         // ExportVoltages(FileName);    // default

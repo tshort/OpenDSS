@@ -202,6 +202,10 @@ begin
     OutputDirectory[ActiveActor] := StartupDirectory;
     DSSExecutive.Command := 'compile ' + ParamStr(1);
     ExitCode := DSSExecutive.Error;
+    If ExitCode <> 0 Then Begin
+    {write error log to a file}
+           If ActiveActor > 0 Then ErrorStrings[ActiveActor].SaveToFile(Format('STDERR_Actor_%d.Txt', [ActiveActor]))
+    End;
   end else begin
     {Instantiate basic forms}
     Application.CreateForm(TControlPanel, ControlPanel);

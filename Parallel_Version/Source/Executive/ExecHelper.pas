@@ -222,6 +222,7 @@ Begin
      THEN Begin
             MakeNewCircuit(ObjName);  // Make a new circuit
             ClearEventLog;      // Start the event log in the current directory
+            ClearErrorLog;
           End
      ELSE    // Everything else must be a circuit element or DSS Object
         Begin
@@ -1134,6 +1135,7 @@ Begin
             DoResetFaults ;
             DoResetControls;
             ClearEventLog;
+            ClearErrorLog;
             DoResetKeepList;
        End
     ELSE
@@ -1144,7 +1146,7 @@ Begin
             END;
        'F'{Faults}:   DoResetFaults;
        'C'{Controls}: DoResetControls;
-       'E'{EventLog}: ClearEventLog;
+       'E'{EventLog and ErrorLog}: Begin ClearEventLog;  ClearErrorLog; End;
        'K': DoResetKeepList;
 
       ELSE

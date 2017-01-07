@@ -224,6 +224,7 @@ VAR
 
    EventStrings       :Array of TStringList;
    SavedFileList      :Array of TStringList;
+   ErrorStrings       :Array of TStringList;
 
    DSSClassList       :Array of TPointerList; // pointers to the base class types
    ClassNames         :Array of THashList;
@@ -400,6 +401,8 @@ Begin
     If Length(GlobalResult) > 0
     THEN GlobalResult := GlobalResult + CRLF + S
     ELSE GlobalResult := S;
+
+    ErrorStrings[ActiveActor].Add(Format('(%d) %s' ,[ErrorNumber, S]));  // Add to Error log
 End;
 
 //----------------------------------------------------------------------------
@@ -792,6 +795,7 @@ initialization
    setlength(ExpControlClass,CPU_Cores + 1);
    setlength(EventStrings,CPU_Cores + 1);
    setlength(SavedFileList,CPU_Cores + 1);
+   setlength(ErrorStrings,CPU_Cores + 1);
    setlength(ActorHandle,CPU_Cores + 1);
    setlength(Parser,CPU_Cores + 1);
 // Initializes the arrays for attending multiple instances of KLUSolver
@@ -825,6 +829,9 @@ initialization
     ActorStatus[ActiveActor]          :=  1;
     EventStrings[ActiveActor]         := TStringList.Create;
     SavedFileList[ActiveActor]        := TStringList.Create;
+    ErrorStrings[ActiveActor]         := TStringList.Create;
+    ErrorStrings[ActiveActor].Clear;
+
     ActorHandle[ActiveActor]          :=  nil;
    end;
 
@@ -929,6 +936,7 @@ Finalization
 
   EventStrings[ActiveActor].Free;
   SavedFileList[ActiveActor].Free;
+  ErrorStrings[ActiveActor].Free;
 
   With DSSExecutive Do If RecorderOn Then Recorderon := FALSE;
   ClearAllCircuits;
