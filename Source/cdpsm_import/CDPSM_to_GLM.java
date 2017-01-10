@@ -192,18 +192,28 @@ public class CDPSM_to_GLM extends Object {
 		int hash = s.lastIndexOf ("#");
 		String t = s.substring (hash + 1);
 		if (t.equals("LinearShuntCompensator")) return "cap";
-		if (t.equals("ACLineSegment")) return "overhead_line";
+		if (t.equals("ACLineSegment")) return "line"; // assumes we prefix both overhead and underground with line_
 		if (t.equals("EnergyConsumer")) return "";  // TODO should we name load:?
 		if (t.equals("PowerTransformer")) return "xf";
 		return "##UNKNOWN##";
 	}
 
   static String GLD_Name (String arg) {  // GLD conversion
-    String s1 = arg.replace (' ', '_');
-    String s2 = s1.replace ('.', '_');
-    String s3 = s2.replace ('(', '_');
-    String s4 = s3.replace (')', '_');
-    return s4.replace ('=', '_');
+    String s = arg.replace (' ', '_');
+    s = s.replace ('.', '_');
+		s = s.replace ('=', '_');
+		s = s.replace ('+', '_');
+		s = s.replace ('^', '_');
+		s = s.replace ('$', '_');
+		s = s.replace ('*', '_');
+		s = s.replace ('|', '_');
+		s = s.replace ('[', '_');
+		s = s.replace (']', '_');
+		s = s.replace ('{', '_');
+		s = s.replace ('}', '_');
+    s = s.replace ('(', '_');
+    s = s.replace (')', '_');
+		return s;
   }
 
   static String GLD_ID (String arg) {  // GLD conversion
@@ -313,20 +323,20 @@ public class CDPSM_to_GLM extends Object {
 
 		if (nphases == 1) {
 			seq = GetMatIdx(nphases, 0, 0);
-			buf.append ("object line_configuration {\n  name line_configuration:" + name + ":A;\n");
+			buf.append ("object line_configuration {\n  name \"lcon_" + name + "_A\";\n");
 			buf.append ("  z11 " + CFormat (new Complex(rMat[seq], xMat[seq])) + ";\n");
 			buf.append ("  c11 " + String.format("%6g", cMat[seq]) + ";\n");
 			buf.append ("}\n");
-			buf.append ("object line_configuration {\n  name line_configuration:" + name + ":B;\n");
+			buf.append ("object line_configuration {\n  name \"lcon_" + name + "_B\";\n");
 			buf.append ("  z22 " + CFormat (new Complex(rMat[seq], xMat[seq])) + ";\n");
 			buf.append ("  c22 " + String.format("%6g", cMat[seq]) + ";\n");
 			buf.append ("}\n");
-			buf.append ("object line_configuration {\n  name line_configuration:" + name + ":C;\n");
+			buf.append ("object line_configuration {\n  name \"lcon_" + name + "_C\";\n");
 			buf.append ("  z33 " + CFormat (new Complex(rMat[seq], xMat[seq])) + ";\n");
 			buf.append ("  c33 " + String.format("%6g", cMat[seq]) + ";\n");
 			buf.append ("}\n");
 		} else if (nphases == 2) {
-			buf.append ("object line_configuration {\n  name line_configuration:" + name + ":AB;\n");
+			buf.append ("object line_configuration {\n  name \"lcon_" + name + "_AB\";\n");
 			seq = GetMatIdx(nphases, 0, 0);
 			buf.append ("  z11 " + CFormat (new Complex(rMat[seq], xMat[seq])) + ";\n");
 			buf.append ("  c11 " + String.format("%6g", cMat[seq]) + ";\n");
@@ -339,7 +349,7 @@ public class CDPSM_to_GLM extends Object {
 			buf.append ("  z22 " + CFormat (new Complex(rMat[seq], xMat[seq])) + ";\n");
 			buf.append ("  c22 " + String.format("%6g", cMat[seq]) + ";\n");
 			buf.append ("}\n");
-			buf.append ("object line_configuration {\n  name line_configuration:" + name + ":BC;\n");
+			buf.append ("object line_configuration {\n  name \"lcon_" + name + "_BC\";\n");
 			seq = GetMatIdx(nphases, 0, 0);
 			buf.append ("  z22 " + CFormat (new Complex(rMat[seq], xMat[seq])) + ";\n");
 			buf.append ("  c22 " + String.format("%6g", cMat[seq]) + ";\n");
@@ -352,7 +362,7 @@ public class CDPSM_to_GLM extends Object {
 			buf.append ("  z33 " + CFormat (new Complex(rMat[seq], xMat[seq])) + ";\n");
 			buf.append ("  c33 " + String.format("%6g", cMat[seq]) + ";\n");
 			buf.append ("}\n");
-			buf.append ("object line_configuration {\n  name line_configuration:" + name + ":AC;\n");
+			buf.append ("object line_configuration {\n  name \"lcon_" + name + "_AC\";\n");
 			seq = GetMatIdx(nphases, 0, 0);
 			buf.append ("  z11 " + CFormat (new Complex(rMat[seq], xMat[seq])) + ";\n");
 			buf.append ("  c11 " + String.format("%6g", cMat[seq]) + ";\n");
@@ -366,7 +376,7 @@ public class CDPSM_to_GLM extends Object {
 			buf.append ("  c33 " + String.format("%6g", cMat[seq]) + ";\n");
 			buf.append ("}\n");
 		} else if (nphases == 3) {
-			buf.append ("object line_configuration {\n  name line_configuration:" + name + ":ABC;\n");
+			buf.append ("object line_configuration {\n  name \"lcon_" + name + "_ABC\";\n");
 			seq = GetMatIdx(nphases, 0, 0);
 			buf.append ("  z11 " + CFormat (new Complex(rMat[seq], xMat[seq])) + ";\n");
 			buf.append ("  c11 " + String.format("%6g", cMat[seq]) + ";\n");
@@ -801,7 +811,7 @@ public class CDPSM_to_GLM extends Object {
 		double x, b, g;
 
     StringBuilder bufX = new StringBuilder ("object transformer_configuration {\n");
-		bufX.append ("  name xfconfig:" + xfName + ";\n");
+		bufX.append ("  name \"xcon_" + xfName + "\";\n");
 		bufX.append ("  connect_type " + GetGldTransformerConnection (wye, nwdg) + ";\n");
 		bufX.append ("  primary_voltage " + String.format("%6g", v[0]) + ";\n");
 		bufX.append ("  secondary_voltage " + String.format("%6g", v[1]) + ";\n");
@@ -838,10 +848,10 @@ public class CDPSM_to_GLM extends Object {
 		bufX.append ("}\n");
 
 		bufX.append ("object transformer {\n");
-		bufX.append ("  name xf:" + xfName + ";\n");
-		bufX.append ("  configuration xfconfig:" + xfName + ";\n");
-		bufX.append ("  from " + bus[0] + ";\n");
-		bufX.append ("  to " + bus[1] + ";\n");
+		bufX.append ("  name \"xf_" + xfName + "\";\n");
+		bufX.append ("  configuration \"xcon_" + xfName + "\";\n");
+		bufX.append ("  from \"" + bus[0] + "\";\n");
+		bufX.append ("  to \"" + bus[1] + "\";\n");
 		bufX.append ("  phases " + phs[0] + ";\n");  // no difference between primary and secondary phases
 		bufX.append ("}\n");
 
@@ -924,7 +934,7 @@ public class CDPSM_to_GLM extends Object {
 			}
 		}
 
-		StringBuffer buf = new StringBuffer("object regulator_configuration {\n  name regulator_configuration:" + name + ";\n");
+		StringBuffer buf = new StringBuffer("object regulator_configuration {\n  name \"rcon_" + name + "\";\n");
 		if (xfGroup.contains("D") || xfGroup.contains("d"))	{
 			buf.append ("  connect_type CLOSED_DELTA;\n");
 		} else {
@@ -954,11 +964,11 @@ public class CDPSM_to_GLM extends Object {
 		}
 		buf.append ("}\n");
 
-		buf.append ("object regulator {\n  name regulator:" + name + ";\n");
-		buf.append ("  from " + bus1 + ";\n");
-		buf.append ("  to " + bus2 + ";\n");
+		buf.append ("object regulator {\n  name \"reg_" + name + "\";\n");
+		buf.append ("  from \"" + bus1 + "\";\n");
+		buf.append ("  to \"" + bus2 + "\";\n");
 		buf.append ("  phases " + phs + ";\n");
-		buf.append ("  configuration regulator_configuration:" + name + ";\n");
+		buf.append ("  configuration \"rcon_" + name + "\";\n");
 		buf.append ("}\n");
 
 		return buf.toString();
@@ -1039,12 +1049,12 @@ public class CDPSM_to_GLM extends Object {
 			return GetRegulatorData (mdl, rXf, xfName, xfGroup, bus[0], bus[1], phs);
 		} else {
 			buf.append ("object transformer {\n");
-			buf.append ("  name xf:" + xfName + ";\n");
-			buf.append ("  from " + bus[0] + ";\n");
-			buf.append ("  to " + bus[1] + ";\n");
+			buf.append ("  name \"xf_" + xfName + "\";\n");
+			buf.append ("  from \"" + bus[0] + "\";\n");
+			buf.append ("  to \"" + bus[1] + "\";\n");
 			buf.append ("  phases " + phs + ";\n");
 			buf.append ("  // " + xfGroup + "\n");
-			buf.append ("  configuration xfcode:" + xfCode + ";\n}\n");
+			buf.append ("  configuration \"xcon_" + xfCode + "\";\n}\n");
 		}
 
 		return buf.toString();
@@ -1268,7 +1278,7 @@ public class CDPSM_to_GLM extends Object {
 			buf.append ("  VAr_set_high " + String.format("%6g", dOff) + ";\n");
 		}
 		if (!sEqType.equals("cap") || !sEqName.equals(capName)) {
-			buf.append("  remote_sense " + sEqType + ":" + sEqName + ";\n");
+			buf.append("  remote_sense \"" + sEqType + "_" + sEqName + "\";\n");
 		}
 		buf.append ("  pt_phase " + sPhase + ";\n");
 		if (sPhase.length() > 1) {
@@ -1350,7 +1360,7 @@ public class CDPSM_to_GLM extends Object {
 		String ConnectType = GetGldTransformerConnection (sC, nWindings);
 
 		StringBuilder buf = new StringBuilder ("object transformer_configuration {\n");
-		buf.append ("  name xfcode:" + name + ";\n");
+		buf.append ("  name \"xcon_" + name + "\";\n");
 		buf.append ("  connect_type " + ConnectType + ";\n");
 		buf.append ("  primary_voltage " + String.format("%6g", dU[0]) + ";\n");
 		buf.append ("  secondary_voltage " + String.format("%6g", dU[1]) + ";\n");
@@ -1804,8 +1814,8 @@ public class CDPSM_to_GLM extends Object {
 			if (phs.length() > 1 && !phs_delta) cap_v /= Math.sqrt(3.0);
 
 			out.println ("object capacitor {");
-			out.println ("  name cap:" + name + ";");
-			out.println ("  parent " + bus1 + ";");
+			out.println ("  name \"cap_" + name + "\";");
+			out.println ("  parent \"" + bus1 + "\";");
 			if (phs_delta) {
 				out.println("  phases " + phs + "D;");
 			} else {
@@ -2100,10 +2110,10 @@ public class CDPSM_to_GLM extends Object {
 			nd2.nomvln = nd1.nomvln;
 			nd2.AddPhases(phs);
 
-			out.println ("object overhead_line {\n  name line:" + name + ";");
+			out.println ("object overhead_line {\n  name \"line_" + name + "\";");
 			out.println ("  phases " + phs + ";");
-			out.println ("  from " + bus1 + ";");
-			out.println ("  to " + bus2 + ";");
+			out.println ("  from \"" + bus1 + "\";");
+			out.println ("  to \"" + bus2 + "\";");
 			out.println ("  length " + String.format("%6g", dLen) + ";");
 
       String zPhase = SafeResourceLookup (model, ptName, res, ptPhsZ, "");
@@ -2111,7 +2121,7 @@ public class CDPSM_to_GLM extends Object {
 			String zSpace = GetLineSpacing (model, res);
       String linecode = "";
       if (zPhase.length() > 0) {
-        out.println ("  configuration line_configuration:" + zPhase + ":" + phs + ";");
+        out.println ("  configuration \"lcon_" + zPhase + "_" + phs + "\";");
 //      } else if (zSequence.length() > 0) {
 //        linecode = " linecode=" + zSequence;
       } else if (zSpace.length() > 0) {
@@ -2164,10 +2174,10 @@ public class CDPSM_to_GLM extends Object {
 			nd2.nomvln = nd1.nomvln;
 			nd2.AddPhases(phs);
 
-			out.println ("object switch {\n  name switch:" + name + ";");
+			out.println ("object switch {\n  name \"swt_" + name + "\";");
 			out.println ("  phases " + phs + ";");
-			out.println ("  from " + bus1 + ";");
-			out.println ("  to " + bus2 + ";");
+			out.println ("  from \"" + bus1 + "\";");
+			out.println ("  to \"" + bus2 + "\";");
       if (open.equals("false")) {
         out.println ("  status CLOSED;");
       } else {
