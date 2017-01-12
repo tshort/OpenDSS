@@ -237,7 +237,6 @@ var
 begin
        {First get rid of all existing stuff}
        ClearAllCircuits;
-       Destroy_KLU_Actors;
        DisposeDSSClasses;
        {Now, Start over}
        ActiveActor  :=  1;
@@ -252,7 +251,6 @@ begin
        ParserVars.Free;
        ParserVars := TParserVar.Create(100);  // start with space for 100 variables
        NumOfActors  :=  1;
-       Create_KLU_Actor;
 end;
 
 procedure TExecutive.Set_RecorderOn(const Value: Boolean);
