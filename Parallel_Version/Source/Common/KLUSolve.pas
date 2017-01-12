@@ -8,9 +8,8 @@ uses
 const
   KLULib = 'klusolve.dll';
 
-procedure Create_KLU_Actor;
-procedure Destroy_KLU_Actors;
-{
+
+
 // in general, KLU arrays are 0-based
 // function calls return 0 to indicate failure, 1 for success
 
@@ -78,52 +77,10 @@ FUNCTION AddMatrixElement(id:NativeUInt; i,j:LongWord; Value:pComplex):LongWord;
 
 // GetMatrixElement is deprecated, use GetCompressedMatrix or GetTripletMatrix
 FUNCTION GetMatrixElement(id:NativeUInt; i,j:LongWord; Value:pComplex):LongWord;stdcall;external KLULib;
-}
-implementation
 
-procedure Create_KLU_Actor;
-var 
-  KLUCommand  : string;
+Implementation
 
-Begin
-   if ActiveActor <> 1 then
-     CopyFile(PChar(DSSDirectory + 'KLUSolve.dll'), PChar(DSSDirectory + 'KLUSolve'+IntToStr(ActiveActor)+'.dll'), true);
-   if ActiveActor = 1 then KLUCommand :=  'KLUSolve.dll'
-   else KLUCommand  :=  'KLUSolve'+IntToStr(ActiveActor)+'.dll';
-   ActorKLU[ActiveActor]  :=  LoadLibrary(PChar(KLUCommand));
-// The mapping for all the exported procedures/functions begins
-   @NewSparseSet[ActiveActor]       := GetProcAddress(ActorKLU[ActiveActor],'NewSparseSet');
-   @DeleteSparseSet[ActiveActor]    := GetProcAddress(ActorKLU[ActiveActor],'DeleteSparseSet');
-   @SolveSparseSet[ActiveActor]     := GetProcAddress(ActorKLU[ActiveActor],'SolveSparseSet');
-   @ZeroSparseSet[ActiveActor]      := GetProcAddress(ActorKLU[ActiveActor],'ZeroSparseSet');
-   @FactorSparseMatrix[ActiveActor] := GetProcAddress(ActorKLU[ActiveActor],'FactorSparseMatrix');
-   @GetSize[ActiveActor]            := GetProcAddress(ActorKLU[ActiveActor],'GetSize');
-   @GetFlops[ActiveActor]           := GetProcAddress(ActorKLU[ActiveActor],'GetFlops');
-   @GetNNZ[ActiveActor]             := GetProcAddress(ActorKLU[ActiveActor],'GetNNZ');
-   @GetSparseNNZ[ActiveActor]       := GetProcAddress(ActorKLU[ActiveActor],'GetSparseNNZ');
-   @GetSingularCol[ActiveActor]     := GetProcAddress(ActorKLU[ActiveActor],'GetSingularCol');
-   @GetRGrowth[ActiveActor]         := GetProcAddress(ActorKLU[ActiveActor],'GetRGrowth');
-   @GetRCond[ActiveActor]           := GetProcAddress(ActorKLU[ActiveActor],'GetRCond');
-   @GetCondEst[ActiveActor]         := GetProcAddress(ActorKLU[ActiveActor],'GetCondEst');
-   @AddPrimitiveMatrix[ActiveActor] := GetProcAddress(ActorKLU[ActiveActor],'AddPrimitiveMatrix');
-   @SetLogFile[ActiveActor]         := GetProcAddress(ActorKLU[ActiveActor],'SetLogFile');
-   @GetCompressedMatrix[ActiveActor]:= GetProcAddress(ActorKLU[ActiveActor],'GetCompressedMatrix');
-   @GetTripletMatrix[ActiveActor]   := GetProcAddress(ActorKLU[ActiveActor],'GetTripletMatrix');
-   @FindIslands[ActiveActor]        := GetProcAddress(ActorKLU[ActiveActor],'FindIslands');
-   @AddMatrixElement[ActiveActor]   := GetProcAddress(ActorKLU[ActiveActor],'AddMatrixElement');
-   @GetMatrixElement[ActiveActor]   := GetProcAddress(ActorKLU[ActiveActor],'GetMatrixElement');
-End;
 
-procedure Destroy_KLU_Actors;
-var
-  I : integer;
-begin
-  for I := 1 to NumOfActors do
-  Begin
-    FreeLibrary(ActorKLU[I]);
-    if I <> 1 then deletefile(PChar(DSSDirectory + 'KLUSolve'+IntToStr(I)+'.dll'));
-  End;
-end;
 
 initialization
 

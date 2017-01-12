@@ -43,7 +43,7 @@ interface
 implementation
 
 Uses ArrayDef, DSSGlobals, DSSForms,  Utilities, SysUtils, MathUtil, Math, Fault, uComplex, YMatrix,
-     PCElement, Spectrum, Vsource, Isource, KLUSolve;
+     PCElement, Spectrum, Vsource, Isource, KLUSolve, System.Classes;
 
 VAR ProgressCount:Integer;
 
@@ -108,6 +108,7 @@ Begin
  WITH ActiveCircuit[ActorID], ActiveCircuit[ActorID].Solution Do
  Begin
   Try
+
     IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage elements
     IF Not DIFilesAreOpen then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired   Creates DI_Totals
     Twopct := Max(NumberOfTimes div 50, 1);
@@ -119,7 +120,6 @@ Begin
           SolveSnap(ActorID);
           MonitorClass[ActorID].SampleAll(ActorID);  // Make all monitors take a sample
           EnergyMeterClass[ActorID].SampleAll(ActorID); // Make all Energy Meters take a sample
-
           EndOfTimeStepCleanup(ActorID);
           ActorPctProgress[ActorID]  :=  (N*100) div NumberofTimes;
 //          If (N mod Twopct)=0 Then ShowPctProgress((N*100) div NumberofTimes,ActorID);
@@ -790,7 +790,7 @@ Begin
         IF ref1>0 Then Begin
           Currents^[ref1] := cONE;
           {SparseSet expects 1st element of voltage array, not 0-th element}
-          IF   SolveSparseSet[ActorID](hYsystem, @NodeV^[1], @Currents^[1]) < 1
+          IF   SolveSparseSet(hYsystem, @NodeV^[1], @Currents^[1]) < 1
           THEN Raise EEsolv32Problem.Create('Error Solving System Y Matrix in ComputeYsc. Problem with Sparse matrix solver.');
           {Extract Voltage Vector = column of Zsc}
           FOR j := 1 to NumNodesThisBus Do Begin
@@ -1137,4 +1137,9 @@ Begin
   End;
 
 End;
+
+initialization
+
+    IsMultiThread :=  True;
+
 end.

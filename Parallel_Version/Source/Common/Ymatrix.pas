@@ -89,14 +89,14 @@ PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer; ActorID : Integer);
 Begin
 
      IF hY<>0 THEN Begin
-         IF DeleteSparseSet[ActorID](hY) < 1  {Get rid of existing one beFore making a new one}
+         IF DeleteSparseSet(hY) < 1  {Get rid of existing one beFore making a new one}
          THEN Raise EEsolv32Problem.Create('Error Deleting System Y Matrix in ResetSparseMatrix. Problem with Sparse matrix solver.');
 
          hY := 0;
      End;
 
      // Make a new sparse set
-     hY := NewSparseSet[ActorID](Size);
+      hY := NewSparseSet(Size);
      If hY<1 THEN Begin   // Raise and exception
         Raise EEsolv32Problem.Create('Error Creating System Y Matrix. Problem WITH Sparse matrix solver.');
      End;
@@ -136,7 +136,6 @@ Begin
 
   //{****} AssignFile(Ftrace, 'YmatrixTrace.txt');
   //{****} Rewrite(FTrace);
-
    CmatArray := Nil;
    // new function to log KLUSolve.DLL function calls
    // SetLogFile ('KLU_Log.txt', 1);
@@ -149,7 +148,6 @@ Begin
      IF (BusNameRedefined) THEN ReProcessBusDefs(ActorID);      // This changes the node references into the system Y matrix!!
 
      YMatrixSize := NumNodes;
-
      Case BuildOption of
          WHOLEMATRIX: begin
            ResetSparseMatrix (hYsystem, YMatrixSize, ActorID);
@@ -160,7 +158,6 @@ Begin
            hY := hYSeries;
          end;
      End;
-
      // tune up the Yprims if necessary
      IF  (FrequencyChanged) THEN ReCalcAllYPrims(ActorID)
                             ELSE ReCalcInvalidYPrims(ActorID);
@@ -189,12 +186,11 @@ Begin
            End;
            // new function adding primitive Y matrix to KLU system Y matrix
            if CMatArray <> Nil then
-              if AddPrimitiveMatrix[ActorID](hY, Yorder, @NodeRef[1], @CMatArray[1]) < 1 then
+              if AddPrimitiveMatrix(hY, Yorder, @NodeRef[1], @CMatArray[1]) < 1 then
                  Raise EEsolv32Problem.Create('Node index out of range adding to System Y Matrix')
          End;   // If Enabled
          pElem := CktElements.Next;
        End;
-
      //{****} CloseFile(Ftrace);
      //{****} FireOffEditor(  'YmatrixTrace.txt');
 
@@ -223,7 +219,6 @@ Begin
                        End;
           SERIESONLY: SeriesYInvalid := False;  // SystemYChange unchanged
      End;
-
     // Deleted RCD only done now on mode change
     // SolutionInitialized := False;  //Require initialization of voltages if Y changed
 
@@ -248,20 +243,20 @@ Begin
   With ActiveCircuit[ActorID] Do begin
     hY := Solution.hY;
     For i := 1 to Numnodes Do Begin
-       GetMatrixElement[ActorID](hY, i, i, @c);
+       GetMatrixElement(hY, i, i, @c);
        If Cabs(C)=0.0 Then With MapNodeToBus^[i] Do Begin
            Result := Result + Format('%sZero diagonal for bus %s, node %d',[CRLF, BusList.Get(Busref), NodeNum]);
        End;
     End;
 
     // new diagnostics
-    GetSingularCol[ActorID](hY, @sCol); // returns a 1-based node number
+    GetSingularCol(hY, @sCol); // returns a 1-based node number
     if sCol > 0 then With MapNodeToBus^[sCol] Do Begin
       Result := Result + Format('%sMatrix singularity at bus %s, node %d',[CRLF, BusList.Get(Busref), sCol]);
     end;
 
     SetLength (Cliques, NumNodes);
-    nIslands := FindIslands[ActorID](hY, NumNodes, @Cliques[0]);
+    nIslands := FindIslands(hY, NumNodes, @Cliques[0]);
     if nIslands > 1 then begin
       Result := Result + Format('%sFound %d electrical islands:', [CRLF, nIslands]);
       for i:= 1 to nIslands do begin

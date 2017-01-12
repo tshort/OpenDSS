@@ -3126,15 +3126,15 @@ Begin
   End;
   // print lower triangle of G and B using new functions
   // this compresses the entries if necessary - no extra work if already solved
-  FactorSparseMatrix[ActiveActor](hY);
-  GetNNZ[ActiveActor](hY, @nNZ);
-  GetSize[ActiveActor](hY, @nBus); // we should already know this
+  FactorSparseMatrix(hY);
+  GetNNZ(hY, @nNZ);
+  GetSize(hY, @nBus); // we should already know this
 
   Try
     SetLength (ColIdx, nNZ);
     SetLength (RowIdx, nNZ);
     SetLength (cVals, nNZ);
-    GetTripletMatrix[ActiveActor](hY, nNZ, @RowIdx[0], @ColIdx[0], @cVals[0]);
+    GetTripletMatrix(hY, nNZ, @RowIdx[0], @ColIdx[0], @cVals[0]);
 
     Assignfile(F,FileNm);
     ReWrite(F);

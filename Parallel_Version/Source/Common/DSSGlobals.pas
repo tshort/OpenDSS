@@ -798,28 +798,6 @@ initialization
    setlength(ErrorStrings,CPU_Cores + 1);
    setlength(ActorHandle,CPU_Cores + 1);
    setlength(Parser,CPU_Cores + 1);
-// Initializes the arrays for attending multiple instances of KLUSolver
-   setlength(ActorKLU,CPU_Cores + 1);
-   setlength(NewSparseSet,CPU_Cores + 1);
-   setlength(DeleteSparseSet,CPU_Cores + 1);
-   setlength(SolveSparseSet,CPU_Cores + 1);
-   setlength(ZeroSparseSet,CPU_Cores + 1);
-   setlength(FactorSparseMatrix,CPU_Cores + 1);
-   setlength(GetSize,CPU_Cores + 1);
-   setlength(GetFlops,CPU_Cores + 1);
-   setlength(GetNNZ,CPU_Cores + 1);
-   setlength(GetSparseNNZ,CPU_Cores + 1);
-   setlength(GetSingularCol,CPU_Cores + 1);
-   setlength(GetRGrowth,CPU_Cores + 1);
-   setlength(GetRCond,CPU_Cores + 1);
-   setlength(GetCondEst,CPU_Cores + 1);
-   setlength(AddPrimitiveMatrix,CPU_Cores + 1);
-   setlength(SetLogFile,CPU_Cores + 1);
-   setlength(GetCompressedMatrix,CPU_Cores + 1);
-   setlength(GetTripletMatrix,CPU_Cores + 1);
-   setlength(FindIslands,CPU_Cores + 1);
-   setlength(AddMatrixElement,CPU_Cores + 1);
-   setlength(GetMatrixElement,CPU_Cores + 1);
 
    for ActiveActor := 1 to CPU_Cores do
    begin
@@ -835,34 +813,13 @@ initialization
     ActorHandle[ActiveActor]          :=  nil;
    end;
 
-   ActiveActor      :=  1;
-   NumOfActors      :=  1;
-   ActorCPU[ActiveActor] :=  0;
-   Parser[ActiveActor]  :=  Tparser.Create;
-
-// Maps KLUSovle, it must be performed this way to avoid circular references with KLUSolve.pas
-   ActorKLU[ActiveActor]            :=  LoadLibrary('klusolve.dll'); // creates the instance using the LOAD_LIBRARY_AS_IMAGE_RESOURCE flag
-// The mapping for all the exported procedures/functions begins
-   @NewSparseSet[ActiveActor]       := GetProcAddress(ActorKLU[ActiveActor],'NewSparseSet');
-   @DeleteSparseSet[ActiveActor]    := GetProcAddress(ActorKLU[ActiveActor],'DeleteSparseSet');
-   @SolveSparseSet[ActiveActor]     := GetProcAddress(ActorKLU[ActiveActor],'SolveSparseSet');
-   @ZeroSparseSet[ActiveActor]      := GetProcAddress(ActorKLU[ActiveActor],'ZeroSparseSet');
-   @FactorSparseMatrix[ActiveActor] := GetProcAddress(ActorKLU[ActiveActor],'FactorSparseMatrix');
-   @GetSize[ActiveActor]            := GetProcAddress(ActorKLU[ActiveActor],'GetSize');
-   @GetFlops[ActiveActor]           := GetProcAddress(ActorKLU[ActiveActor],'GetFlops');
-   @GetNNZ[ActiveActor]             := GetProcAddress(ActorKLU[ActiveActor],'GetNNZ');
-   @GetSparseNNZ[ActiveActor]       := GetProcAddress(ActorKLU[ActiveActor],'GetSparseNNZ');
-   @GetSingularCol[ActiveActor]     := GetProcAddress(ActorKLU[ActiveActor],'GetSingularCol');
-   @GetRGrowth[ActiveActor]         := GetProcAddress(ActorKLU[ActiveActor],'GetRGrowth');
-   @GetRCond[ActiveActor]           := GetProcAddress(ActorKLU[ActiveActor],'GetRCond');
-   @GetCondEst[ActiveActor]         := GetProcAddress(ActorKLU[ActiveActor],'GetCondEst');
-   @AddPrimitiveMatrix[ActiveActor] := GetProcAddress(ActorKLU[ActiveActor],'AddPrimitiveMatrix');
-   @SetLogFile[ActiveActor]         := GetProcAddress(ActorKLU[ActiveActor],'SetLogFile');
-   @GetCompressedMatrix[ActiveActor]:= GetProcAddress(ActorKLU[ActiveActor],'GetCompressedMatrix');
-   @GetTripletMatrix[ActiveActor]   := GetProcAddress(ActorKLU[ActiveActor],'GetTripletMatrix');
-   @FindIslands[ActiveActor]        := GetProcAddress(ActorKLU[ActiveActor],'FindIslands');
-   @AddMatrixElement[ActiveActor]   := GetProcAddress(ActorKLU[ActiveActor],'AddMatrixElement');
-   @GetMatrixElement[ActiveActor]   := GetProcAddress(ActorKLU[ActiveActor],'GetMatrixElement');
+   ActiveActor            :=  1;
+   NumOfActors            :=  1;
+   ActorCPU[ActiveActor]  :=  0;
+   Parser[ActiveActor]    :=  Tparser.Create;
+   ProgramName      := 'OpenDSS';
+   DSSFileName      := GetDSSExeFile;
+   DSSDirectory     := ExtractFilePath(DSSFileName);
 
 
    {Various Constants and Switches}
@@ -897,9 +854,7 @@ initialization
 
    {Initialize filenames and directories}
 
-   ProgramName      := 'OpenDSS';
-   DSSFileName      := GetDSSExeFile;
-   DSSDirectory     := ExtractFilePath(DSSFileName);
+
    // want to know if this was built for 64-bit, not whether running on 64 bits
    // (i.e. we could have a 32-bit build running on 64 bits; not interested in that
 {$IFDEF CPUX64}
@@ -918,8 +873,6 @@ initialization
    DefaultFontName  := 'MS Sans Serif';
 
    NoFormsAllowed   := FALSE;
-
-
 
    LogQueries       := FALSE;
    QueryLogFileName := '';
@@ -944,8 +897,7 @@ Finalization
   DSS_Registry.Free;  {Close Registry}
   for ActiveActor := 1 to NumOfActors do
   begin
-    FreeLibrary(ActorKLU[ActiveActor]);
-    if ActiveActor <> 1 then deletefile(PChar(DSSDirectory + 'KLUSolve'+IntToStr(ActiveActor)+'.dll'));
+    Parser[ActiveActor].Free;
   end;
 
 

@@ -417,8 +417,8 @@ Begin
       Reallocmem(NodeVbase, 0);
       Reallocmem(VMagSaved, 0);
 
-      If hYsystem <> 0 THEN   DeleteSparseSet[ActiveActor](hYsystem);
-      If hYseries <> 0 THEN   DeleteSparseSet[ActiveActor](hYseries);
+      If hYsystem <> 0 THEN   DeleteSparseSet(hYsystem);
+      If hYseries <> 0 THEN   DeleteSparseSet(hYseries);
 
 //      SetLogFile ('c:\\temp\\KLU_Log.txt', 0);
 
@@ -451,7 +451,6 @@ var
   ScriptEd  : TScriptEdit;
 
 Begin
-
      ActiveCircuit[ActorID].Issolved := False;
      SolutionWasAttempted   := TRUE;
 
@@ -514,7 +513,11 @@ Try
          DosimpleMsg('Unknown solution mode.', 481);
      End;
 }
-    if ActorHandle[ActorID] <> nil  then ActorHandle[ActorID].Free;
+    if ActorHandle[ActorID] <> nil  then
+    begin
+      ActorHandle[ActorID].Terminate;
+      ActorHandle[ActorID].Free;
+    end;
     ActorHandle[ActorID] :=  TSolver.Create(false,ActorCPU[ActorID],ActorID,ScriptEd.UpdateSummaryForm);
 Except
 
@@ -993,7 +996,6 @@ Begin
        Inc(ControlIteration);
 
        Result := SolveCircuit(ActorID);  // Do circuit solution w/o checking controls
-
        {Now Check controls}
 {$IFDEF DLL_ENGINE}
        Fire_CheckControls;
@@ -1060,7 +1062,6 @@ End;
 
 function TSolutionObj.SolveCircuit(ActorID : integer): Integer;
 begin
-
        Result := 0;
        IF LoadModel=ADMITTANCE
        Then
@@ -1226,13 +1227,13 @@ Begin
       hY := Solution.hY;
 
       // get the compressed columns out of KLU
-      FactorSparseMatrix[ActiveActor](hY); // no extra work if already done
-      GetNNZ[ActiveActor](hY, @nNZ);
-      GetSize[ActiveActor](hY, @nBus);
+      FactorSparseMatrix(hY); // no extra work if already done
+      GetNNZ(hY, @nNZ);
+      GetSize(hY, @nBus);
       SetLength (ColPtr, nBus + 1);
       SetLength (RowIdx, nNZ);
       SetLength (cVals, nNZ);
-      GetCompressedMatrix[ActiveActor](hY, nBus + 1, nNZ, @ColPtr[0], @RowIdx[0], @cVals[0]);
+      GetCompressedMatrix(hY, nBus + 1, nNZ, @ColPtr[0], @RowIdx[0], @cVals[0]);
 
       Writeln(F,'System Y Matrix (Lower Triangle by Columns)');
       Writeln(F);
@@ -1735,16 +1736,16 @@ BEGIN
   Try
     // new function to log KLUSolve.DLL function calls; same information as stepping through in Delphi debugger
     // SetLogFile ('KLU_Log.txt', 1);
-    RetCode := SolveSparseSet[ActorID](hY, @V^[1], @Currents^[1]);  // Solve for present InjCurr
+    RetCode := SolveSparseSet(hY, @V^[1], @Currents^[1]);  // Solve for present InjCurr
     // new information functions
-    GetFlops[ActorID](hY, @dRes);
-    GetRGrowth[ActorID](hY, @dRes);
-    GetRCond[ActorID](hY, @dRes);
+    GetFlops(hY, @dRes);
+    GetRGrowth(hY, @dRes);
+    GetRCond(hY, @dRes);
     // GetCondEst (hY, @dRes); // this can be expensive
-    GetSize[ActorID](hY, @iRes);
-    GetNNZ[ActorID](hY, @iRes);
-    GetSparseNNZ[ActorID](hY, @iRes);
-    GetSingularCol[ActorID](hY, @iRes);
+    GetSize(hY, @iRes);
+    GetNNZ(hY, @iRes);
+    GetSparseNNZ(hY, @iRes);
+    GetSingularCol(hY, @iRes);
   Except
     On E:Exception Do Raise  EEsolv32Problem.Create('Error Solving System Y Matrix.  Sparse matrix solver reports numerical error: '
                    +E.Message);
@@ -1841,6 +1842,7 @@ end;
 procedure TSolver.Execute;
 var
   ScriptEd  : TScriptEdit;
+  idx       : Integer;
   begin
     with ActiveCircuit[ActorID].Solution do
     begin
@@ -1849,7 +1851,7 @@ var
         ActorStatus[ActorID] := 0;
         FMessage  :=  '1';
         if Not IsDLL then synchronize(CallCallBack);
-//        InitProgressForm(ActorID); // initialize Progress Form;
+
            Case Dynavars.SolutionMode OF
                SNAPSHOT       : SolveSnap(ActorID);
                YEARLYMODE     : SolveYearly(ActorID);
@@ -1872,10 +1874,10 @@ var
            Else
                DosimpleMsg('Unknown solution mode.', 481);
            End;
+
         QueryPerformanceCounter(GEndTime);
         Total_Solve_Time_Elapsed := ((GEndTime-GStartTime)/CPU_Freq)*1000000;
         Total_Time_Elapsed := Total_Time_Elapsed + Total_Solve_Time_Elapsed;
-//        ProgressHide(ActorID);
         ActorStatus[ActorID]  :=  1;
         FMessage  :=  '1';
         if Not IsDLL then synchronize(CallCallBack);
@@ -1889,6 +1891,7 @@ procedure TSolver.CallCallBack;
 
 initialization
 
+    IsMultiThread :=  True;
     {$IFDEF debugtrace}
     Assignfile(Fdebug, 'Debugtrace.csv');
     Rewrite(Fdebug);
