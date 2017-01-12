@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 10/5/2016 9:45:45 AM (- $Rev: 12980 $, 176795171).
+// File generated on 1/11/2017 12:13:22 PM (- $Rev: 12980 $, 14410046).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -99,6 +99,8 @@ library OpenDSSengine
   coclass PVSystems;
   interface IVsources;
   coclass Vsources;
+  interface IParallel;
+  coclass Parallel;
 
 
   [
@@ -622,6 +624,8 @@ library OpenDSSengine
     HRESULT _stdcall PVSystems([out, retval] IPVSystems** Value);
     [propget, id(0x000000ED), helpstring("Vsources object collection")]
     HRESULT _stdcall Vsources([out, retval] IVsources** Value);
+    [propget, id(0x000000EE), helpstring("Delivers a handler for the Parallel Dispatch interface")]
+    HRESULT _stdcall Parallel([out, retval] IParallel** Value);
   };
 
   [
@@ -2772,6 +2776,38 @@ library OpenDSSengine
   };
 
   [
+    uuid(A0351633-A988-4A5B-B551-A7E2ADDD4984),
+    helpstring("Dispatch to control parallel computations on OpenDSS"),
+    dual,
+    oleautomation
+  ]
+  interface IParallel: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Delivers the number of CPUs on the current PC")]
+    HRESULT _stdcall NumCPUs([out, retval] long* Value);
+    [propget, id(0x000000CA), helpstring("Delivers the number of Cores of the local PC")]
+    HRESULT _stdcall NumCores([out, retval] long* Value);
+    [propget, id(0x000000CB), helpstring("Gets the ID of the Active Actor")]
+    HRESULT _stdcall ActiveActor([out, retval] long* Value);
+    [propput, id(0x000000CB), helpstring("Sets the Active Actor")]
+    HRESULT _stdcall ActiveActor([in] long Value);
+    [id(0x000000CC), helpstring("Creates a New Actor")]
+    HRESULT _stdcall CreateActor(void);
+    [propget, id(0x000000CD), helpstring("Gets the CPU of the Active Actor")]
+    HRESULT _stdcall ActorCPU([out, retval] long* Value);
+    [propput, id(0x000000CD), helpstring("Sets the CPU for the Active Actor")]
+    HRESULT _stdcall ActorCPU([in] long Value);
+    [propget, id(0x000000CE), helpstring("Gets the number of Actors created")]
+    HRESULT _stdcall NumOfActors([out, retval] long* Value);
+    [id(0x000000CF), helpstring("Waits until all actors have finised their tasks")]
+    HRESULT _stdcall Wait(void);
+    [propget, id(0x000000D0), helpstring("Gets the progress of all existing actors in pct")]
+    HRESULT _stdcall ActorProgress([out, retval] VARIANT* Value);
+    [propget, id(0x000000D1), helpstring("Gets the status of each actor")]
+    HRESULT _stdcall ActorStatus([out, retval] VARIANT* Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -3162,6 +3198,14 @@ library OpenDSSengine
   coclass Vsources
   {
     [default] interface IVsources;
+  };
+
+  [
+    uuid(D967764D-CD38-41ED-B1FD-7D79DC78EFCD)
+  ]
+  coclass Parallel
+  {
+    [default] interface IParallel;
   };
 
 };

@@ -57,7 +57,7 @@ procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('recloser.%s.%s=%s', [TRecloserObj(RecloserClass.GetActiveObj).Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -71,7 +71,7 @@ Var
 Begin
     Result := VarArrayCreate([0, 0], varOleStr);
     Result[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
     Begin
         If RecloserClass.ElementList.ListSize > 0 then
         Begin
@@ -91,7 +91,7 @@ end;
 function TReclosers.Get_Count: Integer;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
         Result := RecloserClass.ElementList.ListSize;
 end;
 
@@ -100,13 +100,13 @@ Var
    pElem : TRecloserObj;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := RecloserClass.ElementList.First;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := 1;
           End
           Else pElem := RecloserClass.ElementList.Next;
@@ -128,13 +128,13 @@ Var
    pElem : TRecloserObj;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := RecloserClass.ElementList.Next;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := RecloserClass.ElementList.ActiveIndex;
           End
           Else pElem := RecloserClass.ElementList.Next;
@@ -146,11 +146,11 @@ procedure TReclosers.Set_Name(const Value: WideString);
 // Set element active by name
 
 begin
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
           If RecloserClass.SetActive(Value) Then
           Begin
-               ActiveCircuit.ActiveCktElement := RecloserClass.ElementList.Active ;
+               ActiveCircuit[ActiveActor].ActiveCktElement := RecloserClass.ElementList.Active ;
           End
           Else Begin
               DoSimpleMsg('Recloser "'+ Value +'" Not Found in Active Circuit.', 77003);
@@ -243,7 +243,7 @@ Var
 Begin
   Result := VarArrayCreate([0, 0], varDouble);
   Result[0] := -1.0;
-  IF ActiveCircuit <> Nil THEN
+  IF ActiveCircuit[ActiveActor] <> Nil THEN
   Begin
       elem := RecloserClass.ElementList.Active;
       If elem <> Nil Then
@@ -370,7 +370,7 @@ end;
 
 function TReclosers.Get_idx: Integer;
 begin
-    if ActiveCircuit <> Nil then
+    if ActiveCircuit[ActiveActor] <> Nil then
        Result := RecloserClass.ElementList.ActiveIndex
     else Result := 0;
 end;
@@ -379,9 +379,9 @@ procedure TReclosers.Set_idx(Value: Integer);
 Var
     pRecloser:TRecloserObj;
 begin
-    if ActiveCircuit <> Nil then   Begin
+    if ActiveCircuit[ActiveActor] <> Nil then   Begin
         pRecloser := RecloserClass.Elementlist.Get(Value);
-        If pRecloser <> Nil Then ActiveCircuit.ActiveCktElement := pRecloser;
+        If pRecloser <> Nil Then ActiveCircuit[ActiveActor].ActiveCktElement := pRecloser;
     End;
 end;
 

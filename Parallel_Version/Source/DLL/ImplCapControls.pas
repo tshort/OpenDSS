@@ -59,14 +59,14 @@ uses ComServ, DSSGlobals, Executive, ControlElem, CapControl, CapControlVars, Va
 function ActiveCapControl: TCapControlObj;
 begin
   Result := nil;
-  if ActiveCircuit <> Nil then Result := ActiveCircuit.CapControls.Active;
+  if ActiveCircuit[ActiveActor] <> Nil then Result := ActiveCircuit[ActiveActor].CapControls.Active;
 end;
 
 procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('capcontrol.%s.%s=%s', [ActiveCapControl.Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -80,7 +80,7 @@ Var
 Begin
   Result := VarArrayCreate([0, 0], varOleStr);
   Result[0] := 'NONE';
-  IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO
+  IF ActiveCircuit[ActiveActor] <> Nil THEN WITH ActiveCircuit[ActiveActor] DO
   If CapControls.ListSize > 0 Then
   Begin
     lst := CapControls;
@@ -146,13 +146,13 @@ Var
   lst: TPointerList;
 Begin
   Result := 0;
-  If ActiveCircuit <> Nil Then begin
-    lst := ActiveCircuit.CapControls;
+  If ActiveCircuit[ActiveActor] <> Nil Then begin
+    lst := ActiveCircuit[ActiveActor].CapControls;
     elem := lst.First;
     If elem <> Nil Then Begin
       Repeat
         If elem.Enabled Then Begin
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
           Result := 1;
         End
         Else elem := lst.Next;
@@ -212,13 +212,13 @@ Var
   lst: TPointerList;
 Begin
   Result := 0;
-  If ActiveCircuit <> Nil Then Begin
-    lst := ActiveCircuit.CapControls;
+  If ActiveCircuit[ActiveActor] <> Nil Then Begin
+    lst := ActiveCircuit[ActiveActor].CapControls;
     elem := lst.Next;
     if elem <> nil then begin
       Repeat
         If elem.Enabled Then Begin
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
           Result := lst.ActiveIndex;
         End
         Else elem := lst.Next;
@@ -341,15 +341,15 @@ var
   elem: TCapControlObj;
   lst: TPointerList;
 Begin
-  IF ActiveCircuit <> NIL THEN Begin
-    lst := ActiveCircuit.CapControls;
+  IF ActiveCircuit[ActiveActor] <> NIL THEN Begin
+    lst := ActiveCircuit[ActiveActor].CapControls;
     S := Value;  // Convert to Pascal String
     Found := FALSE;
     ActiveSave := lst.ActiveIndex;
     elem := lst.First;
     While elem <> NIL Do Begin
       IF (CompareText(elem.Name, S) = 0) THEN Begin
-        ActiveCircuit.ActiveCktElement := elem;
+        ActiveCircuit[ActiveActor].ActiveCktElement := elem;
         Found := TRUE;
         Break;
       End;
@@ -358,7 +358,7 @@ Begin
     IF NOT Found THEN Begin
       DoSimpleMsg('CapControl "'+S+'" Not Found in Active Circuit.', 5003);
       elem := lst.Get(ActiveSave);    // Restore active Load
-      ActiveCircuit.ActiveCktElement := elem;
+      ActiveCircuit[ActiveActor].ActiveCktElement := elem;
     End;
   End;
 end;
@@ -398,8 +398,8 @@ end;
 
 function TCapControls.Get_Count: Integer;
 begin
-     If Assigned(ActiveCircuit) Then
-              Result := ActiveCircuit.CapControls.ListSize ;
+     If Assigned(ActiveCircuit[ActiveActor]) Then
+              Result := ActiveCircuit[ActiveActor].CapControls.ListSize ;
 end;
 
 initialization

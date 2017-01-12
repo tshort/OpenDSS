@@ -95,7 +95,7 @@ end;
 
 function TDSS.Get_NumCircuits: Integer;
 begin
-    Result := NumCircuits;
+    Result := ActiveCircuit[ActiveActor].NumCircuits;
 end;
 
 
@@ -165,7 +165,7 @@ Begin
    k:=0;
    For i := 1 to NumIntrinsicClasses Do
    Begin
-      Result[k] := TDSSClass(DssClassList.Get(i)).Name;
+      Result[k] := TDSSClass(DssClassList[ActiveActor].Get(i)).Name;
       Inc(k);
    End;
 
@@ -180,9 +180,9 @@ Begin
      Begin
          Result := VarArrayCreate([0, NumUserClasses-1], varOleStr);
          k:=0;
-         For i := NumIntrinsicClasses+1 To DSSClassList.ListSize   Do
+         For i := NumIntrinsicClasses+1 To DSSClassList[ActiveActor].ListSize   Do
          Begin
-            Result[k] := TDSSClass(DssClassList.Get(i)).Name;
+            Result[k] := TDSSClass(DssClassList[ActiveActor].Get(i)).Name;
             Inc(k);
          End;
      End
@@ -217,7 +217,7 @@ end;
 
 function TDSS.Get_DataPath: WideString;
 begin
-     Result := DataDirectory;
+     Result := DataDirectory[ActiveActor];
 end;
 
 procedure TDSS.Set_DataPath(const Value: WideString);
@@ -249,15 +249,15 @@ Var
 
 begin
      Result := 0;
-     DevClassIndex := ClassNames.Find(ClassName);
+     DevClassIndex := ClassNames[ActiveActor].Find(ClassName);
      If DevClassIndex = 0 Then  Begin
         DoSimplemsg('Error: Class ' + ClassName + ' not found.' , 5016);
         Exit;
      End;
 
-     LastClassReferenced := DevClassIndex;
-     ActiveDSSClass := DSSClassList.Get(LastClassReferenced);
-     Result := LastClassReferenced;
+     LastClassReferenced[ActiveActor] := DevClassIndex;
+     ActiveDSSClass := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
+     Result := LastClassReferenced[ActiveActor];
 
 end;
 
@@ -292,5 +292,6 @@ initialization
 
 {This is the only class that gets registered "OpenDSSengine.DSS" The rest are all ciInternal}
   TAutoObjectFactory.Create(ComServer, TDSS, Class_DSS, ciMultiInstance, tmApartment);
+  IsMultiThread := True;
 
 end.

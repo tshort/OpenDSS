@@ -30,8 +30,8 @@ NNodes   : Integer;
 Buses :Integer;
 I     : Integer;
 begin
-    NNodes:=SQR(ActiveCircuit.NumNodes);
-    Buses := ActiveCircuit.NumNodes;
+    NNodes:=SQR(ActiveCircuit[ActiveActor].NumNodes);
+    Buses := ActiveCircuit[ActiveActor].NumNodes;
     Result := VarArrayCreate( [0, 2*NNodes -1], varDouble);
     for I := 0 to 2*NNodes - 1 do Result[I] := 0.0;
     for I := 0 to Buses do
@@ -46,15 +46,15 @@ VAR
    i,j:Integer;
    Volts,BaseFactor:Double;
 begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        i:=Index;
        Result := VarArrayCreate([0, Buses^[i].NumNodesThisBus-1], varDouble);
        If Buses^[i].kVBase >0.0 then BaseFactor :=  1000.0* Buses^[i].kVBase  Else BaseFactor := 1.0;
          For j := 1 to Buses^[i].NumNodesThisBus  DO
          Begin
-           Volts := Cabs(ActiveCircuit.Solution.NodeV^[Buses^[i].GetRef(j)]);
+           Volts := Cabs(ActiveCircuit[ActiveActor].Solution.NodeV^[Buses^[i].GetRef(j)]);
            Result[j-1] := Volts/BaseFactor;
          End;
      End
@@ -66,14 +66,14 @@ VAR
    i,j,k:Integer;
    Volts:Complex;
 begin
-   IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        i:=Index;
        Result := VarArrayCreate([0, 2*Buses^[i].NumNodesThisBus-1], varDouble);
          For j := 1 to Buses^[i].NumNodesThisBus DO
          Begin
-           Volts := ActiveCircuit.Solution.NodeV^[Buses^[i].GetRef(j)];
+           Volts := ActiveCircuit[ActiveActor].Solution.NodeV^[Buses^[i].GetRef(j)];
            k:=(j-1)*2;
            Result[k] := Volts.re;
            Result[k+1] := Volts.im;

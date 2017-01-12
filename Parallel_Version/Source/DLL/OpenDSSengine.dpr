@@ -209,7 +209,9 @@ uses
   KLUSolve in '..\Common\KLUSolve.pas',
   ScriptEdit in '..\Forms\ScriptEdit.pas',
   MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
-  vccs in '..\PCElements\vccs.pas';
+  vccs in '..\PCElements\vccs.pas',
+  Parallel_Lib in '..\Parallel_Lib\Parallel_Lib.pas',
+  ImplParallel in 'ImplParallel.pas' {Parallel: CoClass};
 
 exports
   DllGetClassObject,
@@ -234,9 +236,12 @@ begin
 
 
 {Intialize the internal interfaces so they're ready to go}
+  IsMultiThread :=  True;
+
   InitializeInterfaces;
 
   IsDLL := TRUE;
+
 
 {Create one instance of DSS executive whenever the DSS Engine is init'd}
 

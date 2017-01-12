@@ -62,7 +62,7 @@ Var
   elem: TLoadshapeObj;
 Begin
   Result := '';
-  elem := LoadshapeClass.GetActiveObj;
+  elem := LoadshapeClass[ActiveActor].GetActiveObj;
   If elem <> Nil Then Result := elem.Name;
 
 end;
@@ -71,12 +71,12 @@ procedure TLoadShapes.Set_Name(const Value: WideString);
 // Set element active by name
 
 begin
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-          If LoadshapeClass.SetActive(Value) Then
+          If LoadshapeClass[ActiveActor].SetActive(Value) Then
           Begin
-               ActiveLSObject := LoadshapeClass.ElementList.Active ;
-               ActiveDSSObject    := ActiveLSObject;
+               ActiveLSObject                   := LoadshapeClass[ActiveActor].ElementList.Active ;
+               ActiveDSSObject[ActiveActor]     := ActiveLSObject;
           End
           Else Begin
               DoSimpleMsg('Relay "'+ Value +'" Not Found in Active Circuit.', 77003);
@@ -88,8 +88,8 @@ end;
 function TLoadShapes.Get_Count: Integer;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
-        Result := LoadshapeClass.ElementList.ListSize;
+     If ActiveCircuit[ActiveActor] <> Nil Then
+        Result := LoadshapeClass[ActiveActor].ElementList.ListSize;
 end;
 
 function TLoadShapes.Get_First: Integer;
@@ -97,12 +97,12 @@ Var
    iElem : Integer;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-        iElem := LoadshapeClass.First;
+        iElem := LoadshapeClass[ActiveActor].First;
         If iElem <> 0 Then
         Begin
-            ActiveLSObject := ActiveDSSObject as TLoadShapeObj;
+            ActiveLSObject := ActiveDSSObject[ActiveActor] as TLoadShapeObj;
             Result := 1;
         End
      End;
@@ -113,12 +113,12 @@ Var
    iElem : Integer;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-        iElem := LoadshapeClass.Next;
+        iElem := LoadshapeClass[ActiveActor].Next;
         If iElem <> 0 Then
         Begin
-            ActiveLSObject := ActiveDSSObject as TLoadShapeObj;
+            ActiveLSObject := ActiveDSSObject[ActiveActor] as TLoadShapeObj;
             Result := iElem;
         End
      End;
@@ -133,11 +133,11 @@ Var
 Begin
   Result := VarArrayCreate([0, 0], varOleStr);
   Result[0] := 'NONE';
-  IF ActiveCircuit <> Nil THEN
+  IF ActiveCircuit[ActiveActor] <> Nil THEN
   Begin
-      If LoadShapeClass.ElementList.ListSize > 0 then
+      If LoadShapeClass[ActiveActor].ElementList.ListSize > 0 then
       Begin
-        pList := LoadShapeClass.ElementList;
+        pList := LoadShapeClass[ActiveActor].ElementList;
         VarArrayRedim(Result, pList.ListSize -1);
         k:=0;
         elem := pList.First;
@@ -154,7 +154,7 @@ end;
 function TLoadShapes.Get_Npts: Integer;
 begin
    Result := 0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      Result := ActiveLSObject.NumPoints;
 end;
@@ -166,7 +166,7 @@ Var
 begin
         Result := VarArrayCreate([0, 0], varDouble);
         Result[0] := 0.0;  // error condition: one element array=0
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
             If ActiveLSObject <> Nil Then Begin
                  VarArrayRedim(Result, ActiveLSObject.NumPoints-1);
@@ -185,7 +185,7 @@ Var
 begin
         Result := VarArrayCreate([0, 0], varDouble);
         Result[0] := 0.0;  // error condition: one element array=0
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
             If ActiveLSObject <> Nil Then
             Begin
@@ -204,7 +204,7 @@ end;
 
 procedure TLoadShapes.Set_Npts(Value: Integer);
 begin
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
         ActiveLSObject.NumPoints := Value;
 end;
@@ -214,7 +214,7 @@ Var
    i, k, LoopLimit: Integer;
 
 begin
-    If ActiveCircuit <> Nil Then
+    If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         If ActiveLSObject <> Nil Then With ActiveLSObject Do Begin
 
@@ -242,7 +242,7 @@ Var
    i, k, LoopLimit: Integer;
 
 begin
-    If ActiveCircuit <> Nil Then
+    If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         If ActiveLSObject <> Nil Then With ActiveLSObject Do Begin
 
@@ -268,7 +268,7 @@ end;
 procedure TLoadShapes.Normalize;
 begin
 
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
       ActiveLSObject.Normalize;
 end;
@@ -280,7 +280,7 @@ Var
 begin
         Result := VarArrayCreate([0, 0], varDouble);
         Result[0] := 0.0;  // error condition: one element array=0
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
             If ActiveLSObject <> Nil Then Begin
                If ActiveLSObject.hours <> Nil Then  Begin
@@ -299,7 +299,7 @@ Var
    i, k, LoopLimit: Integer;
 
 begin
-    If ActiveCircuit <> Nil Then
+    If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         If ActiveLSObject <> Nil Then With ActiveLSObject Do Begin
 
@@ -327,7 +327,7 @@ function TLoadShapes.Get_HrInterval: Double;
 
 Begin
    Result := 0.0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      Result := ActiveLSObject.Interval ;
 
@@ -336,7 +336,7 @@ end;
 function TLoadShapes.Get_MinInterval: Double;
 begin
    Result := 0.0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      Result := ActiveLSObject.Interval * 60.0 ;
 end;
@@ -344,28 +344,28 @@ end;
 function TLoadShapes.Get_sInterval: Double;
 begin
    Result := 0.0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      Result := ActiveLSObject.Interval * 3600.0 ;
 end;
 
 procedure TLoadShapes.Set_HrInterval(Value: Double);
 begin
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      ActiveLSObject.Interval := Value ;
 end;
 
 procedure TLoadShapes.Set_MinInterval(Value: Double);
 begin
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      ActiveLSObject.Interval := Value / 60.0 ;
 end;
 
 procedure TLoadShapes.Set_Sinterval(Value: Double);
 begin
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      ActiveLSObject.Interval := Value / 3600.0 ;
 end;
@@ -373,13 +373,13 @@ end;
 function TLoadShapes.New(const Name: WideString): Integer;
 begin
       Result := AddObject('loadshape', Name);    // Returns handle to object
-      ActiveLSObject := ActiveDSSObject as TLoadShapeObj;
+      ActiveLSObject := ActiveDSSObject[ActiveActor] as TLoadShapeObj;
 end;
 
 function TLoadShapes.Get_PBase: Double;
 begin
    Result := 0.0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      Result := ActiveLSObject.baseP ;
 end;
@@ -387,21 +387,21 @@ end;
 function TLoadShapes.Get_Qbase: Double;
 begin
    Result := 0.0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      Result := ActiveLSObject.baseQ ;
 end;
 
 procedure TLoadShapes.Set_PBase(Value: Double);
 begin
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      ActiveLSObject.baseP := Value ;
 end;
 
 procedure TLoadShapes.Set_Qbase(Value: Double);
 begin
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      ActiveLSObject.baseQ := Value ;
 end;
@@ -409,14 +409,14 @@ end;
 function TLoadShapes.Get_UseActual: WordBool;
 begin
    Result := False;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      Result := ActiveLSObject.UseActual ;
 end;
 
 procedure TLoadShapes.Set_UseActual(Value: WordBool);
 begin
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    If ActiveLSObject <> Nil Then
      ActiveLSObject.UseActual  := Value ;
 end;

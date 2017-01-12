@@ -79,7 +79,7 @@ uses ComServ, DSSClassDefs, DSSGlobals, UComplex, Sysutils,
 { - - - - - - - - - - - - -Helper Function- - - - - - - - - - - - - - - - - - -}
 FUNCTION IsPDElement : Boolean;
 Begin
-    Result :=  ((ActiveCircuit.ActiveCktElement.DSSObjType and 3) = PD_ELEMENT)
+    Result :=  ((ActiveCircuit[ActiveActor].ActiveCktElement.DSSObjType and 3) = PD_ELEMENT)
 End;
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 
@@ -90,9 +90,9 @@ Var
    i :Integer;
 begin
 
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-       With ActiveCircuit Do Begin
+       With ActiveCircuit[ActiveActor] Do Begin
          Result := VarArrayCreate([0, ActiveCktElement.Nterms-1], varOleStr);
          For i := 1 to  ActiveCktElement.Nterms Do Begin
              Result[i-1] := ActiveCktElement.GetBus(i);
@@ -107,8 +107,8 @@ end;
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 function TCktElement.Get_Name: WideString;
 begin
-   If ActiveCircuit <> Nil Then
-      WITH ActiveCircuit.ActiveCktElement DO
+   If ActiveCircuit[ActiveActor] <> Nil Then
+      WITH ActiveCircuit[ActiveActor].ActiveCktElement DO
       Begin
         Result := ParentClass.Name + '.' + Name;
       End
@@ -119,24 +119,24 @@ end;
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 function TCktElement.Get_NumConductors: Integer;
 begin
-   If ActiveCircuit <> Nil Then
-        Result := ActiveCircuit.ActiveCktElement.NConds
+   If ActiveCircuit[ActiveActor] <> Nil Then
+        Result := ActiveCircuit[ActiveActor].ActiveCktElement.NConds
    Else Result := 0;
 end;
 
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 function TCktElement.Get_NumPhases: Integer;
 begin
-   If ActiveCircuit <> Nil Then
-        Result := ActiveCircuit.ActiveCktElement.NPhases
+   If ActiveCircuit[ActiveActor] <> Nil Then
+        Result := ActiveCircuit[ActiveActor].ActiveCktElement.NPhases
    Else Result := 0;
 end;
 
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 function TCktElement.Get_NumTerminals: Integer;
 begin
-   If ActiveCircuit <> Nil Then
-        Result := ActiveCircuit.ActiveCktElement.NTerms
+   If ActiveCircuit[ActiveActor] <> Nil Then
+        Result := ActiveCircuit[ActiveActor].ActiveCktElement.NTerms
    Else Result := 0;
 end;
 
@@ -148,14 +148,14 @@ Var
    i :Integer;
 begin
 
-  If ActiveCircuit <> Nil Then
+  If ActiveCircuit[ActiveActor] <> Nil Then
   Begin
 
      Case (Vartype(Index) and VarTypeMask) of
          VarSmallint, VarInteger: FPropIndex := Integer(Index) + 1;    // INdex is zero based to match arrays
          VarOleStr:
            Begin
-              FPropClass := ActiveDSSObject.ParentClass;
+              FPropClass := ActiveDSSObject[ActiveActor].ParentClass;
               FPropIndex := 0;
               Str := Index;
               If FPropClass <> Nil Then
@@ -186,9 +186,9 @@ Var
    Count, Low :Integer;
 begin
 
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-       With ActiveCircuit Do Begin
+       With ActiveCircuit[ActiveActor] Do Begin
          Low := VarArrayLowBound(Value, 1);
          Count := VarArrayHighBound(Value, 1) - Low + 1;
          If Count >  ActiveCktElement.NTerms Then Count := ActiveCktElement.NTerms;
@@ -208,13 +208,13 @@ VAR
   NValues, iV ,i: Integer;
 
 Begin
-  If ActiveCircuit <> Nil Then
-     WITH ActiveCircuit.ActiveCktElement DO
+  If ActiveCircuit[ActiveActor] <> Nil Then
+     WITH ActiveCircuit[ActiveActor].ActiveCktElement DO
      Begin
          NValues := NConds*NTerms;
          Result := VarArrayCreate([0, 2*NValues-1], varDouble);
          cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
-         GetCurrents(cBuffer);
+         GetCurrents(cBuffer, ActiveActor);
          iV :=0;
          For i := 1 to  NValues DO
          Begin
@@ -244,8 +244,8 @@ Begin
 
 // Return voltages for all terminals
 
-     IF ActiveCircuit <> Nil THEN
-      WITH ActiveCircuit DO
+     IF ActiveCircuit[ActiveActor] <> Nil THEN
+      WITH ActiveCircuit[ActiveActor] DO
       Begin
         If ActiveCktElement<>Nil THEN
         WITH ActiveCktElement DO
@@ -273,8 +273,8 @@ end;
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 function TCktElement.Get_EmergAmps: Double;
 begin
-     If ActiveCircuit <> Nil Then
-     With ActiveCircuit Do
+     If ActiveCircuit[ActiveActor] <> Nil Then
+     With ActiveCircuit[ActiveActor] Do
      Begin
          If (ActiveCktElement.DSSObjType and 3) = PD_ELEMENT Then
          Begin
@@ -288,8 +288,8 @@ end;
 function TCktElement.Get_Enabled: WordBool;
 Begin
 
-   If ActiveCircuit <> Nil Then
-      Result := ActiveCircuit.ActiveCktElement.Enabled
+   If ActiveCircuit[ActiveActor] <> Nil Then
+      Result := ActiveCircuit[ActiveActor].ActiveCktElement.Enabled
    Else
        Result := False;
 
@@ -302,8 +302,8 @@ Var
    LossValue :complex;
 begin
 
-     IF ActiveCircuit <> Nil THEN
-      WITH ActiveCircuit DO
+     IF ActiveCircuit[ActiveActor] <> Nil THEN
+      WITH ActiveCircuit[ActiveActor] DO
       Begin
         If ActiveCktElement<>Nil THEN
         Begin
@@ -321,8 +321,8 @@ end;
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 function TCktElement.Get_NormalAmps: Double;
 begin
-     If ActiveCircuit <> Nil Then
-     With ActiveCircuit Do
+     If ActiveCircuit[ActiveActor] <> Nil Then
+     With ActiveCircuit[ActiveActor] Do
      Begin
          If (ActiveCktElement.DSSObjType and 3) = PD_ELEMENT Then
          Begin
@@ -344,9 +344,9 @@ VAR
 Begin
 
 
- IF ActiveCircuit <> Nil THEN
+ IF ActiveCircuit[ActiveActor] <> Nil THEN
 
-  WITH ActiveCircuit.ActiveCktElement DO
+  WITH ActiveCircuit[ActiveActor].ActiveCktElement DO
   Begin
       NValues := NPhases;
       Result := VarArrayCreate([0, 2*NValues-1], varDouble);
@@ -379,8 +379,8 @@ VAR
 
 Begin
 
- IF ActiveCircuit <> Nil THEN
-  WITH ActiveCircuit.ActiveCktElement DO
+ IF ActiveCircuit[ActiveActor] <> Nil THEN
+  WITH ActiveCircuit[ActiveActor].ActiveCktElement DO
   Begin
       NValues := NConds*Nterms;
       Result := VarArrayCreate([0, 2*NValues-1], varDouble);
@@ -409,7 +409,7 @@ VAR
     cBuffer:pComplexArray;
 
 BEGIN
-    With pActiveElement, ActiveCircuit Do BEGIN
+    With pActiveElement, ActiveCircuit[ActiveActor] Do BEGIN
       Nvalues := NPhases;
       IF Nvalues <> 3 THEN Begin
         {Handle non-3 phase elements}
@@ -417,7 +417,7 @@ BEGIN
            Begin
                 NValues := NConds*NTerms;
                 cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
-                GetCurrents(cBuffer);
+                GetCurrents(cBuffer, ActiveActor);
 
                 For i := 1 to  3*NTerms DO i012^[i] := CZERO;   // Initialize Result
                 iV := 2;  // pos seq is 2nd element in array
@@ -436,7 +436,7 @@ BEGIN
            iV := 1;
            NValues := NConds * NTerms;
            cBuffer := Allocmem(sizeof(cBuffer^[1]) * NValues);
-           GetCurrents(cBuffer);
+           GetCurrents(cBuffer, ActiveActor);
            FOR j := 1 to NTerms Do
            Begin
                 k := (j-1)*NConds;
@@ -466,8 +466,8 @@ VAR
     S :String;
 
 Begin
-  IF   ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF   ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement <> Nil THEN
      WITH ActiveCktElement DO
@@ -520,8 +520,8 @@ VAR
 
 Begin
 
- IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO Begin
+ IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO Begin
      If ActiveCktElement<>Nil THEN
      WITH ActiveCktElement DO Begin
       Result := VarArrayCreate([0, 2*3*NTerms-1], varDouble); // allocate for kW and kvar
@@ -531,7 +531,7 @@ Begin
            Begin
                 NValues := NConds*NTerms;
                 cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
-                GetCurrents(cBuffer);
+                GetCurrents(cBuffer, ActiveActor);
 
                 For i := 0 to  2*3*NTerms-1 DO Result[i] := 0.0;   // Initialize Result
                 iCount := 2;  // Start with kW1
@@ -555,7 +555,7 @@ Begin
       ELSE Begin
           NValues := NConds*NTerms;
           cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
-          GetCurrents(cBuffer);
+          GetCurrents(cBuffer, ActiveActor);
           icount := 0;
           FOR j := 1 to NTerms Do Begin
              k :=(j-1)*NConds;
@@ -587,7 +587,7 @@ VAR
     Nvalues,i,j,k,iV  :Integer;
     VPh, V012a        :Array[1..3] of Complex;
 BEGIN
-    With pActiveElement, ActiveCircuit Do BEGIN
+    With pActiveElement, ActiveCircuit[ActiveActor] Do BEGIN
       Nvalues := NPhases;
       IF Nvalues <> 3 THEN Begin
         {Handle non-3 phase elements}
@@ -635,8 +635,8 @@ VAR
     S :String;
 
 Begin
-  IF   ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF   ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement <> Nil THEN
      WITH ActiveCktElement DO
@@ -679,8 +679,8 @@ procedure TCktElement.Close(Term, Phs: Integer);
 
 Begin
 
-   IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
       If ActiveCktElement<>nil THEN
       WITH ActiveCktElement DO
@@ -696,8 +696,8 @@ end;
 procedure TCktElement.Open(Term, Phs: Integer);
 
 Begin
-   IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
       If ActiveCktElement<>nil THEN
       WITH ActiveCktElement DO
@@ -714,8 +714,8 @@ procedure TCktElement.Set_EmergAmps(Value: Double);
 
 begin
 
-     If ActiveCircuit <> Nil Then
-     With ActiveCircuit Do
+     If ActiveCircuit[ActiveActor] <> Nil Then
+     With ActiveCircuit[ActiveActor] Do
      Begin
          If IsPDElement Then
          Begin
@@ -727,18 +727,18 @@ end;
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 procedure TCktElement.Set_Enabled(Value: WordBool);
 begin
-   If ActiveCircuit <> Nil Then
-      ActiveCircuit.ActiveCktElement.Enabled := Value;
+   If ActiveCircuit[ActiveActor] <> Nil Then
+      ActiveCircuit[ActiveActor].ActiveCktElement.Enabled := Value;
 end;
 
 { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
 procedure TCktElement.Set_NormalAmps(Value: Double);
 begin
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
          If IsPDElement Then
          Begin
-             With ActiveCircuit Do With ActiveCktElement As TPDElement Do NormAmps := Value;
+             With ActiveCircuit[ActiveActor] Do With ActiveCktElement As TPDElement Do NormAmps := Value;
          End;  {Else Do Nothing}
      End;
 end;
@@ -750,8 +750,8 @@ Var
    i  :Integer;
 
 begin
-     If ActiveCircuit <> Nil Then
-     With ActiveCircuit Do
+     If ActiveCircuit[ActiveActor] <> Nil Then
+     With ActiveCircuit[ActiveActor] Do
      Begin
          With ActiveCktElement Do ActiveTerminal := Terminals^[Term];
          If Phs=0 Then // At least one must be open
@@ -777,8 +777,8 @@ VAR
    k:Integer;
 begin
   Result := VarArrayCreate([0, 0], varOleStr);
-  IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement<>Nil THEN
      WITH ActiveCktElement DO
@@ -797,8 +797,8 @@ end;
 function TCktElement.Get_NumProperties: Integer;
 begin
   Result := 0;
-  IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement<>Nil THEN
      WITH ActiveCktElement DO
@@ -818,12 +818,12 @@ VAR
 
 Begin
 
-  If ActiveCircuit <> Nil Then
-     WITH ActiveCircuit.ActiveCktElement DO
+  If ActiveCircuit[ActiveActor] <> Nil Then
+     WITH ActiveCircuit[ActiveActor].ActiveCktElement DO
      Begin
          Result := VarArrayCreate([0, 2*NTerms-1], varDouble);    // 2 values per terminal
          cBuffer := Allocmem(sizeof(cBuffer^[1])*Yorder);
-         GetCurrents(cBuffer);
+         GetCurrents(cBuffer, ActiveActor);
          iV :=0;
          For i := 1 to  NTerms DO
          Begin
@@ -855,10 +855,10 @@ Var
    cValues : pComplexArray;
 
 begin
-   IF ActiveCircuit = nil Then Begin
+   IF ActiveCircuit[ActiveActor] = nil Then Begin
         Result := VarArrayCreate([0, 0], varDouble);
    End
-   ELSE With ActiveCircuit Do
+   ELSE With ActiveCircuit[ActiveActor] Do
       If ActiveCktElement<>Nil THEN
       WITH ActiveCktElement Do  Begin
           NValues := SQR(Yorder);
@@ -883,32 +883,32 @@ end;
 
 function TCktElement.Get_DisplayName: WideString;
 begin
-   If ActiveCircuit <> Nil Then
-      Result := ActiveCircuit.ActiveCktElement.DisplayName
+   If ActiveCircuit[ActiveActor] <> Nil Then
+      Result := ActiveCircuit[ActiveActor].ActiveCktElement.DisplayName
    Else
       Result := '';
 end;
 
 function TCktElement.Get_GUID: WideString;
 begin
-   If ActiveCircuit <> Nil Then
-      Result := ActiveCircuit.ActiveCktElement.ID
+   If ActiveCircuit[ActiveActor] <> Nil Then
+      Result := ActiveCircuit[ActiveActor].ActiveCktElement.ID
    Else
       Result := '';
 end;
 
 function TCktElement.Get_Handle: Integer;
 begin
-   If ActiveCircuit <> Nil Then
-      Result := ActiveCircuit.ActiveCktElement.Handle
+   If ActiveCircuit[ActiveActor] <> Nil Then
+      Result := ActiveCircuit[ActiveActor].ActiveCktElement.Handle
    Else
       Result := 0;
 end;
 
 procedure TCktElement.Set_DisplayName(const Value: WideString);
 begin
-   If ActiveCircuit <> Nil Then
-      ActiveCircuit.ActiveCktElement.DisplayName := Value;
+   If ActiveCircuit[ActiveActor] <> Nil Then
+      ActiveCircuit[ActiveActor].ActiveCktElement.DisplayName := Value;
 end;
 
 function TCktElement.Get_Controller(idx: Integer): WideString;
@@ -916,7 +916,7 @@ var
   ctrl: TDSSCktElement;
 begin
   Result := '';
-  If ActiveCircuit <> Nil Then With ActiveCircuit Do begin
+  If ActiveCircuit[ActiveActor] <> Nil Then With ActiveCircuit[ActiveActor] Do begin
     If (idx>0) and (idx <= ActiveCktElement.ControlElementList.Listsize) Then
     Begin
       ctrl := ActiveCktElement.ControlElementList.Get(idx);
@@ -931,9 +931,9 @@ var
   pd: TPDElement;
 begin
   Result := '';
-  If ActiveCircuit <> Nil Then begin
-    if ActiveCircuit.ActiveCktElement.HasEnergyMeter then begin
-      pd := ActiveCircuit.ActiveCktElement as TPDElement;
+  If ActiveCircuit[ActiveActor] <> Nil Then begin
+    if ActiveCircuit[ActiveActor].ActiveCktElement.HasEnergyMeter then begin
+      pd := ActiveCircuit[ActiveActor].ActiveCktElement as TPDElement;
       Result := pd.MeterObj.Name;
     end;
   end;
@@ -946,8 +946,8 @@ var
   ctrl: TDSSCktElement;
 begin
   Result := FALSE;
-  If ActiveCircuit <> Nil Then begin
-    ctrl := ActiveCircuit.ActiveCktElement.ControlElementlist.First;
+  If ActiveCircuit[ActiveActor] <> Nil Then begin
+    ctrl := ActiveCircuit[ActiveActor].ActiveCktElement.ControlElementlist.First;
     While ctrl <> Nil Do Begin
       case (ctrl.DSSObjType And CLASSMASK) of
         CAP_CONTROL,
@@ -957,7 +957,7 @@ begin
       end;
       If Result Then  Exit;
 
-      ctrl := ActiveCircuit.ActiveCktElement.ControlElementlist.Next;
+      ctrl := ActiveCircuit[ActiveActor].ActiveCktElement.ControlElementlist.Next;
     End;
   end;
 end;
@@ -967,8 +967,8 @@ var
   ctrl: TDSSCktElement;
 begin
   Result := FALSE;
-  If ActiveCircuit <> Nil Then begin
-    ctrl := ActiveCircuit.ActiveCktElement.ControlElementList.First;
+  If ActiveCircuit[ActiveActor] <> Nil Then begin
+    ctrl := ActiveCircuit[ActiveActor].ActiveCktElement.ControlElementList.First;
     While ctrl <> Nil Do
     Begin
       case (ctrl.DSSObjType And CLASSMASK) of
@@ -978,7 +978,7 @@ begin
       end;
       If Result Then  Exit;
 
-      ctrl := ActiveCircuit.ActiveCktElement.ControlElementlist.Next;
+      ctrl := ActiveCircuit[ActiveActor].ActiveCktElement.ControlElementlist.Next;
     End;
   end;
 end;
@@ -992,8 +992,8 @@ VAR
 
 Begin
 
-  IF   ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF   ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement <> Nil THEN
      WITH ActiveCktElement DO
@@ -1045,8 +1045,8 @@ VAR
 
 Begin
 
-  IF   ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF   ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement <> Nil THEN
      WITH ActiveCktElement DO
@@ -1098,8 +1098,8 @@ VAR
 begin
 
   Result := VarArrayCreate([0, 0], varOleStr);
-  IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement<>Nil THEN
      WITH ActiveCktElement DO
@@ -1131,8 +1131,8 @@ VAR
 begin
 
   Result := VarArrayCreate([0, 0], varDouble);
-  IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement<>Nil THEN
      WITH ActiveCktElement DO
@@ -1162,8 +1162,8 @@ Var
 
 begin
   Result := 0.0; Code := 1; // Signifies an error; no value set
-  IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement<>Nil THEN
      WITH ActiveCktElement DO
@@ -1194,8 +1194,8 @@ Var
 
 begin
   Result := 0.0; Code := 1; // Signifies an error; no value set
-  IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+  IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
      If ActiveCktElement<>Nil THEN
      WITH ActiveCktElement DO
@@ -1225,7 +1225,7 @@ VAR
 begin
 
       Result := VarArrayCreate([0, 0], varInteger);
-      If ActiveCircuit <> Nil Then With ActiveCircuit Do
+      If ActiveCircuit[ActiveActor] <> Nil Then With ActiveCircuit[ActiveActor] Do
       Begin
 
          If ActiveCktElement<>Nil THEN
@@ -1253,16 +1253,16 @@ function TCktElement.Get_HasOCPDevice: WordBool;
 // Check for presence of a fuse, recloser, etc.
 begin
   Result := FALSE;
-  If ActiveCircuit <> Nil Then begin
-    Result := ActiveCircuit.ActiveCktElement.HasOCPDevice;
+  If ActiveCircuit[ActiveActor] <> Nil Then begin
+    Result := ActiveCircuit[ActiveActor].ActiveCktElement.HasOCPDevice;
   end;
 end;
 
 function TCktElement.Get_NumControls: Integer;
 begin
   Result := 0;
-  If ActiveCircuit <> Nil Then begin
-    Result := ActiveCircuit.ActiveCktElement.ControlElementList.listSize;
+  If ActiveCircuit[ActiveActor] <> Nil Then begin
+    Result := ActiveCircuit[ActiveActor].ActiveCktElement.ControlElementList.listSize;
   end;
 end;
 
@@ -1273,7 +1273,7 @@ Var
 
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then  With ActiveCircuit Do
+     If ActiveCircuit[ActiveActor] <> Nil Then  With ActiveCircuit[ActiveActor] Do
      Begin
          iControl := 1;
          Repeat
@@ -1295,7 +1295,7 @@ end;
 function TCktElement.Get_OCPDevType: Integer;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then  With ActiveCircuit Do
+     If ActiveCircuit[ActiveActor] <> Nil Then  With ActiveCircuit[ActiveActor] Do
          Result := GetOCPDeviceType(ActiveCktElement);     // see Utilities.pas
 end;
 
@@ -1308,13 +1308,13 @@ VAR
 
 Begin
 
-  If ActiveCircuit <> Nil Then
-     WITH ActiveCircuit.ActiveCktElement DO
+  If ActiveCircuit[ActiveActor] <> Nil Then
+     WITH ActiveCircuit[ActiveActor].ActiveCktElement DO
      Begin
          NValues := NConds*NTerms;
          Result := VarArrayCreate([0, 2*NValues-1], varDouble);
          cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
-         GetCurrents(cBuffer);
+         GetCurrents(cBuffer, ActiveActor);
          iV :=0;
          For i := 1 to  NValues DO
          Begin
@@ -1343,8 +1343,8 @@ Begin
 
 // Return voltages for all terminals
 
-     IF ActiveCircuit <> Nil THEN
-      WITH ActiveCircuit DO
+     IF ActiveCircuit[ActiveActor] <> Nil THEN
+      WITH ActiveCircuit[ActiveActor] DO
       Begin
         If ActiveCktElement<>Nil THEN
         WITH ActiveCktElement DO

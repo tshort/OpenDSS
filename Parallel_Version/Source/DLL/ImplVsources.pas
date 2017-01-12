@@ -47,7 +47,7 @@ Var
 Begin
     Result := VarArrayCreate([0, 0], varOleStr);
     Result[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
     Begin
         If VsourceClass.ElementList.ListSize > 0 then
         Begin
@@ -68,7 +68,7 @@ end;
 function TVsources.Get_Count: Integer;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
         Result := VsourceClass.ElementList.ListSize;
 end;
 
@@ -77,13 +77,13 @@ Var
    pElem : TVsourceObj;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := VsourceClass.ElementList.First;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := 1;
           End
           Else pElem := VsourceClass.ElementList.Next;
@@ -96,13 +96,13 @@ Var
    pElem : TVsourceObj;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := VsourceClass.ElementList.Next;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := VsourceClass.ElementList.ActiveIndex;
           End
           Else pElem := VsourceClass.ElementList.Next;
@@ -115,7 +115,7 @@ Var
    elem: TDSSCktElement;
 Begin
     Result := '';
-    elem := ActiveCircuit.ActiveCktElement;
+    elem := ActiveCircuit[ActiveActor].ActiveCktElement;
     If elem <> Nil Then Result := elem.Name;
 end;
 
@@ -123,11 +123,11 @@ procedure TVsources.Set_Name(const Value: WideString);
 // Set element active by name
 
 begin
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
           If VsourceClass.SetActive(Value) Then
           Begin
-               ActiveCircuit.ActiveCktElement := VsourceClass.ElementList.Active ;
+               ActiveCircuit[ActiveActor].ActiveCktElement := VsourceClass.ElementList.Active ;
           End
           Else Begin
               DoSimpleMsg('Vsource "'+ Value +'" Not Found in Active Circuit.', 77003);

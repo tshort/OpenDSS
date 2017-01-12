@@ -12,10 +12,10 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 6/1/2016 12:05:19 PM from Type Library described below.
+// File generated on 1/11/2017 11:55:45 AM from Type Library described below.
 
 // ************************************************************************  //
-// Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
+// Type Lib: C:\OpenDSS\Parallel_Version\Source\DLL\OpenDSSengine (1)
 // LIBID: {8BFDE413-245A-4514-B151-B16DCC243796}
 // LCID: 0
 // Helpfile:
@@ -131,6 +131,8 @@ const
   CLASS_PVSystems: TGUID = '{D8D7592D-D5CD-4E27-870D-00D654DF2D3C}';
   IID_IVsources: TGUID = '{8DCD1962-268B-40E1-B49E-B7C01C3E07CD}';
   CLASS_Vsources: TGUID = '{0823B8BD-AD34-452B-974A-F46BA25D49EA}';
+  IID_IParallel: TGUID = '{A0351633-A988-4A5B-B551-A7E2ADDD4984}';
+  CLASS_Parallel: TGUID = '{D967764D-CD38-41ED-B1FD-7D79DC78EFCD}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -331,6 +333,8 @@ type
   IPVSystemsDisp = dispinterface;
   IVsources = interface;
   IVsourcesDisp = dispinterface;
+  IParallel = interface;
+  IParallelDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -375,6 +379,7 @@ type
   DSSimComs = IDSSimComs;
   PVSystems = IPVSystems;
   Vsources = IVsources;
+  Parallel = IParallel;
 
 
 // *********************************************************************//
@@ -688,6 +693,7 @@ type
     function Get_YCurrents: OleVariant; safecall;
     function Get_PVSystems: IPVSystems; safecall;
     function Get_Vsources: IVsources; safecall;
+    function Get_Parallel: IParallel; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -746,6 +752,7 @@ type
     property YCurrents: OleVariant read Get_YCurrents;
     property PVSystems: IPVSystems read Get_PVSystems;
     property Vsources: IVsources read Get_Vsources;
+    property Parallel: IParallel read Get_Parallel;
   end;
 
 // *********************************************************************//
@@ -830,6 +837,7 @@ type
     property YCurrents: OleVariant readonly dispid 235;
     property PVSystems: IPVSystems readonly dispid 236;
     property Vsources: IVsources readonly dispid 237;
+    property Parallel: IParallel readonly dispid 238;
   end;
 
 // *********************************************************************//
@@ -1830,12 +1838,14 @@ type
     function Get_PopAction: Integer; safecall;
     function Get_QueueSize: Integer; safecall;
     procedure DoAllQueue; safecall;
+    function Get_Queue: OleVariant; safecall;
     property NumActions: Integer read Get_NumActions;
     property Action: Integer write Set_Action;
     property ActionCode: Integer read Get_ActionCode;
     property DeviceHandle: Integer read Get_DeviceHandle;
     property PopAction: Integer read Get_PopAction;
     property QueueSize: Integer read Get_QueueSize;
+    property Queue: OleVariant read Get_Queue;
   end;
 
 // *********************************************************************//
@@ -1857,6 +1867,7 @@ type
     property PopAction: Integer readonly dispid 110;
     property QueueSize: Integer readonly dispid 201;
     procedure DoAllQueue; dispid 202;
+    property Queue: OleVariant readonly dispid 203;
   end;
 
 // *********************************************************************//
@@ -3482,6 +3493,51 @@ type
   end;
 
 // *********************************************************************//
+// Interface: IParallel
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {A0351633-A988-4A5B-B551-A7E2ADDD4984}
+// *********************************************************************//
+  IParallel = interface(IDispatch)
+    ['{A0351633-A988-4A5B-B551-A7E2ADDD4984}']
+    function Get_NumCPUs: Integer; safecall;
+    function Get_NumCores: Integer; safecall;
+    function Get_ActiveActor: Integer; safecall;
+    procedure Set_ActiveActor(Value: Integer); safecall;
+    procedure CreateActor; safecall;
+    function Get_ActorCPU: Integer; safecall;
+    procedure Set_ActorCPU(Value: Integer); safecall;
+    function Get_NumOfActors: Integer; safecall;
+    procedure Wait; safecall;
+    function Get_ActorProgress: OleVariant; safecall;
+    function Get_ActorStatus: OleVariant; safecall;
+    property NumCPUs: Integer read Get_NumCPUs;
+    property NumCores: Integer read Get_NumCores;
+    property ActiveActor: Integer read Get_ActiveActor write Set_ActiveActor;
+    property ActorCPU: Integer read Get_ActorCPU write Set_ActorCPU;
+    property NumOfActors: Integer read Get_NumOfActors;
+    property ActorProgress: OleVariant read Get_ActorProgress;
+    property ActorStatus: OleVariant read Get_ActorStatus;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IParallelDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {A0351633-A988-4A5B-B551-A7E2ADDD4984}
+// *********************************************************************//
+  IParallelDisp = dispinterface
+    ['{A0351633-A988-4A5B-B551-A7E2ADDD4984}']
+    property NumCPUs: Integer readonly dispid 201;
+    property NumCores: Integer readonly dispid 202;
+    property ActiveActor: Integer dispid 203;
+    procedure CreateActor; dispid 204;
+    property ActorCPU: Integer dispid 205;
+    property NumOfActors: Integer readonly dispid 206;
+    procedure Wait; dispid 207;
+    property ActorProgress: OleVariant readonly dispid 208;
+    property ActorStatus: OleVariant readonly dispid 209;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -3949,6 +4005,18 @@ type
     class function CreateRemote(const MachineName: string): IVsources;
   end;
 
+// *********************************************************************//
+// The Class CoParallel provides a Create and CreateRemote method to
+// create instances of the default interface IParallel exposed by
+// the CoClass Parallel. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoParallel = class
+    class function Create: IParallel;
+    class function CreateRemote(const MachineName: string): IParallel;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -4341,6 +4409,16 @@ end;
 class function CoVsources.CreateRemote(const MachineName: string): IVsources;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_Vsources) as IVsources;
+end;
+
+class function CoParallel.Create: IParallel;
+begin
+  Result := CreateComObject(CLASS_Parallel) as IParallel;
+end;
+
+class function CoParallel.CreateRemote(const MachineName: string): IParallel;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_Parallel) as IParallel;
 end;
 
 end.

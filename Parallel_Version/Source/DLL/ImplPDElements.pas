@@ -48,8 +48,8 @@ uses ComServ, DSSGlobals, PDElement, PDClass, SysUtils, Bus;
 function TPDElements.Get_Count: Integer;
 begin
       Result := 0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           Result := PDElements.ListSize ;
       End;
 end;
@@ -59,8 +59,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0.0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.Faultrate;
@@ -73,8 +73,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
            ActivePDElement := PDElements.First;
            IF ActivePDElement <> Nil THEN
              Begin
@@ -95,8 +95,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := FALSE;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.IsShunt;
@@ -109,8 +109,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
            ActivePDElement := PDElements.Next;
            IF ActivePDElement <> Nil THEN
              Begin
@@ -131,8 +131,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0.0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.PctPerm;
@@ -144,8 +144,8 @@ procedure TPDElements.Set_FaultRate(Value: Double);
 Var
    ActivePDElement :TPDElement;
 begin
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               ActivePDElement.FaultRate := Value;
@@ -157,8 +157,8 @@ procedure TPDElements.Set_pctPermanent(Value: Double);
 Var
    ActivePDElement :TPDElement;
 begin
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               ActivePDElement.PctPerm := Value;
@@ -172,8 +172,8 @@ Var
    ActivePDElement :TPDElement;
 begin
      Result := '';   // return null if not a PD element
-      If Assigned(ActiveCircuit) Then
-        With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+        With ActiveCircuit[ActiveActor] Do Begin
             If ActiveCktElement is TPDElement Then Begin
                 ActivePDElement := ActiveCktelement as TPDElement;
                 With ActivePDElement Do
@@ -188,8 +188,8 @@ Var
    TestString : String;
 
 begin
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           TestString := Value;
           // Search through list of PD Elements until we find this one
           ActivePDElement := PDElements.First;
@@ -210,8 +210,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0.0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.AccumulatedBrFltRate ;
@@ -225,8 +225,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0.0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.BranchFltRate;
@@ -240,8 +240,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.BranchNumCustomers;
@@ -255,8 +255,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               If ActivePDElement.ParentPDElement <> Nil Then    // leaves ActiveCktElement as is
@@ -273,8 +273,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0.0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.HrsToRepair;
@@ -287,8 +287,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.BranchTotalCustomers;
@@ -301,8 +301,8 @@ Var
    ActivePDElement :TPDElement;
 begin
       Result := 0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.FromTerminal ;
@@ -319,8 +319,8 @@ Var
 
 begin
       Result := 0.0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.AccumulatedMilesDownStream;
@@ -334,8 +334,8 @@ Var
 
 begin
       Result := 0;
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               Result := ActivePDElement.BranchSectionID ;
@@ -348,8 +348,8 @@ procedure TPDElements.Set_RepairTime(Value: Double);
 Var
    ActivePDElement :TPDElement;
 begin
-      If Assigned(ActiveCircuit) Then
-      With ActiveCircuit Do Begin
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+      With ActiveCircuit[ActiveActor] Do Begin
           If ActiveCktElement is TPDElement Then Begin
               ActivePDElement := ActiveCktelement as TPDElement;
               ActivePDElement.HrsToRepair := Value;

@@ -52,7 +52,7 @@ procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('Fuse.%s.%s=%s', [TFuseObj(FuseClass.GetActiveObj).Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -67,7 +67,7 @@ Var
 Begin
     Result := VarArrayCreate([0, 0], varOleStr);
     Result[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
     Begin
         If FuseClass.ElementList.ListSize > 0 then
         Begin
@@ -88,7 +88,7 @@ end;
 function TFuses.Get_Count: Integer;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
         Result := FuseClass.ElementList.ListSize;
 end;
 
@@ -97,13 +97,13 @@ Var
    pElem : TFuseObj;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := FuseClass.ElementList.First;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := 1;
           End
           Else pElem := FuseClass.ElementList.Next;
@@ -125,13 +125,13 @@ Var
    pElem : TFuseObj;
 begin
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := FuseClass.ElementList.Next;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := FuseClass.ElementList.ActiveIndex;
           End
           Else pElem := FuseClass.ElementList.Next;
@@ -143,11 +143,11 @@ procedure TFuses.Set_Name(const Value: WideString);
 // Set element active by name
 
 begin
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
           If FuseClass.SetActive(Value) Then
           Begin
-               ActiveCircuit.ActiveCktElement := FuseClass.ElementList.Active ;
+               ActiveCircuit[ActiveActor].ActiveCktElement := FuseClass.ElementList.Active ;
           End
           Else Begin
               DoSimpleMsg('Fuse "'+ Value +'" Not Found in Active Circuit.', 77003);
@@ -307,7 +307,7 @@ end;
 
 function TFuses.Get_idx: Integer;
 begin
-    if ActiveCircuit <> Nil then
+    if ActiveCircuit[ActiveActor] <> Nil then
        Result := FuseClass.ElementList.ActiveIndex
     else Result := 0;
 end;
@@ -316,9 +316,9 @@ procedure TFuses.Set_idx(Value: Integer);
 Var
     pFuse:TFuseObj;
 begin
-    if ActiveCircuit <> Nil then   Begin
+    if ActiveCircuit[ActiveActor] <> Nil then   Begin
         pFuse := FuseClass.Elementlist.Get(Value);
-        If pFuse <> Nil Then ActiveCircuit.ActiveCktElement := pFuse;
+        If pFuse <> Nil Then ActiveCircuit[ActiveActor].ActiveCktElement := pFuse;
     End;
 end;
 
@@ -327,7 +327,7 @@ Var
     pFuse:TFuseObj;
 begin
     Result := 0;
-    if ActiveCircuit <> Nil then   Begin
+    if ActiveCircuit[ActiveActor] <> Nil then   Begin
         pFuse := FuseClass.GetActiveObj ;
         If pFuse <> Nil Then Result := pFuse.NPhases ;
     End;

@@ -55,14 +55,14 @@ uses ComServ, Sensor, Variants, DSSGlobals, PointerList, Executive, SysUtils;
 function ActiveSensor: TSensorObj;
 begin
   Result := nil;
-  if ActiveCircuit <> Nil then Result := ActiveCircuit.Sensors.Active;
+  if ActiveCircuit[ActiveActor] <> Nil then Result := ActiveCircuit[ActiveActor].Sensors.Active;
 end;
 
 procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('capacitor.%s.%s=%s', [ActiveSensor.Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -75,8 +75,8 @@ Var
 Begin
   Result := VarArrayCreate([0, 0], varOleStr);
   Result[0] := 'NONE';
-  IF ActiveCircuit <> Nil THEN
-    WITH ActiveCircuit DO
+  IF ActiveCircuit[ActiveActor] <> Nil THEN
+    WITH ActiveCircuit[ActiveActor] DO
       If Sensors.ListSize>0 Then Begin
         VarArrayRedim(Result, Sensors.ListSize-1);
         k:=0;
@@ -91,8 +91,8 @@ end;
 
 function TSensors.Get_Count: Integer;
 begin
-  If Assigned(ActiveCircuit) Then
-    Result := ActiveCircuit.Sensors.ListSize;
+  If Assigned(ActiveCircuit[ActiveActor]) Then
+    Result := ActiveCircuit[ActiveActor].Sensors.ListSize;
 end;
 
 function TSensors.Get_Currents: OleVariant;
@@ -114,13 +114,13 @@ Var
   lst: TPointerList;
 Begin
   Result := 0;
-  If ActiveCircuit <> Nil Then begin
-    lst := ActiveCircuit.Sensors;
+  If ActiveCircuit[ActiveActor] <> Nil Then begin
+    lst := ActiveCircuit[ActiveActor].Sensors;
     elem := lst.First;
     If elem <> Nil Then Begin
       Repeat
         If elem.Enabled Then Begin
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
           Result := 1;
         End
         Else elem := lst.Next;
@@ -211,13 +211,13 @@ Var
   lst: TPointerList;
 Begin
   Result := 0;
-  If ActiveCircuit <> Nil Then Begin
-    lst := ActiveCircuit.Sensors;
+  If ActiveCircuit[ActiveActor] <> Nil Then Begin
+    lst := ActiveCircuit[ActiveActor].Sensors;
     elem := lst.Next;
     if elem <> nil then begin
       Repeat
         If elem.Enabled Then Begin
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
           Result := lst.ActiveIndex;
         End
         Else elem := lst.Next;
@@ -264,7 +264,7 @@ end;
 
 procedure TSensors.ResetAll;
 begin
-  if assigned(ActiveCircuit) then SensorClass.ResetAll;
+  if assigned(ActiveCircuit[ActiveActor]) then SensorClass[ActiveActor].ResetAll(ActiveActor);
 end;
 
 procedure TSensors.Set_Currents(Value: OleVariant);
@@ -353,15 +353,15 @@ var
   elem: TSensorObj;
   lst: TPointerList;
 begin
-  IF ActiveCircuit <> NIL THEN Begin
-    lst := ActiveCircuit.Sensors;
+  IF ActiveCircuit[ActiveActor] <> NIL THEN Begin
+    lst := ActiveCircuit[ActiveActor].Sensors;
     S := Value;  // Convert to Pascal String
     Found := FALSE;
     ActiveSave := lst.ActiveIndex;
     elem := lst.First;
     While elem <> NIL Do Begin
       IF (CompareText(elem.Name, S) = 0) THEN Begin
-        ActiveCircuit.ActiveCktElement := elem;
+        ActiveCircuit[ActiveActor].ActiveCktElement := elem;
         Found := TRUE;
         Break;
       End;
@@ -370,7 +370,7 @@ begin
     IF NOT Found THEN Begin
       DoSimpleMsg('Sensor "'+S+'" Not Found in Active Circuit.', 5003);
       elem := lst.Get(ActiveSave);
-      ActiveCircuit.ActiveCktElement := elem;
+      ActiveCircuit[ActiveActor].ActiveCktElement := elem;
     End;
   End;
 end;

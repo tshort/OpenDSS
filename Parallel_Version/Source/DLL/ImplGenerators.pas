@@ -78,8 +78,8 @@ Var
 Begin
     Result := VarArrayCreate([0, 0], varOleStr);
     Result[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      If Generators.ListSize>0 Then
      Begin
        VarArrayRedim(result, Generators.ListSize-1);
@@ -101,18 +101,18 @@ Var
 Begin
 
    Result := 0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pGen := ActiveCircuit.Generators.First;
+        pGen := ActiveCircuit[ActiveActor].Generators.First;
         If pGen <> Nil Then
         Begin
           Repeat
             If pGen.Enabled
             Then Begin
-              ActiveCircuit.ActiveCktElement := pGen;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pGen;
               Result := 1;
             End
-            Else pGen := ActiveCircuit.Generators.Next;
+            Else pGen := ActiveCircuit[ActiveActor].Generators.Next;
           Until (Result = 1) or (pGen = nil);
         End
         Else
@@ -127,9 +127,9 @@ Var
 
 Begin
    Result := '';
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pGen := ActiveCircuit.Generators.Active;
+        pGen := ActiveCircuit[ActiveActor].Generators.Active;
         If pGen <> Nil Then
         Begin
           Result := pGen.Name;
@@ -147,18 +147,18 @@ Var
 Begin
 
    Result := 0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pGen := ActiveCircuit.Generators.Next;
+        pGen := ActiveCircuit[ActiveActor].Generators.Next;
         If pGen <> Nil Then
         Begin
           Repeat
             If pGen.Enabled
             Then Begin
-              ActiveCircuit.ActiveCktElement := pGen;
-              Result := ActiveCircuit.Generators.ActiveIndex;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pGen;
+              Result := ActiveCircuit[ActiveActor].Generators.ActiveIndex;
             End
-            Else pGen := ActiveCircuit.Generators.Next;
+            Else pGen := ActiveCircuit[ActiveActor].Generators.Next;
           Until (Result > 0) or (pGen = nil);
         End
         Else
@@ -173,7 +173,7 @@ Var
     k :integer;
 
 Begin
-    GeneratorClass := DssClassList.Get(Classnames.Find('Generator'));
+    GeneratorClass := DssClassList[ActiveActor].Get(Classnames[ActiveActor].Find('Generator'));
     Result := VarArrayCreate([0, NumGenRegisters - 1], varOleStr);
     For k := 0 to  NumGenRegisters - 1  Do Begin
        Result[k] := GeneratorClass.RegisterNames[k + 1];
@@ -187,9 +187,9 @@ Var
    k     :Integer;
 Begin
 
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        Gen :=  TGeneratorObj(ActiveCircuit.Generators.Active);
+        Gen :=  TGeneratorObj(ActiveCircuit[ActiveActor].Generators.Active);
         If Gen <> Nil Then
         Begin
             Result := VarArrayCreate([0, numGenRegisters-1], varDouble);
@@ -211,9 +211,9 @@ end;
 function TGenerators.Get_ForcedON: WordBool;
 begin
      Result := FALSE;
-     IF ActiveCircuit<> NIL
+     IF ActiveCircuit[ActiveActor]<> NIL
      THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0
              THEN Begin
                  Result := TGeneratorObj(Active).ForcedON;
@@ -226,9 +226,9 @@ procedure TGenerators.Set_ForcedON(Value: WordBool);
 
 begin
 
-     IF ActiveCircuit<> NIL
+     IF ActiveCircuit[ActiveActor]<> NIL
      THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0
              THEN Begin
                  TGeneratorObj(Active).ForcedON := Value;
@@ -248,9 +248,9 @@ VAR
 Begin
 
 
-  IF ActiveCircuit <> NIL
+  IF ActiveCircuit[ActiveActor] <> NIL
   THEN Begin      // Search list of generators in active circuit for name
-       WITH ActiveCircuit.Generators DO
+       WITH ActiveCircuit[ActiveActor].Generators DO
          Begin
              S := Value;  // Convert to Pascal String
              Found := FALSE;
@@ -260,7 +260,7 @@ Begin
              Begin
                 IF (CompareText(Gen.Name, S) = 0)
                 THEN Begin
-                    ActiveCircuit.ActiveCktElement := Gen;
+                    ActiveCircuit[ActiveActor].ActiveCktElement := Gen;
                     Found := TRUE;
                     Break;
                 End;
@@ -270,7 +270,7 @@ Begin
              THEN Begin
                  DoSimpleMsg('Generator "'+S+'" Not Found in Active Circuit.', 5003);
                  Gen := Get(ActiveSave);    // Restore active generator
-                 ActiveCircuit.ActiveCktElement := Gen;
+                 ActiveCircuit[ActiveActor].ActiveCktElement := Gen;
              End;
          End;
   End;
@@ -279,8 +279,8 @@ end;
 function TGenerators.Get_kV: Double;
 begin
    Result := -1.0;  // not set
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TGeneratorObj(Active).GenVars.kVGeneratorBase;
              End;
@@ -291,8 +291,8 @@ end;
 function TGenerators.Get_kvar: Double;
 begin
   Result := 0.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TGeneratorObj(Active).Presentkvar;
              End;
@@ -303,8 +303,8 @@ end;
 function TGenerators.Get_kW: Double;
 begin
    Result := 0.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TGeneratorObj(Active).PresentkW;
              End;
@@ -315,8 +315,8 @@ end;
 function TGenerators.Get_PF: Double;
 begin
    Result := 0.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TGeneratorObj(Active).PowerFactor;
              End;
@@ -327,8 +327,8 @@ end;
 function TGenerators.Get_Phases: Integer;
 begin
    Result := 0;  // not set
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TGeneratorObj(Active).nphases;
              End;
@@ -339,8 +339,8 @@ end;
 procedure TGenerators.Set_kV(Value: Double);
 begin
 
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TGeneratorObj(Active).PresentkV := Value;
              End;
@@ -351,8 +351,8 @@ end;
 
 procedure TGenerators.Set_kvar(Value: Double);
 begin
-    IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+    IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TGeneratorObj(Active).Presentkvar := Value;
              End;
@@ -362,8 +362,8 @@ end;
 
 procedure TGenerators.Set_kW(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TGeneratorObj(Active).PresentkW := Value;
              End;
@@ -373,8 +373,8 @@ end;
 
 procedure TGenerators.Set_PF(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TGeneratorObj(Active).PowerFactor := Value;
              End;
@@ -384,8 +384,8 @@ end;
 
 procedure TGenerators.Set_Phases(Value: Integer);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-       WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+       WITH ActiveCircuit[ActiveActor].Generators Do Begin
            IF ActiveIndex<>0 THEN Begin
                 TGeneratorObj(Active).Nphases := Value;
            End;
@@ -395,14 +395,14 @@ end;
 
 function TGenerators.Get_Count: Integer;
 begin
-    If Assigned(Activecircuit) Then
-          Result := ActiveCircuit.Generators.ListSize;
+    If Assigned(ActiveCircuit[ActiveActor]) Then
+          Result := ActiveCircuit[ActiveActor].Generators.ListSize;
 end;
 
 function TGenerators.Get_idx: Integer;
 begin
-    if ActiveCircuit <> Nil then
-       Result := ActiveCircuit.Generators.ActiveIndex
+    if ActiveCircuit[ActiveActor] <> Nil then
+       Result := ActiveCircuit[ActiveActor].Generators.ActiveIndex
     else Result := 0;
 end;
 
@@ -410,9 +410,9 @@ procedure TGenerators.Set_idx(Value: Integer);
 Var
     pGen:TGeneratorObj;
 begin
-    if ActiveCircuit <> Nil then   Begin
-        pGen := ActiveCircuit.Generators.Get(Value);
-        If pGen <> Nil Then ActiveCircuit.ActiveCktElement := pGen;
+    if ActiveCircuit[ActiveActor] <> Nil then   Begin
+        pGen := ActiveCircuit[ActiveActor].Generators.Get(Value);
+        If pGen <> Nil Then ActiveCircuit[ActiveActor].ActiveCktElement := pGen;
     End;
 
 end;
@@ -420,8 +420,8 @@ end;
 function TGenerators.Get_Model: Integer;
 begin
    Result := -1;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TGeneratorObj(Active).GenModel ;
              End;
@@ -431,13 +431,13 @@ end;
 
 procedure TGenerators.Set_Model(Value: Integer);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                   With TGeneratorObj(Active) Do Begin
                      GenModel := Value;
                      // Handle side effect
-                     If GenModel=3 Then ActiveCircuit.Solution.SolutionInitialized := FALSE ;
+                     If GenModel=3 Then ActiveCircuit[ActiveActor].Solution.SolutionInitialized := FALSE ;
                   End;
              End;
          End;
@@ -447,8 +447,8 @@ end;
 function TGenerators.Get_kVArated: Double;
 begin
    Result := -1.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TGeneratorObj(Active).Genvars.kVArating  ;
              End;
@@ -458,8 +458,8 @@ end;
 
 procedure TGenerators.Set_kVArated(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                   With TGeneratorObj(Active) Do Begin
                      Genvars.kVArating  := Value;
@@ -472,8 +472,8 @@ end;
 function TGenerators.Get_Vmaxpu: Double;
 begin
    Result := -1.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TGeneratorObj(Active).Vmaxpu ;
              End;
@@ -484,8 +484,8 @@ end;
 function TGenerators.Get_Vminpu: Double;
 begin
    Result := -1.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TGeneratorObj(Active).Vminpu ;
              End;
@@ -495,8 +495,8 @@ end;
 
 procedure TGenerators.Set_Vmaxpu(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                   With TGeneratorObj(Active) Do Begin
                      VMaxPu  := Value;
@@ -508,8 +508,8 @@ end;
 
 procedure TGenerators.Set_Vminpu(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Generators Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Generators Do Begin
              IF ActiveIndex<>0 THEN Begin
                   With TGeneratorObj(Active) Do Begin
                      VMinPu  := Value;

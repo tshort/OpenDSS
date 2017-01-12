@@ -101,14 +101,14 @@ uses ComServ,DSSGlobals, Executive, Load, Variants, SysUtils, math;
 function ActiveLoad: TLoadObj;
 begin
   Result := nil;
-  if ActiveCircuit <> Nil then Result := ActiveCircuit.Loads.Active;
+  if ActiveCircuit[ActiveActor] <> Nil then Result := ActiveCircuit[ActiveActor].Loads.Active;
 end;
 
 procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('load.%s.%s=%s', [ActiveLoad.Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -123,7 +123,7 @@ Begin
     Result := VarArrayCreate([0, 0], varOleStr);
     Result[0] := 'NONE';
     IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+     WITH ActiveCircuit[ActiveActor] DO
      If Loads.ListSize > 0 Then
      Begin
        VarArrayRedim(Result, Loads.ListSize-1);
@@ -144,18 +144,18 @@ Var
 Begin
 
    Result := 0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pLoad := ActiveCircuit.Loads.First;
+        pLoad := ActiveCircuit[ActiveActor].Loads.First;
         If pLoad <> Nil Then
         Begin
           Repeat
             If pLoad.Enabled
             Then Begin
-              ActiveCircuit.ActiveCktElement := pLoad;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pLoad;
               Result := 1;
             End
-            Else pLoad := ActiveCircuit.Loads.Next;
+            Else pLoad := ActiveCircuit[ActiveActor].Loads.Next;
           Until (Result = 1) or (pLoad = nil);
         End
         Else
@@ -166,8 +166,8 @@ end;
 
 function TLoads.Get_idx: Integer;
 begin
-    if ActiveCircuit <> Nil then
-       Result := ActiveCircuit.Loads.ActiveIndex
+    if ActiveCircuit[ActiveActor] <> Nil then
+       Result := ActiveCircuit[ActiveActor].Loads.ActiveIndex
     else Result := 0;
 end;
 
@@ -177,9 +177,9 @@ Var
 
 Begin
    Result := '';
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pLoad := ActiveCircuit.Loads.Active;
+        pLoad := ActiveCircuit[ActiveActor].Loads.Active;
         If pLoad <> Nil Then
           Result := pLoad.Name
         Else
@@ -196,16 +196,16 @@ Begin
    Result := 0;
    If ActiveCircuit <> Nil Then
    Begin
-        pLoad := ActiveCircuit.Loads.Next;
+        pLoad := ActiveCircuit[ActiveActor].Loads.Next;
         If pLoad <> Nil Then
         Begin
           Repeat
             If pLoad.Enabled
             Then Begin
-              ActiveCircuit.ActiveCktElement := pLoad;
-              Result := ActiveCircuit.Loads.ActiveIndex;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pLoad;
+              Result := ActiveCircuit[ActiveActor].Loads.ActiveIndex;
             End
-            Else pLoad := ActiveCircuit.Loads.Next;
+            Else pLoad := ActiveCircuit[ActiveActor].Loads.Next;
           Until (Result > 0) or (pLoad = nil);
         End
         Else
@@ -218,9 +218,9 @@ procedure TLoads.Set_idx(Value: Integer);
 Var
     pLoad:TLoadObj;
 begin
-    if ActiveCircuit <> Nil then   Begin
-        pLoad := ActiveCircuit.Loads.Get(Value);
-        If pLoad <> Nil Then ActiveCircuit.ActiveCktElement := pLoad;
+    if ActiveCircuit[ActiveActor] <> Nil then   Begin
+        pLoad := ActiveCircuit[ActiveActor].Loads.Get(Value);
+        If pLoad <> Nil Then ActiveCircuit[ActiveActor].ActiveCktElement := pLoad;
     End;
 end;
 
@@ -232,9 +232,9 @@ VAR
     Found :Boolean;
 Begin
 
-  IF ActiveCircuit <> NIL
+  IF ActiveCircuit[ActiveActor] <> NIL
   THEN Begin      // Search list of Loads in active circuit for name
-     WITH ActiveCircuit.Loads DO
+     WITH ActiveCircuit[ActiveActor].Loads DO
        Begin
            S := Value;  // Convert to Pascal String
            Found := FALSE;
@@ -244,7 +244,7 @@ Begin
            Begin
               IF (CompareText(pLoad.Name, S) = 0)
               THEN Begin
-                  ActiveCircuit.ActiveCktElement := pLoad;
+                  ActiveCircuit[ActiveActor].ActiveCktElement := pLoad;
                   Found := TRUE;
                   Break;
               End;
@@ -254,7 +254,7 @@ Begin
            THEN Begin
                DoSimpleMsg('Load "' + S + '" Not Found in Active Circuit.', 5003);
                pLoad := Get(ActiveSave);    // Restore active Load
-               ActiveCircuit.ActiveCktElement := pLoad;
+               ActiveCircuit[ActiveActor].ActiveCktElement := pLoad;
            End;
        End;
   End;
@@ -264,8 +264,8 @@ end;
 function TLoads.Get_kV: Double;
 begin
    Result := 0.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Loads Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TLoadObj(Active).kVLoadBase;
              End;
@@ -277,8 +277,8 @@ end;
 function TLoads.Get_kvar: Double;
 begin
    Result := 0.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Loads Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TLoadObj(Active).kvarBase;
              End;
@@ -289,8 +289,8 @@ end;
 function TLoads.Get_kW: Double;
 begin
    Result := 0.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Loads Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TLoadObj(Active).kWBase;
              End;
@@ -301,8 +301,8 @@ end;
 function TLoads.Get_PF: Double;
 begin
    Result := 0.0;
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Loads Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TLoadObj(Active).PFNominal;
              End;
@@ -312,8 +312,8 @@ end;
 
 procedure TLoads.Set_kV(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Loads Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).kVLoadBase := Value;
                   TLoadObj(Active).UpdateVoltageBases;  // side effects
@@ -324,12 +324,12 @@ end;
 
 procedure TLoads.Set_kvar(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Loads Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).kvarBase := Value;
                   TLoadObj(Active).LoadSpecType := 1;
-                  TLoadObj(Active).RecalcElementData ;  // set power factor based on kW, kvar
+                  TLoadObj(Active).RecalcElementData(ActiveActor) ;  // set power factor based on kW, kvar
              End;
          End;
    End;
@@ -337,12 +337,12 @@ end;
 
 procedure TLoads.Set_kW(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Loads Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).kWBase := Value;
                   TLoadObj(Active).LoadSpecType := 0;
-                  TLoadObj(Active).RecalcElementData ; // sets kvar based on kW and pF
+                  TLoadObj(Active).RecalcElementData(ActiveActor) ; // sets kvar based on kW and pF
              End;
          End;
    End;
@@ -350,12 +350,12 @@ end;
 
 procedure TLoads.Set_PF(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.Loads Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].Loads Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TLoadObj(Active).PFNominal := Value;
                   TLoadObj(Active).LoadSpecType := 0;
-                  TLoadObj(Active).RecalcElementData ; //  sets kvar based on kW and pF
+                  TLoadObj(Active).RecalcElementData(ActiveActor) ; //  sets kvar based on kW and pF
              End;
          End;
    End;
@@ -363,8 +363,8 @@ end;
 
 function TLoads.Get_Count: Integer;
 begin
-    If Assigned(ActiveCircuit) Then
-       Result := ActiveCircuit.Loads.ListSize ;
+    If Assigned(ActiveCircuit[ActiveActor]) Then
+       Result := ActiveCircuit[ActiveActor].Loads.ListSize ;
 end;
 
 function TLoads.Get_AllocationFactor: Double;

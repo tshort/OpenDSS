@@ -37,10 +37,10 @@ VAR
 begin
   Result := VarArrayCreate([0, 0], varOleStr);
   IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
-     If ActiveDSSObject<>Nil THEN
-     WITH ActiveDSSObject DO
+     If ActiveDSSObject[ActiveActor]<>Nil THEN
+     WITH ActiveDSSObject[ActiveActor] DO
      Begin
           WITH ParentClass Do
           Begin
@@ -58,7 +58,7 @@ function TDSSElement.Get_Name: WideString;
 Begin
    If ActiveCircuit <> Nil Then
      if ActiveDSSObject <> Nil then
-      WITH ActiveDSSObject DO
+      WITH ActiveDSSObject[ActiveActor] DO
       Begin
         Result := ParentClass.Name + '.' + Name;
       End
@@ -70,10 +70,10 @@ function TDSSElement.Get_NumProperties: Integer;
 begin
   Result := 0;
   IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
-     If ActiveDSSObject<>Nil THEN
-     WITH ActiveDSSObject DO
+     If ActiveDSSObject[ActiveActor]<>Nil THEN
+     WITH ActiveDSSObject[ActiveActor] DO
      Begin
           Result := ParentClass.NumProperties ;
      End
@@ -93,7 +93,7 @@ begin
          VarSmallint, VarInteger: FPropIndex := Integer(Indx) + 1;    // INdex is zero based to match arrays
          VarOleStr:
            Begin
-              FPropClass := ActiveDSSObject.ParentClass;
+              FPropClass := ActiveDSSObject[ActiveActor].ParentClass;
               FPropIndex := 0;
               Str := Indx;
               If FPropClass <> Nil Then

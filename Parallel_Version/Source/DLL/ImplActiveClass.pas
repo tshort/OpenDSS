@@ -36,16 +36,16 @@ Var
   k:Integer;
 
 Begin
-    If (ActiveCircuit <> Nil) and Assigned(ActiveDSSClass) Then
-     WITH ActiveCircuit DO
+    If (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass) Then
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
-       Result := VarArrayCreate([0, ActiveDSSClass.ElementCount-1], varOleStr);
+       Result := VarArrayCreate([0, ActiveDSSClass[ActiveActor].ElementCount-1], varOleStr);
        k:=0;
-       idx := ActiveDSSClass.First;
+       idx := ActiveDSSClass[ActiveActor].First;
        WHILE idx > 0 DO  Begin
-          Result[k] := ActiveDSSObject.Name;
+          Result[k] := ActiveDSSObject[ActiveActor].Name;
           Inc(k);
-          idx := ActiveDSSClass.Next;
+          idx := ActiveDSSClass[ActiveActor].Next;
        End;
      End
     ELSE Result := VarArrayCreate([0, 0], varOleStr);
@@ -57,9 +57,9 @@ function TActiveClass.Get_First: Integer;
 Begin
 
    Result := 0;
-   If (ActiveCircuit <> Nil) and Assigned(ActiveDSSClass) Then
+   If (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass[ActiveActor]) Then
    Begin
-        Result := ActiveDSSClass.First;  // sets active objects
+        Result := ActiveDSSClass[ActiveActor].First;  // sets active objects
    End;
 
 end;
@@ -69,16 +69,16 @@ function TActiveClass.Get_Next: Integer;
 Begin
 
    Result := 0;
-   If (ActiveCircuit <> Nil) and Assigned(ActiveDSSClass) Then
+   If (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass[ActiveActor]) Then
    Begin
-        Result := ActiveDSSClass.Next;  // sets active objects
+        Result := ActiveDSSClass[ActiveActor].Next;  // sets active objects
    End;
 
 end;
 
 function TActiveClass.Get_Name: WideString;
 begin
-      if Assigned(ActiveDSSObject) then  Result := ActiveDSSObject.Name
+      if Assigned(ActiveDSSObject[ActiveActor]) then  Result := ActiveDSSObject[ActiveActor].Name
       Else Result := '';
 end;
 
@@ -87,32 +87,32 @@ procedure TActiveClass.Set_Name(const Value: WideString);
 Var
   pelem:TDSSObject;
 begin
-     If  Assigned(ActiveDSSClass) Then  Begin
-         pelem := ActiveDSSClass.Find(Value);
+     If  Assigned(ActiveDSSClass[ActiveActor]) Then  Begin
+         pelem := ActiveDSSClass[ActiveActor].Find(Value);
          if pelem <> Nil then Begin
             if pelem is TDSSCktElement then
-             ActiveCircuit.ActiveCktElement := TDSSCktElement(pelem)  // sets ActiveDSSobject
+             ActiveCircuit[ActiveActor].ActiveCktElement := TDSSCktElement(pelem)  // sets ActiveDSSobject
           Else
-             ActiveDSSObject := pelem;
+             ActiveDSSObject[ActiveActor] := pelem;
          End;
      End;
 end;
 
 function TActiveClass.Get_NumElements: Integer;
 begin
-    if Assigned(ActiveDSSClass) then  Result := ActiveDSSCLass.ElementCount
+    if Assigned(ActiveDSSClass[ActiveActor]) then  Result := ActiveDSSCLass[ActiveActor].ElementCount
      Else Result := 0;
 end;
 
 function TActiveClass.Get_ActiveClassName: WideString;
 begin
-     if Assigned(ActiveDSSClass) then  Result := ActiveDSSCLass.Name
+     if Assigned(ActiveDSSClass[ActiveActor]) then  Result := ActiveDSSCLass[ActiveActor].Name
      Else Result := '';
 end;
 
 function TActiveClass.Get_Count: Integer;
 begin
-     if Assigned(ActiveDSSClass) then  Result := ActiveDSSCLass.ElementCount
+     if Assigned(ActiveDSSClass[ActiveActor]) then  Result := ActiveDSSCLass[ActiveActor].ElementCount
      Else Result := 0;
 end;
 

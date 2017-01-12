@@ -32,7 +32,7 @@ function TDSSProperty.Get_Description: WideString;
 begin
       Result := '';
       If (ActiveCircuit<> Nil) and (FPropIndex <> 0) {and (FPropClass <> Nil)} Then
-      With  ActiveDSSObject.ParentClass Do
+      With  ActiveDSSObject[ActiveActor].ParentClass Do
         If FPropIndex <= NumProperties Then
           Result := PropertyHelp^[FPropIndex];
 
@@ -42,7 +42,7 @@ function TDSSProperty.Get_Name: WideString;
 begin
       Result := '';
       If (ActiveCircuit<> Nil) and (FPropIndex <> 0) {and (FPropClass <> Nil)} Then
-        With  ActiveDSSObject.ParentClass   Do
+        With  ActiveDSSObject[ActiveActor].ParentClass   Do
         If FPropIndex <= NumProperties Then
           Result := PropertyName^[FPropIndex];
 
@@ -53,7 +53,7 @@ function TDSSProperty.Get_Val: WideString;
 begin
        Result := '';
       If (ActiveCircuit<> Nil)
-      THEN  With ActiveDSSObject Do
+      THEN  With ActiveDSSObject[ActiveActor] Do
         If FPropIndex <= ParentClass.NumProperties Then
               Result := PropertyValue[ParentClass.PropertyIdxMap[FPropIndex]];
 
@@ -62,7 +62,7 @@ end;
 procedure TDSSProperty.Set_Val(const Value: WideString);
 begin
       If (ActiveCircuit<> Nil)
-      THEN  With ActiveDSSObject Do
+      THEN  With ActiveDSSObject[ActiveActor] Do
         If FPropIndex <= ParentClass.NumProperties Then
               DSSExecutive.Command := 'Edit ' + ParentClass.Name + '.' + Name + ' ' +
                      ParentClass.PropertyName^[FPropIndex] + '=' +

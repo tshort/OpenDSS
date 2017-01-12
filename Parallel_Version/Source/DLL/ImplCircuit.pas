@@ -95,6 +95,7 @@ type
     function Get_YNodeVarray: OleVariant; safecall;
     function Get_PVSystems: IPVSystems; safecall;
     function Get_Vsources: IVsources; safecall;
+    function Get_Parallel: IParallel; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -137,16 +138,16 @@ begin
   
    {Index is zero based -- matches variant arrays}
 
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
      Case (VarType(Index) and varTypeMask) Of
-       VarSmallint, VarInteger: With ActiveCircuit Do Begin
+       VarSmallint, VarInteger: With ActiveCircuit[ActiveActor] Do Begin
                       i := Index;  // Type conversion
                       If NumBuses > i Then Begin
                          ActiveBusIndex := i+1;
                       End;
                    End;
-       VarOleStr:  With ActiveCircuit Do Begin
+       VarOleStr:  With ActiveCircuit[ActiveActor] Do Begin
                         ActiveBusIndex := Buslist.Find(Index);
                    End;
      Else
@@ -161,24 +162,24 @@ end;
 
 function TCircuit.Get_Name: WideString;
 begin
-      If ActiveCircuit <> Nil Then Result := ActiveCircuit.Name
+      If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Name
       Else Result := '';
 end;
 
 function TCircuit.Get_NumBuses: Integer;
 begin
-    If ActiveCircuit <> Nil Then Result := ActiveCircuit.NumBuses
+    If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].NumBuses
     Else Result := 0;
 end;
 
 function TCircuit.Get_NumCktElements: Integer;
 begin
-    If ActiveCircuit <> Nil Then Result := ActiveCircuit.NumDevices;
+    If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].NumDevices;
 end;
 
 function TCircuit.Get_NumNodes: Integer;
 begin
-    If ActiveCircuit <> Nil Then Result := ActiveCircuit.NumNodes;
+    If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].NumNodes;
 end;
 
 function TCircuit.Get_CktElements(Idx: OleVariant): ICktElement;
@@ -189,17 +190,17 @@ var
 
 begin
 
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
      Case (VarType(Idx) and varTypeMask) Of
-       varSmallint, VarInteger: With ActiveCircuit Do Begin
+       varSmallint, VarInteger: With ActiveCircuit[ActiveActor] Do Begin
                    i := Idx;
                    If NumDevices > i Then
                       ActiveCktElement := CktElements.Get(i+1);
                    End;
        VarOleStr:  Begin
                       S := Idx;
-                      ActiveCircuit.SetElementActive(S); // By name
+                      ActiveCircuit[ActiveActor].SetElementActive(S); // By name
                    End;
      Else
          DoSimpleMsg('Illegal Var Type Passed to CktElements Interface: '+ Format('$%x',[VarType(Idx)]), 5014);
@@ -220,8 +221,8 @@ VAR pLine :TLineObj;
 
 Begin
     V := VarArrayCreate([0, 1], varDouble);
-    IF ActiveCircuit <> NIL THEN
-    WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> NIL THEN
+    WITH ActiveCircuit[ActiveActor] DO
     Begin
       pLine := Lines.First;
       Loss := Cmplx(0.0,0.0);
@@ -243,10 +244,10 @@ Var
    LossValue :complex;
 begin
 
-     IF ActiveCircuit <> Nil THEN
+     IF ActiveCircuit[ActiveActor] <> Nil THEN
       Begin
          Result := VarArrayCreate([0, 1], varDouble);
-         LossValue := ActiveCircuit.Losses;
+         LossValue := ActiveCircuit[ActiveActor].Losses;
          Result[0] := LossValue.re;
          Result[1] := LossValue.im;
       End
@@ -264,8 +265,8 @@ VAR
    i,j,k:Integer;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, NumNodes-1], varDouble);
        k:=0;
@@ -273,7 +274,7 @@ Begin
        Begin
            For j := 1 to Buses^[i].NumNodesThisBus  DO
            Begin
-              Result[k] := Cabs(ActiveCircuit.Solution.NodeV^[Buses^[i].GetRef(j)]);
+              Result[k] := Cabs(ActiveCircuit[ActiveActor].Solution.NodeV^[Buses^[i].GetRef(j)]);
               Inc(k);
            End;
        End;
@@ -288,8 +289,8 @@ VAR
    Volts:Complex;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, 2*NumNodes-1], varDouble);
        k:=0;
@@ -297,7 +298,7 @@ Begin
        Begin
          For j := 1 to Buses^[i].NumNodesThisBus DO
          Begin
-           Volts := ActiveCircuit.Solution.NodeV^[Buses^[i].GetRef(j)];
+           Volts := ActiveCircuit[ActiveActor].Solution.NodeV^[Buses^[i].GetRef(j)];
              Result[k] := Volts.re;
              Inc(k);
              Result[k] := Volts.im;
@@ -314,8 +315,8 @@ VAR
    i:Integer;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, NumDevices-1], varOleStr);
        FOR i := 1 to NumDevices DO
@@ -334,8 +335,8 @@ VAR pTransf:TTransfObj;
 
 Begin
     Result := VarArrayCreate([0, 1], varDouble);
-    IF ActiveCircuit <> nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        pTransf := Transformers.First;
        Loss := Cmplx(0.0,0.0);
@@ -367,8 +368,8 @@ VAR pCktElem:TDSSCktElement;
 Begin
 
     Result := VarArrayCreate([0, 1], varDouble);
-    IF ActiveCircuit <> nil THEN
-      WITH ActiveCircuit DO Begin
+    IF ActiveCircuit[ActiveActor] <> nil THEN
+      WITH ActiveCircuit[ActiveActor] DO Begin
         pCktElem := Sources.First;
         cPower := Cmplx(0.0, 0.0);
         WHILE pCktElem<>nil  DO Begin
@@ -388,8 +389,8 @@ end;
 procedure TCircuit.Disable(const Name: WideString);
 begin
 
-   IF ActiveCircuit <> Nil THEN
-   WITH ActiveCircuit DO
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
+   WITH ActiveCircuit[ActiveActor] DO
    Begin
       SetElementActive(Name);
       If ActiveCktElement<>nil THEN ActiveCktElement.Enabled := FALSE;
@@ -400,7 +401,7 @@ end;
 procedure TCircuit.Enable(const Name: WideString);
 begin
 
-   WITH ActiveCircuit DO Begin
+   WITH ActiveCircuit[ActiveActor] DO Begin
       SetElementActive(Name);
       If ActiveCktElement<>nil THEN ActiveCktElement.Enabled := TRUE;
    End;
@@ -426,16 +427,16 @@ VAR
 
 Begin
       Result := 0;
-      IF ActiveCircuit <> Nil THEN
+      IF ActiveCircuit[ActiveActor] <> Nil THEN
       Begin
-        p:= ActiveCircuit.PCElements.First;
+        p:= ActiveCircuit[ActiveActor].PCElements.First;
         IF p <> Nil  THEN Begin
            Repeat
                If p.enabled Then Begin
                    Result := 1;
-                   ActiveCircuit.ActiveCktElement := p;
+                   ActiveCircuit[ActiveActor].ActiveCktElement := p;
                End
-               Else  p := ActiveCircuit.PCElements.Next;
+               Else  p := ActiveCircuit[ActiveActor].PCElements.Next;
 
            Until (Result = 1) or (p = nil);
         End
@@ -448,18 +449,18 @@ Var
    ActivePDElement :TPDElement;
 Begin
       Result := 0;
-      IF ActiveCircuit <> Nil THEN
+      IF ActiveCircuit[ActiveActor] <> Nil THEN
       Begin
-       ActivePDElement := ActiveCircuit.PDElements.First;
+       ActivePDElement := ActiveCircuit[ActiveActor].PDElements.First;
        IF ActivePDElement<> Nil THEN
          Begin
               Repeat
                 If ActivePDElement.enabled
                 Then Begin
                   Result := 1;
-                  ActiveCircuit.ActiveCktElement := ActivePDElement;
+                  ActiveCircuit[ActiveActor].ActiveCktElement := ActivePDElement;
                 end
-                Else  ActivePDElement := ActiveCircuit.PDElements.Next;
+                Else  ActivePDElement := ActiveCircuit[ActiveActor].PDElements.Next;
               Until (Result = 1) or (ActivePDELement = nil);
          End
        ELSE Result := 0;
@@ -474,18 +475,18 @@ VAR
 
 Begin
       Result := 0;
-      IF ActiveCircuit <> Nil THEN
+      IF ActiveCircuit[ActiveActor] <> Nil THEN
       Begin
-        p:= ActiveCircuit.PCElements.Next;
+        p:= ActiveCircuit[ActiveActor].PCElements.Next;
         IF p<> Nil THEN
         Begin
              Repeat
                  If p.enabled
                  Then Begin
-                   Result := ActiveCircuit.PCElements.ActiveIndex;
-                   ActiveCircuit.ActiveCktElement := p;
+                   Result := ActiveCircuit[ActiveActor].PCElements.ActiveIndex;
+                   ActiveCircuit[ActiveActor].ActiveCktElement := p;
                  End
-                 Else p :=  ActiveCircuit.PCElements.Next;
+                 Else p :=  ActiveCircuit[ActiveActor].PCElements.Next;
              Until (Result > 0) or (p = nil);
         End ELSE  Result := 0;
       End;
@@ -496,18 +497,18 @@ Var
    ActivePDElement :TPDElement;
 Begin
       Result := 0;
-      If ActiveCircuit <> Nil THEN
+      If ActiveCircuit[ActiveActor] <> Nil THEN
       Begin
-        ActivePDElement:= ActiveCircuit.PDElements.Next;
+        ActivePDElement:= ActiveCircuit[ActiveActor].PDElements.Next;
         IF ActivePDElement <> Nil
         THEN Begin
            Repeat
              If ActivePDElement.Enabled
              Then Begin
-                 Result := ActiveCircuit.PDElements.ActiveIndex;
-                 ActiveCircuit.ActiveCktElement := ActivePDElement;
+                 Result := ActiveCircuit[ActiveActor].PDElements.ActiveIndex;
+                 ActiveCircuit[ActiveActor].ActiveCktElement := ActivePDElement;
              End
-             Else ActivePDElement:= ActiveCircuit.PDElements.Next;
+             Else ActivePDElement:= ActiveCircuit[ActiveActor].PDElements.Next;
            Until (Result > 0) or (ActivePDElement = Nil);
         End
         ELSE Begin
@@ -524,8 +525,8 @@ VAR
    i:Integer;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, NumBuses-1], varOleStr);
        FOR i := 0 to NumBuses-1 DO
@@ -544,8 +545,8 @@ Var
   k:Integer;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, 2*NumDevices-1], varDouble);
        k:=0;
@@ -568,9 +569,9 @@ procedure TCircuit.Sample;
 
 Begin
 
-      MonitorClass.SampleAll;
+      MonitorClass[ActiveActor].SampleAll(ActiveActor);
 
-      EnergyMeterClass.SampleAll;
+      EnergyMeterClass[ActiveActor].SampleAll(ActiveActor);
 
 end;
 
@@ -582,11 +583,11 @@ VAR
     Mtr :TEnergyMeter;
 
 Begin
-    Mon := DSSClassList.Get(ClassNames.Find('monitor'));
-    Mon.SaveAll;
+    Mon := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('monitor'));
+    Mon.SaveAll(ActiveActor);
 
-    Mtr := DSSClassList.Get(ClassNames.Find('energymeter'));
-    Mtr.SaveAll;
+    Mtr := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('energymeter'));
+    Mtr.SaveAll(ActiveActor);
 end;
 
 function TCircuit.Get_Generators: IGenerators;
@@ -617,20 +618,20 @@ end;
 function TCircuit.SetActiveElement(const FullName: WideString): Integer;
 begin
    Result := -1;
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-       Result := ActiveCircuit.SetElementActive(FullName) - 1;   // make zero based to be compatible with collections and variant arrays
+       Result := ActiveCircuit[ActiveActor].SetElementActive(FullName) - 1;   // make zero based to be compatible with collections and variant arrays
    End
    ELSE DoSimpleMsg('Create a circuit before trying to set an element active!', 5015);
 end;
 
 function TCircuit.Capacity(Start, Increment: Double): Double;
 begin
-    If ActiveCircuit <> Nil Then  With ActiveCircuit Do
+    If ActiveCircuit[ActiveActor] <> Nil Then  With ActiveCircuit[ActiveActor] Do
     Begin
          CapacityStart := Start;
          CapacityIncrement := Increment;
-         If ComputeCapacity Then
+         If ComputeCapacity(ActiveActor) Then
              Result := RegisterTotals[3] + RegisterTotals[19]
          Else
              Result := 0.0;
@@ -646,8 +647,8 @@ VAR
    Volts,BaseFactor:Double;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, NumNodes-1], varDouble);
        k:=0;
@@ -656,7 +657,7 @@ Begin
           If Buses^[i].kVBase >0.0 then BaseFactor :=  1000.0* Buses^[i].kVBase  Else BaseFactor := 1.0;
            For j := 1 to Buses^[i].NumNodesThisBus  DO
            Begin
-             Volts := Cabs(ActiveCircuit.Solution.NodeV^[Buses^[i].GetRef(j)]);
+             Volts := Cabs(ActiveCircuit[ActiveActor].Solution.NodeV^[Buses^[i].GetRef(j)]);
              Result[k] := Volts/BaseFactor;
              Inc(k);
            End;
@@ -668,7 +669,7 @@ end;
 function TCircuit.SetActiveBus(const BusName: WideString): Integer;
 begin
      DSSGlobals.SetActiveBus(StripExtension(BusName));
-     If Assigned(Activecircuit) then Result := ActiveCircuit.ActiveBusIndex - 1 Else Result := -1;
+     If Assigned(ActiveCircuit[ActiveActor]) then Result := ActiveCircuit[ActiveActor].ActiveBusIndex - 1 Else Result := -1;
 end;
 
 function TCircuit.SetActiveBusi(BusIndex: Integer): Integer;
@@ -676,8 +677,8 @@ function TCircuit.SetActiveBusi(BusIndex: Integer): Integer;
 { BusIndex is Zero Based}
 begin
     Result := -1;   // Signifies Error
-    If Assigned(Activecircuit) Then
-    With ActiveCircuit Do Begin
+    If Assigned(ActiveCircuit[ActiveActor]) Then
+    With ActiveCircuit[ActiveActor] Do Begin
         If (BusIndex >= 0) and (BusIndex < Numbuses) Then Begin
            ActiveBusIndex := BusIndex + 1;
            Result := 0;
@@ -696,8 +697,8 @@ VAR
    BusName:String;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, NumNodes-1], varOleStr);
        k:=0;
@@ -731,11 +732,11 @@ Var
 begin
 
 { Return zero length Array if no circuit or no Y matrix}
-   IF ActiveCircuit = nil                Then Result := VarArrayCreate([0, 0], varDouble)
-   ELSE If ActiveCircuit.Solution.hY = 0 Then Result := VarArrayCreate([0, 0], varDouble)
+   IF ActiveCircuit[ActiveActor] = nil                Then Result := VarArrayCreate([0, 0], varDouble)
+   ELSE If ActiveCircuit[ActiveActor].Solution.hY = 0 Then Result := VarArrayCreate([0, 0], varDouble)
    ELSE
-   With ActiveCircuit Do Begin
-      hY := ActiveCircuit.Solution.hY;
+   With ActiveCircuit[ActiveActor] Do Begin
+      hY := ActiveCircuit[ActiveActor].Solution.hY;
 
       // get the compressed columns out of KLU
       FactorSparseMatrix (hY); // no extra work if already done
@@ -776,8 +777,8 @@ VAR
    i:Integer;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, NumBuses-1], varDouble);
        FOR i := 0 to NumBuses-1 DO
@@ -796,8 +797,8 @@ VAR
    i,j,k:Integer;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, NumNodes-1], varDouble);
        k:=0;
@@ -820,8 +821,8 @@ VAR
    Temp:pDoubleArray;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        // Make a Temporary Array big enough to hold all nodes
        Temp := AllocMem(SizeOF(Temp^[1]) * NumNodes);
@@ -855,8 +856,8 @@ VAR
    Temp:pDoubleArray;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        // Make a Temporary Array big enough to hold all nodes
        Temp := AllocMem(SizeOF(Temp^[1]) * NumNodes);
@@ -869,7 +870,7 @@ Begin
            If NodeIdx > 0 then   // Node found with this phase number
            Begin
                 Inc(k);
-                Temp^[k] := Cabs(ActiveCircuit.Solution.NodeV^[Buses^[i].GetRef(NodeIdx)]);
+                Temp^[k] := Cabs(ActiveCircuit[ActiveActor].Solution.NodeV^[Buses^[i].GetRef(NodeIdx)]);
            End;
        End;
 
@@ -890,8 +891,8 @@ VAR
    BaseFactor :Double;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        // Make a Temporary Array big enough to hold all nodes
        Temp := AllocMem(SizeOF(Temp^[1]) * NumNodes);
@@ -904,7 +905,7 @@ Begin
            Begin
                 If Buses^[i].kVBase >0.0 then BaseFactor :=  1000.0* Buses^[i].kVBase  Else BaseFactor := 1.0;
                 Inc(k);
-                Temp^[k] := Cabs(ActiveCircuit.Solution.NodeV^[Buses^[i].GetRef(NodeIdx)])/Basefactor;
+                Temp^[k] := Cabs(ActiveCircuit[ActiveActor].Solution.NodeV^[Buses^[i].GetRef(NodeIdx)])/Basefactor;
            End;
        End;
 
@@ -924,8 +925,8 @@ VAR
    Temp:pStringArray;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        // Make a Temporary Array big enough to hold all nodes
        Temp := AllocStringArray(NumNodes);
@@ -963,15 +964,15 @@ Var
 
 begin
      Result := 0;
-     DevClassIndex := ClassNames.Find(ClassName);
+     DevClassIndex := ClassNames[ActiveActor].Find(ClassName);
      If DevClassIndex = 0 Then  Begin
         DoSimplemsg('Error: Class ' + ClassName + ' not found.' , 5016);
         Exit;
      End;
 
-     LastClassReferenced := DevClassIndex;
-     ActiveDSSClass[ActiveActor] := DSSClassList.Get(LastClassReferenced);
-     Result := LastClassReferenced;
+     LastClassReferenced[ActiveActor] := DevClassIndex;
+     ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
+     Result := LastClassReferenced[ActiveActor];
 end;
 
 function TCircuit.FirstElement: Integer;
@@ -980,7 +981,7 @@ function TCircuit.FirstElement: Integer;
 Begin
 
       Result := 0;
-      IF (ActiveCircuit <> Nil) and Assigned(ActiveDSSClass) THEN
+      IF (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass) THEN
       Begin
          Result := ActiveDSSClass[ActiveActor].First;
       End
@@ -994,9 +995,9 @@ function TCircuit.NextElement: Integer;
 Begin
 
       Result := 0;
-      IF (ActiveCircuit <> Nil) and Assigned(ActiveDSSClass) THEN
+      IF (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass[ActiveActor]) THEN
       Begin
-         Result := ActiveDSSClass.Next;
+         Result := ActiveDSSClass[ActiveActor].Next;
       End
         ELSE Result := 0;
 
@@ -1054,7 +1055,7 @@ end;
 
 procedure TCircuit.UpdateStorage;
 begin
-     StorageClass.UpdateAll;
+     StorageClass[ActiveActor].UpdateAll(ActiveActor);
 end;
 
 function TCircuit.Get_ParentPDElement: Integer;
@@ -1064,7 +1065,7 @@ Var
 begin
 
    Result := 0;
-   With ActiveCircuit Do
+   With ActiveCircuit[ActiveActor] Do
    If ActiveCktElement is TPDElement Then
    Begin
        ActivePDElement := TPDElement(ActiveCktElement).ParentPDElement;
@@ -1121,7 +1122,7 @@ end;
 
 procedure TCircuit.EndOfTimeStepUpdate;
 begin
-      EndOfTimeStepCleanup;
+      EndOfTimeStepCleanup(ActiveActor);
 end;
 
 function TCircuit.Get_YNodeOrder: OleVariant;
@@ -1129,8 +1130,8 @@ VAR
    i, k:Integer;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, NumNodes-1], varOleStr);
        k:=0;
@@ -1152,14 +1153,14 @@ VAR
    Curr:Complex;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, 2*NumNodes-1], varDouble);
        k:=0;
        FOR i := 1 to NumNodes DO
        Begin
-             Curr := ActiveCircuit.Solution.Currents^[i];
+             Curr := ActiveCircuit[ActiveActor].Solution.Currents^[i];
              Result[k] := Curr.re;
              Inc(k);
              Result[k] := Curr.im;
@@ -1176,14 +1177,14 @@ VAR
    Volts:Complex;
 
 Begin
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        Result := VarArrayCreate([0, 2*NumNodes-1], varDouble);
        k:=0;
        FOR i := 1 to NumNodes DO
        Begin
-             Volts := ActiveCircuit.Solution.NodeV^[i];
+             Volts := ActiveCircuit[ActiveActor].Solution.NodeV^[i];
              Result[k] := Volts.re;
              Inc(k);
              Result[k] := Volts.im;
@@ -1202,6 +1203,11 @@ end;
 function TCircuit.Get_Vsources: IVsources;
 begin
      Result := FVsources as IVSources;
+end;
+
+function TCircuit.Get_Parallel: IParallel;
+begin
+     Result := FParallel as IParallel;
 end;
 
 initialization

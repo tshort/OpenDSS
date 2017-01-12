@@ -9,7 +9,7 @@
         <Config Condition="'$(Config)'==''">Release</Config>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
     </PropertyGroup>
@@ -127,10 +127,10 @@
         <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <Debugger_CWD>C:\Users\prdu001\DSSData\Bandrea\ControlSampleProblem</Debugger_CWD>
-        <Debugger_RunParams>C:/Users/prdu001/DSSData/Bandrea/ControlSampleProblem/SampleControl.py</Debugger_RunParams>
+        <Debugger_CWD>C:\DSSim-PC\V-02_PC\Sub-VIs\Test\COM</Debugger_CWD>
+        <Debugger_RunParams>C:\DSSim-PC\V-02_PC\Sub-VIs\Test\COM\TST_01102017.vi</Debugger_RunParams>
         <VerInfo_Build>9999</VerInfo_Build>
-        <Debugger_HostApplication>C:\Python27\python.exe</Debugger_HostApplication>
+        <Debugger_HostApplication>C:\Program Files (x86)\National Instruments\LabVIEW 2016\LabVIEW.exe</Debugger_HostApplication>
         <VerInfo_Release>4</VerInfo_Release>
         <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
         <VerInfo_MinorVer>6</VerInfo_MinorVer>
@@ -207,6 +207,12 @@
             <Deployment Version="2">
                 <DeployFile LocalName="..\x64\OpenDSSengine.dll" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win64">
+                        <RemoteName>OpenDSSengine.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\x86\OpenDSSengine.dll" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
                         <RemoteName>OpenDSSengine.dll</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -837,6 +843,10 @@
         <DCCReference Include="..\Forms\ScriptEdit.pas"/>
         <DCCReference Include="..\Meters\MemoryMap_lib.pas"/>
         <DCCReference Include="..\PCElements\vccs.pas"/>
+        <DCCReference Include="..\Parallel_Lib\Parallel_Lib.pas"/>
+        <DCCReference Include="ImplParallel.pas">
+            <CoClasses>PVSystems</CoClasses>
+        </DCCReference>
         <RidlCompile Include="OpenDSSengine.ridl"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>

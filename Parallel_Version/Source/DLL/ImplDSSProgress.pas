@@ -28,29 +28,29 @@ uses ComServ, DSSForms, {Progressform,} DSSGlobals;
 procedure TDSSProgress.Close;
 begin
    If NoFormsAllowed Then Exit;
-   ProgressHide;
+   ProgressHide(ActiveActor);
 end;
 
 procedure TDSSProgress.Set_Caption(const Value: WideString);
 begin
    If NoFormsAllowed Then Exit;
-   InitProgressForm;
-   ProgressCaption ( Value);
+   InitProgressForm(ActiveActor);
+   ProgressCaption ( Value, ActiveActor);
 end;
 
 procedure TDSSProgress.Set_PctProgress(Value: Integer);
 begin
    If NoFormsAllowed Then Exit;
-   InitProgressForm;
-   ShowPctProgress ( Value);
+   InitProgressForm(ActiveActor);
+   ShowPctProgress ( Value, ActiveActor);
 end;
 
 procedure TDSSProgress.Show;
 begin
    If NoFormsAllowed Then Exit;
-        InitProgressForm;
-        ProgressFormCaption( ' ');
-        ShowPctProgress(0);
+        InitProgressForm(ActiveActor);
+        ProgressFormCaption( ' ', ActiveActor);
+        ShowPctProgress(0, ActiveActor);
 
 end;
 

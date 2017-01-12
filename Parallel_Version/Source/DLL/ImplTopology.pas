@@ -45,7 +45,7 @@ uses ComServ, CktTree, DSSGlobals, CktElement, PDElement, PCElement, Variants, S
 function ActiveTree: TCktTree;
 begin
   Result := nil;
-  if ActiveCircuit <> Nil then Result := ActiveCircuit.GetTopology;
+  if ActiveCircuit[ActiveActor] <> Nil then Result := ActiveCircuit[ActiveActor].GetTopology;
 end;
 
 function ActiveTreeNode: TCktTreeNode;
@@ -119,10 +119,10 @@ begin
   Result := 0;
   topo := ActiveTree;
   if Assigned(topo) then begin
-    elm := ActiveCircuit.PDElements.First;
+    elm := ActiveCircuit[ActiveActor].PDElements.First;
     while assigned (elm) do begin
       if elm.IsIsolated then Inc (Result);
-      elm := ActiveCircuit.PDElements.Next;
+      elm := ActiveCircuit[ActiveActor].PDElements.Next;
     end;
   end;
 end;
@@ -138,14 +138,14 @@ begin
   k := 0;
   topo := ActiveTree;
   if Assigned(topo) then begin
-    elm := ActiveCircuit.PDElements.First;
+    elm := ActiveCircuit[ActiveActor].PDElements.First;
     while assigned (elm) do begin
       if elm.IsIsolated then begin
         Result[k] := elm.QualifiedName;
         Inc(k);
         if k > 0 then VarArrayRedim (Result, k);
       end;
-      elm := ActiveCircuit.PDElements.Next;
+      elm := ActiveCircuit[ActiveActor].PDElements.Next;
     end;
   end;
 end;
@@ -158,10 +158,10 @@ begin
   Result := 0;
   topo := ActiveTree;
   if Assigned(topo) then begin
-    elm := ActiveCircuit.PCElements.First;
+    elm := ActiveCircuit[ActiveActor].PCElements.First;
     while assigned (elm) do begin
       if elm.IsIsolated then Inc (Result);
-      elm := ActiveCircuit.PCElements.Next;
+      elm := ActiveCircuit[ActiveActor].PCElements.Next;
     end;
   end;
 end;
@@ -177,14 +177,14 @@ begin
   k := 0;
   topo := ActiveTree;
   if Assigned(topo) then begin
-    elm := ActiveCircuit.PCElements.First;
+    elm := ActiveCircuit[ActiveActor].PCElements.First;
     while assigned (elm) do begin
       if elm.IsIsolated then begin
         Result[k] := elm.QualifiedName;
         Inc(k);
         if k > 0 then VarArrayRedim (Result, k);
       end;
-      elm := ActiveCircuit.PCElements.Next;
+      elm := ActiveCircuit[ActiveActor].PCElements.Next;
     end;
   end;
 end;
@@ -199,7 +199,7 @@ begin
   node := ActiveTreeNode;
   if assigned(node) then begin
     Result := topo.Level;
-    ActiveCircuit.ActiveCktElement := node.CktObject;
+    ActiveCircuit[ActiveActor].ActiveCktElement := node.CktObject;
   end;
 end;
 
@@ -211,7 +211,7 @@ begin
   topo := ActiveTree;
   if assigned (topo) then begin
     if assigned(topo.GoBackward) then begin
-      ActiveCircuit.ActiveCktElement := topo.PresentBranch.CktObject;
+      ActiveCircuit[ActiveActor].ActiveCktElement := topo.PresentBranch.CktObject;
       Result := 1;
     end;
   end;
@@ -238,7 +238,7 @@ begin
   topo := ActiveTree;
   if assigned (topo) then begin
     if assigned(topo.First) then begin
-      ActiveCircuit.ActiveCktElement := topo.PresentBranch.CktObject;
+      ActiveCircuit[ActiveActor].ActiveCktElement := topo.PresentBranch.CktObject;
       Result := 1;
     end;
   end;
@@ -254,7 +254,7 @@ begin
   if assigned(node) then begin
     elm := node.FirstShuntObject;
     if assigned(elm) then begin
-      ActiveCircuit.ActiveCktElement := elm;
+      ActiveCircuit[ActiveActor].ActiveCktElement := elm;
       Result := 1;
     end;
   end;
@@ -268,7 +268,7 @@ begin
   topo := ActiveTree;
   if assigned (topo) then begin
     if assigned(topo.GoForward) then begin
-      ActiveCircuit.ActiveCktElement := topo.PresentBranch.CktObject;
+      ActiveCircuit[ActiveActor].ActiveCktElement := topo.PresentBranch.CktObject;
       Result := 1;
     end;
   end;
@@ -282,7 +282,7 @@ begin
   node := ActiveTreeNode;
   if assigned(node) then begin
     if node.IsLoopedHere then begin
-      ActiveCircuit.ActiveCktElement := node.LoopLineObj;
+      ActiveCircuit[ActiveActor].ActiveCktElement := node.LoopLineObj;
       Result := 1;
     end;
   end;
@@ -303,7 +303,7 @@ begin
   if assigned(node) then begin
     elm := node.NextShuntObject;
     if assigned(elm) then begin
-      ActiveCircuit.ActiveCktElement := elm;
+      ActiveCircuit[ActiveActor].ActiveCktElement := elm;
       Result := 1;
     end;
   end;
@@ -317,7 +317,7 @@ begin
   node := ActiveTreeNode;
   if assigned(node) then begin
     if node.IsParallel then begin
-      ActiveCircuit.ActiveCktElement := node.LoopLineObj;
+      ActiveCircuit[ActiveActor].ActiveCktElement := node.LoopLineObj;
       Result := 1;
     end;
   end;
@@ -336,11 +336,11 @@ begin
   S := Value;  // Convert to Pascal String
   topo := ActiveTree;
   if assigned(topo) then begin
-    elem := ActiveCircuit.ActiveCktElement;
+    elem := ActiveCircuit[ActiveActor].ActiveCktElement;
     pdElem := topo.First;
     while Assigned (pdElem) do begin
       if (CompareText(pdElem.QualifiedName, S) = 0) then begin
-        ActiveCircuit.ActiveCktElement := pdElem;
+        ActiveCircuit[ActiveActor].ActiveCktElement := pdElem;
         Found := TRUE;
         Break;
       End;
@@ -349,7 +349,7 @@ begin
   end;
   if not Found then Begin
     DoSimpleMsg('Branch "'+S+'" Not Found in Active Circuit Topology.', 5003);
-    if assigned(elem) then ActiveCircuit.ActiveCktElement := elem;
+    if assigned(elem) then ActiveCircuit[ActiveActor].ActiveCktElement := elem;
   end;
 end;
 
@@ -384,13 +384,13 @@ begin
   S := Value;  // Convert to Pascal String
   topo := ActiveTree;
   if assigned(topo) then begin
-    elem := ActiveCircuit.ActiveCktElement;
+    elem := ActiveCircuit[ActiveActor].ActiveCktElement;
     pdElem := topo.First;
     while Assigned (pdElem) and (not found) do begin
       B := pdElem.FirstBus;
       while Length(B) > 0 do begin
         if (CompareText(B, S) = 0) then begin
-          ActiveCircuit.ActiveCktElement := pdElem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := pdElem;
           Found := TRUE;
           Break;
         end;
@@ -401,7 +401,7 @@ begin
   end;
   if not Found then Begin
     DoSimpleMsg('Bus "'+S+'" Not Found in Active Circuit Topology.', 5003);
-    if assigned(elem) then ActiveCircuit.ActiveCktElement := elem;
+    if assigned(elem) then ActiveCircuit[ActiveActor].ActiveCktElement := elem;
   end;
 end;
 

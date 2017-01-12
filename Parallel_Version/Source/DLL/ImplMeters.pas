@@ -93,8 +93,8 @@ Var
 Begin
     Result := VarArrayCreate([0, 0], varOleStr);
     Result[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      If EnergyMeters.ListSize>0 Then
      Begin
        VarArrayRedim(Result, EnergyMeters.ListSize-1);
@@ -117,8 +117,8 @@ Var
 Begin
 
    Result := 0;
-   If ActiveCircuit <> Nil Then
-   With ActiveCircuit Do
+   If ActiveCircuit[ActiveActor] <> Nil Then
+   With ActiveCircuit[ActiveActor] Do
    Begin
         pMeter := EnergyMeters.First;
         If pMeter <> Nil Then
@@ -144,9 +144,9 @@ Var
 
 Begin
 
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pMeterObj := TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj := TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then   Result := pMeterObj.name;
    End;
 end;
@@ -159,17 +159,17 @@ Var
 Begin
 
    Result := 0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pMeterObj := ActiveCircuit.EnergyMeters.next;
+        pMeterObj := ActiveCircuit[ActiveActor].EnergyMeters.next;
         If pMeterObj <> Nil Then
         Begin
           Repeat   // Find an Enabled Meter
             If pMeterObj.Enabled  Then Begin
-              ActiveCircuit.ActiveCktElement := pMeterObj;
-              Result := ActiveCircuit.EnergyMeters.ActiveIndex;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pMeterObj;
+              Result := ActiveCircuit[ActiveActor].EnergyMeters.ActiveIndex;
             End
-            Else  pMeterObj := ActiveCircuit.EnergyMeters.next;
+            Else  pMeterObj := ActiveCircuit[ActiveActor].EnergyMeters.next;
           Until (Result > 0) or (pMeterObj = nil);
         End
         Else
@@ -185,7 +185,7 @@ Var
     k :integer;
 
 Begin
-    pMeterObj := TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+    pMeterObj := TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
     if Assigned(pMeterObj) then  Begin
       Result := VarArrayCreate([0, NumEMRegisters - 1], varOleStr);
       For k := 0 to  NumEMRegisters - 1  Do Begin
@@ -203,9 +203,9 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             Result := VarArrayCreate([0, numEMRegisters-1], varDouble);
@@ -229,9 +229,9 @@ Var
 
 Begin
 
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pMeter := ActiveCircuit.EnergyMeters.Active;
+        pMeter := ActiveCircuit[ActiveActor].EnergyMeters.Active;
         If pMeter <> Nil Then pMeter.ResetRegisters;
    End;
 
@@ -240,8 +240,8 @@ end;
 procedure TMeters.ResetAll;
 
 Begin
-     IF ActiveCircuit <> Nil THEN Begin
-        EnergyMeterClass.ResetAll;
+     IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
+        EnergyMeterClass[ActiveActor].ResetAll(ActiveActor);
      End;
 end;
 
@@ -252,11 +252,11 @@ Var
 
 Begin
 
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pMeter := ActiveCircuit.EnergyMeters.Active;
+        pMeter := ActiveCircuit[ActiveActor].EnergyMeters.Active;
         If pMeter <> Nil Then
-          pMeter.TakeSample;
+          pMeter.TakeSample(ActiveActor);
    End;
 
 end;
@@ -268,9 +268,9 @@ Var
 
 Begin
 
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pMeter := ActiveCircuit.EnergyMeters.Active;
+        pMeter := ActiveCircuit[ActiveActor].EnergyMeters.Active;
         If pMeter <> Nil Then
           pMeter.SaveRegisters;
    End;
@@ -286,9 +286,9 @@ VAR
 Begin
 
 
-  IF ActiveCircuit <> NIL
+  IF ActiveCircuit[ActiveActor] <> NIL
   THEN Begin      // Search list of EnergyMeters in active circuit for name
-       WITH ActiveCircuit.EnergyMeters DO
+       WITH ActiveCircuit[ActiveActor].EnergyMeters DO
          Begin
              TestStr := Value;  // Convert to Pascal String for testing
              Found := FALSE;
@@ -298,7 +298,7 @@ Begin
              Begin
                 IF (CompareText(pMeterObj.Name, TestStr) = 0)
                 THEN Begin
-                    ActiveCircuit.ActiveCktElement := pMeterObj;
+                    ActiveCircuit[ActiveActor].ActiveCktElement := pMeterObj;
                     Found := TRUE;
                     Break;
                 End;
@@ -308,7 +308,7 @@ Begin
              THEN Begin
                  DoSimpleMsg('EnergyMeter "'+TestStr+'" Not Found in Active Circuit.', 5005);
                  pMeterObj := Get(ActiveSave);    // Restore active Meter
-                 ActiveCircuit.ActiveCktElement := pMeterObj;
+                 ActiveCircuit[ActiveActor].ActiveCktElement := pMeterObj;
              End;
          End;
   End;
@@ -321,7 +321,7 @@ Var
    
 begin
 
-     If ActiveCircuit <> Nil Then With ActiveCircuit Do Begin
+     If ActiveCircuit[ActiveActor] <> Nil Then With ActiveCircuit[ActiveActor] Do Begin
           TotalizeMeters;
           Result := VarArrayCreate([0, NumEMRegisters-1], varDouble);
           For i := 1 to NumEMregisters Do Result[i-1] := RegisterTotals[i];
@@ -339,9 +339,9 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             Result := VarArrayCreate([0, pMeterObj.NPhases -1], varDouble);
@@ -362,9 +362,9 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             k := VarArrayLowBound(Value, 1);   // get starting index for Value array
@@ -384,9 +384,9 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             Result := VarArrayCreate([0, pMeterObj.NPhases -1], varDouble);
@@ -407,9 +407,9 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             k := VarArrayLowBound(Value, 1);   // get starting index for Value array
@@ -429,9 +429,9 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             Result := VarArrayCreate([0, pMeterObj.NPhases -1], varDouble);
@@ -452,9 +452,9 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             k := VarArrayLowBound(Value, 1);   // get starting index for Value array
@@ -473,9 +473,9 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             Result := pMeterObj.ElementName;
@@ -494,9 +494,9 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
      Begin
-          pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+          pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
           If pMeterObj <> Nil Then
             Begin
                 Result := pMeterObj.MeteredTerminal;
@@ -515,14 +515,14 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             pMeterObj.elementName := Value;
             pMeterObj.MeteredElementChanged := TRUE;
-            pMeterObj.RecalcElementData;
+            pMeterObj.RecalcElementData(ActiveActor);
         End;
    End;
 
@@ -534,14 +534,14 @@ Var
 Begin
 
 // First make sure active circuit element is a meter
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+        pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
         If pMeterObj <> Nil Then
         Begin
             pMeterObj.MeteredTerminal := Value;
             pMeterObj.MeteredElementChanged := TRUE;
-            pMeterObj.RecalcElementData;
+            pMeterObj.RecalcElementData(ActiveActor);
         End;
    End;
 
@@ -549,36 +549,36 @@ end;
 
 function TMeters.Get_DIFilesAreOpen: WordBool;
 begin
-     IF ActiveCircuit <> Nil THEN Begin
+     IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
             Result := DIFilesAreOpen;    // Global variable
      End;
 end;
 
 procedure TMeters.CloseAllDIFiles;
 begin
-     IF ActiveCircuit <> Nil THEN Begin
-        EnergyMeterClass.CloseAllDIFiles;
+     IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
+        EnergyMeterClass[ActiveActor].CloseAllDIFiles;
      End;
 end;
 
 procedure TMeters.OpenAllDIFiles;
 begin
-     IF ActiveCircuit <> Nil THEN Begin
-        EnergyMeterClass.OpenAllDIFiles;
+     IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
+        EnergyMeterClass[ActiveActor].OpenAllDIFiles;
      End;
 end;
 
 procedure TMeters.SampleAll;
 begin
-     IF ActiveCircuit <> Nil THEN Begin
-        EnergyMeterClass.SampleAll;
+     IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
+        EnergyMeterClass[ActiveActor].SampleAll(ActiveActor);
      End;
 end;
 
 procedure TMeters.SaveAll;
 begin
-     IF ActiveCircuit <> Nil THEN Begin
-        EnergyMeterClass.SaveAll;
+     IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
+        EnergyMeterClass[ActiveActor].SaveAll(ActiveActor);
      End;
 end;
 
@@ -590,7 +590,7 @@ Var
   node : TCktTreeNode;
 Begin
   Result := VarArrayCreate([0, 0], varOleStr);
-  IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO Begin
+  IF ActiveCircuit[ActiveActor] <> Nil THEN WITH ActiveCircuit[ActiveActor] DO Begin
     pMeterObj := EnergyMeters.Active;
     if pMeterObj <> Nil then begin
       last := pMeterObj.BranchList.ZoneEndsList.NumEnds - 1;
@@ -609,8 +609,8 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
   Result := 0;
-  if ActiveCircuit <> Nil then begin
-    pMeterObj :=  TEnergyMeterObj(ActiveCircuit.EnergyMeters.Active);
+  if ActiveCircuit[ActiveActor] <> Nil then begin
+    pMeterObj :=  TEnergyMeterObj(ActiveCircuit[ActiveActor].EnergyMeters.Active);
     If pMeterObj <> Nil Then Begin
       Result := pMeterObj.BranchList.ZoneEndsList.NumEnds;
     End;
@@ -619,8 +619,8 @@ end;
 
 function TMeters.Get_Count: Integer;
 begin
-     If Assigned(ActiveCircuit) Then
-       Result := ActiveCircuit.EnergyMeters.ListSize;
+     If Assigned(ActiveCircuit[ActiveActor]) Then
+       Result := ActiveCircuit[ActiveActor].EnergyMeters.ListSize;
 end;
 
 function TMeters.Get_AllBranchesInZone: OleVariant;
@@ -631,7 +631,7 @@ Var
   pElem       :TDSSCktElement;
 Begin
   Result := VarArrayCreate([0, 0], varOleStr);
-  IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO Begin
+  IF ActiveCircuit[ActiveActor] <> Nil THEN WITH ActiveCircuit[ActiveActor] DO Begin
     pMeterObj := EnergyMeters.Active;
     if pMeterObj <> Nil then begin
       // Get count of branches
@@ -658,7 +658,7 @@ Var
   // pelem : TDSSCktElement;
 Begin
   Result := 0;
-  IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO Begin
+  IF ActiveCircuit[ActiveActor] <> Nil THEN WITH ActiveCircuit[ActiveActor] DO Begin
     pMeterObj := EnergyMeters.Active;
     if pMeterObj <> Nil then
     Result := pMeterObj.SequenceList.ListSize;
@@ -683,7 +683,7 @@ Var
 
 begin
      Result := 0.0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -701,7 +701,7 @@ Var
 
 begin
      Result := 0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -716,7 +716,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 
 begin
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then With pMeterObj Do
@@ -735,7 +735,7 @@ Var
 
 begin
      Result := 0.0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -752,7 +752,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 
 begin
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -769,7 +769,7 @@ Var
 
 begin
      Result := 0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -785,7 +785,7 @@ Var
 
 begin
      Result := 0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -802,7 +802,7 @@ Var
 
 begin
      Result := 0.0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -817,7 +817,7 @@ Var
 
 begin
      Result := 0.0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -831,7 +831,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
      Result := 0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -844,7 +844,7 @@ procedure TMeters.SetActiveSection(SectIdx: Integer);
 Var
   pMeterObj :TEnergyMeterObj;
 begin
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then Begin
@@ -861,7 +861,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
      Result := 0.0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then With pMeterObj Do Begin
@@ -875,7 +875,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
      Result := 0.0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then With pMeterObj Do Begin
@@ -889,7 +889,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
      Result := 0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then With pMeterObj Do Begin
@@ -903,7 +903,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
      Result := 0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then With pMeterObj Do Begin
@@ -917,7 +917,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
      Result := 0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then With pMeterObj Do Begin
@@ -931,7 +931,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
      Result := 0.0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then With pMeterObj Do Begin
@@ -946,7 +946,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
      Result := 0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then With pMeterObj Do Begin
@@ -961,7 +961,7 @@ Var
   pMeterObj :TEnergyMeterObj;
 begin
      Result := 0;
-     If Assigned(ActiveCircuit) Then With ActiveCircuit Do
+     If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
      Begin
          pMeterObj := TEnergyMeterObj(EnergyMeters.Active);
          If pMeterObj <> Nil Then With pMeterObj Do Begin

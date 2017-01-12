@@ -49,8 +49,8 @@ Var
 Begin
     Result := VarArrayCreate([0, 0], varOleStr);
     Result[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      If PVSystems.ListSize>0 Then
      Begin
        VarArrayRedim(result, PVSystems.ListSize-1);
@@ -71,7 +71,7 @@ Var
 Begin
     Result := VarArrayCreate([0, NumPVSystemRegisters - 1], varOleStr);
     For k := 0 to  NumPVSystemRegisters - 1  Do Begin
-       Result[k] := PVSystemClass.RegisterNames[k + 1];
+       Result[k] := PVSystemClass[ActiveActor].RegisterNames[k + 1];
     End;
 end;
 
@@ -81,9 +81,9 @@ Var
    k     :Integer;
 Begin
 
-   IF ActiveCircuit <> Nil THEN
+   IF ActiveCircuit[ActiveActor] <> Nil THEN
    Begin
-        PVSystem :=  TPVSystemObj(ActiveCircuit.PVSystems.Active);
+        PVSystem :=  TPVSystemObj(ActiveCircuit[ActiveActor].PVSystems.Active);
         If PVSystem <> Nil Then
         Begin
             Result := VarArrayCreate([0, numPVSystemRegisters-1], varDouble);
@@ -110,18 +110,18 @@ Var
 Begin
 
    Result := 0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pPVSystem := ActiveCircuit.pVSystems.First;
+        pPVSystem := ActiveCircuit[ActiveActor].pVSystems.First;
         If pPVSystem <> Nil Then
         Begin
           Repeat
             If pPVSystem.Enabled
             Then Begin
-              ActiveCircuit.ActiveCktElement := pPVSystem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pPVSystem;
               Result := 1;
             End
-            Else pPVSystem := ActiveCircuit.pVSystems.Next;
+            Else pPVSystem := ActiveCircuit[ActiveActor].pVSystems.Next;
           Until (Result = 1) or (pPVSystem = nil);
         End
         Else
@@ -137,18 +137,18 @@ Var
 Begin
 
    Result := 0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pPVSystem := ActiveCircuit.PVSystems.Next;
+        pPVSystem := ActiveCircuit[ActiveActor].PVSystems.Next;
         If pPVSystem <> Nil Then
         Begin
           Repeat
             If pPVSystem.Enabled
             Then Begin
-              ActiveCircuit.ActiveCktElement := pPVSystem;
-              Result := ActiveCircuit.PVSystems.ActiveIndex;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pPVSystem;
+              Result := ActiveCircuit[ActiveActor].PVSystems.ActiveIndex;
             End
-            Else pPVSystem := ActiveCircuit.PVSystems.Next;
+            Else pPVSystem := ActiveCircuit[ActiveActor].PVSystems.Next;
           Until (Result > 0) or (pPVSystem = nil);
         End
         Else
@@ -159,14 +159,14 @@ end;
 
 function TPVSystems.Get_Count: Integer;
 begin
-    If Assigned(Activecircuit) Then
-          Result := ActiveCircuit.PVSystems.ListSize;
+    If Assigned(ActiveCircuit[ActiveActor]) Then
+          Result := ActiveCircuit[ActiveActor].PVSystems.ListSize;
 end;
 
 function TPVSystems.Get_idx: Integer;
 begin
-    if ActiveCircuit <> Nil then
-       Result := ActiveCircuit.PVSystems.ActiveIndex
+    if ActiveCircuit[ActiveActor] <> Nil then
+       Result := ActiveCircuit[ActiveActor].PVSystems.ActiveIndex
     else Result := 0;
 end;
 
@@ -174,9 +174,9 @@ procedure TPVSystems.Set_idx(Value: Integer);
 Var
     pPVSystem:TPVSystemObj;
 begin
-    if ActiveCircuit <> Nil then   Begin
-        pPVSystem := ActiveCircuit.PVSystems.Get(Value);
-        If pPVSystem <> Nil Then ActiveCircuit.ActiveCktElement := pPVSystem;
+    if ActiveCircuit[ActiveActor] <> Nil then   Begin
+        pPVSystem := ActiveCircuit[ActiveActor].PVSystems.Get(Value);
+        If pPVSystem <> Nil Then ActiveCircuit[ActiveActor].ActiveCktElement := pPVSystem;
     End;
 end;
 
@@ -186,9 +186,9 @@ Var
 
 Begin
    Result := '';
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pPVSystem := ActiveCircuit.PVSystems.Active;
+        pPVSystem := ActiveCircuit[ActiveActor].PVSystems.Active;
         If pPVSystem <> Nil Then
         Begin
           Result := pPVSystem.Name;
@@ -208,9 +208,9 @@ VAR
 Begin
 
 
-  IF ActiveCircuit <> NIL
+  IF ActiveCircuit[ActiveActor] <> NIL
   THEN Begin      // Search list of PVSystems in active circuit for name
-       WITH ActiveCircuit.PVSystems DO
+       WITH ActiveCircuit[ActiveActor].PVSystems DO
          Begin
              S := Value;  // Convert to Pascal String
              Found := FALSE;
@@ -220,7 +220,7 @@ Begin
              Begin
                 IF (CompareText(PVSystem.Name, S) = 0)
                 THEN Begin
-                    ActiveCircuit.ActiveCktElement := PVSystem;
+                    ActiveCircuit[ActiveActor].ActiveCktElement := PVSystem;
                     Found := TRUE;
                     Break;
                 End;
@@ -230,7 +230,7 @@ Begin
              THEN Begin
                  DoSimpleMsg('PVSystem "'+S+'" Not Found in Active Circuit.', 5003);
                  PVSystem := Get(ActiveSave);    // Restore active PVSystem
-                 ActiveCircuit.ActiveCktElement := PVSystem;
+                 ActiveCircuit[ActiveActor].ActiveCktElement := PVSystem;
              End;
          End;
   End;
@@ -240,8 +240,8 @@ end;
 function TPVSystems.Get_Irradiance: Double;
 begin
    Result := -1.0;  // not set
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.PVSystems Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TPVSystemObj(Active).PVSystemVars.FIrradiance;
              End;
@@ -251,8 +251,8 @@ end;
 
 procedure TPVSystems.Set_Irradiance(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.PVSystems Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TPVSystemObj(Active).PVSystemVars.FIrradiance  := Value;
              End;
@@ -263,8 +263,8 @@ end;
 function TPVSystems.Get_kvar: Double;
 begin
    Result := 0.0;  // not set
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.PVSystems Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TPVSystemObj(Active).Presentkvar;
              End;
@@ -275,8 +275,8 @@ end;
 function TPVSystems.Get_kVArated: Double;
 begin
    Result := -1.0;  // not set
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.PVSystems Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TPVSystemObj(Active).kVARating ;
              End;
@@ -287,8 +287,8 @@ end;
 function TPVSystems.Get_kW: Double;
 begin
    Result := 0.0;  // not set
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.PVSystems Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TPVSystemObj(Active).PresentkW;
              End;
@@ -299,8 +299,8 @@ end;
 function TPVSystems.Get_PF: Double;
 begin
    Result := 0.0;  // not set
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.PVSystems Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TPVSystemObj(Active).PowerFactor ;
              End;
@@ -310,8 +310,8 @@ end;
 
 procedure TPVSystems.Set_kVArated(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.PVSystems Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TPVSystemObj(Active).kVARating  := Value;
              End;
@@ -322,8 +322,8 @@ end;
 
 procedure TPVSystems.Set_PF(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.PVSystems Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TPVSystemObj(Active).PowerFactor  := Value;
              End;
@@ -333,8 +333,8 @@ end;
 
 procedure TPVSystems.Set_kvar(Value: Double);
 begin
-   IF ActiveCircuit<> NIL THEN Begin
-         WITH ActiveCircuit.PVSystems Do Begin
+   IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+         WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                   TPVSystemObj(Active).Presentkvar := Value;
              End;

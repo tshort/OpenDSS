@@ -74,14 +74,14 @@ uses ComServ, DSSGlobals, Executive, ControlElem, RegControl, Variants, SysUtils
 function ActiveRegControl: TRegControlObj;
 begin
   Result := nil;
-  if ActiveCircuit <> Nil then Result := ActiveCircuit.RegControls.Active;
+  if ActiveCircuit[ActiveActor] <> Nil then Result := ActiveCircuit[ActiveActor].RegControls.Active;
 end;
 
 procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('regcontrol.%s.%s=%s', [ActiveRegControl.Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -95,7 +95,7 @@ Var
 Begin
   Result := VarArrayCreate([0, 0], varOleStr);
   Result[0] := 'NONE';
-  IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO Begin
+  IF ActiveCircuit[ActiveActor] <> Nil THEN WITH ActiveCircuit[ActiveActor] DO Begin
     lst := RegControls;
     If lst.ListSize > 0 Then Begin
       VarArrayRedim(Result, lst.ListSize-1);
@@ -134,13 +134,13 @@ Var
   lst: TPointerList;
 Begin
   Result := 0;
-  If ActiveCircuit <> Nil Then begin
-    lst := ActiveCircuit.RegControls;
+  If ActiveCircuit[ActiveActor] <> Nil Then begin
+    lst := ActiveCircuit[ActiveActor].RegControls;
     elem := lst.First;
     If elem <> Nil Then Begin
       Repeat
         If elem.Enabled Then Begin
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
           Result := 1;
         End
         Else elem := lst.Next;
@@ -238,13 +238,13 @@ Var
   lst: TPointerList;
 Begin
   Result := 0;
-  If ActiveCircuit <> Nil Then Begin
-    lst := ActiveCircuit.RegControls;
+  If ActiveCircuit[ActiveActor] <> Nil Then Begin
+    lst := ActiveCircuit[ActiveActor].RegControls;
     elem := lst.Next;
     if elem <> nil then begin
       Repeat
         If elem.Enabled Then Begin
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
           Result := lst.ActiveIndex;
         End
         Else elem := lst.Next;
@@ -417,15 +417,15 @@ var
   elem: TRegControlObj;
   lst: TPointerList;
 Begin
-  IF ActiveCircuit <> NIL THEN Begin
-    lst := ActiveCircuit.RegControls;
+  IF ActiveCircuit[ActiveActor] <> NIL THEN Begin
+    lst := ActiveCircuit[ActiveActor].RegControls;
     S := Value;  // Convert to Pascal String
     Found := FALSE;
     ActiveSave := lst.ActiveIndex;
     elem := lst.First;
     While elem <> NIL Do Begin
       IF (CompareText(elem.Name, S) = 0) THEN Begin
-        ActiveCircuit.ActiveCktElement := elem;
+        ActiveCircuit[ActiveActor].ActiveCktElement := elem;
         Found := TRUE;
         Break;
       End;
@@ -434,7 +434,7 @@ Begin
     IF NOT Found THEN Begin
       DoSimpleMsg('RegControl "'+S+'" Not Found in Active Circuit.', 5003);
       elem := lst.Get(ActiveSave);    // Restore active Load
-      ActiveCircuit.ActiveCktElement := elem;
+      ActiveCircuit[ActiveActor].ActiveCktElement := elem;
     End;
   End;
 end;
@@ -496,8 +496,8 @@ end;
 
 function TRegControls.Get_Count: Integer;
 begin
-  If Assigned(Activecircuit) Then
-     Result := ActiveCircuit.RegControls.ListSize;
+  If Assigned(ActiveCircuit[ActiveActor]) Then
+     Result := ActiveCircuit[ActiveActor].RegControls.ListSize;
 end;
 
 initialization

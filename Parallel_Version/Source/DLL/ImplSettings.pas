@@ -60,9 +60,9 @@ uses ComServ, DSSGlobals, ExecHelper, Variants;
 function TSettings.Get_AllowDuplicates: WordBool;
 begin
 
-    IF ActiveCircuit <> NIL THEN
+    IF ActiveCircuit[ActiveActor] <> NIL THEN
 
-      Result := ActiveCircuit.DuplicatesAllowed
+      Result := ActiveCircuit[ActiveActor].DuplicatesAllowed
 
     ELSE Result := FALSE;
 
@@ -72,8 +72,8 @@ function TSettings.Get_AutoBusList: WideString;
 VAR
    i:Integer;
 begin
-    IF ActiveCircuit <> NIL THEN
-     WITH ActiveCircuit.AutoAddBusList Do
+    IF ActiveCircuit[ActiveActor] <> NIL THEN
+     WITH ActiveCircuit[ActiveActor].AutoAddBusList Do
      Begin
        FOR i := 1 to ListSize Do AppendGlobalResult(Get(i));
        Result := GlobalResult;
@@ -85,9 +85,9 @@ end;
 function TSettings.Get_CktModel: Integer;
 begin
 
-    IF ActiveCircuit <> NIL THEN  Begin
+    IF ActiveCircuit[ActiveActor] <> NIL THEN  Begin
 
-      If ActiveCircuit.PositiveSequence
+      If ActiveCircuit[ActiveActor].PositiveSequence
       THEN  Result := dssPositiveSeq
       ELSE  Result := dssMultiPhase;
     End
@@ -97,24 +97,24 @@ end;
 
 function TSettings.Get_EmergVmaxpu: Double;
 begin
-     IF   ActiveCircuit <> NIL
-     THEN Result := ActiveCircuit.EmergMaxVolts
+     IF   ActiveCircuit[ActiveActor] <> NIL
+     THEN Result := ActiveCircuit[ActiveActor].EmergMaxVolts
      ELSE Result := 0.0;;
 
 end;
 
 function TSettings.Get_EmergVminpu: Double;
 begin
-     IF   ActiveCircuit <> NIL
-     THEN Result := ActiveCircuit.EmergMinVolts
+     IF   ActiveCircuit[ActiveActor] <> NIL
+     THEN Result := ActiveCircuit[ActiveActor].EmergMinVolts
      ELSE Result := 0.0;;
 
 end;
 
 function TSettings.Get_NormVmaxpu: Double;
 begin
-     IF   ActiveCircuit <> NIL
-     THEN Result := ActiveCircuit.NormalMaxVolts
+     IF   ActiveCircuit[ActiveActor] <> NIL
+     THEN Result := ActiveCircuit[ActiveActor].NormalMaxVolts
      ELSE Result := 0.0;;
 
 
@@ -122,90 +122,90 @@ end;
 
 function TSettings.Get_NormVminpu: Double;
 begin
-     IF   ActiveCircuit <> NIL
-     THEN Result := ActiveCircuit.NormalMinVolts
+     IF   ActiveCircuit[ActiveActor] <> NIL
+     THEN Result := ActiveCircuit[ActiveActor].NormalMinVolts
      ELSE Result := 0.0;;
 end;
 
 function TSettings.Get_ZoneLock: WordBool;
 begin
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-       Result := ActiveCircuit.ZonesLocked ;
+       Result := ActiveCircuit[ActiveActor].ZonesLocked ;
    END
    ELSE    Result := FALSE;
 end;
 
 procedure TSettings.Set_AllocationFactors(Value: Double);
 begin
-     IF ActiveCircuit <> NIL
+     IF ActiveCircuit[ActiveActor] <> NIL
      THEN   DoSetAllocationFactors(Value);
 end;
 
 procedure TSettings.Set_AllowDuplicates(Value: WordBool);
 begin
-    IF ActiveCircuit <> NIL THEN
-      ActiveCircuit.DuplicatesAllowed := Value;
+    IF ActiveCircuit[ActiveActor] <> NIL THEN
+      ActiveCircuit[ActiveActor].DuplicatesAllowed := Value;
 end;
 
 procedure TSettings.Set_AutoBusList(const Value: WideString);
 begin
-     IF ActiveCircuit <> NIL
+     IF ActiveCircuit[ActiveActor] <> NIL
      THEN DoAutoAddBusList(Value);
 end;
 
 procedure TSettings.Set_CktModel(Value: Integer);
 begin
 
-    IF ActiveCircuit <> NIL THEN
+    IF ActiveCircuit[ActiveActor] <> NIL THEN
 
       CASE Value of
-           dssPositiveSeq : ActiveCircuit.PositiveSequence:= TRUE;
+           dssPositiveSeq : ActiveCircuit[ActiveActor].PositiveSequence:= TRUE;
       ELSE
-           ActiveCircuit.PositiveSequence:= FALSE;
+           ActiveCircuit[ActiveActor].PositiveSequence:= FALSE;
       END;
 end;
 
 procedure TSettings.Set_EmergVmaxpu(Value: Double);
 begin
-     IF ActiveCircuit <> NIL
-     THEN ActiveCircuit.EmergMaxVolts := Value;
+     IF ActiveCircuit[ActiveActor] <> NIL
+     THEN ActiveCircuit[ActiveActor].EmergMaxVolts := Value;
 
 end;
 
 procedure TSettings.Set_EmergVminpu(Value: Double);
 begin
-     IF ActiveCircuit <> NIL
-     THEN ActiveCircuit.EmergMinVolts := Value;
+     IF ActiveCircuit[ActiveActor] <> NIL
+     THEN ActiveCircuit[ActiveActor].EmergMinVolts := Value;
 end;
 
 procedure TSettings.Set_NormVmaxpu(Value: Double);
 begin
-     IF ActiveCircuit <> NIL
-     THEN ActiveCircuit.NormalMaxVolts := Value;
+     IF ActiveCircuit[ActiveActor] <> NIL
+     THEN ActiveCircuit[ActiveActor].NormalMaxVolts := Value;
 end;
 
 procedure TSettings.Set_NormVminpu(Value: Double);
 begin
-     IF ActiveCircuit <> NIL
-     THEN ActiveCircuit.NormalMinVolts := Value;
+     IF ActiveCircuit[ActiveActor] <> NIL
+     THEN ActiveCircuit[ActiveActor].NormalMinVolts := Value;
 end;
 
 procedure TSettings.Set_ZoneLock(Value: WordBool);
 begin
-      If Activecircuit <> NIL THEN ActiveCircuit.ZonesLocked := Value;
+      If ActiveCircuit[ActiveActor] <> NIL THEN ActiveCircuit[ActiveActor].ZonesLocked := Value;
 end;
 
 function TSettings.Get_LossRegs: OleVariant;
 VAR
    i:Integer;
 begin
-   If ActiveCircuit <> NIL
+   If ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-       Result := VarArrayCreate([0, ActiveCircuit.NumLossRegs - 1], varInteger);
-       FOR i := 0 to ActiveCircuit.NumLossRegs - 1 DO
+       Result := VarArrayCreate([0, ActiveCircuit[ActiveActor].NumLossRegs - 1], varInteger);
+       FOR i := 0 to ActiveCircuit[ActiveActor].NumLossRegs - 1 DO
        Begin
-           Result[i] := ActiveCircuit.LossRegs^[i+1]
+           Result[i] := ActiveCircuit[ActiveActor].LossRegs^[i+1]
        End;
    END
    ELSE    Result := VarArrayCreate([0, 0], varInteger);
@@ -214,9 +214,9 @@ end;
 
 function TSettings.Get_LossWeight: Double;
 begin
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-        Result := ActiveCircuit.LossWeight ;
+        Result := ActiveCircuit[ActiveActor].LossWeight ;
    END
    ELSE    Result := 0.0;
 end;
@@ -224,9 +224,9 @@ end;
 function TSettings.Get_Trapezoidal: WordBool;
 begin
 
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-        Result := ActiveCircuit.TrapezoidalIntegration ;
+        Result := ActiveCircuit[ActiveActor].TrapezoidalIntegration ;
    END
    ELSE    Result := FALSE;
 end;
@@ -235,12 +235,12 @@ function TSettings.Get_UEregs: OleVariant;
 VAR
    i:Integer;
 begin
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-       Result := VarArrayCreate([0, ActiveCircuit.NumUERegs - 1], varInteger);
-       FOR i := 0 to ActiveCircuit.NumUERegs - 1 DO
+       Result := VarArrayCreate([0, ActiveCircuit[ActiveActor].NumUERegs - 1], varInteger);
+       FOR i := 0 to ActiveCircuit[ActiveActor].NumUERegs - 1 DO
        Begin
-           Result[i] := ActiveCircuit.UERegs^[i+1]
+           Result[i] := ActiveCircuit[ActiveActor].UERegs^[i+1]
        End;
    END
    ELSE    Result := VarArrayCreate([0, 0], varInteger);
@@ -248,9 +248,9 @@ end;
 
 function TSettings.Get_UEweight: Double;
 begin
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-           Result := ActiveCircuit.UEWeight
+           Result := ActiveCircuit[ActiveActor].UEWeight
    END
    ELSE    Result := 0.0;
 end;
@@ -259,13 +259,13 @@ procedure TSettings.Set_LossRegs(Value: OleVariant);
 VAR
    i, j:Integer;
 begin
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-       ReAllocMem(ActiveCircuit.LossRegs, Sizeof(ActiveCircuit.LossRegs^[1])*(1 - VarArrayLowBound(Value, 1) + VarArrayHighBound(Value, 1)));
+       ReAllocMem(ActiveCircuit[ActiveActor].LossRegs, Sizeof(ActiveCircuit[ActiveActor].LossRegs^[1])*(1 - VarArrayLowBound(Value, 1) + VarArrayHighBound(Value, 1)));
        j:=1;
        FOR i := VarArrayLowBound(Value, 1) to VarArrayHighBound(Value, 1) DO
        Begin
-            ActiveCircuit.LossRegs^[j] := Value[i];
+            ActiveCircuit[ActiveActor].LossRegs^[j] := Value[i];
             Inc(j);
        End;
    End;
@@ -273,17 +273,17 @@ end;
 
 procedure TSettings.Set_LossWeight(Value: Double);
 begin
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-       ActiveCircuit.LossWeight := Value
+       ActiveCircuit[ActiveActor].LossWeight := Value
    End;
 end;
 
 procedure TSettings.Set_Trapezoidal(Value: WordBool);
 begin
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-      ActiveCircuit.TrapezoidalIntegration  := Value
+      ActiveCircuit[ActiveActor].TrapezoidalIntegration  := Value
    End;
 end;
 
@@ -291,13 +291,13 @@ procedure TSettings.Set_UEregs(Value: OleVariant);
 VAR
    i,j:Integer ;
 begin
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-       ReAllocMem(ActiveCircuit.UERegs, Sizeof(ActiveCircuit.UERegs^[1])*(1 - VarArrayLowBound(Value, 1) + VarArrayHighBound(Value, 1)));
+       ReAllocMem(ActiveCircuit[ActiveActor].UERegs, Sizeof(ActiveCircuit[ActiveActor].UERegs^[1])*(1 - VarArrayLowBound(Value, 1) + VarArrayHighBound(Value, 1)));
        j:=1;
        FOR i := VarArrayLowBound(Value, 1) to VarArrayHighBound(Value, 1) DO
        Begin
-            ActiveCircuit.UERegs^[j] := Value[i];
+            ActiveCircuit[ActiveActor].UERegs^[j] := Value[i];
             Inc(j);
        End;
    End;
@@ -305,16 +305,16 @@ end;
 
 procedure TSettings.Set_UEweight(Value: Double);
 begin
-   IF ActiveCircuit <> NIL
+   IF ActiveCircuit[ActiveActor] <> NIL
    THEN Begin
-       ActiveCircuit.UEWeight := Value
+       ActiveCircuit[ActiveActor].UEWeight := Value
    End;
 end;
 
 function TSettings.Get_ControlTrace: WordBool;
 begin
-     If ActiveCircuit <> NIL
-     THEN Result := ActiveCircuit.ControlQueue.TraceLog;
+     If ActiveCircuit[ActiveActor] <> NIL
+     THEN Result := ActiveCircuit[ActiveActor].ControlQueue.TraceLog;
 end;
 
 function TSettings.Get_VoltageBases: OleVariant;
@@ -322,8 +322,8 @@ function TSettings.Get_VoltageBases: OleVariant;
 VAR
    i, Count :Integer;
 begin
-  IF ActiveCircuit <> NIL
-  THEN With ActiveCircuit Do
+  IF ActiveCircuit[ActiveActor] <> NIL
+  THEN With ActiveCircuit[ActiveActor] Do
   Begin
       {Count the number of voltagebases specified}
       i := 0;
@@ -343,8 +343,8 @@ end;
 procedure TSettings.Set_ControlTrace(Value: WordBool);
 begin
 
-     If ActiveCircuit <> NIL
-     THEN ActiveCircuit.ControlQueue.TraceLog := Value;
+     If ActiveCircuit[ActiveActor] <> NIL
+     THEN ActiveCircuit[ActiveActor].ControlQueue.TraceLog := Value;
 
 end;
 
@@ -360,7 +360,7 @@ Begin
      {LegalVoltageBases is a zero-terminated array, so we have to allocate
       one more than the number of actual values}
 
-     WITH ActiveCircuit Do
+     WITH ActiveCircuit[ActiveActor] Do
      Begin
        Reallocmem(LegalVoltageBases, Sizeof(LegalVoltageBases^[1])*(Num+1));
        j := 1;
@@ -376,26 +376,26 @@ end;
 
 function TSettings.Get_PriceCurve: WideString;
 begin
-    IF ActiveCircuit <> NIL
-    THEN Result := ActiveCircuit.PriceCurve
+    IF ActiveCircuit[ActiveActor] <> NIL
+    THEN Result := ActiveCircuit[ActiveActor].PriceCurve
     ELSE Result := '';
 end;
 
 function TSettings.Get_PriceSignal: Double;
 begin
-    IF ActiveCircuit <> NIL
-    THEN Result := ActiveCircuit.Pricesignal
+    IF ActiveCircuit[ActiveActor] <> NIL
+    THEN Result := ActiveCircuit[ActiveActor].Pricesignal
     ELSE Result := 0.0;
 
 end;
 
 procedure TSettings.Set_PriceCurve(const Value: WideString);
 begin
-    IF ActiveCircuit <> NIL
-    THEN WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> NIL
+    THEN WITH ActiveCircuit[ActiveActor] DO
                Begin
                   PriceCurve    := Value;
-                  PriceCurveObj := LoadShapeClass.Find(Pricecurve);
+                  PriceCurveObj := LoadShapeClass[ActiveActor].Find(Pricecurve);
                   IF PriceCurveObj=nil THEN
                    DoSimpleMsg('Price Curve: "' +Pricecurve+ '" not found.', 5006);
                End;
@@ -403,8 +403,8 @@ end;
 
 procedure TSettings.Set_PriceSignal(Value: Double);
 begin
-   IF ActiveCircuit <> NIL
-    THEN ActiveCircuit.PriceSignal := Value ;
+   IF ActiveCircuit[ActiveActor] <> NIL
+    THEN ActiveCircuit[ActiveActor].PriceSignal := Value ;
 end;
 
 initialization
