@@ -20,23 +20,23 @@ begin
   Result:=0;    // Default return value
   case mode of
   0: begin  // PVSystems.Count
-    If Assigned(Activecircuit) Then
-          Result := ActiveCircuit.PVSystems.ListSize;
+    If Assigned(ActiveCircuit[ActiveActor]) Then
+          Result := ActiveCircuit[ActiveActor].PVSystems.ListSize;
   end;
   1: begin  // PVSystems.First
    Result := 0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pPVSystem := ActiveCircuit.pVSystems.First;
+        pPVSystem := ActiveCircuit[ActiveActor].pVSystems.First;
         If pPVSystem <> Nil Then
         Begin
           Repeat
             If pPVSystem.Enabled
             Then Begin
-              ActiveCircuit.ActiveCktElement := pPVSystem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pPVSystem;
               Result := 1;
             End
-            Else pPVSystem := ActiveCircuit.pVSystems.Next;
+            Else pPVSystem := ActiveCircuit[ActiveActor].pVSystems.Next;
           Until (Result = 1) or (pPVSystem = nil);
         End
         Else
@@ -45,18 +45,18 @@ begin
   end;
   2: begin  // PVSystems.Next
    Result := 0;
-   If ActiveCircuit <> Nil Then
+   If ActiveCircuit[ActiveActor] <> Nil Then
    Begin
-        pPVSystem := ActiveCircuit.PVSystems.Next;
+        pPVSystem := ActiveCircuit[ActiveActor].PVSystems.Next;
         If pPVSystem <> Nil Then
         Begin
           Repeat
             If pPVSystem.Enabled
             Then Begin
-              ActiveCircuit.ActiveCktElement := pPVSystem;
-              Result := ActiveCircuit.PVSystems.ActiveIndex;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pPVSystem;
+              Result := ActiveCircuit[ActiveActor].PVSystems.ActiveIndex;
             End
-            Else pPVSystem := ActiveCircuit.PVSystems.Next;
+            Else pPVSystem := ActiveCircuit[ActiveActor].PVSystems.Next;
           Until (Result > 0) or (pPVSystem = nil);
         End
         Else
@@ -64,14 +64,14 @@ begin
    End;
   end;
   3: begin  // PVSystems.Idx read
-    if ActiveCircuit <> Nil then
-       Result := ActiveCircuit.PVSystems.ActiveIndex
+    if ActiveCircuit[ActiveActor] <> Nil then
+       Result := ActiveCircuit[ActiveActor].PVSystems.ActiveIndex
     else Result := 0;
   end;
   4: begin  // PVSystems.Idx write
-    if ActiveCircuit <> Nil then   Begin
-        pPVSystem := ActiveCircuit.PVSystems.Get(arg);
-        If pPVSystem <> Nil Then ActiveCircuit.ActiveCktElement := pPVSystem;
+    if ActiveCircuit[ActiveActor] <> Nil then   Begin
+        pPVSystem := ActiveCircuit[ActiveActor].PVSystems.Get(arg);
+        If pPVSystem <> Nil Then ActiveCircuit[ActiveActor].ActiveCktElement := pPVSystem;
     End;
   end
   else
@@ -86,8 +86,8 @@ begin
   case mode of
   0: begin  // PVSystems.Irradiance read
      Result := -1.0;  // not set
-     IF ActiveCircuit<> NIL THEN Begin
-           WITH ActiveCircuit.PVSystems Do Begin
+     IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+           WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
                IF ActiveIndex<>0 THEN Begin
                    Result := TPVSystemObj(Active).PVSystemVars.FIrradiance;
                End;
@@ -95,8 +95,8 @@ begin
      End;
   end;
   1: begin  // PVSystems.Irradiance write
-     IF ActiveCircuit<> NIL THEN Begin
-           WITH ActiveCircuit.PVSystems Do Begin
+     IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+           WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
                IF ActiveIndex<>0 THEN Begin
                     TPVSystemObj(Active).PVSystemVars.FIrradiance  := arg;
                End;
@@ -105,8 +105,8 @@ begin
   end;
   2: begin  // PVSystems.kW
      Result := 0.0;  // not set
-     IF ActiveCircuit<> NIL THEN Begin
-           WITH ActiveCircuit.PVSystems Do Begin
+     IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+           WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
                IF ActiveIndex<>0 THEN Begin
                    Result := TPVSystemObj(Active).PresentkW;
                End;
@@ -115,8 +115,8 @@ begin
   end;
   3: begin  // PVSystems.kvar read
      Result := 0.0;  // not set
-     IF ActiveCircuit<> NIL THEN Begin
-           WITH ActiveCircuit.PVSystems Do Begin
+     IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+           WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
                IF ActiveIndex<>0 THEN Begin
                    Result := TPVSystemObj(Active).Presentkvar;
                End;
@@ -124,8 +124,8 @@ begin
      End;
   end;
   4: begin  // PVSystems.kvar write
-     IF ActiveCircuit<> NIL THEN Begin
-           WITH ActiveCircuit.PVSystems Do Begin
+     IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+           WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
                IF ActiveIndex<>0 THEN Begin
                     TPVSystemObj(Active).Presentkvar := arg;
                End;
@@ -134,8 +134,8 @@ begin
   end;
   5: begin  // PVSystems.pf read
     Result := 0.0;  // not set
-    IF ActiveCircuit<> NIL THEN Begin
-           WITH ActiveCircuit.PVSystems Do Begin
+    IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+           WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
              IF ActiveIndex<>0 THEN Begin
                  Result := TPVSystemObj(Active).PowerFactor ;
              End;
@@ -143,8 +143,8 @@ begin
      End;
   end;
   6: begin  // PVSystems.pf write
-     IF ActiveCircuit<> NIL THEN Begin
-           WITH ActiveCircuit.PVSystems Do Begin
+     IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+           WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
                IF ActiveIndex<>0 THEN Begin
                     TPVSystemObj(Active).PowerFactor  := arg;
                End;
@@ -153,8 +153,8 @@ begin
   end;
   7: begin  // PVSystems.kVARated read
      Result := -1.0;  // not set
-     IF ActiveCircuit<> NIL THEN Begin
-           WITH ActiveCircuit.PVSystems Do Begin
+     IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+           WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
                IF ActiveIndex<>0 THEN Begin
                    Result := TPVSystemObj(Active).kVARating ;
                End;
@@ -162,8 +162,8 @@ begin
      End;
   end;
   8: begin  // PVSystems.kVARated write
-     IF ActiveCircuit<> NIL THEN Begin
-           WITH ActiveCircuit.PVSystems Do Begin
+     IF ActiveCircuit[ActiveActor]<> NIL THEN Begin
+           WITH ActiveCircuit[ActiveActor].PVSystems Do Begin
                IF ActiveIndex<>0 THEN Begin
                     TPVSystemObj(Active).kVARating  := arg;
                End;
@@ -190,9 +190,9 @@ begin
   case mode of
   0: begin  // PVSystems.Name read
        Result := pAnsiChar(AnsiString(''));
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pPVSystem := ActiveCircuit.PVSystems.Active;
+            pPVSystem := ActiveCircuit[ActiveActor].PVSystems.Active;
             If pPVSystem <> Nil Then
             Begin
               Result := pAnsiChar(AnsiString(pPVSystem.Name));
@@ -202,9 +202,9 @@ begin
        End;
   end;
   1: begin  // PVSystems.Name write
-  IF ActiveCircuit <> NIL
+  IF ActiveCircuit[ActiveActor] <> NIL
   THEN Begin      // Search list of PVSystems in active circuit for name
-       WITH ActiveCircuit.PVSystems DO
+       WITH ActiveCircuit[ActiveActor].PVSystems DO
          Begin
              S := widestring(arg);  // Convert to Pascal String
              Found := FALSE;
@@ -214,7 +214,7 @@ begin
              Begin
                 IF (CompareText(PVSystem.Name, S) = 0)
                 THEN Begin
-                    ActiveCircuit.ActiveCktElement := PVSystem;
+                    ActiveCircuit[ActiveActor].ActiveCktElement := PVSystem;
                     Found := TRUE;
                     Break;
                 End;
@@ -224,7 +224,7 @@ begin
              THEN Begin
                  DoSimpleMsg('PVSystem "'+S+'" Not Found in Active Circuit.', 5003);
                  PVSystem := Get(ActiveSave);    // Restore active PVSystem
-                 ActiveCircuit.ActiveCktElement := PVSystem;
+                 ActiveCircuit[ActiveActor].ActiveCktElement := PVSystem;
              End;
          End;
   End;
@@ -246,8 +246,8 @@ begin
   0: begin  // PVSystems.AllNames
     arg := VarArrayCreate([0, 0], varOleStr);
     arg[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      If PVSystems.ListSize>0 Then
      Begin
        VarArrayRedim(arg, PVSystems.ListSize-1);

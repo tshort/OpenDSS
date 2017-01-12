@@ -15,18 +15,18 @@ begin
   case mode of
   0: begin // DSSProgress.PctProgress
       If NoFormsAllowed Then Exit;
-      InitProgressForm;
-      ShowPctProgress (arg);
+      InitProgressForm(ActiveActor);
+      ShowPctProgress (arg,ActiveActor);
   end;
   1: begin // DSSProgress.Show()
      If NoFormsAllowed Then Exit;
-        InitProgressForm;
-        ProgressFormCaption( ' ');
-        ShowPctProgress(0);
+        InitProgressForm(ActiveActor);
+        ProgressFormCaption( ' ',ActiveActor);
+        ShowPctProgress(0,ActiveActor);
   end;
   2: begin  // DSSProgress.Close()
       If NoFormsAllowed Then Exit;
-      ProgressHide;
+      ProgressHide(ActiveActor);
   end
   else
       Result:=-1;
@@ -40,8 +40,8 @@ begin
   case mode of
   0: begin // DSSProgress.Caption
      If NoFormsAllowed Then Exit;
-     InitProgressForm;
-     ProgressCaption (widestring(arg));
+     InitProgressForm(ActiveActor);
+     ProgressCaption (widestring(arg),ActiveActor);
   end
   else
       Result:=pAnsiChar(AnsiString('Error, parameter not recognized'));

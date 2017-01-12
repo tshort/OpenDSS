@@ -24,57 +24,57 @@ begin
   case mode of
   0: begin  // LoadShapes.Count
      Result := 0;
-     If ActiveCircuit <> Nil Then
-        Result := LoadshapeClass.ElementList.ListSize;
+     If ActiveCircuit[ActiveActor] <> Nil Then
+        Result := LoadshapeClass[ActiveActor].ElementList.ListSize;
   end;
   1: begin  // LoadShapes.First
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-        iElem := LoadshapeClass.First;
+        iElem := LoadshapeClass[ActiveActor].First;
         If iElem <> 0 Then
         Begin
-            ActiveLSObject := ActiveDSSObject as TLoadShapeObj;
+            ActiveLSObject := ActiveDSSObject[ActiveActor] as TLoadShapeObj;
             Result := 1;
         End
      End;
   end;
   2: begin  // LoadShapes.Next
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-        iElem := LoadshapeClass.Next;
+        iElem := LoadshapeClass[ActiveActor].Next;
         If iElem <> 0 Then
         Begin
-            ActiveLSObject := ActiveDSSObject as TLoadShapeObj;
+            ActiveLSObject := ActiveDSSObject[ActiveActor] as TLoadShapeObj;
             Result := iElem;
         End
      End;
   end;
   3: begin  // LoadShapes.Npts read
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
        Result := ActiveLSObject.NumPoints;
   end;
   4: begin  // LoadShapes.Npts write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
           ActiveLSObject.NumPoints := arg;
   end;
   5: begin  // LoadShapes.Normalize
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        If ActiveLSObject <> Nil Then
           ActiveLSObject.Normalize;
   end;
   6: begin   // LoadShapes.UseActual read
        Result := 0;
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        If ActiveLSObject <> Nil Then
          if ActiveLSObject.UseActual then Result:=1;
   end;
   7: begin   // LoadShapes.UseActual write
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        If ActiveLSObject <> Nil Then begin
           if arg=1 then
               ActiveLSObject.UseActual  := TRUE
@@ -94,56 +94,56 @@ begin
   case mode of
   0: begin  // LoadShapes.HrInterval read
        Result := 0.0;
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        If ActiveLSObject <> Nil Then
          Result := ActiveLSObject.Interval ;
   end;
   1: begin  // LoadShapes.HrInterval write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
        ActiveLSObject.Interval := arg ;
   end;
   2: begin  // LoadShapes.MinInterval read
      Result := 0.0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
        Result := ActiveLSObject.Interval * 60.0 ;
   end;
   3:begin  // LoadShapes.MinInterval write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
        ActiveLSObject.Interval := arg / 60.0 ;
   end;
   4: begin  // LoadShapes.PBase read
      Result := 0.0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
        Result := ActiveLSObject.baseP ;
   end;
   5: begin  // LoadShapes.PBase write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
        ActiveLSObject.baseP := arg;
   end;
   6: begin  // LoadShapes.QBase read
      Result := 0.0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
        Result := ActiveLSObject.baseQ ;
   end;
   7: begin  // LoadShapes.QBase write
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        If ActiveLSObject <> Nil Then
          ActiveLSObject.baseQ := arg;
   end;
   8: begin  // LoadShapes.Sinterval read
      Result := 0.0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
        Result := ActiveLSObject.Interval * 3600.0 ;
   end;
   9: begin  // LoadShapes.Sinterval write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      If ActiveLSObject <> Nil Then
        ActiveLSObject.Interval := arg / 3600.0 ;
   end
@@ -163,16 +163,16 @@ begin
   case mode of
   0: begin  // LoadShapes.Name read
       Result := pAnsiChar(AnsiString(''));
-      elem := LoadshapeClass.GetActiveObj;
+      elem := LoadshapeClass[ActiveActor].GetActiveObj;
       If elem <> Nil Then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // LoadShapes.Name write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-          If LoadshapeClass.SetActive(widestring(arg)) Then
+          If LoadshapeClass[ActiveActor].SetActive(widestring(arg)) Then
           Begin
-               ActiveLSObject := LoadshapeClass.ElementList.Active ;
-               ActiveDSSObject    := ActiveLSObject;
+               ActiveLSObject := LoadshapeClass[ActiveActor].ElementList.Active ;
+               ActiveDSSObject[ActiveActor]    := ActiveLSObject;
           End
           Else Begin
               DoSimpleMsg('Relay "'+ widestring(arg) +'" Not Found in Active Circuit.', 77003);
@@ -197,11 +197,11 @@ begin
   0: begin  // LoadShapes.AllNames
      arg := VarArrayCreate([0, 0], varOleStr);
       arg[0] := 'NONE';
-      IF ActiveCircuit <> Nil THEN
+      IF ActiveCircuit[ActiveActor] <> Nil THEN
       Begin
-          If LoadShapeClass.ElementList.ListSize > 0 then
+          If LoadShapeClass[ActiveActor].ElementList.ListSize > 0 then
           Begin
-            pList := LoadShapeClass.ElementList;
+            pList := LoadShapeClass[ActiveActor].ElementList;
             VarArrayRedim(arg, pList.ListSize -1);
             k:=0;
             elem := pList.First;
@@ -216,7 +216,7 @@ begin
   1: begin  // LoadShapes.PMult read
         arg := VarArrayCreate([0, 0], varDouble);
         arg[0] := 0.0;  // error condition: one element array=0
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
             If ActiveLSObject <> Nil Then Begin
                  VarArrayRedim(arg, ActiveLSObject.NumPoints-1);
@@ -228,7 +228,7 @@ begin
          End;
   end;
   2: begin  // LoadShapes.PMult write
-    If ActiveCircuit <> Nil Then
+    If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         If ActiveLSObject <> Nil Then With ActiveLSObject Do Begin
 
@@ -253,7 +253,7 @@ begin
   3: begin  // LoadShapes.QMult read
         arg := VarArrayCreate([0, 0], varDouble);
         arg[0] := 0.0;  // error condition: one element array=0
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
             If ActiveLSObject <> Nil Then
             Begin
@@ -270,7 +270,7 @@ begin
          End;
   end;
   4: begin  // LoadShapes.QMult write
-    If ActiveCircuit <> Nil Then
+    If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         If ActiveLSObject <> Nil Then With ActiveLSObject Do Begin
 
@@ -295,7 +295,7 @@ begin
   5: begin   // LoadShapes.Timearray read
         arg := VarArrayCreate([0, 0], varDouble);
         arg[0] := 0.0;  // error condition: one element array=0
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
             If ActiveLSObject <> Nil Then Begin
                If ActiveLSObject.hours <> Nil Then  Begin
@@ -309,7 +309,7 @@ begin
          End;
   end;
   6: begin   // LoadShapes.Timearray write
-    If ActiveCircuit <> Nil Then
+    If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         If ActiveLSObject <> Nil Then With ActiveLSObject Do Begin
 

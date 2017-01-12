@@ -14,14 +14,14 @@ uses DSSGlobals, Executive, ControlElem, RegControl, Variants, SysUtils, Pointer
 function ActiveRegControl: TRegControlObj;
 begin
   Result := nil;
-  if ActiveCircuit <> Nil then Result := ActiveCircuit.RegControls.Active;
+  if ActiveCircuit[ActiveActor] <> Nil then Result := ActiveCircuit[ActiveActor].RegControls.Active;
 end;
 
 procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('regcontrol.%s.%s=%s', [ActiveRegControl.Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -38,13 +38,13 @@ begin
   case mode of
   0: begin  // RegControls.First
       Result := 0;
-      If ActiveCircuit <> Nil Then begin
-        lst := ActiveCircuit.RegControls;
+      If ActiveCircuit[ActiveActor] <> Nil Then begin
+        lst := ActiveCircuit[ActiveActor].RegControls;
         elem := lst.First;
         If elem <> Nil Then Begin
           Repeat
             If elem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := elem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := elem;
               Result := 1;
             End
             Else elem := lst.Next;
@@ -54,13 +54,13 @@ begin
   end;
   1: begin  // RegControls.Next
       Result := 0;
-      If ActiveCircuit <> Nil Then Begin
-        lst := ActiveCircuit.RegControls;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        lst := ActiveCircuit[ActiveActor].RegControls;
         elem := lst.Next;
         if elem <> nil then begin
           Repeat
             If elem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := elem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := elem;
               Result := lst.ActiveIndex;
             End
             Else elem := lst.Next;
@@ -117,8 +117,8 @@ begin
       Set_Parameter ('MaxTapChange', IntToStr (arg));
   end;
   12: begin  // RegControls.Count
-      If Assigned(Activecircuit) Then
-         Result := ActiveCircuit.RegControls.ListSize;
+      If Assigned(ActiveCircuit[ActiveActor]) Then
+         Result := ActiveCircuit[ActiveActor].RegControls.ListSize;
   end;
   13: begin  // RegControls.TapNumber read
       Result := 0;
@@ -270,15 +270,15 @@ begin
       if elem <> nil then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // RegControls.Name write
-      IF ActiveCircuit <> NIL THEN Begin
-        lst := ActiveCircuit.RegControls;
+      IF ActiveCircuit[ActiveActor] <> NIL THEN Begin
+        lst := ActiveCircuit[ActiveActor].RegControls;
         S := widestring(arg);  // Convert to Pascal String
         Found := FALSE;
         ActiveSave := lst.ActiveIndex;
         elem := lst.First;
         While elem <> NIL Do Begin
           IF (CompareText(elem.Name, S) = 0) THEN Begin
-            ActiveCircuit.ActiveCktElement := elem;
+            ActiveCircuit[ActiveActor].ActiveCktElement := elem;
             Found := TRUE;
             Break;
           End;
@@ -287,7 +287,7 @@ begin
         IF NOT Found THEN Begin
           DoSimpleMsg('RegControl "'+S+'" Not Found in Active Circuit.', 5003);
           elem := lst.Get(ActiveSave);    // Restore active Load
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
         End;
       End;
   end;
@@ -325,7 +325,7 @@ begin
   0: begin  // RegControl.AllNames
       arg := VarArrayCreate([0, 0], varOleStr);
       arg[0] := 'NONE';
-      IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO Begin
+      IF ActiveCircuit[ActiveActor] <> Nil THEN WITH ActiveCircuit[ActiveActor] DO Begin
         lst := RegControls;
         If lst.ListSize > 0 Then Begin
           VarArrayRedim(arg, lst.ListSize-1);

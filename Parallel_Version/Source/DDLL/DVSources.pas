@@ -22,18 +22,18 @@ begin
   case mode of
   0: begin  // Vsource.Count
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
         Result := VsourceClass.ElementList.ListSize;
   end;
   1: begin  // Vsource.First
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := VsourceClass.ElementList.First;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := 1;
           End
           Else pElem := VsourceClass.ElementList.Next;
@@ -42,13 +42,13 @@ begin
   end;
   2: begin  // Vsource.Next
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := VsourceClass.ElementList.Next;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := VsourceClass.ElementList.ActiveIndex;
           End
           Else pElem := VsourceClass.ElementList.Next;
@@ -130,15 +130,15 @@ begin
   case mode of
   0: begin  // Vsources.Name read
     Result := pAnsiChar(AnsiString(''));
-    elem := ActiveCircuit.ActiveCktElement;
+    elem := ActiveCircuit[ActiveActor].ActiveCktElement;
     If elem <> Nil Then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // Vsources.Name write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
           If VsourceClass.SetActive(widestring(arg)) Then
           Begin
-               ActiveCircuit.ActiveCktElement := VsourceClass.ElementList.Active ;
+               ActiveCircuit[ActiveActor].ActiveCktElement := VsourceClass.ElementList.Active ;
           End
           Else Begin
               DoSimpleMsg('Vsource "'+ widestring(arg) +'" Not Found in Active Circuit.', 77003);
@@ -163,7 +163,7 @@ begin
   0: begin  // VSources.AllNames
     arg := VarArrayCreate([0, 0], varOleStr);
     arg[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
     Begin
         If VsourceClass.ElementList.ListSize > 0 then
         Begin

@@ -15,7 +15,7 @@ procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('Fuse.%s.%s=%s', [TFuseObj(FuseClass.GetActiveObj).Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -34,18 +34,18 @@ begin
   case mode of
   0: begin  // Fuses.Count
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
         Result := FuseClass.ElementList.ListSize;
   end;
   1: begin  // Fuses.First
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := FuseClass.ElementList.First;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := 1;
           End
           Else pElem := FuseClass.ElementList.Next;
@@ -54,13 +54,13 @@ begin
   end;
   2: begin  // Fuses.Next
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := FuseClass.ElementList.Next;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := FuseClass.ElementList.ActiveIndex;
           End
           Else pElem := FuseClass.ElementList.Next;
@@ -93,19 +93,19 @@ begin
       End;
   end;
   8: begin  // Fuse.Idx read
-    if ActiveCircuit <> Nil then
+    if ActiveCircuit[ActiveActor] <> Nil then
        Result := FuseClass.ElementList.ActiveIndex
     else Result := 0;
   end;
   9: begin  // Fuse.Idx write
-    if ActiveCircuit <> Nil then   Begin
+    if ActiveCircuit[ActiveActor] <> Nil then   Begin
         pFuse := FuseClass.Elementlist.Get(arg);
-        If pFuse <> Nil Then ActiveCircuit.ActiveCktElement := pFuse;
+        If pFuse <> Nil Then ActiveCircuit[ActiveActor].ActiveCktElement := pFuse;
     End;
   end;
   10: begin  // Fuse.NumPhases
       Result := 0;
-      if ActiveCircuit <> Nil then   Begin
+      if ActiveCircuit[ActiveActor] <> Nil then   Begin
           pFuse := FuseClass.GetActiveObj ;
           If pFuse <> Nil Then Result := pFuse.NPhases ;
       End;
@@ -153,11 +153,11 @@ begin
       If elem <> Nil Then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // Fuses.Name write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
           If FuseClass.SetActive(widestring(arg)) Then
           Begin
-               ActiveCircuit.ActiveCktElement := FuseClass.ElementList.Active ;
+               ActiveCircuit[ActiveActor].ActiveCktElement := FuseClass.ElementList.Active ;
           End
           Else Begin
               DoSimpleMsg('Fuse "'+ widestring(arg) +'" Not Found in Active Circuit.', 77003);
@@ -209,7 +209,7 @@ begin
   0: begin  // Fuses.AllName
     arg := VarArrayCreate([0, 0], varOleStr);
     arg[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
     Begin
         If FuseClass.ElementList.ListSize > 0 then
         Begin

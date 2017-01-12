@@ -38,8 +38,8 @@ Function InitAndGetYparams(var hY, nBus, nNZ:LongWord): Longword; cdecl;
 
 Begin
   Result := 0;    // indicates error
-  If ActiveCircuit=Nil then Exit;
-  Yhandle := ActiveCircuit.Solution.hY;
+  If ActiveCircuit[ActiveActor]=Nil then Exit;
+  Yhandle := ActiveCircuit[ActiveActor].Solution.hY;
   If Yhandle <= 0 Then Begin
      DoSimpleMsg('Y Matrix not Built.', 222);
      Exit;
@@ -81,27 +81,27 @@ End;
 
 procedure ZeroInjCurr; cdecl;
 Begin
-     IF ActiveCircuit <> Nil THEN ActiveCircuit.Solution.ZeroInjCurr;
+     IF ActiveCircuit[ActiveActor] <> Nil THEN ActiveCircuit[ActiveActor].Solution.ZeroInjCurr(ActiveActor);
 end;
 
 procedure GetSourceInjCurrents; cdecl;
 Begin
-     IF ActiveCircuit <> Nil THEN ActiveCircuit.Solution.GetSourceInjCurrents;
+     IF ActiveCircuit[ActiveActor] <> Nil THEN ActiveCircuit[ActiveActor].Solution.GetSourceInjCurrents(ActiveActor);
 end;
 
 procedure GetPCInjCurr; cdecl;
 Begin
-     IF ActiveCircuit <> Nil THEN ActiveCircuit.Solution.GetPCInjCurr;
+     IF ActiveCircuit[ActiveActor] <> Nil THEN ActiveCircuit[ActiveActor].Solution.GetPCInjCurr(ActiveActor);
 end;
 
 function SystemYChanged(mode, arg: longint): longint; cdecl;
 begin
     Result:=0;
     case mode of
-        0: if ActiveCircuit.Solution.SystemYChanged then  Result:=1;  // Read
+        0: if ActiveCircuit[ActiveActor].Solution.SystemYChanged then  Result:=1;  // Read
         1: begin                                                      // Write
-           if arg=1 then ActiveCircuit.Solution.SystemYChanged:= TRUE
-           else ActiveCircuit.Solution.SystemYChanged:= FALSE;
+           if arg=1 then ActiveCircuit[ActiveActor].Solution.SystemYChanged:= TRUE
+           else ActiveCircuit[ActiveActor].Solution.SystemYChanged:= FALSE;
         end;
     end;
 end;
@@ -112,39 +112,39 @@ var
 begin
    AllocateV:=FALSE;
    if AllocateVI=1 then AllocateV:=TRUE;
-   BuildYMatrix(BuildOps,AllocateV);
+   BuildYMatrix(BuildOps,AllocateV,ActiveActor);
 end;
 
 function UseAuxCurrents(mode, arg: longint): longint; cdecl;
 begin
     Result:=0;
     case mode of
-        0: if ActiveCircuit.Solution.UseAuxCurrents then  Result:=1;  // Read
+        0: if ActiveCircuit[ActiveActor].Solution.UseAuxCurrents then  Result:=1;  // Read
         1: begin                                                      // Write
-           if arg=1 then ActiveCircuit.Solution.UseAuxCurrents:= TRUE
-           else ActiveCircuit.Solution.UseAuxCurrents:= FALSE;
+           if arg=1 then ActiveCircuit[ActiveActor].Solution.UseAuxCurrents:= TRUE
+           else ActiveCircuit[ActiveActor].Solution.UseAuxCurrents:= FALSE;
         end;
     end;
 end;
 
 procedure AddInAuxCurrents(SType: integer); cdecl;
 begin
-    ActiveCircuit.Solution.AddInAuxCurrents(SType);
+    ActiveCircuit[ActiveActor].Solution.AddInAuxCurrents(SType,ActiveActor);
 end;
 
 procedure getIpointer(var IvectorPtr: pNodeVarray);cdecl;
 begin
-     IVectorPtr:=ActiveCircuit.Solution.Currents;
+     IVectorPtr:=ActiveCircuit[ActiveActor].Solution.Currents;
 end;
 
 procedure getVpointer(var VvectorPtr: pNodeVarray);cdecl;
 begin
-     VVectorPtr:=ActiveCircuit.Solution.NodeV;
+     VVectorPtr:=ActiveCircuit[ActiveActor].Solution.NodeV;
 end;
 
 function SolveSystem(var NodeV:pNodeVarray): integer; cdecl;
 begin
-  Result:=ActiveCircuit.Solution.SolveSystem(NodeV);
+  Result:=ActiveCircuit[ActiveActor].Solution.SolveSystem(NodeV,ActiveActor);
 end;
 
 //---------------------------------------------------------------------------------

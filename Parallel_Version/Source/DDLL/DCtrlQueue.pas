@@ -29,7 +29,7 @@ Type
        constructor Create(ParClass:TDSSClass; const COMProxyName:String);
        destructor Destroy; override;
 
-       PROCEDURE DoPendingAction(Const Code, ProxyHdl:Integer); Override;   // Do the action that is pending from last sample
+       PROCEDURE DoPendingAction(Const Code, ProxyHdl:Integer; ActorID : Integer); Override;   // Do the action that is pending from last sample
        PROCEDURE Reset; Override;  // Reset to initial defined state
   end;
 
@@ -69,7 +69,7 @@ begin
   inherited;
 end;
 
-procedure TCOMControlProxyObj.DoPendingAction(const Code, ProxyHdl: Integer);
+procedure TCOMControlProxyObj.DoPendingAction(const Code, ProxyHdl: Integer; ActorID : Integer);
 Var
    Action :pAction;
 begin
@@ -98,13 +98,13 @@ begin
   Result := 0;
   case mode of
   0: begin  // CtrlQueue.ClearQueue
-     If ActiveCircuit <> Nil then Begin
-        ActiveCircuit.ControlQueue.Clear;
+     If ActiveCircuit[ActiveActor] <> Nil then Begin
+        ActiveCircuit[ActiveActor].ControlQueue.Clear;
      End;
   end;
   1: begin // CtrlQueue.Delete
-      If ActiveCircuit <> Nil then Begin
-        ActiveCircuit.ControlQueue.Delete(arg);
+      If ActiveCircuit[ActiveActor] <> Nil then Begin
+        ActiveCircuit[ActiveActor].ControlQueue.Delete(arg);
      End;
   end;
   2: begin  // CtrlQueue.NumActions
@@ -127,13 +127,13 @@ begin
   end;
   6: begin  // CtrlQueue.Push
      Result := 0;
-     If ActiveCircuit <> Nil then Begin
-        Result := ActiveCircuit.ControlQueue.push(Hour, Seconds, ActionCode, DeviceHandle, COMControlProxyObj);
+     If ActiveCircuit[ActiveActor] <> Nil then Begin
+        Result := ActiveCircuit[ActiveActor].ControlQueue.push(Hour, Seconds, ActionCode, DeviceHandle, COMControlProxyObj);
    End;
   end;
   7: begin  // CtrlQueue.Show
-       If ActiveCircuit <> Nil then
-          ActiveCircuit.ControlQueue.ShowQueue(DSSDirectory + 'COMProxy_ControlQueue.CSV');
+       If ActiveCircuit[ActiveActor] <> Nil then
+          ActiveCircuit[ActiveActor].ControlQueue.ShowQueue(DSSDirectory + 'COMProxy_ControlQueue.CSV');
   end;
   8: begin  // CtrlQueue.ClearActions
       COMControlProxyObj.ClearActionList;
@@ -143,13 +143,13 @@ begin
      COMControlProxyObj.PopAction;
   end;
   10: begin // CtrlQueue.Get_QueueSize
-     If ActiveCircuit <> Nil then Begin
-        Result := ActiveCircuit.ControlQueue.QueueSize;
+     If ActiveCircuit[ActiveActor] <> Nil then Begin
+        Result := ActiveCircuit[ActiveActor].ControlQueue.QueueSize;
      End;
   end;
   11: begin // CtrlQueue.DoAllQueue
-     If ActiveCircuit <> Nil then Begin
-        ActiveCircuit.ControlQueue.DoAllActions;
+     If ActiveCircuit[ActiveActor] <> Nil then Begin
+        ActiveCircuit[ActiveActor].ControlQueue.DoAllActions(ActiveActor);
      End;
   end
   else
@@ -165,14 +165,14 @@ Begin
   case mode of
   0: begin  // CtrlQueue.ClearQueue
       arg  := VarArrayCreate([0, 0], varOleStr);
-      QSize   := ActiveCircuit.ControlQueue.QueueSize;
+      QSize   := ActiveCircuit[ActiveActor].ControlQueue.QueueSize;
       if QSize > 0 then
       begin
         VarArrayRedim(arg, QSize);
         arg[0]:='Handle, Hour, Sec, ActionCode, ProxyDevRef, Device';
         For i := 0 to QSize-1 do
           Begin
-            arg[i+1]:= ActiveCircuit.ControlQueue.QueueItem(i);
+            arg[i+1]:= ActiveCircuit[ActiveActor].ControlQueue.QueueItem(i);
           End;
       end
       else arg[0]:='No events';

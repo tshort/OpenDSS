@@ -19,37 +19,37 @@ begin
   case mode of
   0: begin                                           // Bus.NumNodes
      Result := 0;
-     If (ActiveCircuit <> Nil) Then With ActiveCircuit Do
+     If (ActiveCircuit[ActiveActor] <> Nil) Then With ActiveCircuit[ActiveActor] Do
      IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
-       Result := ActiveCircuit.Buses^[ActiveCircuit.ActiveBusIndex].NumNodesThisBus;
+       Result := ActiveCircuit[ActiveActor].Buses^[ActiveCircuit[ActiveActor].ActiveBusIndex].NumNodesThisBus;
   end;
   1: begin                                           // Bus.ZscRefresh
      Result := 0;   // Init in case of failure
-     If ExecHelper.DoZscRefresh = 0 Then Result := 1;
+     If ExecHelper.DoZscRefresh(ActiveActor) = 0 Then Result := 1;
   end;
   2: begin                                           // Bus.Coorddefined
      Result := 0;
-     If (ActiveCircuit <> Nil) Then With ActiveCircuit Do
+     If (ActiveCircuit[ActiveActor] <> Nil) Then With ActiveCircuit[ActiveActor] Do
       IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
-       IF (Buses^[ActiveCircuit.ActiveBusIndex].Coorddefined) Then Result := 1;
+       IF (Buses^[ActiveCircuit[ActiveActor].ActiveBusIndex].Coorddefined) Then Result := 1;
   end;
   3: begin                                           // Bus.GetUniqueNodeNumber
-      if ActiveCircuit <> Nil then
-      With ActiveCircuit Do
+      if ActiveCircuit[ActiveActor] <> Nil then
+      With ActiveCircuit[ActiveActor] Do
       if ActiveBusIndex > 0 then
         Result := Utilities.GetUniqueNodeNumber(BusList.Get(ActiveBusIndex), arg);
   end;
   4: begin                                           // Bus.N_Customers
       Result := 0;
-      if ActiveCircuit <> Nil then
-        With ActiveCircuit Do
+      if ActiveCircuit[ActiveActor] <> Nil then
+        With ActiveCircuit[ActiveActor] Do
           if ActiveBusIndex > 0 then
              Result := Buses^[ActiveBusIndex].BusTotalNumCustomers  ;
   end;
   5: begin                                           // Bus.SectionID
      Result := 0;
-      if ActiveCircuit <> Nil then
-        With ActiveCircuit Do
+      if ActiveCircuit[ActiveActor] <> Nil then
+        With ActiveCircuit[ActiveActor] Do
           if ActiveBusIndex > 0 then
              Result := Buses^[ActiveBusIndex].BusSectionID  ;
   end
@@ -65,35 +65,35 @@ begin
   case mode of
   0: begin                                           // Bus.kVBase
      Result := 0.0;
-     If (ActiveCircuit <> Nil) Then With ActiveCircuit Do
+     If (ActiveCircuit[ActiveActor] <> Nil) Then With ActiveCircuit[ActiveActor] Do
      IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
-       Result := ActiveCircuit.Buses^[ActiveCircuit.ActiveBusIndex].kVBase ;
+       Result := ActiveCircuit[ActiveActor].Buses^[ActiveCircuit[ActiveActor].ActiveBusIndex].kVBase ;
   end;
   1: begin                                           // Bus.X -read
     Result := 0.0;
-     If (ActiveCircuit <> Nil) Then With ActiveCircuit Do
+     If (ActiveCircuit[ActiveActor] <> Nil) Then With ActiveCircuit[ActiveActor] Do
       IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
-       IF (Buses^[ActiveCircuit.ActiveBusIndex].Coorddefined) Then
-         Result := Buses^[ActiveCircuit.ActiveBusIndex].x;
+       IF (Buses^[ActiveCircuit[ActiveActor].ActiveBusIndex].Coorddefined) Then
+         Result := Buses^[ActiveCircuit[ActiveActor].ActiveBusIndex].x;
   end;
   2: begin                                           // Bus.X - Write
-     If (ActiveCircuit <> Nil) Then With ActiveCircuit Do
+     If (ActiveCircuit[ActiveActor] <> Nil) Then With ActiveCircuit[ActiveActor] Do
       IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
-         Buses^[ActiveCircuit.ActiveBusIndex].Coorddefined := TRUE;
-         Buses^[ActiveCircuit.ActiveBusIndex].x := arg;
+         Buses^[ActiveCircuit[ActiveActor].ActiveBusIndex].Coorddefined := TRUE;
+         Buses^[ActiveCircuit[ActiveActor].ActiveBusIndex].x := arg;
        End;
        Result:=0.0;
   end;
   3: begin                                           // Bus.Y -read
     Result := 0.0;
-     If (ActiveCircuit <> Nil) Then With ActiveCircuit Do
+     If (ActiveCircuit[ActiveActor] <> Nil) Then With ActiveCircuit[ActiveActor] Do
       IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
-       IF (Buses^[ActiveCircuit.ActiveBusIndex].Coorddefined) Then
-         Result := Buses^[ActiveCircuit.ActiveBusIndex].y;
+       IF (Buses^[ActiveCircuit[ActiveActor].ActiveBusIndex].Coorddefined) Then
+         Result := Buses^[ActiveCircuit[ActiveActor].ActiveBusIndex].y;
   end;
   4: begin                                           // Bus.Y - Write
-     If (ActiveCircuit <> Nil) Then With ActiveCircuit Do
+     If (ActiveCircuit[ActiveActor] <> Nil) Then With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
         Begin
           Buses^[ActiveBusIndex].Coorddefined := TRUE;
@@ -103,50 +103,50 @@ begin
   end;
   5: begin                                           // Bus.Distance
      Result := 0.0;
-     If (ActiveCircuit <> Nil) Then
-      With ActiveCircuit Do
+     If (ActiveCircuit[ActiveActor] <> Nil) Then
+      With ActiveCircuit[ActiveActor] Do
        IF ((ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses)) Then
          Result := Buses^[ActiveBusIndex].DistFromMeter;
   end;
   6: begin                                           // Bus.Lambda
       Result := 0.0;
-      if ActiveCircuit <> Nil then
-        With ActiveCircuit Do
+      if ActiveCircuit[ActiveActor] <> Nil then
+        With ActiveCircuit[ActiveActor] Do
           if ActiveBusIndex > 0 then
              Result := Buses^[ActiveBusIndex].BusFltRate;
   end;
   7: begin                                           // Bus.N_interrupts
       Result := 0.0;
-      if ActiveCircuit <> Nil then
-      With ActiveCircuit Do
+      if ActiveCircuit[ActiveActor] <> Nil then
+      With ActiveCircuit[ActiveActor] Do
          if ActiveBusIndex > 0 then
            Result := Buses^[ActiveBusIndex].Bus_Num_Interrupt ;
   end;
   8: begin                                           // Bus.int_duration
       Result := 0.0;
-      if ActiveCircuit <> Nil then
-        With ActiveCircuit Do
+      if ActiveCircuit[ActiveActor] <> Nil then
+        With ActiveCircuit[ActiveActor] Do
           if ActiveBusIndex > 0 then
              Result := Buses^[ActiveBusIndex].Bus_Int_Duration;
   end;
   9: begin                                           // Bus.Cust_interrupts
       Result := 0.0;
-      if ActiveCircuit <> Nil then
-        With ActiveCircuit Do
+      if ActiveCircuit[ActiveActor] <> Nil then
+        With ActiveCircuit[ActiveActor] Do
           if ActiveBusIndex > 0 then
              Result := Buses^[ActiveBusIndex].BusCustDurations ;
   end;
   10: begin                                          // Bus.Cust_duration
       Result := 0.0;
-    if ActiveCircuit <> Nil then
-       With ActiveCircuit Do
+    if ActiveCircuit[ActiveActor] <> Nil then
+       With ActiveCircuit[ActiveActor] Do
          if ActiveBusIndex > 0 then
             Result := Buses^[ActiveBusIndex].BusCustDurations ;
   end;
   11: begin                                          // Bus.Totalmiles
       Result := 0.0;
-      if ActiveCircuit <> Nil then
-        With ActiveCircuit Do
+      if ActiveCircuit[ActiveActor] <> Nil then
+        With ActiveCircuit[ActiveActor] Do
           if ActiveBusIndex > 0 then
              Result := Buses^[ActiveBusIndex].BusTotalMiles  ;
   end
@@ -163,7 +163,7 @@ begin
   0: begin                                           // Bus.Name read
       Result :=pAnsiChar(AnsiString(''));
 
-     If (ActiveCircuit <> Nil) Then With ActiveCircuit Do
+     If (ActiveCircuit[ActiveActor] <> Nil) Then With ActiveCircuit[ActiveActor] Do
      IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
               Result := pAnsiChar(AnsiString(BusList.Get(ActiveBusIndex)));
   end
@@ -187,10 +187,10 @@ var
 begin
   case mode of
   0: begin                                           // Bus.Voltages
-      IF ActiveCircuit = nil Then Begin
+      IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           pBus    := Buses^[ActiveBusIndex];
@@ -216,10 +216,10 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble);  // just return null array
   end;
   1: begin                                           // Bus.SeqVoltages
-       IF ActiveCircuit = nil Then Begin
+       IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           Nvalues := Buses^[ActiveBusIndex].NumNodesThisBus;
@@ -246,10 +246,10 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble);
   end;
   2: begin                                           // Bus.Nodes
-      IF ActiveCircuit = nil Then Begin
+      IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varInteger)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           pBus := Buses^[ActiveBusIndex];
@@ -274,10 +274,10 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varInteger);  // just return null array
   end;
   3: begin                                           // Bus.Voc
-      IF ActiveCircuit = nil Then Begin
+      IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           If Buses^[ActiveBusIndex].VBus <> nil Then
@@ -300,10 +300,10 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble) ;  // just return null array
   end;
   4: begin // Bus.Isc
-      IF ActiveCircuit = nil Then Begin
+      IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           If Buses^[ActiveBusIndex].BusCurrent <> nil Then
@@ -326,10 +326,10 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble) ;  // just return null array
   end;
   5: begin  // Bus.PuVoltages
-       IF ActiveCircuit = nil Then Begin
+       IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           pBus    := Buses^[ActiveBusIndex];
@@ -359,12 +359,12 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble);  // just return null array
   end;
   6: begin  // Bus.ZscMatrix
-        IF ActiveCircuit = nil Then Begin
+        IF ActiveCircuit[ActiveActor] = nil Then Begin
                 arg := VarArrayCreate([0, 0], varDouble)
         End
         ELSE
         Try
-        With ActiveCircuit Do
+        With ActiveCircuit[ActiveActor] Do
           IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
           Begin
             If Assigned(Buses^[ActiveBusIndex].Zsc) Then Begin
@@ -389,10 +389,10 @@ begin
           End;
   end;
   7: begin  // Bus.Zcs1
-        IF ActiveCircuit = nil Then Begin
+        IF ActiveCircuit[ActiveActor] = nil Then Begin
                 arg := VarArrayCreate([0, 0], varDouble)
         End
-        ELSE With ActiveCircuit Do
+        ELSE With ActiveCircuit[ActiveActor] Do
         IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
         Begin
                 Z := Buses^[ActiveBusIndex].Zsc1;
@@ -403,10 +403,10 @@ begin
         ELSE arg := VarArrayCreate([0, 0], varDouble) ;  // just return null array
   end;
   8: begin  // Bus.Zsc0
-        IF ActiveCircuit = nil Then Begin
+        IF ActiveCircuit[ActiveActor] = nil Then Begin
                 arg := VarArrayCreate([0, 0], varDouble)
         End
-        ELSE With ActiveCircuit Do
+        ELSE With ActiveCircuit[ActiveActor] Do
         IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
         Begin
                 Z := Buses^[ActiveBusIndex].Zsc0;
@@ -417,12 +417,12 @@ begin
         ELSE arg := VarArrayCreate([0, 0], varDouble) ;  // just return null array
   end;
   9: begin   // Bus.YscMatrix
-       IF ActiveCircuit = nil Then Begin
+       IF ActiveCircuit[ActiveActor] = nil Then Begin
                 arg := VarArrayCreate([0, 0], varDouble)
         End
         ELSE
         Try
-        With ActiveCircuit Do
+        With ActiveCircuit[ActiveActor] Do
           IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
           Begin
             If Assigned(Buses^[ActiveBusIndex].Ysc) Then Begin
@@ -447,10 +447,10 @@ begin
           End;
   end;
   10: begin  // Bus.CplxSeqVoltages
-       IF ActiveCircuit = nil Then Begin
+       IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           Nvalues := Buses^[ActiveBusIndex].NumNodesThisBus;
@@ -476,10 +476,10 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble);
   end;
   11: begin  // Bus.VLL
-       IF ActiveCircuit = nil Then Begin
+       IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           pBus    := Buses^[ActiveBusIndex];
@@ -518,10 +518,10 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble);  // just return null array
   end;
   12: begin   // Bus. PuVLL
-       IF ActiveCircuit = nil Then Begin
+       IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           pBus    := Buses^[ActiveBusIndex];
@@ -560,10 +560,10 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble);  // just return null array
   end;
   13: begin  // Bus.VMagAngle
-       IF ActiveCircuit = nil Then Begin
+       IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           pBus    := Buses^[ActiveBusIndex];
@@ -589,10 +589,10 @@ begin
       ELSE arg := VarArrayCreate([0, 0], varDouble);  // just return null array
   end;
   14: begin   // Bus.PuVMagAngle
-       IF ActiveCircuit = nil Then Begin
+       IF ActiveCircuit[ActiveActor] = nil Then Begin
             arg := VarArrayCreate([0, 0], varDouble)
        End
-       ELSE With ActiveCircuit Do
+       ELSE With ActiveCircuit[ActiveActor] Do
        IF (ActiveBusIndex > 0) and (ActiveBusIndex <= Numbuses) Then
        Begin
           pBus    := Buses^[ActiveBusIndex];

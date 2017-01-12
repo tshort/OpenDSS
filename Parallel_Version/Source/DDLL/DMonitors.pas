@@ -31,7 +31,7 @@ VAR
     pMon : TMonitorObj;
 
 Begin
-   pMon := ActiveCircuit.Monitors.Active;
+   pMon := ActiveCircuit[ActiveActor].Monitors.Active;
    TRY
        With pmon.MonitorStream, HeaderRec Do
          Begin
@@ -62,18 +62,18 @@ begin
   case mode of
   0: begin  // Monitors.First
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.First;
+            pMon := ActiveCircuit[ActiveActor].Monitors.First;
             If pMon <> Nil Then
             Begin
               Repeat
                 If pMon.enabled
                 then Begin
-                  ActiveCircuit.ActiveCktElement := pMon;
+                  ActiveCircuit[ActiveActor].ActiveCktElement := pMon;
                   Result := 1;
                 End
-                Else  pMon := ActiveCircuit.Monitors.Next;
+                Else  pMon := ActiveCircuit[ActiveActor].Monitors.Next;
               Until (Result = 1) or (pMon = nil);
             End
             Else
@@ -82,18 +82,18 @@ begin
   end;
   1: begin  // Monitors.Next
       Result := 0;
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.Next;
+            pMon := ActiveCircuit[ActiveActor].Monitors.Next;
             If pMon <> Nil Then
             Begin
               Repeat
                 If pMon.Enabled
                 Then Begin
-                  ActiveCircuit.ActiveCktElement := pMon;
+                  ActiveCircuit[ActiveActor].ActiveCktElement := pMon;
                   Result := 1;
                 End
-                Else  pMon := ActiveCircuit.Monitors.Next;
+                Else  pMon := ActiveCircuit[ActiveActor].Monitors.Next;
               Until (Result > 0) or (pMon = nil);
             End
             Else
@@ -101,127 +101,127 @@ begin
        End;
   end;
   2: begin  // Monitors.Reset
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.Active;
-            If PMon <> Nil Then PMon.ResetIt;
+            pMon := ActiveCircuit[ActiveActor].Monitors.Active;
+            If PMon <> Nil Then PMon.ResetIt(ActiveActor);
        End;
        Result := 0;
   end;
   3: begin  // Monitors.ResetAll
-         If ActiveCircuit <> Nil Then Begin
-            MonitorClass.ResetAll;
+         If ActiveCircuit[ActiveActor] <> Nil Then Begin
+            MonitorClass[ActiveActor].ResetAll(ActiveActor);
          End;
          Result := 0;
   end;
   4: begin  // Monitors.Sample
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.Active;
-            If PMon <> Nil Then PMon.TakeSample;
+            pMon := ActiveCircuit[ActiveActor].Monitors.Active;
+            If PMon <> Nil Then PMon.TakeSample(ActiveActor);
        End;
        Result := 0;
   end;
   5: begin  // Monitors.Save
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.Active;
+            pMon := ActiveCircuit[ActiveActor].Monitors.Active;
             If PMon <> Nil Then PMon.Save;  // TranslateToCSV(False);
        End;
        Result := 0;
   end;
   6: begin  // Monitors.Show
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.Active;
-            If PMon <> Nil Then PMon.TranslateToCSV(True);
+            pMon := ActiveCircuit[ActiveActor].Monitors.Active;
+            If PMon <> Nil Then PMon.TranslateToCSV(True,ActiveActor);
        End;
        Result := 0;
   end;
   7: begin  // Monitors.Mode read
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.Active;
+            pMon := ActiveCircuit[ActiveActor].Monitors.Active;
             If PMon <> Nil Then Result := PMon.Mode
             Else Result := 0;
        End;
   end;
   8: begin  // Monitors.Mode Write
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.Active;
+            pMon := ActiveCircuit[ActiveActor].Monitors.Active;
             If PMon <> Nil Then
             Begin
               PMon.Mode := arg;
-              PMon.ResetIt;  // Always reset the monitor after a Mode change
+              PMon.ResetIt(ActiveActor);  // Always reset the monitor after a Mode change
             End;
        End;
        Result := 0;
   end;
   9: begin  // Monitors.SampleCount
-       If ActiveCircuit <> Nil Then Begin
-           pMon := ActiveCircuit.Monitors.Active;
+       If ActiveCircuit[ActiveActor] <> Nil Then Begin
+           pMon := ActiveCircuit[ActiveActor].Monitors.Active;
            Result := pMon.SampleCount;
        End;
   end;
   10: begin  // Monitors.SampleAll
-       If ActiveCircuit <> Nil Then Begin
-           MonitorClass.SampleAll;
+       If ActiveCircuit[ActiveActor] <> Nil Then Begin
+           MonitorClass[ActiveActor].SampleAll(ActiveActor);
        End;
        Result:=0;
   end;
   11: begin  // Monitor.SaveAll
-       If ActiveCircuit <> Nil Then Begin
-           MonitorClass.SaveAll;
+       If ActiveCircuit[ActiveActor] <> Nil Then Begin
+           MonitorClass[ActiveActor].SaveAll(ActiveActor);
        End;
   end;
   12: begin  // Monitor.Count
-      If ActiveCircuit <> Nil Then Begin
-           Result := ActiveCircuit.Monitors.ListSize;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+           Result := ActiveCircuit[ActiveActor].Monitors.ListSize;
        End;
   end;
   13: begin  // Monitor.Process
-      if ActiveCircuit <> Nil then begin
-        pMon := ActiveCircuit.Monitors.Active;
-        if PMon <> Nil then pMon.PostProcess;
+      if ActiveCircuit[ActiveActor] <> Nil then begin
+        pMon := ActiveCircuit[ActiveActor].Monitors.Active;
+        if PMon <> Nil then pMon.PostProcess(ActiveActor);
       end;
       Result:=0;
   end;
   14: begin  // Monitor.ProcessAll
-      If ActiveCircuit <> Nil Then Begin
-        MonitorClass.PostProcessAll;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        MonitorClass[ActiveActor].PostProcessAll(ActiveActor);
       End;
       Result:=0;
   end;
   15: begin  // Monitor.FileVersion
-      If ActiveCircuit <> Nil Then Begin
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
          Result := Header.Version;
       End;
   end;
   16: begin // Monitor.RecordSize
-    If ActiveCircuit <> Nil Then Begin
+    If ActiveCircuit[ActiveActor] <> Nil Then Begin
         ReadMonitorHeader(Header, TRUE);
         Result := Header.RecordSize;
     End;
   end;
   17: begin  // Monitor.NumChannels
-    If ActiveCircuit <> Nil Then Begin
+    If ActiveCircuit[ActiveActor] <> Nil Then Begin
         ReadMonitorHeader(Header, TRUE);
         Result := Header.RecordSize;
     End;
   end;
   18: begin  // Monitor.Terminal read
-      if ActiveCircuit <> Nil then begin
-        pMon := ActiveCircuit.Monitors.Active;
+      if ActiveCircuit[ActiveActor] <> Nil then begin
+        pMon := ActiveCircuit[ActiveActor].Monitors.Active;
         if PMon <> Nil then Result := pMon.MeteredTerminal ;
       end;
   end;
   19: begin  // Monitor.Terminal Write
-      if ActiveCircuit <> Nil then begin
-        pMon := ActiveCircuit.Monitors.Active;
+      if ActiveCircuit[ActiveActor] <> Nil then begin
+        pMon := ActiveCircuit[ActiveActor].Monitors.Active;
         if PMon <> Nil then Begin
            pMon.MeteredTerminal  := arg ;
-           pMon.RecalcElementData ;
+           pMon.RecalcElementData(ActiveActor) ;
         End;
         Result:=0;
   end;
@@ -245,25 +245,25 @@ begin
   Result := pAnsiChar(AnsiString('0')); // Default return value
   case mode of
   0: begin  // Monitors.FIleName
-    If ActiveCircuit <> Nil Then
+    If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-          pMon := ActiveCircuit.Monitors.Active;
-          If PMon <> Nil Then Result := pAnsiChar(AnsiString(PMon.CSVFileName))
+          pMon := ActiveCircuit[ActiveActor].Monitors.Active;
+          If PMon <> Nil Then Result := pAnsiChar(AnsiString(PMon.Get_FileName(ActiveActor)))
           Else Result := pAnsiChar(AnsiString(''));
      End;
   end;
   1: begin // Monitors.Name read
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.Active;
+            pMon := ActiveCircuit[ActiveActor].Monitors.Active;
             If PMon <> Nil Then Result := pAnsiChar(AnsiString(PMon.Name))
             Else Result := pAnsiChar(AnsiString(''));
    End;
   end;
   2: begin  // Monitors.Nme Write
-      IF ActiveCircuit <> NIL
+      IF ActiveCircuit[ActiveActor] <> NIL
       THEN Begin      // Search list of monitors in active circuit for name
-           WITH ActiveCircuit.Monitors DO
+           WITH ActiveCircuit[ActiveActor].Monitors DO
            Begin
              S := widestring(arg);  // Convert to Pascal String
              Found := FALSE;
@@ -271,7 +271,7 @@ begin
              pMon := First;
              While pMon <> NIL Do Begin
                 IF (CompareText(pMon.Name, S) = 0) THEN Begin
-                    ActiveCircuit.ActiveCktElement := pMon;
+                    ActiveCircuit[ActiveActor].ActiveCktElement := pMon;
                     Found := TRUE;
                     Break;
                 End;
@@ -280,24 +280,24 @@ begin
              IF NOT Found THEN Begin
                  DoSimpleMsg('Monitor "'+S+'" Not Found in Active Circuit.', 5004);
                  pMon := Get(ActiveSave);    // Restore active Monerator
-                 ActiveCircuit.ActiveCktElement := pMon;
+                 ActiveCircuit[ActiveActor].ActiveCktElement := pMon;
              End;
            End;
       End;
   end;
   3: begin  // Monitors.Element read
-      if ActiveCircuit <> Nil then begin
-        pMon := ActiveCircuit.Monitors.Active;
+      if ActiveCircuit[ActiveActor] <> Nil then begin
+        pMon := ActiveCircuit[ActiveActor].Monitors.Active;
         if PMon <> Nil then Result := pAnsiChar(AnsiString(pMon.ElementName)) ;
       end;
   end;
   4: begin  // Monitors.Element Write
-     if ActiveCircuit <> Nil then begin
-        pMon := ActiveCircuit.Monitors.Active;
+     if ActiveCircuit[ActiveActor] <> Nil then begin
+        pMon := ActiveCircuit[ActiveActor].Monitors.Active;
         if PMon <> Nil then Begin
            pMon.ElementName := widestring(arg) ;
            pMon.PropertyValue [1] := widestring(arg);
-           pMon.RecalcElementData ;
+           pMon.RecalcElementData(ActiveActor) ;
         End;
      end;
   end
@@ -331,8 +331,8 @@ begin
   0: begin  // Monitors.AllNames
       arg := VarArrayCreate([0, 0], varOleStr);
       arg[0] := 'NONE';
-      IF ActiveCircuit <> Nil THEN
-       WITH ActiveCircuit DO
+      IF ActiveCircuit[ActiveActor] <> Nil THEN
+       WITH ActiveCircuit[ActiveActor] DO
        If Monitors.ListSize>0 Then
        Begin
          VarArrayRedim(arg, Monitors.ListSize-1);
@@ -346,9 +346,9 @@ begin
        End;
   end;
   1: begin  // Monitor.ByteStream
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pMon := ActiveCircuit.Monitors.Active;
+            pMon := ActiveCircuit[ActiveActor].Monitors.Active;
             If PMon <> Nil Then Begin
               arg := VarArrayCreate([0, pmon.MonitorStream.Size -1], varByte);
               pmon.MonitorStream.Seek(0, soFromBeginning);
@@ -364,8 +364,8 @@ begin
   2: begin  // Monitors.dblHour
       arg := VarArrayCreate([0, 0], varOleStr);
       arg[0] := 'NONE';
-      IF ActiveCircuit <> Nil THEN
-       WITH ActiveCircuit DO
+      IF ActiveCircuit[ActiveActor] <> Nil THEN
+       WITH ActiveCircuit[ActiveActor] DO
        Begin
            ReadMonitorHeader(Header, TRUE);
            If Header.RecordSize > 0 Then
@@ -392,8 +392,8 @@ begin
        End;
   end;
   3: begin  // Monitors.dblHour
-      If ActiveCircuit <> Nil Then Begin
-        pMon := ActiveCircuit.Monitors.Active;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        pMon := ActiveCircuit[ActiveActor].Monitors.Active;
         If pMon.SampleCount >0 Then Begin
                arg := VarArrayCreate([0, pMon.SampleCount-1], varDouble);
                ReadMonitorHeader(Header, FALSE);   // leave at beginning of data
@@ -426,8 +426,8 @@ begin
       End;
   end;
   4: begin  // Monitors,dblFreq
-     If ActiveCircuit <> Nil Then Begin
-          pMon := ActiveCircuit.Monitors.Active;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+          pMon := ActiveCircuit[ActiveActor].Monitors.Active;
         If pMon.SampleCount >0 Then Begin
                arg := VarArrayCreate([0, pMon.SampleCount-1], varDouble);
                ReadMonitorHeader(Header, FALSE);   // leave at beginning of data
@@ -460,8 +460,8 @@ begin
       End;
   end;
   5: begin
-     If ActiveCircuit <> Nil Then Begin
-        pMon := ActiveCircuit.Monitors.Active;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        pMon := ActiveCircuit[ActiveActor].Monitors.Active;
         If pMon.SampleCount >0 Then Begin
                index:=integer(arg);
                arg := VarArrayCreate([0, pMon.SampleCount-1], varDouble);

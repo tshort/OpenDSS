@@ -24,24 +24,24 @@ begin
   case mode of
   0: begin  // XYCurves.Count
       Result := 0;
-      If ActiveCircuit <> Nil Then
-        Result := XYCurveClass.ElementCount;
+      If ActiveCircuit[ActiveActor] <> Nil Then
+        Result := XYCurveClass[ActiveActor].ElementCount;
   end;
   1: Begin  // XYCurves.First
       Result := 0;
-      If ActiveCircuit <> Nil Then
-        Result := XYCurveClass.First;
+      If ActiveCircuit[ActiveActor] <> Nil Then
+        Result := XYCurveClass[ActiveActor].First;
   end;
   2: begin  // XYCurves.Next
       Result := 0;
-      If ActiveCircuit <> Nil Then
-        Result := XYCurveClass.Next;
+      If ActiveCircuit[ActiveActor] <> Nil Then
+        Result := XYCurveClass[ActiveActor].Next;
   end;
   3: begin  // XYCurves.Npts read
         Result := 0;
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
-            pXYCurve := XYCurveClass.GetActiveObj;
+            pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
             If pXYCurve <> Nil Then Begin
                 Result := pXYCurve.NumPoints;
             End Else Begin
@@ -50,9 +50,9 @@ begin
          End;
   end;
   4: begin  // XYCurves.Npts write
-    If ActiveCircuit <> Nil Then
+    If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-        pXYCurve := XYCurveClass.GetActiveObj;
+        pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
         If pXYCurve <> Nil Then Begin
             pXYCurve.NumPoints := arg;
         End Else Begin
@@ -76,9 +76,9 @@ begin
   case mode of
   0: begin  // XYCurve.X read
      Result := 0;
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               Result := pXYCurve.X;
           End Else Begin
@@ -87,9 +87,9 @@ begin
        End;
   end;
   1: begin  // XYCurve.X write
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               pXYCurve.X := arg;
           End Else Begin
@@ -99,9 +99,9 @@ begin
   end;
   2: begin  // XYCurve.Y read
       Result := 0;
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               Result := pXYCurve.FYscale;
           End Else Begin
@@ -110,9 +110,9 @@ begin
        End;
   end;
   3: begin  // XYCurve.Y write
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               pXYCurve.FYScale := arg;
           End Else Begin
@@ -122,9 +122,9 @@ begin
   end;
   4: begin  // XYCurve.XShift read
         Result := 0;
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
-            pXYCurve := XYCurveClass.GetActiveObj;
+            pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
             If pXYCurve <> Nil Then Begin
                 Result := pXYCurve.FXshift;
             End Else Begin
@@ -133,9 +133,9 @@ begin
          End;
   end;
   5: begin  // XYCurve.XShift write
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               pXYCurve.FXShift := arg;
           End Else Begin
@@ -145,9 +145,9 @@ begin
   end;
   6: begin  // XYCurve.YShift read
       Result := 0;
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               Result := pXYCurve.FYshift;
           End Else Begin
@@ -156,9 +156,9 @@ begin
        End;
   end;
   7: begin  // XYCurve.YShift write
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               pXYCurve.FYShift := arg;
           End Else Begin
@@ -168,9 +168,9 @@ begin
   end;
   8: begin  // XYCurve.XScale read
       Result := 0;
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               Result := pXYCurve.FXscale;
           End Else Begin
@@ -179,9 +179,9 @@ begin
        End;
   end;
   9: begin  // XYCurve.XScale write
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               pXYCurve.FXScale := arg;
           End Else Begin
@@ -191,9 +191,9 @@ begin
   end;
   10: begin  // XYCurve.YScale read
       Result := 0;
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               Result := pXYCurve.FYscale;
           End Else Begin
@@ -202,9 +202,9 @@ begin
        End;
   end;
   11: begin  // XYCurve.YScale write
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
               pXYCurve.FYScale := arg;
           End Else Begin
@@ -228,9 +228,9 @@ begin
   case mode of
   0: begin  // XYCurve.Name read
        Result := pAnsiChar(AnsiString(''));  // means no name
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            pXYCurve := XYCurveClass.GetActiveObj ;
+            pXYCurve := XYCurveClass[ActiveActor].GetActiveObj ;
             If pXYCurve <> Nil Then
             Begin
                   Result := pAnsiChar(AnsiString(pXYCurve.Name));
@@ -238,9 +238,9 @@ begin
        End;
   end;
   1: begin  // XYCurve.Name write
-       If ActiveCircuit <> Nil Then
+       If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-            If Not XYCurveClass.SetActive (widestring(arg)) Then
+            If Not XYCurveClass[ActiveActor].SetActive (widestring(arg)) Then
              DoSimpleMsg('XYCurve "'+ widestring(arg) +'" Not Found in Active Circuit.', 51008);
          // Still same active object if not found
    End;
@@ -263,9 +263,9 @@ begin
   0: begin  // XYCurve.XArray read
         arg := VarArrayCreate([0, 0], varDouble);
         arg[0] := 0.0;  // error condition: one element array=0
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
-            pXYCurve := XYCurveClass.GetActiveObj;
+            pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
             If pXYCurve <> Nil Then Begin
                  VarArrayRedim(arg, pXYCurve.NumPoints-1);
                  For k:=0 to pXYCurve.NumPoints-1 Do
@@ -277,9 +277,9 @@ begin
   end;
   1: begin  // XYCurve.XArray write
  //     arg := VarArrayCreate([0, 0], varDouble);
-      If ActiveCircuit <> Nil Then
+      If ActiveCircuit[ActiveActor] <> Nil Then
        Begin
-          pXYCurve := XYCurveClass.GetActiveObj;
+          pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
           If pXYCurve <> Nil Then Begin
 
           // Only put in as many points as we have allocated
@@ -300,9 +300,9 @@ begin
   2: begin  // XYCurve.YArray read
         arg := VarArrayCreate([0, 0], varDouble);
         arg[0] := 0.0;  // error condition: one element array=0
-        If ActiveCircuit <> Nil Then
+        If ActiveCircuit[ActiveActor] <> Nil Then
          Begin
-            pXYCurve := XYCurveClass.GetActiveObj;
+            pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
             If pXYCurve <> Nil Then Begin
                  VarArrayRedim(arg, pXYCurve.NumPoints-1);
                  For k:=0 to pXYCurve.NumPoints-1 Do
@@ -314,9 +314,9 @@ begin
   end;
   3: begin  // XYCurve.YArray write
      arg := VarArrayCreate([0, 0], varDouble);
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
-        pXYCurve := XYCurveClass.GetActiveObj;
+        pXYCurve := XYCurveClass[ActiveActor].GetActiveObj;
         If pXYCurve <> Nil Then Begin
 
         // Only put in as many points as we have allocated

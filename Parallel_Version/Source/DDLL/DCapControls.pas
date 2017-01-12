@@ -14,14 +14,14 @@ uses DSSGlobals, Executive, ControlElem, CapControl, CapControlVars, Variants, S
 function ActiveCapControl: TCapControlObj;
 begin
   Result := nil;
-  if ActiveCircuit <> Nil then Result := ActiveCircuit.CapControls.Active;
+  if ActiveCircuit[ActiveActor] <> Nil then Result := ActiveCircuit[ActiveActor].CapControls.Active;
 end;
 
 procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('capcontrol.%s.%s=%s', [ActiveCapControl.Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -38,13 +38,13 @@ begin
   case mode of
   0:begin  // CapControls.First
       Result := 0;
-      If ActiveCircuit <> Nil Then begin
-        lst := ActiveCircuit.CapControls;
+      If ActiveCircuit[ActiveActor] <> Nil Then begin
+        lst := ActiveCircuit[ActiveActor].CapControls;
         elem := lst.First;
         If elem <> Nil Then Begin
           Repeat
             If elem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := elem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := elem;
               Result := 1;
             End
             Else elem := lst.Next;
@@ -54,13 +54,13 @@ begin
   end;
   1: begin  // CapControls.Next
       Result := 0;
-      If ActiveCircuit <> Nil Then Begin
-        lst := ActiveCircuit.CapControls;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        lst := ActiveCircuit[ActiveActor].CapControls;
         elem := lst.Next;
         if elem <> nil then begin
           Repeat
             If elem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := elem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := elem;
               Result := lst.ActiveIndex;
             End
             Else elem := lst.Next;
@@ -115,8 +115,8 @@ begin
         Set_Parameter ('VoltOverride', 'No');
   end;
   8: begin  // CapControls.Count
-     If Assigned(ActiveCircuit) Then
-              Result := ActiveCircuit.CapControls.ListSize ;
+     If Assigned(ActiveCircuit[ActiveActor]) Then
+              Result := ActiveCircuit[ActiveActor].CapControls.ListSize ;
   end
   else
       Result:=-1;
@@ -220,15 +220,15 @@ begin
       if elem <> nil then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // CapControl.Name write
-      IF ActiveCircuit <> NIL THEN Begin
-        lst := ActiveCircuit.CapControls;
+      IF ActiveCircuit[ActiveActor] <> NIL THEN Begin
+        lst := ActiveCircuit[ActiveActor].CapControls;
         S := widestring(arg);  // Convert to Pascal String
         Found := FALSE;
         ActiveSave := lst.ActiveIndex;
         elem := lst.First;
         While elem <> NIL Do Begin
           IF (CompareText(elem.Name, S) = 0) THEN Begin
-            ActiveCircuit.ActiveCktElement := elem;
+            ActiveCircuit[ActiveActor].ActiveCktElement := elem;
             Found := TRUE;
             Break;
           End;
@@ -237,7 +237,7 @@ begin
         IF NOT Found THEN Begin
           DoSimpleMsg('CapControl "'+S+'" Not Found in Active Circuit.', 5003);
           elem := lst.Get(ActiveSave);    // Restore active Load
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
         End;
       End;
   end;
@@ -275,7 +275,7 @@ begin
   0: begin  // Capcontrols.AllNames
       arg := VarArrayCreate([0, 0], varOleStr);
       arg[0] := 'NONE';
-      IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO
+      IF ActiveCircuit[ActiveActor] <> Nil THEN WITH ActiveCircuit[ActiveActor] DO
       If CapControls.ListSize > 0 Then
       Begin
         lst := CapControls;

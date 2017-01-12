@@ -25,7 +25,7 @@ begin
   Result:=0;
   case mode of
   0: begin  // DSS.NumCircuits
-      Result := NumCircuits;
+      Result := ActiveCircuit[ActiveActor].NumCircuits;
   end;
   1: begin  // DSS.ClearAll
       DoClearCmd;
@@ -104,7 +104,7 @@ begin
      k:=0;
      For i := 1 to NumIntrinsicClasses Do
      Begin
-        arg[k] := TDSSClass(DssClassList.Get(i)).Name;
+        arg[k] := TDSSClass(DssClassList[ActiveActor].Get(i)).Name;
         Inc(k);
      End;
   end;
@@ -113,9 +113,9 @@ begin
      Begin
          arg := VarArrayCreate([0, NumUserClasses-1], varOleStr);
          k:=0;
-         For i := NumIntrinsicClasses+1 To DSSClassList.ListSize   Do
+         For i := NumIntrinsicClasses+1 To DSSClassList[ActiveActor].ListSize   Do
          Begin
-            arg[k] := TDSSClass(DssClassList.Get(i)).Name;
+            arg[k] := TDSSClass(DssClassList[ActiveActor].Get(i)).Name;
             Inc(k);
          End;
      End

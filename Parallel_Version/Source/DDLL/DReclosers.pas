@@ -15,7 +15,7 @@ procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('recloser.%s.%s=%s', [TRecloserObj(RecloserClass.GetActiveObj).Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -33,18 +33,18 @@ begin
   case mode of
   0: begin  // Reclosers.Count
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
         Result := RecloserClass.ElementList.ListSize;
   end;
   1: begin  // Reclosers.First
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := RecloserClass.ElementList.First;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := 1;
           End
           Else pElem := RecloserClass.ElementList.Next;
@@ -52,13 +52,13 @@ begin
      End;
   end;
   2: begin  // Reclosers.Next
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := RecloserClass.ElementList.Next;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := RecloserClass.ElementList.ActiveIndex;
           End
           Else pElem := RecloserClass.ElementList.Next;
@@ -110,14 +110,14 @@ begin
       if elem <> nil then Set_parameter('Action', 'close');
   end;
   13: begin // Reclosers.Idx read
-      if ActiveCircuit <> Nil then
+      if ActiveCircuit[ActiveActor] <> Nil then
          Result := RecloserClass.ElementList.ActiveIndex
       else Result := 0;
   end;
   14: begin // Reclosers.Idx write
-      if ActiveCircuit <> Nil then   Begin
+      if ActiveCircuit[ActiveActor] <> Nil then   Begin
           pRecloser := RecloserClass.Elementlist.Get(arg);
-          If pRecloser <> Nil Then ActiveCircuit.ActiveCktElement := pRecloser;
+          If pRecloser <> Nil Then ActiveCircuit[ActiveActor].ActiveCktElement := pRecloser;
       End;
   end
   else
@@ -190,11 +190,11 @@ begin
       If elem <> Nil Then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // Reclosers.Name write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
           If RecloserClass.SetActive(widestring(arg)) Then
           Begin
-               ActiveCircuit.ActiveCktElement := RecloserClass.ElementList.Active ;
+               ActiveCircuit[ActiveActor].ActiveCktElement := RecloserClass.ElementList.Active ;
           End
           Else Begin
               DoSimpleMsg('Recloser "'+ widestring(arg) +'" Not Found in Active Circuit.', 77003);
@@ -237,7 +237,7 @@ begin
   0: begin  // Reclosers.AllNames
     arg := VarArrayCreate([0, 0], varOleStr);
     arg[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
     Begin
         If RecloserClass.ElementList.ListSize > 0 then
         Begin
@@ -256,7 +256,7 @@ begin
   1: begin  // Reclosers.RecloseIntervals
     arg := VarArrayCreate([0, 0], varDouble);
     arg[0] := -1.0;
-    IF ActiveCircuit <> Nil THEN
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
     Begin
         elem := RecloserClass.ElementList.Active;
         If elem <> Nil Then

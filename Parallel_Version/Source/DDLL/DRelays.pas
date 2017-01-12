@@ -14,7 +14,7 @@ procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('Relay.%s.%s=%s', [TRelayObj(RelayClass.GetActiveObj).Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -32,18 +32,18 @@ begin
   case mode of
   0: begin  // Relays.Count
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
         Result := RelayClass.ElementList.ListSize;
   end;
   1: begin  // Relays.First
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := RelayClass.ElementList.First;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := 1;
           End
           Else pElem := RelayClass.ElementList.Next;
@@ -52,13 +52,13 @@ begin
   end;
   2: begin  // Relays.Next
      Result := 0;
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
         pElem := RelayClass.ElementList.Next;
         If pElem <> Nil Then
         Repeat
           If pElem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := pElem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := pElem;
               Result := RelayClass.ElementList.ActiveIndex;
           End
           Else pElem := RelayClass.ElementList.Next;
@@ -84,14 +84,14 @@ begin
       if elem <> nil then Set_parameter('SwitchedTerm', IntToStr(arg));
   end;
   7: begin  // Relays.Idx read
-    if ActiveCircuit <> Nil then
+    if ActiveCircuit[ActiveActor] <> Nil then
        Result := RelayClass.ElementList.ActiveIndex
     else Result := 0;
   end;
   8: begin  // Relays.Idx write
-    if ActiveCircuit <> Nil then   Begin
+    if ActiveCircuit[ActiveActor] <> Nil then   Begin
         pRelay := Relayclass.Elementlist.Get(arg);
-        If pRelay <> Nil Then ActiveCircuit.ActiveCktElement := pRelay;
+        If pRelay <> Nil Then ActiveCircuit[ActiveActor].ActiveCktElement := pRelay;
     End;
   end
   else
@@ -114,11 +114,11 @@ begin
       If elem <> Nil Then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin   // Relays.Name write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
      Begin
           If RelayClass.SetActive(widestring(arg)) Then
           Begin
-               ActiveCircuit.ActiveCktElement := RelayClass.ElementList.Active ;
+               ActiveCircuit[ActiveActor].ActiveCktElement := RelayClass.ElementList.Active ;
           End
           Else Begin
               DoSimpleMsg('Relay "'+ widestring(arg) +'" Not Found in Active Circuit.', 77003);
@@ -161,7 +161,7 @@ begin
   0: begin  // Relays.AllNames
     arg := VarArrayCreate([0, 0], varOleStr);
     arg[0] := 'NONE';
-    IF ActiveCircuit <> Nil THEN
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
     Begin
         If RelayClass.ElementList.ListSize > 0 then
         Begin

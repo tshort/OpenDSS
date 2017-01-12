@@ -16,233 +16,233 @@ begin
   Result:=0; // Default retirn value
   case mode of
   0: begin //Solution.solve
-    IF ActiveCircuit <> Nil THEN ActiveCircuit.Solution.Solve;
+    IF ActiveCircuit[ActiveActor] <> Nil THEN ActiveCircuit[ActiveActor].Solution.Solve(ActiveActor);
     Result:=0;
   end;
   1: begin // solution.mode - read
-     //If ActiveCircuit <> Nil Then Result := GetSolutionModeID      changed to integer 8/16/00
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Mode
+     //If ActiveCircuit[ActiveActor] <> Nil Then Result := GetSolutionModeID      changed to integer 8/16/00
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.Mode
      Else Result := 0;
   end;
   2: begin // solution.mode - Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.Mode := arg; //InterpretSolveMode(Value);
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.Mode := arg; //InterpretSolveMode(Value);
   end;
   3: begin // Solution.hour - read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.DynaVars.intHour
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.DynaVars.intHour
      Else Result := 0;
   end;
   4: begin // Solution.hour - Write
-     If ActiveCircuit <> Nil Then With  ActiveCircuit.Solution Do Begin
+     If ActiveCircuit[ActiveActor] <> Nil Then With  ActiveCircuit[ActiveActor].Solution Do Begin
         DynaVars.intHour  := arg;
         Update_dblHour;
      End;
   end;
   5: begin  // Solution.Year - read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Year
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.Year
      Else Result := 0;
   end;
   6: begin  // Solution.Year - Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.Year  := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.Year  := arg;
   end;
   7: begin  // Solution.Iterations
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Iteration
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.Iteration
      Else Result := 0;
   end;
   8: begin  // Solution.MaxIterations - read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.MaxIterations
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.MaxIterations
      Else Result := 0;
   end;
   9: begin  //Solution.MaxIterations - write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.MaxIterations  := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.MaxIterations  := arg;
   end;
   10: begin // Solution.Number read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.NumberOfTimes
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.NumberOfTimes
      Else Result := 0;
   end;
   11: begin  // Solution.Number write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.NumberOfTimes  := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.NumberOfTimes  := arg;
   end;
   12: begin  // Solution.random read
-      If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.RandomType
+      If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.RandomType
       Else Result := 0;
   end;
   13: begin  // Solution.random write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.RandomType := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.RandomType := arg;
   end;
   14: begin  // Solution.Loadmodel read
-    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.LoadModel
+    If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.LoadModel
     ELSE Result := 0;
   end;
   15: begin  // Solution.LoadModel Write
-    If ActiveCircuit <> Nil Then  WITH ActiveCircuit.Solution Do Begin
+    If ActiveCircuit[ActiveActor] <> Nil Then  WITH ActiveCircuit[ActiveActor].Solution Do Begin
       LoadModel := arg;
       DefaultLoadModel := LoadModel;
     End;
   end;
   16: begin  // Solution.AddType read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.AutoAddObj.AddType
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].AutoAddObj.AddType
      Else Result := 0;
   end;
   17: begin  // Solution.Addtype Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.AutoAddObj.AddType := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].AutoAddObj.AddType := arg;
   end;
   18: begin  // Solution.Algorithm read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Algorithm
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.Algorithm
      Else Result := 0;
   end;
   19: begin  // Solution.Algotihm Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.Algorithm := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.Algorithm := arg;
   end;
   20: begin  // Solution.ControlMode read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.ControlMode
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.ControlMode
      Else Result := 0;
   end;
   21: begin // Solution.ControlMode Write
-    If ActiveCircuit <> Nil Then With ActiveCircuit.Solution Do Begin
+    If ActiveCircuit[ActiveActor] <> Nil Then With ActiveCircuit[ActiveActor].Solution Do Begin
          ControlMode := arg;
          DefaultControlMode := ControlMode;
     End;
   end;
   22: begin  // Solution.ControlIterations read
-     If ActiveCircuit <> Nil Then  Begin
-        Result := ActiveCircuit.Solution.ControlIteration;
+     If ActiveCircuit[ActiveActor] <> Nil Then  Begin
+        Result := ActiveCircuit[ActiveActor].Solution.ControlIteration;
      End;
   end;
   23: begin  // Solution.ControlIterations Write
-     If ActiveCircuit <> Nil Then Begin
-      ActiveCircuit.Solution.ControlIteration := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+      ActiveCircuit[ActiveActor].Solution.ControlIteration := arg;
     End;
   end;
   24: begin  // Solution.MaxControlIterations read
-      If ActiveCircuit <> Nil Then  Begin
-        Result := ActiveCircuit.Solution.MaxControlIterations;
+      If ActiveCircuit[ActiveActor] <> Nil Then  Begin
+        Result := ActiveCircuit[ActiveActor].Solution.MaxControlIterations;
      End;
   end;
   25: begin  // Solution.MaxControlIterations Write
-    If ActiveCircuit <> Nil Then Begin
-      ActiveCircuit.Solution.MaxControlIterations := arg;
+    If ActiveCircuit[ActiveActor] <> Nil Then Begin
+      ActiveCircuit[ActiveActor].Solution.MaxControlIterations := arg;
     End;
   end;
   26: begin  // Solution.Sample_docontrolactions
-    If ActiveCircuit <> Nil Then Begin
-      ActiveCircuit.Solution.Sample_DoControlActions  ;
+    If ActiveCircuit[ActiveActor] <> Nil Then Begin
+      ActiveCircuit[ActiveActor].Solution.Sample_DoControlActions(ActiveActor)  ;
     End;
     Result:=0;
   end;
   27: begin // Solution.CheckFaultStatus
-    If ActiveCircuit <> Nil Then Begin
-      ActiveCircuit.Solution.Check_Fault_Status ;
+    If ActiveCircuit[ActiveActor] <> Nil Then Begin
+      ActiveCircuit[ActiveActor].Solution.Check_Fault_Status(ActiveActor) ;
     End;
   end;
   28: begin  // Solution.SolveDirect
-     If ActiveCircuit <> Nil Then Begin
-        ActiveCircuit.Solution.SolveDirect;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        ActiveCircuit[ActiveActor].Solution.SolveDirect(ActiveActor);
      End;
   end;
   29: begin  // Solution.SolvePFlow
-     If ActiveCircuit <> Nil Then Begin
-        ActiveCircuit.Solution.DoPflowSolution;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        ActiveCircuit[ActiveActor].Solution.DoPflowSolution(ActiveActor);
      End;
   end;
   30: begin  // Solution.SolveNoControl
-     If ActiveCircuit <> Nil Then Begin
-        ActiveCircuit.Solution.SolveCircuit;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        ActiveCircuit[ActiveActor].Solution.SolveCircuit(ActiveActor);
      End;
   end;
   31: begin  // Solution.SolvePlusControl
-     If ActiveCircuit <> Nil Then Begin
-        With ActiveCircuit.Solution Do Begin
-           SolveCircuit;
-           CheckControls;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        With ActiveCircuit[ActiveActor].Solution Do Begin
+           SolveCircuit(ActiveActor);
+           CheckControls(ActiveActor);
         End;
      End;
   end;
   32: begin  // Solution.InitSnap
-     If ActiveCircuit <> Nil Then Begin
-        ActiveCircuit.Solution.SnapShotInit;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        ActiveCircuit[ActiveActor].Solution.SnapShotInit(ActiveActor);
      End;
   end;
   33: begin  // Solution.CheckControls
-     If ActiveCircuit <> Nil Then Begin
-        ActiveCircuit.Solution.CheckControls;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        ActiveCircuit[ActiveActor].Solution.CheckControls(ActiveActor);
      End;
   end;
   34: begin  // Solution.SampleControlDevices
-      If ActiveCircuit <> Nil Then Begin
-        ActiveCircuit.Solution.SampleControlDevices;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        ActiveCircuit[ActiveActor].Solution.SampleControlDevices(ActiveActor);
      End;
   end;
   35: begin  // Solution.DoControlActions
-     If ActiveCircuit <> Nil Then Begin
-        ActiveCircuit.Solution.DoControlActions;
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        ActiveCircuit[ActiveActor].Solution.DoControlActions(ActiveActor);
      End;
   end;
   36: begin  // Solution.BuildYMatrix
-      If ActiveCircuit <> Nil then  Begin
-           Ymatrix.BuildYMatrix(arg, FALSE)
+      If ActiveCircuit[ActiveActor] <> Nil then  Begin
+           Ymatrix.BuildYMatrix(arg, FALSE,ActiveActor)
       End;
   end;
   37: begin // Solution.SystemYChanged
-   If ActiveCircuit <> Nil Then Begin
-      if ActiveCircuit.Solution.SystemYChanged then Result:=1
+   If ActiveCircuit[ActiveActor] <> Nil Then Begin
+      if ActiveCircuit[ActiveActor].Solution.SystemYChanged then Result:=1
       else Result:=0;
    End;
   end;
   38: begin  // Solution.converged read
-     If ActiveCircuit <> Nil Then Begin
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
         Result:=0;
-        if ActiveCircuit.Issolved then Result:=1;
+        if ActiveCircuit[ActiveActor].Issolved then Result:=1;
      End;
   end;
   39: begin  // Solution.converged Write
-   If ActiveCircuit <> Nil Then Begin
+   If ActiveCircuit[ActiveActor] <> Nil Then Begin
      if arg=1 then
      begin
-       ActiveCircuit.Solution.ConvergedFlag := TRUE;
-       ActiveCircuit.Issolved := TRUE;
+       ActiveCircuit[ActiveActor].Solution.ConvergedFlag := TRUE;
+       ActiveCircuit[ActiveActor].Issolved := TRUE;
      end
      else
      begin
-       ActiveCircuit.Solution.ConvergedFlag := FALSE;
-       ActiveCircuit.Issolved := FALSE;
+       ActiveCircuit[ActiveActor].Solution.ConvergedFlag := FALSE;
+       ActiveCircuit[ActiveActor].Issolved := FALSE;
      end;
    End;
   end;
   40: begin // Solution.TotalIterations
-    If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Iteration
+    If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.Iteration
      Else Result := 0;
   end;
   41: begin  // Solution.MostIterationsDone
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.MostIterationsDone
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.MostIterationsDone
        Else Result := 0;
   end;
   42: begin  // Solution.ControlActionsDone read
       Result:=0;
-     If ActiveCircuit <> Nil Then
-        if ActiveCircuit.Solution.ControlActionsDone then Result := 1;
+     If ActiveCircuit[ActiveActor] <> Nil Then
+        if ActiveCircuit[ActiveActor].Solution.ControlActionsDone then Result := 1;
   end;
   43: begin // Solution.ControlActionsDone Write
-     If ActiveCircuit <> Nil Then
+     If ActiveCircuit[ActiveActor] <> Nil Then
         if arg=1 then
-          ActiveCircuit.Solution.ControlActionsDone := TRUE
+          ActiveCircuit[ActiveActor].Solution.ControlActionsDone := TRUE
         else
-          ActiveCircuit.Solution.ControlActionsDone := FALSE;
+          ActiveCircuit[ActiveActor].Solution.ControlActionsDone := FALSE;
   end;
   44: begin // Solution.FInishTimeStep
-    If ActiveCircuit <> Nil Then
-    WITH ActiveCircuit, ActiveCircuit.Solution Do
+    If ActiveCircuit[ActiveActor] <> Nil Then
+    WITH ActiveCircuit[ActiveActor], ActiveCircuit[ActiveActor].Solution Do
       Begin
-                MonitorClass.SampleAll;  // Make all monitors take a sample
-                EndOfTimeStepCleanup;
+                MonitorClass[ActiveActor].SampleAll(ActiveActor);  // Make all monitors take a sample
+                EndOfTimeStepCleanup(ActiveActor);
                 Increment_time;
  //               DefaultHourMult := DefaultDailyShapeObj.getmult(TDynamicsrec.dblHour);
     End;
   end;
   45: begin  // Solution.cleanup
-    If ActiveCircuit <> Nil Then
-      WITH ActiveCircuit, ActiveCircuit.Solution Do
+    If ActiveCircuit[ActiveActor] <> Nil Then
+      WITH ActiveCircuit[ActiveActor], ActiveCircuit[ActiveActor].Solution Do
       Begin
-                  EndOfTimeStepCleanup;
+                  EndOfTimeStepCleanup(ActiveActor);
       End;
   end
   else
@@ -256,55 +256,55 @@ begin
   Result:=0.0; // Default return value
   case mode of
   0: begin  // Solution.Frequency read
-      If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.Frequency
+      If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.Frequency
      Else Result := 0.0;
   end;
   1: begin  // Solution.Frequency Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.Frequency  := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.Frequency  := arg;
      Result:=0.0;
   end;
   2: begin  // Solution.Seconds read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.dynavars.t
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.dynavars.t
      Else Result := 0.0;
   end;
   3: begin  // Solution.Seconds Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.dynavars.t  := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.dynavars.t  := arg;
      Result:=0.0;
   end;
   4: begin  // Solution.Stepsize read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.dynavars.h
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.dynavars.h
      Else Result := 0.0;
   end;
   5: begin  // Solution.StepSize Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.dynavars.h  := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.dynavars.h  := arg;
      Result:=0.0;
   end;
   6: begin  // Solution.LoadMult read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.LoadMultiplier
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].LoadMultiplier
      Else Result := 0.0;
   end;
   7: begin  // Solution.LoadMult Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.LoadMultiplier  := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].LoadMultiplier  := arg;
      Result:=0.0;
   end;
   8: begin  // Solution.Convergence read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.ConvergenceTolerance
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].Solution.ConvergenceTolerance
      Else Result := 0.0;
   end;
   9: begin  // Solution.Convergence Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.Solution.ConvergenceTolerance  := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.ConvergenceTolerance  := arg;
      Result:=0.0;
   end;
   10: begin  // Solution.pctgrowth read
-     IF ActiveCircuit <> NIL
-     THEN With ActiveCircuit DO
+     IF ActiveCircuit[ActiveActor] <> NIL
+     THEN With ActiveCircuit[ActiveActor] DO
      Begin
         Result := (DefaultGrowthRate-1.0)*100.0
      End;
   end;
   11: begin  // Solution.pctGrowth Write
-     IF ActiveCircuit <> NIL
-     THEN With ActiveCircuit DO
+     IF ActiveCircuit[ActiveActor] <> NIL
+     THEN With ActiveCircuit[ActiveActor] DO
      Begin
         DefaultGrowthRate := 1.0 + arg/100.0;
         DefaultGrowthFactor :=  IntPower(DefaultGrowthRate, (Solution.Year-1));
@@ -312,79 +312,79 @@ begin
      Result:=0.0;
   end;
   12: begin  // Solution.GenkW read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.AutoAddObj.GenkW
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].AutoAddObj.GenkW
      Else Result := 0.0;
   end;
   13: begin  // Solution.GenkW Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.AutoAddObj.GenkW := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].AutoAddObj.GenkW := arg;
      Result:=0.0;
   end;
   14: begin // Solution.GenPF read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.AutoAddObj.GenPF
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].AutoAddObj.GenPF
      Else Result := 0.0;
   end;
   15: begin  // Solution.GenPF Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.AutoAddObj.GenPF := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].AutoAddObj.GenPF := arg;
      Result:=0.0;
   end;
   16: begin  // Solution.Capkvar read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.AutoAddObj.Capkvar
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].AutoAddObj.Capkvar
      Else Result := 0.0;
   end;
   17: begin  // Solution.Capkvar Write
-     If ActiveCircuit <> Nil Then ActiveCircuit.AutoAddObj.Capkvar := arg;
+     If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].AutoAddObj.Capkvar := arg;
      Result:=0.0;
   end;
   18: begin  // Solution.GenMult read
-     If ActiveCircuit <> Nil Then Result := ActiveCircuit.GenMultiplier
+     If ActiveCircuit[ActiveActor] <> Nil Then Result := ActiveCircuit[ActiveActor].GenMultiplier
      Else Result := 0.0;
   end;
   19: begin // Solution.GenMult Write
-    If ActiveCircuit <> Nil Then ActiveCircuit.GenMultiplier := arg;
+    If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].GenMultiplier := arg;
     Result:=0.0;
   end;
   20: begin  //Solution.dblHour read
-     If ActiveCircuit <> Nil Then  Begin
-        Result := ActiveCircuit.Solution.DynaVars.dblHour;
+     If ActiveCircuit[ActiveActor] <> Nil Then  Begin
+        Result := ActiveCircuit[ActiveActor].Solution.DynaVars.dblHour;
      End;
   end;
   21: begin  // Solution.dblHour Write
-      If ActiveCircuit <> Nil Then With ActiveCircuit.Solution Do Begin
+      If ActiveCircuit[ActiveActor] <> Nil Then With ActiveCircuit[ActiveActor].Solution Do Begin
           DynaVars.intHour := Trunc(arg);
           DynaVars.dblHour := arg;
           Dynavars.t := (arg - DynaVars.intHour) * 3600.0;
       End;
   end;
   22: begin  // Solution.StepSizeMin
-      If ActiveCircuit <> Nil Then Begin
-          ActiveCircuit.Solution.Dynavars.h := arg * 60.0;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+          ActiveCircuit[ActiveActor].Solution.Dynavars.h := arg * 60.0;
       End;
       Result:=0.0;
   end;
   23: begin // Solution.StepSizeHr
-      If ActiveCircuit <> Nil Then Begin
-          ActiveCircuit.Solution.Dynavars.h := arg * 3600.0;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+          ActiveCircuit[ActiveActor].Solution.Dynavars.h := arg * 3600.0;
       End;
       Result:=0.0;
   end;
   24: begin // Solution.Process_Time
-      If ActiveCircuit <> Nil Then Begin
-          Result  :=  ActiveCircuit.Solution.Time_Solve;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+          Result  :=  ActiveCircuit[ActiveActor].Solution.Time_Solve;
       End;
   end;
   25: begin // Solution.Total_Time read
-      If ActiveCircuit <> Nil Then Begin
-          Result  :=  ActiveCircuit.Solution.Total_Time;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+          Result  :=  ActiveCircuit[ActiveActor].Solution.Total_Time;
       End;
   end;
   26: begin // Solution.Total_Time Write
-      If ActiveCircuit <> Nil Then Begin
-          ActiveCircuit.Solution.Total_Time :=  arg;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+          ActiveCircuit[ActiveActor].Solution.Total_Time :=  arg;
       End;
   end;
   27: begin // Solution.Time_TimeStep
-      If ActiveCircuit <> Nil Then Begin
-          Result  :=  ActiveCircuit.Solution.Time_Step;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+          Result  :=  ActiveCircuit[ActiveActor].Solution.Time_Step;
       End;
   end
   else
@@ -402,47 +402,47 @@ begin
   Result := pAnsiChar(AnsiString(''));  // Default return value
   case mode of
   0: begin  // Solution.ModeID
-    If ActiveCircuit <> Nil Then Result := pAnsiChar(AnsiString(GetSolutionModeID))
+    If ActiveCircuit[ActiveActor] <> Nil Then Result := pAnsiChar(AnsiString(GetSolutionModeID))
     ELSE Result := pAnsiChar(AnsiString(''));
   end;
   1: begin  // Solution.LDCurve read
-     IF ActiveCircuit <> Nil Then Result := pAnsiChar(AnsiString(ActiveCircuit.LoadDurCurve))
+     IF ActiveCircuit[ActiveActor] <> Nil Then Result := pAnsiChar(AnsiString(ActiveCircuit[ActiveActor].LoadDurCurve))
      ELSE Result := pAnsiChar(AnsiString(''));
   end;
   2: begin  // Solution.LDCurve Write
-      IF ActiveCircuit <> Nil
-      THEN With ActiveCircuit DO
+      IF ActiveCircuit[ActiveActor] <> Nil
+      THEN With ActiveCircuit[ActiveActor] DO
       Begin
             LoadDurCurve    := widestring(arg);
-            LoadDurCurveObj := LoadShapeClass.Find(LoadDurCurve);
+            LoadDurCurveObj := LoadShapeClass[ActiveActor].Find(LoadDurCurve);
             IF LoadDurCurveObj=NIL THEN
              DoSimpleMsg('Load-Duration Curve not found.', 5001);
       End;
   end;
   3: begin  // Solution.DefaultDaily read
-     IF   ActiveCircuit <> Nil
-     THEN Result := pAnsiChar(AnsiString(ActiveCircuit.DefaultDailyShapeObj.Name))
+     IF   ActiveCircuit[ActiveActor] <> Nil
+     THEN Result := pAnsiChar(AnsiString(ActiveCircuit[ActiveActor].DefaultDailyShapeObj.Name))
      ELSE Result := pAnsiChar(AnsiString(''));
   end;
   4: begin  // Solution.DefaultDaily Write
-     If ActiveCircuit <> Nil
+     If ActiveCircuit[ActiveActor] <> Nil
      Then
      Begin
-           TestLoadShapeObj := LoadShapeClass.Find(widestring(arg));
-           IF TestLoadShapeObj <> NIL THEN ActiveCircuit.DefaultDailyShapeObj  := TestLoadShapeObj;
+           TestLoadShapeObj := LoadShapeClass[ActiveActor].Find(widestring(arg));
+           IF TestLoadShapeObj <> NIL THEN ActiveCircuit[ActiveActor].DefaultDailyShapeObj  := TestLoadShapeObj;
      END;
   end;
   5: begin  // Solution.DefaultYearly read
-     IF   ActiveCircuit <> Nil
-     THEN Result := pAnsiChar(AnsiString(ActiveCircuit.DefaultYearlyShapeObj.Name))
+     IF   ActiveCircuit[ActiveActor] <> Nil
+     THEN Result := pAnsiChar(AnsiString(ActiveCircuit[ActiveActor].DefaultYearlyShapeObj.Name))
      ELSE Result := pAnsiChar(AnsiString(''));
   end;
   6: begin  // Solution.DefaultYearly Write
-     If ActiveCircuit <> Nil
+     If ActiveCircuit[ActiveActor] <> Nil
      Then
      Begin
-           TestLoadShapeObj := LoadShapeClass.Find(widestring(arg));
-           IF TestLoadShapeObj <> NIL THEN ActiveCircuit.DefaultYearlyShapeObj  := TestLoadShapeObj;
+           TestLoadShapeObj := LoadShapeClass[ActiveActor].Find(widestring(arg));
+           IF TestLoadShapeObj <> NIL THEN ActiveCircuit[ActiveActor].DefaultYearlyShapeObj  := TestLoadShapeObj;
      END;
   end
   else
@@ -456,10 +456,10 @@ Var i:Integer;
 begin
   case mode of
   0: begin  // Solution.EventLog
-     If ActiveCircuit <> Nil Then Begin
-       arg := VarArrayCreate([0, EventStrings.Count-1], varOleStr);
-       For i := 0 to EventStrings.Count-1 Do Begin
-          arg[i] := EventStrings.Strings[i];
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+       arg := VarArrayCreate([0, EventStrings[ActiveActor].Count-1], varOleStr);
+       For i := 0 to EventStrings[ActiveActor].Count-1 Do Begin
+          arg[i] := EventStrings[ActiveActor].Strings[i];
        End;
     END
     Else arg := VarArrayCreate([0,0], varOleStr);;

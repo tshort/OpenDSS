@@ -14,14 +14,14 @@ uses DSSGlobals, Executive, Capacitor, Variants, SysUtils, PointerList;
 function ActiveCapacitor: TCapacitorObj;
 begin
   Result := nil;
-  if ActiveCircuit <> Nil then Result := ActiveCircuit.ShuntCapacitors.Active;
+  if ActiveCircuit[ActiveActor] <> Nil then Result := ActiveCircuit[ActiveActor].ShuntCapacitors.Active;
 end;
 
 procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('capacitor.%s.%s=%s', [ActiveCapacitor.Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -57,13 +57,13 @@ begin
   end;
   4: begin  // Capacitors.First
     Result := 0;
-    If ActiveCircuit <> Nil Then begin
-      lst := ActiveCircuit.ShuntCapacitors;
+    If ActiveCircuit[ActiveActor] <> Nil Then begin
+      lst := ActiveCircuit[ActiveActor].ShuntCapacitors;
       elem := lst.First;
       If elem <> Nil Then Begin
         Repeat
           If elem.Enabled Then Begin
-            ActiveCircuit.ActiveCktElement := elem;
+            ActiveCircuit[ActiveActor].ActiveCktElement := elem;
             Result := 1;
           End
           Else elem := lst.Next;
@@ -73,13 +73,13 @@ begin
   end;
   5: begin  // Capacitors.Next
     Result := 0;
-    If ActiveCircuit <> Nil Then Begin
-      lst := ActiveCircuit.ShuntCapacitors;
+    If ActiveCircuit[ActiveActor] <> Nil Then Begin
+      lst := ActiveCircuit[ActiveActor].ShuntCapacitors;
       elem := lst.Next;
       if elem <> nil then begin
         Repeat
           If elem.Enabled Then Begin
-            ActiveCircuit.ActiveCktElement := elem;
+            ActiveCircuit[ActiveActor].ActiveCktElement := elem;
             Result := lst.ActiveIndex;
           End
           Else elem := lst.Next;
@@ -88,8 +88,8 @@ begin
     End;
   end;
   6: begin  // Capacitors.Count
-     If Assigned(ActiveCircuit) Then
-          Result := ActiveCircuit.ShuntCapacitors.ListSize;
+     If Assigned(ActiveCircuit[ActiveActor]) Then
+          Result := ActiveCircuit[ActiveActor].ShuntCapacitors.ListSize;
   end;
   7: begin  // Capacitors.AddStep
       elem := ActiveCapacitor;
@@ -108,8 +108,8 @@ begin
       if elem <> nil then Result := elem.AvailableSteps ;
   end;
   10: begin  // Capacitors.Open
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
         elem := ActiveCapacitor;
         If elem <> nil THEN
@@ -120,8 +120,8 @@ begin
      End;
   end;
   11: begin  // Capacitors.Close
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
         elem := ActiveCapacitor;
         If elem <> nil THEN
@@ -188,15 +188,15 @@ begin
       If elem <> Nil Then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // Capacitors.Name write
-      IF ActiveCircuit <> NIL THEN Begin
-        lst := ActiveCircuit.ShuntCapacitors;
+      IF ActiveCircuit[ActiveActor] <> NIL THEN Begin
+        lst := ActiveCircuit[ActiveActor].ShuntCapacitors;
         S := widestring(arg);  // Convert to Pascal String
         Found := FALSE;
         ActiveSave := lst.ActiveIndex;
         elem := lst.First;
         While elem <> NIL Do Begin
           IF (CompareText(elem.Name, S) = 0) THEN Begin
-            ActiveCircuit.ActiveCktElement := elem;
+            ActiveCircuit[ActiveActor].ActiveCktElement := elem;
             Found := TRUE;
             Break;
           End;
@@ -205,7 +205,7 @@ begin
         IF NOT Found THEN Begin
           DoSimpleMsg('Capacitor "'+S+'" Not Found in Active Circuit.', 5003);
           elem := lst.Get(ActiveSave);    // Restore active Capacitor
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
         End;
       End;
   end
@@ -230,7 +230,7 @@ begin
   0: begin  // Capacitors.AllNames
       arg := VarArrayCreate([0, 0], varOleStr);
       arg[0] := 'NONE';
-      IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO
+      IF ActiveCircuit[ActiveActor] <> Nil THEN WITH ActiveCircuit[ActiveActor] DO
       If ShuntCapacitors.ListSize > 0 then
       Begin
         lst := ShuntCapacitors;
@@ -247,7 +247,7 @@ begin
   1: begin  // Capacitors.States read
       arg := VarArrayCreate([0, 0], varInteger);
       arg[0] := -1;     // error code
-      IF ActiveCircuit <> Nil THEN
+      IF ActiveCircuit[ActiveActor] <> Nil THEN
       Begin
           Elem := ActiveCapacitor;
           If Elem <> nil Then

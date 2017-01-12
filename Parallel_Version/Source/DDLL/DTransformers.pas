@@ -14,14 +14,14 @@ uses DSSGlobals, Executive, Transformer, Variants, SysUtils, PointerList;
 function ActiveTransformer: TTransfObj;
 begin
   Result := nil;
-  if ActiveCircuit <> Nil then Result := ActiveCircuit.Transformers.Active;
+  if ActiveCircuit[ActiveActor] <> Nil then Result := ActiveCircuit[ActiveActor].Transformers.Active;
 end;
 
 procedure Set_Parameter(const parm: string; const val: string);
 var
   cmd: string;
 begin
-  if not Assigned (ActiveCircuit) then exit;
+  if not Assigned (ActiveCircuit[ActiveActor]) then exit;
   SolutionAbort := FALSE;  // Reset for commands entered from outside
   cmd := Format ('transformer.%s.%s=%s', [ActiveTransformer.Name, parm, val]);
   DSSExecutive.Command := cmd;
@@ -80,13 +80,13 @@ begin
   end;
   8: begin  // Transformers.First
       Result := 0;
-      If ActiveCircuit <> Nil Then begin
-        lst := ActiveCircuit.Transformers;
+      If ActiveCircuit[ActiveActor] <> Nil Then begin
+        lst := ActiveCircuit[ActiveActor].Transformers;
         elem := lst.First;
         If elem <> Nil Then Begin
           Repeat
             If elem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := elem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := elem;
               Result := 1;
             End
             Else elem := lst.Next;
@@ -96,13 +96,13 @@ begin
   end;
   9: begin  // Transformers.Next
       Result := 0;
-      If ActiveCircuit <> Nil Then Begin
-        lst := ActiveCircuit.Transformers;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        lst := ActiveCircuit[ActiveActor].Transformers;
         elem := lst.Next;
         if elem <> nil then begin
           Repeat
             If elem.Enabled Then Begin
-              ActiveCircuit.ActiveCktElement := elem;
+              ActiveCircuit[ActiveActor].ActiveCktElement := elem;
               Result := lst.ActiveIndex;
             End
             Else elem := lst.Next;
@@ -111,8 +111,8 @@ begin
       End;
   end;
   10: begin  // Transformers.Count
-     If Assigned(ActiveCircuit) Then
-          Result := ActiveCircuit.Transformers.ListSize;
+     If Assigned(ActiveCircuit[ActiveActor]) Then
+          Result := ActiveCircuit[ActiveActor].Transformers.ListSize;
   end
   else
       Result:=-1;
@@ -252,21 +252,21 @@ begin
   end;
   2: begin  // Transformers.Name read
       Result := pAnsiChar(AnsiString(''));
-      If ActiveCircuit <> Nil Then Begin
-        elem := ActiveCircuit.Transformers.Active;
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        elem := ActiveCircuit[ActiveActor].Transformers.Active;
         If elem <> Nil Then Result := pAnsiChar(AnsiString(elem.Name));
       End;
   end;
   3: begin  // Transformers.Name write
-      IF ActiveCircuit <> NIL THEN Begin
-        lst := ActiveCircuit.Transformers;
+      IF ActiveCircuit[ActiveActor] <> NIL THEN Begin
+        lst := ActiveCircuit[ActiveActor].Transformers;
         S := widestring(arg);  // Convert to Pascal String
         Found := FALSE;
         ActiveSave := lst.ActiveIndex;
         elem := lst.First;
         While elem <> NIL Do Begin
           IF (CompareText(elem.Name, S) = 0) THEN Begin
-            ActiveCircuit.ActiveCktElement := elem;
+            ActiveCircuit[ActiveActor].ActiveCktElement := elem;
             Found := TRUE;
             Break;
             End;
@@ -275,7 +275,7 @@ begin
         IF NOT Found THEN Begin
           DoSimpleMsg('Transformer "'+S+'" Not Found in Active Circuit.', 5003);
           elem := lst.Get(ActiveSave);    // Restore active Load
-          ActiveCircuit.ActiveCktElement := elem;
+          ActiveCircuit[ActiveActor].ActiveCktElement := elem;
         End;
      End;
   end
@@ -297,7 +297,7 @@ begin
   0: begin  // Transformers.AllNames
       arg := VarArrayCreate([0, 0], varOleStr);
       arg[0] := 'NONE';
-      IF ActiveCircuit <> Nil THEN WITH ActiveCircuit DO
+      IF ActiveCircuit[ActiveActor] <> Nil THEN WITH ActiveCircuit[ActiveActor] DO
       If Transformers.ListSize > 0 Then
         Begin
           lst := Transformers;

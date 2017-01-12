@@ -18,11 +18,11 @@ begin
   case mode of
   0: begin  // DSSElement.NumProperties
     Result := 0;
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
        If ActiveDSSObject<>Nil THEN
-       WITH ActiveDSSObject DO
+       WITH ActiveDSSObject[ActiveActor] DO
        Begin
             Result := ParentClass.NumProperties ;
        End
@@ -39,9 +39,9 @@ begin
   Result:=pAnsiChar(AnsiString(''));// Default return value
   case mode of
   0: begin
-     If ActiveCircuit <> Nil Then
-       if ActiveDSSObject <> Nil then
-        WITH ActiveDSSObject DO
+     If ActiveCircuit[ActiveActor] <> Nil Then
+       if ActiveDSSObject[ActiveActor] <> Nil then
+        WITH ActiveDSSObject[ActiveActor] DO
         Begin
           Result := pAnsiChar(AnsiString(ParentClass.Name + '.' + Name));
         End
@@ -63,11 +63,11 @@ begin
   case mode of
   0: begin  // DSSElement.AllPropertyNames
     arg := VarArrayCreate([0, 0], varOleStr);
-    IF ActiveCircuit <> Nil THEN
-     WITH ActiveCircuit DO
+    IF ActiveCircuit[ActiveActor] <> Nil THEN
+     WITH ActiveCircuit[ActiveActor] DO
      Begin
-       If ActiveDSSObject<>Nil THEN
-       WITH ActiveDSSObject DO
+       If ActiveDSSObject[ActiveActor]<>Nil THEN
+       WITH ActiveDSSObject[ActiveActor] DO
        Begin
             WITH ParentClass Do
             Begin

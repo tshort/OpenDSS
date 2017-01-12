@@ -194,7 +194,9 @@ uses
   KLUSolve in '..\Common\KLUSolve.pas',
   ScriptEdit in '..\Forms\ScriptEdit.pas',
   vccs in '..\PCElements\vccs.pas',
-  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas';
+  MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
+  Parallel_Lib in '..\Parallel_Lib\Parallel_Lib.pas',
+  DParallel in 'DParallel.pas';
 
 //**************************end of the functions*************************************
 exports
@@ -237,7 +239,7 @@ exports
    DSSI,DSSS,DSSV,
    InitAndGetYparams,GetCompressedYMatrix,ZeroInjCurr,GetSourceInjCurrents,GetPCInjCurr,
    SystemYChanged,BuildYMatrixD,UseAuxCurrents,AddInAuxCurrents,getIpointer,
-   getVpointer,SolveSystem;
+   getVpointer,SolveSystem,ParallelI,ParallelV;
 
 begin
 
@@ -248,7 +250,6 @@ begin
 {Create one instance of DSS executive whenever the DSS Engine is init'd}
   DSSExecutive := TExecutive.Create;  // Start the DSS when DSS interface is created
   DSSExecutive.CreateDefaultDSSItems;
-
 
   //WriteDLLDebugFile(DSSDirectory);
 
