@@ -152,7 +152,7 @@ TYPE
 
        Procedure DoFlickerCalculations(ActorID : Integer);  // call from CloseMonitorStream
 
-       function  Get_FileName(ActorID : Integer): String;
+
 
      public
        Mode          :Integer;
@@ -180,6 +180,7 @@ TYPE
        Procedure GetInjCurrents(Curr: pComplexArray; ActorID : Integer);             Override;   // Returns Injextion currents
        PROCEDURE InitPropertyValues(ArrayOffset:Integer);         Override;
        Procedure DumpProperties(Var F:TextFile; Complete:Boolean);Override;
+       function  Get_FileName(ActorID : Integer): String;
        //Property  MonitorFileName:String read BufferFile;
 
 //       Property CSVFileName:String Read Get_FileName;
