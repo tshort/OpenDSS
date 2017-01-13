@@ -23,7 +23,7 @@ object currdump {
 }
 
 object recorder {
-  parent regulator:Reg;
+  parent reg_Reg;
   file reg1_output.csv;
   interval 1;
   limit 1;
