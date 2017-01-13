@@ -1052,6 +1052,7 @@ Var
   pName1, pName2  : TNamedObject;
 	pIsland, pSwing : TNamedObject;  // island and ref node
   zbase  : double;
+  s      : String;
 
   pBank  : TBankObject;
   maxWdg : Integer;
@@ -1342,7 +1343,8 @@ Begin
         i1 := GetCktElementIndex(ElementName); // Global function
         GuidNode (F, 'RegulatingControl.Terminal',
           GetTermGuid (ActiveCircuit.CktElements.Get(i1), ElementTerminal));
-        MonitoredPhaseNode (F, Char(Ord('A') + PTPhase - 1)); // TODO - average, min and max unsupported in CIM
+        s := FirstPhaseString (ActiveCircuit.CktElements.Get(i1), 1);
+        MonitoredPhaseNode (F, Char(Ord(s[1]) + PTPhase - 1)); // TODO - average, min and max unsupported in CIM
         val := 1.0;
         if CapControlType = PFCONTROL then begin
           v1 := PfOnValue;
