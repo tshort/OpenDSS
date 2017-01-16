@@ -88,21 +88,10 @@ public class CDPSM_to_GLM extends Object {
 		public double qa_p;
 		public double qb_p;
 		public double qc_p;
-		// secondary (i.e. triplex) zip loads
-		public double p1_z;
-		public double p2_z;
-		public double q1_z;
-		public double q2_z;
-		public double p1_i;
-		public double p2_i;
-		public double q1_i;
-		public double q2_i;
-		public double p1_p;
-		public double p2_p;
-		public double q1_p;
-		public double q2_p;
 		public boolean bDelta;  // will add N or D phasing, if not S
 		public boolean bSwing;
+		// secondary (i.e. triplex) zip loads 1 and 2 attach to A and B
+		// if bSecondary true, A and B loads written as 1 and 2 loads instead
 		public boolean bSecondary; // i.e. AS, BS or CS even though the load phasing is 1, 2
 
 		public GldNode(String name) {
@@ -112,9 +101,6 @@ public class CDPSM_to_GLM extends Object {
 			pa_z = pb_z = pc_z = qa_z = qb_z = qc_z = 0.0;
 			pa_i = pb_i = pc_i = qa_i = qb_i = qc_i = 0.0;
 			pa_p = pb_p = pc_p = qa_p = qb_p = qc_p = 0.0;
-			p1_z = p2_z = q1_z = q2_z = 0.0;
-			p1_i = p2_i = q1_i = q2_i = 0.0;
-			p1_p = p2_p = q1_p = q2_p = 0.0;
 			bDelta = false;
 			bSwing = false;
 			bSecondary = false;
@@ -157,18 +143,6 @@ public class CDPSM_to_GLM extends Object {
 			if (qa_p != 0.0) return true;
 			if (qb_p != 0.0) return true;
 			if (qc_p != 0.0) return true;
-			if (p1_z != 0.0) return true;
-			if (p2_z != 0.0) return true;
-			if (q1_z != 0.0) return true;
-			if (q2_z != 0.0) return true;
-			if (p1_i != 0.0) return true;
-			if (p2_i != 0.0) return true;
-			if (q1_i != 0.0) return true;
-			if (q2_i != 0.0) return true;
-			if (p1_p != 0.0) return true;
-			if (p2_p != 0.0) return true;
-			if (q1_p != 0.0) return true;
-			if (q2_p != 0.0) return true;
 			return false;
 		}
 	}
@@ -530,13 +504,15 @@ public class CDPSM_to_GLM extends Object {
 
   static boolean AccumulateLoads (GldNode nd, String phs, double pL, double qL, double Pv, double Qv,
 																	double Pz, double Pi, double Pp, double Qz, double Qi, double Qp) {
-		// we have to equally divide the total pL and qL among the actual phases defined in "phs"
+
+ //     System.out.println (nd.name + ":" + phs + ":" + String.format("%6g", pL));
+      // we have to equally divide the total pL and qL among the actual phases defined in "phs"
 		double fa = 0.0, fb = 0.0, fc = 0.0, denom = 0.0;
-		if (phs.contains("A")) {
+		if (phs.contains("A") || phs.contains("S")) {
 			fa = 1.0;
 			denom += 1.0;
 		}
-		if (phs.contains("B")) {
+		if (phs.contains("B") || phs.contains("S")) {  // TODO - allow for s1 and s2
 			fb = 1.0;
 			denom += 1.0;
 		}
@@ -2524,30 +2500,30 @@ public class CDPSM_to_GLM extends Object {
 					out.println ("  name \"" + nd.name + "\";");
 					out.println ("  phases " + nd.GetPhases() + ";");
 					out.println ("  nominal_voltage " + String.format("%6g", nd.nomvln) + ";");
-					if (nd.p1_p > 0.0 || nd.q1_p != 0.0)	{
-						out.println ("  power_1 " + CFormat(new Complex(nd.p1_p, nd.q1_p)) + ";");
+					if (nd.pa_p > 0.0 || nd.qa_p != 0.0)	{
+						out.println ("  power_1 " + CFormat(new Complex(nd.pa_p, nd.qa_p)) + ";");
 					}
-					if (nd.p2_p > 0.0 || nd.q2_p != 0.0)	{
-						out.println ("  power_2 " + CFormat(new Complex(nd.p2_p, nd.q2_p)) + ";");
+					if (nd.pb_p > 0.0 || nd.qb_p != 0.0)	{
+						out.println ("  power_2 " + CFormat(new Complex(nd.pb_p, nd.qb_p)) + ";");
 					}
-					if (nd.p1_z > 0.0 || nd.q1_z != 0.0) {
-						Complex s = new Complex(nd.p1_z, nd.q1_z);
+					if (nd.pa_z > 0.0 || nd.qa_z != 0.0) {
+						Complex s = new Complex(nd.pa_z, nd.qa_z);
 						Complex z = vmagsq.divide(s.conjugate());
 						out.println ("  impedance_1 " + CFormat(z) + ";");
 					}
-					if (nd.p2_z > 0.0 || nd.q2_z != 0.0) {
-						Complex s = new Complex(nd.p2_z, nd.q2_z);
+					if (nd.pb_z > 0.0 || nd.qb_z != 0.0) {
+						Complex s = new Complex(nd.pb_z, nd.qb_z);
 						Complex z = vmagsq.divide(s.conjugate());
 						out.println ("  impedance_2 " + CFormat(z) + ";");
 					}
-					if (nd.p1_i > 0.0 || nd.q1_i != 0.0) {
-						Complex s = new Complex(nd.p1_i, nd.q1_i);
+					if (nd.pa_i > 0.0 || nd.qa_i != 0.0) {
+						Complex s = new Complex(nd.pa_i, nd.qa_i);
 						Complex amps = s.divide(va).conjugate();
-						out.println ("  current_1 " + CFormat(amps) + ";");
+						out.println("  current_1 " + CFormat(amps) + ";");
 					}
-					if (nd.p2_i > 0.0 || nd.q2_i != 0.0) {
-						Complex s = new Complex(nd.p2_i, nd.q2_i);
-						Complex amps = s.divide(va).conjugate(); // TODO - what should be the angle?
+					if (nd.pb_i > 0.0 || nd.qb_i != 0.0) {
+						Complex s = new Complex(nd.pb_i, nd.qb_i);
+						Complex amps = s.divide(va).conjugate();
 						out.println ("  current_2 " + CFormat(amps) + ";");
 					}
 					out.println("}");
