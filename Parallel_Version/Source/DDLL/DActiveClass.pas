@@ -15,14 +15,14 @@ begin
   case mode of
   0: begin  // ActiveClass.First
        Result := 0;
-       If (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass) Then
+       If (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass[ActiveActor]) Then
        Begin
             Result := ActiveDSSClass[ActiveActor].First;  // sets active objects
        End;
   end;
   1: begin  // ActiveClass.Next
        Result := 0;
-       If (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass) Then
+       If (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass[ActiveActor]) Then
        Begin
             Result := ActiveDSSClass[ActiveActor].Next;  // sets active objects
        End;
@@ -50,7 +50,7 @@ begin
   Result:=pAnsiChar(AnsiString('0'));
   case mode of
   0: begin  // ActiveClass.Name read
-      if Assigned(ActiveDSSObject) then  Result := pAnsiChar(AnsiString(ActiveDSSObject[ActiveActor].Name))
+      if Assigned(ActiveDSSObject[ActiveActor]) then  Result := pAnsiChar(AnsiString(ActiveDSSObject[ActiveActor].Name))
       Else Result := pAnsiChar(AnsiString(''));
   end;
   1: begin  // ActiveClass.Name write
@@ -83,7 +83,7 @@ Var
 begin
   case mode of
   0: begin
-    If (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass) Then
+    If (ActiveCircuit[ActiveActor] <> Nil) and Assigned(ActiveDSSClass[ActiveActor]) Then
      WITH ActiveCircuit[ActiveActor] DO
      Begin
        arg := VarArrayCreate([0, ActiveDSSClass[ActiveActor].ElementCount-1], varOleStr);

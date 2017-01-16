@@ -263,7 +263,7 @@ begin
      End;
 
      LastClassReferenced[ActiveActor] := DevClassIndex;
-     ActiveDSSClass := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
+     ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
      Result := pAnsiChar(AnsiString(InttoStr(LastClassReferenced[ActiveActor])));
   end
   else
