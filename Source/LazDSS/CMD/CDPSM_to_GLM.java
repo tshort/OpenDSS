@@ -821,7 +821,7 @@ public class CDPSM_to_GLM extends Object {
 		bufX.append ("  connect_type " + GetGldTransformerConnection (wye, nwdg) + ";\n");
 		bufX.append ("  primary_voltage " + String.format("%6g", v[0]) + ";\n");
 		bufX.append ("  secondary_voltage " + String.format("%6g", v[1]) + ";\n");
-		bufX.append ("  power_rating " + String.format("%6g", s[0]) + ";\n");
+		bufX.append ("  power_rating " + String.format("%6g", 0.001 * s[0]) + ";\n");// kVA
 		bufX.append ("  resistance " + String.format("%6g", rw[0] + rw[1]) + ";\n");
 
 		it = mdl.listResourcesWithProperty (ptFrom, rEnds[0]);
@@ -954,25 +954,26 @@ public class CDPSM_to_GLM extends Object {
 		}
 		buf.append ("  band_center " + String.format("%6g", Vreg) + ";\n");
 		buf.append ("  band_width " + String.format("%6g", Vband) + ";\n");
-		buf.append ("  time_delay " + String.format("%6g", initDelay) + ";\n");
+//		buf.append ("  time_delay " + String.format("%6g", initDelay) + ";\n");
 		buf.append ("  raise_taps " + String.format("%d", Math.abs (highStep - neutralStep)) + ";\n");
 		buf.append ("  lower_taps " + String.format("%d", Math.abs (neutralStep - lowStep)) + ";\n");
-		buf.append ("  current_transducer_ratio " + String.format("%6g", CT) + ";\n");
-		buf.append ("  power_transducer_ratio " + String.format("%6g", PT) + ";\n");
+		buf.append ("  Control MANUAL;\n");
+//		buf.append ("  current_transducer_ratio " + String.format("%6g", CT) + ";\n");
+//		buf.append ("  power_transducer_ratio " + String.format("%6g", PT) + ";\n");
 		if (bA)	{
 			buf.append ("  tap_pos_A " + String.format("%d", iTapA) + ";\n");
-			buf.append ("  compensator_r_setting_A " + String.format("%6g", ldcRa) + ";\n");
-			buf.append ("  compensator_x_setting_A " + String.format("%6g", ldcXa) + ";\n");
+//			buf.append ("  compensator_r_setting_A " + String.format("%6g", ldcRa) + ";\n");
+//			buf.append ("  compensator_x_setting_A " + String.format("%6g", ldcXa) + ";\n");
 		}
 		if (bB)	{
 			buf.append ("  tap_pos_B " + String.format("%d", iTapB) + ";\n");
-			buf.append ("  compensator_r_setting_B " + String.format("%6g", ldcRb) + ";\n");
-			buf.append ("  compensator_x_setting_B " + String.format("%6g", ldcXb) + ";\n");
+//			buf.append ("  compensator_r_setting_B " + String.format("%6g", ldcRb) + ";\n");
+//			buf.append ("  compensator_x_setting_B " + String.format("%6g", ldcXb) + ";\n");
 		}
 		if (bC)	{
 			buf.append ("  tap_pos_C " + String.format("%d", iTapC) + ";\n");
-			buf.append ("  compensator_r_setting_C " + String.format("%6g", ldcRc) + ";\n");
-			buf.append ("  compensator_x_setting_C " + String.format("%6g", ldcXc) + ";\n");
+//			buf.append ("  compensator_r_setting_C " + String.format("%6g", ldcRc) + ";\n");
+//			buf.append ("  compensator_x_setting_C " + String.format("%6g", ldcXc) + ";\n");
 		}
 		buf.append ("}\n");
 
@@ -983,6 +984,14 @@ public class CDPSM_to_GLM extends Object {
 		buf.append ("  configuration \"rcon_" + name + "\";\n");
 		buf.append ("}\n");
 
+		return buf.toString();
+	}
+
+	static String MergePhases (String phs1, String phs2) {
+		StringBuilder buf = new StringBuilder("");
+		if (phs1.contains("A") || phs2.contains("A")) buf.append("A");
+		if (phs1.contains("B") || phs2.contains("B")) buf.append("B");
+		if (phs1.contains("C") || phs2.contains("C")) buf.append("C");
 		return buf.toString();
 	}
 
@@ -1002,9 +1011,9 @@ public class CDPSM_to_GLM extends Object {
 		String xfName = SafeResName (rXf, ptName);
 		String xfGroup = mdl.getProperty(rXf,ptGroup).getString();
 		String xfCode = "";
-		String xfPhase;
+		String xfPhase = ""; // all phases appearing (any tank, first two ends) in this power transformer
 		String bus [] = new String[2];
-		String phs [] = new String[2];
+		String phs [] = new String[2]; // phases of the first two ends of the first tank
 		boolean bRegulator = false;
 
 		// look for the first two buses, accumulate those phases, accept any datasheet
@@ -1016,6 +1025,7 @@ public class CDPSM_to_GLM extends Object {
 				int i = SafeInt (wdg, ptEndN, 1) - 1;
 				if (i >= 0 && i <= 1)	{
 					phs[i] = Phase_String(SafePhasesX (wdg, ptPhs));
+					xfPhase = MergePhases (xfPhase, phs[i]);
 					Resource trm = wdg.getProperty(ptTerm).getResource();
 					Resource CN = trm.getProperty(ptNode).getResource();
 					if (CN.hasProperty(ptName)) {  // buses can't differ for each tank in GridLAB-D
@@ -1039,20 +1049,21 @@ public class CDPSM_to_GLM extends Object {
 		}
 
 		// figure out the phasing for center-tap secondary transformers
-		if (phs[0].contains("s"))	{
+		if (phs[0].contains("s"))	{ // center-tap relies on the first tank
 			phs[0] = phs[1] + "S";
 			xfPhase = phs[0];
-		} else if (phs[1].contains("s")) {
+		} else if (phs[1].contains("s")) { // center-tap relies on the first tank
 			phs[1] = phs[0] + "S";
 			xfPhase = phs[1];
 		} else if (xfGroup.contains("D"))	{
-			phs[0] = phs[0] + "D";
-			xfPhase = phs[0];
+			phs[0] = xfPhase + "D";
+			phs[1] = xfPhase;
 		} else if (xfGroup.contains("d"))	{
-			phs[1] = phs[1] + "D";
-			xfPhase = phs[1];
+			phs[0] = xfPhase;
+			phs[1] = xfPhase + "D";
 		} else {
-			xfPhase = phs[0];
+			phs[0] = xfPhase;
+			phs[1] = xfPhase;
 		}
 		GldNode nd = mapNodes.get(bus[0]);
 		nd.AddPhases(phs[0]);
@@ -1062,14 +1073,14 @@ public class CDPSM_to_GLM extends Object {
 		StringBuilder buf = new StringBuilder("");
 		if (bRegulator)	{
 			return GetRegulatorData (mdl, rXf, xfName, xfGroup, bus[0], bus[1], phs[0]);
-		} else {
+		} else { /*
 			buf.append ("object transformer {\n");
 			buf.append ("  name \"xf_" + xfName + "\";\n");
 			buf.append ("  from \"" + bus[0] + "\";\n");
 			buf.append ("  to \"" + bus[1] + "\";\n");
 			buf.append ("  phases " + xfPhase + ";\n");
 			buf.append ("  // " + xfGroup + "\n");
-			buf.append ("  configuration \"xcon_" + xfCode + "\";\n}\n");
+			buf.append ("  configuration \"xcon_" + xfCode + "\";\n}\n");*/
 		}
 
 		return buf.toString();
@@ -1345,8 +1356,8 @@ public class CDPSM_to_GLM extends Object {
     while (iter.hasNext()) {
       Resource wdg = iter.nextResource();
 			int i = wdg.getProperty(ptEndN).getInt() - 1;
-      dU[i] = vmult * SafeDouble (wdg, ptU, 1);
-      dS[i] = smult * SafeDouble (wdg, ptS, 1);
+      dU[i] = vmult * SafeDouble (wdg, ptU, 1); // v
+      dS[i] = smult * SafeDouble (wdg, ptS, 1); // va
       dR[i] = SafeDouble (wdg, ptR, 0);
       double Zbase = dU[i] * dU[i] / dS[i];
       dR[i] /= Zbase;
@@ -1382,7 +1393,7 @@ public class CDPSM_to_GLM extends Object {
 		buf.append ("  connect_type " + ConnectType + ";\n");
 		buf.append ("  primary_voltage " + String.format("%6g", dU[0]) + ";\n");
 		buf.append ("  secondary_voltage " + String.format("%6g", dU[1]) + ";\n");
-		buf.append ("  power_rating " + String.format("%6g", dS[0]) + ";\n");
+		buf.append ("  power_rating " + String.format("%6g", 0.001 * dS[0]) + ";\n"); // kva
 		buf.append ("  resistance " + String.format("%6g", dR[0] + dR[1]) + ";\n");
 		buf.append ("  reactance " + String.format("%6g", dXsc) + ";\n");
 		if (dNLL > 0.0) {
@@ -1590,15 +1601,17 @@ public class CDPSM_to_GLM extends Object {
 		Property ptB0 = mdl.getProperty (nsCIM, "ACLineSegment.b0ch");
 
 		if (r.hasProperty (ptX1)) {
-			double r1 = SafeDouble (r, ptR1, 0); // TODO - verify non-use of len here, and be consistent with OpenDSS importer
+			double r1 = SafeDouble (r, ptR1, 0);
 			double r0 = SafeDouble (r, ptR0, 0);
 			double x1 = SafeDouble (r, ptX1, 0);
 			double x0 = SafeDouble (r, ptX0, x1);
-			double b0 = SafeDouble (r, ptB0, 0); // EdF writes b0ch but not bch
+			double b0 = SafeDouble (r, ptB0, 0);
 			double b1 = SafeDouble (r, ptB1, b0); 
 			double c0 = 1.0e9 * b0 / 376.991; // TODO - read frequency
 			double c1 = 1.0e9 * b1 / 376.991;
-			out.println (GetSequenceLineConfigurations (name, r1, x1, c1, r0, x0, c0));
+			double scale = 5280.0 / len; // so that we end up with ohms and nF for len[ft]*sequence config Z [per mile]
+			out.println (GetSequenceLineConfigurations (name, scale * r1, scale * x1, scale * c1, 
+																									scale * r0, scale * x0, scale * c0));
 			return "lcon_" + name + "_" + phs;
 		}
 		return "";
@@ -1926,7 +1939,7 @@ public class CDPSM_to_GLM extends Object {
       double cap_q = cap_v * cap_v * cap_b;
 			cap_q /= phs.length();
 			if (phs.length() > 1 && !phs_delta) cap_v /= Math.sqrt(3.0);
-
+/*
 			out.println ("object capacitor {");
 			out.println ("  name \"cap_" + name + "\";");
 			out.println ("  parent \"" + bus1 + "\";");
@@ -1950,7 +1963,7 @@ public class CDPSM_to_GLM extends Object {
 				out.println ("  time_delay " + String.format("%6g", delay) + ";");
 			}
 
-			out.println("}");
+			out.println("}");*/
     }
 
 		// for GridLAB-D, we need to write the transformers first so that we can identify
@@ -1967,7 +1980,7 @@ public class CDPSM_to_GLM extends Object {
 
 			id = soln.get ("?s").toString();
 			name = GLD_Name (soln.get ("?name").toString(), false);
-			out.println (GetXfmrCode (model, id, smult, vmult));
+	/*		out.println (GetXfmrCode (model, id, smult, vmult)); */
 		}
 
 		// Transformers
@@ -1987,7 +2000,10 @@ public class CDPSM_to_GLM extends Object {
 			Property ptTank = model.getProperty (nsCIM, "TransformerTank.PowerTransformer");
 			ResIterator itTank = model.listResourcesWithProperty (ptTank, res);
 			if (itTank.hasNext()) { // write all the tanks to this bank
-				out.println (GetPowerTransformerTanks (model, res, itTank));
+				String s = GetPowerTransformerTanks (model, res, itTank);
+				if (s.length() > 0) {
+					out.println (s);
+				}
 			} else { // standalone power transformer
 				out.println (GetPowerTransformerData (model, res));
 			}
@@ -2265,33 +2281,37 @@ public class CDPSM_to_GLM extends Object {
 			String zSpace = GetLineSpacing (model, res);
 			String linecode = "";
 
-			if (nd1.bSecondary)	{
+			if (nd1.bSecondary)	{ /*
 				out.println("object triplex_line {\n  name \"tpx_" + name + "\";");
+				out.println ("  phases " + phs + ";");
+				out.println ("  from \"" + bus1 + "\";");
+				out.println ("  to \"" + bus2 + "\";");
+				out.println ("  length " + String.format("%6g", dLen) + ";");
+				if (zPhase.length() > 0) {
+					out.println("  configuration \"tcon_" + zPhase + "\";");
+				} else if (zParms.length() > 0) {
+					out.println("  configuration \"" + zParms + "\";");
+				}
+				out.println ("}"); */
 			} else {
 				out.println("object overhead_line {\n  name \"line_" + name + "\";");
-			}
-			out.println ("  phases " + phs + ";");
-			out.println ("  from \"" + bus1 + "\";");
-			out.println ("  to \"" + bus2 + "\";");
-			out.println ("  length " + String.format("%6g", dLen) + ";");
-
-      if (zPhase.length() > 0) {
-				if (nd1.bSecondary)	{
-					out.println("  configuration \"tcon_" + zPhase + "\";");
-				} else {
+				out.println ("  phases " + phs + ";");
+				out.println ("  from \"" + bus1 + "\";");
+				out.println ("  to \"" + bus2 + "\";");
+				out.println ("  length " + String.format("%6g", dLen) + ";");
+				if (zPhase.length() > 0) {
 					out.println("  configuration \"lcon_" + zPhase + "_" + phs + "\";");
+				} else if (zParms.length() > 0) {
+					out.println("  configuration \"" + zParms + "\";");
 				}
-      } else if (zSpace.length() > 0) {
-//        linecode = zSpace;
-      } else if (zParms.length() > 0) {
-				out.println("  configuration \"" + zParms + "\";");
-      }
+				out.println ("}");
+			}
+
 //      String zAmps = "";
 //      if (zParms.length () > 0) {
 //        zAmps = FindConductorAmps (model, res, ptDataSheet, ptAmps);
 //				out.println (zAmps);
 //      }
-			out.println ("}");
     }
 
     // LoadBreakSwitch ==> Line switch=y
@@ -2494,17 +2514,17 @@ public class CDPSM_to_GLM extends Object {
 			if (nd.HasLoad())	 {
 				Complex va = new Complex(nd.nomvln);
 				Complex vmagsq = new Complex(nd.nomvln * nd.nomvln);
-				if (nd.bSecondary) {
+				if (nd.bSecondary) { /*
 					out.println("object triplex_node {");
 					if (nd.bSwing) out.println ("  bustype SWING;");
 					out.println ("  name \"" + nd.name + "\";");
 					out.println ("  phases " + nd.GetPhases() + ";");
 					out.println ("  nominal_voltage " + String.format("%6g", nd.nomvln) + ";");
 					if (nd.pa_p > 0.0 || nd.qa_p != 0.0)	{
-						out.println ("  power_1 " + CFormat(new Complex(nd.pa_p, nd.qa_p)) + ";");
+						out.println ("  power_1 " + CFormat((new Complex(nd.pa_p, nd.qa_p)).multiply(0.1)) + ";");
 					}
 					if (nd.pb_p > 0.0 || nd.qb_p != 0.0)	{
-						out.println ("  power_2 " + CFormat(new Complex(nd.pb_p, nd.qb_p)) + ";");
+						out.println ("  power_2 " + CFormat((new Complex(nd.pb_p, nd.qb_p)).multiply(0.1)) + ";");
 					}
 					if (nd.pa_z > 0.0 || nd.qa_z != 0.0) {
 						Complex s = new Complex(nd.pa_z, nd.qa_z);
@@ -2519,14 +2539,14 @@ public class CDPSM_to_GLM extends Object {
 					if (nd.pa_i > 0.0 || nd.qa_i != 0.0) {
 						Complex s = new Complex(nd.pa_i, nd.qa_i);
 						Complex amps = s.divide(va).conjugate();
-						out.println("  current_1 " + CFormat(amps) + ";");
+						out.println ("  current_1 " + CFormat(amps) + ";");
 					}
 					if (nd.pb_i > 0.0 || nd.qb_i != 0.0) {
 						Complex s = new Complex(nd.pb_i, nd.qb_i);
 						Complex amps = s.divide(va).conjugate();
 						out.println ("  current_2 " + CFormat(amps) + ";");
 					}
-					out.println("}");
+					out.println("}"); */
 				} else {
 					out.println("object load {");
 					if (nd.bSwing) out.println ("  bustype SWING;");
@@ -2575,16 +2595,21 @@ public class CDPSM_to_GLM extends Object {
 					out.println("}");
 				}
 			} else {
-				if (nd.bSecondary) {
+				if (nd.bSecondary) { /*
 					out.println("object triplex_node {");
+					if (nd.bSwing) out.println ("  bustype SWING;");
+					out.println ("  name \"" + nd.name + "\";");
+					out.println ("  phases " + nd.GetPhases() + ";");
+					out.println ("  nominal_voltage " + String.format("%6g", nd.nomvln) + ";");
+					out.println ("}"); */
 				} else {
 					out.println("object node {");
+					if (nd.bSwing) out.println ("  bustype SWING;");
+					out.println ("  name \"" + nd.name + "\";");
+					out.println ("  phases " + nd.GetPhases() + ";");
+					out.println ("  nominal_voltage " + String.format("%6g", nd.nomvln) + ";");
+					out.println ("}");
 				}
-				if (nd.bSwing) out.println ("  bustype SWING;");
-				out.println ("  name \"" + nd.name + "\";");
-				out.println ("  phases " + nd.GetPhases() + ";");
-				out.println ("  nominal_voltage " + String.format("%6g", nd.nomvln) + ";");
-				out.println ("}");
 			}
 		}
 		out.println ();
