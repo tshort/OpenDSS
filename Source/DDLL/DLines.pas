@@ -5,7 +5,7 @@ interface
 function LinesI(mode: longint; arg: longint): longint; cdecl;
 function LinesF(mode: longint; arg: double): double; cdecl;
 function LinesS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
-procedure LinesV(mode: longint; out arg: olevariant);cdecl;
+procedure LinesV(mode: longint; out arg:variant);cdecl;
 
 implementation
 
@@ -523,7 +523,7 @@ begin
 end;
 
 //************************Variant type properties*******************************
-procedure LinesV(mode: longint; out arg: olevariant);cdecl;
+procedure LinesV(mode: longint; out arg:variant);cdecl;
 
 Var
   LineElem:TLineObj;

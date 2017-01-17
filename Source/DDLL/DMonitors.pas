@@ -4,7 +4,7 @@ interface
 
 function MonitorsI(mode:longint; arg: longint):longint; cdecl;
 function MonitorsS(mode:longint; arg: pAnsiChar):pAnsiChar; cdecl;
-procedure MonitorsV(mode:longint; out arg: Olevariant); cdecl;
+procedure MonitorsV(mode:longint; out arg:variant); cdecl;
 
 implementation
 
@@ -307,7 +307,7 @@ begin
 end;
 
 //****************************Variant type properties***************************
-procedure MonitorsV(mode:longint; out arg: Olevariant); cdecl;
+procedure MonitorsV(mode:longint; out arg:variant); cdecl;
 
 Var
   MonitorElem:TMonitorObj;

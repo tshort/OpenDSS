@@ -4,7 +4,7 @@ interface
 
 function DSSElementI(mode:longint; arg: longint):longint;cdecl;
 function DSSElementS(mode:longint; arg: pAnsiChar):pAnsiChar;cdecl;
-procedure DSSElementV(mode: longint; out arg: Olevariant);cdecl;
+procedure DSSElementV(mode: longint; out arg:variant);cdecl;
 
 implementation
 
@@ -54,7 +54,7 @@ begin
 end;
 
 //*****************************Variant type properties**************************
-procedure DSSElementV(mode: longint; out arg: Olevariant);cdecl;
+procedure DSSElementV(mode: longint; out arg:variant);cdecl;
 
 VAR
    k:Integer;

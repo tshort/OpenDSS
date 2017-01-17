@@ -4,7 +4,7 @@ interface
 
 function DSSI(mode:longint;arg:longint):longint;cdecl;
 function DSSS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
-procedure DSSV(mode:longint;out arg:Olevariant);cdecl;
+procedure DSSV(mode:longint;out arg:variant);cdecl;
 
 implementation
 
@@ -93,7 +93,7 @@ begin
 end;
 
 //********************************Variant Type properties***************************
-procedure DSSV(mode:longint;out arg:Olevariant);cdecl;
+procedure DSSV(mode:longint;out arg:variant);cdecl;
 
 Var
   i,k:Integer;

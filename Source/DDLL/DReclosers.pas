@@ -5,7 +5,7 @@ interface
 function ReclosersI(mode:longint;arg:longint):longint;cdecl;
 function ReclosersF(mode:longint;arg:double):double;cdecl;
 function ReclosersS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
-procedure ReclosersV(mode:longint;out arg:Olevariant);cdecl;
+procedure ReclosersV(mode:longint;out arg:variant);cdecl;
 
 implementation
 
@@ -225,7 +225,7 @@ begin
 end;
 
 //********************Variant type properties******************************
-procedure ReclosersV(mode:longint;out arg:Olevariant);cdecl;
+procedure ReclosersV(mode:longint;out arg:variant);cdecl;
 
 Var
   elem: TRecloserObj;

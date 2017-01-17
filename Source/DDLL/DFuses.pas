@@ -5,7 +5,7 @@ interface
 function FusesI(mode:longint;arg:longint):longint;cdecl;
 function FusesF(mode:longint;arg:double):double;cdecl;
 function FusesS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
-procedure FusesV(mode:longint;out arg:Olevariant);cdecl;
+procedure FusesV(mode:longint;out arg:variant);cdecl;
 
 implementation
 
@@ -197,7 +197,7 @@ begin
 end;
 
 //******************************Variant type properties********************
-procedure FusesV(mode:longint;out arg:Olevariant);cdecl;
+procedure FusesV(mode:longint;out arg:variant);cdecl;
 
 Var
   elem: TFuseObj;

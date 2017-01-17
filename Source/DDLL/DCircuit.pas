@@ -5,7 +5,7 @@ interface
 function CircuitI(mode:longint; arg: longint):longint;cdecl;
 function CircuitF(mode:longint; arg1, arg2: double):double;cdecl;
 function CircuitS(mode:longint; arg: pAnsiChar):pAnsiChar;cdecl;
-procedure CircuitV(mode:longint; out arg: Olevariant; arg2: longint);cdecl;
+procedure CircuitV(mode:longint; out arg:variant; arg2: longint);cdecl;
 
 implementation
 
@@ -271,7 +271,7 @@ begin
   end;
 end;
 //**************************Variant type properties*****************************
-procedure CircuitV(mode:longint; out arg: Olevariant; arg2: longint);cdecl;
+procedure CircuitV(mode:longint; out arg:variant; arg2: longint);cdecl;
 
 var
    LossValue :complex;

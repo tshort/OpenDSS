@@ -5,7 +5,7 @@ interface
 function VsourcesI(mode:longint;arg:longint):Longint;cdecl;
 function VsourcesF(mode:longint;arg:double):double;cdecl;
 function VsourcesS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
-procedure VsourcesV(mode:longint;out arg:Olevariant);cdecl;
+procedure VsourcesV(mode:longint;out arg:variant);cdecl;
 
 implementation
 
@@ -151,7 +151,7 @@ begin
 end;
 
 //***************************Variant type properties*******************************
-procedure VsourcesV(mode:longint;out arg:Olevariant);cdecl;
+procedure VsourcesV(mode:longint;out arg:variant);cdecl;
 
 Var
   elem: TVsourceObj;

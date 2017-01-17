@@ -5,7 +5,7 @@ interface
 function GeneratorsI(mode: longint; arg: longint): longint; cdecl;
 function GeneratorsF(mode: longint; arg: double): double; cdecl;
 function GeneratorsS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
-procedure GeneratorsV(mode: longint; out arg: Olevariant); cdecl;
+procedure GeneratorsV(mode: longint; out arg:variant); cdecl;
 
 implementation
 
@@ -359,7 +359,7 @@ begin
 end;
 
 //*******************************Variant type properties************************
-procedure GeneratorsV(mode: longint; out arg: Olevariant); cdecl;
+procedure GeneratorsV(mode: longint; out arg:variant); cdecl;
 
 Var
   GenElem:TGeneratorObj;

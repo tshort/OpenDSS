@@ -5,7 +5,7 @@ interface
 function LoadShapeI(mode:longint; arg:longint):longint;cdecl;
 function LoadShapeF(mode:longint; arg:double):double;cdecl;
 function LoadShapeS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
-procedure LoadShapeV(mode:longint; out arg:Olevariant);cdecl;
+procedure LoadShapeV(mode:longint; out arg:variant);cdecl;
 
 implementation
 
@@ -185,7 +185,7 @@ begin
 end;
 
 //**********************Variant type properties***************************
-procedure LoadShapeV(mode:longint; out arg:Olevariant);cdecl;
+procedure LoadShapeV(mode:longint; out arg:variant);cdecl;
 
 Var
    i, k, LoopLimit: Integer;

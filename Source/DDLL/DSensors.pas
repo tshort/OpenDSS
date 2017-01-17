@@ -5,7 +5,7 @@ interface
 function SensorsI(mode:longint; arg:longint):longint;cdecl;
 function SensorsF(mode:longint; arg:double):double;cdecl;
 function SensorsS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
-procedure SensorsV(mode:longint; out arg:Olevariant);cdecl;
+procedure SensorsV(mode:longint; out arg:variant);cdecl;
 
 implementation
 
@@ -206,7 +206,7 @@ begin
 end;
 
 //***************************Variant type properties*****************************
-procedure SensorsV(mode:longint; out arg:Olevariant);cdecl;
+procedure SensorsV(mode:longint; out arg:variant);cdecl;
 
 Var
   elem:TSensorObj;

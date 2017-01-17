@@ -4,7 +4,7 @@ interface
 
 function TopologyI(mode:longint; arg:longint):longint;cdecl;
 function TopologyS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
-procedure TopologyV(mode:longint; out arg:Olevariant);cdecl;
+procedure TopologyV(mode:longint; out arg:variant);cdecl;
 
 implementation
 
@@ -263,7 +263,7 @@ begin
 end;
 
 //****************************Variant type properties*****************************
-procedure TopologyV(mode:longint; out arg:Olevariant);cdecl;
+procedure TopologyV(mode:longint; out arg:variant);cdecl;
 
 var
   topo: TCktTree;

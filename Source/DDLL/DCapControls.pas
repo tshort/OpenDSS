@@ -5,7 +5,7 @@ interface
 function CapControlsI(mode:longint; arg:longint):longint;cdecl;
 function CapControlsF(mode:longint; arg:double):double;cdecl;
 function CapControlsS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
-procedure CapControlsV(mode:longint; out arg:Olevariant);cdecl;
+procedure CapControlsV(mode:longint; out arg:variant);cdecl;
 
 implementation
 
@@ -263,7 +263,7 @@ begin
 end;
 
 //******************************Variant type properties****************************
-procedure CapControlsV(mode:longint; out arg:Olevariant);cdecl;
+procedure CapControlsV(mode:longint; out arg:variant);cdecl;
 
 Var
   elem: TCapControlObj;

@@ -5,7 +5,7 @@ interface
 function SettingsI(mode: longint; arg: longint):longint;cdecl;
 function SettingsF(mode: longint; arg: double):double;cdecl;
 function SettingsS(mode: longint; arg: pAnsiChar):pAnsiChar;cdecl;
-procedure SettingsV(mode:longint; out arg: Olevariant); cdecl;
+procedure SettingsV(mode:longint; out arg:variant); cdecl;
 
 implementation
 
@@ -204,7 +204,7 @@ begin
 end;
 
 //*******************************Variant type properties******************************
-procedure SettingsV(mode:longint; out arg: Olevariant); cdecl;
+procedure SettingsV(mode:longint; out arg:variant); cdecl;
 
 VAR
    i, j, Count, Num:Integer;

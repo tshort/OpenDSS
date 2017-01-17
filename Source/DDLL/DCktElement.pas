@@ -5,7 +5,7 @@ interface
 function CktElementI(mode:longint; arg:longint):longint;cdecl;
 function CktElementF(mode:longint; arg:double):double;cdecl;
 function CktElementS(mode:longint; arg:pAnsiChar):pAnsiChar;cdecl;
-procedure CktElementV(mode:longint; out arg:Olevariant);cdecl;
+procedure CktElementV(mode:longint; out arg:variant);cdecl;
 
 implementation
 
@@ -407,7 +407,7 @@ begin
   end;
 end;
 //**************************Variant commands****************************************
-procedure CktElementV(mode:longint; out arg:Olevariant);cdecl;
+procedure CktElementV(mode:longint; out arg:variant);cdecl;
 
 var
   VPh, V012 : Array[1..3] of Complex;
