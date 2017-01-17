@@ -1731,14 +1731,14 @@ Begin
           end else begin
             if SymComponentsModel then begin
               val := 1.0e-9 * TwoPi * BaseFrequency; // convert nF to mhos
-              DoubleNode (F, 'Conductor.length', Len * v1);
-              DoubleNode (F, 'ACLineSegment.r', R1);
-              DoubleNode (F, 'ACLineSegment.x', X1);
-              DoubleNode (F, 'ACLineSegment.bch', C1 * val);
+              DoubleNode (F, 'Conductor.length', 1.0); // we don't know the physical length
+              DoubleNode (F, 'ACLineSegment.r', Len * R1); // total ohms
+              DoubleNode (F, 'ACLineSegment.x', Len * X1);
+              DoubleNode (F, 'ACLineSegment.bch', Len * C1 * val);
               DoubleNode (F, 'ACLineSegment.gch', 0.0);
-              DoubleNode (F, 'ACLineSegment.r0', R0);
-              DoubleNode (F, 'ACLineSegment.x0', X0);
-              DoubleNode (F, 'ACLineSegment.b0ch', C0 * val);
+              DoubleNode (F, 'ACLineSegment.r0', Len * R0);
+              DoubleNode (F, 'ACLineSegment.x0', Len * X0);
+              DoubleNode (F, 'ACLineSegment.b0ch', Len * C0 * val);
               DoubleNode (F, 'ACLineSegment.b0ch', 0.0);
             end else begin
               bval := True;
