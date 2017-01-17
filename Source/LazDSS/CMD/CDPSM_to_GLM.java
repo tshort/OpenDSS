@@ -1924,7 +1924,6 @@ public class CDPSM_to_GLM extends Object {
 
 			GldNode nd = mapNodes.get(bus1);
 			nd.nomvln = FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV) / Math.sqrt(3.0);
-			if (nd.nomvln < 278.0) nd.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 			nd.bDelta = phs_delta;  
 			// accumulate P and Q by phase first, and only then update the node phases
 			AccumulateLoads (nd, phs, pL, qL, Pv, Qv, Pz, Pi, Pp, Qz, Qi, Qp);  
@@ -1957,7 +1956,6 @@ public class CDPSM_to_GLM extends Object {
 			bus1 = GetBusName (model, id, 1);
 			GldNode nd = mapNodes.get(bus1);
 			nd.nomvln = FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV) / Math.sqrt(3.0);
-			if (nd.nomvln < 278.0) nd.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 			nd.AddPhases(phs);
 
       double cap_b = SafeInt (res, ptNumSteps, 1) * SafeDouble (res, ptSecB, 0.0001);
@@ -2369,11 +2367,9 @@ public class CDPSM_to_GLM extends Object {
 			GldNode nd1 = mapNodes.get(bus1);
 			nd1.nomvln = FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV) / Math.sqrt(3.0);
 			nd1.AddPhases(phs);
-			if (nd1.nomvln < 278.0) nd1.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 			GldNode nd2 = mapNodes.get(bus2);
 			nd2.nomvln = nd1.nomvln;
 			nd2.AddPhases(phs);
-			if (nd2.nomvln < 278.0) nd2.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 
 			out.println ("object switch {\n  name \"swt_" + name + "\";");
 			out.println ("  phases " + phs + ";");
@@ -2413,11 +2409,9 @@ public class CDPSM_to_GLM extends Object {
 			GldNode nd1 = mapNodes.get(bus1);
 			nd1.nomvln = FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV) / Math.sqrt(3.0);
 			nd1.AddPhases(phs);
-			if (nd1.nomvln < 278.0) nd1.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 			GldNode nd2 = mapNodes.get(bus2);
 			nd2.nomvln = nd1.nomvln;
 			nd2.AddPhases(phs);
-			if (nd2.nomvln < 278.0) nd2.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 
 //      out.println ("new Line." + name + " phases=" + Integer.toString(phs_cnt) + " bus1=" + bus1 + " bus2=" + bus2 
 //                          + " switch=y // CIM Fuse");
@@ -2452,11 +2446,9 @@ public class CDPSM_to_GLM extends Object {
 			GldNode nd1 = mapNodes.get(bus1);
 			nd1.nomvln = FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV) / Math.sqrt(3.0);
 			nd1.AddPhases(phs);
-			if (nd1.nomvln < 278.0) nd1.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 			GldNode nd2 = mapNodes.get(bus2);
 			nd2.nomvln = nd1.nomvln;
 			nd2.AddPhases(phs);
-			if (nd2.nomvln < 278.0) nd2.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 
 //      out.println ("new Line." + name + " phases=" + Integer.toString(phs_cnt) + " bus1=" + bus1 + " bus2=" + bus2 
 //                          + " switch=y // CIM Breaker");
@@ -2491,11 +2483,9 @@ public class CDPSM_to_GLM extends Object {
 			GldNode nd1 = mapNodes.get(bus1);
 			nd1.nomvln = FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV) / Math.sqrt(3.0);
 			nd1.AddPhases(phs);
-			if (nd1.nomvln < 278.0) nd1.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 			GldNode nd2 = mapNodes.get(bus2);
 			nd2.nomvln = nd1.nomvln;
 			nd2.AddPhases(phs);
-			if (nd2.nomvln < 278.0) nd2.bSecondary = true; // TODO - GridLAB-D shouldn't need this
 
 //      out.println ("new Line." + name + " phases=" + Integer.toString(phs_cnt) + " bus1=" + bus1 + " bus2=" + bus2 
 //                          + " switch=y // CIM Disconnector");
