@@ -45,7 +45,7 @@ Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerLis
      ExpControl,
      ProgressForm,
      variants;
-
+{
 TYPE
 //  KLUSolve base type definition
    TNewSparseSet        = function(nBus:LongWord):NativeUInt;stdcall;
@@ -68,7 +68,7 @@ TYPE
    TFindIslands         = function(id:NativeUInt; nOrder:LongWord; pNodes: pLongWord):LongWord;stdcall;
    TAddMatrixElement    = function(id:NativeUInt; i,j:LongWord; Value:pComplex):LongWord;stdcall;
    TGetMatrixElement    = function(id:NativeUInt; i,j:LongWord; Value:pComplex):LongWord;stdcall;
-
+}
 CONST
       CRLF = #13#10;
 
@@ -241,7 +241,7 @@ VAR
    ActorPctProgress   : Array of integer;
    ActorHandle        : Array of TThread;
 // KLU Variable arrays per actor
-   ActorKLU           : Array of THandle;
+{   ActorKLU           : Array of THandle;
    NewSparseSet       : Array of TNewSparseSet;
    DeleteSparseSet    : Array of TDeleteSparseSet;
    SolveSparseSet     : Array of TSolveSparseSet;
@@ -261,7 +261,7 @@ VAR
    GetTripletMatrix   : Array of TGetTripletMatrix;
    FindIslands        : Array of TFindISlands;
    AddMatrixElement   : Array of TAddMatrixElement;
-   GetMatrixElement   : Array of TGetMatrixElement;
+   GetMatrixElement   : Array of TGetMatrixElement; }
    Parser             : Array of TParser;
 
 PROCEDURE DoErrorMsg(Const S, Emsg, ProbCause :String; ErrNum:Integer);
@@ -809,10 +809,8 @@ initialization
     SavedFileList[ActiveActor]        := TStringList.Create;
     ErrorStrings[ActiveActor]         := TStringList.Create;
     ErrorStrings[ActiveActor].Clear;
-
     ActorHandle[ActiveActor]          :=  nil;
    end;
-
    ActiveActor            :=  1;
    NumOfActors            :=  1;
    ActorCPU[ActiveActor]  :=  0;
@@ -820,8 +818,30 @@ initialization
    ProgramName      := 'OpenDSS';
    DSSFileName      := GetDSSExeFile;
    DSSDirectory     := ExtractFilePath(DSSFileName);
-
-
+{
+//***********Init for KLUSolver************************************
+   setlength(ActorKLU,CPU_Cores + 1);
+   setlength(NewSparseSet,CPU_Cores + 1);
+   setlength(DeleteSparseSet,CPU_Cores + 1);
+   setlength(SolveSparseSet,CPU_Cores + 1);
+   setlength(ZeroSparseSet,CPU_Cores + 1);
+   setlength(FactorSparseMatrix,CPU_Cores + 1);
+   setlength(GetSize,CPU_Cores + 1);
+   setlength(GetFlops,CPU_Cores + 1);
+   setlength(GetNNZ,CPU_Cores + 1);
+   setlength(GetSparseNNZ,CPU_Cores + 1);
+   setlength(GetSingularCol,CPU_Cores + 1);
+   setlength(GetRGrowth,CPU_Cores + 1);
+   setlength(GetRCond,CPU_Cores + 1);
+   setlength(GetCondEst,CPU_Cores + 1);
+   setlength(AddPrimitiveMatrix,CPU_Cores + 1);
+   setlength(SetLogFile,CPU_Cores + 1);
+   setlength(GetCompressedMatrix,CPU_Cores + 1);
+   setlength(GetTripletMatrix,CPU_Cores + 1);
+   setlength(FindIslands,CPU_Cores + 1);
+   setlength(AddMatrixElement,CPU_Cores + 1);
+   setlength(GetMatrixElement,CPU_Cores + 1);
+}
    {Various Constants and Switches}
 
    CALPHA                := Cmplx(-0.5, -0.866025); // -120 degrees phase shift
@@ -895,12 +915,16 @@ Finalization
   ClearAllCircuits;
   DSSExecutive.Free;  {Writes to Registry}
   DSS_Registry.Free;  {Close Registry}
-  for ActiveActor := 1 to NumOfActors do
-  begin
-    Parser[ActiveActor].Free;
-  end;
 
-
+// Free all the KLU instances
+{  for ActiveActor := 1 to NumOfActors do
+     freelibrary(ActorKLU[ActiveActor]);
+  if NumOfActors  > 1 then
+  Begin
+    for ActiveActor := 2 to NumOfActors do
+      deletefile(pchar(DSSDirectory + 'KLUSolve' + inttostr(ActiveActor) +'.dll'));
+  End;
+}
 End.
 
 

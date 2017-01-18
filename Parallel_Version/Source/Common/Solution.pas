@@ -1722,7 +1722,7 @@ end;
 
 {  *************  MAIN SOLVER CALL  ************************}
 
-FUNCTION TSolutionObj.SolveSystem(V:pNodeVArray; actorID : Integer): Integer;
+FUNCTION TSolutionObj.SolveSystem(V:pNodeVArray; ActorID : Integer): Integer;
 
 Var
   RetCode:Integer;
@@ -1895,9 +1895,9 @@ initialization
     {$IFDEF debugtrace}
     Assignfile(Fdebug, 'Debugtrace.csv');
     Rewrite(Fdebug);
-
     CloseFile(Fdebug);
    {$ENDIF}
+
 
 End.
 
