@@ -209,19 +209,23 @@ begin
   end else begin
     {Instantiate basic forms}
     Application.CreateForm(TControlPanel, ControlPanel);
-  Application.CreateForm(TTViewForm, TViewForm);
-  //  Application.CreateForm(TMainEditForm, MainEditForm);
-  Application.CreateForm(TProgress, Progress);
-  Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
-  Application.CreateForm(TListBoxForm, ListBoxForm);
-  Application.CreateForm(TDoDSSCommandForm, DoDSSCommandForm);
-  Application.CreateForm(TRPNForm, RPNForm);
-  Application.CreateForm(TChannelSelectForm, ChannelSelectForm);
-  ControlPanelCreated := TRUE;
+    Application.CreateForm(TTViewForm, TViewForm);
+    //  Application.CreateForm(TMainEditForm, MainEditForm);
+    Application.CreateForm(TProgress, Progress);
+    Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
+    Application.CreateForm(TListBoxForm, ListBoxForm);
+    Application.CreateForm(TDoDSSCommandForm, DoDSSCommandForm);
+    Application.CreateForm(TRPNForm, RPNForm);
+    Application.CreateForm(TChannelSelectForm, ChannelSelectForm);
+    ControlPanelCreated := TRUE;
+    ActiveActor :=  1;
+//    Create_KLU;
     ControlPanel.InitializeForm;
  //   ControlPanel.MessageEdit.Clear;
 //    MessageForm1.WindowState := wsMinimized;
     ControlPanel.Show;
     Application.Run;
+
   end;
+
 end.
