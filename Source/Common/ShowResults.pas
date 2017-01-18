@@ -1282,7 +1282,7 @@ Begin
      {Write Bus Voltage}
 
      Writeln(F);
-     Writeln(F,'  Bus   Mag:    V1 (kV)  p.u.    V2 (kV)  %V2/V1  V0 (kV)  %V0/V1');
+     Writeln(F,'Bus      V1 (kV)    p.u.    V2 (kV)      %V2/V1    V0 (kV)  %V0/V1');
      Writeln(F);
 
      WriteSeqVoltages(F, BusReference, FALSE);
@@ -1291,7 +1291,7 @@ Begin
      Writeln(F);
      Writeln(F,'SYMMETRICAL COMPONENT CURRENTS BY CIRCUIT ELEMENT (first 3 phases)');
      Writeln(F);
-     Writeln(F,'Element                      Term      I1         I2         %I2/I1    I0         %I0/I1   %Normal %Emergency');
+     Writeln(F,'Element                Term      I1         I2       %I2/I1       I0      %I0/I1   %Normal %Emergency');
      Writeln(F);
 
      // Sources first
@@ -1345,7 +1345,7 @@ Begin
           FOR j := 1 to NTerm Do
           Begin
             GetI0I1I2(I0, I1, I2, Cmax, PCElem.Nphases,(j-1)*Ncond, c_Buffer);
-            With PCElem Do WriteSeqCurrents(F, Paddots(FullName(PDElem), MaxDeviceNameLength+2), I0, I1, I2, Cmax,  0.0, 0.0, j, DSSObjType);
+            With PCElem Do WriteSeqCurrents(F, Paddots(FullName(PCelem), MaxDeviceNameLength+2), I0, I1, I2, Cmax,  0.0, 0.0, j, DSSObjType);
           End;
        End;
         PCElem := ActiveCircuit.PCElements.Next;
