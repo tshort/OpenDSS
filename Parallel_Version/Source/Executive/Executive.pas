@@ -245,7 +245,8 @@ begin
        RebuildHelpForm := True; // because class strings have changed
        Parser[ActiveActor].Free;
        Parser[ActiveActor]  :=  Tparser.Create;
-
+//       DestroyAll_KLU;
+//       Create_KLU;
        If Not IsDLL Then ControlPanel.UpdateElementBox ;
        {Prepare for new variables}
        ParserVars.Free;
@@ -276,12 +277,6 @@ end;
 initialization
 
 //WriteDLLDebugFile('Executive');
-
-
-
-finalization
-
-
 
 end.
 

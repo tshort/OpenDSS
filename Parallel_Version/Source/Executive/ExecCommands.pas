@@ -567,6 +567,7 @@ Begin
                 DSSExecutive := TExecutive.Create;  // Make a DSS object
                 Parser[ActiveActor]   :=  TParser.Create;
                 DSSExecutive.CreateDefaultDSSItems;
+//                Create_KLU;
               end
               else DoSimpleMsg('There are no more CPUs available', 7001)
             end;
