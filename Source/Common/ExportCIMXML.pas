@@ -1052,6 +1052,7 @@ Var
   pName1, pName2  : TNamedObject;
 	pIsland, pSwing : TNamedObject;  // island and ref node
   zbase  : double;
+  s      : String;
 
   pBank  : TBankObject;
   maxWdg : Integer;
@@ -1342,7 +1343,8 @@ Begin
         i1 := GetCktElementIndex(ElementName); // Global function
         GuidNode (F, 'RegulatingControl.Terminal',
           GetTermGuid (ActiveCircuit.CktElements.Get(i1), ElementTerminal));
-        MonitoredPhaseNode (F, Char(Ord('A') + PTPhase - 1)); // TODO - average, min and max unsupported in CIM
+        s := FirstPhaseString (ActiveCircuit.CktElements.Get(i1), 1);
+        MonitoredPhaseNode (F, Char(Ord(s[1]) + PTPhase - 1)); // TODO - average, min and max unsupported in CIM
         val := 1.0;
         if CapControlType = PFCONTROL then begin
           v1 := PfOnValue;
@@ -1729,14 +1731,14 @@ Begin
           end else begin
             if SymComponentsModel then begin
               val := 1.0e-9 * TwoPi * BaseFrequency; // convert nF to mhos
-              DoubleNode (F, 'Conductor.length', Len * v1);
-              DoubleNode (F, 'ACLineSegment.r', R1);
-              DoubleNode (F, 'ACLineSegment.x', X1);
-              DoubleNode (F, 'ACLineSegment.bch', C1 * val);
+              DoubleNode (F, 'Conductor.length', 1.0); // we don't know the physical length
+              DoubleNode (F, 'ACLineSegment.r', Len * R1); // total ohms
+              DoubleNode (F, 'ACLineSegment.x', Len * X1);
+              DoubleNode (F, 'ACLineSegment.bch', Len * C1 * val);
               DoubleNode (F, 'ACLineSegment.gch', 0.0);
-              DoubleNode (F, 'ACLineSegment.r0', R0);
-              DoubleNode (F, 'ACLineSegment.x0', X0);
-              DoubleNode (F, 'ACLineSegment.b0ch', C0 * val);
+              DoubleNode (F, 'ACLineSegment.r0', Len * R0);
+              DoubleNode (F, 'ACLineSegment.x0', Len * X0);
+              DoubleNode (F, 'ACLineSegment.b0ch', Len * C0 * val);
               DoubleNode (F, 'ACLineSegment.b0ch', 0.0);
             end else begin
               bval := True;
