@@ -1118,7 +1118,9 @@ Begin
     StartGuidList (i1 + i2);
     StartBankList (ActiveCircuit.Transformers.ListSize);
 
-		Writeln(FileNm);
+    {$IFDEF FPC}
+ 		Writeln(FileNm);    // this only works in the command line version
+    {$ENDIF}
     Assignfile(F, FileNm);
     ReWrite(F);
 
