@@ -140,10 +140,10 @@ TYPE
         IndMach012SolutionCount : Integer;
         IndMach012SwitchOpen    : Boolean;
 
+        // Debugging
         TraceFile  :TextFile;
         DebugTrace :Boolean;
 
-        DynaData    : TDynamicsRec;
         MachineData : TGeneratorVars;    // Use generator variable structure
 
         // Andres: NEW variables from generator
@@ -168,7 +168,7 @@ TYPE
         procedure set_Localslip(const Value: Double);
 
         Procedure Get_ModelCurrent(Const V:Complex; Const S:Double; var Istator, Irotor:Complex);
-        Procedure Get_DynamicModelCurrent(Const V1, V2:Complex);
+        Procedure Get_DynamicModelCurrent;
         procedure Set_Slip(const Value: Double);
         Function  GetRotorLosses  :Double;
         Function  GetStatorLosses :Double;
@@ -194,10 +194,10 @@ TYPE
         PROCEDURE CalcDutyMult(Hr:double);
         // Andres: NEW procedures from generator
 
-        Procedure InitTraceFile;
-        Procedure WriteTraceRecord;
-        function Get_PresentkV: Double;
-        procedure Set_PresentkV(const Value: Double);
+        PROCEDURE InitTraceFile;
+        PROCEDURE WriteTraceRecord;
+        FUNCTION  Get_PresentkV: Double;
+        PROCEDURE Set_PresentkV(const Value: Double);
 
         PROCEDURE SetPowerkW(const PkW:Double);
 
@@ -816,13 +816,11 @@ begin
        V2 := V012[2];
       {Gets slip from shaft speed}
        With MachineData Do LocalSlip := (-Speed)/w0;
-       Get_DynamicModelCurrent(V1, V2);
+       Get_DynamicModelCurrent;
      //  Get_ModelCurrent(V2, S2, Is2, Ir2);
        I012[1] := Is1;    // Save for variable calcs
        I012[2] := Is2;
        I012[0] := cmplx(0.0, 0.0);
-
-       If DebugTrace Then WriteTraceRecord;
 
 end;
 
@@ -838,23 +836,25 @@ procedure TIndMach012Obj.Integrate;
 Var  h2:double;
 
 begin
+   With  ActiveCircuit.Solution.Dynavars do
+   Begin
+      If IterationFlag =0 Then Begin  // on predictor step
+          E1n := E1;            // update old values
+          dE1dtn := dE1dt;
+          E2n := E2;
+          dE2dtn := dE2dt;
+      End;
 
-    If DynaData.IterationFlag =0 Then Begin  // on predictor step
-        E1n := E1;            // update old values
-        dE1dtn := dE1dt;
-        E2n := E2;
-        dE2dtn := dE2dt;
-    End;
+     // Derivative of E
+      // dEdt = -jw0SE' - (E' - j(X-X')I')/T0'
+      dE1dt := Csub(cmul(cmplx(0.0, -MachineData.w0*S1), E1), Cdivreal(Csub(E1, cmul(cmplx(0.0, (Xopen-Xp)), Is1)),T0p));
+      dE2dt := Csub(cmul(cmplx(0.0, -MachineData.w0*S2), E2), Cdivreal(Csub(E2, cmul(cmplx(0.0, (Xopen-Xp)), Is2)),T0p));
 
-   // Derivative of E
-    // dEdt = -jw0SE' - (E' - j(X-X')I')/T0'
-    dE1dt := Csub(cmul(cmplx(0.0, -MachineData.w0*S1), E1), Cdivreal(Csub(E1, cmul(cmplx(0.0, (Xopen-Xp)), Is1)),T0p));
-    dE2dt := Csub(cmul(cmplx(0.0, -MachineData.w0*S2), E2), Cdivreal(Csub(E2, cmul(cmplx(0.0, (Xopen-Xp)), Is2)),T0p));
-
-    // Trapezoidal Integration
-    h2 :=  Dynadata.h*0.5;
-    E1 := Cadd(E1n, CmulReal(Cadd(dE1dt, dE1dtn), h2 ));
-    E2 := Cadd(E2n, CmulReal(Cadd(dE2dt, dE2dtn), h2 ));
+      // Trapezoidal Integration
+      h2 :=  h*0.5;
+      E1 := Cadd(E1n, CmulReal(Cadd(dE1dt, dE1dtn), h2 ));
+      E2 := Cadd(E2n, CmulReal(Cadd(dE2dt, dE2dtn), h2 ));
+   End;
 
 end;
 
@@ -995,23 +995,10 @@ begin
     SpectrumObj := SpectrumClass.Find(Spectrum);
     If SpectrumObj=Nil Then DoSimpleMsg('ERROR! Spectrum "'+Spectrum+'" Not Found.', 566);
 
-
-
     If DebugTrace Then InitTraceFile;
 end;
 
-{--- Notes Andres: Added according to dll model }
-procedure TIndMach012Obj.InitTraceFile;
-begin
 
-     AssignFile(TraceFile, Format('%s_IndMach012_Trace.CSV', [Name]));
-     Rewrite(TraceFile);
-
-     Write(TraceFile, 'Time, Iteration, S1, |IS1|, |IS2|, |E1|, |dE1dt|, |E2|, |dE2dt|, |V1|, |V2|');
-     Writeln(TraceFile);
-
-     CloseFile(TraceFile);
-end;
 
 
 //----------------------------------------------------------------------------
@@ -1199,7 +1186,7 @@ End;
 
 // - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - -
 PROCEDURE TIndMach012Obj.DoIndMach012Model;
-{Compute total terminal Current from User-written model}
+{Compute total terminal Current }
 Var
    i:Integer;
 
@@ -1232,27 +1219,21 @@ Begin
     // Convert abc voltages to 012
        Phase2SymComp(V, @V012);
 
-
     // compute I012
 
-       //Case DynaData.SolutionMode of
-       //    DYNAMICMODE: Begin
-       //                   CalcDynamic(V012, I012);
-       //                 End;
-       //Else  {All other modes are power flow modes}
-       //      Begin
+       Case ActiveCircuit.Solution.DynaVars.SolutionMode of
+           DYNAMICMODE: Begin
+                          CalcDynamic(V012, I012);
+                        End;
+       Else  {All other modes are power flow modes}
+             Begin
                 CalcPflow(V012, I012);
-       //      End;
-       //End;
-
+             End;
+       End;
 
        SymComp2Phase(I, @I012);       // convert back to I abc
 
 End;
-
-
-
-
 
 // - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - -
 PROCEDURE TIndMach012Obj.DoDynamicMode;
@@ -1277,14 +1258,9 @@ Begin
 
    {Inj = -Itotal (in) - Yprim*Vtemp}
 
-   {.....}
-
-
-
+   CalcModel (Vterminal, Iterminal);
    IterminalUpdated := TRUE;
-
-   {Add it into inj current array}
-   FOR i := 1 to FnConds Do Caccum(InjCurrent^[i], Cnegate(Iterminal^[i]));
+   For i:=1 to Nphases Do StickCurrInTerminalArray(InjCurrent, ITerminal^[i], i);
 
 End;
 
@@ -1411,13 +1387,6 @@ Begin
       ELSE IF IsHarmonicModel and (Frequency <> Fundamental) THEN  DoHarmonicMode
       ELSE DoIndMach012Model;
 
-          //Begin
-           //  compute currents and put into InjTemp array;
-
-
-
-
-        //End; {ELSE}
    END; {WITH}
 
    {When this is done, ITerminal is up to date}
@@ -1481,7 +1450,7 @@ Begin
        // call the main function for doing calculation
        CalcInjCurrentArray;          // Difference between currents in YPrim and total terminal current
 
-       If (DebugTrace) Then WriteTraceRecord;
+      // If (DebugTrace) Then WriteTraceRecord;
 
        // Add into System Injection Current Array
        Result := Inherited InjCurrents;
@@ -1638,9 +1607,6 @@ Begin
 End;
 //= = =  = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-
-
-
 // - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - -
 Procedure TIndMach012Obj.DumpProperties(Var F:TextFile; Complete:Boolean);
 
@@ -1662,7 +1628,6 @@ Begin
      Begin
         idx := PropertyIdxMap[i] ; // Map to get proper index into property value array
         Case idx of
-
           {Trap any specials here, such as values that are array properties, for example}
            34, 36: Writeln(F,'~ ',PropertyName^[i],'=(',PropertyValue[idx],')')
         Else
@@ -1777,8 +1742,7 @@ begin
 
   With MachineData Do Begin
 
-
-     Zthev := Cmplx(Xdp/XRdp, Xdp);
+     Zthev := Zsp;   // Equivalent Z looking into the motor
      Yeq := Cinv(Zthev);
 
      {Compute nominal Positive sequence voltage behind transient reactance}
@@ -1819,10 +1783,10 @@ begin
          w0     := Twopi * ActiveCircuit.Solution.Frequency;
          // recalc Mmass and D in case the frequency has changed
          With MachineData Do Begin
-           MachineData.Mmass := 2.0 * MachineData.Hmass * MachineData.kVArating * 1000.0/ (w0);   // M = W-sec
-           D := Dpu * kVArating *1000.0/(w0);
+             Mmass := 2.0 * Hmass * kVArating * 1000.0/ (w0);   // M = W-sec
+             D     := Dpu * kVArating * 1000.0/ (w0);
          End;
-         Pshaft := -Power[1].re; // Initialize Pshaft to present power Output
+         Pshaft := Power[1].re; // Initialize Pshaft to present power consumption of motor
 
          Speed  := 0.0;    // relative to synch speed
          dSpeed := 0.0;
@@ -1830,8 +1794,16 @@ begin
          // Init User-written models
          //Ncond:Integer; V, I:pComplexArray; const X,Pshaft,Theta,Speed,dt,time:Double
          With ActiveCircuit.Solution Do Begin
+            InitModel(Vterminal, Iterminal);
+         End;
 
-           InitModel(Vterminal, Iterminal);
+         IF DebugTrace Then     // Put in a separator record
+         Begin
+             Append(TraceFile);
+             Writeln(TraceFile);
+             Writeln(TraceFile, '*************** Entering Dynamics Mode ***********************');
+             Writeln(TraceFile);
+             Close(Tracefile);
          End;
 
        End
@@ -1884,7 +1856,7 @@ begin
 
       // Compute shaft dynamics
       TracePower := TerminalPowerIn(Vterminal,Iterminal,FnPhases) ;
-      dSpeed := (Pshaft + TracePower.re - D*Speed) / Mmass;
+      dSpeed := (TracePower.re - Pshaft - abs(D*Speed)) / Mmass;
 //      dSpeed := (Torque + TerminalPowerIn(Vtemp,Itemp,FnPhases).re/Speed) / (Mmass);
       dTheta  := Speed ;
 
@@ -1894,12 +1866,16 @@ begin
        Theta := ThetaHistory + 0.5*h*dTheta;
       End;
 
+      If DebugTrace Then WriteTraceRecord;
+
+      (*    commented out -- a Monitor with Mode=3 will report most of this ...
       // Write Dynamics Trace Record
         IF DebugTrace Then
           Begin
              Append(TraceFile);
              Write(TraceFile,Format('t=%-.5g ',[Dynavars.t]));
              Write(TraceFile,Format(' Flag=%d ',[Dynavars.Iterationflag]));
+             Write(TraceFile,Format(' Iteration=%d ',[Iteration ]));
              Write(TraceFile,Format(' Speed=%-.5g ',[Speed]));
              Write(TraceFile,Format(' dSpeed=%-.5g ',[dSpeed]));
              Write(TraceFile,Format(' Pshaft=%-.5g ',[PShaft]));
@@ -1908,14 +1884,14 @@ begin
              Writeln(TraceFile);
              CloseFile(TraceFile);
          End;
-
+       *)
     Integrate;
 
    End;
 end;
 
 {--- Notes Andres: Modified according to dll model }
-procedure TIndMach012Obj.Get_DynamicModelCurrent(const V1, V2: Complex);
+procedure TIndMach012Obj.Get_DynamicModelCurrent;
 begin
 
     Is1 := Cdiv(Csub(V1, E1),Zsp); // I = (V-E')/Z'
@@ -2202,14 +2178,30 @@ begin
 end;
 
 {--- Notes Andres: Added according to dll model for the Edit function}
+
+procedure TIndMach012Obj.InitTraceFile;
+begin
+
+     AssignFile(TraceFile, Format('%s_IndMach012_Trace.CSV', [Name]));
+     Rewrite(TraceFile);
+
+     Write(TraceFile, 'Time, Iteration, S1, |IS1|, |IS2|, |E1|, |dE1dt|, |E2|, |dE2dt|, |V1|, |V2|, Pshaft, Pin, Speed, dSpeed');
+     Writeln(TraceFile);
+
+     CloseFile(TraceFile);
+end;
+
 procedure TIndMach012Obj.WriteTraceRecord;
 begin
       Append(TraceFile);
-      Write(TraceFile, Format('%-.6g, ',[DynaData.t]), DynaData.IterationFlag,', ', Format('%-.6g, ',[S1]));
+      With ActiveCircuit.Solution Do
+      Write(TraceFile, Format('%-.6g, %d, %-.6g, ',[Dynavars.dblHour*3600.0, Iteration, S1]));
 
       Write(TraceFile, Format('%-.6g, %-.6g, ', [Cabs(Is1), Cabs(Is2)]));
       Write(TraceFile, Format('%-.6g, %-.6g, %-.6g, %-.6g, ', [Cabs(E1), Cabs(dE1dt), Cabs(E2), Cabs(dE2dt)]));
       Write(TraceFile, Format('%-.6g, %-.6g, ', [Cabs(V1), Cabs(V2)]));
+      Write(TraceFile, Format('%-.6g, %-.6g, ', [MachineData.Pshaft, power[1].re]));
+      Write(TraceFile, Format('%-.6g, %-.6g, ', [MachineData.speed, MachineData.dSpeed]));
 
       Writeln(TraceFile);
 
