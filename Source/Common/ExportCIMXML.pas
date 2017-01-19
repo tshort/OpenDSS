@@ -1717,8 +1717,15 @@ Begin
           VbaseNode (F, pLine);
           DoubleNode (F, 'ProtectedSwitch.breakingCapacity', pLine.NormAmps);
           DoubleNode (F, 'Switch.ratedCurrent', pLine.NormAmps);
-          BooleanNode (F, 'Switch.normalOpen', not pLine.Closed[0]);
-          BooleanNode (F, 'Switch.open', not pLine.Closed[0]);
+          // some OpenDSS models have enabled=false to signal open switches, but we can't actually
+          // export them because disabled elements don't have terminal references in memory
+          if Enabled then begin
+            BooleanNode (F, 'Switch.normalOpen', not pLine.Closed[0]);
+            BooleanNode (F, 'Switch.open', not pLine.Closed[0]);
+          end else begin
+            BooleanNode (F, 'Switch.normalOpen', true);
+            BooleanNode (F, 'Switch.open', true);
+          end;
           BooleanNode (F, 'Switch.retained', True);
           GuidNode (F, 'PowerSystemResource.Location', geoGUID);
           EndInstance (F, 'LoadBreakSwitch');
