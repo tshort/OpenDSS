@@ -1735,7 +1735,7 @@ Begin
           end else if SpacingSpecified then begin
             DoubleNode (F, 'Conductor.length', Len * v1); // assetinfo attached below
           end else begin
-            if SymComponentsModel then begin
+            if SymComponentsModel and (NPhases=3) then begin
               val := 1.0e-9 * TwoPi * BaseFrequency; // convert nF to mhos
               DoubleNode (F, 'Conductor.length', 1.0); // we don't know the physical length
               DoubleNode (F, 'ACLineSegment.r', Len * R1); // total ohms
@@ -1860,7 +1860,7 @@ Begin
     while pCode <> nil do begin
       with pCode do begin
         v1 := To_per_Meter (pCode.Units);
-        if SymComponentsModel then begin
+        if SymComponentsModel and (NumPhases=3) then begin
           v2 := 1.0e-9 * TwoPi * BaseFrequency; // convert nF to mhos
           StartInstance (F, 'PerLengthSequenceImpedance', pCode);
           DoubleNode (F, 'PerLengthSequenceImpedance.r', R1 * v1);
