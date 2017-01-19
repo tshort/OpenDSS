@@ -1942,7 +1942,7 @@ public class CDPSM_to_GLM extends Object {
 		Property ptPhsShunt2 = model.getProperty (nsCIM, "ShuntCompensatorPhase.phase");
 		Property ptConnShunt = model.getProperty (nsCIM, "ShuntCompensator.phaseConnection");
 		Property ptAVRDelay = model.getProperty (nsCIM, "ShuntCompensator.aVRDelay");
-		Property ptNomU = model.getProperty (nsCIM, "ShuntCompensator.nomU");  // TODO - put in OpenDSS importer
+		Property ptNomU = model.getProperty (nsCIM, "ShuntCompensator.nomU");
 		Property ptCapCtl = model.getProperty (nsCIM, "RegulatingControl.RegulatingCondEq");
 
 		while (results.hasNext()) {

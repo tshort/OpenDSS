@@ -21,8 +21,6 @@ public class CDPSM_to_DSS extends Object {
   static final String nsRDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
   static final String baseURI = "http://opendss";
 
-  static final String combinedOwl = "Combined.owl";
-
 	// helper class to keep track of the conductor counts for WireSpacingInfo instances
 	static class SpacingCount {
     private final int nconds;
@@ -151,7 +149,7 @@ public class CDPSM_to_DSS extends Object {
     return seq;
   }
 
-  static String GetACLineParameters (Model mdl, Resource r, double len) {
+  static String GetACLineParameters (Model mdl, Resource r, double len, double freq) {
     Property ptR1 = mdl.getProperty (nsCIM, "ACLineSegment.r");
     Property ptR0 = mdl.getProperty (nsCIM, "ACLineSegment.r0");
     Property ptX1 = mdl.getProperty (nsCIM, "ACLineSegment.x");
@@ -164,10 +162,10 @@ public class CDPSM_to_DSS extends Object {
       double r0 = SafeDouble (r, ptR0, 0) / len;
       double x1 = SafeDouble (r, ptX1, 0) / len;
       double x0 = SafeDouble (r, ptX0, x1) / len;
-      double b0 = SafeDouble (r, ptB0, 0) / len; // EdF writes b0ch but not bch
+      double b0 = SafeDouble (r, ptB0, 0) / len;
       double b1 = SafeDouble (r, ptB1, b0) / len;
-      double c0 = 1.0e9 * b0 / 377; // 314.159; // EdF 50-Hz
-      double c1 = 1.0e9 * b1 / 377; // 314.159; // EdF 50-Hz
+      double c0 = 1.0e9 * b0 / freq / 2.0 / Math.PI;
+      double c1 = 1.0e9 * b1 / freq / 2.0 / Math.PI;
       return " r1=" + String.format("%6g", r1) + " x1=" + String.format("%6g", x1) + " c1=" + String.format("%6g", c1) +
              " r0=" + String.format("%6g", r0) + " x0=" + String.format("%6g", x0) + " c0=" + String.format("%6g", c0);
     }
@@ -1019,7 +1017,7 @@ public class CDPSM_to_DSS extends Object {
                 " band=" + String.format("%6g", Vband) +
                 " r=" + String.format("%6g", ldcR) +
                 " x=" + String.format("%6g", ldcX));
-		buf.append ("\nedit transformer." + xfName + " winding=" + Integer.toString(nWdg) + " tap=" + String.format("%6g", dTap));
+		buf.append ("\nedit transformer." + xfName + " wdg=" + Integer.toString(nWdg) + " tap=" + String.format("%6g", dTap));
     return buf.toString();
   }
 
@@ -1097,10 +1095,12 @@ public class CDPSM_to_DSS extends Object {
 		Property ptVal = mdl.getProperty (nsCIM, "RegulatingControl.targetValue");
 		Property ptMult = mdl.getProperty (nsCIM, "RegulatingControl.targetValueUnitMultiplier");
 		Property ptName = mdl.getProperty (nsCIM, "IdentifiedObject.name");
+		Property ptAVRDelay = mdl.getProperty (nsCIM, "ShuntCompensator.aVRDelay");
 
 		Resource rCap = mdl.getProperty(ctl,ptCap).getResource();
 		String ctlName = SafeResName (ctl, ptName);
 		String capName = SafeResName (rCap, ptName);
+		double delay = SafeDouble (rCap, ptAVRDelay, 10.0);
 		String sPhase = Phase_String (SafePhasesX (ctl, ptPhase));
 		String sMode = SafeRegulatingMode (ctl, ptMode, "voltage");
 		double dBW = SafeDouble(ctl, ptBW, 1.0);
@@ -1131,7 +1131,9 @@ public class CDPSM_to_DSS extends Object {
 		buf.append (" capacitor=" + capName +
 								" type=" + DSSCapMode(sMode) + 
 								" on=" + String.format("%6g", dOn) +
-								" off=" + String.format("%6g", dOff) + 
+								" off=" + String.format("%6g", dOff) + 			    
+			    " delay=" + String.format("%6g", delay) + 
+			    " delayoff=" + String.format("%6g", delay) + 
 								" element=" + sEqType + "." + SafeResName (rCondEq, ptName) +
 								" terminal=" + Integer.toString(nterm) + 
 								" ptratio=1 ptphase=" + FirstPhase (sPhase));
@@ -1344,10 +1346,11 @@ public class CDPSM_to_DSS extends Object {
     double freq = 60.0, vmult = 0.001, smult = 0.001;
     int fInFile = 0;
     int fNameSeq = 0;
+    boolean bWantSec = true;
 
     if (args.length < 3) {
       System.out.println ("Usage: CDPSM_to_DSS [options] input.xml output_root");
-      System.out.println ("       -p={c|a|f|e|g|s|t} // profile; only supports Combined for now");
+      System.out.println ("       -t={y|n}           // triplex; y/n to include secondary (not effect for OpenDSS)");
       System.out.println ("       -e={u|i}           // encoding; UTF-8 or ISO-8859-1");
       System.out.println ("       -f={50|60}         // system frequency");
       System.out.println ("       -v={1|0.001}       // multiplier that converts voltage to kV for OpenDSS");
@@ -1359,8 +1362,10 @@ public class CDPSM_to_DSS extends Object {
       if (args[i].charAt(0) == '-') {
         char opt = args[i].charAt(1);
         String optVal = args[i].substring(3);
-        if (opt == 'p') {
-          fProfile = combinedOwl;
+	if (opt == 't') {
+	    if (optVal.charAt(0) == 'n') {
+		bWantSec = false;
+	    }
         } else if (opt=='e') {
           if (optVal.charAt(0) == 'u') {
             fEnc = "UTF8";
@@ -1612,9 +1617,9 @@ public class CDPSM_to_DSS extends Object {
       String nCust = SafeProperty (res, ptCust, "1");
       String loadModel = GetLoadModel (model, res);
       double loadKv = vmult * FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV);
-//			if ((phs_cnt < 3) && phs_conn.contains("w")) {
-//				loadKv /= Math.sqrt(3.0);
-//			}
+			if ((phs_cnt < 2) && phs_conn.contains("w")) {  // TODO - verify for 2-phase loads
+				loadKv /= Math.sqrt(3.0);
+			}
 
       out.println ("new Load." + name + " phases=" + Integer.toString(phs_cnt) + " bus1=" + bus1 + 
                    " conn=" + phs_conn + " kw=" + pLoad + " kvar=" + qLoad + " numcust=" + nCust + 
@@ -1636,6 +1641,7 @@ public class CDPSM_to_DSS extends Object {
 		Property ptPhsShunt1 = model.getProperty (nsCIM, "ShuntCompensatorPhase.ShuntCompensator");
 		Property ptPhsShunt2 = model.getProperty (nsCIM, "ShuntCompensatorPhase.phase");
 		Property ptConnShunt = model.getProperty (nsCIM, "ShuntCompensator.phaseConnection");
+		Property ptNomU = model.getProperty (nsCIM, "ShuntCompensator.nomU");
     while (results.hasNext()) {
       soln = results.next();
 
@@ -1650,10 +1656,7 @@ public class CDPSM_to_DSS extends Object {
 
 			String numSteps = SafeProperty (res, ptNumSteps, "1");
       double cap_b = SafeInt (res, ptNumSteps, 1) * SafeDouble (res, ptSecB, 0.0001);
-      double cap_v = vmult * FindBaseVoltage (res, ptEquip, ptEqBaseV, ptLevBaseV, ptBaseNomV);
-			if ((phs_cnt < 3) && phs_conn.contains("w")) {
-				cap_v /= Math.sqrt(3.0);
-			}
+      double cap_v = vmult * SafeDouble (res, ptNomU, 120.0);
 			String nomU = String.format("%6g", cap_v);
       String nomQ = String.format("%6g", cap_v * cap_v * cap_b * 1000.0);
 
@@ -1899,9 +1902,9 @@ public class CDPSM_to_DSS extends Object {
       String seqX0 = String.format("%6g", sqX0);
 
       double bch = SafeDouble (res, ptSeqB1, 0);
-      String seqC1 = String.format("%6g", bch * 1.0e9 / 377.0); // 314.0);  // TODO: only for EdF during 2009 interop tests
+      String seqC1 = String.format("%6g", bch * 1.0e9 / freq / 2.0 / Math.PI);
       bch = SafeDouble (res, ptSeqB0, 0);
-      String seqC0 = String.format("%6g", bch * 1.0e9 / 377.0); // 314.0);  // TODO: only for EdF during 2009 interop tests
+      String seqC0 = String.format("%6g", bch * 1.0e9 / freq / 2.0 / Math.PI);
 
       out.println ("new LineCode." + name + " nphases=3 r1=" + seqR1 + " x1=" + seqX1 + " c1=" + seqC1 +
                    " r0=" + seqR0 + " x0=" + seqX0 + " c0=" + seqC0);
@@ -1947,8 +1950,8 @@ public class CDPSM_to_DSS extends Object {
       double dLen = SafeDouble (res, ptLineLen, 1.0);
 
       String zPhase = SafeResourceLookup (model, ptName, res, ptPhsZ, "");
-      String zParms = GetACLineParameters (model, res, dLen);
-			String zSpace = GetLineSpacing (model, res);
+      String zParms = GetACLineParameters (model, res, dLen, freq);
+      String zSpace = GetLineSpacing (model, res);
       String linecode = "";
       if (zPhase.length() > 0) {
         linecode = " linecode=" + zPhase;
