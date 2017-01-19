@@ -669,24 +669,29 @@ var
   p, q: double;
 begin
   if pLoad.NPhases = 3 then exit;
+  p := 1000.0 * pLoad.kWBase / pLoad.NPhases;
+  q := 1000.0 * pLoad.kvarBase / pLoad.NPhases;
+  if pLoad.Connection = 1 then
+    s := DeltaPhaseString(pLoad)
+  else
+    s := PhaseString(pLoad, 1);
 
 	pPhase := TNamedObject.Create('dummy');
-	if pLoad.NPhases = 2 then begin  // filter out what appear to be split secondary loads
-		if ActiveCircuit.Buses^[pLoad.Terminals^[1].BusRef].kVBase < 0.25 then begin
-			p := 1000.0 * pLoad.kWBase / 2.0;
-			q := 1000.0 * pLoad.kvarBase / 2.0;
+  // first, filter out what appear to be split secondary loads
+  // these can be 2-phase loads (balanced) nominally 0.208 kV, or
+  //  1-phase loads (possibly unbalanced) nominally 0.12 kV
+  //  TODO - handle s1 to s2 240-volt loads; these would be s12, which is not a valid SinglePhaseKind
+	if pLoad.kVLoadBase < 0.25 then begin
+		if pLoad.NPhases=2 then begin
 			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, 's1');
 			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, 's2');
 			exit;
-		end;
+		end else begin
+			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, s);
+      exit;
+    end;
 	end;
 
-  s := PhaseString(pLoad, 1);
-  with pLoad do begin
-    p := 1000.0 * kWBase / NPhases;
-    q := 1000.0 * kvarBase / NPhases;
-    if (Connection = 1) then s := DeltaPhaseString(pLoad);
-  end;
   for i := 1 to length(s) do begin
     phs := s[i];
     pPhase.LocalName := pLoad.Name + '_' + phs;
