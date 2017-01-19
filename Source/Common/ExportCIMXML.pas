@@ -600,7 +600,7 @@ begin
   // also write the switch phases if needed to support transpositions
   s1 := PhaseOrderString(pLine, 1);
   s2 := PhaseOrderString(pLine, 2);
-  if (pLine.NPhases = 3) and (s1 = s2) then exit;
+  if (pLine.NPhases = 3) and (length(s1) = 3) and (s1 = s2) then exit;
   pPhase := TNamedObject.Create('dummy');
   for i := 1 to length(s1) do begin
     phs1 := s1[i];
