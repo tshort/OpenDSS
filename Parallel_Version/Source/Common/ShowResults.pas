@@ -78,7 +78,7 @@ Begin
      End;
 End;
 
-Procedure WriteSeqVoltages(Var F:TextFile; i:Integer; LL:Boolean; ActorID : Integer);
+Procedure WriteSeqVoltages(Var F:TextFile; i:Integer; LL:Boolean);
 
 Var
    j, k:Integer;
@@ -89,7 +89,7 @@ Var
 
 Begin
 
-     With ActiveCircuit[ActorID] Do  Begin
+     With ActiveCircuit[ActiveActor] Do  Begin
 
      IF Buses^[i].NumNodesThisBus >= 3  THEN  Begin
 
@@ -114,7 +114,7 @@ Begin
      END
 
      ELSE Begin
-         Vph[1] := ActiveCircuit[ActorID].Solution.NodeV^[Buses^[i].GetRef(1)];
+         Vph[1] := ActiveCircuit[ActiveActor].Solution.NodeV^[Buses^[i].GetRef(1)];
          V0 := 0.0;
          V1 := Cabs(Vph[1]);     // Use first phase value for non-three phase buses
          V2 := 0.0;
@@ -316,7 +316,7 @@ Begin
      Writeln(F);
      Writeln(F, pad('Bus', MaxBusNameLength), '  Mag:   V1 (kV)    p.u.     V2 (kV)   %V2/V1    V0 (kV)    %V0/V1');
      Writeln(F);
-     FOR i := 1 to ActiveCircuit[ActiveActor].NumBuses DO WriteSeqVoltages(F, i, LL, ActiveActor);
+     FOR i := 1 to ActiveCircuit[ActiveActor].NumBuses DO WriteSeqVoltages(F, i, LL);
 
    End; {ShowOptionCode Case 0}
 
@@ -456,7 +456,7 @@ End;
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-PROCEDURE  WriteTerminalCurrents(Var F:TextFile; pElem:TDSSCktElement; ShowResidual:Boolean; ActorID : Integer);
+PROCEDURE  WriteTerminalCurrents(Var F:TextFile; pElem:TDSSCktElement; ShowResidual:Boolean);
 
 Var
 
@@ -475,7 +475,7 @@ BEGIN
   
   Try
     Getmem(cBuffer, sizeof(cBuffer^[1])*Ncond*Nterm);
-    pElem.GetCurrents(cBuffer, ActorID);
+    pElem.GetCurrents(cBuffer, ActiveActor);
     k:=0;
     FromBus := Pad(StripExtension(pElem.FirstBus), MaxBusNameLength);
     Writeln(F, 'ELEMENT = ', FullName(Pelem));
@@ -649,7 +649,7 @@ Begin
      pElem := ActiveCircuit[ActiveActor].Sources.First;
 
      WHILE pElem <> nil DO Begin
-       IF pElem.Enabled  THEN WriteTerminalCurrents(F, pElem, FALSE, ActiveActor);
+       IF pElem.Enabled  THEN WriteTerminalCurrents(F, pElem, FALSE);
         pElem := ActiveCircuit[ActiveActor].Sources.Next;
      End;
 
@@ -657,7 +657,7 @@ Begin
      pElem := ActiveCircuit[ActiveActor].PDElements.First;
 
      WHILE pElem<>nil  DO Begin
-       IF pElem.Enabled THEN WriteTerminalCurrents(F, pElem, ShowResidual, ActiveActor);
+       IF pElem.Enabled THEN WriteTerminalCurrents(F, pElem, ShowResidual);
         pElem := ActiveCircuit[ActiveActor].PDElements.Next;
      End;
 
@@ -665,7 +665,7 @@ Begin
      pElem := ActiveCircuit[ActiveActor].Faults.First;
 
      WHILE pElem<>nil DO Begin
-       IF pElem.Enabled THEN WriteTerminalCurrents(F, pElem, FALSE, ActiveActor);
+       IF pElem.Enabled THEN WriteTerminalCurrents(F, pElem, FALSE);
         pElem := ActiveCircuit[ActiveActor].Faults.Next;
      End;
 
@@ -681,7 +681,7 @@ Begin
      pElem := ActiveCircuit[ActiveActor].PCElements.First;
 
      WHILE pElem<>nil DO Begin
-       IF pElem.Enabled THEN WriteTerminalCurrents(F, pElem, FALSE, ActiveActor);
+       IF pElem.Enabled THEN WriteTerminalCurrents(F, pElem, FALSE);
        pElem := ActiveCircuit[ActiveActor].PCElements.Next;
      End;
 
@@ -1282,16 +1282,16 @@ Begin
      {Write Bus Voltage}
 
      Writeln(F);
-     Writeln(F,'  Bus   Mag:    V1 (kV)  p.u.    V2 (kV)  %V2/V1  V0 (kV)  %V0/V1');
+     Writeln(F,'Bus      V1 (kV)    p.u.    V2 (kV)      %V2/V1    V0 (kV)  %V0/V1');
      Writeln(F);
 
-     WriteSeqVoltages(F, BusReference, FALSE, ActiveActor);
+     WriteSeqVoltages(F, BusReference, FALSE);
      
      {Sequence Currents}
      Writeln(F);
      Writeln(F,'SYMMETRICAL COMPONENT CURRENTS BY CIRCUIT ELEMENT (first 3 phases)');
      Writeln(F);
-     Writeln(F,'Element                      Term      I1         I2         %I2/I1    I0         %I0/I1   %Normal %Emergency');
+     Writeln(F,'Element                Term      I1         I2       %I2/I1       I0      %I0/I1   %Normal %Emergency');
      Writeln(F);
 
      // Sources first
@@ -1345,7 +1345,7 @@ Begin
           FOR j := 1 to NTerm Do
           Begin
             GetI0I1I2(I0, I1, I2, Cmax, PCElem.Nphases,(j-1)*Ncond, c_Buffer);
-            With PCElem Do WriteSeqCurrents(F, Paddots(FullName(PDElem), MaxDeviceNameLength+2), I0, I1, I2, Cmax,  0.0, 0.0, j, DSSObjType);
+            With PCElem Do WriteSeqCurrents(F, Paddots(FullName(PCelem), MaxDeviceNameLength+2), I0, I1, I2, Cmax,  0.0, 0.0, j, DSSObjType);
           End;
        End;
         PCElem := ActiveCircuit[ActiveActor].PCElements.Next;
@@ -1418,7 +1418,7 @@ Begin
      p_Elem := ActiveCircuit[ActiveActor].sources.First;
      WHILE p_Elem<>nil DO Begin
        IF p_Elem.Enabled THEN  If CheckBusReference(p_Elem, BusReference, j) Then Begin
-          WriteTerminalCurrents(F, p_Elem, FALSE, ActiveActor);
+          WriteTerminalCurrents(F, p_Elem, FALSE);
           Writeln(F);
        End;
        p_Elem := ActiveCircuit[ActiveActor].sources.Next;
@@ -1430,7 +1430,7 @@ Begin
 
      WHILE p_Elem<>nil DO Begin
        IF p_Elem.Enabled THEN  If CheckBusReference(p_Elem, BusReference, j) Then Begin
-          WriteTerminalCurrents(F, p_Elem, TRUE, ActiveActor);
+          WriteTerminalCurrents(F, p_Elem, TRUE);
           Writeln(F);
        End;
        p_Elem := ActiveCircuit[ActiveActor].PDElements.Next;
@@ -1448,7 +1448,7 @@ Begin
 
      WHILE p_Elem<>nil DO Begin
       IF p_Elem.Enabled THEN  If CheckBusReference(p_Elem, BusReference, j) Then Begin
-         WriteTerminalCurrents(F, p_Elem, FALSE, ActiveActor);
+         WriteTerminalCurrents(F, p_Elem, FALSE);
          Writeln(F);
        End;
 
@@ -1460,7 +1460,7 @@ Begin
 
      WHILE p_Elem<>nil DO Begin
       IF p_Elem.Enabled THEN  If CheckBusReference(p_Elem, BusReference, j) Then Begin
-         WriteTerminalCurrents(F, p_Elem, FALSE, ActiveActor);
+         WriteTerminalCurrents(F, p_Elem, FALSE);
          Writeln(F);
        End;
 
@@ -1742,13 +1742,13 @@ Begin
             Writeln(F);
             Writeln(Fdisabled, 'All DISABLED Elements in Class "', ClassName, '"');
             Writeln(Fdisabled);
-            ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
+            ActiveDSSClass := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
             FOR i := 1 to ActiveDSSClass[ActiveActor].ElementCount Do
             Begin
                   ActiveDSSClass[ActiveActor].Active := i;
                   If (ActiveDSSClass[ActiveActor].DSSClassType And BASECLASSMASK)>0 Then
                    Begin
-                     If TDSSCktElement(ActiveDSSObject[ActiveActor]).Enabled Then  Writeln(F, UpperCase(ActiveDssObject[ActiveActor].Name))
+                     If TDSSCktElement(ActiveDSSObject).Enabled Then  Writeln(F, UpperCase(ActiveDssObject[ActiveActor].Name))
                      Else Writeln(Fdisabled, UpperCase(ActiveDssObject[ActiveActor].Name));
                    End
                   Else Writeln(F, UpperCase(ActiveDssObject[ActiveActor].Name));   // non cktelements
@@ -2656,7 +2656,7 @@ Begin
 
      While hMeter>0 Do Begin
 
-       pMtr:=TEnergyMeterObj(ActiveDSSObject[ActiveActor]);
+       pMtr:=TEnergyMeterObj(ActiveDSSObject);
 
          If pMtr.BranchList<>Nil Then  Begin
          
@@ -3126,15 +3126,15 @@ Begin
   End;
   // print lower triangle of G and B using new functions
   // this compresses the entries if necessary - no extra work if already solved
-  FactorSparseMatrix(hY);
-  GetNNZ(hY, @nNZ);
-  GetSize(hY, @nBus); // we should already know this
+  FactorSparseMatrix (hY);
+  GetNNZ (hY, @nNZ);
+  GetSize (hY, @nBus); // we should already know this
 
   Try
     SetLength (ColIdx, nNZ);
     SetLength (RowIdx, nNZ);
     SetLength (cVals, nNZ);
-    GetTripletMatrix(hY, nNZ, @RowIdx[0], @ColIdx[0], @cVals[0]);
+    GetTripletMatrix (hY, nNZ, @RowIdx[0], @ColIdx[0], @cVals[0]);
 
     Assignfile(F,FileNm);
     ReWrite(F);
