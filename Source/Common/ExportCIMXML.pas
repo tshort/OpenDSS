@@ -61,6 +61,7 @@ Var
 Const
   CIM_NS = 'http://iec.ch/TC57/2012/CIM-schema-cim16';
 
+// this returns s1, s2, or a combination of ABCN
 function PhaseString (pElem:TDSSCktElement; bus: Integer):String; // if order doesn't matter
 var
   val, phs: String;
@@ -70,7 +71,10 @@ begin
   phs := pElem.FirstBus;
   for dot:= 2 to bus do phs := pElem.NextBus;
 	bSec := false;
-	if ActiveCircuit.Buses^[pElem.Terminals^[bus].BusRef].kVBase < 0.5 then bSec := true;
+  if pElem.NPhases = 2 then
+  	if ActiveCircuit.Buses^[pElem.Terminals^[bus].BusRef].kVBase < 0.25 then bSec := true;
+  if pElem.NPhases = 1 then
+  	if ActiveCircuit.Buses^[pElem.Terminals^[bus].BusRef].kVBase < 0.13 then bSec := true;
 
 	dot := pos('.',phs);
   if dot < 1 then begin
@@ -668,7 +672,7 @@ begin
 
 	pPhase := TNamedObject.Create('dummy');
 	if pLoad.NPhases = 2 then begin  // filter out what appear to be split secondary loads
-		if ActiveCircuit.Buses^[pLoad.Terminals^[1].BusRef].kVBase < 0.5 then begin
+		if ActiveCircuit.Buses^[pLoad.Terminals^[1].BusRef].kVBase < 0.25 then begin
 			p := 1000.0 * pLoad.kWBase / 2.0;
 			q := 1000.0 * pLoad.kvarBase / 2.0;
 			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, 's1');
