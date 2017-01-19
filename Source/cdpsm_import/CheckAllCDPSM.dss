@@ -1,0 +1,29 @@
+//var @root=~/src/opendss/Distrib/
+var @root=c:\opendss\Source\cdpsm_import
+cd @root
+
+redirect ieee13_base.dss
+set controlmode=off
+solve
+export summary
+export voltages
+
+redirect ieee13assets_base.dss
+set controlmode=off
+solve
+export summary
+export voltages
+
+redirect ieee8500_base.dss
+set maxiterations=20
+solve
+export summary
+export voltages
+
+redirect ieee8500u_base.dss
+set maxiterations=20
+solve
+export summary
+export voltages
+
+
