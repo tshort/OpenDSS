@@ -54,7 +54,7 @@ uses
   SysUtils,
   Classes,
   CustApp,
-  cwstring,
+  {$IFDEF UNIX}cwstring,{$ENDIF}
 //	KeyEvents, // or a linkframework Carbon statement above?
   Arraydef in '..\Shared\Arraydef.pas',
   AutoAdd in '..\Common\AutoAdd.pas',
