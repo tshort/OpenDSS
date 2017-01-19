@@ -61,6 +61,7 @@ Var
 Const
   CIM_NS = 'http://iec.ch/TC57/2012/CIM-schema-cim16';
 
+// this returns s1, s2, or a combination of ABCN
 function PhaseString (pElem:TDSSCktElement; bus: Integer):String; // if order doesn't matter
 var
   val, phs: String;
@@ -70,7 +71,10 @@ begin
   phs := pElem.FirstBus;
   for dot:= 2 to bus do phs := pElem.NextBus;
 	bSec := false;
-	if ActiveCircuit.Buses^[pElem.Terminals^[bus].BusRef].kVBase < 0.5 then bSec := true;
+  if pElem.NPhases = 2 then
+  	if ActiveCircuit.Buses^[pElem.Terminals^[bus].BusRef].kVBase < 0.25 then bSec := true;
+  if pElem.NPhases = 1 then
+  	if ActiveCircuit.Buses^[pElem.Terminals^[bus].BusRef].kVBase < 0.13 then bSec := true;
 
 	dot := pos('.',phs);
   if dot < 1 then begin
@@ -596,7 +600,7 @@ begin
   // also write the switch phases if needed to support transpositions
   s1 := PhaseOrderString(pLine, 1);
   s2 := PhaseOrderString(pLine, 2);
-  if (pLine.NPhases = 3) and (s1 = s2) then exit;
+  if (pLine.NPhases = 3) and (length(s1) = 3) and (s1 = s2) then exit;
   pPhase := TNamedObject.Create('dummy');
   for i := 1 to length(s1) do begin
     phs1 := s1[i];
@@ -665,24 +669,29 @@ var
   p, q: double;
 begin
   if pLoad.NPhases = 3 then exit;
+  p := 1000.0 * pLoad.kWBase / pLoad.NPhases;
+  q := 1000.0 * pLoad.kvarBase / pLoad.NPhases;
+  if pLoad.Connection = 1 then
+    s := DeltaPhaseString(pLoad)
+  else
+    s := PhaseString(pLoad, 1);
 
 	pPhase := TNamedObject.Create('dummy');
-	if pLoad.NPhases = 2 then begin  // filter out what appear to be split secondary loads
-		if ActiveCircuit.Buses^[pLoad.Terminals^[1].BusRef].kVBase < 0.5 then begin
-			p := 1000.0 * pLoad.kWBase / 2.0;
-			q := 1000.0 * pLoad.kvarBase / 2.0;
+  // first, filter out what appear to be split secondary loads
+  // these can be 2-phase loads (balanced) nominally 0.208 kV, or
+  //  1-phase loads (possibly unbalanced) nominally 0.12 kV
+  //  TODO - handle s1 to s2 240-volt loads; these would be s12, which is not a valid SinglePhaseKind
+	if pLoad.kVLoadBase < 0.25 then begin
+		if pLoad.NPhases=2 then begin
 			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, 's1');
 			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, 's2');
 			exit;
-		end;
+		end else begin
+			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, s);
+      exit;
+    end;
 	end;
 
-  s := PhaseString(pLoad, 1);
-  with pLoad do begin
-    p := 1000.0 * kWBase / NPhases;
-    q := 1000.0 * kvarBase / NPhases;
-    if (Connection = 1) then s := DeltaPhaseString(pLoad);
-  end;
   for i := 1 to length(s) do begin
     phs := s[i];
     pPhase.LocalName := pLoad.Name + '_' + phs;
@@ -1118,7 +1127,9 @@ Begin
     StartGuidList (i1 + i2);
     StartBankList (ActiveCircuit.Transformers.ListSize);
 
-		Writeln(FileNm);
+    {$IFDEF FPC}
+ 		Writeln(FileNm);    // this only works in the command line version
+    {$ENDIF}
     Assignfile(F, FileNm);
     ReWrite(F);
 
@@ -1711,8 +1722,15 @@ Begin
           VbaseNode (F, pLine);
           DoubleNode (F, 'ProtectedSwitch.breakingCapacity', pLine.NormAmps);
           DoubleNode (F, 'Switch.ratedCurrent', pLine.NormAmps);
-          BooleanNode (F, 'Switch.normalOpen', not pLine.Closed[0]);
-          BooleanNode (F, 'Switch.open', not pLine.Closed[0]);
+          // some OpenDSS models have enabled=false to signal open switches, but we can't actually
+          // export them because disabled elements don't have terminal references in memory
+          if Enabled then begin
+            BooleanNode (F, 'Switch.normalOpen', not pLine.Closed[0]);
+            BooleanNode (F, 'Switch.open', not pLine.Closed[0]);
+          end else begin
+            BooleanNode (F, 'Switch.normalOpen', true);
+            BooleanNode (F, 'Switch.open', true);
+          end;
           BooleanNode (F, 'Switch.retained', True);
           GuidNode (F, 'PowerSystemResource.Location', geoGUID);
           EndInstance (F, 'LoadBreakSwitch');
@@ -1729,7 +1747,7 @@ Begin
           end else if SpacingSpecified then begin
             DoubleNode (F, 'Conductor.length', Len * v1); // assetinfo attached below
           end else begin
-            if SymComponentsModel then begin
+            if SymComponentsModel and (NPhases=3) then begin
               val := 1.0e-9 * TwoPi * BaseFrequency; // convert nF to mhos
               DoubleNode (F, 'Conductor.length', 1.0); // we don't know the physical length
               DoubleNode (F, 'ACLineSegment.r', Len * R1); // total ohms
@@ -1854,7 +1872,7 @@ Begin
     while pCode <> nil do begin
       with pCode do begin
         v1 := To_per_Meter (pCode.Units);
-        if SymComponentsModel then begin
+        if SymComponentsModel and (NumPhases=3) then begin
           v2 := 1.0e-9 * TwoPi * BaseFrequency; // convert nF to mhos
           StartInstance (F, 'PerLengthSequenceImpedance', pCode);
           DoubleNode (F, 'PerLengthSequenceImpedance.r', R1 * v1);
