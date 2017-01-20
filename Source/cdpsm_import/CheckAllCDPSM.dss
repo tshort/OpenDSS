@@ -1,5 +1,5 @@
-//var @root=~/src/opendss/Distrib/
-var @root=c:\opendss\Source\cdpsm_import
+var @root=/Users/mcde601/src/opendss/Source/cdpsm_import
+//var @root=c:\opendss\Source\cdpsm_import
 cd @root
 
 redirect ieee13_base.dss

@@ -1,31 +1,31 @@
-//var @root=~/src/opendss/Distrib/
-var @root=c:\opendss
-var @outpath=c:\opendss\Source\cdpsm_import
+var @root=/Users/mcde601/src/opendss
+//var @root=c:/opendss
+//var @outpath=c:/opendss/Source/cdpsm_import
 cd @root
 
-redirect .\Test\IEEE13_CDPSM.dss
-export CDPSMCombined .\Source\cdpsm_import\IEEE13.xml
-export summary .\Source\cdpsm_import\IEEE13_Summary.csv
-export voltages .\Source\cdpsm_import\IEEE13_VLN.csv
+redirect ./Test/IEEE13_CDPSM.dss
+export CDPSMCombined ./Source/cdpsm_import/IEEE13.xml
+export summary ./Source/cdpsm_import/IEEE13_Summary.csv
+export voltages ./Source/cdpsm_import/IEEE13_VLN.csv
 
-redirect .\Test\IEEE13_Assets.dss
-export CDPSMCombined .\Source\cdpsm_import\IEEE13_Assets.xml
-export summary .\Source\cdpsm_import\IEEE13_Assets_Summary.csv
-export voltages .\Source\cdpsm_import\IEEE13_Assets_VLN.csv
+redirect ./Test/IEEE13_Assets.dss
+export CDPSMCombined ./Source/cdpsm_import/IEEE13_Assets.xml
+export summary ./Source/cdpsm_import/IEEE13_Assets_Summary.csv
+export voltages ./Source/cdpsm_import/IEEE13_Assets_VLN.csv
 
-redirect .\Distrib\IEEETestCases\8500-Node\Master-unbal.dss
+redirect ./Distrib/IEEETestCases/8500-Node/Master-unbal.dss
 set maxiterations=20
 solve
-export CDPSMCombined .\Source\cdpsm_import\IEEE8500u.xml
-export summary .\Source\cdpsm_import\IEEE8500u_Summary.csv
-export voltages .\Source\cdpsm_import\IEEE8500u_VLN.csv
+export CDPSMCombined ./Source/cdpsm_import/IEEE8500u.xml
+export summary ./Source/cdpsm_import/IEEE8500u_Summary.csv
+export voltages ./Source/cdpsm_import/IEEE8500u_VLN.csv
 
-redirect .\Distrib\IEEETestCases\8500-Node\Master.dss
+redirect ./Distrib/IEEETestCases/8500-Node/Master.dss
 set maxiterations=20
 solve
-export CDPSMCombined .\Source\cdpsm_import\IEEE8500.xml
-export summary .\Source\cdpsm_import\IEEE8500_Summary.csv
-export voltages .\Source\cdpsm_import\IEEE8500_VLN.csv
+export CDPSMCombined ./Source/cdpsm_import/IEEE8500.xml
+export summary ./Source/cdpsm_import/IEEE8500_Summary.csv
+export voltages ./Source/cdpsm_import/IEEE8500_VLN.csv
 
 //redirect ~/src/opendss/Distrib/IEEETestCases/13Bus/IEEE13Nodeckt.dss
 //export CDPSMCombined

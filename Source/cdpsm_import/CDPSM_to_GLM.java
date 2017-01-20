@@ -2312,8 +2312,13 @@ public class CDPSM_to_GLM extends Object {
 				if (bWantSec) {
 					out.println("object triplex_line {\n  name \"tpx_" + name + "\";");
 					out.println ("  phases " + phs + ";");
-					out.println ("  from \"" + bus1 + "\";");
-					out.println ("  to \"" + bus2 + "\";");
+					if (nd1.HasLoad()) {
+						out.println("  from \"" + bus2 + "\";"); 
+						out.println ("  to \"" + bus1 + "\";");
+					} else {
+						out.println("  from \"" + bus1 + "\";"); 
+						out.println ("  to \"" + bus2 + "\";");
+					}
 					out.println ("  length " + String.format("%6g", dLen) + ";");
 					if (zPhase.length() > 0) {
 						out.println("  configuration \"tcon_" + zPhase + "\";");
