@@ -124,6 +124,27 @@ public class CDPSM_to_GLM extends Object {
 			return phases + "N";
 		}
 
+		public void RescaleLoad(double scale) {
+			pa_z *= scale;
+			pb_z *= scale;
+			pc_z *= scale;
+			qa_z *= scale;
+			qb_z *= scale;
+			qc_z *= scale;
+			pa_i *= scale;
+			pb_i *= scale;
+			pc_i *= scale;
+			qa_i *= scale;
+			qb_i *= scale;
+			qc_i *= scale;
+			pa_p *= scale;
+			pb_p *= scale;
+			pc_p *= scale;
+			qa_p *= scale;
+			qb_p *= scale;
+			qc_p *= scale;
+		}
+
 		public boolean HasLoad() {
 			if (pa_z != 0.0) return true;
 			if (pb_z != 0.0) return true;
@@ -974,21 +995,21 @@ public class CDPSM_to_GLM extends Object {
 			}
 		} else {
 			buf.append("  Control MANUAL;\n");
+			if (bA)	buf.append ("  tap_pos_A " + String.format("%d", iTapA) + ";\n");
+			if (bB)	buf.append ("  tap_pos_B " + String.format("%d", iTapB) + ";\n");
+			if (bC)	buf.append ("  tap_pos_C " + String.format("%d", iTapC) + ";\n");
 		}
 		buf.append ("  current_transducer_ratio " + String.format("%6g", CT) + ";\n");
 		buf.append ("  power_transducer_ratio " + String.format("%6g", PT) + ";\n");
 		if (bA)	{
-			buf.append ("  tap_pos_A " + String.format("%d", iTapA) + ";\n");
 			buf.append ("  compensator_r_setting_A " + String.format("%6g", ldcRa) + ";\n");
 			buf.append ("  compensator_x_setting_A " + String.format("%6g", ldcXa) + ";\n");
 		}
 		if (bB)	{
-			buf.append ("  tap_pos_B " + String.format("%d", iTapB) + ";\n");
 			buf.append ("  compensator_r_setting_B " + String.format("%6g", ldcRb) + ";\n");
 			buf.append ("  compensator_x_setting_B " + String.format("%6g", ldcXb) + ";\n");
 		}
 		if (bC)	{
-			buf.append ("  tap_pos_C " + String.format("%d", iTapC) + ";\n");
 			buf.append ("  compensator_r_setting_C " + String.format("%6g", ldcRc) + ";\n");
 			buf.append ("  compensator_x_setting_C " + String.format("%6g", ldcXc) + ";\n");
 		}
@@ -1643,13 +1664,14 @@ public class CDPSM_to_GLM extends Object {
 	public static void main (String args[]) throws UnsupportedEncodingException, FileNotFoundException {
 
     String fName = "", fOut = "", fBus = "", fEnc = "";
-    double freq = 60.0, vmult = 0.001, smult = 0.001;
+    double freq = 60.0, vmult = 0.001, smult = 0.001, load_scale = 1.0;
     int fInFile = 0;
     int fNameSeq = 0;
 		boolean bWantSec = true;
 
     if (args.length < 3) {
 			System.out.println ("Usage: CDPSM_to_GLM [options] input.xml output_root");
+			System.out.println ("       -l={1}             // load scaling factor, defaults to 1");
       System.out.println ("       -t={y|n}           // triplex; y/n to include secondary");
       System.out.println ("       -e={u|i}           // encoding; UTF-8 or ISO-8859-1");
       System.out.println ("       -f={50|60}         // system frequency");
@@ -1678,6 +1700,8 @@ public class CDPSM_to_GLM extends Object {
           } else {
             fNameSeq = 1;
           }
+				} else if (opt=='l') {
+					load_scale = Double.parseDouble(optVal);
         } else if (opt=='f') {
           freq = Double.parseDouble(optVal);
         } else if (opt=='v') {
@@ -2538,6 +2562,7 @@ public class CDPSM_to_GLM extends Object {
 		for (HashMap.Entry<String,GldNode> pair : mapNodes.entrySet()) {
 			GldNode nd = pair.getValue();
 			if (nd.HasLoad())	 {
+				nd.RescaleLoad(load_scale);
 				Complex va = new Complex(nd.nomvln);
 				Complex vmagsq = new Complex(nd.nomvln * nd.nomvln);
 				if (nd.bSecondary) {
@@ -2548,10 +2573,10 @@ public class CDPSM_to_GLM extends Object {
 						out.println ("  phases " + nd.GetPhases() + ";");
 						out.println ("  nominal_voltage " + String.format("%6g", nd.nomvln) + ";");
 						if (nd.pa_p > 0.0 || nd.qa_p != 0.0)	{
-							out.println ("  power_1 " + CFormat((new Complex(nd.pa_p, nd.qa_p)).multiply(0.1)) + ";");
+							out.println ("  power_1 " + CFormat(new Complex(nd.pa_p, nd.qa_p)) + ";");
 						}
 						if (nd.pb_p > 0.0 || nd.qb_p != 0.0)	{
-							out.println ("  power_2 " + CFormat((new Complex(nd.pb_p, nd.qb_p)).multiply(0.1)) + ";");
+							out.println ("  power_2 " + CFormat(new Complex(nd.pb_p, nd.qb_p)) + ";");
 						}
 						if (nd.pa_z > 0.0 || nd.qa_z != 0.0) {
 							Complex s = new Complex(nd.pa_z, nd.qa_z);

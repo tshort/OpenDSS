@@ -1,6 +1,7 @@
 clock {
-	timestamp '2000-01-01 0:00:00';
 	timezone EST+5EDT;
+	starttime '2000-01-01 0:00:00';
+	stoptime '2000-01-01 0:00:00';
 }
 
 #set relax_naming_rules=1
@@ -16,10 +17,12 @@ module tape;
 
 object voltdump {
   filename Volt_Dump_NR.csv;
+	mode polar;
 }
 
 object currdump {
   filename Current_Dump_NR.csv;
+	mode polar;
 }
 
 object recorder {
