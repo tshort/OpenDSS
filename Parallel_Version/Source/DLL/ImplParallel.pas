@@ -24,6 +24,8 @@ type
     procedure Wait; safecall;
     function Get_ActorProgress: OleVariant; safecall;
     function Get_ActorStatus: OleVariant; safecall;
+    function Get_ActiveParallel: Integer; safecall;
+    procedure Set_ActiveParallel(Value: Integer); safecall;
   end;
 
 implementation
@@ -109,6 +111,16 @@ begin
     Result := VarArrayCreate([1, NumOfActors], varInteger);
     for idx := 1 to NumOfActors do
       Result[idx] :=  ActorStatus[idx];  
+end;
+
+function TParallel.Get_ActiveParallel: Integer;
+begin
+  if Parallel_enabled then Result :=  1 else Result   :=  0;
+end;
+
+procedure TParallel.Set_ActiveParallel(Value: Integer);
+begin
+  if Value = 1 then Parallel_enabled :=  True else Parallel_enabled :=  False;
 end;
 
 initialization

@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 1/11/2017 12:13:22 PM (- $Rev: 12980 $, 14410046).
+// File generated on 1/31/2017 11:57:51 AM (- $Rev: 12980 $, 9936843).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -2805,6 +2805,10 @@ library OpenDSSengine
     HRESULT _stdcall ActorProgress([out, retval] VARIANT* Value);
     [propget, id(0x000000D1), helpstring("Gets the status of each actor")]
     HRESULT _stdcall ActorStatus([out, retval] VARIANT* Value);
+    [propget, id(0x000000D2), helpstring("Sets ON/OFF (1/0) Parallel features of the Engine")]
+    HRESULT _stdcall ActiveParallel([out, retval] long* Value);
+    [propput, id(0x000000D2), helpstring("Delivers if the Parallel features of the Engine are Active")]
+    HRESULT _stdcall ActiveParallel([in] long Value);
   };
 
   [

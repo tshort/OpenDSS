@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 1/11/2017 11:55:45 AM from Type Library described below.
+// File generated on 1/31/2017 11:57:44 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\OpenDSS\Parallel_Version\Source\DLL\OpenDSSengine (1)
@@ -3510,6 +3510,8 @@ type
     procedure Wait; safecall;
     function Get_ActorProgress: OleVariant; safecall;
     function Get_ActorStatus: OleVariant; safecall;
+    function Get_ActiveParallel: Integer; safecall;
+    procedure Set_ActiveParallel(Value: Integer); safecall;
     property NumCPUs: Integer read Get_NumCPUs;
     property NumCores: Integer read Get_NumCores;
     property ActiveActor: Integer read Get_ActiveActor write Set_ActiveActor;
@@ -3517,6 +3519,7 @@ type
     property NumOfActors: Integer read Get_NumOfActors;
     property ActorProgress: OleVariant read Get_ActorProgress;
     property ActorStatus: OleVariant read Get_ActorStatus;
+    property ActiveParallel: Integer read Get_ActiveParallel write Set_ActiveParallel;
   end;
 
 // *********************************************************************//
@@ -3535,6 +3538,7 @@ type
     procedure Wait; dispid 207;
     property ActorProgress: OleVariant readonly dispid 208;
     property ActorStatus: OleVariant readonly dispid 209;
+    property ActiveParallel: Integer dispid 210;
   end;
 
 // *********************************************************************//
