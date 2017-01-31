@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 114;
+        NumExecOptions = 115;
 
 VAR
          ExecOption,
@@ -148,6 +148,7 @@ Begin
      ExecOption[112] := 'ActiveActor';
      ExecOption[113] := 'CPU';
      ExecOption[114] := 'ActorProgress';
+     ExecOption[115] := 'Parallel';
 
 
 
@@ -400,6 +401,7 @@ Begin
      OptionHelp[112] := 'Gets/Sets the number of the active actor';
      OptionHelp[113] := 'Gets/Sets the CPU to be used by the active actor';
      OptionHelp[114] := 'Gets progress (%) for all the actors when performing a task';
+     OptionHelp[115] := 'Activates/Deactivates the parallel machine in OpenDSS-PM, if deactivated OpenDSS will behave as the classical version';
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -445,6 +447,9 @@ Begin
                     DoSimpleMsg('The CPU does not exists',7003);
                   end;
                 End;
+          115:  begin
+                  Parallel_enabled  :=  InterpretYesNo(Param);
+                end;
          ELSE
             Begin
                 DoSimpleMsg('You must create a new circuit object first: "new circuit.mycktname" to execute this Set command.', 301);
@@ -649,6 +654,9 @@ Begin
                     DoSimpleMsg('The CPU does not exists',7003);
                   end;
                 End;
+          115:  begin
+                  Parallel_enabled  :=  InterpretYesNo(Param);
+                end;
          ELSE
            // Ignore excess parameters
          End;
@@ -833,6 +841,7 @@ Begin
           112: AppendGlobalResult(Format('%d' ,[ActiveActor]));
           113: AppendGlobalResult(Format('%d' ,[ActorCPU[ActiveActor]]));
           114: ScriptEd.UpdateProgressSummary;
+          115: if parallel_enabled then AppendGlobalResult('Yes') else AppendGlobalResult('No');
          ELSE
            // Ignore excess parameters
          End;
@@ -884,6 +893,7 @@ Begin
           111: AppendGlobalResult(Format('%d' ,[NumOfActors]));
           112: AppendGlobalResult(Format('%d' ,[ActiveActor]));
           113: AppendGlobalResult(Format('%d' ,[ActorCPU[ActiveActor]]));
+          115: if parallel_enabled then AppendGlobalResult('Yes') else AppendGlobalResult('No');
          ELSE
             Begin
                 DoSimpleMsg('You must create a new circuit object first: "new circuit.mycktname" to execute this Set command.', 301);
