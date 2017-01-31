@@ -519,6 +519,8 @@ Try
       ActorHandle[ActorID].Free;
     end;
     ActorHandle[ActorID] :=  TSolver.Create(false,ActorCPU[ActorID],ActorID,ScriptEd.UpdateSummaryForm);
+    if not Parallel_enabled then
+      ActorHandle[ActorID].WaitFor; // If the parallel features are not active it will work as the classic version
 Except
 
     On E:Exception Do Begin
