@@ -411,7 +411,7 @@ begin
        End
       ELSE arg := VarArrayCreate([0, 0], varOleStr);
   end;
-  7: begin
+  7: begin                                             // Circuit.AllBusNames
      IF ActiveCircuit[ActiveActor] <> Nil THEN
        WITH ActiveCircuit[ActiveActor] DO
        Begin

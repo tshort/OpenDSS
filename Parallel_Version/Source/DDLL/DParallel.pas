@@ -59,6 +59,12 @@ begin
   8: begin  // Parallel.Wait
     for i := 1 to NumOfActors do
     ActorHandle[i].WaitFor;
+  end;
+  9: begin  // Parallel.ActiveParallel Read
+    if Parallel_enabled then Result :=  1 else Result  :=  0;
+  end;
+  10: begin  // Parallel.ActiveParallel Write
+    if arg <> 0 then Parallel_enabled := True else Parallel_enabled  := False;    ActorHandle[i].WaitFor;
   end
   else
       Result:=-1;
