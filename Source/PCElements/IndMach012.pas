@@ -160,8 +160,6 @@ TYPE
         kWBase          :Double;
 
 
-       // many PC elements have a proc like this to map computed currents into appropriate array
-        Procedure StickCurrInTerminalArray(TermArray:pComplexArray; Const Curr:Complex; i:Integer);
 
         Procedure InterpretOption(s:String);
 
@@ -297,7 +295,7 @@ USES  ParserDel,     // DSS parser
 
 CONST
      NumPropsThisClass = 21; // Set this constant to the actual number of properties you define
-     NumIndMach012Variables = 16;
+     NumIndMach012Variables = 22;
 
 
 VAR  // Define any useful module vars here, for example:
@@ -553,13 +551,6 @@ Begin
             19: DailyDispShape   := Param;
             20: DutyShape  := Param;
             21: DebugTrace   := InterpretYesNo(Param);
-
-         //   3: PresentkV    := Parser.DblValue;
-
-            {...}
-            {etc.}
-
-            {One case for each property}
 
          ELSE
            // Handle Inherited properties
@@ -817,6 +808,9 @@ begin
       {Gets slip from shaft speed}
        With MachineData Do LocalSlip := (-Speed)/w0;
        Get_DynamicModelCurrent;
+{****} WriteDLLDebugFile(Format('dynamic ModelCurrent: S1 =  %-.6g, V1=%-.6g /_ %-.6g, Is1=%-.6g /_ %-.6g, Ir1=%-.6g /_ %-.6g,',[S1, cabs(V1), cdang(V1), cabs(Is1), cdang(Is1), cabs(Ir1), cdang(Ir1)]));
+{****} WriteDLLDebugFile(Format('dynamic ModelCurrent: S2 =  %-.6g, V2=%-.6g /_ %-.6g, Is2=%-.6g /_ %-.6g, Ir2=%-.6g /_ %-.6g,',[S2, cabs(V2), cdang(V2), cabs(Is2), cdang(Is2), cabs(Ir2), cdang(Ir2)]));
+
      //  Get_ModelCurrent(V2, S2, Is2, Ir2);
        I012[1] := Is1;    // Save for variable calcs
        I012[2] := Is2;
@@ -882,6 +876,8 @@ begin
      //  LocalSlip := ComputeSlip(V1, Psh);
        Get_ModelCurrent(V1, S1, Is1, Ir1);
        Get_ModelCurrent(V2, S2, Is2, Ir2);
+{****} WriteDLLDebugFile(Format('PFlow ModelCurrent: S1 =  %-.6g, V1=%-.6g /_ %-.6g, Is1=%-.6g /_ %-.6g, Ir1=%-.6g /_ %-.6g,',[S1, cabs(V1), cdang(V1), cabs(Is1), cdang(Is1), cabs(Ir1), cdang(Ir1)]));
+{****} WriteDLLDebugFile(Format('Pflow ModelCurrent: S2 =  %-.6g, V2=%-.6g /_ %-.6g, Is2=%-.6g /_ %-.6g, Ir2=%-.6g /_ %-.6g,',[S2, cabs(V2), cdang(V2), cabs(Is2), cdang(Is2), cabs(Ir2), cdang(Ir2)]));
 
        I012[1] := Is1;    // Save for variable calcs
        I012[2] := Is2;
@@ -964,7 +960,8 @@ begin
     Xopen := Xs + Xm;
     Xp  := Xs + (Xr*Xm)/(Xr+Xm);
     Zsp := Cmplx(Rs, Xp);
-    Yeq := Cinv(Zsp);   // for Yprim
+    //Yeq := Cinv(Zsp);   // for Yprim
+    Yeq := Cmplx(1.0/ZBase, -0.5/Zbase);   // vars are half the watts
     T0p := (Xr + Xm)/(MachineData.w0 *Rr);
 
     Zrsc := Cadd(Zr, Cdiv(Cmul(Zs,Zm),Cadd(Zs,Zm)));
@@ -1055,9 +1052,10 @@ Begin
        {Yeq is typically expected as the equivalent line-neutral admittance}
 
        Y := Yeq;  //     Yeq is L-N quantity
+{****} WriteDLLDebugFile(Format('Yeq = %-.6g + j %-.6g (|%-.6g|)',[Yeq.re, Yeq.im, Cabs(Yeq)]));
 
        // ****** Need to modify the base admittance for real harmonics calcs
-       Y.im           := Y.im / FreqMultiplier;
+       Y.im   := Y.im / FreqMultiplier;
 
          CASE Connection OF
 
@@ -1094,7 +1092,7 @@ begin
     V1 := Cmplx(MachineData.kvGeneratorBase*1000.0/1.732, 0.0);
     If S1 <> 0.0 Then Get_ModelCurrent(V1, S1, Is1, Ir1);
     Result := S1/Cmul(V1, Conjg(Is1)).Re;
-
+{****} WriteDLLDebugFile(Format('Compute_dSdP: dSdP = %-.8g, Slip =  %-.6g, V1=%-.6g, Is1=%-.6g /_ %-.6g, Ir1=%-.6g /_ %-.6g,',[Result, S1, V1.Re, cabs(Is1), cdang(Is1), cabs(Ir1), cdang(Ir1)]));
 end;
 
 //----------------------------------------------------------------------------
@@ -1157,31 +1155,7 @@ Begin
 End;
 
 // - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - -
-Procedure TIndMach012Obj.StickCurrInTerminalArray(TermArray:pComplexArray; Const Curr:Complex; i:Integer);
 
-// Most PC Elements should have a routine like this to make the current injections into the proper place
-
- {Add the current into the proper array position according to connection}
-
-
-VAR j :Integer;
-
-Begin
-    CASE Connection OF
-
-         0: Begin  //Wye
-                 Caccum(TermArray^[i], Cnegate(Curr) );
-                 Caccum(TermArray^[Fnconds], Curr ); // Neutral
-            End;
-
-         1: Begin //DELTA
-                 Caccum(TermArray^[i], Cnegate(Curr) );
-                 j := i + 1;
-                 If j > Fnconds Then j := 1;
-                 Caccum(TermArray^[j], Curr );
-            End;
-    End;
-End;
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - -
@@ -1193,17 +1167,16 @@ Var
 Begin
 
    CalcYPrimContribution(InjCurrent);  // Init InjCurrent Array
+{****}WriteDLLDebugfile(Format('InjCurrent (Yprim) = %s',[CmplxArrayToString(InjCurrent,3)]));
 
-        //AppendToEventLog('Wnominal=', Format('%-.5g',[Pnominalperphase]));
+  //AppendToEventLog('Wnominal=', Format('%-.5g',[Pnominalperphase]));
    CalcModel (Vterminal, Iterminal);
+{****}WriteDLLDebugfile(Format('Iterminal = %s',[CmplxArrayToString(ITerminal,3)]));
    IterminalUpdated := TRUE;
-   For i:=1 to Nphases Do StickCurrInTerminalArray(InjCurrent, ITerminal^[i], i);
-   {
-   With ActiveCircuit.Solution Do  Begin      // Negate currents from user model for power flow generator model
-         FOR i := 1 to FnConds Do Caccum(InjCurrent^[i], Cnegate(Iterminal^[i]));
-   End;
-   }
+  // For i:=1 to Nphases Do StickCurrInTerminalArray(InjCurrent, ITerminal^[i], i);
 
+   FOR i := 1 to Nphases Do Caccum(InjCurrent^[i], Cnegate(Iterminal^[i]));
+{****}WriteDLLDebugfile(Format('InjCurrent (Final) = %s',[CmplxArrayToString(InjCurrent,3)]));
    If (DebugTrace) Then WriteTraceRecord;
 End;
 
@@ -1212,7 +1185,6 @@ Procedure  TIndMach012Obj.CalcModel(V, I:pComplexArray); // returns voltage or t
 {brought from InMach012 dll Main Unit}
     Var
         V012, I012:TSymCompArray;
-
 
 Begin
 
@@ -1232,6 +1204,8 @@ Begin
        End;
 
        SymComp2Phase(I, @I012);       // convert back to I abc
+
+{****}WriteDLLDebugfile(Format('Terminal Power In = %-.6g + j %-.6g',[TerminalPowerIn(V, I, 3).re/1000.0, TerminalPowerIn(V, I, 3).im/1000.0 ]));
 
 End;
 
@@ -1260,7 +1234,7 @@ Begin
 
    CalcModel (Vterminal, Iterminal);
    IterminalUpdated := TRUE;
-   For i:=1 to Nphases Do StickCurrInTerminalArray(InjCurrent, ITerminal^[i], i);
+   For i:=1 to Nphases Do Caccum(InjCurrent^[i], Cnegate(ITerminal^[i]));
 
 End;
 
@@ -1692,6 +1666,8 @@ begin
  ***)
 end;
 
+// ******************* PROPERTY VALUES   *******************
+
 procedure TIndMach012Obj.InitPropertyValues(ArrayOffset: Integer);
 
 // required procedure to initialize the string value of the properties
@@ -1727,6 +1703,37 @@ begin
 
 end;
 
+
+function TIndMach012Obj.GetPropertyValue(Index: Integer): String;
+
+// Return i-th property value as a string
+
+begin
+
+      Result := '';   // Init the string
+      CASE Index of
+         // Put special cases here
+         // often a good idea to convert numeric values to strings, for example
+         4:  Result := Format('%.6g', [kWBase]);
+         5:  Result := Format('%.6g', [PowerFactor(Power[1])]);
+         7:  Result := Format('%.6g', [MachineData.kVArating]);
+         8:  Result := Format('%.6g', [MachineData.Hmass]);
+         9:  Result := Format('%.6g', [MachineData.D]);
+         15:  Result := Format('%.6g', [localslip]);
+         18:  Result := YearlyShape;
+         19:  Result := DailyDispShape;
+         20:  Result := DutyShape;
+         {...}
+      ELSE
+
+         // The default is to just return the current string value of the property
+         Result := Inherited GetPropertyValue(index);
+
+      END;
+end;
+
+// ******************* END PROPERTY VALUES   *******************
+
 PROCEDURE TIndMach012Obj.InitStateVars;
 
 Var
@@ -1743,7 +1750,7 @@ begin
   With MachineData Do Begin
 
      Zthev := Zsp;   // Equivalent Z looking into the motor
-     Yeq := Cinv(Zthev);
+     //--- Yeq := Cinv(Zthev);
 
      {Compute nominal Positive sequence voltage behind transient reactance}
 
@@ -1841,8 +1848,6 @@ begin
 
    ComputeIterminal;
 
-
-
 // Check for user-written exciter model.
     //Function(V, I:pComplexArray; const Pshaft,Theta,Speed,dt,time:Double)
 
@@ -1920,69 +1925,7 @@ begin
     Irotor := Csub(Istator, Cdiv(Csub(V, Cmul(Zs, Istator)), Zm) );
 end;
 
-{--- Notes Andres: Modified according to dll model }
-function TIndMach012Obj.Get_Variable(i: Integer): Double;
-begin
-
-     Result := -1.0;
-    Case i of
-
-      1: Result := LocalSlip;
-      2: Result := puRs;
-      3: Result := puXs;
-      4: Result := puRr;
-      5: Result := puXr;
-      6: Result := puXm;
-      7: Result := MaxSlip;
-      8: Result := Cabs(Is1);
-      9: Result := Cabs(Is2);
-     10: Result := Cabs(Ir1);
-     11: Result := Cabs(Ir2);
-     12: Result := GetStatorLosses;
-     13: Result := GetRotorLosses;
-     14: Begin  // Shaft Power  (hp)
-             Result := 3.0/746.0*(Sqr(Cabs(Ir1))*(1.0 - S1)/S1 + Sqr(Cabs(Ir2))*(1.0 - S2)/S2 )* Zr.re;
-         End;
-     15: Result := PowerFactor(Power[1]);
-     16: Result := (1.0 - (GetStatorLosses + GetRotorLosses) / power[1].re) * 100.0;    // Efficiency
-    Else
-
-    End;
-
-end;
-
-{--- Notes Andres: Modified according to dll model }
-procedure TIndMach012Obj.Set_Variable(i: Integer;  Value: Double);
-begin
-      Case i of
-
-      1:  Slip:= Value;
-      2:  puRs:= Value;
-      3:  puXs:= Value;
-      4:  puRr:= Value;
-      5:  puXr:= Value;
-      6:  puXm:= Value;
-
-    Else
-        {Do Nothing for other variables: they are read only}
-    End;
-end;
-
-
-procedure TIndMach012Obj.GetAllVariables(States: pDoubleArray);
-
-{
-  This is a virtual function. You do not need to write this routine
-  if you are not defining state variables.
-}
-
-// Return all state variables in double array (allocated by calling function)
-
-Var  i, N:Integer;
-begin
-     N := 0;
-     For i := 1 to NumIndMach012Variables Do States^[i] := Variable[i];
-end;
+// ********************** VARIABLES ***************************************
 
 function TIndMach012Obj.NumVariables: Integer;
 
@@ -2009,73 +1952,115 @@ Function TIndMach012Obj.VariableName(i: Integer):String;
 
 // Returns the i-th state variable in a string
 
-Const
-    BuffSize = 255;
-Var
-    n,
-    i2    :integer;
-    Buff  :Array[0..BuffSize] of Char;
-    pName :pchar;
-    
+
 begin
-    n:=0;
     If i<1 Then Exit;  // Someone goofed
     Case i of
-    // For example, these are the 6 intrinsic state variables of a generator
-    // Change to appropriate names
-        1:Result := 'slip';
-        2:Result := 'puRs';
-        3:Result := 'puXs';
-        4:Result := 'puRr';
-        5:Result := 'puXr';
-        6:Result := 'puXm';
-        7:Result := 'Maxslip';
-        8:Result := 'Is1';
-        9:Result := 'Is2';
-       10:Result := 'Ir1';
-       11:Result := 'Ir2';
-       12:Result := 'Stator Losses';
-       13:Result := 'Rotor Losses';
-       14:Result := 'Shaft Power (hp)';
-       15:Result := 'Power Factor';
-       16:Result := 'Efficiency (%)';
+
+        1:Result := 'Frequency';
+        2:Result := 'Theta (deg)';
+        3:Result := 'Vd';
+        4:Result := 'Pshaft';
+        5:Result := 'dSpeed (deg/sec)';
+        6:Result := 'dTheta (deg)';
+        7:Result := 'Slip';
+        8:Result := 'puRs';
+        9:Result := 'puXs';
+       10:Result := 'puRr';
+       11:Result := 'puXr';
+       12:Result := 'puXm';
+       13:Result := 'Maxslip';
+       14:Result := 'Is1';
+       15:Result := 'Is2';
+       16:Result := 'Ir1';
+       17:Result := 'Ir2';
+       18:Result := 'Stator Losses';
+       19:Result := 'Rotor Losses';
+       20:Result := 'Shaft Power (hp)';
+       21:Result := 'Power Factor';
+       22:Result := 'Efficiency (%)';
     Else
     End;
 
 end;
-
-function TIndMach012Obj.GetPropertyValue(Index: Integer): String;
-
-// Return i-th property value as a string
-
+{--- Notes Andres: Modified according to dll model }
+function TIndMach012Obj.Get_Variable(i: Integer): Double;
 begin
 
-      Result := '';   // Init the string
-      CASE Index of
-         // Put special cases here
-         // often a good idea to convert numeric values to strings, for example
-         4:  Result := Format('%.6g', [kWBase]);
-         5:  Result := Format('%.6g', [PowerFactor(Power[1])]);
-         7:  Result := Format('%.6g', [MachineData.kVArating]);
-         8:  Result := Format('%.6g', [MachineData.Hmass]);
-         9:  Result := Format('%.6g', [MachineData.D]);
-         15:  Result := Format('%.6g', [localslip]);
-         18:  Result := YearlyShape;
-         19:  Result := DailyDispShape;
-         20:  Result := DutyShape;
-         {...}
-      ELSE
+    Result := -9999.99;   // Error Value
 
-         // The default is to just return the current string value of the property
-         Result := Inherited GetPropertyValue(index);
+    With MachineData Do
+    Case i of
+       1: Result := (w0+Speed)/TwoPi;  // Frequency, Hz
+       2: Result := (Theta ) * RadiansToDegrees;  // Report in Deg
+       3: Result := Cabs(Vthev)/vbase;      // Report in pu
+       4: Result := Pshaft;
+       5: Result := dSpeed * RadiansToDegrees; // Report in Deg      57.29577951
+       6: Result := dTheta;
+       7: Result := LocalSlip;
+       8: Result := puRs;
+       9: Result := puXs;
+      10: Result := puRr;
+      11: Result := puXr;
+      12: Result := puXm;
+      13: Result := MaxSlip;
+      14: Result := Cabs(Is1);
+      15: Result := Cabs(Is2);
+      16: Result := Cabs(Ir1);
+      17: Result := Cabs(Ir2);
+      18: Result := GetStatorLosses;
+      19: Result := GetRotorLosses;
+      20: Begin  // Shaft Power  (hp)
+             Result := 3.0/746.0*(Sqr(Cabs(Ir1))*(1.0 - S1)/S1 + Sqr(Cabs(Ir2))*(1.0 - S2)/S2 )* Zr.re;
+          End;
+      21: Result := PowerFactor(Power[1]);
+      22: Result := (1.0 - (GetStatorLosses + GetRotorLosses) / power[1].re) * 100.0;    // Efficiency
+    Else
 
-      END;
+    End;
+
 end;
+
+{--- Notes Andres: Modified according to dll model }
+procedure TIndMach012Obj.Set_Variable(i: Integer;  Value: Double);
+begin
+    Case i of
+
+      7:  Slip:= Value;
+      8:  puRs:= Value;
+      9:  puXs:= Value;
+     10:  puRr:= Value;
+     11:  puXr:= Value;
+     12:  puXm:= Value;
+
+    Else
+        {Do Nothing for other variables: they are read only}
+    End;
+end;
+
+
+procedure TIndMach012Obj.GetAllVariables(States: pDoubleArray);
+
+{
+  This is a virtual function. You do not need to write this routine
+  if you are not defining state variables.
+}
+
+// Return all state variables in double array (allocated by calling function)
+
+Var  i, N:Integer;
+begin
+     N := 0;
+     For i := 1 to NumIndMach012Variables Do States^[i] := Variable[i];
+end;
+
+
+// ********************** END VARIABLES ***************************************
 
 {--- Notes Andres: Modified according to dll model }
 function TIndMach012Obj.GetRotorLosses: Double;
 begin
-        Result := 3.0*(Sqr(Ir1.re) + Sqr(Ir1.im) + Sqr(Ir2.re) + Sqr(Ir2.im))*Zr.re;
+      Result := 3.0*(Sqr(Ir1.re) + Sqr(Ir1.im) + Sqr(Ir2.re) + Sqr(Ir2.im))*Zr.re;
 end;
 
 {--- Notes Andres: Modified according to dll model }
@@ -2144,15 +2129,12 @@ begin
 
 end;
 
-procedure TIndMach012Obj.Set_ConductorClosed(Index: Integer;
-  Value: Boolean);
+procedure TIndMach012Obj.Set_ConductorClosed(Index: Integer;  Value: Boolean);
 
 // Routine for handling Open/Close procedures
 
 begin
    inherited;
-
- // In this example from Generator, just turn the object on or off;
 
    If Value Then IndMach012SwitchOpen := FALSE Else IndMach012SwitchOpen := TRUE;
 
@@ -2161,6 +2143,7 @@ end;
 
 {--- Notes Andres: Modified according to dll model }
 procedure TIndMach012Obj.set_Localslip(const Value: Double);
+
   Function Sign(const x:Double):Double;
   Begin If x<0.0 then Result := -1.0 Else Result := 1.0; End;
 
