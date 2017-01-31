@@ -240,6 +240,7 @@ VAR
    ActorProgress      : Array of TProgress;
    ActorPctProgress   : Array of integer;
    ActorHandle        : Array of TThread;
+   Parallel_enabled   : Boolean;
 // KLU Variable arrays per actor
 {   ActorKLU           : Array of THandle;
    NewSparseSet       : Array of TNewSparseSet;
@@ -871,6 +872,7 @@ initialization
    DaisySize             := 1.0;
    DefaultEarthModel     := DERI;
    ActiveEarthModel[ActiveActor]      := DefaultEarthModel;
+   Parallel_enabled      :=  False;
 
    {Initialize filenames and directories}
 
