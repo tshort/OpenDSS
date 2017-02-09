@@ -1190,7 +1190,7 @@ Begin
 			for i := 1 to NumBuses do begin
 				geoGUID := GetDevGuid (Topo, Buses^[i].localName, 1);
 				Writeln(F, Format('<cim:TopologicalNode rdf:ID="%s">', [GUIDToCIMString (geoGUID)]));
-				StringNode (F, 'IdentifiedObject.mRID', GUIDToCIMString(Buses^[i].GUID));
+				StringNode (F, 'IdentifiedObject.mRID', GUIDToCIMString(geoGUID));
 				StringNode (F, 'IdentifiedObject.name', Buses^[i].localName);
 				GuidNode (F, 'TopologicalNode.TopologicalIsland', pIsland.GUID);
 				Writeln (F,'</cim:TopologicalNode>');
