@@ -1,0 +1,37 @@
+clear
+
+new circuit.sub phases=3 bus1=sub basekv=138.0 pu=1 angle=0.0
+~   isc3=40000 isc1=41000 x1r1=18.5 x0r0=2
+
+new Transformer.sub phases=3 windings=2 buses=(sub,xfbus)
+~  kvas=(100000,100000) conns=(delta,wye) kvs=(135.3,13.8) 
+~  xhl=4.55 %loadloss=1.2 wdg=2 mintap=0.88 maxtap=1.12
+
+new RegControl.ldc transformer=sub winding=2
+~ delay=60 ptratio=69.282 ctprim=9200.0 vreg=115.00 band=3.0 r=2.0 x=3.0
+
+// feeder parameters given per kft
+new line.feeder phases=3 bus1=xfbus bus2=xfload length=0.1
+~ r1=0.0166 x1=0.0314 r0=0.0166 x0=0.0314 c1=148 c0=148
+
+new Transformer.Service phases=3 windings=2 buses=(xfload,network)
+~  kvas=(300000,300000) conns=(delta,wye) kvs=(13.8,0.208) 
+~  xhl=7.00 %loadloss=0.4
+// new loadshape.ldc_2007 npts=8678 interval=1 csvfile=ldc_2007.dat action=normalize
+new loadshape.ldc_2007 npts=230 interval=0 csvfile=ldc_2007_approx.dat action=normalize
+new Load.cust bus1=network kv=0.208 kva=320000 pf=0.88 vminpu=0.9 vmaxpu=1.1 yearly=ldc_2007
+
+new Capacitor.capbank phases=3 bus1=xfbus kvar=200000 numsteps=10 kv=13.8
+new capcontrol.var_ctrl capacitor=capbank type=kvar element=transformer.sub terminal=1
+~ ptratio=1 ctratio=1 delay=5 delayoff=5 onsetting=15000 offsetting=-15000
+
+new energymeter.feeder element=line.feeder terminal=1
+
+set voltagebases="0.208,13.8,138.0"
+calcvoltagebases
+set loadmult=0.1
+Set MaxControlIter = 100
+
+solve
+
+

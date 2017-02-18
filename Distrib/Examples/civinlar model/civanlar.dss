@@ -1,0 +1,110 @@
+clear
+new circuit.civanlar3 bus1=sub basekv=23.0 pu=1.0 MVAsc3=10000 MVAsc1=10000
+
+// three separate feeder transformers
+new line.f1 phases=3 switch=yes bus1=sub bus2=1
+new line.f2 phases=3 switch=yes bus1=sub bus2=2
+new line.f3 phases=3 switch=yes bus1=sub bus2=3
+
+// impedances in per-unit on 5.29-ohm base (23 kV, 100 MVA)
+new line.1_4   phases=3 length=5.29 bus1= 1 bus2= 4 r1=0.075 x1=0.10
+new line.4_5   phases=3 length=5.29 bus1= 4 bus2= 5 r1=0.08  x1=0.11
+new line.4_6   phases=3 length=5.29 bus1= 4 bus2= 6 r1=0.09  x1=0.18
+new line.6_7   phases=3 length=5.29 bus1= 6 bus2= 7 r1=0.04  x1=0.04
+new line.2_8   phases=3 length=5.29 bus1= 2 bus2= 8 r1=0.11  x1=0.11
+new line.8_9   phases=3 length=5.29 bus1= 8 bus2= 9 r1=0.08  x1=0.11
+new line.8_10  phases=3 length=5.29 bus1= 8 bus2=10 r1=0.11  x1=0.11
+new line.9_11  phases=3 length=5.29 bus1= 9 bus2=11 r1=0.11  x1=0.11
+new line.9_12  phases=3 length=5.29 bus1= 9 bus2=12 r1=0.08  x1=0.11
+new line.3_13  phases=3 length=5.29 bus1= 3 bus2=13 r1=0.11  x1=0.11
+new line.13_14 phases=3 length=5.29 bus1=13 bus2=14 r1=0.09  x1=0.12
+new line.13_15 phases=3 length=5.29 bus1=13 bus2=15 r1=0.08  x1=0.11
+new line.15_16 phases=3 length=5.29 bus1=15 bus2=16 r1=0.04  x1=0.04
+new line.5_11  phases=3 length=5.29 bus1= 5 bus2=11 r1=0.04  x1=0.04
+new line.10_14 phases=3 length=5.29 bus1=10 bus2=14 r1=0.04  x1=0.04
+new line.7_16  phases=3 length=5.29 bus1= 7 bus2=16 r1=0.09  x1=0.12
+
+new capacitor.5  phases=3 kv=23 conn=wye bus1= 5 kvar=1100
+new capacitor.6  phases=3 kv=23 conn=wye bus1= 6 kvar=1200
+new capacitor.9  phases=3 kv=23 conn=wye bus1= 9 kvar=1200
+new capacitor.11 phases=3 kv=23 conn=wye bus1=11 kvar= 600
+new capacitor.12 phases=3 kv=23 conn=wye bus1=12 kvar=3700
+new capacitor.14 phases=3 kv=23 conn=wye bus1=14 kvar=1800
+new capacitor.16 phases=3 kv=23 conn=wye bus1=16 kvar=1800
+
+new load.4  phases=3 kv=23 conn=wye bus1= 4 kw=2000 kvar=1600 model=5
+new load.5  phases=3 kv=23 conn=wye bus1= 5 kw=3000 kvar=1500 model=5
+new load.6  phases=3 kv=23 conn=wye bus1= 6 kw=2000 kvar= 800 model=5
+new load.7  phases=3 kv=23 conn=wye bus1= 7 kw=1500 kvar=1200 model=5
+new load.8  phases=3 kv=23 conn=wye bus1= 8 kw=4000 kvar=2700 model=5
+new load.9  phases=3 kv=23 conn=wye bus1= 9 kw=5000 kvar=3000 model=5
+new load.10 phases=3 kv=23 conn=wye bus1=10 kw=1000 kvar= 900 model=5
+new load.11 phases=3 kv=23 conn=wye bus1=11 kw= 600 kvar= 100 model=5
+new load.12 phases=3 kv=23 conn=wye bus1=12 kw=4500 kvar=2000 model=5
+new load.13 phases=3 kv=23 conn=wye bus1=13 kw=1000 kvar= 900 model=5
+new load.14 phases=3 kv=23 conn=wye bus1=14 kw=1000 kvar= 700 model=5
+new load.15 phases=3 kv=23 conn=wye bus1=15 kw=1000 kvar= 900 model=5
+new load.16 phases=3 kv=23 conn=wye bus1=16 kw=2100 kvar=1000 model=5
+
+// switches
+new swtcontrol.1_4   SwitchedObj=line.1_4   SwitchedTerm=1 Action=c
+new swtcontrol.4_5   SwitchedObj=line.4_5   SwitchedTerm=1 Action=c
+new swtcontrol.4_6   SwitchedObj=line.4_6   SwitchedTerm=1 Action=c
+new swtcontrol.6_7   SwitchedObj=line.6_7   SwitchedTerm=1 Action=c
+new swtcontrol.2_8   SwitchedObj=line.2_8   SwitchedTerm=1 Action=c
+new swtcontrol.8_9   SwitchedObj=line.8_9   SwitchedTerm=1 Action=c
+new swtcontrol.8_10  SwitchedObj=line.8_10  SwitchedTerm=1 Action=c
+new swtcontrol.9_11  SwitchedObj=line.9_11  SwitchedTerm=1 Action=c
+new swtcontrol.9_12  SwitchedObj=line.9_12  SwitchedTerm=1 Action=c
+new swtcontrol.3_13  SwitchedObj=line.3_13  SwitchedTerm=1 Action=c
+new swtcontrol.13_14 SwitchedObj=line.13_14 SwitchedTerm=1 Action=c
+new swtcontrol.13_15 SwitchedObj=line.13_15 SwitchedTerm=1 Action=c
+new swtcontrol.15_16 SwitchedObj=line.15_16 SwitchedTerm=1 Action=c
+new swtcontrol.5_11  SwitchedObj=line.5_11  SwitchedTerm=1 Action=c
+new swtcontrol.10_14 SwitchedObj=line.10_14 SwitchedTerm=1 Action=c
+new swtcontrol.7_16  SwitchedObj=line.7_16  SwitchedTerm=1 Action=c
+
+edit swtcontrol.5_11 action=o
+edit swtcontrol.7_16 action=o
+edit swtcontrol.10_14 action=o
+
+// create an isolated section
+// edit swtcontrol.9_11 action=o
+
+// feeder head ends
+// new energymeter.f1 element=line.f1 terminal=1
+// new energymeter.f2 element=line.f2 terminal=1
+// new energymeter.f3 element=line.f3 terminal=1
+
+// every voltage base should be 23
+set voltagebases="0.12,23.0,115.0"
+calcvoltagebases
+
+buscoords civanlar_bus.csv
+
+// initially open tie switches
+// open line.5_11 1
+// open line.7_16 1
+// open line.10_14 1
+// solve
+// show losses
+
+// plot circuit voltage
+// plot circuit current
+// plot circuit power
+// plot circuit losses
+
+// optimal tie switches
+// close line.5_11 1
+// close line.10_14 1
+// open line.9_11 1
+// open line.8_10 1
+// solve
+// show losses
+
+// meshed solution
+// close line.9_11 1
+// close line.8_10 1
+// solve
+// show losses
+
