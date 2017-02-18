@@ -1,0 +1,5 @@
+New "Transformer.sub" phases=3 windings=2 buses=(bx, b0, ) conns=(delta, wye, ) kVs=(115, 12.47, ) kVAs=(20000, 20000, ) taps=(1, 1, ) Xhl=7
+New "Transformer.tg" phases=3 windings=2 buses=(b4, bg, ) conns=(wye, wye, ) kVs=(12.47, 0.48, ) kVAs=(1500, 1500, ) taps=(1, 1, ) Xhl=5
+New "Transformer.reg1a" phases=1 windings=2 buses=(b2.1, bm.1, ) conns=(wye, wye, ) kVs=(12.47, 12.47, ) kVAs=(2000, 2000, ) Xhl=1
+New "Transformer.reg1b" phases=1 windings=2 buses=(b2.2, bm.2, ) conns=(wye, wye, ) kVs=(12.47, 12.47, ) kVAs=(2000, 2000, ) Xhl=1
+New "Transformer.reg1c" phases=1 windings=2 buses=(b2.3, bm.3, ) conns=(wye, wye, ) kVs=(12.47, 12.47, ) kVAs=(2000, 2000, ) Xhl=1

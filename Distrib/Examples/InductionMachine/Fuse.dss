@@ -1,0 +1,2 @@
+New "Fuse.f1" MonitoredObj=Line.L6 MonitoredTerm=1 FuseCurve=Klink RatedCurrent=65
+New "Fuse.f2" MonitoredObj=Transformer.Tg MonitoredTerm=1 FuseCurve=Tlink RatedCurrent=65

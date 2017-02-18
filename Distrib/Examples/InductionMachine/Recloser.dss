@@ -1,0 +1,6 @@
+New "Recloser.cb1" MonitoredObj=Line.L1 MonitoredTerm=1 NumFast=4 PhaseFast=Ext_Inv PhaseDelayed=Ext_Inv PhaseTrip=800 TDPhFast=1 TDPhDelayed=1 PhaseInst=2400 GroundFast=Ext_Inv GroundDelayed=Ext_Inv GroundTrip=800 TDGrFast=1 TDGrDelayed=1 GroundInst=1200 Shots=4 RecloseIntervals=(0.5, 2, 2, )
+New "Recloser.cb2" MonitoredObj=Line.L7 MonitoredTerm=1 NumFast=4 PhaseFast=Ext_Inv PhaseDelayed=Ext_Inv PhaseTrip=800 TDPhFast=1 TDPhDelayed=1 PhaseInst=2400 GroundFast=Ext_Inv GroundDelayed=Ext_Inv GroundTrip=800 TDGrFast=1 TDGrDelayed=1 GroundInst=1200 Shots=4 RecloseIntervals=(0.5, 2, 2, )
+New "Recloser.rec1" MonitoredObj=Line.L3 MonitoredTerm=1 NumFast=1 PhaseFast=A PhaseDelayed=C PhaseTrip=280 TDPhFast=1 TDPhDelayed=1 Shots=4 RecloseIntervals=(0.5, 2, 2, )
+New "Recloser.rec2" MonitoredObj=Line.L5 MonitoredTerm=1 NumFast=1 PhaseFast=A PhaseDelayed=C PhaseTrip=400 TDPhFast=1 TDPhDelayed=1 Shots=4 RecloseIntervals=(0.5, 2, 2, )
+
+

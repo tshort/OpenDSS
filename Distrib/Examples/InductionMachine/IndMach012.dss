@@ -1,0 +1,7 @@
+
+// short line to Induction Motor
+New Line.MotorLeads Bus1=bg bus2=bg2 length=.010
+
+
+// Define Motor
+New "IndMach012.Motor1" bus1=Bg2 kW=1200 conn=delta kVA=1500.000 H=6 duty=Wind2400 purs=0.048 puxs=0.075 purr=0.018 puxr=0.12 puxm=3.8 slip=0.02 SlipOption=variableslip kv=0.48

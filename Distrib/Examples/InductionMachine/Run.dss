@@ -1,0 +1,49 @@
+// IndMach012 Test Example Run File
+
+Compile "Master.DSS"
+
+New Monitor.Mtime Vsource.source  mode=5   ! solution time monitor
+
+Set Maxcontroliter=20
+Set maxiterations=20
+solve
+ 
+/*  This script shows selected reports
+
+show busflow bg2 kva elem
+
+Show Powers kva Elements
+show isolated
+
+*/
+
+// This dynamic simulation applies a SLG fault at 0.3 s
+// Relays then operate about 0.1 s later, isolating the induction motor
+
+Set mode=dynamics number=1 h=0.000166667
+solve
+
+Solve number= 5000
+
+
+get time
+get number
+
+// Various Monitor plotting commands
+
+Plot monitor object= cb1 channels=(1, 3, 5)
+Plot monitor object= cb1 channels=(7,9,11)
+
+Plot monitor object= F1 channels=(1, 3, 5)
+Plot monitor object= F1 channels=(7,9,11)
+
+Plot monitor object= F2 channels=(1, 3, 5)
+Plot monitor object= F2 channels=(7,9,11)
+
+
+Plot monitor object= mfr2 channels=(1, 2, 3, 4, 5, 6)
+Plot monitor object= mfr2 channels=(7,8,9,10,11,12)
+Plot monitor object= mfr2 channels=(14,15,16,17)   !  Stator and Rotor Currents
+
+Show Variables
+

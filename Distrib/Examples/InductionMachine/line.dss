@@ -1,0 +1,7 @@
+New "line.l1" bus1=B0 bus2=B1 linecode="Unbalanced 336 ACSR" length=10 units=kft
+New "line.l2" bus1=B1 bus2=B2 linecode="Unbalanced 336 ACSR" length=10 units=kft
+New "line.l3" bus1=Bm bus2=B3 linecode="Unbalanced 336 ACSR" length=10 units=kft
+New "line.l4" bus1=B3 bus2=B4 linecode="Unbalanced 336 ACSR" length=10 units=kft
+New "line.l5" bus1=B2 bus2=B5 linecode="Unbalanced 336 ACSR" length=10 units=kft
+New "line.l6" bus1=B3 bus2=B6 linecode="Unbalanced 336 ACSR" length=10 units=kft
+New "line.l7" bus1=B0 bus2=B7 linecode="Unbalanced 336 ACSR" length=10 units=kft

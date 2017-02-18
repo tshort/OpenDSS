@@ -1,0 +1,13 @@
+New "Monitor.cb1" element=Line.L1 terminal=1 mode=0
+New "Monitor.cb2" element=Line.L7 terminal=1 mode=0
+New "Monitor.rec1" element=Line.L3 terminal=1 mode=0
+New "Monitor.rec2" element=Line.L5 terminal=1 mode=0
+New "Monitor.f1" element=Line.L6 terminal=1 mode=0
+New "Monitor.f2" element=Transformer.Tg terminal=1 mode=0
+
+
+New "Monitor.mfr2" element=IndMach012.Motor1 terminal=1 mode=3
+
+
+
+
