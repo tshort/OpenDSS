@@ -273,6 +273,7 @@ type
     N14: TMenuItem;
     ScriptFontMnu: TMenuItem;
     Summary1: TMenuItem;
+    LinkstoHelpFiles1: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DSSHelp1Click(Sender: TObject);
     procedure AboutDSS1Click(Sender: TObject);
@@ -454,6 +455,7 @@ type
     procedure ScriptOpenClick(Sender: TObject);
     procedure ScriptEditClick(Sender: TObject);
     procedure EditPagesChange(Sender: TObject);
+    procedure LinkstoHelpFiles1Click(Sender: TObject);
   private
     { Private declarations }
     PlotOptionString:String;
@@ -2609,6 +2611,26 @@ begin
 end;
 
 
+
+procedure TControlPanel.LinkstoHelpFiles1Click(Sender: TObject);
+Var retval : Word;
+    FileNm : String;
+
+Begin
+  FileNm := StartupDirectory + '..\Doc\Help Links.mht';
+  TRY
+  If FileExists(FileNm) Then
+  Begin
+      retval := ShellExecute (0, Nil, PChar(encloseQuotes(FileNm)),Nil, Nil, SW_SHOW);
+      SetLastResultFile( FileNm);
+
+  End;
+  EXCEPT
+      On E: Exception DO
+        DoErrorMsg('Links to Help Files.', E.Message,
+                   'Browser not found of help files moved or not installed.', 23704);
+  END;
+End;
 
 procedure TControlPanel.SeqVoltages1Click(Sender: TObject);
 begin
