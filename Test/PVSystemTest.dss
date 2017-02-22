@@ -21,7 +21,8 @@ New Tshape.MyTemp npts=24 interval=1 temp=[25, 25, 25, 25, 25, 25, 25, 25, 35, 4
 New Line.line1 Bus1=sourcebus bus2=PVbus  Length=2
 
 // pv definition
-New PVSystem.PV phases=3 bus1=PVbus kV=12.47  kVA=500  irrad=0.8  Pmpp=500 temperature=25 PF=1  effcurve=Myeff  P-TCurve=MyPvsT Daily=MyIrrad  TDaily=MyTemp 
+New PVSystem.PV phases=3 bus1=PVbus kV=12.47  kVA=500  irrad=0.8  Pmpp=500 
+~ temperature=25 PF=1  effcurve=Myeff  P-TCurve=MyPvsT Daily=MyIrrad  TDaily=MyTemp 
 
 set voltagebases=[12.47]
 calcv
@@ -33,6 +34,7 @@ new monitor.m2 PVSystem.PV  1
 
 new monitor.mvars PVSystem.PV  1  mode=3
 
+new monitor.Times  Vsource.Source 1 mode=5
 
 solve
 solve mode=daily  trapezoidal=yes
@@ -43,6 +45,8 @@ show mon m1
 show mon m1
 show mon m2
 show mon mvars
+
+Show monitor times
 
 
 Export monitors m1

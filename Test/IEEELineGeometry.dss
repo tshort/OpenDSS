@@ -191,5 +191,5 @@ New LineGeometry.607 nconds=1 nphases=1 units=ft
 ! IEEE 123 System
 ! 12;     515;  ABC;  1/0(19x) 1/3 CN;   ;
 
-show lineconstants freq=60 units=mi
+show lineconstants freq=60 units=km
 

@@ -21,6 +21,11 @@ New LineGeometry.606-75 nconds=3 nphases=3 units=in
 ~ cond=2 cncable=250_1/3a x=0   h= -48
 ~ cond=3 cncable=250_1/3a x=7.5  h= -48
 
+New LineGeometry.606-75a nconds=3 nphases=3 units=in
+~ cond=1 cncable=250_1/3a x=-4 h= -48
+~ cond=2 cncable=250_1/3a x=0   h= -48
+~ cond=3 cncable=250_1/3a x=4  h= -48
+
 New TSData.1/0TS diashield=0.85 tapelayer=0.005 epsR=2.3 
 ~ inslayer=0.22 DiaIns=0.78 Rdc=0.184204546 GMRac=0.13320 diam=0.368
 ~ Runits=kft Radunits=in GMRunits=in
