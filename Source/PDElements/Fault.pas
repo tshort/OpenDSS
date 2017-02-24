@@ -614,6 +614,7 @@ begin
            Begin
            End;
         EVENTDRIVEN,
+        MULTIRATE,
         TIMEDRIVEN:
            Begin
               IF Not Is_ON Then
