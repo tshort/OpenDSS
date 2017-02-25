@@ -1,3 +1,11 @@
+! - - - - - - NOTE - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!
+! These definitions assign Z1 and Z0 values to 1-phase and 2-phase lines, which is not technically correct
+! And is discouraged in OpenDSS. This is the way the line codes were defined in the original source data.
+! Check the resulting impedance matrix to verify that it is what you want and not misinterpreted by OpenDSS
+!
+!
+
 New Linecode.217 nphase=3 r1=6.988163E-04 x1=1.870072E-04 r0=1.525585E-03 x0=4.363501E-04 c1=0 c0=0 NormAmps = 213  234 units=m baseFreq=60
 New Linecode.188 nphase=1 r1=6.489452E-04 x1=5.068879E-04 r0=1.109578E-03 x0=1.646975E-03 c1=0 c0=0 NormAmps = 214  235 units=m baseFreq=60
 New Linecode.192 nphase=3 r1=6.489452E-04 x1=5.068879E-04 r0=1.109578E-03 x0=1.646975E-03 c1=0 c0=0 NormAmps = 214  235 units=m baseFreq=60
