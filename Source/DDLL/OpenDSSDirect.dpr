@@ -199,6 +199,9 @@ uses
   IndMach012 in '..\PCElements\IndMach012.pas';
 
 //**************************end of the functions*************************************
+
+{$R *.RES}
+
 exports
    DSSPut_Command,
    DSSLoads, DSSLoadsF,DSSLoadsS, DSSLoadsV,
