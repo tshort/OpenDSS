@@ -263,7 +263,7 @@ Begin
                         'Examples:'+Crlf+CRlf+
                         'Set autobuslist=(bus1, bus2, bus3, ... )' +CRLF+
                         'Set autobuslist=(file=buslist.txt)';
-     OptionHelp[43] := '{OFF | STATIC |EVENT | TIME}  Default is "STATIC".  Control mode for the solution. ' +
+     OptionHelp[43] := '{OFF | STATIC |EVENT | TIME | MULTIRATE}  Default is "STATIC".  Control mode for the solution. ' +
                         'Set to OFF to prevent controls from changing.' + CRLF +
                         'STATIC = Time does not advance.  Control actions are executed in order of shortest time to act ' +
                         'until all actions are cleared from the control queue.  Use this mode for power flow solutions which may require several ' +

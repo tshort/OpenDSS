@@ -2617,7 +2617,7 @@ Var retval : Word;
     FileNm : String;
 
 Begin
-  FileNm := StartupDirectory + '..\Doc\Help Links.mht';
+  FileNm := StartupDirectory + '..\Doc\Help Links.htm';
   TRY
   If FileExists(FileNm) Then
   Begin
