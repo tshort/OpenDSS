@@ -260,7 +260,7 @@ else
   [DEFINE WEB MEDIA TrainingSlides]
   Get Component TrainingSlides Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
-    Create Shortcut $SHORTCUTFOLDER$\Training Slides to $TARGETDIR$\Training\AtlantaWorkshop.pdf
+    Create Shortcut $SHORTCUTFOLDER$\Training Slides to $TARGETDIR$\Training
     Install Files C:\OpenDSS\Distrib\Training\*.* to $TARGETDIR$\Training, include subfolders
   end
   Comment: TO-DO: Insert any additional install commands here

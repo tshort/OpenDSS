@@ -212,7 +212,8 @@ else
   Install Files C:\OpenDSS\Distrib\readme.txt to $TARGETDIR$
   Install Files C:\OpenDSS\Distrib\License.txt to $TARGETDIR$
   Write Registry Key HKCU\SOFTWARE\OpenDSS\, 
-  Install Files C:\OpenDSS\Distrib\Doc\*.mht to $TARGETDIR$\Doc
+  Install Files C:\OpenDSS\Distrib\Doc\Help Links.htm to $TARGETDIR$\Doc
+  Install Files C:\OpenDSS\Distrib\Doc\Help Links_files\*.* to $TARGETDIR$\Doc\Help Links_files, include subfolders
   [DEFINE WEB MEDIA Win64]
   Get Component Win64 Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
