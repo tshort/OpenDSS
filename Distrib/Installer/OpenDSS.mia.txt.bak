@@ -212,6 +212,7 @@ else
   Install Files C:\OpenDSS\Distrib\readme.txt to $TARGETDIR$
   Install Files C:\OpenDSS\Distrib\License.txt to $TARGETDIR$
   Write Registry Key HKCU\SOFTWARE\OpenDSS\, 
+  Install Files C:\OpenDSS\Distrib\Doc\*.mht to $TARGETDIR$\Doc
   [DEFINE WEB MEDIA Win64]
   Get Component Win64 Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
@@ -220,6 +221,7 @@ else
     Install Files C:\OpenDSS\Distrib\x64\DSSView.exe to $TARGETDIR$\x64
     Install Files C:\OpenDSS\Distrib\x64\KLUSolve.dll to $TARGETDIR$\x64
     Install Files C:\OpenDSS\Distrib\x64\OpenDSSengine.dll to $TARGETDIR$\x64
+    Install Files C:\OpenDSS\Distrib\x64\OpenDSSDirect.dll to $TARGETDIR$\x64
     Install Files C:\OpenDSS\Distrib\x64\OpenDSS.exe to $TARGETDIR$\x64
   end
   [DEFINE WEB MEDIA Documents]
@@ -240,6 +242,8 @@ else
   if Variable SELECTED Equals TRUE
     Install Files C:\OpenDSS\Distrib\x86\IndMach012a.dll to $TARGETDIR$\x86
     Install Files C:\OpenDSS\Distrib\x86\KLUSolve.dll to $TARGETDIR$\x86
+    Install Files C:\OpenDSS\Distrib\x86\DSSView.exe to $TARGETDIR$\x86
+    Install Files C:\OpenDSS\Distrib\x86\OpenDSSDirect.dll to $TARGETDIR$\x86
   end
   [DEFINE WEB MEDIA COM Server]
   Get Component Win32\COM Server Selection State into Variable SELECTED
@@ -250,14 +254,13 @@ else
   Get Component Win32\Standalone Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
     Create Shortcut $SHORTCUTFOLDER$\OpenDSS to $TARGETDIR$\x86\OpenDSS.exe
-    Install Files C:\OpenDSS\Distrib\x86\DSSView.exe to $TARGETDIR$\x86
     Install Files C:\OpenDSS\Distrib\x86\OpenDSS.exe to $TARGETDIR$\x86
   end
   [DEFINE WEB MEDIA TrainingSlides]
   Get Component TrainingSlides Selection State into Variable SELECTED
   if Variable SELECTED Equals TRUE
     Create Shortcut $SHORTCUTFOLDER$\Training Slides to $TARGETDIR$\Training\AtlantaWorkshop.pdf
-    Install Files C:\OpenDSS\Distrib\Training\*.pdf to $TARGETDIR$\Training, include subfolders
+    Install Files C:\OpenDSS\Distrib\Training\*.* to $TARGETDIR$\Training, include subfolders
   end
   Comment: TO-DO: Insert any additional install commands here
   [compiler if Variable BUILDMODE Equals PATCH]

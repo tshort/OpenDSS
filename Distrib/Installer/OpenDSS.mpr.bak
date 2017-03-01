@@ -24,7 +24,6 @@ welcome.dfm.miaf
 wizard.dfm
 wizard.dfm.miaf
 $
-icon.ico
 license.rtf
 readme.rtf
 $
@@ -331,23 +330,27 @@ $
 
 
 
+
+
+
+
 $
 $
 1
-Structured
+4
 TRUE
 
 Electric Power Research Institute
 OpenDSS
 {9B35A034-B82A-4C5C-B426-A8525A7EBDD9}
 {10708DC9-5A13-4E32-BDEB-2A073F5388CC}
-7.6.4
+7.6.5
 English
 OpenDSS
 OpenDSS Installation
-Electric Power Research Institute
+Electric Power Research Institute, Inc.
 All rights reserved
-{9A92BE6F-E650-4E08-BF30-5A73592FC21A}
+{639AEDB1-FEBB-4A04-B78E-A3189F441352}
 Electric Power Research Institute
 Electric Power Research Institute
 http://sourceforge.net/projects/electricdss/
@@ -358,7 +361,7 @@ OpenDSSInstaller
 TRUE
 FALSE
 
-
+|
 http://timestamp.verisign.com/scripts/timstamp.dll
 
 INSTALLAWARE_DRM_LAUNCHES=FALSE,INSTALLAWARE_DRM_DAYSRELATIVE=TRUE,INSTALLAWARE_DRM_DAYSABSOLUTE=FALSE,INSTALLAWARE_DRM_DAYS=FALSE,INSTALLAWARE_DRM_YEAR=2012,INSTALLAWARE_DRM_MONTH=6,INSTALLAWARE_DRM_DAY=29,INSTALLAWARE_DRM_EXPIREUSAGE=FALSE,INSTALLAWARE_DRM_EXPIREFIXED=FALSE
