@@ -1374,7 +1374,7 @@ BEGIN
 
               ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
               FAvgpVuPrior[k] := FPresentVpu[k];
-              QOld[k] := QNew[k];
+              QOldVV[k] := QNew[k];
 
               // Set the active power
               FFinalpuPmpp[k] :=PTemp/PVSys.Pmpp;
