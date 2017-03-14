@@ -136,6 +136,7 @@ TYPE
           Loads,
           ShuntCapacitors,
           Feeders,
+          Reactors,
           SwtControls        :PointerList.TPointerList;
 
           ControlQueue:TControlQueue;
@@ -354,6 +355,7 @@ BEGIN
      Lines           := TPointerList.Create(1000);
      Loads           := TPointerList.Create(1000);
      ShuntCapacitors := TPointerList.Create(20);
+     	 Reactors        := TPointerList.Create(5);
 
      Buses        := Allocmem(Sizeof(Buses^[1])        * Maxbuses);
      MapNodeToBus := Allocmem(Sizeof(MapNodeToBus^[1]) * MaxNodes);
@@ -537,6 +539,7 @@ BEGIN
      Loads.Free;
      Lines.Free;
      ShuntCapacitors.Free;
+     	 Reactors.Free;
 
      ControlQueue.Free;
 
@@ -752,16 +755,17 @@ BEGIN
 
    {Build  lists of Special elements and generic types}
    CASE (ActiveCktElement.DSSObjType and CLASSMASK) OF
-       MON_ELEMENT   :Monitors.Add(ActiveCktElement);
-       ENERGY_METER  :EnergyMeters.Add(ActiveCktElement);
-       SENSOR_ELEMENT:Sensors.Add(ActiveCktElement);
-       GEN_ELEMENT   :Generators.Add(ActiveCktElement);
-       SOURCE        :Sources.Add(ActiveCktElement);
-       CAP_CONTROL   :CapControls.Add(ActiveCktElement);
-       SWT_CONTROL   :SwtControls.Add(ActiveCktElement);
-       REG_CONTROL   :RegControls.Add(ActiveCktElement);
-       LOAD_ELEMENT  :Loads.Add(ActiveCktElement);
-       CAP_ELEMENT   :ShuntCapacitors.Add(ActiveCktElement);
+       MON_ELEMENT      :Monitors.Add(ActiveCktElement);
+       ENERGY_METER     :EnergyMeters.Add(ActiveCktElement);
+       SENSOR_ELEMENT   :Sensors.Add(ActiveCktElement);
+       GEN_ELEMENT      :Generators.Add(ActiveCktElement);
+       SOURCE           :Sources.Add(ActiveCktElement);
+       CAP_CONTROL      :CapControls.Add(ActiveCktElement);
+       SWT_CONTROL      :SwtControls.Add(ActiveCktElement);
+       REG_CONTROL      :RegControls.Add(ActiveCktElement);
+       LOAD_ELEMENT     :Loads.Add(ActiveCktElement);
+       CAP_ELEMENT      :ShuntCapacitors.Add(ActiveCktElement);
+       REACTOR_ELEMENT  :Reactors.Add(ActiveCktElement);
 
        { Keep Lines, Transformer, and Lines and Faults in PDElements and separate lists
          so we can find them quickly.}
