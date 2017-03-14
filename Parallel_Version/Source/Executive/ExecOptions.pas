@@ -715,7 +715,7 @@ Begin
             8: AppendGlobalResult(GetSolutionModeID);
             9: AppendGlobalResult(GetRandomModeID);
            10: AppendGlobalResult(IntToStr(ActiveCircuit[ActiveActor].solution.NumberOfTimes));
-           11: AppendGlobalResult(Format('[ %d, %-g ]', [IntToStr(ActiveCircuit[ActiveActor].solution.DynaVars.intHour), ActiveCircuit[ActiveActor].solution.DynaVars.t]));
+           11: AppendGlobalResult(Format('[ %d, %-g ] !... %-g (hours)', [ActiveCircuit[ActiveActor].solution.DynaVars.intHour, ActiveCircuit[ActiveActor].solution.DynaVars.t, ActiveCircuit[ActiveActor].solution.DynaVars.dblHour ]));
            14: AppendGlobalResult(ActiveCircuit[ActiveActor].name);
            15: AppendGlobalResult(DefaultEditor);
            16: AppendGlobalResult(Format('%-g' ,[ActiveCircuit[ActiveActor].solution.ConvergenceTolerance]));
