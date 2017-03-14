@@ -1385,7 +1385,7 @@ BEGIN
                                      Format('VV_VW mode, RISEFALL set PVSystem output var level to**, kvar= %.5g',
                                      [QNew[k]]));
                       FAvgpVuPrior[k] := FPresentVpu[k];
-                      QOld[k] := QNew[k];
+                      QOldVV[k] := QNew[k];
                       ActiveCircuit[ActorID].Solution.LoadsNeedUpdating := TRUE;
                     end;
               end;
