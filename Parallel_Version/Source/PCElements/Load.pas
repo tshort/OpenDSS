@@ -222,7 +222,7 @@ TYPE
         PROCEDURE UpdateVoltageBases;
 
         Property Unserved      :Boolean Read Get_Unserved;
-//        Property ExceedsNormal :Boolean Read Get_ExceedsNormal;
+//        Property ExceedsNormal[ActorID:Integer] :Boolean Read Get_ExceedsNormal(ActorID:Integer);
 
         {AllocationFactor adjusts either connected kVA allocation factor or kWh CFactor}
         Property AllocationFactor    :Double Read FAllocationFactor    Write Set_AllocationFactor;
