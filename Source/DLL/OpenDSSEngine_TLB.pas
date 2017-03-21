@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 10/28/2016 10:36:58 AM from Type Library described below.
+// File generated on 3/21/2017 3:13:15 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -1130,6 +1130,8 @@ type
     function Get_Time_of_Step: Double; safecall;
     function Get_IntervalHrs: Double; safecall;
     procedure Set_IntervalHrs(Value: Double); safecall;
+    function Get_MinIterations: Integer; safecall;
+    procedure Set_MinIterations(Value: Integer); safecall;
     property Mode: Integer read Get_Mode write Set_Mode;
     property Frequency: Double read Get_Frequency write Set_Frequency;
     property Hour: Integer read Get_Hour write Set_Hour;
@@ -1170,6 +1172,7 @@ type
     property Process_Time: Double read Get_Process_Time;
     property Time_of_Step: Double read Get_Time_of_Step;
     property IntervalHrs: Double read Get_IntervalHrs write Set_IntervalHrs;
+    property MinIterations: Integer read Get_MinIterations write Set_MinIterations;
   end;
 
 // *********************************************************************//
@@ -1234,6 +1237,7 @@ type
     property Process_Time: Double readonly dispid 226;
     property Time_of_Step: Double readonly dispid 227;
     property IntervalHrs: Double dispid 228;
+    property MinIterations: Integer dispid 229;
   end;
 
 // *********************************************************************//

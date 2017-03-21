@@ -135,7 +135,8 @@ TYPE
        LoadsNeedUpdating :Boolean;
        MaxControlIterations :Integer;
        MaxError :Double;
-       MaxIterations :Integer;
+       MaxIterations,
+       MinIterations :Integer;
        MostIterationsDone :Integer;
        NodeVbase :pDoubleArray;
        NumberOfTimes :Integer;  // Number of times to solve
@@ -331,6 +332,7 @@ Begin
     VoltageBaseChanged := TRUE;  // Forces Building of convergence check arrays
 
     MaxIterations    := 15;
+    MinIterations    := 2;
     MaxControlIterations  := 10;
     ConvergenceTolerance  := 0.0001;
 
@@ -746,7 +748,7 @@ Begin
        SolveSystem(NodeV);
        LoadsNeedUpdating := FALSE;
 
-   Until (Converged and (Iteration > 1)) or (Iteration >= MaxIterations);
+   Until (Converged and (Iteration >= MinIterations)) or (Iteration >= MaxIterations);
 
 
 End;
@@ -811,7 +813,7 @@ Begin
                 im := im - dV^[i].im;
            End;
 
-       UNTIL (Converged and (Iteration > 1)) or (Iteration >= MaxIterations);
+       UNTIL (Converged and (Iteration >= MinIterations)) or (Iteration >= MaxIterations);
     End;
 End;
 
@@ -1150,7 +1152,8 @@ Begin
      Writeln(F, 'Set circuit=',  ActiveCircuit.Name);
      Writeln(F, 'Set editor=',   DefaultEditor);
      Writeln(F, 'Set tolerance=', Format('%-g', [ConvergenceTolerance]));
-     Writeln(F, 'Set maxiter=',   MaxIterations:0);
+     Writeln(F, 'Set maxiterations=',   MaxIterations:0);
+     Writeln(F, 'Set miniterations=',   MinIterations:0);
      Writeln(F, 'Set loadmodel=', GetLoadModel);
 
      Writeln(F, 'Set loadmult=',    Format('%-g', [ActiveCircuit.LoadMultiplier]));

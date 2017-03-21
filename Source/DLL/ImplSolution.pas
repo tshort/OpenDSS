@@ -99,6 +99,8 @@ type
     function Get_Time_of_Step: Double; safecall;
     function Get_IntervalHrs: Double; safecall;
     procedure Set_IntervalHrs(Value: Double); safecall;
+    function Get_MinIterations: Integer; safecall;
+    procedure Set_MinIterations(Value: Integer); safecall;
   end;
 
 implementation
@@ -695,6 +697,17 @@ end;
 procedure TSolution.Set_IntervalHrs(Value: Double);
 begin
      If ActiveCircuit <> Nil Then ActiveCircuit.Solution.IntervalHrs := Value;
+end;
+
+function TSolution.Get_MinIterations: Integer;
+begin
+     If ActiveCircuit <> Nil Then Result := ActiveCircuit.Solution.MinIterations
+     Else Result := 0;
+end;
+
+procedure TSolution.Set_MinIterations(Value: Integer);
+begin
+    If ActiveCircuit <> Nil Then ActiveCircuit.Solution.MinIterations  := Value;
 end;
 
 initialization

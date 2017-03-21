@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 109;
+        NumExecOptions = 110;
 
 VAR
          ExecOption,
@@ -142,6 +142,7 @@ Begin
      ExecOption[107] := 'TotalTime';
      ExecOption[108] := 'StepTime';
      ExecOption[109] := 'SampleEnergyMeters';
+     ExecOption[110] := 'MinIterations'; // default is 2
 
 
 
@@ -394,6 +395,7 @@ Begin
      OptionHelp[109] := '{YES/TRUE | NO/FALSE} Overrides default value for sampling EnergyMeter objects at the end of the solution loop. ' +
                         'Normally Time and Duty modes do not automatically sample EnergyMeters whereas Daily, Yearly, M1, M2, M3, LD1 and LD2 modes do. ' +
                         'Use this Option to turn sampling on or off';
+     OptionHelp[110] := 'Minimum number of iterations required for a solution. Default is 2.';
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -615,7 +617,8 @@ Begin
           104: ActiveCircuit.RelayMarkerCode  := Parser.IntValue;
           105: ActiveCircuit.RelayMarkerSize  := Parser.IntValue;
           107: ActiveCircuit.Solution.Total_Time  :=  Parser.DblValue;
-          109: ActiveCircuit.Solution.SampleTheMeters   :=  InterpretYesNo(Param);
+          109: ActiveCircuit.Solution.SampleTheMeters :=  InterpretYesNo(Param);
+          110: ActiveCircuit.solution.MinIterations   := Parser.IntValue;
          ELSE
            // Ignore excess parameters
          End;
@@ -791,6 +794,7 @@ Begin
           107: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Total_Time]));
           108: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_Step]));
           109: If ActiveCircuit.Solution.SampleTheMeters Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+          110: AppendGlobalResult(IntToStr(ActiveCircuit.solution.MinIterations));
          ELSE
            // Ignore excess parameters
          End;

@@ -185,9 +185,6 @@ uses
 
 {$R *.RES}
 
-var
-   ErrorFile :Textfile;
-
 begin
   Application.Initialize;
   Application.Title := 'OpenDSS: Distribution System Simulator';
