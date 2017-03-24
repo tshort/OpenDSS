@@ -977,9 +977,10 @@ Begin
 
                FOR i := 1 to Norder*Norder Do
                   ZinvValues^[i] := Cmplx((ZValues^[i].re + Rg * (FreqMultiplier - 1.0) )*LengthMultiplier, (ZValues^[i].im - Xgmod)* LengthMultiplier * FreqMultiplier);
+               Zinv.Invert;  {Invert Z in place to get values to put in Yprim}
            End;
 
-         Zinv.Invert;  {Invert in place}
+
          If Zinv.Inverterror>0 Then
            Begin
                  {If error, put in tiny series conductance}
@@ -1731,6 +1732,7 @@ Begin
             Begin
                 Zinv := TCMatrix.CreateMatrix(Z.order);  // Either no. phases or no. conductors
                 Zinv.CopyFrom(Z);
+                Zinv.Invert;  {Invert Z in place to get values to put in Yprim}
             End;
 
           // Z and YC are actual total impedance for the line;
@@ -1767,6 +1769,7 @@ Begin
     begin
       Zinv := TCMatrix.CreateMatrix(Z.order);  // Either no. phases or no. conductors
       Zinv.CopyFrom(Z);
+      Zinv.Invert;  {Invert Z in place to get values to put in Yprim}
     end;
   pGeo.Free;
 
