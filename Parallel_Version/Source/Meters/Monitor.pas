@@ -1327,19 +1327,19 @@ Procedure TMonitorObj.TranslateToCSV(Show:Boolean; ActorID : Integer);
 
 
 VAR
-    CSVName     :String;
-    F           :TextFile;
-    FSignature  :Integer;
-    Fversion    :Integer;
-    hr          :single;
-    i           :Cardinal;
-    Mode        :Integer;
-    Nread       :Cardinal;
-    pStr        :pAnsichar;
-    RecordBytes :Cardinal;
-    RecordSize  :Cardinal;
-    s           :single;
-    sngBuffer:Array[1..100] of Single;
+    CSVName       :String;
+    F             :TextFile;
+    FSignature    :Integer;
+    Fversion      :Integer;
+    hr            :single;
+    i             :Cardinal;
+    Mode          :Integer;
+    Nread         :Cardinal;
+    pStr          :pAnsichar;
+    RecordBytes   :Cardinal;
+    RecordSize    :Cardinal;
+    s             :single;
+    sngBuffer     :Array[1..100] of Single;
 
 Begin
 
@@ -1350,7 +1350,10 @@ Begin
 
      TRY
       AssignFile(F, CSVName);    // Make CSV file
-      Rewrite(F);
+      if ConcatenateReports and (ActorID <> 1) then
+        Append(F)
+      else
+        Rewrite(F);
      EXCEPT
       On E: Exception DO Begin
          DoSimpleMsg('Error opening CSVFile "'+CSVName+'" for writing' +CRLF + E.Message, 672);
@@ -1368,6 +1371,7 @@ Begin
      End;
 
      pStr := @StrBuffer;
+     if not ConcatenateReports or (ActorID=1) then
      Writeln(F, pStr);
      RecordBytes := Sizeof(SngBuffer[1]) * RecordSize;
 
@@ -1671,7 +1675,10 @@ end;
 
 function TMonitorObj.Get_FileName(ActorID : Integer): String;
 begin
-  Result := GetOutputDirectory +  CircuitName_[ActorID] + 'Mon_' + Name + '_' +inttostr(ActorID) + '.csv'
+  if ConcatenateReports then
+    Result := GetOutputDirectory +  CircuitName_[ActorID] + 'Mon_' + Name + '.csv'
+  else
+    Result := GetOutputDirectory +  CircuitName_[ActorID] + 'Mon_' + Name + '_' +inttostr(ActorID) + '.csv'
 end;
 
 initialization
