@@ -64,7 +64,13 @@ begin
     if Parallel_enabled then Result :=  1 else Result  :=  0;
   end;
   10: begin  // Parallel.ActiveParallel Write
-    if arg <> 0 then Parallel_enabled := True else Parallel_enabled  := False;    ActorHandle[i].WaitFor;
+    if arg <> 0 then Parallel_enabled := True else Parallel_enabled  := False;
+  end;
+  11: begin  // Parallel.ConcatenateReports Read
+    if ConcatenateReports then Result := 1 else Result  := 0;
+  end;
+  12: begin  // Parallel.ConcatenateReports Write
+    if arg <> 0  then ConcatenateReports := True else ConcatenateReports  := False;
   end
   else
       Result:=-1;

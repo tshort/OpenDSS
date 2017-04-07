@@ -9,9 +9,11 @@ procedure SolutionV(mode:longint; out arg: OleVariant); cdecl;
 
 implementation
 
-uses DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants, SolutionAlgs;
+uses DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants, SolutionAlgs, ExecOptions;
 
 function SolutionI(mode:longint; arg: longint):longint; cdecl;
+var
+  i : Integer;
 begin
   Result:=0; // Default retirn value
   case mode of
@@ -244,6 +246,13 @@ begin
       Begin
                   EndOfTimeStepCleanup(ActiveActor);
       End;
+  end;
+  46: begin  // Solution.SolveAll
+    for i := 1 to NumOfActors do
+    begin
+      ActiveActor :=  i;
+      CmdResult   :=  DoSetCmd(1);
+    end;
   end
   else
       Result:=-1;
