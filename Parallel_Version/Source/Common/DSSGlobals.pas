@@ -242,6 +242,7 @@ VAR
    ActorPctProgress   : Array of integer;
    ActorHandle        : Array of TThread;
    Parallel_enabled   : Boolean;
+   ConcatenateReports : Boolean;
 // KLU Variable arrays per actor
 {   ActorKLU           : Array of THandle;
    NewSparseSet       : Array of TNewSparseSet;
@@ -874,6 +875,7 @@ initialization
    DefaultEarthModel     := DERI;
    ActiveEarthModel[ActiveActor]      := DefaultEarthModel;
    Parallel_enabled      :=  False;
+   ConcatenateReports    :=  False;
 
    {Initialize filenames and directories}
 
