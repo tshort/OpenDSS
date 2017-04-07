@@ -99,11 +99,12 @@ type
     function Get_Time_of_Step: Double; safecall;
     function Get_IntervalHrs: Double; safecall;
     procedure Set_IntervalHrs(Value: Double); safecall;
+    procedure SolveAll; safecall;
   end;
 
 implementation
 
-uses ComServ, DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants, SolutionAlgs, Solution;
+uses ComServ, DSSGlobals, Math, LoadShape, Utilities, YMatrix, Variants, SolutionAlgs, Solution, ExecOptions;
 
 function TSolution.Get_Frequency: Double;
 begin
@@ -695,6 +696,17 @@ end;
 procedure TSolution.Set_IntervalHrs(Value: Double);
 begin
      If ActiveCircuit[ActiveActor] <> Nil Then ActiveCircuit[ActiveActor].Solution.IntervalHrs := Value;
+end;
+
+procedure TSolution.SolveAll;
+var
+  i : Integer;
+begin
+  for i := 1 to NumOfActors do
+  begin
+    ActiveActor :=  i;
+    CmdResult   :=  DoSetCmd(1);
+  end;
 end;
 
 initialization

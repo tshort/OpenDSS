@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 1/31/2017 11:57:51 AM (- $Rev: 12980 $, 9936843).
+// File generated on 4/6/2017 5:43:03 PM (- $Rev: 12980 $, 31751937).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -952,6 +952,8 @@ library OpenDSSengine
     HRESULT _stdcall Process_Time([out, retval] double* Value);
     [propget, id(0x000000E3), helpstring("Get the solution process time + sample time for time step")]
     HRESULT _stdcall Time_of_Step([out, retval] double* Value);
+    [id(0x000000E4), helpstring("Solves the circuits for all the Actors created")]
+    HRESULT _stdcall SolveAll(void);
   };
 
   [
@@ -2809,6 +2811,10 @@ library OpenDSSengine
     HRESULT _stdcall ActiveParallel([out, retval] long* Value);
     [propput, id(0x000000D2), helpstring("Delivers if the Parallel features of the Engine are Active")]
     HRESULT _stdcall ActiveParallel([in] long Value);
+    [propget, id(0x000000D3), helpstring("Reads the values of the ConcatenateReports option (1=enabled, 0=disabled)")]
+    HRESULT _stdcall ConcatenateReports([out, retval] long* Value);
+    [propput, id(0x000000D3), helpstring("Enable/Disable (1/0) the ConcatenateReports option for extracting monitors data")]
+    HRESULT _stdcall ConcatenateReports([in] long Value);
   };
 
   [

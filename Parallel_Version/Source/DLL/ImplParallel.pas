@@ -26,6 +26,8 @@ type
     function Get_ActorStatus: OleVariant; safecall;
     function Get_ActiveParallel: Integer; safecall;
     procedure Set_ActiveParallel(Value: Integer); safecall;
+    function Get_ConcatenateReports: Integer; safecall;
+    procedure Set_ConcatenateReports(Value: Integer); safecall;
   end;
 
 implementation
@@ -121,6 +123,16 @@ end;
 procedure TParallel.Set_ActiveParallel(Value: Integer);
 begin
   if Value = 1 then Parallel_enabled :=  True else Parallel_enabled :=  False;
+end;
+
+function TParallel.Get_ConcatenateReports: Integer;
+begin
+  if ConcatenateReports then Result := 1 else Result :=  0;
+end;
+
+procedure TParallel.Set_ConcatenateReports(Value: Integer);
+begin
+  if Value = 1 then ConcatenateReports  :=  True else ConcatenateReports  :=  False;
 end;
 
 initialization

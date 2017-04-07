@@ -211,7 +211,9 @@ uses
   MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
   vccs in '..\PCElements\vccs.pas',
   Parallel_Lib in '..\Parallel_Lib\Parallel_Lib.pas',
-  ImplParallel in 'ImplParallel.pas' {Parallel: CoClass};
+  ImplParallel in 'ImplParallel.pas' {PVSystems: CoClass},
+  ESPVLControl in '..\Controls\ESPVLControl.pas',
+  IndMach012 in '..\PCElements\IndMach012.pas';
 
 exports
   DllGetClassObject,
