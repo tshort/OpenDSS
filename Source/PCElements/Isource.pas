@@ -44,11 +44,11 @@ TYPE
    TIsourceObj = class(TPCElement)
      private
 
-        FphaseShift  :Double;
+        FphaseShift  : Double;
         ShapeIsActual: Boolean;
         ShapeFactor  : Complex;
 
-        Function GetBaseCurr:Complex;
+        Function  GetBaseCurr:Complex;
         PROCEDURE CalcDailyMult(Hr:double);
         PROCEDURE CalcDutyMult(Hr:double);
         PROCEDURE CalcYearlyMult(Hr:double);
@@ -345,6 +345,7 @@ Begin
 
      Amps     := 0.0;
      Angle    := 0.0;
+     PerUnit  := 1.0;  // for future use if pu property added,
      SrcFrequency     := BaseFrequency;
      FphaseShift := 120.0;
      ScanType := 1;  // Pos Sequence
@@ -452,7 +453,7 @@ Begin
            If (Mode=DAILYMODE)  or     {If a loadshape mode simulation}
               (Mode=YEARLYMODE) or
               (Mode=DUTYCYCLE)
-           Then NAmps :=  Amps*ShapeFactor.re;
+           Then NAmps :=  Amps * ShapeFactor.re;
            IF abs(Frequency - SrcFrequency) < EPSILON2 THEN Result := pdegtocomplex(NAmps, Angle)  Else Result := CZERO;
        End;
 
