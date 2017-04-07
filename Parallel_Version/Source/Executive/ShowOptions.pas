@@ -153,7 +153,7 @@ VAR
    ParamPointer :Integer;
    pMon:TMonitorObj;
 
-   MVAopt :Integer;
+   MVAopt:Integer;
    LLopt:Boolean;
    ShowResid:Boolean;
    ShowOptionCode:Integer;
@@ -161,6 +161,7 @@ VAR
    Freq:Double;
    Units:Integer;
    Rho_line: Double;
+   InitP, FinalP, idxP : Integer;  // Variables added to concatenate the results in OpenDSS-PM
 
 
 Begin
@@ -197,8 +198,8 @@ Begin
 
    CASE ParamPointer OF
      1:  Begin {Autoadded}
-           FireOffEditor(GetOutputDirectory + CircuitName_[ActiveActor] + 'AutoAddedGenerators.Txt');
-           FireOffEditor(GetOutputDirectory + CircuitName_[ActiveActor] + 'AutoAddedCapacitors.Txt');
+          FireOffEditor(GetOutputDirectory + CircuitName_[ActiveActor] + 'AutoAddedGenerators.Txt');
+          FireOffEditor(GetOutputDirectory + CircuitName_[ActiveActor] + 'AutoAddedCapacitors.Txt');
          End;
      2: ShowBuses(GetOutputDirectory + CircuitName_[ActiveActor] + 'Buses.Txt');
      3: Begin
@@ -240,10 +241,25 @@ Begin
              Param := Parser[ActiveActor].StrValue;
              IF Length(Param)>0 THEN
              Begin
-               pMon:=MonitorClass[ActiveActor].Find(Param);
-               IF pMon<>Nil THEN
-                 pMon.TranslateToCSV(TRUE, ActiveActor)
-               ELSE DoSimpleMsg('Monitor "'+param+'" not found.'+ CRLF + parser[ActiveActor].CmdString, 248);
+
+              if ConcatenateReports then // In case of being activated, the export will be made for all actors
+              begin
+                InitP :=  1;
+                FinalP:=  NumOfActors;
+              end
+              else
+              begin                      // Otherwise just for the active actor monitor
+                InitP :=  ActiveActor;
+                FinalP:=  ActiveActor;
+              end;
+
+              for idxP := InitP to FinalP do
+              begin
+                pMon:=MonitorClass[idxP].Find(Param);
+                IF pMon<>Nil THEN
+                  pMon.TranslateToCSV((idxP=FinalP), idxP)
+                ELSE DoSimpleMsg('Monitor "'+param+'" not found.'+ CRLF + parser[ActiveActor].CmdString, 248);
+              end;
              End
              ELSE   DoSimpleMsg('Monitor Name Not Specified.'+ CRLF + parser[ActiveActor].CmdString, 249);
           End;

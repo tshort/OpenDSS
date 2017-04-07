@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 107;
+     NumExecCommands = 108;
 
 Var
 
@@ -144,6 +144,7 @@ Begin
      ExecCommand[105] := 'NewActor';
      ExecCommand[106] := 'ClearAll';
      ExecCommand[107] := 'Wait';
+     ExecCommand[108] := 'SolveAll';
 
 
 
@@ -468,6 +469,7 @@ Begin
                          'generating an error message. This instruction will deliver the ID of the active actor. This command does not requires a precedent command.';
      CommandHelp[106] := 'Clears all the circuits and all the actors, after this instruction there will be only 1 actor (actor 1) and will be the active actor';
      CommandHelp[107] := 'Pauses the script thread until all the active actors are Ready to receive new commands (Under Testing)';
+     CommandHelp[108] := 'Solves all the circuits loaded into memory';
 End;
 
 //----------------------------------------------------------------------------
@@ -575,6 +577,13 @@ Begin
        107: begin
               for i := 1 to NumOfActors do
                 ActorHandle[i].WaitFor;
+            end;
+       108: begin
+              for i := 1 to NumOfActors do
+              begin
+                ActiveActor :=  i;
+                CmdResult   :=  DoSetCmd(1);
+              end;
             end;
 
 

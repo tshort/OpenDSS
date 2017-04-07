@@ -153,13 +153,14 @@ VAR
    Parm2,
    FileName :String;
 
-   MVAopt       :Integer;
-   UEonlyOpt    :Boolean;
-   pMon         :TMonitorObj;
-   pMeter       :TEnergyMeterObj;
-   ParamPointer :Integer;
-   PhasesToPlot :Integer;
-   AbortExport  :Boolean;
+   MVAopt               :Integer;
+   UEonlyOpt            :Boolean;
+   pMon                 :TMonitorObj;
+   pMeter               :TEnergyMeterObj;
+   ParamPointer         :Integer;
+   PhasesToPlot         :Integer;
+   AbortExport          :Boolean;
+   InitP, FinalP, idxP  : Integer; // Variables created for concatenating options
 
 Begin
    Result := 0;
@@ -319,10 +320,25 @@ Begin
      12: ExportGenMeters(FileName);
      13: ExportLoads(FileName);
      14: ExportMeters(FileName);
-     15: IF   Length(Parm2) > 0 THEN Begin
-           pMon:=MonitorClass[ActiveActor].Find(Parm2);
-           IF   pMon <> NIL  THEN Begin pMon.TranslateToCSV(FALSE, ActiveActor); FileName := GlobalResult; End
+     15: IF   Length(Parm2) > 0 THEN
+         Begin
+
+          if ConcatenateReports then // In case of being activated, the export will be made for all actors
+          begin
+            InitP :=  1;
+            FinalP:=  NumOfActors;
+          end
+          else
+          begin                      // Otherwise just for the active actor monitor
+            InitP :=  ActiveActor;
+            FinalP:=  ActiveActor;
+          end;
+          for idxP := InitP to FinalP do
+          begin
+           pMon:=MonitorClass[idxP].Find(Parm2);
+           IF   pMon <> NIL  THEN Begin pMon.TranslateToCSV(False, idxP); FileName := GlobalResult; End
                              ELSE DoSimpleMsg('Monitor "'+Parm2+'" not found.'+ CRLF + parser[ActiveActor].CmdString, 250);
+          end;
          End
          ELSE   DoSimpleMsg('Monitor Name Not Specified.'+ CRLF + parser[ActiveActor].CmdString, 251);
      16: ExportYprim(Filename);
