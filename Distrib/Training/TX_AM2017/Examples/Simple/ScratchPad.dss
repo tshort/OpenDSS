@@ -1,0 +1,6 @@
+// misc commands
+
+Visualize currents "Transformer.TR1"
+solve
+
+New Generator.DG1 Bus1=LoadBus kV=12.47 kW=500 PF=1.0

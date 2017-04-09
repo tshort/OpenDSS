@@ -1,0 +1,30 @@
+Clear
+
+New Circuit.Simple
+Edit Vsource.Source BasekV=115 pu=1.05  ISC3=3000  ISC1=2500  !Define source V and Z
+
+New Transformer.TR1 Buses=[SourceBus, Sub_Bus] Conns=[Delta Wye] kVs= [115 12.47]
+~ kVAs=[20000 20000] XHL=10
+
+New Linecode.336ACSR R1=0.058 X1=.1206 R0=.1784 X0=.4047 C1=3.4 C0=1.6 Units=kft
+New Line.LINE1 Bus1=Sub_Bus Bus2=LoadBus Linecode=336ACSR Length=1 Units=Mi 
+
+New Load.LOAD1 Bus1=LoadBus kV=12.47 kW=1000 PF=.95
+
+Set voltagebases=[115 12.47]
+Calcvoltagebases
+
+Solve   ! solves the snapshot power flow
+
+Show Voltage LN Nodes
+Show power kva elem
+Show current elem
+
+/***** Block Comment  ******
+
+New Load.LOAD2 phases=1 Bus1=LoadBus.2.3 kV=12.47 kW=500 PF=.90
+Load.Load2.PF = .85   ! Change the load power factor
+? load.load2.pf       ! query the PF to check
+
+*/
+
