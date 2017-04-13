@@ -16,39 +16,46 @@ New linecode.4/0QUAD nphases=4 basefreq=60  units=mi ! ohms per mile
 ~ xmatrix = (1.466 | 1.311 1.466| 1.311  1.311  1.466 | 1.251  1.251  1.251  1.546 )
 ~ cmatrix = (1 | 0 1 | 0 0 1| 0 0 0 1 )   ! dummy capacitance for Quad
 
-
-New Line.OHLine  bus1=sourcebus Primary linecode = 556mcm   length=1 units=mi
-New Line.Quad    Bus1=secondary loadbus linecode = 4/0quad  length=100 units=ft  
+! have to specify .1.2.3.0 to make sure neutral wire is grounded
+New Line.OHLine  bus1=sourcebus.1.2.3.0 Primary.1.2.3.0 linecode = 556mcm   length=1 units=mi
+New Line.Quad    Bus1=secondary.1.2.3.0  loadbus.1.2.3.0 linecode = 4/0quad  length=100 units=ft  
 
 !  Transformer  Bank - ungrounded wye/delta-CT
-New Transformer.XfmrAB    Phases=1 Windings=3 Xhl=1.44 XHt = 1.44  Xlt=.96
-~ wdg=1 bus=Primary.1.4       kv=7.2  kva=15  %r=0.65 
-~ wdg=2 bus=secondary.1.0     kv=.12  kva=15  %r=1.3 conn=delta
-~ wdg=3 bus=secondary.0.2     kv=.12  kva=15  %r=1.3 conn=delta
+New Transformer.XfmrAB    Phases=1 Windings=3 Xhl=2.04 XHt = 2.04  Xlt=1.36
+~ wdg=1 bus=Primary.1.4       kv=7.2  kva=25  %r=0.6 
+~ wdg=2 bus=secondary.1.0     kv=.12  kva=25  %r=1.2 conn=delta
+~ wdg=3 bus=secondary.0.2     kv=.12  kva=25  %r=1.2 conn=delta
 
-New Transformer.XfmrBC    Phases=1 Windings=2 Xhl=1
-~ wdg=1 bus=Primary.2.4       kv=7.2  kva=10  %r=0.7 
-~ wdg=2 bus=secondary.2.3     kv=.24  kva=10  %r=0.7  conn=delta
+New Transformer.XfmrBC    Phases=1 Windings=2 Xhl=1.4
+~ wdg=1 bus=Primary.2.4       kv=7.2  kva=10  %r=0.8
+~ wdg=2 bus=secondary.2.3     kv=.24  kva=10  %r=0.8  conn=delta
 
-New Transformer.XfmrCA    Phases=1 Windings=2 Xhl=1
-~ wdg=1 bus=Primary.3.4       kv=7.2  kva=10  %r=0.7 
-~ wdg=2 bus=secondary.3.1     kv=.24  kva=10  %r=0.7  conn=delta
+New Transformer.XfmrCA    Phases=1 Windings=2 Xhl=1.4
+~ wdg=1 bus=Primary.3.4         kv=7.2  kva=10  %r=0.8 
+~ wdg=2 bus=secondary.3.1     kv=.24  kva=10  %r=0.8  conn=delta
 
 !Loads - single phase
 
-New Load.L1 1   loadbus.1.0  .120  kVA=2  pf=.9  model=2
-New Load.L2 1   loadbus.2.0  .120  kVA=3  pf=.95 model=2
-New Load.L12 1  loadbus.1.2  .240  kVA=10 pf=.85 model=2
+New Load.L1 1   loadbus.1.0  .120  kVA=3  pf=.95  model=1
+New Load.L2 1   loadbus.2.0  .120  kVA=5   pf=.85 model=1
+New Load.L12 1  loadbus.1.2  .240  kVA=10 pf=.90 model=1
 
 !Induction Motor
-New Generator.Motor bus1=loadbus kv=0.24 kw=21.6 kva=25 conn=delta model=6 Usermodel=IndMach012a
-~ UserData=(rs=.0336 xs=.07999 rr=.039444  xr=.07999  xm=2.1  slip=0.03845)
+New Generator.Motor bus1=loadbus kv=0.24 kw=-21.6 kva=25 conn=delta model=6 Usermodel=IndMach012a
+~ UserData=(rs=.03359397 xs=.07999 rr=.0394097  xr=.07999  xm=2.1  slip=0.035 option=fixedslip)
 
 Set voltagebases=[12.47  0.240]
 calcvoltagebases
 
 Solve
 
+
+/***** Begin Block Comment
+
 Show V LN Nodes
 Show Power kVA Elem
+Show Curr Elem Resid=Y
+Show Variables
+
+***** End Block Comment ****/
 
