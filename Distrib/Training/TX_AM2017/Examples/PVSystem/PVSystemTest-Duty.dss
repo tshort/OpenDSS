@@ -1,0 +1,49 @@
+clear
+
+New Circuit.PVSystem  basekv=12.47  Isc3=1000 Isc1=900
+
+// P-T curve is per unit of rated Pmpp vs temperature
+// This one is for a Pmpp stated at 25 deg
+New XYCurve.MyPvsT npts=4  xarray=[0  25  75  100]  yarray=[1.2 1.0 0.8  0.6] 
+
+// efficiency curve is per unit eff vs per unit power
+New XYCurve.MyEff npts=4  xarray=[.1  .2  .4  1.0]  yarray=[.86  .9  .93  .97]  
+
+// 2900-s per unit irradiance curve (per unit of "irradiance" property)
+Redirect PVLoadShape.DSS
+
+// 30-min temp shape curve  (will go through this curve twice in 2900 s)
+New Tshape.MyTemp npts=30 minterval=1 temp=[35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35,  35  35  35 35 35 35  35  35 35 35 35 35 35]
+
+/**** Optional plotting for debugging
+plot tshape object=mytemp
+plot loadshape object=PVLoadshape
+***/
+
+// take the default OpenDSS line
+New Line.line1 Bus1=sourcebus bus2=PVbus  Length=2
+
+// pv definition  (Takes default %cutin and %Cutout
+New PVSystem.PV phases=3 bus1=PVbus kV=12.47  kVA=500  irrad=0.8  Pmpp=500 temperature=25 PF=1  effcurve=Myeff  P-TCurve=MyPvsT duty=PVLoadShape  TDuty=MyTemp 
+
+set voltagebases=[12.47]
+calcv
+
+solve  ! solves at the specified irradiance and temperature
+
+new monitor.m1 PVSystem.PV  1 mode=1 ppolar=no
+new monitor.m2 PVSystem.PV  1 
+
+solve
+solve mode=duty stepsize=1s number=(2900)
+
+// show mon m1
+// show mon m2
+
+
+Export monitors m1
+Plot monitor object= m1 channels=(1 )
+Export monitors m2
+Plot monitor object= m2 channels=(1 ) base=[7200]
+Export monitors m2
+Plot monitor object= m2 channels=(9 )
