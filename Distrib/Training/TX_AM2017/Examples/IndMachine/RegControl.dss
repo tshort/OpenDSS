@@ -1,0 +1,4 @@
+New "RegControl.reg1a" transformer=Reg1a winding=2 vreg=119.9926 band=3 ptratio=60 delay=15 tapdelay=2 reversible=yes revvreg=119.9926 revband=3 CTprim=600 R=5 X=3 revR=5 revX=3
+New "RegControl.reg1b" transformer=Reg1b winding=2 vreg=119.9926 band=3 ptratio=60 delay=15 tapdelay=2 reversible=yes revvreg=119.9926 revband=3 CTprim=600 R=5 X=3 revR=5 revX=3
+New "RegControl.reg1c" transformer=Reg1c winding=2 vreg=119.9926 band=3 ptratio=60 delay=15 tapdelay=2 reversible=yes revvreg=119.9926 revband=3 CTprim=600 R=5 X=3 revR=5 revX=3
+New "RegControl.sub" transformer=sub winding=2 vreg=119.9926 band=3 ptratio=60 delay=10 tapdelay=2

@@ -1,0 +1,143 @@
+
+!*********Compile "Master.DSS"
+Clear
+new loadshape.default npts=24 1.0 mult=(.677 .6256 .6087 .5833 .58028 .6025 .657 .7477 .832 .88 .94 .989 .985 .98 .9898 .999 1 .958 .936 .913 .876 .876 .828 .756)
+new growthshape.default 2 year="1 20" mult=(1.025 1.025)
+new spectrum.default 7  Harmonic=(1 3 5 7 9 11 13)  %mag=(100 33 20 14 11 9 7) Angle=(0 0 0 0 0 0 0)
+new spectrum.defaultload 7  Harmonic=(1 3 5 7 9 11 13)  %mag=(100 1.5 20 14 1 9 7) Angle=(0 180 180 180 180 180 180)
+new spectrum.defaultgen 7  Harmonic=(1 3 5 7 9 11 13)  %mag=(100 5 3 1.5 1 .7 .5) Angle=(0 0 0 0 0 0 0)
+new spectrum.defaultvsource 1  Harmonic=(1 )  %mag=(100 ) Angle=(0 ) 
+new spectrum.linear 1  Harmonic=(1 )  %mag=(100 ) Angle=(0 ) 
+new spectrum.pwm6 13  Harmonic=(1 3 5 7 9 11 13 15 17 19 21 23 25) %mag=(100 4.4 76.5 62.7 2.9 24.8 12.7 0.5 7.1 8.4 0.9 4.4 3.3) Angle=(-103 -5 28 -180 -33 -59 79 36 -253 -124 3 -30 86)
+new spectrum.dc6 10  Harmonic=(1 3 5 7 9 11 13 15 17 19)  %mag=(100 1.2 33.6 1.6 0.4 8.7  1.2  0.3  4.5 1.3) Angle=(-75 28 156 29 -91 49 54 148 -57 -46)
+New TCC_Curve.A 5 c_array=(1, 2.5, 4.5, 8.0, 14.)  t_array=(0.15 0.07 .05 .045 .045) 
+New TCC_Curve.D 5 c_array=(1, 2.5, 4.5, 8.0, 14.)  t_array=(6 0.7 .2 .06 .02)
+New TCC_Curve.TLink 7 c_array=(2 2.1 3 4 6 22 50)  t_array=(300 100 10.1 4.0 1.4 0.1  0.02)
+New TCC_Curve.KLink 6 c_array=(2 2.2 3 4 6 30)    t_array=(300 20 4 1.3 0.41 0.02)
+New Circuit.uwigdistwindfdr
+New object=vsource.source Bus1=SourceBus  
+
+!*********Redirect Vsource.txt
+Edit "Vsource.source" bus1=Bx basekv=115 pu=1.0475 angle=0 frequency=60 phases=3 MVAsc3=20000 MVAsc1=21000 x1r1=4 x0r0=3
+
+!*********Redirect LineCode.txt
+New "LineCode.3x_336aa_1/0asn" nphases=3 baseFreq=60 normamps=396 emergamps=495 r1=0.05284 x1=0.12447 r0=0.14504 x0=0.41903 c1=3.30053 c0=1.43804
+New "LineCode.3x_336aa_2cun" nphases=3 baseFreq=60 normamps=396 emergamps=495 r1=0.05284 x1=0.12447 r0=0.14504 x0=0.41903 c1=3.30053 c0=1.43804
+New "LineCode.3x_336as_1/0asn" nphases=3 baseFreq=60 normamps=415.2 emergamps=519 r1=0.05189 x1=0.1218 r0=0.14409 x0=0.41636 c1=3.33966 c0=1.44542
+New "LineCode.3x_397aa_1/0asn" nphases=3 baseFreq=60 normamps=480 emergamps=600 r1=0.04489 x1=0.124 r0=0.1385 x0=0.41087 c1=3.31369 c0=1.4824
+New "LineCode.3x_397as_1/0asn" nphases=3 baseFreq=60 normamps=536 emergamps=670 r1=0.04409 x1=0.12089 r0=0.13771 x0=0.40777 c1=3.41844 c0=1.50299
+New "LineCode.3x_397as_2asn" nphases=3 baseFreq=60 normamps=536 emergamps=670 r1=0.04362 x1=0.11782 r0=0.15472 x0=0.44165 c1=3.45566 c0=1.46185
+New "LineCode.3x_397as_2cun" nphases=3 baseFreq=60 normamps=536 emergamps=670 r1=0.04362 x1=0.11782 r0=0.14235 x0=0.40936 c1=3.45566 c0=1.46014
+New "LineCode.3x_4/0aa_1/0aan" nphases=3 baseFreq=60 normamps=316 emergamps=395 r1=0.08314 x1=0.14623 r0=0.17705 x0=0.44241 c1=3.19604 c0=1.41784
+New "LineCode.3x_4/0aa_4/0aan" nphases=3 baseFreq=60 normamps=316 emergamps=395 r1=0.08314 x1=0.14623 r0=0.14784 x0=0.41426 c1=3.19604 c0=1.42528
+New "LineCode.3x_4/0cu_1/0asn" nphases=3 baseFreq=60 normamps=405.6 emergamps=507 r1=0.05265 x1=0.12977 r0=0.14485 x0=0.42434 c1=3.1678 c0=1.41227
+New "LineCode.3x_4/0cu_1/0cun" nphases=3 baseFreq=60 normamps=405.6 emergamps=507 r1=0.05265 x1=0.13125 r0=0.13108 x0=0.39297 c1=3.13088 c0=1.44291
+New "LineCode.3x_4/0cu_2cun" nphases=3 baseFreq=60 normamps=405.6 emergamps=507 r1=0.05265 x1=0.12977 r0=0.15138 x0=0.42131 c1=3.1678 c0=1.40614
+New "LineCode.3x_477aa_1/0asn" nphases=3 baseFreq=60 normamps=570.4 emergamps=713 r1=0.03731 x1=0.12199 r0=0.13093 x0=0.40888 c1=3.37372 c0=1.49425
+New "LineCode.3x_477aa_4/0asn" nphases=3 baseFreq=60 normamps=570.4 emergamps=713 r1=0.03731 x1=0.12199 r0=0.10167 x0=0.38123 c1=3.37372 c0=1.50299
+New "LineCode.477acsr" nphases=3 baseFreq=60 normamps=570.4 emergamps=713 r1=0.03731 x1=0.12199 r0=0.10167 x0=0.38123 c1=3.37372 c0=1.50299
+New "LineCode.unbalanced 336 acsr" nphases=3 baseFreq=60 normamps=570.4 emergamps=713 rmatrix="0.0868455 | 0.0298305 0.0887966 | 0.0288883 0.0298305 0.0868455" xmatrix="0.2025449 | 0.084721 0.1961452 | 0.0719161 0.084721 0.2025449" cmatrix="2.74 | -0.7 2.96 | -0.34 -0.71 2.74"
+
+!*********Redirect LoadShape.txt
+New "LoadShape.default" interval=1.0 mult=(0.677, 0.6256, 0.6087, 0.5833, 0.58028, 0.6025, 0.657, 0.7477, 0.832, 0.88, 0.94, 0.989, 0.985, 0.98, 0.9898, 0.999, 1, 0.958, 0.936, 0.913, 0.876, 0.876, 0.828, 0.756, ) npts=24 mean=0.826 stddev=0.2
+New "LoadShape.wind2400" npts=2501 interval=0.000277778 csvfile=WPWind2400.csv action=normalize mean=0.603 stddev=0.2
+
+!*********Redirect GrowthShape.txt
+New "GrowthShape.default" npts=2 year=(1, 20, ) mult=(1.025, 1.025, )
+
+!*********Redirect TCC_Curve.txt
+New "TCC_Curve.a" npts=15 C_array=(1.1, 1.3, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, ) T_array=(7.1769, 2.2079, 1.234, 0.534, 0.2215, 0.134, 0.0965, 0.0769, 0.0653, 0.0578, 0.0528, 0.0492, 0.0378, 0.0346, 0.0342, )
+New "TCC_Curve.d" npts=5 C_array=(1, 2.5, 4.5, 8, 14, ) T_array=(6, 0.7, 0.2, 0.06, 0.02, )
+New "TCC_Curve.tlink" npts=7 C_array=(2, 2.1, 3, 4, 6, 22, 50, ) T_array=(300, 100, 10.1, 4, 1.4, 0.1, 0.02, )
+New "TCC_Curve.klink" npts=6 C_array=(2, 2.2, 3, 4, 6, 30, ) T_array=(300, 20, 4, 1.3, 0.41, 0.02, )
+New "TCC_Curve.mod_inv" npts=15 C_array=(1.1, 1.3, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, ) T_array=(27.1053, 9.9029, 6.439, 3.8032, 2.4322, 1.9458, 1.6883, 1.5255, 1.4117, 1.3267, 1.2604, 1.2068, 0.9481, 0.7468, 0.6478, )
+New "TCC_Curve.very_inv" npts=15 C_array=(1.1, 1.3, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, ) T_array=(93.872, 28.9113, 16.179, 7.0277, 2.9423, 1.7983, 1.3081, 1.0513, 0.8995, 0.8023, 0.7361, 0.6891, 0.5401, 0.4988, 0.493, )
+New "TCC_Curve.ext_inv" npts=15 C_array=(1.1, 1.3, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, ) T_array=(134.4074, 40.9913, 22.6817, 9.5217, 3.6467, 2.0017, 1.2967, 0.9274, 0.7092, 0.5693, 0.4742, 0.4065, 0.1924, 0.133, 0.1245, )
+New "TCC_Curve.definite" npts=3 C_array=(1, 1.001, 100, ) T_array=(300, 1, 1, )
+New "TCC_Curve.b" npts=15 C_array=(1.1, 1.3, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, ) T_array=(51.9557, 16.1006, 9.0457, 3.9338, 1.6027, 0.9286, 0.6315, 0.4721, 0.3759, 0.3131, 0.2697, 0.2383, 0.1343, 0.1022, 0.097, )
+New "TCC_Curve.c" npts=15 C_array=(1.1, 1.3, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, ) T_array=(125.2574, 38.0345, 20.962, 8.7258, 3.3034, 1.802, 1.1647, 0.8336, 0.6394, 0.5156, 0.432, 0.3728, 0.1882, 0.1389, 0.1321, )
+New "TCC_Curve.uv1547" npts=2 C_array=(0.5, 0.9, ) T_array=(0.166, 2, )
+New "TCC_Curve.ov1547" npts=2 C_array=(1.1, 1.2, ) T_array=(2, 0.166, )
+
+!*********Redirect Spectrum.txt
+New "Spectrum.default" NumHarm=7 harmonic=(1, 3, 5, 7, 9, 11, 13, ) %mag=(100, 33, 20, 14, 11, 9, 7, ) angle=(0, 0, 0, 0, 0, 0, 0, )
+New "Spectrum.defaultload" NumHarm=7 harmonic=(1, 3, 5, 7, 9, 11, 13, ) %mag=(100, 1.5, 20, 14, 1, 9, 7, ) angle=(0, 180, 180, 180, 180, 180, 180, )
+New "Spectrum.defaultgen" NumHarm=7 harmonic=(1, 3, 5, 7, 9, 11, 13, ) %mag=(100, 5, 3, 1.5, 1, 0.7, 0.5, ) angle=(0, 0, 0, 0, 0, 0, 0, )
+New "Spectrum.defaultvsource" NumHarm=1 harmonic=(1, ) %mag=(100, ) angle=(0, )
+New "Spectrum.linear" NumHarm=1 harmonic=(1, ) %mag=(100, ) angle=(0, )
+New "Spectrum.pwm6" NumHarm=13 harmonic=(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, ) %mag=(100, 4.4, 76.5, 62.7, 2.9, 24.8, 12.7, 0.5, 7.1, 8.4, 0.9, 4.4, 3.3, ) angle=(-103, -5, 28, -180, -33, -59, 79, 36, -253, -124, 3, -30, 86, )
+New "Spectrum.dc6" NumHarm=10 harmonic=(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, ) %mag=(100, 1.2, 33.6, 1.6, 0.4, 8.7, 1.2, 0.3, 4.5, 1.3, ) angle=(-75, 28, 156, 29, -91, 49, 54, 148, -57, -46, )
+
+!*********Redirect line.txt
+New "line.l1" bus1=B0 bus2=B1 linecode="Unbalanced 336 ACSR" length=10
+New "line.l2" bus1=B1 bus2=B2 linecode="Unbalanced 336 ACSR" length=10
+New "line.l3" bus1=Bm bus2=B3 linecode="Unbalanced 336 ACSR" length=10
+New "line.l4" bus1=B3 bus2=B4 linecode="Unbalanced 336 ACSR" length=10
+New "line.l5" bus1=B2 bus2=B5 linecode="Unbalanced 336 ACSR" length=10
+New "line.l6" bus1=B3 bus2=B6 linecode="Unbalanced 336 ACSR" length=10
+New "line.l7" bus1=B0 bus2=B7 linecode="Unbalanced 336 ACSR" length=10
+
+!*********Redirect Load.txt
+New "Load.ldb0" bus1=B0 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb1" bus1=B1 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb2" bus1=B2 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb3" bus1=B3 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb4" bus1=B4 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb5" bus1=B5 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb6" bus1=B6 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb7" bus1=B7 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+
+!*********Redirect Transformer.txt
+New "Transformer.sub" phases=3 windings=2 buses=(bx, b0, ) conns=(delta, wye, ) kVs=(115, 12.47, ) kVAs=(20000, 20000, ) taps=(1, 1, ) Xhl=7
+New "Transformer.tg" phases=3 windings=2 buses=(b4, bg, ) conns=(wye, wye, ) kVs=(12.47, 0.48, ) kVAs=(1500, 1500, ) taps=(1, 1, ) Xhl=5
+New "Transformer.reg1a" phases=1 windings=2 buses=(b2.1, bm.1, ) conns=(wye, wye, ) kVs=(12.47, 12.47, ) kVAs=(2000, 2000, ) Xhl=1
+New "Transformer.reg1b" phases=1 windings=2 buses=(b2.2, bm.2, ) conns=(wye, wye, ) kVs=(12.47, 12.47, ) kVAs=(2000, 2000, ) Xhl=1
+New "Transformer.reg1c" phases=1 windings=2 buses=(b2.3, bm.3, ) conns=(wye, wye, ) kVs=(12.47, 12.47, ) kVAs=(2000, 2000, ) Xhl=1
+
+!*********Redirect RegControl.txt
+New "RegControl.reg1a" transformer=Reg1a winding=2 vreg=119.9926 band=3 ptratio=60 delay=15 tapdelay=2 reversible=yes revvreg=119.9926 revband=3 CTprim=600 R=5 X=3 revR=5 revX=3
+New "RegControl.reg1b" transformer=Reg1b winding=2 vreg=119.9926 band=3 ptratio=60 delay=15 tapdelay=2 reversible=yes revvreg=119.9926 revband=3 CTprim=600 R=5 X=3 revR=5 revX=3
+New "RegControl.reg1c" transformer=Reg1c winding=2 vreg=119.9926 band=3 ptratio=60 delay=15 tapdelay=2 reversible=yes revvreg=119.9926 revband=3 CTprim=600 R=5 X=3 revR=5 revX=3
+New "RegControl.sub" transformer=sub winding=2 vreg=119.9926 band=3 ptratio=60 delay=10 tapdelay=2
+
+!*********Redirect Capacitor.txt
+New "Capacitor.c1" conn=wye bus1=B1 phases=3 kvar=( 600) kv=12.47
+New "Capacitor.c2" conn=wye bus1=B3 phases=3 kvar=( 600) kv=12.47
+New "Capacitor.cg" conn=wye bus1=Bg phases=3 kvar=( 600) kv=0.48
+
+!*********Redirect Fault.txt
+New "Fault.thefault"  bus1=B3.1 bus2=B3.0 phases=1 r=0.0001 ONtime=.3 temporary=yes
+
+!*********Redirect Generator.txt
+New Line.genleads Bus1=bg bus2=bg2 length=.010
+New "IndMach012.windgen1" bus1=Bg2 kW=1200 conn=delta kVA=1500.000 H=6 duty=Wind2400 rs=0.048 xs=0.075 rr=0.018 xr=0.12 xm=3.8 SlipOption=variableslip pf=1.000 Xdp=0.192 kv=0.48
+
+!*********Redirect Relay.txt
+New "Relay.mfrov/uv" MonitoredObj=line.genleads MonitoredTerm=1 type=voltage RecloseIntervals=(5.0) kvbase=0.48 Shots=1 Delay=0
+New "Relay.mfr46" MonitoredObj=line.genleads MonitoredTerm=1 type=46 46BaseAmps=1800 46%Pickup=20 46isqt=1 Delay=0.1
+New "Relay.mfr47" MonitoredObj=line.genleads MonitoredTerm=1 type=47 kvbase=0.48 47%Pickup=2 Delay=0.1
+
+!*********Redirect Recloser.txt
+New "Recloser.cb1" MonitoredObj=Line.L1 MonitoredTerm=1 NumFast=4 PhaseFast=Ext_Inv PhaseDelayed=Ext_Inv PhaseTrip=800 TDPhFast=1 TDPhDelayed=1 PhaseInst=2400 GroundFast=Ext_Inv GroundDelayed=Ext_Inv GroundTrip=800 TDGrFast=1 TDGrDelayed=1 GroundInst=1200 Shots=4 RecloseIntervals=(0.5, 2, 2, )
+New "Recloser.cb2" MonitoredObj=Line.L7 MonitoredTerm=1 NumFast=4 PhaseFast=Ext_Inv PhaseDelayed=Ext_Inv PhaseTrip=800 TDPhFast=1 TDPhDelayed=1 PhaseInst=2400 GroundFast=Ext_Inv GroundDelayed=Ext_Inv GroundTrip=800 TDGrFast=1 TDGrDelayed=1 GroundInst=1200 Shots=4 RecloseIntervals=(0.5, 2, 2, )
+New "Recloser.rec1" MonitoredObj=Line.L3 MonitoredTerm=1 NumFast=1 PhaseFast=A PhaseDelayed=C PhaseTrip=280 TDPhFast=1 TDPhDelayed=1 Shots=4 RecloseIntervals=(0.5, 2, 2, )
+New "Recloser.rec2" MonitoredObj=Line.L5 MonitoredTerm=1 NumFast=1 PhaseFast=A PhaseDelayed=C PhaseTrip=400 TDPhFast=1 TDPhDelayed=1 Shots=4 RecloseIntervals=(0.5, 2, 2, )
+New "Recloser.mfr50/51" MonitoredObj=IndMach012.WindGen1 MonitoredTerm=1 NumFast=1 PhaseFast=Ext_Inv PhaseDelayed=Ext_Inv PhaseTrip=8000 TDPhFast=1 TDPhDelayed=1 PhaseInst=24000 GroundFast=Ext_Inv GroundDelayed=Ext_Inv GroundTrip=2000 TDGrFast=1 TDGrDelayed=1 GroundInst=12000 Shots=1
+
+!*********Redirect Fuse.txt
+New "Fuse.f1" MonitoredObj=Line.L6 MonitoredTerm=1 FuseCurve=Klink RatedCurrent=65
+New "Fuse.f2" MonitoredObj=Transformer.Tg MonitoredTerm=1 FuseCurve=Tlink RatedCurrent=65
+
+!*********Redirect Monitor.txt
+New "Monitor.cb1" element=Line.L1 terminal=1 mode=0
+New "Monitor.cb2" element=Line.L7 terminal=1 mode=0
+New "Monitor.rec1" element=Line.L3 terminal=1 mode=0
+New "Monitor.rec2" element=Line.L5 terminal=1 mode=0
+New "Monitor.f1" element=Line.L6 terminal=1 mode=0
+New "Monitor.f2" element=Transformer.Tg terminal=1 mode=0
+New "Monitor.mfr" element=IndMach012.WindGen1 terminal=1 mode=0
+MakeBusList
+Buscoords buscoords.txt
+set voltagebases=(115 12.47 .48)
+calcv
+set recorder=false

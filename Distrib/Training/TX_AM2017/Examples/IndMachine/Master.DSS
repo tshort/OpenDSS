@@ -1,0 +1,31 @@
+Clear
+
+New Circuit.NewModel
+
+
+
+Redirect Vsource.dss
+Redirect LineCode.dss
+Redirect LoadShape.dss
+Redirect GrowthShape.dss
+Redirect TCC_Curve.dss
+Redirect Spectrum.dss
+Redirect line.dss
+Redirect Load.dss
+Redirect Transformer.dss
+Redirect RegControl.dss
+Redirect Capacitor.dss
+Redirect Fault.dss
+Redirect Generator.dss
+Redirect Relay.dss
+Redirect Recloser.dss
+Redirect Fuse.dss
+Redirect Monitor.dss
+MakeBusList
+Buscoords buscoords.dss
+
+set voltagebases=(115 12.47 .48)
+
+calcv
+
+

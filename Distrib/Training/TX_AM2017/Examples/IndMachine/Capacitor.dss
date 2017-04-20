@@ -1,0 +1,3 @@
+New "Capacitor.c1" conn=wye bus1=B1 phases=3 kvar=( 600) kv=12.47
+New "Capacitor.c2" conn=wye bus1=B3 phases=3 kvar=( 600) kv=12.47
+New "Capacitor.cg" conn=wye bus1=Bg phases=3 kvar=( 600) kv=0.48

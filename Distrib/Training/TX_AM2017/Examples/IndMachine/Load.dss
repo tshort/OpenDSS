@@ -1,0 +1,8 @@
+New "Load.ldb0" bus1=B0 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb1" bus1=B1 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb2" bus1=B2 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb3" bus1=B3 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb4" bus1=B4 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb5" bus1=B5 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb6" bus1=B6 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47
+New "Load.ldb7" bus1=B7 conn=wye phases=3 kW=0.1 pf=1 model=2 kV=12.47

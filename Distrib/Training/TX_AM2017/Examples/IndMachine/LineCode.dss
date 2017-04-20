@@ -1,0 +1,16 @@
+New "LineCode.3x_336aa_1/0asn" nphases=3 baseFreq=60 normamps=396 emergamps=495 r1=0.05284 x1=0.12447 r0=0.14504 x0=0.41903 c1=3.30053 c0=1.43804 units=kft
+New "LineCode.3x_336aa_2cun" nphases=3 baseFreq=60 normamps=396 emergamps=495 r1=0.05284 x1=0.12447 r0=0.14504 x0=0.41903 c1=3.30053 c0=1.43804 units=kft
+New "LineCode.3x_336as_1/0asn" nphases=3 baseFreq=60 normamps=415.2 emergamps=519 r1=0.05189 x1=0.1218 r0=0.14409 x0=0.41636 c1=3.33966 c0=1.44542 units=kft
+New "LineCode.3x_397aa_1/0asn" nphases=3 baseFreq=60 normamps=480 emergamps=600 r1=0.04489 x1=0.124 r0=0.1385 x0=0.41087 c1=3.31369 c0=1.4824 units=kft
+New "LineCode.3x_397as_1/0asn" nphases=3 baseFreq=60 normamps=536 emergamps=670 r1=0.04409 x1=0.12089 r0=0.13771 x0=0.40777 c1=3.41844 c0=1.50299 units=kft
+New "LineCode.3x_397as_2asn" nphases=3 baseFreq=60 normamps=536 emergamps=670 r1=0.04362 x1=0.11782 r0=0.15472 x0=0.44165 c1=3.45566 c0=1.46185 units=kft
+New "LineCode.3x_397as_2cun" nphases=3 baseFreq=60 normamps=536 emergamps=670 r1=0.04362 x1=0.11782 r0=0.14235 x0=0.40936 c1=3.45566 c0=1.46014 units=kft
+New "LineCode.3x_4/0aa_1/0aan" nphases=3 baseFreq=60 normamps=316 emergamps=395 r1=0.08314 x1=0.14623 r0=0.17705 x0=0.44241 c1=3.19604 c0=1.41784 units=kft
+New "LineCode.3x_4/0aa_4/0aan" nphases=3 baseFreq=60 normamps=316 emergamps=395 r1=0.08314 x1=0.14623 r0=0.14784 x0=0.41426 c1=3.19604 c0=1.42528 units=kft
+New "LineCode.3x_4/0cu_1/0asn" nphases=3 baseFreq=60 normamps=405.6 emergamps=507 r1=0.05265 x1=0.12977 r0=0.14485 x0=0.42434 c1=3.1678 c0=1.41227 units=kft
+New "LineCode.3x_4/0cu_1/0cun" nphases=3 baseFreq=60 normamps=405.6 emergamps=507 r1=0.05265 x1=0.13125 r0=0.13108 x0=0.39297 c1=3.13088 c0=1.44291 units=kft
+New "LineCode.3x_4/0cu_2cun" nphases=3 baseFreq=60 normamps=405.6 emergamps=507 r1=0.05265 x1=0.12977 r0=0.15138 x0=0.42131 c1=3.1678 c0=1.40614 units=kft
+New "LineCode.3x_477aa_1/0asn" nphases=3 baseFreq=60 normamps=570.4 emergamps=713 r1=0.03731 x1=0.12199 r0=0.13093 x0=0.40888 c1=3.37372 c0=1.49425 units=kft
+New "LineCode.3x_477aa_4/0asn" nphases=3 baseFreq=60 normamps=570.4 emergamps=713 r1=0.03731 x1=0.12199 r0=0.10167 x0=0.38123 c1=3.37372 c0=1.50299 units=kft
+New "LineCode.477acsr" nphases=3 baseFreq=60 normamps=570.4 emergamps=713 r1=0.03731 x1=0.12199 r0=0.10167 x0=0.38123 c1=3.37372 c0=1.50299 units=kft
+New "LineCode.unbalanced 336 acsr" nphases=3 baseFreq=60 normamps=570.4 emergamps=713 rmatrix="0.0868455 | 0.0298305 0.0887966 | 0.0288883 0.0298305 0.0868455" xmatrix="0.2025449 | 0.084721 0.1961452 | 0.0719161 0.084721 0.2025449" cmatrix="2.74 | -0.7 2.96 | -0.34 -0.71 2.74" units=kft

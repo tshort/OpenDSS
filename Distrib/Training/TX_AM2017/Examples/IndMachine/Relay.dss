@@ -1,0 +1,3 @@
+New "Relay.mfrov/uv" MonitoredObj=line.genleads MonitoredTerm=1 type=voltage RecloseIntervals=(5.0) kvbase=0.48 Shots=1 Delay=0
+New "Relay.mfr46" MonitoredObj=line.genleads MonitoredTerm=1 type=46 46BaseAmps=1800 46%Pickup=20 46isqt=1 Delay=0.1
+New "Relay.mfr47" MonitoredObj=line.genleads MonitoredTerm=1 type=47 kvbase=0.48 47%Pickup=2 Delay=0.1

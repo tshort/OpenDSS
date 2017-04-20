@@ -1,0 +1,1 @@
+New "Fault.thefault"  bus1=B3.1 bus2=B3.0 phases=1 r=0.0001 ONtime=.3 temporary=yes

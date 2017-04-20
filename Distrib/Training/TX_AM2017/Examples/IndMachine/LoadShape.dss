@@ -1,0 +1,8 @@
+New "LoadShape.default" interval=1.0 mult=(0.677, 0.6256, 0.6087, 0.5833, 0.58028, 0.6025, 0.657, 0.7477, 0.832, 0.88, 0.94, 0.989, 0.985, 0.98, 0.9898, 0.999, 1, 0.958, 0.936, 0.913, 0.876, 0.876, 0.828, 0.756, ) npts=24 mean=0.826 stddev=0.2
+New "LoadShape.wind2400" npts=2501 interval=0.000277778 csvfile=WPWind2400.csv action=normalize mean=0.603 stddev=0.2
+!New "LoadShape.oneturbine" npts=10500 interval=0.000277778 csvfile=c:\inetpub\wwwroot\UWIGDistWind_1_1_WebApp\Flicker\FlickerTempData\WPOneTurbine.csv action=normalize mean=0.578 stddev=0.3
+!New "LoadShape.fiveturbines" npts=10500 interval=0.000277778 csvfile=c:\inetpub\wwwroot\UWIGDistWind_1_1_WebApp\Flicker\FlickerTempData\WPFiveTurbines.csv action=normalize mean=0.793 stddev=0.2
+!New "LoadShape.eleventurbines" npts=10500 interval=0.000277778 csvfile=c:\inetpub\wwwroot\UWIGDistWind_1_1_WebApp\Flicker\FlickerTempData\WPElevenTurbines.csv action=normalize mean=0.742 stddev=0.1
+!New "LoadShape.on-off-on" npts=540 interval=0.000277778 csvfile=c:\inetpub\wwwroot\UWIGDistWind_1_1_WebApp\Flicker\FlickerTempData\CTOnOffOn.csv action=normalize mean=0.667 stddev=0.5
+!New "LoadShape.off-on-off" npts=540 interval=0.000277778 csvfile=c:\inetpub\wwwroot\UWIGDistWind_1_1_WebApp\Flicker\FlickerTempData\CTOffOnOff.csv action=normalize mean=0.333 stddev=0.5
+!New "LoadShape.buffalomtn" npts=60480 interval=0.000277778 csvfile=c:\inetpub\wwwroot\UWIGDistWind_1_1_WebApp\Flicker\FlickerTempData\BuffaloMtn.csv action=normalize mean=0.429 stddev=0.3
