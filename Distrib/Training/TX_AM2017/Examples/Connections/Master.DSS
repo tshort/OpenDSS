@@ -20,31 +20,36 @@ New Transformer.T2 phases=3 windings=2 XHL=5
 ~ wdg=1 Bus=B2.1.2.3.0   kV=12.47 kVA=500 %R=.4 Conn=Delta
 ~ wdg=2 Bus=B2LV.1.2.3.0 kV=.208  kVA=500 %R=.4 Conn=wye
 
-New Transformer.T3 phases=3 windings=2 XHL=5
-~ wdg=1 Bus=B3.1.2.3.0   kV=12.47 kVA=500 %R=.4 Conn=Wye
-~ wdg=2 Bus=B3LV.1.2.3.0 kV=.208  kVA=500 %R=.4 Conn=wye
+New Transformer.T3 phases=3 windings=2 XHL=7.5
+~ wdg=1 Bus=B3.1.2.3.0   kV=12.47 kVA=10000 %R=.4 Conn=Wye
+~ wdg=2 Bus=B3LV.1.2.3.4 kV=.585  kVA=10000 %R=.4 Conn=wye
 
-New Transformer.T4 phases=3 windings=2 XHL=5
-~ wdg=1 Bus=B4.1.2.3.4   kV=12.47 kVA=500 %R=.4 Conn=Wye  ! Ungrounded
+New Transformer.T4 phases=3 windings=3 XHL=5  XHT=90   XLT=    75
+~ wdg=1 Bus=B4.1.2.3.444   kV=12.47 kVA=500 %R=.4 Conn=Wye  ! Ungrounded
 ~ wdg=2 Bus=B4LV.1.2.3.0 kV=.208  kVA=500 %R=.4 Conn=wye
+~ wdg=3 Bus=Dummy.1.2.3 kV=.208  kVA=500 %R=.4 Conn=Delta
 
-New Transformer.T5 phases=3 windings=2 XHL=5
+
+
+New Transformer.T5 phases=3 windings=2 XHL=5 
 ~ wdg=1 Bus=B5.1.2.3.0   kV=12.47 kVA=500 %R=.4 Conn=Wye 
 ~ wdg=2 Bus=B5LV.1.2.3.0 kV=.208  kVA=500 %R=.4 Conn=Delta
 
 ! Add both 3-phase and 1-phase loads at each location
 New Load.Load2 Bus1=B2LV.1.2.3.0 phases=3 kV=0.208 kW=400 PF=0.95 conn=wye
-New Load.Load3 Bus1=B3LV.1.2.3.0 phases=3 kV=0.208 kW=400 PF=0.95 conn=wye
-New Load.Load4 Bus1=B4LV.1.2.3.0 phases=3 kV=0.208 kW=400 PF=0.95 conn=wye
+! New Load.Load3 Bus1=B3LV.1.2.3.0 phases=3 kV=0.208 kW=400 PF=0.95 conn=wye
+! New Load.Load4 Bus1=B4LV.1.2.3.0 phases=3 kV=0.208 kW=400 PF=0.95 conn=wye
 New Load.Load5 Bus1=B5LV.1.2.3.0 phases=3 kV=0.208 kW=400 PF=0.95 conn=delta
 
 New Load.Load2-1ph Bus1=B2LV.1.0 phases=1 kV=0.120 kW=20 PF=0.98 conn=wye
-New Load.Load3-1ph Bus1=B3LV.1.0 phases=1 kV=0.120 kW=20 PF=0.98 conn=wye
+!New Load.Load3-1ph Bus1=B3LV.1.0 phases=1 kV=0.120 kW=20 PF=0.98 conn=wye
 New Load.Load4-1ph Bus1=B4LV.1.0 phases=1 kV=0.120 kW=20 PF=0.98 conn=wye
-New Load.Load5-1ph Bus1=B5LV.1.0 phases=1 kV=0.120 kW=20 PF=0.98 conn=wye
+New Load.Load5-1ph Bus1=B5LV.1.2 phases=1 kV=0.208 kW=20 PF=0.98 conn=delta
+
+New Generator.B3  Bus1=B3  Conn=delta  kV=.585  kW=10000 PF=1
 
 
-Set voltagebases=[115, 12.47  .208]
+Set voltagebases=[115, 12.47  .585 .208]
 calcvoltagebases
 
 Solve
