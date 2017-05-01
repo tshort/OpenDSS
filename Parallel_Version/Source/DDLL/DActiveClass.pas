@@ -4,7 +4,7 @@ interface
 
 function ActiveClassI(mode:longint; arg: longint):longint; cdecl;
 function ActiveClassS(mode:longint; arg: pAnsiChar):pAnsiChar; cdecl;
-procedure ActiveClassV(mode:longint; out arg: Olevariant); cdecl;
+procedure ActiveClassV(mode:longint; out arg: variant); cdecl;
 
 implementation
 
@@ -74,7 +74,7 @@ begin
 end;
 
 //*****************************Variant type properties**************************
-procedure ActiveClassV(mode:longint; out arg: Olevariant); cdecl;
+procedure ActiveClassV(mode:longint; out arg: Variant); cdecl;
 
 Var
   idx: Integer;

@@ -5,7 +5,7 @@ interface
 function SwtControlsI(mode: longint; arg: longint): longint; cdecl;
 function SwtControlsF(mode: longint; arg: double): double; cdecl;
 function SwtControlsS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
-procedure SwtControlsV(mode: longint; out arg: Olevariant); cdecl;
+procedure SwtControlsV(mode: longint; out arg: Variant); cdecl;
 
 implementation
 
@@ -200,7 +200,7 @@ begin
 end;
 
 //******************************Variant type properties*****************************
-procedure SwtControlsV(mode: longint; out arg: Olevariant); cdecl;
+procedure SwtControlsV(mode: longint; out arg: Variant); cdecl;
 
 var
   elem: TSwtControlObj;

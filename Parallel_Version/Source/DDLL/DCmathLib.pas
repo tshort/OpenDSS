@@ -3,7 +3,7 @@ unit DCmathLib;
 interface
 
 function CmathLibF(mode:longint; arg1:double; arg2:double):double;cdecl;
-procedure CmathLibV(mode:longint; Realpart:double; ImagPart:double; out arg: Olevariant);cdecl;
+procedure CmathLibV(mode:longint; Realpart:double; ImagPart:double; out arg: Variant);cdecl;
 
 implementation
 
@@ -25,7 +25,7 @@ begin
 end;
 
 //***************************Variant type properties****************************
-procedure CmathLibV(mode:longint; Realpart:double; ImagPart:double; out arg: Olevariant);cdecl;
+procedure CmathLibV(mode:longint; Realpart:double; ImagPart:double; out arg: Variant);cdecl;
 
 Var
    TempPolar:polar;

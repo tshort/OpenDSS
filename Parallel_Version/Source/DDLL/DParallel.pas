@@ -5,7 +5,7 @@ interface
 Uses Arraydef, UComplex, Solution;
 
 function ParallelI(mode:longint; arg:longint):longint;cdecl;
-procedure ParallelV(mode:longint; out arg:Olevariant);cdecl;
+procedure ParallelV(mode:longint; out arg:Variant);cdecl;
 
 implementation
 
@@ -78,7 +78,7 @@ begin
 end;
 
 
-procedure ParallelV(mode:longint; out arg:Olevariant);cdecl;
+procedure ParallelV(mode:longint; out arg:Variant);cdecl;
 var
   i : Integer;
 

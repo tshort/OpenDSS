@@ -4,7 +4,7 @@ interface
 
 function RelaysI(mode:longint;arg:longint):longint;cdecl;
 function RelaysS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
-procedure RelaysV(mode:longint;out arg:Olevariant);cdecl;
+procedure RelaysV(mode:longint;out arg:Variant);cdecl;
 
 implementation
 
@@ -149,7 +149,7 @@ begin
 end;
 
 //****************************Variant type properties****************************
-procedure RelaysV(mode:longint;out arg:Olevariant);cdecl;
+procedure RelaysV(mode:longint;out arg:Variant);cdecl;
 
 Var
   elem: TRelayObj;

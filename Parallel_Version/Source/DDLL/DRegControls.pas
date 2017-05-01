@@ -5,7 +5,7 @@ interface
 function RegControlsI(mode: longint; arg: longint):longint ;cdecl;
 function RegControlsF(mode: longint; arg: double):double ;cdecl;
 function RegControlsS(mode: longint; arg: pAnsiChar):pAnsiChar ;cdecl;
-procedure RegControlsV(mode: longint; out arg: Olevariant) ;cdecl;
+procedure RegControlsV(mode: longint; out arg: Variant) ;cdecl;
 
 implementation
 
@@ -313,7 +313,7 @@ begin
 end;
 
 //*******************Variant type properties**************************************
-procedure RegControlsV(mode: longint; out arg: Olevariant) ;cdecl;
+procedure RegControlsV(mode: longint; out arg: Variant) ;cdecl;
 
 Var
   elem: TRegControlObj;

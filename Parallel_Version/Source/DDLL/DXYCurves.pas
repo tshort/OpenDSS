@@ -8,7 +8,7 @@ uses
 function XYCurvesI(mode:longint;arg:longint):longint;cdecl;
 function XYCurvesF(mode:longint;arg:double):double;cdecl;
 function XYCurvesS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
-procedure XYCurvesV(mode:longint; var arg:Olevariant);cdecl;
+procedure XYCurvesV(mode:longint; var arg:Variant);cdecl;
 
 implementation
 
@@ -251,7 +251,7 @@ begin
 end;
 
 //************************Variant type properties********************************
-procedure XYCurvesV(mode:longint; var arg:Olevariant);cdecl;
+procedure XYCurvesV(mode:longint; var arg:Variant);cdecl;
 
 Var
    pXYCurve:TXYCurveObj;

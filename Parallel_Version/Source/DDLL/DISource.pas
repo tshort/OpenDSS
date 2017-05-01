@@ -5,7 +5,7 @@ interface
 function IsourceI(mode:longint;arg:longint):Longint;cdecl;
 function IsourceF(mode:longint;arg:double):double;cdecl;
 function IsourceS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
-procedure IsourceV(mode:longint;out arg:Olevariant);cdecl;
+procedure IsourceV(mode:longint;out arg:Variant);cdecl;
 
 implementation
 
@@ -134,7 +134,7 @@ begin
 end;
 
 //***************************Variant type properties*******************************
-procedure IsourceV(mode:longint;out arg:Olevariant);cdecl;
+procedure IsourceV(mode:longint;out arg:Variant);cdecl;
 
 Var
   elem: TIsourceObj;

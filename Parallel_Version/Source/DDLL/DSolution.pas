@@ -5,7 +5,7 @@ interface
 function SolutionI(mode:longint; arg: longint):longint; cdecl;
 function SolutionF(mode:longint; arg: double):double; cdecl;
 function SolutionS(mode:longint; arg: pAnsiChar):pAnsiChar; cdecl;
-procedure SolutionV(mode:longint; out arg: OleVariant); cdecl;
+procedure SolutionV(mode:longint; out arg: Variant); cdecl;
 
 implementation
 
@@ -460,7 +460,7 @@ begin
 end;
 
 //**********************************Variant type properties*******************************
-procedure SolutionV(mode:longint; out arg: OleVariant); cdecl;
+procedure SolutionV(mode:longint; out arg: Variant); cdecl;
 Var i:Integer;
 begin
   case mode of

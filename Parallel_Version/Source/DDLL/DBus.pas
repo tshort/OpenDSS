@@ -5,7 +5,7 @@ interface
 function BUSI(mode: longint; arg: longint): longint; cdecl;
 function BUSF(mode: longint; arg: double): double; cdecl;
 function BUSS(mode: longint; arg: pAnsiChar): pAnsiChar; cdecl;
-procedure BUSV(mode: longint; out arg: OleVariant); cdecl;
+procedure BUSV(mode: longint; out arg: Variant); cdecl;
 
 implementation
 
@@ -172,7 +172,7 @@ begin
   end;
 end;
 
-procedure BUSV(mode: longint; out arg: OleVariant); cdecl;
+procedure BUSV(mode: longint; out arg: Variant); cdecl;
 
 var
   Nvalues,i,  iV, NodeIdx, jj, NodeIdxj, NodeIdxi : Integer;

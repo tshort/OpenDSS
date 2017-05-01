@@ -6,7 +6,7 @@ uses
   Windows, ActiveX, Classes, ComObj;
 
 function CtrlQueueI(mode: longint; arg: longint):longint;cdecl;
-procedure CtrlQueueV(mode:longint; out arg: Olevariant);cdecl;
+procedure CtrlQueueV(mode:longint; out arg: Variant);cdecl;
 
 implementation
 
@@ -157,7 +157,7 @@ begin
   end;
 end;
 
-procedure CtrlQueueV(mode:longint; out arg: Olevariant);cdecl;
+procedure CtrlQueueV(mode:longint; out arg: Variant);cdecl;
 Var
   i     : integer;
   Qsize : integer;

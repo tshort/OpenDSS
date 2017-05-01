@@ -5,7 +5,7 @@ interface
 function PVsystemsI(mode:longint;arg:longint):longint;cdecl;
 function PVsystemsF(mode:longint;arg:double):double;cdecl;
 function PVsystemsS(mode:longint;arg:pAnsiChar):pAnsiChar;cdecl;
-procedure PVsystemsV(mode:longint;out arg:Olevariant);cdecl;
+procedure PVsystemsV(mode:longint;out arg:Variant);cdecl;
 
 implementation
 
@@ -235,7 +235,7 @@ begin
 end;
 
 //***************************Variant type properties*************************
-procedure PVsystemsV(mode:longint;out arg:Olevariant);cdecl;
+procedure PVsystemsV(mode:longint;out arg:Variant);cdecl;
 
 Var
   PVSystemElem:TPVSystemObj;

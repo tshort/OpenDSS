@@ -196,7 +196,9 @@ uses
   vccs in '..\PCElements\vccs.pas',
   MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
   Parallel_Lib in '..\Parallel_Lib\Parallel_Lib.pas',
-  DParallel in 'DParallel.pas';
+  DParallel in 'DParallel.pas',
+  ESPVLControl in '..\Controls\ESPVLControl.pas',
+  IndMach012 in '..\PCElements\IndMach012.pas';
 
 //**************************end of the functions*************************************
 exports
