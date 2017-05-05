@@ -18,10 +18,10 @@ type
     Copyright: TLabel;
     Comments: TLabel;
     OKButton: TButton;
-    EPRILogo: TImage;
     Label1: TLabel;
     LicenseText: TRichEdit;
     Image1: TImage;
+    EPRILogo: TImage;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
