@@ -723,7 +723,10 @@ Begin
 
              CASE iCase OF
                 1: SetNcondsForConnection;  // Force Reallocation of terminal info
-                propKW,propPF: SyncUpPowerQuantities;   // keep kvar nominal up to date with kW and PF
+                propKW,propPF: Begin
+                                 SyncUpPowerQuantities;   // keep kvar nominal up to date with kW and PF
+
+                               End;
 
         {Set loadshape objects;  returns nil If not valid}
                 propYEARLY: YearlyShapeObj := LoadShapeClass.Find(YearlyShape);
@@ -946,6 +949,7 @@ Begin
       {Output rating stuff}
      kW_out       := 25.0;
      kvar_out     := 0.0;
+     kvarBase     := kvar_out;     // initialize
      PFNominal    := 1.0;
      With StorageVars Do Begin
         kWRating     := 25.0;
@@ -1369,7 +1373,7 @@ Begin
     VBase95  := VMinPu * VBase;
     VBase105 := VMaxPu * VBase;
 
-    kvarBase := kvar_out ;  // remember this for Follow Mode
+   // removed 5/8/17 kvarBase := kvar_out ;  // remember this for Follow Mode
 
     // values in ohms for thevenin equivalents
     StorageVars.RThev := pctR * 0.01 * SQR(PresentkV)/StorageVars.kVARating * 1000.0;
@@ -2648,7 +2652,7 @@ Begin
           4:Result := 'kWIn';
           5:Result := 'Losses';
           6:Result := 'Idling';
-          7:Result := 'kWh Chg';
+          7:Result := 'kWh Chng';
       ELSE
           Begin
             If UserModel.Exists Then    // Checks for existence and Selects
@@ -2815,6 +2819,9 @@ Begin
             kvar_out := kW_out* sqrt(1.0/Sqr(PFNominal) - 1.0);
             If PFNominal<0.0 Then kvar_out := -kvar_out;
        End;
+
+     // 5-8-2017  moved this from recalcElementdata
+     kvarbase := kvar_out;   // remember for follow mode; synch up here
 End;
 
 //----------------------------------------------------------------------------
@@ -2824,8 +2831,6 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-
-
 
 initialization
 
