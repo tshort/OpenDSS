@@ -95,6 +95,7 @@ type
     function Get_YNodeVarray: OleVariant; safecall;
     function Get_PVSystems: IPVSystems; safecall;
     function Get_Vsources: IVsources; safecall;
+    function Get_LineCodes: ILineCodes; safecall;
 //    function Get_Loads: ILoads; safecall;  function ICircuit.Get_Loads = ICircuit_Get_Loads;
 
 //  function ICircuit_Get_Loads: IUnknown; safecall;
@@ -1202,6 +1203,11 @@ end;
 function TCircuit.Get_Vsources: IVsources;
 begin
      Result := FVsources as IVSources;
+end;
+
+function TCircuit.Get_LineCodes: ILineCodes;
+begin
+     Result := FLineCodes as ILineCodes;
 end;
 
 initialization

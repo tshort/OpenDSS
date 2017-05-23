@@ -211,7 +211,8 @@ uses
   MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
   ExpControl in '..\Controls\ExpControl.pas',
   ESPVLControl in '..\Controls\ESPVLControl.pas',
-  IndMach012 in '..\PCElements\IndMach012.pas';
+  IndMach012 in '..\PCElements\IndMach012.pas',
+  ImplLineCodes in 'ImplLineCodes.pas' {LineCodes: CoClass};
 
 exports
   DllGetClassObject,

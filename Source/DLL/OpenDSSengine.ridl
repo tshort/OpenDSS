@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 3/21/2017 3:13:17 PM (- $Rev: 12980 $, 533388375).
+// File generated on 5/22/2017 2:08:41 PM (- $Rev: 12980 $, 14075375).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -99,6 +99,8 @@ library OpenDSSengine
   coclass PVSystems;
   interface IVsources;
   coclass Vsources;
+  interface ILineCodes;
+  coclass LineCodes;
 
 
   [
@@ -622,6 +624,8 @@ library OpenDSSengine
     HRESULT _stdcall PVSystems([out, retval] IPVSystems** Value);
     [propget, id(0x000000ED), helpstring("Vsources object collection")]
     HRESULT _stdcall Vsources([out, retval] IVsources** Value);
+    [propget, id(0x000000EE), helpstring("Access the Linecodes library in this circuit")]
+    HRESULT _stdcall LineCodes([out, retval] ILineCodes** Value);
   };
 
   [
@@ -2780,6 +2784,82 @@ library OpenDSSengine
   };
 
   [
+    uuid(43140E77-9EA6-4156-A686-ABFAFFE8A059),
+    helpstring("Dispatch interface for LineCodes Object"),
+    dual,
+    oleautomation
+  ]
+  interface ILineCodes: IDispatch
+  {
+    [propget, id(0x000000C9), helpstring("Number of LineCodes")]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CA)]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CB)]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CC), helpstring("Name of active LineCode")]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000CC)]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000CD), helpstring("Flag denoting whether impedance data were entered in symmetrical components")]
+    HRESULT _stdcall IsZ1Z0([out, retval] VARIANT_BOOL* Value);
+    [propget, id(0x000000CE)]
+    HRESULT _stdcall Units([out, retval] long* Value);
+    [propput, id(0x000000CE)]
+    HRESULT _stdcall Units([in] long Value);
+    [propget, id(0x000000CF), helpstring("Number of Phases")]
+    HRESULT _stdcall Phases([out, retval] long* Value);
+    [propput, id(0x000000CF), helpstring("Number of Phases")]
+    HRESULT _stdcall Phases([in] long Value);
+    [propget, id(0x000000D1), helpstring("Positive-sequence resistance ohms per unit length")]
+    HRESULT _stdcall R1([out, retval] double* Value);
+    [propput, id(0x000000D1)]
+    HRESULT _stdcall R1([in] double Value);
+    [propget, id(0x000000D0), helpstring("Posiive-sequence reactance, ohms per unit length")]
+    HRESULT _stdcall X1([out, retval] double* Value);
+    [propput, id(0x000000D0)]
+    HRESULT _stdcall X1([in] double Value);
+    [propget, id(0x000000D2), helpstring("Zero-Sequence Resistance, ohms per unit length")]
+    HRESULT _stdcall R0([out, retval] double* Value);
+    [propput, id(0x000000D2)]
+    HRESULT _stdcall R0([in] double Value);
+    [propget, id(0x000000D3), helpstring("Zero Sequence Reactance, Ohms per unit length")]
+    HRESULT _stdcall X0([out, retval] double* Value);
+    [propput, id(0x000000D3)]
+    HRESULT _stdcall X0([in] double Value);
+    [propget, id(0x000000D4), helpstring("Positive-sequence capacitance, nF per unit length")]
+    HRESULT _stdcall C1([out, retval] double* Value);
+    [propput, id(0x000000D4)]
+    HRESULT _stdcall C1([in] double Value);
+    [propget, id(0x000000D5), helpstring("Zero-sequence capacitance, nF per unit length")]
+    HRESULT _stdcall C0([out, retval] double* Value);
+    [propput, id(0x000000D5)]
+    HRESULT _stdcall C0([in] double Value);
+    [propget, id(0x000000D6), helpstring("Resistance matrix, ohms per unit length")]
+    HRESULT _stdcall Rmatrix([out, retval] VARIANT* Value);
+    [propput, id(0x000000D6)]
+    HRESULT _stdcall Rmatrix([in] VARIANT Value);
+    [propget, id(0x000000D7), helpstring("Reactance matrix, ohms per unit length")]
+    HRESULT _stdcall Xmatrix([out, retval] VARIANT* Value);
+    [propput, id(0x000000D7)]
+    HRESULT _stdcall Xmatrix([in] VARIANT Value);
+    [propget, id(0x000000D8), helpstring("Capacitance matrix, nF per unit length")]
+    HRESULT _stdcall Cmatrix([out, retval] VARIANT* Value);
+    [propput, id(0x000000D8)]
+    HRESULT _stdcall Cmatrix([in] VARIANT Value);
+    [propget, id(0x000000D9), helpstring("Normal Ampere rating")]
+    HRESULT _stdcall NormAmps([out, retval] double* Value);
+    [propput, id(0x000000D9)]
+    HRESULT _stdcall NormAmps([in] double Value);
+    [propget, id(0x000000DA), helpstring("Emergency ampere rating")]
+    HRESULT _stdcall EmergAmps([out, retval] double* Value);
+    [propput, id(0x000000DA)]
+    HRESULT _stdcall EmergAmps([in] double Value);
+    [propget, id(0x000000DB), helpstring("Variant array of strings with names of all devices")]
+    HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -3170,6 +3250,15 @@ library OpenDSSengine
   coclass Vsources
   {
     [default] interface IVsources;
+  };
+
+  [
+    uuid(B6120B3A-7958-4650-AC18-2A53E89209A8),
+    helpstring("LineCodes Object")
+  ]
+  coclass LineCodes
+  {
+    [default] interface ILineCodes;
   };
 
 };

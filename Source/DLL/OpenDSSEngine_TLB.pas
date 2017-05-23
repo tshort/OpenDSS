@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 3/21/2017 3:13:15 PM from Type Library described below.
+// File generated on 5/22/2017 1:50:56 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -131,6 +131,8 @@ const
   CLASS_PVSystems: TGUID = '{D8D7592D-D5CD-4E27-870D-00D654DF2D3C}';
   IID_IVsources: TGUID = '{8DCD1962-268B-40E1-B49E-B7C01C3E07CD}';
   CLASS_Vsources: TGUID = '{0823B8BD-AD34-452B-974A-F46BA25D49EA}';
+  IID_ILineCodes: TGUID = '{43140E77-9EA6-4156-A686-ABFAFFE8A059}';
+  CLASS_LineCodes: TGUID = '{B6120B3A-7958-4650-AC18-2A53E89209A8}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -331,6 +333,8 @@ type
   IPVSystemsDisp = dispinterface;
   IVsources = interface;
   IVsourcesDisp = dispinterface;
+  ILineCodes = interface;
+  ILineCodesDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -375,6 +379,7 @@ type
   DSSimComs = IDSSimComs;
   PVSystems = IPVSystems;
   Vsources = IVsources;
+  LineCodes = ILineCodes;
 
 
 // *********************************************************************//
@@ -688,6 +693,7 @@ type
     function Get_YCurrents: OleVariant; safecall;
     function Get_PVSystems: IPVSystems; safecall;
     function Get_Vsources: IVsources; safecall;
+    function Get_LineCodes: ILineCodes; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -746,6 +752,7 @@ type
     property YCurrents: OleVariant read Get_YCurrents;
     property PVSystems: IPVSystems read Get_PVSystems;
     property Vsources: IVsources read Get_Vsources;
+    property LineCodes: ILineCodes read Get_LineCodes;
   end;
 
 // *********************************************************************//
@@ -830,6 +837,7 @@ type
     property YCurrents: OleVariant readonly dispid 235;
     property PVSystems: IPVSystems readonly dispid 236;
     property Vsources: IVsources readonly dispid 237;
+    property LineCodes: ILineCodes readonly dispid 238;
   end;
 
 // *********************************************************************//
@@ -3493,6 +3501,95 @@ type
   end;
 
 // *********************************************************************//
+// Interface: ILineCodes
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {43140E77-9EA6-4156-A686-ABFAFFE8A059}
+// *********************************************************************//
+  ILineCodes = interface(IDispatch)
+    ['{43140E77-9EA6-4156-A686-ABFAFFE8A059}']
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_IsZ1Z0: WordBool; safecall;
+    function Get_Units: Integer; safecall;
+    procedure Set_Units(Value: Integer); safecall;
+    function Get_Phases: Integer; safecall;
+    procedure Set_Phases(Value: Integer); safecall;
+    function Get_R1: Double; safecall;
+    procedure Set_R1(Value: Double); safecall;
+    function Get_X1: Double; safecall;
+    procedure Set_X1(Value: Double); safecall;
+    function Get_R0: Double; safecall;
+    procedure Set_R0(Value: Double); safecall;
+    function Get_X0: Double; safecall;
+    procedure Set_X0(Value: Double); safecall;
+    function Get_C1: Double; safecall;
+    procedure Set_C1(Value: Double); safecall;
+    function Get_C0: Double; safecall;
+    procedure Set_C0(Value: Double); safecall;
+    function Get_Rmatrix: OleVariant; safecall;
+    procedure Set_Rmatrix(Value: OleVariant); safecall;
+    function Get_Xmatrix: OleVariant; safecall;
+    procedure Set_Xmatrix(Value: OleVariant); safecall;
+    function Get_Cmatrix: OleVariant; safecall;
+    procedure Set_Cmatrix(Value: OleVariant); safecall;
+    function Get_NormAmps: Double; safecall;
+    procedure Set_NormAmps(Value: Double); safecall;
+    function Get_EmergAmps: Double; safecall;
+    procedure Set_EmergAmps(Value: Double); safecall;
+    function Get_AllNames: OleVariant; safecall;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property Name: WideString read Get_Name write Set_Name;
+    property IsZ1Z0: WordBool read Get_IsZ1Z0;
+    property Units: Integer read Get_Units write Set_Units;
+    property Phases: Integer read Get_Phases write Set_Phases;
+    property R1: Double read Get_R1 write Set_R1;
+    property X1: Double read Get_X1 write Set_X1;
+    property R0: Double read Get_R0 write Set_R0;
+    property X0: Double read Get_X0 write Set_X0;
+    property C1: Double read Get_C1 write Set_C1;
+    property C0: Double read Get_C0 write Set_C0;
+    property Rmatrix: OleVariant read Get_Rmatrix write Set_Rmatrix;
+    property Xmatrix: OleVariant read Get_Xmatrix write Set_Xmatrix;
+    property Cmatrix: OleVariant read Get_Cmatrix write Set_Cmatrix;
+    property NormAmps: Double read Get_NormAmps write Set_NormAmps;
+    property EmergAmps: Double read Get_EmergAmps write Set_EmergAmps;
+    property AllNames: OleVariant read Get_AllNames;
+  end;
+
+// *********************************************************************//
+// DispIntf:  ILineCodesDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {43140E77-9EA6-4156-A686-ABFAFFE8A059}
+// *********************************************************************//
+  ILineCodesDisp = dispinterface
+    ['{43140E77-9EA6-4156-A686-ABFAFFE8A059}']
+    property Count: Integer readonly dispid 201;
+    property First: Integer readonly dispid 202;
+    property Next: Integer readonly dispid 203;
+    property Name: WideString dispid 204;
+    property IsZ1Z0: WordBool readonly dispid 205;
+    property Units: Integer dispid 206;
+    property Phases: Integer dispid 207;
+    property R1: Double dispid 209;
+    property X1: Double dispid 208;
+    property R0: Double dispid 210;
+    property X0: Double dispid 211;
+    property C1: Double dispid 212;
+    property C0: Double dispid 213;
+    property Rmatrix: OleVariant dispid 214;
+    property Xmatrix: OleVariant dispid 215;
+    property Cmatrix: OleVariant dispid 216;
+    property NormAmps: Double dispid 217;
+    property EmergAmps: Double dispid 218;
+    property AllNames: OleVariant readonly dispid 219;
+  end;
+
+// *********************************************************************//
 // The Class CoText provides a Create and CreateRemote method to
 // create instances of the default interface IText exposed by
 // the CoClass Text. The functions are intended to be used by
@@ -3960,6 +4057,18 @@ type
     class function CreateRemote(const MachineName: string): IVsources;
   end;
 
+// *********************************************************************//
+// The Class CoLineCodes provides a Create and CreateRemote method to
+// create instances of the default interface ILineCodes exposed by
+// the CoClass LineCodes. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoLineCodes = class
+    class function Create: ILineCodes;
+    class function CreateRemote(const MachineName: string): ILineCodes;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -4352,6 +4461,16 @@ end;
 class function CoVsources.CreateRemote(const MachineName: string): IVsources;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_Vsources) as IVsources;
+end;
+
+class function CoLineCodes.Create: ILineCodes;
+begin
+  Result := CreateComObject(CLASS_LineCodes) as ILineCodes;
+end;
+
+class function CoLineCodes.CreateRemote(const MachineName: string): ILineCodes;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_LineCodes) as ILineCodes;
 end;
 
 end.
