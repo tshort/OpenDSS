@@ -132,6 +132,8 @@ TYPE
         property LineCodeSpecified: Boolean read FLineCodeSpecified;
         Property PhaseChoice: ConductorChoice Read FPhaseChoice;
 
+        Property UnitsConvert: Double read FUnitsConvert;  // conversion to present Line units
+
         Property NumConductorsAvailable:Integer read NumConductorData;
         Property ConductorData[i:Integer]:TConductorDataObj read FetchConductorData;
    end;
