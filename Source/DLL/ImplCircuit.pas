@@ -725,7 +725,8 @@ Var
    iV               :LongWord;
    i,j,p            :LongWord;
    NValues          :LongWord;
-   hY, nBus, nNZ    :LongWord;
+   hY               :NativeUint;
+   nBus, nNZ        :LongWord;
    ColPtr, RowIdx   :array of LongWord;
    cVals            :array of Complex;
 
