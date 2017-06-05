@@ -290,7 +290,7 @@ End;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function RCDSUM( Data:Pointer; Count:Integer): Extended; register;
 
-{$IFDEF CPUX64}
+{$IF (Defined(CPUX64) or Defined(Darwin))}
 
 begin
   Result := 0.0;
@@ -357,7 +357,7 @@ BEGIN
     StdDev := Data^[1];
     Exit;
   end;
-{$IFDEF CPUX64}
+{$IF (Defined(CPUX64) or Defined(Darwin))}
   Mean := 0.0;
   for i := 1 to NData do Mean := Mean + Data^[i];
   Mean := Mean / Ndata;
