@@ -86,7 +86,7 @@ TYPE
 
 implementation
 
-Uses Generator, DSSGlobals, Windows, Sysutils;
+Uses Generator, DSSGlobals, {$IFDEF FPC}dynlibs{$ELSE}Windows{$ENDIF}, Sysutils;
 
 { TGenUserModel }
 

@@ -79,7 +79,7 @@ TYPE
 
 implementation
 
-Uses  DSSGlobals, Windows, Sysutils;
+Uses  DSSGlobals, {$IFDEF FPC}dynlibs{$ELSE}Windows{$ENDIF}, Sysutils;
 
 { TCapUserControl }
 

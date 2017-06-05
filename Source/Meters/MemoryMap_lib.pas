@@ -21,13 +21,17 @@ procedure Write_String(Mem_Space : TBytesStream; const Content : string);
 
 implementation
 
-uses windows,
+uses {$IFNDEF FPC}windows,{$ENDIF}
      sysutils,
      math,
      Dialogs,
      DSSGlobals;
 type
     TByteArr  = array of uint8;
+var
+  wordBuf: Word;
+// $01A0 is Header for identifying String type data
+// $02A0 is Header for identifying Double type data
 //******************************************************************************
 // Creates a new BytesStream for the caller
 // Returns the handler to handle the new memory space
@@ -37,7 +41,12 @@ var
   Mem_Space : TBytesStream;
 begin
   Mem_Space :=  TBytesStream.Create();
-  Mem_Space.WriteData($01A0);   // Header for identifying String type data
+{$IFNDEF FPC}
+  Mem_Space.WriteData($01A0);
+{$ELSE}
+  wordBuf := $01A0;
+  Mem_Space.Write(wordBuf,2);
+{$ENDIF};
   Write_String(Mem_Space, Init_Str);
   Result  :=  Mem_Space;
 end;
@@ -46,7 +55,12 @@ end;
 //******************************************************************************
 procedure WriteintoMemStr(Mem_Space : TBytesStream; Content: string); overload;
 begin
-  Mem_Space.WriteData($01A0);   // Header for identifying String type data
+{$IFNDEF FPC}
+  Mem_Space.WriteData($01A0);
+{$ELSE}
+  wordBuf := $01A0;
+  Mem_Space.Write(wordBuf,2);
+{$ENDIF};
   Write_String(Mem_Space, Content);
 end;
 //******************************************************************************
@@ -54,8 +68,14 @@ end;
 //******************************************************************************
 procedure WriteintoMem(Mem_Space : TBytesStream; Content: Double); overload;
 begin
-  Mem_Space.WriteData($02A0);   // Header for identifying a double type data
+{$IFNDEF FPC}
+  Mem_Space.WriteData($02A0);
   Mem_Space.WriteData(Content);
+{$ELSE}
+  wordBuf := $02A0;
+  Mem_Space.Write(wordBuf,2);
+  Mem_Space.Write(Content, sizeof(double));
+{$ENDIF};
 end;
 //******************************************************************************
 // Saves the content of the BytesStream into the specified file path
@@ -133,7 +153,11 @@ begin
                   end;
             end;
             2 : begin        // Is a Double
+              {$IFNDEF FPC}
                     Mem_Space.ReadData(TVariableDbl,8);
+              {$ELSE}
+                    Mem_Space.Read(TVariableDbl,sizeof(double));
+              {$ENDIF}
                     idx :=  idx + 7;
                     if Fhead then Fhead :=  False
                     else write(F,', ');
@@ -164,9 +188,12 @@ Begin
 
 {  Str_Sz  :=  length(Content)-1;
   For idx := 0 to Str_Sz do Mem_Space.WriteData(Content[idx+1]);}
-
+{$IFNDEF FPC}
   For idx := 1 to length(Content) do Mem_Space.WriteData(Content[idx]);
-
+{$ELSE}
+  For idx := 1 to length(Content) do
+      Mem_Space.Write(Content[idx],Length(Content[idx])); // TODO - verify AnsiString vs. unicode
+{$ENDIF}
 End;
 
 end.

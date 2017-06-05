@@ -22,7 +22,7 @@ unit Isource;
 
 interface
 
-USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum, StdVcl, Loadshape;
+USES DSSClass, PCClass,PCElement, ucmatrix, ucomplex, Spectrum, Loadshape;
 
 TYPE
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

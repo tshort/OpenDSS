@@ -46,8 +46,8 @@ implementation
 Uses uComplex,  Arraydef,  sysutils, Circuit, DSSClass, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution,  CktElement, Utilities, Bus, MathUtil,
      PDElement, PCElement, Generator, Transformer, EnergyMeter, Load, RegControl,
-     ParserDel, CktTree,   DSSForms, Math, Line, LineUnits, LineGeometry, YMatrix,
-     SwtControl, KLUSolve;
+     ParserDel, CktTree,   {$IFDEF FPC} CmdForms,{$ELSE} DSSForms,{$ENDIF}
+     Math, Line, LineUnits, LineGeometry, YMatrix, SwtControl, KLUSolve;
 
 VAR
    MaxBusNameLength :Integer;

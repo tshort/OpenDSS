@@ -12,8 +12,8 @@ unit ExpControl;
 INTERFACE
 
   uses
-    System.Generics.Collections, Command, ControlClass, ControlElem,
-    CktElement, DSSClass, PVSystem, Arraydef, ucomplex,
+    {$IFDEF FPC}gqueue{$ELSE}System.Generics.Collections{$ENDIF}, Command,
+    ControlClass, ControlElem, CktElement, DSSClass, PVSystem, Arraydef, ucomplex,
     utilities, Dynamics, PointerList, Classes, StrUtils;
 
   type
@@ -503,7 +503,7 @@ BEGIN
       ActiveCircuit.Solution.LoadsNeedUpdating := TRUE;
       // Force recalc of power parms
       Set_PendingChange(NONE,i);
-    end
+    end
   end;
 
 end;
@@ -551,11 +551,11 @@ begin
           ControlActionHandle := ActiveCircuit.ControlQueue.Push (intHour, t + TimeDelay, PendingChange[i], 0, Self);
         If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+' '+PVSys.Name, Format
           (' outside Hit Tolerance, Verr= %.5g, Qerr=%.5g', [Verr,Qerr]));
-      end else begin
+      end else begin
         FWithinTol[i] := True;
         If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+' '+PVSys.Name, Format
           (' within Hit Tolerance, Verr= %.5g, Qerr=%.5g', [Verr,Qerr]));
-      end;
+      end;
     end;  {For}
   end; {If FlistSize}
 end;
@@ -696,7 +696,7 @@ begin
     PVSys := ControlledElement[j];
     if FVregTau > 0.0 then begin
       dt :=  ActiveCircuit.Solution.Dynavars.h;
-      Verr := FPresentVpu[j] - FVregs[j];
+      Verr := FPresentVpu[j] - FVregs[j];
       FVregs[j] := FVregs[j] + Verr * (1 - Exp (-dt / FVregTau));
     end else begin
       Verr := 0.0;

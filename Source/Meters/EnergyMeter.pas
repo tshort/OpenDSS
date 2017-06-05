@@ -380,7 +380,7 @@ VAR
 implementation
 USES  ParserDel, DSSClassDefs, DSSGlobals, Bus, Sysutils, MathUtil,  UCMatrix,
       Utilities, PCElement,  StackDef, Circuit, Line, LineUnits,
-      Classes, ReduceAlgs, Windows, Math, MemoryMap_Lib;
+      Classes, ReduceAlgs, {$IFNDEF FPC}Windows,{$ENDIF} Math, MemoryMap_Lib;
 
 Const NumPropsThisClass = 24;
 

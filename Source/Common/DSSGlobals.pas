@@ -21,7 +21,7 @@ unit DSSGlobals;
 interface
 
 Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerList,
-     UComplex, Arraydef, CktElement, Circuit, IniRegSave, Graphics,
+     UComplex, Arraydef, CktElement, Circuit, IniRegSave, {$IFNDEF FPC}Graphics,{$ENDIF}
 
      {Some units which have global vars defined here}
      Spectrum,
@@ -167,7 +167,7 @@ VAR
    DefaultEditor    :String;     // normally, Notepad
    DefaultFontSize  :Integer;
    DefaultFontName  :String;
-   DefaultFontStyles :TFontStyles;
+   DefaultFontStyles :{$IFNDEF FPC}TFontStyles{$ELSE}Integer{$ENDIF};
    DSSFileName      :String;     // Name of current exe or DLL
    DSSDirectory     :String;     // where the current exe resides
    StartupDirectory :String;     // Where we started
@@ -252,10 +252,12 @@ implementation
 
 USES  {Forms,   Controls,}
      SysUtils,
-     Windows,
-     DSSForms,
+     {$IFDEF FPC}
+     resource, versiontypes, versionresource, dynlibs, CmdForms,
+     {$ELSE}
+     Windows, DSSForms, SHFolder,
+     {$ENDIF}
      Solution,
-     SHFolder,
      Executive;
      {Intrinsic Ckt Elements}
 
@@ -271,6 +273,27 @@ VAR
    LastUserDLLHandle: THandle;
    DSSRegisterProc:TDSSRegister;   // of last library loaded
 
+{$IFDEF FPC}
+FUNCTION GetDefaultDataDirectory: String;
+Begin
+{$IFDEF UNIX}
+  Result := GetEnvironmentVariable('HOME') + '/Documents';
+{$ENDIF}
+{$IF (defined(Windows) or defined(MSWindows))}
+  Result := GetEnvironmentVariable('HOMEDRIVE') + GetEnvironmentVariable('HOMEPATH') + '\Documents';
+{$ENDIF}
+end;
+
+FUNCTION GetDefaultScratchDirectory: String;
+Begin
+  {$IFDEF UNIX}
+  Result := '/tmp';
+  {$ENDIF}
+  {$IF (defined(Windows) or defined(MSWindows))}
+  Result := GetEnvironmentVariable('LOCALAPPDATA');
+  {$ENDIF}
+End;
+{$ELSE}
 FUNCTION GetDefaultDataDirectory: String;
 Var
   ThePath:Array[0..MAX_PATH] of char;
@@ -288,6 +311,7 @@ Begin
   SHGetFolderPath (0, CSIDL_LOCAL_APPDATA, 0, 0, ThePath);
   Result := ThePath;
 End;
+{$ENDIF}
 
 function GetOutputDirectory:String;
 begin
@@ -515,17 +539,50 @@ Begin
 End;
 
 
+{$IFDEF FPC}
+FUNCTION GetDSSVersion: String;
+(* Unlike most of AboutText (below), this takes significant activity at run-    *)
+ (* time to extract version/release/build numbers from resource information      *)
+ (* appended to the binary.                                                      *)
 
+ VAR     Stream: TResourceStream;
+         vr: TVersionResource;
+         fi: TVersionFixedInfo;
+
+ BEGIN
+   RESULT:= 'Unknown.';
+   TRY
+
+ (* This raises an exception if version info has not been incorporated into the  *)
+ (* binary (Lazarus Project -> Project Options -> Version Info -> Version        *)
+ (* numbering).                                                                  *)
+
+     Stream:= TResourceStream.CreateFromID(HINSTANCE, 1, PChar(RT_VERSION));
+     TRY
+       vr:= TVersionResource.Create;
+       TRY
+         vr.SetCustomRawDataStream(Stream);
+         fi:= vr.FixedInfo;
+         RESULT := 'Version ' + IntToStr(fi.FileVersion[0]) + '.' + IntToStr(fi.FileVersion[1]) +
+                ' release ' + IntToStr(fi.FileVersion[2]) + ' build ' + IntToStr(fi.FileVersion[3]) + LineEnding;
+         vr.SetCustomRawDataStream(nil)
+       FINALLY
+         vr.Free
+       END
+     FINALLY
+       Stream.Free
+     END
+   EXCEPT
+   END
+ End;
+{$ELSE}
 FUNCTION GetDSSVersion: String;
 var
-
   InfoSize, Wnd: DWORD;
   VerBuf: Pointer;
   FI: PVSFixedFileInfo;
   VerSize: DWORD;
   MajorVer, MinorVer, BuildNo, RelNo :DWORD;
-
-
 Begin
     Result := 'Unknown.' ;
 
@@ -546,9 +603,8 @@ Begin
         FreeMem(VerBuf);
       end;
     end;
-
 End;
-
+{$ENDIF}
 
 PROCEDURE WriteDLLDebugFile(Const S:String);
 
@@ -570,7 +626,7 @@ var
   TempFile: array[0..MAX_PATH] of Char;
 begin
   if GetTempFileName(PChar(Dir), 'DA', 0, TempFile) <> 0 then
-    Result := Windows.DeleteFile(TempFile)
+    {$IFDEF FPC}Result := DeleteFile(TempFile){$ELSE}Result := Windows.DeleteFile(TempFile){$ENDIF}
   else
     Result := False;
 end;
@@ -593,14 +649,24 @@ BEGIN
   // Put a \ on the end if not supplied. Allow a null specification.
   If Length(DataDirectory) > 0 Then Begin
     ChDir(DataDirectory);   // Change to specified directory
+    {$IF (defined(Windows) or defined(MSWindows))}
     If DataDirectory[Length(DataDirectory)] <> '\' Then DataDirectory := DataDirectory + '\';
+    {$ENDIF}
+    {$IFDEF UNIX}
+    If DataDirectory[Length(DataDirectory)] <> '/' Then DataDirectory := DataDirectory + '/';
+    {$ENDIF}
   End;
 
   // see if DataDirectory is writable. If not, set OutputDirectory to the user's appdata
   if IsDirectoryWritable(DataDirectory) then begin
     OutputDirectory := DataDirectory;
   end else begin
+    {$IF (defined(Windows) or defined(MSWindows))}
     ScratchPath := GetDefaultScratchDirectory + '\' + ProgramName + '\';
+    {$ENDIF}
+    {$IFDEF UNIX}
+    ScratchPath := GetDefaultScratchDirectory + '/' + ProgramName + '/';
+    {$ENDIF}
     if not DirectoryExists(ScratchPath) then CreateDir(ScratchPath);
     OutputDirectory := ScratchPath;
   end;
@@ -610,12 +676,28 @@ PROCEDURE ReadDSS_Registry;
 Var  TestDataDirectory:string;
 Begin
   DSS_Registry.Section := 'MainSect';
-  DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
-  DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '8' ));
-  DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'MS Sans Serif' );
-  DefaultFontStyles := [];
-  If DSS_Registry.ReadBool('ScriptFontBold', TRUE)    Then DefaultFontStyles := DefaultFontStyles + [fsbold];
-  If DSS_Registry.ReadBool('ScriptFontItalic', FALSE) Then DefaultFontStyles := DefaultFontStyles + [fsItalic];
+  {$IFDEF Darwin}
+     DefaultEditor    := DSS_Registry.ReadString('Editor', 'open -t');
+     DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '12'));
+     DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'Geneva');
+  {$ENDIF}
+  {$IFDEF Linux}
+     DefaultEditor    := DSS_Registry.ReadString('Editor', 'xdg-open');
+     DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '10'));
+     DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'Arial');
+  {$ENDIF}
+  {$IF (defined(Windows) or defined(MSWindows))}
+     DefaultEditor    := DSS_Registry.ReadString('Editor', 'Notepad.exe' );
+     DefaultFontSize  := StrToInt(DSS_Registry.ReadString('ScriptFontSize', '8' ));
+     DefaultFontName  := DSS_Registry.ReadString('ScriptFontName', 'MS Sans Serif' );
+  {$ENDIF}
+  {$IFDEF FPC}
+     DefaultFontStyles := 1;
+  {$ELSE}
+     DefaultFontStyles := [];
+     If DSS_Registry.ReadBool('ScriptFontBold', TRUE)    Then DefaultFontStyles := DefaultFontStyles + [fsbold];
+     If DSS_Registry.ReadBool('ScriptFontItalic', FALSE) Then DefaultFontStyles := DefaultFontStyles + [fsItalic];
+  {$ENDIF}
   DefaultBaseFreq  := StrToInt(DSS_Registry.ReadString('BaseFrequency', '60' ));
   LastFileCompiled := DSS_Registry.ReadString('LastFile', '' );
   TestDataDirectory :=   DSS_Registry.ReadString('DataPath', DataDirectory);
@@ -631,8 +713,8 @@ Begin
       DSS_Registry.WriteString('Editor',        DefaultEditor);
       DSS_Registry.WriteString('ScriptFontSize', Format('%d',[DefaultFontSize]));
       DSS_Registry.WriteString('ScriptFontName', Format('%s',[DefaultFontName]));
-      DSS_Registry.WriteBool('ScriptFontBold',   (fsBold in DefaultFontStyles));
-      DSS_Registry.WriteBool('ScriptFontItalic', (fsItalic in DefaultFontStyles));
+      DSS_Registry.WriteBool('ScriptFontBold', {$IFDEF FPC}False{$ELSE}(fsBold in DefaultFontStyles){$ENDIF});
+      DSS_Registry.WriteBool('ScriptFontItalic', {$IFDEF FPC}False{$ELSE}(fsItalic in DefaultFontStyles){$ENDIF});
       DSS_Registry.WriteString('BaseFrequency', Format('%d',[Round(DefaultBaseFreq)]));
       DSS_Registry.WriteString('LastFile',      LastFileCompiled);
       DSS_Registry.WriteString('DataPath', DataDirectory);
@@ -693,6 +775,7 @@ End;
 initialization
 
    {Various Constants and Switches}
+   {$IFDEF FPC}NoFormsAllowed  := TRUE;{$ENDIF}
 
    CALPHA                := Cmplx(-0.5, -0.866025); // -120 degrees phase shift
    SQRT2                 := Sqrt(2.0);
@@ -724,7 +807,11 @@ initialization
 
    {Initialize filenames and directories}
 
+   {$IFDEF FPC}
+   ProgramName      := 'OpenDSSCmd';  // for now...
+   {$ELSE}
    ProgramName      := 'OpenDSS';
+   {$ENDIF}
    DSSFileName      := GetDSSExeFile;
    DSSDirectory     := ExtractFilePath(DSSFileName);
    // want to know if this was built for 64-bit, not whether running on 64 bits
@@ -734,17 +821,43 @@ initialization
 {$ELSE ! CPUX86}
    VersionString    := 'Version ' + GetDSSVersion + ' (32-bit build)';
 {$ENDIF}
+
+{$IFNDEF FPC}
    StartupDirectory := GetCurrentDir+'\';
    SetDataPath (GetDefaultDataDirectory + '\' + ProgramName + '\');
-
    DSS_Registry     := TIniRegSave.Create('\Software\' + ProgramName);
+{$ELSE}
+{$IFDEF WINDOWS} // deliberately different from MSWindows (Delphi)
+        StartupDirectory := GetCurrentDir+'\';
+        SetDataPath (GetDefaultDataDirectory + '\' + ProgramName + '\');
+        DSS_Registry     := TIniRegSave.Create(DataDirectory + 'opendsscmd.ini');
+{$ENDIF}
+{$IFDEF UNIX}
+        StartupDirectory := GetCurrentDir+'/';
+        SetDataPath (GetDefaultDataDirectory + '/' + ProgramName + '/');
+        DSS_Registry     := TIniRegSave.Create(DataDirectory + 'opendsscmd.ini');
+{$ENDIF}
+{$ENDIF}
 
    AuxParser        := TParser.Create;
-   DefaultEditor    := 'NotePad';
-   DefaultFontSize  := 8;
-   DefaultFontName  := 'MS Sans Serif';
 
-   NoFormsAllowed   := FALSE;
+   {$IFDEF Darwin}
+      DefaultEditor   := 'open -t';
+      DefaultFontSize := 12;
+      DefaultFontName := 'Geneva';
+   {$ENDIF}
+   {$IFDEF Linux}
+      DefaultEditor   := 'xdg-open';
+      DefaultFontSize := 10;
+      DefaultFontName := 'Arial';
+   {$ENDIF}
+   {$IF (defined(Windows) or defined(MSWindows))}
+      DefaultEditor   := 'NotePad.exe';
+      DefaultFontSize := 8;
+      DefaultFontName := 'MS Sans Serif';
+   {$ENDIF}
+
+   {$IFNDEF FPC}NoFormsAllowed   := FALSE;{$ENDIF}
 
    EventStrings     := TStringList.Create;
    SavedFileList    := TStringList.Create;
@@ -754,7 +867,11 @@ initialization
    LogQueries       := FALSE;
    QueryLogFileName := '';
    UpdateRegistry   := TRUE;
+   {$IFDEF FPC}
+   CPU_Freq := 1000; // until we can query it
+   {$ELSE}
    QueryPerformanceFrequency(CPU_Freq);
+   {$ENDIF}
    CPU_Cores        :=  CPUCount;
 
 

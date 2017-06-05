@@ -27,8 +27,10 @@ PROCEDURE ProcessCommand(Const CmdLine:String);
 
 implementation
 
-Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions,  PlotOptions,
-     ExportOptions, ParserDel, LoadShape, DSSForms, sysutils, Utilities, SolutionAlgs;
+Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions,
+     ExportOptions, ParserDel, LoadShape,
+     {$IFDEF FPC} CmdForms,{$ELSE} PlotOptions, DSSForms,{$ENDIF}
+     sysutils, Utilities, SolutionAlgs;
 
 
 PROCEDURE DefineCommands;
@@ -592,7 +594,11 @@ Begin
         9: CmdResult := DoSetCmd(1);  // changed from DoSolveCmd; //'solve';
        10: CmdResult := DoEnableCmd;
        11: CmdResult := DoDisableCmd;
+       {$IFNDEF FPC}
        12: CmdResult := DoPlotCmd; //'plot';
+       {$ELSE}
+       12: begin DSSInfoMessageDlg ('Plotting not supported in FPC version');CmdResult := 0; end;
+       {$ENDIF}
        13: CmdResult := DoResetCmd; //'resetmonitors';
        15: CmdResult := DoSetCmd(0);  //'set WITH no solve'
        16: CmdResult := DoPropertyDump;

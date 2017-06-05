@@ -62,7 +62,7 @@ Procedure ExportErrorLog(FileNm:String);
 
 IMPLEMENTATION
 
-Uses uComplex,  Arraydef, System.sysutils,   Circuit, DSSClassDefs, DSSGlobals,
+Uses uComplex,  Arraydef, Sysutils,   Circuit, DSSClassDefs, DSSGlobals,
      uCMatrix,  solution, CktElement, Utilities, Bus, MathUtil, DSSClass,
      PDElement, PCElement, Generator,  Sensor, Load, RegControl, Transformer,
      ParserDel, Math, Ymatrix, LineGeometry, WireData, LineCode, XfmrCode, NamedObject,
@@ -81,7 +81,7 @@ Begin
   Nterm := pElem.Nterms;
   k:=0;
   BusName := (StripExtension(pElem.FirstBus));
-  Write(F, System.Sysutils.Format('%s.%s',[pElem.DSSClassName, pElem.Name]));
+  Write(F, Format('%s.%s',[pElem.DSSClassName, pElem.Name]));
 
 
   Write(F, Format(',%d',[NTerm]));

@@ -130,7 +130,7 @@ TYPE
 
 implementation
 
-Uses Storage, DSSGlobals, Windows, Sysutils;
+Uses Storage, DSSGlobals, {$IFDEF FPC}dynlibs{$ELSE}Windows{$ENDIF}, Sysutils;
 
 { TStoreUserModel }
 

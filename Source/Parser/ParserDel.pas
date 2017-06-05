@@ -18,7 +18,8 @@ unit ParserDel;
 interface
 
 Uses
-    Arraydef, classes,{controls,} DSSForms, Sysutils, RPN, HashList;
+    Arraydef, classes,{controls,} {$IFDEF FPC} CmdForms,{$ELSE} DSSForms,{$ENDIF}
+    Sysutils, RPN, HashList;
 
 
 
@@ -112,7 +113,7 @@ Type
 
 implementation
 
-Uses  Dialogs;
+{$IFNDEF FPC}Uses  Dialogs;{$ENDIF}
 
 CONST
   Commentchar = '!';

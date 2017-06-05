@@ -71,21 +71,26 @@ VAR
    TOP_Object      :Variant;  // For Top Automation
 
 implementation
-
+{$IFNDEF FPC}
 Uses ComObj, SysUtils, AnsiStrings, Dialogs, ActiveX, DSSGlobals;
+{$ELSE}
+Uses SysUtils, DSSGlobals, CmdForms;
+{$ENDIF}
 Var
   TOP_Inited:Boolean;
 
 Procedure StartTop;
 
 Begin
+{$IFNDEF FPC}
   TOP_Object := CreateOleObject('TOP2000.MAIN');
   TOP_Inited := TRUE;
+{$ENDIF}
 End;
 
 Procedure TOutFile32.SendToTop;
 Begin
-
+{$IFNDEF FPC}
   TRY
      If NOT TOP_Inited Then StartTop;
 
@@ -106,7 +111,9 @@ Begin
 
         On E:Exception Do ShowMessage('Error Connecting to TOP: '+E.Message);
   End;
-
+{$ELSE}
+  DSSInfoMessageDlg ('TOP Export (COM Interface) is not supported in FPC version');
+{$ENDIF}
 End;
 
 
@@ -120,9 +127,7 @@ END;
 
 Procedure TOutFile32.Close;
 BEGIN
-
-     System.CloseFile(Fout);  {Close the output file}
-
+     CloseFile(Fout);  {Close the output file}
 END;
 
 Procedure TOutFile32.WriteHeader(const t_start, t_stop, h:Double; const NV, NI,NameSize:Integer; const Title:AnsiString);
@@ -258,6 +263,8 @@ Initialization
     TOPTransferFile:= TOutFile32.Create;
     TOPTransferFile.Fname := 'DSSTransfer.STO';
 
+{$IFNDEF FPC}
     CoInitialize(Nil);
+{$ENDIF}
 end.
 

@@ -89,7 +89,7 @@ implementation
 USES ExecCommands, ExecOptions,
      {ExecHelper,} DSSClassDefs, DSSGlobals, ParserDel,  SysUtils,
      Utilities, Solution, DSSClass, IniRegSave,
-     DSSForms;
+     {$IFDEF FPC} CmdForms{$ELSE} DSSForms{$ENDIF};
 
 
 //----------------------------------------------------------------------------
@@ -228,8 +228,9 @@ begin
           RebuildHelpForm := True; // because class strings have changed
        End;
 
+{$IFNDEF FPC}
        If Not IsDLL Then ControlPanel.UpdateElementBox ;
-
+{$ENDIF}
        {Prepare for new variables}
        ParserVars.Free;
        ParserVars := TParserVar.Create(100);  // start with space for 100 variables

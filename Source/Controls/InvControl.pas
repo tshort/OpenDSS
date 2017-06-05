@@ -27,7 +27,8 @@ Notes:
 INTERFACE
 
 USES
-     System.Generics.Collections, Command, ControlClass, ControlElem, CktElement, DSSClass, PVSystem, Arraydef, ucomplex,
+     {$IFDEF FPC}gqueue{$ELSE}System.Generics.Collections{$ENDIF},
+     Command, ControlClass, ControlElem, CktElement, DSSClass, PVSystem, Arraydef, ucomplex,
      utilities, XYcurve, Dynamics, PointerList, Classes, StrUtils;
 
 TYPE
@@ -208,7 +209,9 @@ end;
      protected
             PROCEDURE Set_Enabled(Value:Boolean);Override;
      public
+            {$IFNDEF FPC}
             MyMemoryManagerState: System.TMemoryManagerState;
+            {$ENDIF}
             constructor Create(ParClass:TDSSClass; const InvControlName:String);
             destructor  Destroy; override;
 
@@ -3263,6 +3266,7 @@ End;
 
 procedure TRollAvgWindow.Add(IncomingSampleValue: Double;IncomingSampleTime: Double;VAvgWindowLengthSec:Double);
 begin
+{$IFNDEF FPC}
   if(sample.Count > 0) and (bufferfull) then
     begin
       runningsumsample := runningsumsample - sample.Dequeue;
@@ -3291,8 +3295,36 @@ begin
       if (sample.Count = bufferlength)
           then bufferfull := True;
     end;
-
-
+{$ELSE}
+if(sample.size > 0) and (bufferfull) then
+  begin
+    runningsumsample := runningsumsample - sample.front; sample.pop;
+    if(bufferlength = 0) then
+      begin
+        IncomingSampleValue := 0.0;
+      end;
+    sample.push(IncomingSampleValue);
+    runningsumsample := runningsumsample + IncomingSampleValue;
+    runningsumsampletime := runningsumsampletime - sampletime.front; sampletime.pop;
+    sampletime.push(IncomingSampleTime);
+    runningsumsampletime := runningsumsampletime +IncomingSampleTime;
+  end
+else
+  begin
+    if(bufferlength = 0) then
+      begin
+        IncomingSampleValue := 0.0;
+      end;
+    sample.push(IncomingSampleValue);
+    runningsumsample := runningsumsample + IncomingSampleValue;
+    sampletime.push(IncomingSampleTime);
+    runningsumsampletime := runningsumsampletime + IncomingSampleTime;
+    if (runningsumsampletime > VAvgWindowLengthSec)
+        then bufferfull := True;
+    if (sample.size = bufferlength)
+        then bufferfull := True;
+  end;
+{$ENDIF}
 end;
 
 constructor TRollAvgWindow.Create();
@@ -3322,16 +3354,28 @@ end;
 
 function TRollAvgWindow.Get_AvgVal: Double;
 begin
+{$IFNDEF FPC}
   if(sample.Count = 0) then
     Result:= 0.0
   else  Result:= runningsumsample / sample.Count;
+{$ELSE}
+  if(sample.size = 0) then
+    Result:= 0.0
+  else  Result:= runningsumsample / sample.size;
+{$ENDIF}
 end;
 
 function TRollAvgWindow.Get_AccumSec: Double;
 begin
+{$IFNDEF FPC}
   if(sample.Count = 0) then
     Result:= 0.0
-  else  Result:= runningsumsampletime;
+  else Result:= runningsumsampletime;
+{$ELSE}
+  if(sample.size = 0) then
+    Result:= 0.0
+  else Result:= runningsumsampletime;
+{$ENDIF}
 end;
 
 

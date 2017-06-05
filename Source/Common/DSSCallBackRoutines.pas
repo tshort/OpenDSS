@@ -20,7 +20,7 @@ PROCEDURE DoSimpleMsgCallback(S:pAnsiChar; maxlen:Cardinal); StdCall; // Call ba
 
 implementation
 
-Uses  ParserDel, DSSGlobals, Executive, AnsiStrings, SysUtils, CktElement, Math, PDElement;
+Uses  ParserDel, DSSGlobals, Executive, {$IFNDEF FPC}AnsiStrings,{$ENDIF} SysUtils, CktElement, Math, PDElement;
 
 Var
    CallBackParser  :TParser;

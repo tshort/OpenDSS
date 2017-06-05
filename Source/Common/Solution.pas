@@ -48,9 +48,8 @@ USES
     DSSObject,
     Dynamics,
     EnergyMeter,
-    SysUtils,
-    System.Diagnostics,
-    System.TimeSpan;
+    SysUtils
+{$IFDEF FPC};{$ELSE},System.Diagnostics, System.TimeSpan;{$ENDIF}
 
 CONST
 
@@ -232,14 +231,12 @@ VAR
 implementation
 
 USES  SolutionAlgs,
-      DSSClassDefs, DSSGlobals, DSSForms, CktElement,  ControlElem, Fault,
-      Executive, AutoAdd,  YMatrix,
-      ParserDel, Generator,
+      DSSClassDefs, DSSGlobals, {$IFDEF FPC} CmdForms,{$ELSE} Windows, DSSForms,{$ENDIF}
+      CktElement,  ControlElem, Fault, Executive, AutoAdd,  YMatrix, ParserDel, Generator,
 {$IFDEF DLL_ENGINE}
       ImplGlobals,  // to fire events
 {$ENDIF}
-      Math,  Circuit, Utilities, KLUSolve, Windows
-;
+      Math,  Circuit, Utilities, KLUSolve;
 
 Const NumPropsThisClass = 1;
 
@@ -480,7 +477,7 @@ Try
 {$ENDIF}
 
     {CheckFaultStatus;  ???? needed here??}
-     QueryPerformanceCounter(GStartTime);
+     {$IFNDEF FPC}QueryPerformanceCounter(GStartTime);{$ENDIF}
      Case Dynavars.SolutionMode OF
          SNAPSHOT:     SolveSnap;
          YEARLYMODE:   SolveYearly;
@@ -503,7 +500,7 @@ Try
      Else
          DosimpleMsg('Unknown solution mode.', 481);
      End;
-    QueryPerformanceCounter(GEndTime);
+    {$IFNDEF FPC}QueryPerformanceCounter(GEndTime);{$ENDIF}
     Total_Solve_Time_Elapsed := ((GEndTime-GStartTime)/CPU_Freq)*1000000;
     Total_Time_Elapsed := Total_Time_Elapsed + Total_Solve_Time_Elapsed;
 Except
@@ -538,9 +535,11 @@ Begin
         Else If Vmag <> 0.0         Then ErrorSaved^[i] := Abs(1.0 - VmagSaved^[i]/Vmag);
 
         VMagSaved^[i] := Vmag;  // for next go-'round
-
+{$IFNDEF FPC}
         MaxError := Max(MaxError, ErrorSaved^[i]);  // update max error
-
+{$ELSE}
+       if ErrorSaved^[i] > MaxError Then MaxError := ErrorSaved^[i]; // TODO - line above used to compile in FPC
+{$ENDIF}
     End;
 
 {$IFDEF debugtrace}
@@ -977,7 +976,7 @@ VAR
 Begin
    SnapShotInit;
    TotalIterations    := 0;
-   QueryPerformanceCounter(SolveStartTime);
+   {$IFNDEF FPC}QueryPerformanceCounter(SolveStartTime);{$ENDIF}
    REPEAT
 
        Inc(ControlIteration);
@@ -1007,7 +1006,7 @@ Begin
 {$IFDEF DLL_ENGINE}
    Fire_StepControls;
 {$ENDIF}
-   QueryPerformanceCounter(SolveEndtime);
+{$IFNDEF FPC}QueryPerformanceCounter(SolveEndTime);{$ENDIF}
    Solve_Time_Elapsed := ((SolveEndtime-SolveStartTime)/CPU_Freq)*1000000;
    Iteration := TotalIterations;  { so that it reports a more interesting number }
 
@@ -1020,7 +1019,7 @@ Begin
    Result := 0;
 
    LoadsNeedUpdating := TRUE;  // Force possible update of loads and generators
-   QueryPerformanceCounter(SolveStartTime);
+   {$IFNDEF FPC}QueryPerformanceCounter(SolveStartTime);{$ENDIF}
 
    If SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, TRUE);   // Side Effect: Allocates V
 
@@ -1039,7 +1038,7 @@ Begin
        ConvergedFlag := TRUE;
    End;
 
-   QueryPerformanceCounter(SolveEndtime);
+   {$IFNDEF FPC}QueryPerformanceCounter(SolveEndTime);{$ENDIF}
    Solve_Time_Elapsed  := ((SolveEndtime-SolveStartTime)/CPU_Freq)*1000000;
    Total_Time_Elapsed  :=  Total_Time_Elapsed + Solve_Time_Elapsed;
    Iteration := 1;
@@ -1766,7 +1765,7 @@ begin
 // Update Loop time is called from end of time step cleanup
 // Timer is based on beginning of SolveSnap time
 
-   QueryPerformanceCounter(LoopEndtime);
+   {$IFNDEF FPC}QueryPerformanceCounter(LoopEndTime);{$ENDIF}
    Step_Time_Elapsed  := ((LoopEndtime-SolveStartTime)/CPU_Freq)*1000000;
 
 end;
