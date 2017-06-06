@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 1/31/2017 11:57:44 AM from Type Library described below.
+// File generated on 6/6/2017 6:12:20 PM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\OpenDSS\Parallel_Version\Source\DLL\OpenDSSengine (1)
@@ -133,6 +133,8 @@ const
   CLASS_Vsources: TGUID = '{0823B8BD-AD34-452B-974A-F46BA25D49EA}';
   IID_IParallel: TGUID = '{A0351633-A988-4A5B-B551-A7E2ADDD4984}';
   CLASS_Parallel: TGUID = '{D967764D-CD38-41ED-B1FD-7D79DC78EFCD}';
+  IID_ILineCodes: TGUID = '{519DBEAC-F1D5-4770-A890-3C8A7BB5E54D}';
+  CLASS_LineCodes: TGUID = '{0657EE75-F8CF-41D0-8672-2ADACD195591}';
 
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library
@@ -335,6 +337,8 @@ type
   IVsourcesDisp = dispinterface;
   IParallel = interface;
   IParallelDisp = dispinterface;
+  ILineCodes = interface;
+  ILineCodesDisp = dispinterface;
 
 // *********************************************************************//
 // Declaration of CoClasses defined in Type Library
@@ -380,6 +384,7 @@ type
   PVSystems = IPVSystems;
   Vsources = IVsources;
   Parallel = IParallel;
+  LineCodes = ILineCodes;
 
 
 // *********************************************************************//
@@ -694,6 +699,7 @@ type
     function Get_PVSystems: IPVSystems; safecall;
     function Get_Vsources: IVsources; safecall;
     function Get_Parallel: IParallel; safecall;
+    function Get_LineCodes: ILineCodes; safecall;
     property Name: WideString read Get_Name;
     property NumCktElements: Integer read Get_NumCktElements;
     property NumBuses: Integer read Get_NumBuses;
@@ -753,6 +759,7 @@ type
     property PVSystems: IPVSystems read Get_PVSystems;
     property Vsources: IVsources read Get_Vsources;
     property Parallel: IParallel read Get_Parallel;
+    property LineCodes: ILineCodes read Get_LineCodes;
   end;
 
 // *********************************************************************//
@@ -838,6 +845,7 @@ type
     property PVSystems: IPVSystems readonly dispid 236;
     property Vsources: IVsources readonly dispid 237;
     property Parallel: IParallel readonly dispid 238;
+    property LineCodes: ILineCodes readonly dispid 239;
   end;
 
 // *********************************************************************//
@@ -1136,6 +1144,7 @@ type
     procedure Set_Total_Time(Value: Double); safecall;
     function Get_Process_Time: Double; safecall;
     function Get_Time_of_Step: Double; safecall;
+    procedure SolveAll; safecall;
     property Mode: Integer read Get_Mode write Set_Mode;
     property Frequency: Double read Get_Frequency write Set_Frequency;
     property Hour: Integer read Get_Hour write Set_Hour;
@@ -1238,6 +1247,7 @@ type
     property Total_Time: Double dispid 225;
     property Process_Time: Double readonly dispid 226;
     property Time_of_Step: Double readonly dispid 227;
+    procedure SolveAll; dispid 228;
   end;
 
 // *********************************************************************//
@@ -3512,6 +3522,8 @@ type
     function Get_ActorStatus: OleVariant; safecall;
     function Get_ActiveParallel: Integer; safecall;
     procedure Set_ActiveParallel(Value: Integer); safecall;
+    function Get_ConcatenateReports: Integer; safecall;
+    procedure Set_ConcatenateReports(Value: Integer); safecall;
     property NumCPUs: Integer read Get_NumCPUs;
     property NumCores: Integer read Get_NumCores;
     property ActiveActor: Integer read Get_ActiveActor write Set_ActiveActor;
@@ -3520,6 +3532,7 @@ type
     property ActorProgress: OleVariant read Get_ActorProgress;
     property ActorStatus: OleVariant read Get_ActorStatus;
     property ActiveParallel: Integer read Get_ActiveParallel write Set_ActiveParallel;
+    property ConcatenateReports: Integer read Get_ConcatenateReports write Set_ConcatenateReports;
   end;
 
 // *********************************************************************//
@@ -3539,6 +3552,96 @@ type
     property ActorProgress: OleVariant readonly dispid 208;
     property ActorStatus: OleVariant readonly dispid 209;
     property ActiveParallel: Integer dispid 210;
+    property ConcatenateReports: Integer dispid 211;
+  end;
+
+// *********************************************************************//
+// Interface: ILineCodes
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {519DBEAC-F1D5-4770-A890-3C8A7BB5E54D}
+// *********************************************************************//
+  ILineCodes = interface(IDispatch)
+    ['{519DBEAC-F1D5-4770-A890-3C8A7BB5E54D}']
+    function Get_Count: Integer; safecall;
+    function Get_First: Integer; safecall;
+    function Get_Next: Integer; safecall;
+    function Get_Name: WideString; safecall;
+    procedure Set_Name(const Value: WideString); safecall;
+    function Get_IsZ1Z0: WordBool; safecall;
+    function Get_Units: Integer; safecall;
+    procedure Set_Units(Value: Integer); safecall;
+    function Get_Phases: Integer; safecall;
+    procedure Set_Phases(Value: Integer); safecall;
+    function Get_R1: Double; safecall;
+    procedure Set_R1(Value: Double); safecall;
+    function Get_X1: Double; safecall;
+    procedure Set_X1(Value: Double); safecall;
+    function Get_R0: Double; safecall;
+    procedure Set_R0(Value: Double); safecall;
+    function Get_X0: Double; safecall;
+    procedure Set_X0(Value: Double); safecall;
+    function Get_C1: Double; safecall;
+    procedure Set_C1(Value: Double); safecall;
+    function Get_C0: Double; safecall;
+    procedure Set_C0(Value: Double); safecall;
+    function Get_Rmatrix: OleVariant; safecall;
+    procedure Set_Rmatrix(Value: OleVariant); safecall;
+    function Get_Xmatrix: OleVariant; safecall;
+    procedure Set_Xmatrix(Value: OleVariant); safecall;
+    function Get_Cmatrix: OleVariant; safecall;
+    procedure Set_Cmatrix(Value: OleVariant); safecall;
+    function Get_NormAmps: Double; safecall;
+    procedure Set_NormAmps(Value: Double); safecall;
+    function Get_EmergAmps: Double; safecall;
+    procedure Set_EmergAmps(Value: Double); safecall;
+    function Get_AllNames: OleVariant; safecall;
+    property Count: Integer read Get_Count;
+    property First: Integer read Get_First;
+    property Next: Integer read Get_Next;
+    property Name: WideString read Get_Name write Set_Name;
+    property IsZ1Z0: WordBool read Get_IsZ1Z0;
+    property Units: Integer read Get_Units write Set_Units;
+    property Phases: Integer read Get_Phases write Set_Phases;
+    property R1: Double read Get_R1 write Set_R1;
+    property X1: Double read Get_X1 write Set_X1;
+    property R0: Double read Get_R0 write Set_R0;
+    property X0: Double read Get_X0 write Set_X0;
+    property C1: Double read Get_C1 write Set_C1;
+    property C0: Double read Get_C0 write Set_C0;
+    property Rmatrix: OleVariant read Get_Rmatrix write Set_Rmatrix;
+    property Xmatrix: OleVariant read Get_Xmatrix write Set_Xmatrix;
+    property Cmatrix: OleVariant read Get_Cmatrix write Set_Cmatrix;
+    property NormAmps: Double read Get_NormAmps write Set_NormAmps;
+    property EmergAmps: Double read Get_EmergAmps write Set_EmergAmps;
+    property AllNames: OleVariant read Get_AllNames;
+  end;
+
+// *********************************************************************//
+// DispIntf:  ILineCodesDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {519DBEAC-F1D5-4770-A890-3C8A7BB5E54D}
+// *********************************************************************//
+  ILineCodesDisp = dispinterface
+    ['{519DBEAC-F1D5-4770-A890-3C8A7BB5E54D}']
+    property Count: Integer readonly dispid 201;
+    property First: Integer readonly dispid 202;
+    property Next: Integer readonly dispid 203;
+    property Name: WideString dispid 204;
+    property IsZ1Z0: WordBool readonly dispid 205;
+    property Units: Integer dispid 206;
+    property Phases: Integer dispid 207;
+    property R1: Double dispid 208;
+    property X1: Double dispid 209;
+    property R0: Double dispid 210;
+    property X0: Double dispid 211;
+    property C1: Double dispid 212;
+    property C0: Double dispid 213;
+    property Rmatrix: OleVariant dispid 214;
+    property Xmatrix: OleVariant dispid 215;
+    property Cmatrix: OleVariant dispid 216;
+    property NormAmps: Double dispid 217;
+    property EmergAmps: Double dispid 218;
+    property AllNames: OleVariant readonly dispid 219;
   end;
 
 // *********************************************************************//
@@ -4021,6 +4124,18 @@ type
     class function CreateRemote(const MachineName: string): IParallel;
   end;
 
+// *********************************************************************//
+// The Class CoLineCodes provides a Create and CreateRemote method to
+// create instances of the default interface ILineCodes exposed by
+// the CoClass LineCodes. The functions are intended to be used by
+// clients wishing to automate the CoClass objects exposed by the
+// server of this typelibrary.
+// *********************************************************************//
+  CoLineCodes = class
+    class function Create: ILineCodes;
+    class function CreateRemote(const MachineName: string): ILineCodes;
+  end;
+
 implementation
 
 uses System.Win.ComObj;
@@ -4423,6 +4538,16 @@ end;
 class function CoParallel.CreateRemote(const MachineName: string): IParallel;
 begin
   Result := CreateRemoteComObject(MachineName, CLASS_Parallel) as IParallel;
+end;
+
+class function CoLineCodes.Create: ILineCodes;
+begin
+  Result := CreateComObject(CLASS_LineCodes) as ILineCodes;
+end;
+
+class function CoLineCodes.CreateRemote(const MachineName: string): ILineCodes;
+begin
+  Result := CreateRemoteComObject(MachineName, CLASS_LineCodes) as ILineCodes;
 end;
 
 end.

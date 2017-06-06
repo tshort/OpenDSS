@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 4/6/2017 5:43:03 PM (- $Rev: 12980 $, 31751937).
+// File generated on 6/6/2017 6:21:41 PM (- $Rev: 12980 $, 49099734).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -101,6 +101,8 @@ library OpenDSSengine
   coclass Vsources;
   interface IParallel;
   coclass Parallel;
+  interface ILineCodes;
+  coclass LineCodes;
 
 
   [
@@ -626,6 +628,8 @@ library OpenDSSengine
     HRESULT _stdcall Vsources([out, retval] IVsources** Value);
     [propget, id(0x000000EE), helpstring("Delivers a handler for the Parallel Dispatch interface")]
     HRESULT _stdcall Parallel([out, retval] IParallel** Value);
+    [propget, id(0x000000EF), helpstring("LineCodes Object Collection")]
+    HRESULT _stdcall LineCodes([out, retval] ILineCodes** Value);
   };
 
   [
@@ -2818,6 +2822,82 @@ library OpenDSSengine
   };
 
   [
+    uuid(519DBEAC-F1D5-4770-A890-3C8A7BB5E54D),
+    helpstring("COM interface for LineCodes class"),
+    dual,
+    oleautomation
+  ]
+  interface ILineCodes: IDispatch
+  {
+    [propget, id(0x000000C9)]
+    HRESULT _stdcall Count([out, retval] long* Value);
+    [propget, id(0x000000CA)]
+    HRESULT _stdcall First([out, retval] long* Value);
+    [propget, id(0x000000CB)]
+    HRESULT _stdcall Next([out, retval] long* Value);
+    [propget, id(0x000000CC)]
+    HRESULT _stdcall Name([out, retval] BSTR* Value);
+    [propput, id(0x000000CC)]
+    HRESULT _stdcall Name([in] BSTR Value);
+    [propget, id(0x000000CD)]
+    HRESULT _stdcall IsZ1Z0([out, retval] VARIANT_BOOL* Value);
+    [propget, id(0x000000CE)]
+    HRESULT _stdcall Units([out, retval] long* Value);
+    [propput, id(0x000000CE)]
+    HRESULT _stdcall Units([in] long Value);
+    [propget, id(0x000000CF)]
+    HRESULT _stdcall Phases([out, retval] long* Value);
+    [propput, id(0x000000CF)]
+    HRESULT _stdcall Phases([in] long Value);
+    [propget, id(0x000000D0)]
+    HRESULT _stdcall R1([out, retval] double* Value);
+    [propput, id(0x000000D0)]
+    HRESULT _stdcall R1([in] double Value);
+    [propget, id(0x000000D1)]
+    HRESULT _stdcall X1([out, retval] double* Value);
+    [propput, id(0x000000D1)]
+    HRESULT _stdcall X1([in] double Value);
+    [propget, id(0x000000D2)]
+    HRESULT _stdcall R0([out, retval] double* Value);
+    [propput, id(0x000000D2)]
+    HRESULT _stdcall R0([in] double Value);
+    [propget, id(0x000000D3)]
+    HRESULT _stdcall X0([out, retval] double* Value);
+    [propput, id(0x000000D3)]
+    HRESULT _stdcall X0([in] double Value);
+    [propget, id(0x000000D4)]
+    HRESULT _stdcall C1([out, retval] double* Value);
+    [propput, id(0x000000D4)]
+    HRESULT _stdcall C1([in] double Value);
+    [propget, id(0x000000D5)]
+    HRESULT _stdcall C0([out, retval] double* Value);
+    [propput, id(0x000000D5)]
+    HRESULT _stdcall C0([in] double Value);
+    [propget, id(0x000000D6)]
+    HRESULT _stdcall Rmatrix([out, retval] VARIANT* Value);
+    [propput, id(0x000000D6)]
+    HRESULT _stdcall Rmatrix([in] VARIANT Value);
+    [propget, id(0x000000D7)]
+    HRESULT _stdcall Xmatrix([out, retval] VARIANT* Value);
+    [propput, id(0x000000D7)]
+    HRESULT _stdcall Xmatrix([in] VARIANT Value);
+    [propget, id(0x000000D8)]
+    HRESULT _stdcall Cmatrix([out, retval] VARIANT* Value);
+    [propput, id(0x000000D8)]
+    HRESULT _stdcall Cmatrix([in] VARIANT Value);
+    [propget, id(0x000000D9)]
+    HRESULT _stdcall NormAmps([out, retval] double* Value);
+    [propput, id(0x000000D9)]
+    HRESULT _stdcall NormAmps([in] double Value);
+    [propget, id(0x000000DA)]
+    HRESULT _stdcall EmergAmps([out, retval] double* Value);
+    [propput, id(0x000000DA)]
+    HRESULT _stdcall EmergAmps([in] double Value);
+    [propget, id(0x000000DB)]
+    HRESULT _stdcall AllNames([out, retval] VARIANT* Value);
+  };
+
+  [
     uuid(AE501F77-F7F0-4201-A9AD-6AB385262203),
     helpstring("Events interface for DSSEvents Object")
   ]
@@ -3216,6 +3296,14 @@ library OpenDSSengine
   coclass Parallel
   {
     [default] interface IParallel;
+  };
+
+  [
+    uuid(0657EE75-F8CF-41D0-8672-2ADACD195591)
+  ]
+  coclass LineCodes
+  {
+    [default] interface ILineCodes;
   };
 
 };
