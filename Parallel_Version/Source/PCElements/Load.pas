@@ -915,7 +915,7 @@ Begin
            ShapeFactor   := DutyShapeObj.GetMult(Hr);
            ShapeIsActual := DutyShapeObj.UseActual;
        End
-     ELSE CalcDailyMult(Hr);  // Default to Daily Mult IF no duty curve specified
+    ELSE CalcDailyMult(Hr);  // Default to Daily Mult IF no duty curve specified
 End;
 
 //----------------------------------------------------------------------------
@@ -977,6 +977,7 @@ end;
 PROCEDURE TLoadObj.SetNominalLoad(ActorID : Integer);
 Var
    Factor   :Double;
+
 
 Begin
   ShapeFactor := CDOUBLEONE;
@@ -1053,8 +1054,8 @@ Begin
         End
     Else
         Begin
-            WNominal   := 1000.0 * kWBase   * Factor * ShapeFactor.re / Fnphases;
-            varNominal := 1000.0 * kvarBase * Factor * ShapeFactor.im / Fnphases;
+            WNominal    :=  1000.0 * kWBase   * Factor * ShapeFactor.re / Fnphases;
+            varNominal  :=  1000.0 * kvarBase * Factor * ShapeFactor.im / Fnphases;
         End;
 
     Yeq := CDivReal(Cmplx(WNominal, -VarNominal), Sqr(Vbase));
