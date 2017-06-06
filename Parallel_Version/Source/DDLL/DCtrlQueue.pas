@@ -104,7 +104,7 @@ begin
   end;
   1: begin // CtrlQueue.Delete
       If ActiveCircuit[ActiveActor] <> Nil then Begin
-        ActiveCircuit[ActiveActor].ControlQueue.Delete(arg);
+        ActiveCircuit[ActiveActor].ControlQueue.Delete(arg,ActiveActor);
      End;
   end;
   2: begin  // CtrlQueue.NumActions
@@ -128,7 +128,7 @@ begin
   6: begin  // CtrlQueue.Push
      Result := 0;
      If ActiveCircuit[ActiveActor] <> Nil then Begin
-        Result := ActiveCircuit[ActiveActor].ControlQueue.push(Hour, Seconds, ActionCode, DeviceHandle, COMControlProxyObj);
+        Result := ActiveCircuit[ActiveActor].ControlQueue.push(Hour, Seconds, ActionCode, DeviceHandle, COMControlProxyObj, ActiveActor);
    End;
   end;
   7: begin  // CtrlQueue.Show
