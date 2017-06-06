@@ -56,6 +56,7 @@ Uses
        ImplPVSystems,
        ImplVsources,
        ImplParallel,
+       ImplLineCodes,
        OpenDSSengine_TLB;
 
 
@@ -102,6 +103,7 @@ Var
    FPVSystems   :IPVSystems; // Added 08-2015
    FVsources    :IVsources;
    FParallel    :IParallel;
+   FLineCodes   :ILineCodes;
 
    FPropIndex   :Integer;
    FPropClass   :TDSSClass;
@@ -185,6 +187,7 @@ Begin
      FPVSystems   := TPVSystems.Create;
      FVsources    := TVsources.Create;
      FParallel    := TParallel.Create;
+     FLineCodes   := TLineCodes.Create;
      FPropIndex := 0;
      FPropClass := Nil;
 

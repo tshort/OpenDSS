@@ -73,7 +73,7 @@ Var
 procedure TCtrlQueue.Delete(ActionHandle: Integer);
 begin
     If ActiveCircuit[ActiveActor] <> Nil then Begin
-      ActiveCircuit[ActiveActor].ControlQueue.Delete(ActionHandle);
+      ActiveCircuit[ActiveActor].ControlQueue.Delete(ActionHandle, ActiveActor);
    End;
 end;
 
@@ -105,7 +105,7 @@ function TCtrlQueue.Push(Hour: Integer; Seconds: Double; ActionCode,
 begin
    Result := 0;
    If ActiveCircuit[ActiveActor] <> Nil then Begin
-      Result := ActiveCircuit[ActiveActor].ControlQueue.push(Hour, Seconds, ActionCode, DeviceHandle, COMControlProxyObj);
+      Result := ActiveCircuit[ActiveActor].ControlQueue.push(Hour, Seconds, ActionCode, DeviceHandle, COMControlProxyObj, ActiveActor);
    End;
 end;
 
