@@ -198,7 +198,8 @@ uses
   Parallel_Lib in '..\Parallel_Lib\Parallel_Lib.pas',
   DParallel in 'DParallel.pas',
   ESPVLControl in '..\Controls\ESPVLControl.pas',
-  IndMach012 in '..\PCElements\IndMach012.pas';
+  IndMach012 in '..\PCElements\IndMach012.pas',
+  DLineCodes in 'DLineCodes.pas';
 
 //**************************end of the functions*************************************
 exports
