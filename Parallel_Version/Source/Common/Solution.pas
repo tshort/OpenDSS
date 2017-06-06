@@ -50,7 +50,9 @@ USES
     System.Diagnostics,
     System.TimeSpan,
     System.Classes,
-    Parallel_Lib;
+    System.SyncObjs,
+    Parallel_Lib,
+    Windows;
 
 CONST
 
@@ -66,6 +68,8 @@ TYPE
    pNodeVarray = ^TNodeVarray;
 
    TDSSSolution = CLASS(TDSSClass)
+
+
      private
 //       CommandList:TCommandlist;
      Protected
@@ -95,6 +99,7 @@ TYPE
    end;
 
    TSolutionObj = class(TDSSObject)
+
      private
 
        dV :pNodeVArray;   // Array of delta V for Newton iteration
@@ -203,7 +208,7 @@ TYPE
        PROCEDURE SetVoltageBases(ActorID : Integer);
 
        PROCEDURE SaveVoltages;
-       PROCEDURE UpdateVBus; // updates voltages for each bus    from NodeV
+       PROCEDURE UpdateVBus(ActorID : Integer); // updates voltages for each bus    from NodeV
        PROCEDURE RestoreNodeVfromVbus;  // opposite   of updatebus
 
        FUNCTION  VDiff(i,j:Integer):Complex;  // Difference between two node voltages
@@ -251,7 +256,7 @@ USES  SolutionAlgs,
 {$IFDEF DLL_ENGINE}
       ImplGlobals,  // to fire events
 {$ENDIF}
-      Math,  Circuit, Utilities, KLUSolve, Windows, ScriptEdit
+      Math,  Circuit, Utilities, KLUSolve, ScriptEdit
 ;
 
 Const NumPropsThisClass = 1;
@@ -278,7 +283,6 @@ Begin
 
      CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
      CommandList.Abbrev := True;
-
 
 End;
 
@@ -404,6 +408,7 @@ Begin
 
     InitPropertyValues(0);
 
+
 End;
 
 // ===========================================================================================
@@ -423,7 +428,7 @@ Begin
 //      SetLogFile ('c:\\temp\\KLU_Log.txt', 0);
 
       Reallocmem(HarmonicList,0);
-
+ 
       Inherited Destroy;
 End;
 
@@ -754,7 +759,10 @@ Begin
        GetPCInjCurr(ActorID);  // Get the injection currents from all the power conversion devices and feeders
 
        // The above call could change the primitive Y matrix, so have to check
-        IF SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, FALSE, ActorID);  // Does not realloc V, I
+        IF SystemYChanged THEN
+        begin
+          BuildYMatrix(WHOLEMATRIX, FALSE, ActorID);  // Does not realloc V, I
+        end;
 
         IF UseAuxCurrents THEN AddInAuxCurrents(NORMALSOLVE, ActorID);
 
@@ -811,7 +819,10 @@ Begin
            SumAllCurrents;
 
            // Call to current calc could change YPrim for some devices
-           IF SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, FALSE, ActorID);   // Does not realloc V, I
+           IF SystemYChanged THEN
+           begin
+              BuildYMatrix(WHOLEMATRIX, FALSE, ActorID);   // Does not realloc V, I
+           end;
 
            IF UseAuxCurrents THEN AddInAuxCurrents(NEWTONSOLVE, ActorID);
 
@@ -889,8 +900,10 @@ FUNCTION TSolutionObj.SolveZeroLoadSnapShot(ActorID : Integer):Integer;
 Begin
    Result := 0;
 
-    IF SystemYChanged OR SeriesYInvalid THEN BuildYMatrix(SERIESONLY, TRUE, ActorID);   // Side Effect: Allocates V
-
+    IF SystemYChanged OR SeriesYInvalid THEN
+    Begin
+        BuildYMatrix(SERIESONLY, TRUE, ActorID);   // Side Effect: Allocates V
+    End;
     Inc(SolutionCount);    //Unique number for this solution
 
     ZeroInjCurr(ActorID);   // Side Effect: Allocates InjCurr
@@ -980,7 +993,10 @@ Begin
                ControlActionsDone := TRUE; // Stop solution process if failure to converge
        End;
 
-       IF SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, FALSE, ActorID); // Rebuild Y matrix, but V stays same
+       IF SystemYChanged THEN
+       begin
+          BuildYMatrix(WHOLEMATRIX, FALSE, ActorID); // Rebuild Y matrix, but V stays same
+       end;
 End;
 
 // ===========================================================================================
@@ -1036,7 +1052,10 @@ Begin
    LoadsNeedUpdating := TRUE;  // Force possible update of loads and generators
    QueryPerformanceCounter(SolveStartTime);
 
-   If SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, TRUE, ActorID);   // Side Effect: Allocates V
+   If SystemYChanged THEN
+   begin
+        BuildYMatrix(WHOLEMATRIX, TRUE, ActorID);   // Side Effect: Allocates V
+   end;
 
    Inc(SolutionCount);   // Unique number for this solution
 
@@ -1078,7 +1097,10 @@ begin
             END
        Else  Begin
            TRY
-              IF SystemYChanged THEN BuildYMatrix(WHOLEMATRIX, TRUE, ActorID);   // Side Effect: Allocates V
+              IF SystemYChanged THEN
+              begin
+                  BuildYMatrix(WHOLEMATRIX, TRUE, ActorID);   // Side Effect: Allocates V
+              end;
               DoPFLOWsolution(ActorID);
            EXCEPT
              ON E:EEsolv32Problem
@@ -1777,13 +1799,13 @@ begin
 
 end;
 
-procedure TSolutionObj.UpdateVBus;
+procedure TSolutionObj.UpdateVBus(ActorID : Integer);
 
 // Save present solution vector values to buses
 Var
    i, j:Integer;
 Begin
-   WITH ActiveCircuit[ActiveActor] Do
+   WITH ActiveCircuit[ActorID] Do
     FOR i := 1 to NumBuses Do
      WITH Buses^[i] Do
        If Assigned(Vbus)

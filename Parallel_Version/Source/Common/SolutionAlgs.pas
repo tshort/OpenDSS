@@ -230,7 +230,8 @@ End;
 FUNCTION SolveDuty(ActorID: integer):Integer;
 
 VAR
-   N, TwoPct:Integer;
+   N, TwoPct, Temp0:Integer;
+   Temp1 : Boolean;
 
 Begin
    Result := 0;
@@ -248,6 +249,12 @@ Begin
         IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage devices
         FOR N := 1 TO NumberOfTimes Do
         IF Not SolutionAbort Then With DynaVars Do Begin
+            Temp1 := N = 10190;
+            if Temp1  then
+            Begin
+              Temp0 :=  N;
+            End;
+
             Increment_time;
             DefaultHourMult := DefaultDailyShapeObj.getmult(dblHour);
             // Assume pricesignal stays constant for dutycycle calcs
@@ -864,7 +871,7 @@ Begin
       SolveDirect(ActorID);   // This gets the open circuit voltages and bus lists corrected
 
       AllocateAllSCParms(ActorID);   // Reallocate bus quantities
-      UpdateVBus;  // Put present solution Voc's in bus quantities
+      UpdateVBus(ActorID);  // Put present solution Voc's in bus quantities
    End;
 
     ActorPctProgress[ActorID] :=  30;

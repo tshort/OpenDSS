@@ -44,7 +44,8 @@ Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerLis
      InvControl,
      ExpControl,
      ProgressForm,
-     variants;
+     variants,
+     YMatrix;
 {
 TYPE
 //  KLUSolve base type definition
@@ -197,6 +198,7 @@ VAR
    DataDirectory    :array of String;     // used to be DSSDataDirectory
    OutputDirectory  :array of String;     // output files go here, same as DataDirectory if writable
    CircuitName_     :array of String;     // Name of Circuit with a "_" appended
+   ActiveYPrim      :Array of pComplexArray; // Created to solve the problems
 
    DefaultBaseFreq  :Double;
    DaisySize        :Double;
@@ -801,6 +803,7 @@ initialization
    setlength(ErrorStrings,CPU_Cores + 1);
    setlength(ActorHandle,CPU_Cores + 1);
    setlength(Parser,CPU_Cores + 1);
+   setlength(ActiveYPrim,CPU_Cores + 1);
 
    for ActiveActor := 1 to CPU_Cores do
    begin
@@ -904,12 +907,14 @@ initialization
    UpdateRegistry   := TRUE;
    QueryPerformanceFrequency(CPU_Freq);
 
+//   YBMatrix.Start_Ymatrix_Critical;   // Initializes the critical segment for the YMatrix class
 
    //WriteDLLDebugFile('DSSGlobals');
 
 Finalization
 
   // Dosimplemsg('Enter DSSGlobals Unit Finalization.');
+//  YBMatrix.Finish_Ymatrix_Critical;   // Ends the critical segment for the YMatrix class
   Auxparser.Free;
 
   EventStrings[ActiveActor].Free;
@@ -920,6 +925,7 @@ Finalization
   ClearAllCircuits;
   DSSExecutive.Free;  {Writes to Registry}
   DSS_Registry.Free;  {Close Registry}
+
 
 // Free all the KLU instances
 {  for ActiveActor := 1 to NumOfActors do

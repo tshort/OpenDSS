@@ -14,7 +14,7 @@ unit Ymatrix;
 
 interface
 
-uses uComplex,SysUtils;
+uses uComplex,SysUtils, windows, DSSClass, DSSObject;
 
 
 {Options for building Y matrix}
@@ -25,8 +25,8 @@ CONST
 TYPE
   EEsolv32Problem = class(Exception);
 
-
 PROCEDURE BuildYMatrix(BuildOption :Integer; AllocateVI:Boolean; ActorID : Integer);
+
 PROCEDURE ResetSparseMatrix(var hY:NativeUint; size:integer; ActorID : Integer);
 PROCEDURE InitializeNodeVbase(ActorID : Integer);
 
@@ -126,22 +126,21 @@ PROCEDURE BuildYMatrix(BuildOption :Integer; AllocateVI:Boolean; ActorID : Integ
 
 VAR
    YMatrixsize  :Integer;
-   CmatArray    :pComplexArray;
+//   CmatArray    :pComplexArray;   Replaced with a global array for thread safe operation
    pElem        :TDSSCktElement;
 
    //{****} FTrace: TextFile;
 
 
 Begin
-
   //{****} AssignFile(Ftrace, 'YmatrixTrace.txt');
   //{****} Rewrite(FTrace);
-   CmatArray := Nil;
+   ActiveYPrim[ActorID] :=  Nil;  //Replaces the previous local declaration CmatArray := Nil; for thread safe
    // new function to log KLUSolve.DLL function calls
    // SetLogFile ('KLU_Log.txt', 1);
    WITH ActiveCircuit[ActorID], ActiveCircuit[ActorID].Solution  Do Begin
 
-     If PreserveNodeVoltages Then UpdateVBus; // Update voltage values stored with Bus object
+     If PreserveNodeVoltages Then UpdateVBus(ActorID); // Update voltage values stored with Bus object
 
      // the following re counts the number of buses and resets meter zones and feeders
      // If radial but systemNodeMap not set then init for radial got skipped due to script sequence
@@ -166,7 +165,7 @@ Begin
        DoSimpleMsg('Y matrix build aborted due to error in primitive Y calculations.', 11001);
        Exit;  // Some problem occured building Yprims
      End;
-     
+
 
      FrequencyChanged := FALSE;
 
@@ -181,12 +180,12 @@ Begin
          WITH pElem Do
          IF  (Enabled) THEN Begin          // Add stuff only if enabled
            Case BuildOption of
-              WHOLEMATRIX : CmatArray := GetYPrimValues(ALL_YPRIM);
-              SERIESONLY:   CmatArray := GetYPrimValues(SERIES)
+              WHOLEMATRIX :   ActiveYPrim[ActorID]  := GetYPrimValues(ALL_YPRIM);
+              SERIESONLY  :   ActiveYPrim[ActorID]  := GetYPrimValues(SERIES)
            End;
            // new function adding primitive Y matrix to KLU system Y matrix
-           if CMatArray <> Nil then
-              if AddPrimitiveMatrix(hY, Yorder, @NodeRef[1], @CMatArray[1]) < 1 then
+           if ActiveYPrim[ActorID] <> Nil then
+              if AddPrimitiveMatrix(hY, Yorder, @NodeRef[1], @ActiveYPrim[ActorID][1]) < 1 then
                  Raise EEsolv32Problem.Create('Node index out of range adding to System Y Matrix')
          End;   // If Enabled
          pElem := CktElements.Next;
@@ -223,7 +222,7 @@ Begin
     // SolutionInitialized := False;  //Require initialization of voltages if Y changed
 
     If PreserveNodeVoltages Then RestoreNodeVfromVbus;
-    
+
    End;
 End;
 

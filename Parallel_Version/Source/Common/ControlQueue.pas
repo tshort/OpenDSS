@@ -42,12 +42,12 @@ Type
        Temp_dbl     : Array[0..7] of double;  // Temporary registers, dbl type
        Ltimer       : TTimeRec;
 
-       FUNCTION  Pop(const ActionTime:TTimeRec; Var Code, ProxyHdl, Hdl:Integer): TControlElem;  // Pop action from queue <= given time
-       FUNCTION  Pop_Time(const ActionTime:TTimeRec; Var Code, ProxyHdl, Hdl:Integer; var ATime : Double; KeepIn : Boolean): TControlElem;  // Pop action from queue <= given time
-       PROCEDURE DeleteFromQueue(i: Integer; popped:Boolean);
+       FUNCTION  Pop(const ActionTime:TTimeRec; Var Code, ProxyHdl, Hdl:Integer; ActorID: Integer): TControlElem;  // Pop action from queue <= given time
+       FUNCTION  Pop_Time(const ActionTime:TTimeRec; Var Code, ProxyHdl, Hdl:Integer; var ATime : Double; KeepIn : Boolean; ActorID : Integer): TControlElem;  // Pop action from queue <= given time
+       PROCEDURE DeleteFromQueue(i: Integer; popped:Boolean; ActorID: Integer);
        FUNCTION  TimeRecToTime(Trec:TTimeRec):Double;
        PROCEDURE Set_Trace(const Value: Boolean);
-       PROCEDURE WriteTraceRecord(const ElementName: String;const Code:Integer; TraceParameter:Double;const s:String);
+       PROCEDURE WriteTraceRecord(const ElementName: String;const Code:Integer; TraceParameter:Double;const s:String; ActorID : Integer);
        FUNCTION Get_QueueSize:Integer;
        PROCEDURE Recalc_Time_Step(ActorID: Integer);
        PROCEDURE Restore_Time_Step(ActorID: Integer);
@@ -57,8 +57,8 @@ Type
       constructor Create;
       destructor Destroy; override;
 
-      FUNCTION  Push(Const Hour:Integer; Const Sec:Double; Const Code, ProxyHdl:Integer; Const Owner:TControlElem):Integer; overload;
-      FUNCTION  Push(Const Hour:Integer; Const Sec:Double; Const Code:EControlAction; Const ProxyHdl:Integer; Const Owner:TControlElem):Integer; overload;
+      FUNCTION  Push(Const Hour:Integer; Const Sec:Double; Const Code, ProxyHdl:Integer; Const Owner:TControlElem; ActorID : Integer):Integer; overload;
+      FUNCTION  Push(Const Hour:Integer; Const Sec:Double; Const Code:EControlAction; Const ProxyHdl:Integer; Const Owner:TControlElem; ActorID : Integer):Integer; overload;
       PROCEDURE Clear;
       PROCEDURE DoAllActions(ActorID : Integer);
       FUNCTION  DoNearestActions(VAR Hour:Integer; VAR Sec:Double; ActorID : Integer):Boolean;  // Do only actions with lowest time
@@ -66,7 +66,7 @@ Type
       FUNCTION  DoMultiRate(const Hour:Integer; const sec: Double; ActorID : Integer):Boolean;  // Do actions with time <= t
 
       FUNCTION  IsEmpty:Boolean;
-      PROCEDURE Delete(Hdl:Integer);  // Delete queue item by handle
+      PROCEDURE Delete(Hdl:Integer; ActorID : Integer);  // Delete queue item by handle
 
       PROCEDURE ShowQueue(Const Filenm:String);
 
@@ -84,12 +84,12 @@ Uses DSSGlobals, sysutils, Utilities;
 
 { TControlQueue }
 
-Function TControlQueue.Push(Const Hour:Integer; const Sec: Double; Const code:EControlAction; Const ProxyHdl:Integer; const Owner: TControlElem):Integer;
+Function TControlQueue.Push(Const Hour:Integer; const Sec: Double; Const code:EControlAction; Const ProxyHdl:Integer; const Owner: TControlElem; ActorID : Integer):Integer;
 begin
-  Result := Push (Hour, Sec, Integer(code), ProxyHdl, Owner);
+  Result := Push (Hour, Sec, Integer(code), ProxyHdl, Owner, ActorID);
 end;
 
-Function TControlQueue.Push(Const Hour:Integer; const Sec: Double; Const code, ProxyHdl:Integer;   const Owner: TControlElem):Integer;
+Function TControlQueue.Push(Const Hour:Integer; const Sec: Double; Const code, ProxyHdl:Integer;   const Owner: TControlElem; ActorID: Integer):Integer;
 
 {Add a control action to the queue, sorted by lowest time first}
 {Returns handle to the action}
@@ -148,7 +148,7 @@ Begin
      Result := ctrlHandle;
 
      IF (DebugTrace)  THEN WriteTraceRecord(Owner.Name, Code, Owner.DblTraceParameter,
-                               Format('Handle %d Pushed onto Stack',[ctrlHandle]));
+                               Format('Handle %d Pushed onto Stack',[ctrlHandle]), ActorID);
 End;
 
 
@@ -213,13 +213,13 @@ Begin
        t := pActionRecord(Items[0])^.ActionTime;
        Hour := t.Hour;
        Sec  := t.Sec;
-       pElem := Pop(t, Code, ProxyHdl, hdl);
+       pElem := Pop(t, Code, ProxyHdl, hdl, ActorID);
        While pElem <> NIL Do
        Begin
-           IF DebugTrace Then WriteTraceRecord(pElem.Name, Code, pElem.DblTraceParameter, Format('Pop Handle %d Do Nearest Action',[hdl]) );
+           IF DebugTrace Then WriteTraceRecord(pElem.Name, Code, pElem.DblTraceParameter, Format('Pop Handle %d Do Nearest Action',[hdl]),ActorID);
            pElem.DoPendingAction(Code, ProxyHdl, ActorID);
            Result := TRUE;
-           pElem := Pop(t, Code, ProxyHdl, hdl);
+           pElem := Pop(t, Code, ProxyHdl, hdl, ActorID);
        End;
    End;
 End;
@@ -232,7 +232,7 @@ begin
 end;
 
 
-FUNCTION TControlQueue.Pop(const ActionTime: TTimeRec; Var Code, ProxyHdl, Hdl:Integer): TControlElem;
+FUNCTION TControlQueue.Pop(const ActionTime: TTimeRec; Var Code, ProxyHdl, Hdl:Integer; ActorID : Integer): TControlElem;
  // pop off next control action with an action time <= ActionTime (sec)
 
 VAR
@@ -253,13 +253,13 @@ Begin
               Code     := ActionCode;
               ProxyHdl := ProxyHandle;
               Hdl      := ActionHandle;
-              DeleteFromQueue(i, TRUE);
+              DeleteFromQueue(i, TRUE, ActorID);
               Break;
           End;
       End;
 End;
 
-FUNCTION  TControlQueue.Pop_Time(const ActionTime:TTimeRec; Var Code, ProxyHdl, Hdl:Integer; var ATime : Double; keepIn : boolean): TControlElem;  // Pop action from queue <= given time
+FUNCTION  TControlQueue.Pop_Time(const ActionTime:TTimeRec; Var Code, ProxyHdl, Hdl:Integer; var ATime : Double; keepIn : boolean; ActorID : Integer): TControlElem;  // Pop action from queue <= given time
  // pop off next control action with an action time <= ActionTime (sec)
 
 VAR
@@ -281,13 +281,13 @@ Begin
               ProxyHdl := ProxyHandle;
               Hdl      := ActionHandle;
               ATime    := TimeRecToTime(ActionTime);
-              if not keepIn then  DeleteFromQueue(i, TRUE);
+              if not keepIn then  DeleteFromQueue(i, TRUE, ActorID);
               Break;
           End;
       End;
 End;
 
-PROCEDURE TControlQueue.DeleteFromQueue(i: Integer; popped:Boolean);
+PROCEDURE TControlQueue.DeleteFromQueue(i: Integer; popped:Boolean; ActorID : Integer);
 // Delete i-th element from the Queue
 VAR
    pElem     :TControlElem;
@@ -299,7 +299,7 @@ Begin
        IF (DebugTrace)  THEN Begin
              If Popped Then S := 'by Pop function' Else S := 'by control device' ;
              WriteTraceRecord(pElem.Name, ActionCode, pelem.dbltraceParameter,
-                             Format('Handle %d deleted from Queue %s',[ActionHandle, S]));
+                             Format('Handle %d deleted from Queue %s',[ActionHandle, S]), ActorID);
        End;
      End;
 
@@ -326,13 +326,13 @@ Begin
 
        t.Hour := Hour;
        t.Sec  := Sec;
-       pElem := Pop(t, Code, ProxyHdl, hdl);
+       pElem := Pop(t, Code, ProxyHdl, hdl, ActorID);
        While pElem <> NIL Do
        Begin
-           IF (DebugTrace)  THEN WriteTraceRecord(pElem.Name, Code, pelem.dbltraceParameter, Format('Pop Handle %d Do Action',[Hdl]));
+           IF (DebugTrace)  THEN WriteTraceRecord(pElem.Name, Code, pelem.dbltraceParameter, Format('Pop Handle %d Do Action',[Hdl]), ActorID);
            pElem.DoPendingAction(code, ProxyHdl, ActorID);
            Result := TRUE;
-           pElem := Pop(t, Code, ProxyHdl, hdl);
+           pElem := Pop(t, Code, ProxyHdl, hdl, ActorID);
        End;
    End;
 
@@ -363,13 +363,13 @@ Begin
        Ltimer.Sec   := Sec;
        Temp_dbl[4]  :=  ActiveCircuit[ActorID].solution.DynaVars.h;                        // Simulation step time (Time window size)
        Temp_dbl[6]  :=  TimeRecToTime(Ltimer);                                    // Simulation step time incremental
-       pElem        :=  Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE);
+       pElem        :=  Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE, ActorID);
        While pElem <> NIL Do
        Begin
-           IF (DebugTrace)  THEN WriteTraceRecord(pElem.Name, Code, pelem.dbltraceParameter, Format('Pop Handle %d Do Action',[Hdl]));
+           IF (DebugTrace)  THEN WriteTraceRecord(pElem.Name, Code, pelem.dbltraceParameter, Format('Pop Handle %d Do Action',[Hdl]), ActorID);
            pElem.DoPendingAction(code, ProxyHdl, ActorID);
            Result     :=  TRUE;
-           pElem      :=  Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE);
+           pElem      :=  Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE, ActorID);
        End;
 //**************After this point, the additional control actions are performed************
        Temp_dbl[7]  :=  ActiveCircuit[ActorID].solution.DynaVars.t;                        // Saving the current time (secs)
@@ -377,17 +377,17 @@ Begin
        Temp_dbl[2]  :=  Temp_dbl[6];
 //*************** Simulation time is recalculated considering the next control action event ************
        Recalc_Time_Step(ActorID);
-       pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], TRUE);         // Downloads the next CtrlAction without
+       pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], TRUE, ActorID);         // Downloads the next CtrlAction without
        while pElem <> nil do                                                      // removing it from the Queue
        begin
           while Temp_Dbl[3] >= 3600.0 do Temp_dbl[3]  := Temp_dbl[3] - 3600.0;    // CtrlAction Time is adjusted
           Temp_dbl[5] :=  (Temp_dbl[3] - Temp_dbl[6]) + Temp_dbl[1];              // Recalculates the CtrlAction occurrence time
           if Temp_dbl[5] < Temp_dbl[4] then                                       // Checks if the CtrlAction is within the
           begin                                                                   // time window
-             pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE);  // Removes the CtrlAction from The Queue
-             IF (DebugTrace)  THEN WriteTraceRecord(pElem.Name, Code, pelem.dbltraceParameter, Format('Pop Handle %d Do Action',[Hdl]));
+             pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], FALSE, ActorID);  // Removes the CtrlAction from The Queue
+             IF (DebugTrace)  THEN WriteTraceRecord(pElem.Name, Code, pelem.dbltraceParameter, Format('Pop Handle %d Do Action',[Hdl]), ActorID);
              pElem.DoPendingAction(code, ProxyHdl, ActorID);
-             pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], TRUE);   // Downloads the next CtrlAction without
+             pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], TRUE, ActorID);   // Downloads the next CtrlAction without
           end                                                                     // removing it from the Queue
           else
           begin
@@ -407,7 +407,7 @@ Begin
               Restore_Time_Step(ActorID);                                                  // Restores Time for sampling devices
               SampleControlDevices(ActorID);
               Recalc_Time_Step(ActorID);                                                   // Recalculating Time for next iteration
-              pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], TRUE);  // Downloads the next CtrlAction without
+              pElem := Pop_Time(Ltimer, Code, ProxyHdl, hdl, Temp_dbl[3], TRUE, ActorID);  // Downloads the next CtrlAction without
             end;                                                                  // removing it from the Queue
           end;
        end;
@@ -485,7 +485,7 @@ begin
 
 end;
 
-PROCEDURE TControlQueue.WriteTraceRecord(const ElementName: String;const Code:Integer; TraceParameter:Double;const s:String);
+PROCEDURE TControlQueue.WriteTraceRecord(const ElementName: String;const Code:Integer; TraceParameter:Double;const s:String; ActorID : Integer);
 
 Begin
 
@@ -512,7 +512,7 @@ Begin
 
 end;
 
-PROCEDURE TControlQueue.Delete(Hdl: Integer);
+PROCEDURE TControlQueue.Delete(Hdl: Integer; ActorID : Integer);
 
 {Delete an item by its Handle reference}
 
@@ -522,7 +522,7 @@ begin
      With ActionList Do
      For i := 0 to Count-1 Do Begin
          IF pActionRecord(Items[i])^.ActionHandle = Hdl THEN  Begin
-              DeleteFromQueue(i, FALSE);
+              DeleteFromQueue(i, FALSE, ActorID);
               Exit;
             End;
      End;

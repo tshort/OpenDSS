@@ -68,7 +68,6 @@ TYPE
           SavedBuses    :pTBusArray;
           SavedBusNames :pStringArray;
           SavedNumBuses :Integer;
-
           FLoadMultiplier :Double;  // global multiplier for every load
 
           AbortBusProcess :Boolean;
@@ -116,7 +115,6 @@ TYPE
 
           // lists of pointers to different elements by class
           Faults,
-          CktElements,
           PDElements,
           PCElements,
           DSSControls,
@@ -138,6 +136,7 @@ TYPE
           Feeders,
           Reactors,
           SwtControls        :PointerList.TPointerList;
+          CktElements        : PointerList.TPointerList;
 
           ControlQueue:TControlQueue;
 

@@ -36,20 +36,20 @@ TYPE
         GetPtrToSystemVarray:     Procedure(var V : Pointer; var iNumNodes : Integer); StdCall; // Returns pointer to Solution.V and size
         GetActiveElementIndex:    Function() : Integer; StdCall;
         IsActiveElementEnabled:   Function() : Boolean; StdCall;
-        IsBusCoordinateDefined:   Function(BusRef : Integer) : Boolean; StdCall;
-        GetBusCoordinate:         Procedure(BusRef : Integer; Var X, Y : Double); StdCall;
-        GetBuskVBase:             Function(BusRef : Integer) : Double; StdCall;
-        GetBusDistFromMeter:      Function(BusRef : Integer) : Double; StdCall;
+        IsBusCoordinateDefined:   Function(BusRef : Integer; ActorID : Integer) : Boolean; StdCall;
+        GetBusCoordinate:         Procedure(BusRef : Integer; Var X, Y : Double; ActorID : Integer); StdCall;
+        GetBuskVBase:             Function(BusRef : Integer; ActorID : Integer) : Double; StdCall;
+        GetBusDistFromMeter:      Function(BusRef : Integer; ActorID : Integer) : Double; StdCall;
 
-        GetDynamicsStruct:        Procedure(var pDynamicsStruct : Pointer); StdCall;  // Returns pointer to dynamics variables structure
-        GetStepSize:              Function() : Double; StdCall;  // Return just 'h' from dynamics record
-        GetTimeSec:               Function() : Double; StdCall; // returns t in sec from top of hour
-        GetTimeHr:                Function() : Double; StdCall; // returns time as a double in hours
+        GetDynamicsStruct:        Procedure(var pDynamicsStruct : Pointer; ActorID : Integer); StdCall;  // Returns pointer to dynamics variables structure
+        GetStepSize:              Function(ActorID : Integer) : Double; StdCall;  // Return just 'h' from dynamics record
+        GetTimeSec:               Function(ActorID : Integer) : Double; StdCall; // returns t in sec from top of hour
+        GetTimeHr:                Function(ActorID: Integer) : Double; StdCall; // returns time as a double in hours
 
-        GetPublicDataPtr:         Procedure(var pPublicData : Pointer; Var PublicDataBytes : Integer); StdCall;
-        GetActiveElementName:     Function(FullName : pAnsiChar; MaxNameLen : Cardinal) : Integer; StdCall;
-        GetActiveElementPtr:      Function() : Pointer; StdCall;  // Returns pointer to active circuit element
-        ControlQueuePush:         Function(Const Hour:Integer; Const Sec:Double; Const Code, ProxyHdl:Integer; Owner:Pointer):Integer; StdCall;
+        GetPublicDataPtr:         Procedure(var pPublicData : Pointer; Var PublicDataBytes : Integer; ActorID : Integer); StdCall;
+        GetActiveElementName:     Function(FullName : pAnsiChar; MaxNameLen : Cardinal; ActorID : Integer) : Integer; StdCall;
+        GetActiveElementPtr:      Function(ActorID : Integer) : Pointer; StdCall;  // Returns pointer to active circuit element
+        ControlQueuePush:         Function(Const Hour:Integer; Const Sec:Double; Const Code, ProxyHdl:Integer; Owner:Pointer; ActorID : Integer):Integer; StdCall;
         GetResultStr:             Procedure(S : pAnsiChar; Maxlen : Cardinal); StdCall;
 
    End;

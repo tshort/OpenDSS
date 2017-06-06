@@ -274,85 +274,85 @@ End;
 
 {====================================================================================================================}
 
-Function        IsBusCoordinateDefinedCallback (BusRef:Integer):Boolean; StdCall;
+Function        IsBusCoordinateDefinedCallback (BusRef:Integer; ActorID : Integer):Boolean; StdCall;
 Begin
         Result := False;
-        If Assigned(ActiveCircuit[ActiveActor]) and (busRef > 0) Then Result := ActiveCircuit[ActiveActor].Buses^[BusRef].CoordDefined;
+        If Assigned(ActiveCircuit[ActorID]) and (busRef > 0) Then Result := ActiveCircuit[ActorID].Buses^[BusRef].CoordDefined;
 End;
 
 {====================================================================================================================}
-Procedure       GetBusCoordinateCallback       (BusRef:Integer; Var X, Y:Double); StdCall;
+Procedure       GetBusCoordinateCallback       (BusRef:Integer; Var X, Y:Double; ActorID : Integer); StdCall;
 Begin
        X := 0.0;  Y := 0.0;
-       If Assigned(ActiveCircuit[ActiveActor]) and (busRef > 0) Then Begin
-          X := ActiveCircuit[ActiveActor].Buses^[BusRef].X;
-          Y := ActiveCircuit[ActiveActor].Buses^[BusRef].Y;
+       If Assigned(ActiveCircuit[ActorID]) and (busRef > 0) Then Begin
+          X := ActiveCircuit[ActorID].Buses^[BusRef].X;
+          Y := ActiveCircuit[ActorID].Buses^[BusRef].Y;
        End;
 End;
 
 {====================================================================================================================}
-Function       GetBuskVBaseCallback           (BusRef:Integer):Double; StdCall;
+Function       GetBuskVBaseCallback           (BusRef:Integer; ActorID : Integer):Double; StdCall;
 Begin
        Result := 0.0;
-       If Assigned(ActiveCircuit[ActiveActor]) and (busRef > 0) Then Begin
-          Result := ActiveCircuit[ActiveActor].Buses^[BusRef].kVBase;
+       If Assigned(ActiveCircuit[ActorID]) and (busRef > 0) Then Begin
+          Result := ActiveCircuit[ActorID].Buses^[BusRef].kVBase;
        End;
 End;
 
 {====================================================================================================================}
-Function       GetBusDistFromMeterCallback      (BusRef:Integer):Double; StdCall;
+Function       GetBusDistFromMeterCallback      (BusRef:Integer; ActorID : Integer):Double; StdCall;
 Begin
        Result := 0.0;
-       If Assigned(ActiveCircuit[ActiveActor]) and (busRef > 0) Then Begin
-          Result := ActiveCircuit[ActiveActor].Buses^[BusRef].DistFromMeter;
+       If Assigned(ActiveCircuit[ActorID]) and (busRef > 0) Then Begin
+          Result := ActiveCircuit[ActorID].Buses^[BusRef].DistFromMeter;
        End;
 End;
 
 {====================================================================================================================}
-Procedure GetDynamicsStructCallBack(var DynamicsStruct: Pointer); StdCall;
+Procedure GetDynamicsStructCallBack(var DynamicsStruct: Pointer; ActorID : Integer); StdCall;
 Begin
-       If Assigned(ActiveCircuit[ActiveActor]) Then Begin
-          DynamicsStruct := @ActiveCircuit[ActiveActor].Solution.DynaVars;
+       If Assigned(ActiveCircuit[ActorID]) Then Begin
+          DynamicsStruct := @ActiveCircuit[ActorID].Solution.DynaVars;
        End;
 
 End;
 
 {====================================================================================================================}
-Function GetStepSizeCallBack:Double; StdCall;
-Begin
-       Result := 0.0;
-       If Assigned(ActiveCircuit[ActiveActor]) Then Begin
-          Result := ActiveCircuit[ActiveActor].Solution.DynaVars.h;
-       End;
-End;
-
-{====================================================================================================================}
-Function GetTimeSecCallBack:Double; StdCall;
+Function GetStepSizeCallBack(ActorID : Integer):Double; StdCall;
 Begin
        Result := 0.0;
-       If Assigned(ActiveCircuit[ActiveActor]) Then Begin
-          Result := ActiveCircuit[ActiveActor].Solution.DynaVars.t;
+       If Assigned(ActiveCircuit[ActorID]) Then Begin
+          Result := ActiveCircuit[ActorID].Solution.DynaVars.h;
        End;
-
 End;
 
 {====================================================================================================================}
-Function GetTimeHrCallBack:Double; StdCall;
+Function GetTimeSecCallBack(ActorID : Integer):Double; StdCall;
 Begin
        Result := 0.0;
-       If Assigned(ActiveCircuit[ActiveActor]) Then Begin
-          Result := ActiveCircuit[ActiveActor].Solution.DynaVars.dblHour;
+       If Assigned(ActiveCircuit[ActorID]) Then Begin
+          Result := ActiveCircuit[ActorID].Solution.DynaVars.t;
+       End;
+
+End;
+
+{====================================================================================================================}
+Function GetTimeHrCallBack(ActorID : Integer):Double; StdCall;
+Begin
+       Result := 0.0;
+       If Assigned(ActiveCircuit[ActorID]) Then Begin
+          Result := ActiveCircuit[ActorID].Solution.DynaVars.dblHour;
        End;
 End;
 
 {====================================================================================================================}
 
-Procedure GetPublicDataPtrCallBack(var pPublicData : Pointer; var PublicDataBytes:Integer); StdCall;
+Procedure GetPublicDataPtrCallBack(var pPublicData : Pointer; var PublicDataBytes:Integer; ActorID : Integer); StdCall;
 
 Begin
 
-       If Assigned(ActiveCircuit[ActiveActor].ActiveCktElement) then
-        With ActiveCircuit[ActiveActor] Do
+       If Assigned(ActiveCircuit[ActorID].ActiveCktElement) then
+        With ActiveCircuit[ActorID] Do
            With ActiveCktElement Do Begin
               pPublicData := PublicDataStruct;
               PublicDataBytes := PublicDataSize;
@@ -360,15 +360,15 @@ Begin
 
 End;
 
-Function GetActiveElementNameCallBack(FullName:pAnsiChar; Maxlen:Cardinal) : Integer; StdCall;
+Function GetActiveElementNameCallBack(FullName:pAnsiChar; Maxlen:Cardinal; ActorID : Integer) : Integer; StdCall;
 {Maxlen is num of chars the calling program allocates for the string}
 
 Var
    S : String;
 Begin
       Result := 0;
-      If Assigned(ActiveCircuit[ActiveActor].ActiveCktElement) then
-        With ActiveCircuit[ActiveActor] Do
+      If Assigned(ActiveCircuit[ActorID].ActiveCktElement) then
+        With ActiveCircuit[ActorID] Do
            With ActiveCktElement Do Begin
               S := ParentClass.Name + '.' + Name;
 
@@ -377,14 +377,14 @@ Begin
         End;
 End;
 
-Function GetActiveElementPtrCallBack() : Pointer; StdCall;  // Returns pointer to active circuit element
+Function GetActiveElementPtrCallBack(ActorID : Integer) : Pointer; StdCall;  // Returns pointer to active circuit element
 Begin
-     Result := Pointer(ActiveCircuit[ActiveActor].ActiveCktElement);
+     Result := Pointer(ActiveCircuit[ActorID].ActiveCktElement);
 End;
 
-Function ControlQueuePushCallBack(Const Hour:Integer; Const Sec:Double; Const Code, ProxyHdl:Integer; Owner:Pointer):Integer; StdCall;
+Function ControlQueuePushCallBack(Const Hour:Integer; Const Sec:Double; Const Code, ProxyHdl:Integer; Owner:Pointer; ActorID : Integer):Integer; StdCall;
 Begin
-     Result := ActiveCircuit[ActiveActor].ControlQueue.Push(Hour, Sec, Code, ProxyHdl, Owner);
+     Result := ActiveCircuit[ActorID].ControlQueue.Push(Hour, Sec, Code, ProxyHdl, Owner, ActorID);
 End;
 
 Procedure GetResultStrCallBack(S:pAnsiChar; Maxlen:Cardinal); StdCall;
