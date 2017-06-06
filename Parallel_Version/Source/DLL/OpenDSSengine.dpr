@@ -213,7 +213,8 @@ uses
   Parallel_Lib in '..\Parallel_Lib\Parallel_Lib.pas',
   ImplParallel in 'ImplParallel.pas' {PVSystems: CoClass},
   ESPVLControl in '..\Controls\ESPVLControl.pas',
-  IndMach012 in '..\PCElements\IndMach012.pas';
+  IndMach012 in '..\PCElements\IndMach012.pas',
+  ImplLineCodes in 'ImplLineCodes.pas';
 
 exports
   DllGetClassObject,
