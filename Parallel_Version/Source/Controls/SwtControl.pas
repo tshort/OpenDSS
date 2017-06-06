@@ -397,13 +397,13 @@ begin
 // push on the Lock command if any at the present time delay
   if LockCommand <> CTRL_NONE then
   With ActiveCircuit[ActorID], ActiveCircuit[ActorID].Solution Do begin
-       ControlQueue.Push(DynaVars.intHour, Dynavars.t + TimeDelay, LockCommand, 0, Self);
+       ControlQueue.Push(DynaVars.intHour, Dynavars.t + TimeDelay, LockCommand, 0, Self, ActorID);
        LockCommand := CTRL_NONE;  // reset the lock command for next time
   end;
 
   if (ActionCommand <> PresentState) and not Armed then   // we need to operate this switch
   With ActiveCircuit[ActorID], ActiveCircuit[ActorID].Solution Do begin
-       ControlQueue.Push(DynaVars.intHour, Dynavars.t + TimeDelay, ActionCommand, 0, Self);
+       ControlQueue.Push(DynaVars.intHour, Dynavars.t + TimeDelay, ActionCommand, 0, Self, ActorID);
        Armed := TRUE;
   end;
   {ControlledElement.ActiveTerminalIdx := ElementTerminal;

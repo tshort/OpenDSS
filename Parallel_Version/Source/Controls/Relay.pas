@@ -965,7 +965,7 @@ begin
                PropertyValue[24] := Format('%-.g',[Delay_Time]);
 end;
 
-procedure TRelayObj.GenericLogic;
+procedure TRelayObj.GenericLogic(ActorID : Integer);
 { Generic relays only work on PC Elements With control terminals
 }
 
@@ -982,10 +982,10 @@ begin
       IF (VarValue >  OverTrip) or (VarValue < UnderTrip) THEN
         Begin
               IF Not ArmedForOpen THEN  // push the trip operation and arm to trip
-               WITH ActiveCircuit[ActiveActor]  Do
+               WITH ActiveCircuit[ActorID]  Do
                 Begin
                  RelayTarget := TPCElement(MonitoredElement).VariableName(MonitorVarIndex);
-                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + Delay_Time + Breaker_time, CTRL_OPEN, 0, Self);
+                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + Delay_Time + Breaker_time, CTRL_OPEN, 0, Self, ActorID);
                  OperationCount := NumReclose + 1;  // force a lockout
                  ArmedForOpen := TRUE;
                 End
@@ -993,9 +993,9 @@ begin
       ELSE   {Within bounds}
         Begin  {Less Than pickup value: reset if armed}
               IF ArmedForOpen  THEN    // We became unarmed, so reset and disarm
-               WITH ActiveCircuit[ActiveActor] Do
+               WITH ActiveCircuit[ActorID] Do
                 Begin
-                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self);
+                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self, ActorID);
                  ArmedForOpen := FALSE;
                 End;
         End;
@@ -1029,13 +1029,13 @@ begin
       IF NegSeqCurrentMag >= PickupAmps46  THEN
         Begin
           IF Not ArmedForOpen THEN  // push the trip operation and arm to trip
-           WITH ActiveCircuit[ActiveActor]  Do
+           WITH ActiveCircuit[ActorID]  Do
             Begin
              RelayTarget := '-Seq Curr';
               {simple estimate of trip time assuming current will be constant}
              If Delay_Time > 0.0 Then Triptime := Delay_Time
              Else Triptime := Isqt46 / sqr(NegSeqCurrentMag/BaseAmps46); // Sec
-             LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Breaker_time, CTRL_OPEN, 0, Self);
+             LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Breaker_time, CTRL_OPEN, 0, Self, ActorID);
              OperationCount := NumReclose + 1;  // force a lockout
              ArmedForOpen := TRUE;
             End
@@ -1043,9 +1043,9 @@ begin
       ELSE
         Begin  {Less Than pickup value: reset if armed}
               IF ArmedForOpen  THEN    // We became unarmed, so reset and disarm
-               WITH ActiveCircuit[ActiveActor] Do
+               WITH ActiveCircuit[ActorID] Do
                 Begin
-                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self);
+                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self, ActorID);
                  ArmedForOpen := FALSE;
                 End;
         End;
@@ -1150,8 +1150,8 @@ begin
                    RelayTarget := '';
                    If Phasetime>0.0 Then   RelayTarget := RelayTarget + 'Ph';
                    If Groundtime>0.0 Then RelayTarget := RelayTarget + ' Gnd';
-                   LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Breaker_time, CTRL_OPEN, 0,Self);
-                   IF OperationCount <= NumReclose THEN LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Breaker_time + RecloseIntervals^[OperationCount], CTRL_CLOSE, 0, Self);
+                   LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Breaker_time, CTRL_OPEN, 0,Self, ActorID);
+                   IF OperationCount <= NumReclose THEN LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Breaker_time + RecloseIntervals^[OperationCount], CTRL_CLOSE, 0, Self, ActorID);
                    ArmedForOpen := TRUE;
                    ArmedForClose := TRUE;
                 End;
@@ -1161,7 +1161,7 @@ begin
                IF ArmedForOpen  THEN
                  WITH ActiveCircuit[ActorID] Do    // If current dropped below pickup, disarm trip and set for reset
                    Begin
-                    LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self);
+                    LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self, ActorID);
                     ArmedForOpen := FALSE;
                     ArmedForClose := FALSE;
                     PhaseTarget      := FALSE;
@@ -1191,19 +1191,19 @@ begin
           IF Abs(S.Re) > PhaseInst * 1000.0 THEN
             Begin
               IF Not ArmedForOpen THEN  // push the trip operation and arm to trip
-               WITH ActiveCircuit[ActiveActor]  Do
+               WITH ActiveCircuit[ActorID]  Do
                 Begin
                  RelayTarget := 'Rev P';
-                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t +Delay_Time +  Breaker_time, CTRL_OPEN, 0, Self);
+                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t +Delay_Time +  Breaker_time, CTRL_OPEN, 0, Self, ActorID);
                  OperationCount := NumReclose + 1;  // force a lockout
                  ArmedForOpen := TRUE;
                 End
             End
           ELSE
               IF ArmedForOpen  THEN    // We became unarmed, so reset and disarm
-               WITH ActiveCircuit[ActiveActor] Do
+               WITH ActiveCircuit[ActorID] Do
                 Begin
-                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self);
+                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self, ActorID);
                  ArmedForOpen := FALSE;
                 End;
         End;
@@ -1280,12 +1280,12 @@ begin
              End;
 
            IF   TripTime > 0.0 THEN
-             WITH ActiveCircuit[ActiveActor] Do
+             WITH ActiveCircuit[ActorID] Do
              Begin
 
               If  ArmedForOpen and ((Solution.DynaVars.t + TripTime + Breaker_time) < NextTripTime) Then
                 Begin
-                  ControlQueue.Delete (LastEventHandle);  // Delete last event from Queue
+                  ControlQueue.Delete (LastEventHandle, ActorID);  // Delete last event from Queue
                   ArmedForOpen := False;  // force it to go through next IF
                 End;
 
@@ -1298,18 +1298,18 @@ begin
                      Else Relaytarget := 'OV';
                      
                      NextTripTime :=  Solution.DynaVars.t + TripTime + Breaker_time;
-                     LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, NextTripTime, CTRL_OPEN, 0, Self);
+                     LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, NextTripTime, CTRL_OPEN, 0, Self, ActorID);
                      ArmedforOpen := TRUE;
                 End;
              End
            ELSE
              Begin
                IF ArmedForOpen THEN
-               WITH ActiveCircuit[ActiveActor] Do    // If voltage dropped below pickup, disarm trip and set for reset
+               WITH ActiveCircuit[ActorID] Do    // If voltage dropped below pickup, disarm trip and set for reset
                  Begin
-                    ControlQueue.Delete (LastEventHandle);  // Delete last event from Queue
+                    ControlQueue.Delete (LastEventHandle, ActorID);  // Delete last event from Queue
                     NextTripTime := -1.0;
-                    LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self);
+                    LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self, ActorID);
                     ArmedForOpen := FALSE;
                  End;
              End;
@@ -1320,9 +1320,9 @@ begin
           IF Not ArmedForClose THEN
             Begin
               IF (Vmax > 0.9) THEN
-              WITH ActiveCircuit[ActiveActor] Do  // OK if voltage > 90%
+              WITH ActiveCircuit[ActorID] Do  // OK if voltage > 90%
                 Begin
-                     LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t +  RecloseIntervals^[OperationCount], CTRL_CLOSE, 0, Self);
+                     LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t +  RecloseIntervals^[OperationCount], CTRL_CLOSE, 0, Self, ActorID);
                      ArmedForClose := TRUE;
                 End;
             End
@@ -1354,10 +1354,10 @@ begin
       IF NegSeqVoltageMag >=  PickupVolts47 THEN
         Begin
               IF Not ArmedForOpen THEN  // push the trip operation and arm to trip
-               WITH ActiveCircuit[ActiveActor]  Do
+               WITH ActiveCircuit[ActorID]  Do
                 Begin
                  RelayTarget := '-Seq V';
-                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + Delay_Time + Breaker_time, CTRL_OPEN, 0, Self);
+                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + Delay_Time + Breaker_time, CTRL_OPEN, 0, Self, ActorID);
                  OperationCount := NumReclose + 1;  // force a lockout
                  ArmedForOpen := TRUE;
                 End
@@ -1365,9 +1365,9 @@ begin
       ELSE
         Begin  {Less Than pickup value: reset if armed}
               IF ArmedForOpen  THEN    // We became unarmed, so reset and disarm
-               WITH ActiveCircuit[ActiveActor] Do
+               WITH ActiveCircuit[ActorID] Do
                 Begin
-                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self);
+                 LastEventHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ResetTime, CTRL_RESET, 0, Self, ActorID);
                  ArmedForOpen := FALSE;
                 End;
         End;

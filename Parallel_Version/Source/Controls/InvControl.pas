@@ -1852,7 +1852,7 @@ begin
 
                                 With ActiveCircuit[ActorID].Solution.DynaVars Do
                                 ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                                  (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                                  (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
                                 If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
                                     ('**Ready to change var output due to DRC trigger in VV_DRC mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                             end;
@@ -1871,7 +1871,7 @@ begin
                           Set_PendingChange(CHANGEDRCVVARLEVEL,i);
                           With  ActiveCircuit[ActorID].Solution.DynaVars Do
                             ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                              (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                              (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
 
                           If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
                             ('**Ready to change VV_DRC output due to volt-var trigger in VV_DRC mode**, Vavgpu= %.5g, VPriorpu=%.5g',
@@ -1898,7 +1898,7 @@ begin
 
                             With  ActiveCircuit[ActorID].Solution.DynaVars Do
                             ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                              (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                              (intHour, t + TimeDelay, PendingChange[i], 0, Self, ACtorID);
 //                            If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
 //                                ('**Ready to change VV_DRC output due to ROC trigger (ROC)**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                          end;
@@ -1940,7 +1940,7 @@ begin
                         Set_PendingChange(CHANGEWATTVARLEVEL,i);
 
                         With  ActiveCircuit[ActorID].Solution.DynaVars Do
-                          ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push(intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                          ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push(intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
                         If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format('**Ready to change VV_VW output due to volt-watt trigger**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                     end
                     else
@@ -1963,7 +1963,7 @@ begin
                             Set_PendingChange(CHANGEWATTVARLEVEL,i);
                             With  ActiveCircuit[ActorID].Solution.DynaVars Do
                               ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                                (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                                (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
 
                             If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
                               ('**Ready to change VV_VW output due to volt-var trigger**, Vavgpu= %.5g, VPriorpu=%.5g',
@@ -1992,7 +1992,7 @@ begin
 
                             With  ActiveCircuit[ActorID].Solution.DynaVars Do
                             ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                              (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                              (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
 //                            If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
 //                                ('**Ready to change VV_VW output due to volt-watt trigger (ROC)**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                          end;
@@ -2027,7 +2027,7 @@ begin
 
                           With  ActiveCircuit[ActorID].Solution.DynaVars Do
                           ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                            (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                            (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
                           If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
                               ('**Ready to change watt output due in VOLTWATT mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                     end
@@ -2048,7 +2048,7 @@ begin
                       Set_PendingChange(CHANGEWATTLEVEL,i);
 
                       With  ActiveCircuit[ActorID].Solution.DynaVars Do
-                        ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push(intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                        ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push(intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
 //                            If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
 //                                ('**Ready to change watt output in VOLTWATT mode (ROC)**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                     end
@@ -2082,7 +2082,7 @@ begin
                           Set_PendingChange(CHANGEVARLEVEL,i);
                           With  ActiveCircuit[ActorID].Solution.DynaVars Do
                             ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                              (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                              (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
 
                           If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
                             ('**Ready to change var output due to volt-var trigger in volt-var mode**, Vavgpu= %.5g, VPriorpu=%.5g',
@@ -2111,7 +2111,7 @@ begin
 
                             With  ActiveCircuit[ActorID].Solution.DynaVars Do
                             ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                              (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                              (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
 //                            If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
 //                                ('**Ready to change var output due to ROC trigger (ROC) in volt-var mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                          end;
@@ -2134,7 +2134,7 @@ begin
 
                                 With ActiveCircuit[ActorID].Solution.DynaVars Do
                                 ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                                  (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                                  (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
                                 If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
                                     ('**Ready to change var output due in DRC mode**, Vavgpu= %.5g, VPriorpu=%.5g', [FPresentVpu[i],FAvgpVuPrior[i]]));
                             end;
@@ -2152,7 +2152,7 @@ begin
                           Set_PendingChange(CHANGEVARLEVEL,i);
                           With  ActiveCircuit[ActorID].Solution.DynaVars Do
                             ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push
-                              (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+                              (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
 
                           If ShowEventLog Then AppendtoEventLog('InvControl.' + Self.Name+' '+ControlledElement[i].Name, Format
                             ('**Ready to change DRC output because V or Q out of tolerance**, Vavgpu= %.5g, VPriorpu=%.5g, QoutPU=%.3g, QdesiredPU=%.3g, QDRCdesiredPU=%.3g',

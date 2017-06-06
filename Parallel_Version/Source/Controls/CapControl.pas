@@ -78,7 +78,7 @@ TYPE
             Function  Get_PendingChange : EControlAction;
             Procedure GetControlVoltage(Var ControlVoltage : Double);
             Procedure GetControlCurrent(Var ControlCurrent : Double);
-            Procedure GetBusVoltages(pBus : TDSSBus; Buff : pComplexArray);
+            Procedure GetBusVoltages(pBus : TDSSBus; Buff : pComplexArray; ActorID : Integer);
 
 
      public
@@ -639,13 +639,13 @@ Begin
 End;
 
 {--------------------------------------------------------------------------}
-procedure TCapControlObj.GetBusVoltages(pBus:TDSSBus; Buff: pComplexArray);
+procedure TCapControlObj.GetBusVoltages(pBus:TDSSBus; Buff: pComplexArray; ActorID : Integer);
 Var
    j       :Integer;
 begin
        WITH pBus Do
        If Assigned(Vbus) Then    // uses nphases from CapControlObj
-           FOR j := 1 to nPhases Do  cBuffer^[j] := ActiveCircuit[ActiveActor].Solution.NodeV^[GetRef(j)];;
+           FOR j := 1 to nPhases Do  cBuffer^[j] := ActiveCircuit[ActorID].Solution.NodeV^[GetRef(j)];;
 
 end;
 
@@ -873,7 +873,7 @@ begin
             IF ControlType <> VOLTAGECONTROL THEN Begin  // Don't bother for voltage control
 
               If   VoverrideBusSpecified then Begin
-                   GetBusVoltages(ActiveCircuit[ActorID].Buses^[VOverrideBusIndex], cBuffer);
+                   GetBusVoltages(ActiveCircuit[ActorID].Buses^[VOverrideBusIndex], cBuffer, ActorID);
               End
               Else MonitoredElement.GetTermVoltages (ElementTerminal, cBuffer);
 
@@ -1128,14 +1128,14 @@ begin
                       TimeDelay := Max(ONDelay , (Deadtime + ONDelay) - (Solution.DynaVars.t + Solution.DynaVars.intHour*3600.0-LastOpenTime))
                  Else  TimeDelay := ONDelay;
               End Else TimeDelay := OFFDelay;
-              ControlActionHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TimeDelay , PendingChange, 0, Self);
+              ControlActionHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TimeDelay , PendingChange, 0, Self, ActorID);
               Armed := TRUE;
               If ShowEventLog Then AppendtoEventLog('Capacitor.' + ControlledElement.Name, Format('**Armed**, Delay= %.5g sec', [TimeDelay]));
              End;
 
           IF Armed and (PendingChange = CTRL_NONE) Then
             Begin
-                ControlQueue.Delete(ControlActionHandle);
+                ControlQueue.Delete(ControlActionHandle, ActorID);
                 Armed := FALSE;
                 If ShowEventLog Then AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Reset**');
             End;

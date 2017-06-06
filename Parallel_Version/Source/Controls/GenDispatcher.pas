@@ -474,7 +474,7 @@ begin
           With ActiveCircuit[ActorID], ActiveCircuit[ActorID].Solution Do Begin
             LoadsNeedUpdating := TRUE; // Force recalc of power parms
             // Push present time onto control queue to force re solve at new dispatch value
-            ControlQueue.Push(DynaVars.intHour, DynaVars.t, 0, 0, Self);
+            ControlQueue.Push(DynaVars.intHour, DynaVars.t, 0, 0, Self, ActorID);
           End;
        
 

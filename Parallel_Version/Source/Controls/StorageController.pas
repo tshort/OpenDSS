@@ -125,11 +125,11 @@ TYPE
             FUNCTION  ReturnWeightsList:String;
 
             FUNCTION MakeFleetList:Boolean;
-            PROCEDURE DoLoadFollowMode;
-            PROCEDURE DoLoadShapeMode;
-            PROCEDURE DoTimeMode (Opt:Integer);
-            PROCEDURE DoScheduleMode;
-            PROCEDURE PushTimeOntoControlQueue(Code:Integer);
+            PROCEDURE DoLoadFollowMode(ActorID : Integer);
+            PROCEDURE DoLoadShapeMode(ActorID : Integer);
+            PROCEDURE DoTimeMode (Opt:Integer; ActorID : Integer);
+            PROCEDURE DoScheduleMode(ActorID : Integer);
+            PROCEDURE PushTimeOntoControlQueue(Code:Integer; ActorID : Integer);
             FUNCTION NormalizeToTOD(h: Integer; sec: Double): Double;
             procedure Set_PFBand(const Value: Double);
             function  Get_FleetkW: Double;
@@ -995,7 +995,7 @@ Begin
         
 End;
 
-procedure TStorageControllerObj.DoScheduleMode;
+procedure TStorageControllerObj.DoScheduleMode(ActorID : Integer);
 {
   In SCHEDULE mode we ramp up the storage from zero to the specified pctkWRate.
   This value is held for the flattime or until they  turn themselves
@@ -1010,7 +1010,7 @@ Var
 Begin
        pctDischargeRate := 0.0;   // init for test
        If (DisChargeTriggerTime > 0.0)  Then
-         WITH ActiveCircuit[ActiveActor].Solution Do
+         WITH ActiveCircuit[ActorID].Solution Do
          Begin
            // turn on if time within 1/2 time step
                If Not (FleetState=STORE_DISCHARGING) Then
@@ -1026,7 +1026,7 @@ Begin
                           pctDischargeRate :=  min(pctkWRate, max(pctKWRate * Tdiff/UpRampTime, 0.0));
                           SetFleetkWRate(pctDischargeRate);
                           DischargeInhibited := FALSE;
-                          PushTimeOntoControlQueue(STORE_DISCHARGING);
+                          PushTimeOntoControlQueue(STORE_DISCHARGING, ActorID);
                     End;
                End
 
@@ -1062,14 +1062,14 @@ Begin
 
                     End;
 
-                    If pctDischargeRate <> LastpctDischargeRate Then PushTimeOntoControlQueue(STORE_DISCHARGING);
+                    If pctDischargeRate <> LastpctDischargeRate Then PushTimeOntoControlQueue(STORE_DISCHARGING, ActorID);
 
                End;  {If not fleetstate ...}
          End;
          LastpctDischargeRate := pctDischargeRate;   // remember this value
 end;
 
-PROCEDURE TStorageControllerObj.DoTimeMode(Opt: Integer);
+PROCEDURE TStorageControllerObj.DoTimeMode(Opt: Integer; ActorID : Integer);
 {
   In Time mode we need to only turn the storage elements on. They will turn themselves
   off when they are either fully discharged, fully charged, or receive another command
@@ -1081,7 +1081,7 @@ Begin
 
           1:Begin
              If (DisChargeTriggerTime > 0.0)  Then
-               WITH ActiveCircuit[ActiveActor].Solution Do
+               WITH ActiveCircuit[ActorID].Solution Do
                Begin
                  // turn on if time within 1/2 time step
                  If abs(NormalizeToTOD(DynaVars.intHour, DynaVars.t) - DisChargeTriggerTime) < DynaVars.h/7200.0 Then
@@ -1095,7 +1095,7 @@ Begin
                           DischargeInhibited := FALSE;
                           If DischargeMode = MODEFOLLOW Then  DischargeTriggeredByTime := TRUE
                           Else
-                              PushTimeOntoControlQueue(STORE_DISCHARGING);
+                              PushTimeOntoControlQueue(STORE_DISCHARGING, ActorID);
                      End;
                  End
                  Else ChargingAllowed := TRUE;
@@ -1103,7 +1103,7 @@ Begin
             End; // Discharge mode
           2:Begin
             If ChargeTriggerTime > 0.0 Then
-               WITH ActiveCircuit[ActiveActor].Solution Do Begin
+               WITH ActiveCircuit[ActorID].Solution Do Begin
                If abs(NormalizeToTOD(DynaVars.intHour, DynaVars.t) - ChargeTriggerTime) < DynaVars.h/7200.0 Then
                If Not (FleetState=STORE_CHARGING) Then
                Begin
@@ -1112,11 +1112,11 @@ Begin
                     SetFleetToCharge;
                     DischargeInhibited := TRUE;
                     OutOfOomph         := FALSE;
-                    PushTimeOntoControlQueue(STORE_CHARGING);   // force re-solve at this time step
+                    PushTimeOntoControlQueue(STORE_CHARGING, ActorID);   // force re-solve at this time step
                     // Push message onto control queue to release inhibit at a later time
-                    With ActiveCircuit[ActiveActor]  Do  Begin
+                    With ActiveCircuit[ActorID]  Do  Begin
                           Solution.LoadsNeedUpdating := TRUE; // Force recalc of power parms
-                          ControlQueue.Push(DynaVars.intHour+InhibitHrs, Dynavars.t, RELEASE_INHIBIT, 0, Self);
+                          ControlQueue.Push(DynaVars.intHour+InhibitHrs, Dynavars.t, RELEASE_INHIBIT, 0, Self, ActorID);
                     End;
                End;
                End;
@@ -1145,21 +1145,21 @@ Begin
 End;
 
 
-procedure TStorageControllerObj.PushTimeOntoControlQueue(Code: Integer);
+procedure TStorageControllerObj.PushTimeOntoControlQueue(Code: Integer; ActorID : Integer);
 {
    Push present time onto control queue to force re solve at new dispatch value
 }
 begin
-      With ActiveCircuit[ActiveActor], ActiveCircuit[ActiveActor].Solution Do
+      With ActiveCircuit[ActorID], ActiveCircuit[ActorID].Solution Do
       Begin
             LoadsNeedUpdating := TRUE; // Force recalc of power parms
-            ControlQueue.Push(DynaVars.intHour, DynaVars.t, Code, 0, Self);
+            ControlQueue.Push(DynaVars.intHour, DynaVars.t, Code, 0, Self, ActorID);
       End;
 
 end;
 
 {--------------------------------------------------------------------------}
-PROCEDURE TStorageControllerObj.DoLoadFollowMode;
+PROCEDURE TStorageControllerObj.DoLoadFollowMode(ActorID : Integer);
 
 Var
    i           :Integer;
@@ -1237,7 +1237,7 @@ Begin
                 STORE_DISCHARGING: If ((PDiff + FleetkW) < 0.0) or OutOfOomph Then
                   Begin   // desired decrease is greater then present output; just cancel
                         SetFleetToIdle;   // also sets presentkW = 0
-                        PushTimeOntoControlQueue(STORE_IDLING);  // force a new power flow solution
+                        PushTimeOntoControlQueue(STORE_IDLING, ActorID);  // force a new power flow solution
                         ChargingAllowed := TRUE;
                         SkipkWDispatch  := TRUE;
                   End;
@@ -1277,7 +1277,7 @@ Begin
               Begin If not FleetState = STORE_IDLING Then
                     Begin
                         SetFleetToIdle;
-                        PushTimeOntoControlQueue(STORE_IDLING);  // force a new power flow solution
+                        PushTimeOntoControlQueue(STORE_IDLING, ActorID);  // force a new power flow solution
                     End;
                     ChargingAllowed := TRUE;
                     OutOfOomph := TRUE;
@@ -1311,7 +1311,7 @@ Begin
          End;
 
        If StorekWChanged or StorekvarChanged Then  // Only push onto controlqueue If there has been a change
-           PushTimeOntoControlQueue(STORE_DISCHARGING);
+           PushTimeOntoControlQueue(STORE_DISCHARGING, ActorID);
 
 
        {Else just continue}
@@ -1332,14 +1332,14 @@ Begin
 
        CASE DischargeMode of
             MODEFOLLOW:    Begin
-                                DoTimeMode(1);
-                                DoLoadFollowMode;
+                                DoTimeMode(1, ActorID);
+                                DoLoadFollowMode(ActorID);
                            End;
-            MODELOADSHAPE: DoLoadShapeMode;
-            MODESUPPORT:   DoLoadFollowMode;
-            MODETIME:      DoTimeMode(1);
-            MODEPEAKSHAVE: DoLoadFollowMode;
-            MODESCHEDULE:  DoScheduleMode;
+            MODELOADSHAPE: DoLoadShapeMode(ActorID);
+            MODESUPPORT:   DoLoadFollowMode(ActorID);
+            MODETIME:      DoTimeMode(1, ActorID);
+            MODEPEAKSHAVE: DoLoadFollowMode(ActorID);
+            MODESCHEDULE:  DoScheduleMode(ActorID);
        ELSE
            DoSimpleMsg(Format('Invalid DisCharging Mode: %d',[DisChargeMode]), 14408);
        END;
@@ -1347,7 +1347,7 @@ Begin
        If ChargingAllowed Then
        CASE ChargeMode of
             MODELOADSHAPE: ; // DoLoadShapeMode;  already executed above
-            MODETIME:DoTimeMode(2);
+            MODETIME:DoTimeMode(2, ActorID);
        ELSE
            DoSimpleMsg(Format('Invalid Charging Mode: %d',[ChargeMode]),14409);
        END;
@@ -1391,7 +1391,7 @@ Begin
 End;
 
 //----------------------------------------------------------------------------
-PROCEDURE TStorageControllerObj.DoLoadShapeMode;
+PROCEDURE TStorageControllerObj.DoLoadShapeMode(ActorID : Integer);
 VAR
      FleetStateSaved  :Integer;
      RateChanged      :Boolean;
@@ -1405,7 +1405,7 @@ Begin
 
     // Get multiplier
 
-     With ActiveCircuit[ActiveActor].Solution Do
+     With ActiveCircuit[ActorID].Solution Do
         CASE Mode OF
             DAILYMODE:     CalcDailyMult(DynaVars.dblHour); // Daily dispatch curve
             YEARLYMODE:    CalcYearlyMult(DynaVars.dblHour);
@@ -1433,11 +1433,11 @@ Begin
              SetFleetkWRate(pctKWRate);
              SetFleetkvarRate(pctkvarRate);
              SetFleetToDischarge;
-             ActiveCircuit[ActiveActor].Solution.LoadsNeedUpdating := TRUE; // Force recalc of power parms
+             ActiveCircuit[ActorID].Solution.LoadsNeedUpdating := TRUE; // Force recalc of power parms
          End;
 
     {Force a new power flow solution if fleet state has changed}
-    If (FleetState <> FleetStateSaved) or RateChanged Then  PushTimeOntoControlQueue(0);
+    If (FleetState <> FleetStateSaved) or RateChanged Then  PushTimeOntoControlQueue(0, ActorID);
 
 
 End;

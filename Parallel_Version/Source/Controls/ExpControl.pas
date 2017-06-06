@@ -545,7 +545,7 @@ begin
           FWithinTol[i] := False;
           Set_PendingChange(CHANGEVARLEVEL,i);
           With  ActiveCircuit[ActorID].Solution.DynaVars do
-            ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push (intHour, t + TimeDelay, PendingChange[i], 0, Self);
+            ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
           If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+' '+PVSys.Name, Format
             (' outside Hit Tolerance, Verr= %.5g, Qerr=%.5g', [Verr,Qerr]));
         end else begin
