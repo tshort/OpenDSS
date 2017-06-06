@@ -702,7 +702,9 @@ Function TLoadShapeObj.GetMult(hr:double):Complex;
 // hour=12.25 and the interval is 1.0, you will get interval 12.
 
 VAR
-   Index, i:Integer;
+   Index, i : Integer;
+   R_part,
+   Im_part  : Double;
 
    Function Set_Result_im(const realpart:double):Double;
    {Set imaginary part of Result when Qmultipliers not defined}
@@ -728,9 +730,11 @@ BEGIN
            Index := round(hr/Interval);
            IF Index>FNumPoints Then Index := Index Mod FNumPoints;  // Wrap around using remainder
            IF Index=0 THEN Index := FNumPoints;
-           Result.Re := PMultipliers^[Index];
+           R_part     :=  PMultipliers^[Index];
            If Assigned(QMultipliers) Then Result.im := QMultipliers^[Index]
-           Else  Result.im := Set_Result_im(Result.re);
+           Else  Im_part  := Set_Result_im(R_part);
+           Result.re      :=  R_part;
+           Result.im      :=  Im_part;
         END
       ELSE  BEGIN
           // For random interval
