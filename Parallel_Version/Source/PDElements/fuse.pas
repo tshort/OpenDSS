@@ -544,9 +544,9 @@ begin
                IF   TripTime > 0.0  THEN
                 Begin
                   IF Not ReadyToBlow[i]  THEN
-                  WITH ActiveCircuit[ActiveActor] Do
+                  WITH ActiveCircuit[ActorID] Do
                    Begin  // Then arm for an open operation
-                         hAction[i] := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Delaytime,i, 0, Self);
+                         hAction[i] := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + TripTime + Delaytime,i, 0, Self, ActorID);
                          ReadyToBlow[i] := TRUE;
                    End; {With}
                 End
@@ -554,7 +554,7 @@ begin
                 Begin
                   IF ReadyToBlow[i] THEN
                     Begin  //  Current has dropped below pickup and it hasn't blown yet
-                       ActiveCircuit[ActiveActor].ControlQueue.Delete(hAction[i]);  // Delete the fuse blow action
+                       ActiveCircuit[ActorID].ControlQueue.Delete(hAction[i], ActorID);  // Delete the fuse blow action
                        ReadyToBlow[i] := FALSE;
                     End;
                 End;
