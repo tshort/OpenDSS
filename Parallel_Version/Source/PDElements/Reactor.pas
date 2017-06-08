@@ -357,7 +357,9 @@ BEGIN
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "' + ParamName + '" for Object "' + Class_Name +'.'+ Name + '"', 230);
             1: ReactorSetbus1(param);
-            2: Setbus(2, param);
+            2:  begin
+                  Setbus(2, param);
+                end;
             3:{ Numphases := Parser.IntValue};  // see below
             4: kvarRating := Parser[ActorID].Dblvalue;
             5: kvRating := Parser[ActorID].Dblvalue;

@@ -84,7 +84,8 @@ TYPE
         DoHarmonicRecalc:Boolean;
         Bus2Defined     :Boolean;
 
-        SpecType   :Integer;
+        SpecType        :Integer;
+        NumTerm         : Integer;   // Flag used to indicate The number of terminals
 
         function  get_States(Idx: Integer): Integer;
         procedure set_States(Idx: Integer; const Value: Integer);
@@ -100,7 +101,6 @@ TYPE
       Public
 
         Connection :Integer;   // 0 or 1 for wye (default) or delta, respectively
-
         constructor Create(ParClass:TDSSClass; const CapacitorName:String);
         destructor  Destroy; override;
 
@@ -122,6 +122,8 @@ TYPE
         Property Totalkvar:Double Read FTotalkvar;
         Property NomKV:Double Read kvrating;
         Property LastStepInService:Integer Read FLastStepInService Write set_LastStepInService;
+
+        Property NumTerminals:Integer Read NumTerm;   // Property to know if the capacitor has 2 terminals
 
    end;
 
@@ -147,8 +149,8 @@ BEGIN
      DefineProperties;
 
      CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
-     CommandList.Abbrev := TRUE;
-     CapacitorClass := Self;
+     CommandList.Abbrev           := TRUE;
+     CapacitorClass               := Self;
 END;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -341,7 +343,10 @@ BEGIN
          CASE ParamPointer OF
             0: DoSimpleMsg('Unknown parameter "'+ParamName+'" for Object "Capacitor.'+Name+'"', 450);
             1: CapSetbus1(param);
-            2: Setbus(2, param);
+            2: Begin
+                Setbus(2, param);
+                NumTerm :=  2;    // Specifies that the capacitor is not connected to ground
+               End;
             3:{ Numphases := Parser.IntValue};  // see below
             4: InterpretDblArray (Param, FNumSteps, FkvarRating);
             5: kvRating := Parser[ActorID].Dblvalue;
@@ -526,6 +531,7 @@ BEGIN
      Bus2Defined      := FALSE;
 
      RecalcElementData(ActiveActor);
+     NumTerm  :=  1;
 
      InitPropertyValues(0);
 END;
