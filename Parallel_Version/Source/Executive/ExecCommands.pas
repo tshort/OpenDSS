@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 108;
+     NumExecCommands = 109;
 
 Var
 
@@ -145,6 +145,7 @@ Begin
      ExecCommand[106] := 'ClearAll';
      ExecCommand[107] := 'Wait';
      ExecCommand[108] := 'SolveAll';
+     ExecCommand[109] := 'CalcIncMatrix';
 
 
 
@@ -470,6 +471,7 @@ Begin
      CommandHelp[106] := 'Clears all the circuits and all the actors, after this instruction there will be only 1 actor (actor 1) and will be the active actor';
      CommandHelp[107] := 'Pauses the script thread until all the active actors are Ready to receive new commands (Under Testing)';
      CommandHelp[108] := 'Solves all the circuits loaded into memory';
+     CommandHelp[109] := 'Calculates the incidence matrix of the Active Circuit';
 End;
 
 //----------------------------------------------------------------------------
@@ -585,6 +587,9 @@ Begin
                 CmdResult   :=  DoSetCmd(1);
               end;
             end;
+       109: begin
+              ActiveCircuit[ActiveActor].Solution.Calc_Inc_Matrix(ActiveActor);
+            end
 
 
 
