@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 6/6/2017 6:21:41 PM (- $Rev: 12980 $, 49099734).
+// File generated on 6/8/2017 5:17:58 PM (- $Rev: 12980 $, 30937421).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -958,6 +958,8 @@ library OpenDSSengine
     HRESULT _stdcall Time_of_Step([out, retval] double* Value);
     [id(0x000000E4), helpstring("Solves the circuits for all the Actors created")]
     HRESULT _stdcall SolveAll(void);
+    [propget, id(0x000000E5)]
+    HRESULT _stdcall IncMatrix([out, retval] VARIANT* Value);
   };
 
   [

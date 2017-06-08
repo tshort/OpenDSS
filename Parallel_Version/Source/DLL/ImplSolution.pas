@@ -100,6 +100,7 @@ type
     function Get_IntervalHrs: Double; safecall;
     procedure Set_IntervalHrs(Value: Double); safecall;
     procedure SolveAll; safecall;
+    function Get_IncMatrix: OleVariant; safecall;
   end;
 
 implementation
@@ -707,6 +708,32 @@ begin
     ActiveActor :=  i;
     CmdResult   :=  DoSetCmd(1);
   end;
+end;
+
+function TSolution.Get_IncMatrix: OleVariant;
+var
+  IMIdx,
+  ArrSize,
+  MIdx : Integer;
+begin
+    If ActiveCircuit[ActiveActor] <> Nil Then Begin
+      with ACtiveCircuit[ActiveActor].Solution do
+      begin
+         ArrSize    :=  length(IncMatrixRow)-1;
+         Result     :=  VarArrayCreate([0, (ArrSize*3)], varInteger);
+         IMIdx      :=  0;
+         MIdx       :=  0;
+         while IMIdx < ArrSize Do
+         Begin
+            Result[(IMIdx + MIdx)] := IncMatrixRow[IMIdx + 1];
+            Result[(IMIdx + 1 + MIdx)] := IncMatrixCol[IMIdx + 1];
+            Result[(IMIdx + 2 + MIdx)] := IncMatrixVal[IMIdx + 1];
+            inc(IMIdx);
+            MIdx := MIdx + 2;
+         End;
+      end;
+    END
+    Else Result := VarArrayCreate([0,0], varInteger);;
 end;
 
 initialization
