@@ -214,7 +214,8 @@ uses
   ImplParallel in 'ImplParallel.pas' {PVSystems: CoClass},
   ESPVLControl in '..\Controls\ESPVLControl.pas',
   IndMach012 in '..\PCElements\IndMach012.pas',
-  ImplLineCodes in 'ImplLineCodes.pas';
+  ImplLineCodes in 'ImplLineCodes.pas',
+  Diakoptics in '..\Forms\Diakoptics.pas' {DiakopticsBox};
 
 exports
   DllGetClassObject,
