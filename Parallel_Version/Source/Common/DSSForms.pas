@@ -36,6 +36,7 @@ VAR
    PROCEDURE CloseDownForms;
    Procedure ShowTreeView(Const Fname:String);
    FUNCTION  MakeChannelSelection(NumFieldsToSkip:Integer; const Filename:String):Boolean;
+   PROCEDURE ShowDiakopticsBox;
 
 
 implementation
@@ -46,6 +47,7 @@ Uses      ExecCommands, ExecOptions,
           Helpform,
           PropEdit,
           About,
+          Diakoptics,
 //          MessageForm,
           ComCtrls,
           TViewer,
@@ -105,6 +107,19 @@ Begin
       Free;
  End;
 
+End;
+
+PROCEDURE ShowDiakopticsBox;
+
+Begin
+  If NoFormsAllowed Then Exit;
+  With TDiakopticsBox.Create(nil) Do
+  Try
+    ShowModal;
+    GlobalResult := VersionString;
+  Finally
+    Free;
+  End;
 End;
 
 Procedure ShowTreeView(Const Fname:String);
