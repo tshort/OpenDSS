@@ -12,7 +12,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ComCtrls, Menus, ToolWin, ImgList,ScriptEdit, ExtCtrls, PsAPI
   {$IFDEF VER300} // Seattle
-  ,System.ImageList;
+  ,System.ImageList, YMatrix;
   {$ELSE}
   ;
   {$ENDIF}
@@ -2775,7 +2775,5 @@ end;
 Initialization
     SelectedMonitor :=  '';
     IsMultiThread :=  True;
-
-Finalization
 
 end.
