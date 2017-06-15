@@ -1300,7 +1300,6 @@ Begin
      WHILE p_Elem <> nil DO Begin
        IF (p_Elem.Enabled) THEN If CheckBusReference(p_Elem, BusReference, j) Then Begin
 
-        {Use j set by CheckBusReference}
         NCond := p_elem.NConds;
         Nterm := p_elem.Nterms;
         p_elem.GetCurrents(c_Buffer);
@@ -1320,7 +1319,6 @@ Begin
      PDElem := ActiveCircuit.PDElements.First;
      WHILE PDElem <> nil DO Begin
        IF (PDElem.Enabled) THEN If CheckBusReference(PDElem, BusReference, j) Then Begin  // Is this connected to the bus
-        {Use j set by CheckBusReference}
         NCond := PDElem.NConds;
         Nterm := PDElem.Nterms;
         PDElem.GetCurrents(c_Buffer);
