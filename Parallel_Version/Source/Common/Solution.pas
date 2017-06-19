@@ -1339,6 +1339,7 @@ Begin
   if ActiveCircuit[ActorID]<>nil then
     with ActiveCircuit[ActorID] do
     Begin
+      setlength(IncMatrix,3);           // Init array
       ActiveIncCell[0]  := 1;           // Activates row 1 of the incidence matrix
       // Now we proceed to evaluate the link branches
       AddLines2IncMatrix(ActorID);      // Includes the Lines
