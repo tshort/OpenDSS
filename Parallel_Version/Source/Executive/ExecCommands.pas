@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 109;
+     NumExecCommands = 110;
 
 Var
 
@@ -146,6 +146,7 @@ Begin
      ExecCommand[107] := 'Wait';
      ExecCommand[108] := 'SolveAll';
      ExecCommand[109] := 'CalcIncMatrix';
+     ExecCommand[110] := 'Diakoptics';
 
 
 
@@ -472,6 +473,7 @@ Begin
      CommandHelp[107] := 'Pauses the script thread until all the active actors are Ready to receive new commands (Under Testing)';
      CommandHelp[108] := 'Solves all the circuits loaded into memory';
      CommandHelp[109] := 'Calculates the incidence matrix of the Active Circuit';
+     CommandHelp[110] := 'Starts the form for configuring the A-Diakoptics algorithm and to apply it into the active simulation';
 End;
 
 //----------------------------------------------------------------------------
@@ -589,6 +591,9 @@ Begin
             end;
        109: begin
               ActiveCircuit[ActiveActor].Solution.Calc_Inc_Matrix(ActiveActor);
+            end;
+       110: begin
+              ShowDiakopticsBox;
             end
 
 
