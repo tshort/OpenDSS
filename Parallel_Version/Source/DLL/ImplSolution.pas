@@ -713,27 +713,21 @@ end;
 function TSolution.Get_IncMatrix: OleVariant;
 var
   IMIdx,
-  ArrSize,
-  MIdx : Integer;
+  Idx,
+  ArrSize : Integer;
 begin
     If ActiveCircuit[ActiveActor] <> Nil Then Begin
       with ACtiveCircuit[ActiveActor].Solution do
       begin
-         ArrSize    :=  length(IncMatrixRow)-1;
-         Result     :=  VarArrayCreate([0, (ArrSize*3)], varInteger);
-         IMIdx      :=  0;
-         MIdx       :=  0;
-         while IMIdx < ArrSize Do
+         ArrSize    :=  length(IncMatrix)-3;
+         Result     :=  VarArrayCreate([0, ArrSize], varInteger);
+         for IMIdx  :=  0 to ArrSize Do
          Begin
-            Result[(IMIdx + MIdx)] := IncMatrixRow[IMIdx + 1];
-            Result[(IMIdx + 1 + MIdx)] := IncMatrixCol[IMIdx + 1];
-            Result[(IMIdx + 2 + MIdx)] := IncMatrixVal[IMIdx + 1];
-            inc(IMIdx);
-            MIdx := MIdx + 2;
+            Result[IMIdx] := IncMatrix[IMIdx+3];
          End;
       end;
     END
-    Else Result := VarArrayCreate([0,0], varInteger);;
+    Else Result := VarArrayCreate([0,0], varInteger);
 end;
 
 initialization
