@@ -253,6 +253,10 @@ begin
       ActiveActor :=  i;
       CmdResult   :=  DoSetCmd(1);
     end;
+  end;
+  47: begin  // Solution.CalcIncMatrix
+    With ActiveCircuit[ActiveActor].Solution do
+      Calc_Inc_Matrix(ActiveActor);
   end
   else
       Result:=-1;
@@ -461,7 +465,11 @@ end;
 
 //**********************************Variant type properties*******************************
 procedure SolutionV(mode:longint; out arg: Variant); cdecl;
-Var i:Integer;
+Var
+  i,
+  IMIdx,
+  Idx,
+  ArrSize : Integer;
 begin
   case mode of
   0: begin  // Solution.EventLog
@@ -472,9 +480,23 @@ begin
        End;
     END
     Else arg := VarArrayCreate([0,0], varOleStr);;
-  end
-  else
-             arg[0] := 'Error, paratemer not recognized';
+  end;
+  1: begin  // Solution.IncMatrix
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        with ACtiveCircuit[ActiveActor].Solution do
+        begin
+           ArrSize    :=  length(IncMatrix)-3;
+           arg     :=  VarArrayCreate([0, ArrSize], varInteger);
+           for IMIdx  :=  0 to ArrSize Do
+           Begin
+              arg[IMIdx] := IncMatrix[IMIdx+3];
+           End;
+        end;
+      END
+      Else arg := VarArrayCreate([0,0], varInteger);
+     end
+    else
+      arg[0] := 'Error, paratemer not recognized';
   end;
 end;
 end.
