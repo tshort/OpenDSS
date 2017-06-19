@@ -176,9 +176,7 @@ TYPE
        NodeV    : pNodeVArray;    // Main System Voltage Array   allows NodeV^[0]=0
        Currents : pNodeVArray;      // Main System Currents Array
 
-       IncMatrixRow : TIncMatrixArray;  // Row of the Incidence Matrix Value
-       IncMatrixCol : TIncMatrixArray;  // Column of the Incidence Matrix Value
-       IncMatrixVal : TIncMatrixArray;  // Value for the Incidence Matrix Cell
+       IncMatrix : TIncMatrixArray;  // Row of the Incidence Matrix Value
 
 //****************************Timing variables**********************************
        SolveStartTime      : int64;
@@ -191,7 +189,11 @@ TYPE
        Total_Solve_Time_Elapsed  : double;
        Step_Time_Elapsed      : double;
 //******************************************************************************
-       ActiveRow   : Integer;   // Reference to navigate through the incidence matrix rows
+// ActiveCell of the Incidence Matrix:
+// [0] = row
+// [1] = col
+// [2] = value
+       ActiveIncCell  :  Array[0..2] of Integer;
 //******************************************************************************
        constructor Create(ParClass:TDSSClass; const solutionname:String);
        destructor  Destroy; override;
@@ -244,6 +246,7 @@ TYPE
        PROCEDURE GetPCInjCurr(ActorID : Integer);
        PROCEDURE GetSourceInjCurrents(ActorID : Integer);
        PROCEDURE ZeroInjCurr(ActorID : Integer);
+       PROCEDURE Upload2IncMatrix;
        PROCEDURE Calc_Inc_Matrix(ActorID : Integer);                 // Calculates the incidence matrix for the Circuit
        procedure AddLines2IncMatrix(ActorID : Integer);             // Adds the Lines to the Incidence matrix arrays
        procedure AddXfmr2IncMatrix(ActorID : Integer);              // Adds the Xfmrs to the Incidence matrix arrays
@@ -423,11 +426,7 @@ Begin
 
     InitPropertyValues(0);
 
-    setlength(IncMatrixRow,1);
-    setlength(IncMatrixCol,1);
-    setlength(IncMatrixVal,1);
-
-
+    setlength(IncMatrix,3);
 End;
 
 // ===========================================================================================
@@ -1140,15 +1139,27 @@ Begin
     FOR i := 0 to ActiveCircuit[ActorID].NumNodes Do Currents^[i] := CZERO;
 End;
 // ===========================================================================================
+PROCEDURE TSolutionObj.Upload2IncMatrix;
+var
+  CIdx  : Integer;
+
+Begin
+  // Uploads the values to the incidence matrix
+  for Cidx := 1 to 3 do IncMatrix[Length(IncMatrix) - CIdx]  := ActiveIncCell[3 - CIdx];
+  // Normalize values
+  IncMatrix[Length(IncMatrix) - 3] := IncMatrix[Length(IncMatrix) - 3] - 1;
+  IncMatrix[Length(IncMatrix) - 2] := IncMatrix[Length(IncMatrix) - 2] - 2;
+  ActiveIncCell[2]  :=  -1;
+End;
+// ===========================================================================================
 procedure TSolutionObj.AddLines2IncMatrix(ActorID : Integer);
 var
-  LineBus      : String;
-  elem        :TLineObj;
+  LineBus       : String;
+  elem          :TLineObj;
   TermIdx,
-  BusdotIdx,
-  BusNameIdx,
-  CellVal     : Integer;
-  EndFlag     : Boolean;
+  CIdx,
+  BusdotIdx     : Integer;
+  EndFlag       : Boolean;
 begin
 // This rouitne adds the Lines to the incidence matrix vectors
   with ActiveCircuit[ActorID] do
@@ -1158,30 +1169,25 @@ begin
     Begin
       if elem.Enabled then
       Begin
-        CellVal       :=  1;
+        ActiveIncCell[2]  :=  1;
         for TermIdx := 1 to 2 do
         Begin
-            SetLength(IncMatrixRow, Length(IncMatrixRow) + 1);
-            SetLength(IncMatrixCol, Length(IncMatrixRow));
-            SetLength(IncMatrixVal, Length(IncMatrixRow));
-            LineBus     :=  elem.GetBus(TermIdx);
-            BusdotIdx   :=  ansipos('.',LineBus);
+            SetLength(IncMatrix, Length(IncMatrix) + 3);
+            LineBus           :=  elem.GetBus(TermIdx);
+            BusdotIdx         :=  ansipos('.',LineBus);
             if BusdotIdx <> 0 then
-              LineBus   :=  Copy(LineBus,0,BusdotIdx-1);  // removes the dot from the Bus Name
+              LineBus         :=  Copy(LineBus,0,BusdotIdx-1);  // removes the dot from the Bus Name
             // Evaluates the position of the Bus in the array
-            BusNameIdx  :=  1;
+            ActiveIncCell[1]  :=  1;
             EndFlag  :=  True;
-            while (BusNameIdx <= NumBuses) and (EndFlag) DO
+            while (ActiveIncCell[1] <= NumBuses) and (EndFlag) DO
             Begin
-                if LineBus = BusList.Get(BusNameIdx) then EndFlag := False;
-                BusNameIdx  :=  BusNameIdx  + 1;
+                if LineBus = BusList.Get(ActiveIncCell[1]) then EndFlag := False;
+                ActiveIncCell[1]  :=  ActiveIncCell[1]  + 1;
             End;
-            IncMatrixRow[Length(IncMatrixRow) - 1]  := ActiveRow - 1;
-            IncMatrixCol[Length(IncMatrixRow) - 1]  := BusNameIdx - 2;
-            IncMatrixVal[Length(IncMatrixRow) - 1]  := CellVal;
-            CellVal     :=  -1;
+            Upload2IncMatrix;
         End;
-        inc(ActiveRow);
+        inc(ActiveIncCell[0]);
       End;
       elem  :=  Lines.Next;
     End;
@@ -1194,8 +1200,7 @@ var
   elem         :TTransfObj;
   TermIdx,
   BusdotIdx,
-  BusNameIdx,
-  CellVal     : Integer;
+  CIdx        : Integer;
   EndFlag     : Boolean;
   lst         : TPointerList;
 begin
@@ -1208,30 +1213,25 @@ begin
     Begin
       if elem.Enabled then
       Begin
-        CellVal       :=  1;
+        ActiveIncCell[2]       :=  1;
         for TermIdx := 1 to elem.NumberOfWindings do
         Begin
-            SetLength(IncMatrixRow, Length(IncMatrixRow) + 1);
-            SetLength(IncMatrixCol, Length(IncMatrixRow));
-            SetLength(IncMatrixVal, Length(IncMatrixRow));
+            SetLength(IncMatrix, Length(IncMatrix) + 3);
             LineBus     :=  elem.GetBus(TermIdx);
             BusdotIdx   :=  ansipos('.',LineBus);
             if BusdotIdx <> 0 then
               LineBus   :=  Copy(LineBus,0,BusdotIdx-1);  // removes the dot from the Bus Name
             // Evaluates the position of the Bus in the array
-            BusNameIdx  :=  1;
+            ActiveIncCell[1]  :=  1;
             EndFlag  :=  True;
-            while (BusNameIdx <= NumBuses) and (EndFlag) DO
+            while (ActiveIncCell[1] <= NumBuses) and (EndFlag) DO
             Begin
-                if LineBus = BusList.Get(BusNameIdx) then EndFlag := False;
-                BusNameIdx  :=  BusNameIdx  + 1;
+                if LineBus = BusList.Get(ActiveIncCell[1]) then EndFlag := False;
+                ActiveIncCell[1]  :=  ActiveIncCell[1]  + 1;
             End;
-            IncMatrixRow[Length(IncMatrixRow) - 1]  := ActiveRow - 1;
-            IncMatrixCol[Length(IncMatrixRow) - 1]  := BusNameIdx - 2;
-            IncMatrixVal[Length(IncMatrixRow) - 1]  := CellVal;
-            CellVal :=  -1;
-        End;
-        inc(ActiveRow);
+            Upload2IncMatrix;
+       End;
+        inc(ActiveIncCell[0]);
       End;
       elem  :=  lst.Next;
 
@@ -1246,8 +1246,7 @@ var
   lst         : TPointerList;
   CapTermIdx,
   BusdotIdx,
-  BusNameIdx,
-  CellVal     : Integer;
+  CIdx        : Integer;
   CapEndFlag  : Boolean;
 begin
 // This rouitne adds the series capacitors to the incidence matrix vectors
@@ -1261,30 +1260,25 @@ begin
       Begin
         if elem.Enabled then
         Begin
-          CellVal       :=  1;
+          ActiveIncCell[2]  :=  1;
           for CapTermIdx := 1 to 2 do
           Begin
-            SetLength(IncMatrixRow, Length(IncMatrixRow) + 1);
-            SetLength(IncMatrixCol, Length(IncMatrixRow));
-            SetLength(IncMatrixVal, Length(IncMatrixRow));
+            SetLength(IncMatrix, Length(IncMatrix) + 3);
             CapBus      :=  elem.GetBus(CapTermIdx);
             BusdotIdx   :=  ansipos('.',CapBus);
             if BusdotIdx <> 0 then
               CapBus    :=  Copy(CapBus,0,BusdotIdx-1);  // removes the dot from the Bus Name
             // Evaluates the position of the Bus in the array
-            BusNameIdx  :=  1;
+            ActiveIncCell[1]  :=  1;
             CapEndFlag  :=  True;
-            while (BusNameIdx <= NumBuses) and (CapEndFlag) DO
+            while (ActiveIncCell[1] <= NumBuses) and (CapEndFlag) DO
             Begin
-                if CapBus = BusList.Get(BusNameIdx) then  CapEndFlag := False;
-                BusNameIdx  :=  BusNameIdx  + 1;
+                if CapBus = BusList.Get(ActiveIncCell[1]) then  CapEndFlag := False;
+                ActiveIncCell[1]  :=  ActiveIncCell[1]  + 1;
             End;
-            IncMatrixRow[Length(IncMatrixRow) - 1]  := ActiveRow - 1;
-            IncMatrixCol[Length(IncMatrixRow) - 1]  := BusNameIdx - 2;
-            IncMatrixVal[Length(IncMatrixRow) - 1]  := CellVal;
-            CellVal     :=  -1;
+            Upload2IncMatrix;
           End;
-          inc(ActiveRow);
+          inc(ActiveIncCell[0]);
         End;
       End;
       elem  :=  lst.Next;
@@ -1299,8 +1293,7 @@ var
   DevClassIndex :Integer;
   TermIdx,
   BusdotIdx,
-  BusNameIdx,
-  CellVal     : Integer;
+  CIdx     : Integer;
   EndFlag  : Boolean;
 begin
 // This rouitne adds the series reactors to the incidence matrix vectors
@@ -1316,32 +1309,27 @@ begin
       BusdotIdx   :=  ansipos('.0',RBus);
       if BusdotIdx = 0 then
       Begin
-        CellVal       :=  1;
+        ActiveIncCell[2]  :=  1;
         for TermIdx := 1 to 2 do
         Begin
-          SetLength(IncMatrixRow, Length(IncMatrixRow) + 1);
-          SetLength(IncMatrixCol, Length(IncMatrixRow));
-          SetLength(IncMatrixVal, Length(IncMatrixRow));
+          SetLength(IncMatrix, Length(IncMatrix) + 3);
           RBus      :=  ActiveCktElement.GetBus(TermIdx);
           BusdotIdx   :=  ansipos('.',RBus);
           if BusdotIdx <> 0 then
             RBus    :=  Copy(RBus,0,BusdotIdx-1);  // removes the dot from the Bus Name
           // Evaluates the position of the Bus in the array
-          BusNameIdx  :=  1;
+          ActiveIncCell[1]  :=  1;
           EndFlag  :=  True;
-          while (BusNameIdx <= NumBuses) and (EndFlag) DO
+          while (ActiveIncCell[1] <= NumBuses) and (EndFlag) DO
           Begin
-              if RBus = BusList.Get(BusNameIdx) then  EndFlag := False;
-              BusNameIdx  :=  BusNameIdx  + 1;
+              if RBus = BusList.Get(ActiveIncCell[1]) then  EndFlag := False;
+              ActiveIncCell[1]  :=  ActiveIncCell[1]  + 1;
           End;
-          IncMatrixRow[Length(IncMatrixRow) - 1]  := ActiveRow - 1;
-          IncMatrixCol[Length(IncMatrixRow) - 1]  := BusNameIdx - 2;
-          IncMatrixVal[Length(IncMatrixRow) - 1]  := CellVal;
-          CellVal     :=  -1;
+          Upload2IncMatrix;
         End;
       End;
       elem  :=  ActiveDSSClass[ActorID].Next;
-      inc(ActiveRow);
+      inc(ActiveIncCell[0]);
     End;
   End;
 end;
@@ -1351,7 +1339,7 @@ Begin
   if ActiveCircuit[ActorID]<>nil then
     with ActiveCircuit[ActorID] do
     Begin
-      ActiveRow   :=  1;                // Activates row 1 of the incidence matrix
+      ActiveIncCell[0]  := 1;           // Activates row 1 of the incidence matrix
       // Now we proceed to evaluate the link branches
       AddLines2IncMatrix(ActorID);      // Includes the Lines
       AddXfmr2IncMatrix(ActorID);       // Includes the Xfmrs
