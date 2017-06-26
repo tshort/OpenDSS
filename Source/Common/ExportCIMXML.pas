@@ -1059,7 +1059,7 @@ Var
   Zs, Zm : complex;
   Rs, Rm, Xs, Xm, R1, R0, X1, X0: double;
   pName1, pName2  : TNamedObject;
-	pIsland, pSwing : TNamedObject;  // island and ref node
+  pIsland, pSwing : TNamedObject;  // island and ref node
   zbase  : double;
   s      : String;
 
@@ -1069,7 +1069,7 @@ Var
   CoreList : array of TNamedObject;
   MeshList : array of TNamedObject;
   sBank  : String;
-	bTanks : boolean;
+  bTanks : boolean;
 
   pLoad  : TLoadObj;
   pVsrc  : TVsourceObj;
@@ -1080,7 +1080,7 @@ Var
   pXf   : TTransfObj;
   pReg  : TRegControlObj;
   pLine : TLineObj;
-	pReac : TReactorObj;
+  pReac : TReactorObj;
 
   clsCode : TLineCode;
   clsGeom : TLineGeometry;
@@ -1236,28 +1236,20 @@ Begin
     pGen := ActiveCircuit.Generators.First;
     while pGen <> nil do begin
      if pGen.Enabled  then   begin
-
-        pName1.localName := pGen.Name + '_GenUnit';
-        CreateGUID (geoGUID);
-        pName1.GUID := geoGUID;
-        StartInstance (F, 'GeneratingUnit', pName1);
-        DoubleNode (F, 'GeneratingUnit.ratedNetMaxP', pGen.GenVars.kVArating / 1000.0);
-        DoubleNode (F, 'GeneratingUnit.initialP', pGen.PresentkW / 1000.0);
-        GeneratorControlEnum (F, 'plantControl');
-        EndInstance (F, 'GeneratingUnit');
-
         StartInstance (F, 'SynchronousMachine', pGen);
         CircuitNode (F, ActiveCircuit);
-        DoubleNode (F, 'SynchronousMachine.minQ', pGen.kvarMin / 1000.0);
-        DoubleNode (F, 'SynchronousMachine.maxQ', pGen.kvarMax / 1000.0);
-        DoubleNode (F, 'SynchronousMachine.baseQ', pGen.Presentkvar / 1000.0);
-        RefNode (F, 'SynchronousMachine.GeneratingUnit', pName1);
+        DoubleNode (F, 'RotatingMachine.p', pGen.Presentkw * 1000.0);
+        DoubleNode (F, 'RotatingMachine.q', pGen.Presentkvar * 1000.0);
+        DoubleNode (F, 'RotatingMachine.ratedS', pGen.GenVars.kvarating * 1000.0);
+        DoubleNode (F, 'RotatingMachine.ratedU', pGen.Presentkv * 1000.0);
         SynchMachTypeEnum (F, 'generator');
         SynchMachModeEnum (F, 'generator');
+        CreateGuid (geoGUID);
+        GuidNode (F, 'PowerSystemResource.Location', geoGUID);
         EndInstance (F, 'SynchronousMachine');
+        WriteTerminals (F, pGen, geoGUID, crsGUID);
      end;
- //     AttachPhases (F, pGen, 1, 'SynchronousMachine');
-      pGen := ActiveCircuit.Generators.Next;
+     pGen := ActiveCircuit.Generators.Next;
     end;
 
     pVsrc := ActiveCircuit.Sources.First; // pIsrc are in the same list
@@ -1349,7 +1341,7 @@ Begin
     while (pCapC <> nil) do begin
       with pCapC do begin
         StartInstance (F, 'RegulatingControl', pCapC);
-				GuidNode (F, 'PowerSystemResource.Location', GetDevGuid (CapLoc, This_Capacitor.Name, 1));
+	GuidNode (F, 'PowerSystemResource.Location', GetDevGuid (CapLoc, This_Capacitor.Name, 1));
         RefNode (F, 'RegulatingControl.RegulatingCondEq', This_Capacitor);
         i1 := GetCktElementIndex(ElementName); // Global function
         GuidNode (F, 'RegulatingControl.Terminal',
@@ -1389,21 +1381,21 @@ Begin
     //   2. with XfmrCode, write TransformerTank, TransformerTankEnd(s) and references to TransformerTankInfoInfo
     //   3. otherwise, write TransformerTank, then create and reference TransformerTankInfo classes
 
-		// for case 3, it's better to identify and create the info classes first
-		//    TODO: side effect is that these transformers will reference XfmrCode until the text file is reloaded. Solution results should be the same.
-		pXf := ActiveCircuit.Transformers.First;
-		while pXf <> nil do begin
-			if pXf.Enabled then begin
-				if (length(pXf.XfmrCode) < 1) and (pXf.NPhases <> 3) then begin
-					sBank := 'CIMXfmrCode_' + pXf.Name;
-					clsXfmr.NewObject (sBank);
-					clsXfmr.Code := sBank;
-					pXfmr := ActiveXfmrCodeObj;
-					CreateGUID (tmpGUID);
-					pXfmr.GUID := tmpGUID;
-					pXfmr.PullFromTransformer (pXf);
-					pXf.XfmrCode := pXfmr.Name;
-				end;
+    // for case 3, it's better to identify and create the info classes first
+    //    TODO: side effect is that these transformers will reference XfmrCode until the text file is reloaded. Solution results should be the same.
+    pXf := ActiveCircuit.Transformers.First;
+    while pXf <> nil do begin
+      if pXf.Enabled then begin
+        if (length(pXf.XfmrCode) < 1) and (pXf.NPhases <> 3) then begin
+          sBank := 'CIMXfmrCode_' + pXf.Name;
+          clsXfmr.NewObject (sBank);
+          clsXfmr.Code := sBank;
+          pXfmr := ActiveXfmrCodeObj;
+          CreateGUID (tmpGUID);
+          pXfmr.GUID := tmpGUID;
+          pXfmr.PullFromTransformer (pXf);
+          pXf.XfmrCode := pXfmr.Name;
+        end;
 			end;
 			pXf := ActiveCircuit.Transformers.Next;
 		end;
