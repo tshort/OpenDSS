@@ -31,7 +31,7 @@ Uses SysUtils, Utilities, Circuit, DSSClassDefs, DSSGlobals, CktElement,
 
 Type
   GuidChoice = (Bank, Wdg, XfCore, XfMesh, WdgInf, ScTest, OcTest,
-    BaseV, LinePhase, LoadPhase, CapPhase, XfLoc, LoadLoc, LineLoc, CapLoc, Topo, ReacLoc);
+    BaseV, LinePhase, LoadPhase, GenPhase, CapPhase, XfLoc, LoadLoc, LineLoc, CapLoc, Topo, ReacLoc);
   TBankObject = class(TNamedObject)
   public
     vectorGroup: String;
@@ -324,6 +324,7 @@ begin
     BaseV: key := 'BaseV=';
     LinePhase: key := 'LinePhase=';
     LoadPhase: key := 'LoadPhase=';
+    GenPhase: key := 'GenPhase=';
     CapPhase: key := 'CapPhase=';
     XfLoc: key := 'XfLoc=';
     LoadLoc: key := 'LoadLoc=';
@@ -703,6 +704,61 @@ begin
     RefNode (F, 'EnergyConsumerPhase.EnergyConsumer', pLoad);
     GuidNode (F, 'PowerSystemResource.Location', geoGUID);
     EndInstance (F, 'EnergyConsumerPhase');
+  end;
+end;
+
+procedure AttachSecondaryGenPhases (var F: TextFile; pGen:TGeneratorObj; geoGUID: TGuid; pPhase: TNamedObject; p, q: double; phs:String);
+begin
+	pPhase.LocalName := pGen.Name + '_' + phs;
+	pPhase.GUID := GetDevGuid (GenPhase, pPhase.LocalName, 1);
+	StartInstance (F, 'RotatingMachinePhase', pPhase);
+	PhaseKindNode (F, 'RotatingMachinePhase', phs);
+	DoubleNode (F, 'RotatingMachinePhase.pfixed', p);
+	DoubleNode (F, 'RotatingMachinePhase.qfixed', q);
+	RefNode (F, 'RotatingMachinePhase.RotatingMachine', pGen);
+	GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+	EndInstance (F, 'RotatingMachinePhase');
+end;
+
+procedure AttachGeneratorPhases (var F: TextFile; pGen:TGeneratorObj; geoGUID: TGuid);
+var
+  s, phs: String;
+  i: Integer;
+  pPhase: TNamedObject;
+  p, q: double;
+begin
+  if pGen.NPhases = 3 then exit;
+  p := 1000.0 * pGen.Presentkw / pGen.NPhases;
+  q := 1000.0 * pGen.Presentkvar / pGen.NPhases;
+  if pGen.Connection = 1 then
+    s := DeltaPhaseString(pGen)
+  else
+    s := PhaseString(pGen, 1);
+
+	pPhase := TNamedObject.Create('dummy');
+  //  TODO - handle s1 to s2 240-volt loads; these would be s12, which is not a valid SinglePhaseKind
+	if pGen.Presentkv < 0.25 then begin
+		if pGen.NPhases=2 then begin
+			AttachSecondaryGenPhases (F, pGen, geoGUID, pPhase, p, q, 's1');
+			AttachSecondaryGenPhases (F, pGen, geoGUID, pPhase, p, q, 's2');
+			exit;
+		end else begin
+			AttachSecondaryGenPhases (F, pGen, geoGUID, pPhase, p, q, s);
+      exit;
+    end;
+	end;
+
+  for i := 1 to length(s) do begin
+    phs := s[i];
+    pPhase.LocalName := pGen.Name + '_' + phs;
+    pPhase.GUID := GetDevGuid (GenPhase, pPhase.LocalName, 1);
+    StartInstance (F, 'RotatingMachinePhase', pPhase);
+    PhaseKindNode (F, 'RotatingMachinePhase', phs);
+    DoubleNode (F, 'RotatingMachinePhase.p', p);
+    DoubleNode (F, 'RotatingMachinePhase.q', q);
+    RefNode (F, 'RotatingMachinePhase.RotatingMachine', pGen);
+    GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+    EndInstance (F, 'RotatingMachinePhase');
   end;
 end;
 
@@ -1247,6 +1303,7 @@ Begin
         CreateGuid (geoGUID);
         GuidNode (F, 'PowerSystemResource.Location', geoGUID);
         EndInstance (F, 'SynchronousMachine');
+        AttachGeneratorPhases (F, pGen, geoGUID);
         WriteTerminals (F, pGen, geoGUID, crsGUID);
      end;
      pGen := ActiveCircuit.Generators.Next;
