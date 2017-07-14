@@ -723,9 +723,9 @@ Begin
                propCutout       : FpctCutOut   := Parser[ActorID].DblValue;
                propVMINPU       : VMinPu       := Parser[ActorID].DblValue;
                propVMAXPU       : VMaxPu       := Parser[ActorID].DblValue;
-               propKVA          : Begin
-                                    PVSystemVars.FkVArating    := Parser[ActorID].DblValue;
-                                    PVSystemVars.Fkvarlimit    := Parser[ActorID].DblValue;
+               propKVA          : With PVSystemVars Do Begin
+                                      FkVArating    := Parser[ActorID].DblValue;
+                                      Fkvarlimit    := FkVArating;   // Reset kvar limit to kVA rating
                                   End;
                propUSERMODEL    : UserModel.Name := Parser[ActorID].StrValue;  // Connect to user written models
                propUSERDATA     : UserModel.Edit := Parser[ActorID].StrValue;  // Send edit string to user model
