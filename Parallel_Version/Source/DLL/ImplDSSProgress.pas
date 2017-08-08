@@ -42,7 +42,7 @@ procedure TDSSProgress.Set_PctProgress(Value: Integer);
 begin
    If NoFormsAllowed Then Exit;
    InitProgressForm(ActiveActor);
-   ShowPctProgress ( Value, ActiveActor);
+//   ShowPctProgress ( Value, ActiveActor);
 end;
 
 procedure TDSSProgress.Show;
@@ -50,7 +50,7 @@ begin
    If NoFormsAllowed Then Exit;
         InitProgressForm(ActiveActor);
         ProgressFormCaption( ' ', ActiveActor);
-        ShowPctProgress(0, ActiveActor);
+//        ShowPctProgress(0, ActiveActor);
 
 end;
 

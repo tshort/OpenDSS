@@ -217,16 +217,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -540,7 +531,16 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
@@ -846,6 +846,13 @@
         <DCCReference Include="..\Parallel_Lib\Parallel_Lib.pas"/>
         <DCCReference Include="ImplParallel.pas">
             <CoClasses>PVSystems</CoClasses>
+        </DCCReference>
+        <DCCReference Include="..\Controls\ESPVLControl.pas"/>
+        <DCCReference Include="..\PCElements\IndMach012.pas"/>
+        <DCCReference Include="ImplLineCodes.pas"/>
+        <DCCReference Include="..\Forms\Diakoptics.pas">
+            <Form>DiakopticsBox</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
         <RidlCompile Include="OpenDSSengine.ridl"/>
         <BuildConfiguration Include="Debug">
