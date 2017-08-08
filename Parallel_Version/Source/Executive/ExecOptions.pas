@@ -184,7 +184,9 @@ Begin
                     CRLF+'  Peakday,'+
                     CRLF+'  LD1 (load-duration 1)'+
                     CRLF+'  LD2 (load-duration 2)'+
-                    CRLF+'  AutoAdd (see AddType)' +CRLF +CRLF+
+                    CRLF+'  AutoAdd (see AddType)' +
+                    CRLF+'  YearlyVQ (Yearly Vector Quantiaztion)' +
+                    CRLF+'  DutyVQ (Duty Vector Quantiaztion)' +CRLF +CRLF+
                     'Side effect: setting the Mode propergy resets all monitors and energy meters. It also ' +
                     'resets the time step, etc. to defaults for each mode.  After the initial reset, the user ' +
                     'must explicitly reset the monitors and/or meters until another Set Mode= command.';
