@@ -199,7 +199,8 @@ uses
   DParallel in 'DParallel.pas',
   ESPVLControl in '..\Controls\ESPVLControl.pas',
   IndMach012 in '..\PCElements\IndMach012.pas',
-  DLineCodes in 'DLineCodes.pas';
+  DLineCodes in 'DLineCodes.pas',
+  Diakoptics in '..\Forms\Diakoptics.pas' {DiakopticsBox};
 
 //**************************end of the functions*************************************
 exports
@@ -242,7 +243,8 @@ exports
    DSSI,DSSS,DSSV,
    InitAndGetYparams,GetCompressedYMatrix,ZeroInjCurr,GetSourceInjCurrents,GetPCInjCurr,
    SystemYChanged,BuildYMatrixD,UseAuxCurrents,AddInAuxCurrents,getIpointer,
-   getVpointer,SolveSystem,ParallelI,ParallelV;
+   getVpointer,SolveSystem,ParallelI,ParallelV,LineCodesI,LineCodesF,LineCodesS,
+   LineCodesV;
 
 begin
 

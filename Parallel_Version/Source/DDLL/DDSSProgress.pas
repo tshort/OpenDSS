@@ -16,13 +16,13 @@ begin
   0: begin // DSSProgress.PctProgress
       If NoFormsAllowed Then Exit;
       InitProgressForm(ActiveActor);
-      ShowPctProgress (arg,ActiveActor);
+//      ShowPctProgress (arg,ActiveActor);
   end;
   1: begin // DSSProgress.Show()
      If NoFormsAllowed Then Exit;
         InitProgressForm(ActiveActor);
         ProgressFormCaption( ' ',ActiveActor);
-        ShowPctProgress(0,ActiveActor);
+//        ShowPctProgress(0,ActiveActor);
   end;
   2: begin  // DSSProgress.Close()
       If NoFormsAllowed Then Exit;

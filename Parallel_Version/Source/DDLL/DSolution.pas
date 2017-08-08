@@ -485,7 +485,8 @@ begin
       If ActiveCircuit[ActiveActor] <> Nil Then Begin
         with ACtiveCircuit[ActiveActor].Solution do
         begin
-           ArrSize    :=  length(IncMatrix)-3;
+           ArrSize    :=  length(IncMatrix)-4;    // Removes the 3 initial zeros and the extra index
+                                                  // Since it starts on 0
            arg     :=  VarArrayCreate([0, ArrSize], varInteger);
            for IMIdx  :=  0 to ArrSize Do
            Begin
