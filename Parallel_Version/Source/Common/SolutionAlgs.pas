@@ -88,7 +88,7 @@ Begin
     If ((i*10) div N) > ProgressCount Then
     Begin
         Inc(ProgressCount);
-        ShowPctProgress( ProgressCount * 10, ActorID);
+//        ShowPctProgress( ProgressCount * 10, ActorID);
     End;
 End;
 
@@ -833,7 +833,7 @@ Begin
         ComputeYsc(iB, ActorID);  // Compute YSC for iB-th Bus
         If ((iB * 10) div NumBuses) > ProgressCount Then  Begin
             Inc(ActorProgressCount[ActorID]);
-            ShowPctProgress(30 + ActorProgressCount[ActorID] * 5, ActorID);
+//            ShowPctProgress(30 + ActorProgressCount[ActorID] * 5, ActorID);
         End;
      End;
    End;

@@ -435,7 +435,7 @@ Begin
                    ProgressCount := 0;
 
                    ProgressFormCaption( Format('Testing %d buses. Please Wait... ',[BusIdxListSize]), ActorID);
-                   ShowPctProgress(0, ActorID);
+//                   ShowPctProgress(0, ActorID);
 
 
                    For i := 1 to BusIdxListSize Do
@@ -451,7 +451,7 @@ Begin
                          // ProgressFormCaption( 'Testing bus ' + TestBus);
                          If ((ProgressCount mod 20) = 0) or (i = BusIdxListSize) Then Begin
                             ProgressFormCaption( Format('Testing bus %d/%d. ',[i,BusIdxListSize]), ActorID);
-                            ShowPctProgress (Round((100 * ProgressCount)/ProgressMax), ActorID);
+//                            ShowPctProgress (Round((100 * ProgressCount)/ProgressMax), ActorID);
                          End;
 
                          EnergyMeterClass[ActorID].ResetAll(ActorID);
@@ -563,7 +563,7 @@ Begin
                      THEN Begin
                          TestBus := BusList.Get(BusIndex);
                          ProgressFormCaption('Testing bus ' + TestBus, ActorID);
-                         ShowPctProgress ( Round((100 * ProgressCount)/ProgressMax), ActorID);
+//                         ShowPctProgress ( Round((100 * ProgressCount)/ProgressMax), ActorID);
 
                          EnergyMeterClass[ActorID].ResetAll(ActorID);
 

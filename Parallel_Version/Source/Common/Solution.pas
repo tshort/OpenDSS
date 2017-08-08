@@ -1160,11 +1160,13 @@ var
   CIdx,
   BusdotIdx     : Integer;
   EndFlag       : Boolean;
+  counter       : Integer;
 begin
 // This rouitne adds the Lines to the incidence matrix vectors
   with ActiveCircuit[ActorID] do
   Begin
     elem        :=  Lines.First;
+//    Counter     :=  0;
     while elem <> nil do
     Begin
       if elem.Enabled then
@@ -1186,11 +1188,17 @@ begin
                 ActiveIncCell[1]  :=  ActiveIncCell[1]  + 1;
             End;
             Upload2IncMatrix;
+//            inc(Counter);
         End;
         inc(ActiveIncCell[0]);
-      End;
+      End
+      else
+      begin
+        Counter :=0;
+      end;
       elem  :=  Lines.Next;
     End;
+//    Counter :=  Counter;
   End;
 end;
 // ===========================================================================================
@@ -1203,6 +1211,8 @@ var
   CIdx        : Integer;
   EndFlag     : Boolean;
   lst         : TPointerList;
+  Counter     : Integer;
+
 begin
 // This rouitne adds the Transformers to the incidence matrix vectors
   with ActiveCircuit[ActorID] do
@@ -1234,7 +1244,6 @@ begin
         inc(ActiveIncCell[0]);
       End;
       elem  :=  lst.Next;
-
     End;
   End;
 end;
@@ -1335,6 +1344,8 @@ begin
 end;
 // ===========================================================================================
 PROCEDURE TSolutionObj.Calc_Inc_Matrix(ActorID : Integer);
+var
+  dlong : Integer;
 Begin
   if ActiveCircuit[ActorID]<>nil then
     with ActiveCircuit[ActorID] do
