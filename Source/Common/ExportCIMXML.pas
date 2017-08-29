@@ -939,7 +939,7 @@ begin
     DoubleNode (F, 'NoLoadTest.energisedEndVoltage', 1000.0 * Winding^[1].kvll);
     DoubleNode (F, 'NoLoadTest.excitingCurrent', pctImag);
     DoubleNode (F, 'NoLoadTest.excitingCurrentZero', pctImag);
-    val := 0.01 * pctNoLoadLoss * 1000.0 * Winding^[1].kva;
+    val := 0.01 * pctNoLoadLoss * Winding^[1].kva; // losses to be in kW
     DoubleNode (F, 'NoLoadTest.loss', val);
     DoubleNode (F, 'NoLoadTest.lossZero', val);
     DoubleNode (F, 'TransformerTest.basePower', 1000.0 * Winding^[1].kva);
@@ -963,7 +963,7 @@ begin
         DoubleNode (F, 'ShortCircuitTest.leakageImpedance', val);
         DoubleNode (F, 'ShortCircuitTest.leakageImpedanceZero', val);
         if seq = 2 then begin
-          val := 0.01 * pctLoadLoss * 1000.0 * Winding^[1].kva;
+          val := 0.01 * pctLoadLoss * Winding^[1].kva; // losses are to be in kW
           DoubleNode (F, 'ShortCircuitTest.loss', val);
           DoubleNode (F, 'ShortCircuitTest.lossZero', val);
 				end else begin
@@ -1667,8 +1667,8 @@ Begin
         pName1.GUID := geoGUID;
         StartInstance (F, 'TapChangerInfo', pName1);
         DoubleNode (F, 'TapChangerInfo.ptRatio', PT);
-        DoubleNode (F, 'TapChangerInfo.ctRating', CT);
-        DoubleNode (F, 'TapChangerInfo.ctRatio', CT / 0.2);
+        DoubleNode (F, 'TapChangerInfo.ctRatio', CT);
+        DoubleNode (F, 'TapChangerInfo.ctRating', CT / 0.2);
         EndInstance (F, 'TapChangerInfo');
 
         pName2.LocalName := pReg.LocalName + '_Ctrl';
