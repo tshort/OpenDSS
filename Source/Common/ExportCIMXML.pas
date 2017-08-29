@@ -962,7 +962,7 @@ begin
         val := Xsc^[seq] * Zbase;
         DoubleNode (F, 'ShortCircuitTest.leakageImpedance', val);
         DoubleNode (F, 'ShortCircuitTest.leakageImpedanceZero', val);
-        if seq = 2 then begin
+        if seq = 1 then begin // put all the load loss on test from wdg1 to wdg2
           val := 0.01 * pctLoadLoss * Winding^[1].kva; // losses are to be in kW
           DoubleNode (F, 'ShortCircuitTest.loss', val);
           DoubleNode (F, 'ShortCircuitTest.lossZero', val);

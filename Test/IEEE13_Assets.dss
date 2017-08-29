@@ -96,7 +96,7 @@ New Line.671692    Phases=3 Bus1=671   Bus2=692  Switch=y  r1=1e-4 r0=1e-4 x1=0.
 New Capacitor.Cap1 Bus1=675 phases=3 kVAR=600 kV=4.16 
 New Capacitor.Cap2 Bus1=611.3 phases=1 kVAR=100 kV=2.4
 New CapControl.Cap1 capacitor=cap1 type=time on=8 off=19 element=capacitor.cap1
-New CapControl.Cap2 capacitor=cap2 type=voltage on=115 off=125 ptratio=20 ptphase=3 element=line.684611 terminal=2
+New CapControl.Cap2 capacitor=cap2 type=voltage on=115 off=125 ptratio=20 ptphase=1 element=line.684611 terminal=2
 
 
 Set Voltagebases=[115, 4.16, .48]
