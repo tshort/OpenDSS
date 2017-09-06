@@ -1042,7 +1042,7 @@ Begin
 
        FOR i := 1 to NFreq Do Begin
 
-           Frequency := FrequencyList^[i];
+           Frequency := FrequencyList^[i];   // forces rebuild of SystemY
            If Abs(Harmonic - 1.0) > EPSILON THEN Begin    // Skip fundamental
                ProgressCaption ( 'Solving at Frequency = ' + Format('%-g', [Frequency]));
                ShowPctProgress ( Round((100.0*i)/Nfreq));
@@ -1120,7 +1120,7 @@ Begin
 
        FOR i := 1 to NFreq Do Begin
 
-           Frequency := FrequencyList^[i];
+           Frequency := FrequencyList^[i]; // forces rebuild of SystemY
            If Abs(Harmonic - 1.0) > EPSILON THEN Begin    // Skip fundamental
 //               DefaultHourMult := DefaultDailyShapeObj.getmult(DynaVars.dblHour);
                SolveHarmTime;
