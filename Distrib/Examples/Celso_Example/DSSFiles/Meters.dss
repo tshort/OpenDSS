@@ -1,0 +1,35 @@
+!Note que os monitores da bateria foram descritos no arquivo Storage.dss
+
+!Tap positions
+New monitor.Substationtap       transformer.reg1a   terminal=2 mode=2
+New monitor.Reg2a		transformer.reg2a   terminal=2 mode=2
+New monitor.Reg3a       transformer.reg3a   terminal=2 mode=2
+New monitor.Reg4a       transformer.reg4a   terminal=2 mode=2
+New monitor.Reg3c       transformer.reg3c   terminal=2 mode=2
+New monitor.Reg4b       transformer.reg4b   terminal=2 mode=2
+New monitor.Reg4c		transformer.reg4c   terminal=2 mode=2
+
+
+!Voltages
+New monitor.SubstationtapV       transformer.reg1a   terminal=2 mode=0
+New monitor.Reg2aV		transformer.reg2a   terminal=2 mode=0
+New monitor.Reg3aV       transformer.reg3a   terminal=2 mode=0
+New monitor.Reg4aV       transformer.reg4a   terminal=2 mode=0
+New monitor.Reg3cV       transformer.reg3c   terminal=2 mode=0
+New monitor.Reg4bV       transformer.reg4b   terminal=2 mode=0
+New monitor.Reg4cV		transformer.reg4c   terminal=2 mode=0
+
+
+!Monitores do Trafo de Conexao do PV
+New monitor.medidor_trafo_conexao_tensao Transformer.PV_Med1 terminal=2 mode=0  !Ppolar = No 
+New monitor.medidor_trafo_conexao_potencia Transformer.PV_Med1 terminal=1 mode=1  Ppolar = No 
+
+
+!Monitor no PV
+New monitor.medidor_PV1 PVSystem.PV_1 terminal=1 mode=1  Ppolar = No 
+
+
+
+
+
+

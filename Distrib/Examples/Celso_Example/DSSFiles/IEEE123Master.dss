@@ -1,0 +1,35 @@
+set datapath= "C:\Users\User\Desktop\TCC\IEEE123Barras" !Colocar o endereço dos arquivos .dss
+Clear
+
+New object=circuit.ieee123
+~ basekv=4.16 Bus1=150 pu=1.00 R1=0 X1=0.0001 R0=0 X0=0.0001
+
+new transformer.reg1a phases=3 windings=2 buses=[150 150r] conns=[wye wye] kvs=[4.16 4.16] kvas=[5000 5000] XHL=.001 %LoadLoss=0.00001 ppm=0.0
+new regcontrol.creg1a transformer=reg1a winding=2 vreg=120 band=2 ptratio=20 ctprim=700 R=3 X=7.5
+
+Redirect IEEELinecodes.DSS
+Redirect IEEELines.DSS
+Redirect IEEESwitches.DSS
+Redirect IEEECapacitors.DSS
+
+
+New Transformer.XFM1  Phases=3   Windings=2 Xhl=2.72
+~ wdg=1 bus=61s       conn=Delta kv=4.16    kva=150    %r=0.635
+~ wdg=2 bus=610       conn=Delta kv=0.48    kva=150    %r=0.635
+
+Redirect IEEE123Regulators.DSS
+Redirect PVSystem.DSS
+!Redirect Storage.DSS
+Redirect Loadshapes.DSS
+Redirect IEEE123Loads.DSS
+Redirect Meters.DSS
+
+
+Set VoltageBases = [4.16, 0.48]   
+CalcVoltageBases 
+
+
+
+
+
+

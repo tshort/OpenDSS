@@ -1,0 +1,2 @@
+New LoadShape.loadshape_cargas interval=0 npts=24 csvfile=[Loadshape_carga.csv]
+!interval=0 para que o OpenDSS realize a interpolação 

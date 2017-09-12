@@ -1,0 +1,6 @@
+New storage.storage_pv1 bus1=PV_Med_1 phases=3 model=1 pf=1 kv=0.48 state=idling 
+~ kWrated =1000 %reserve=20 kWhrated=10000 kvar=0 %stored=50 debugtrace=yes dispmode=external  
+
+!Monitores na Bateria
+New monitor.Monitor_Baterias_states element=storage.storage_pv1 terminal=1 mode=3
+New monitor.Monitor_Baterias_P element=storage.storage_pv1 terminal=1 mode=1 Ppolar=No

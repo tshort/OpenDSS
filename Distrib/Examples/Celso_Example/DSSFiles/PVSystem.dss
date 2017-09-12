@@ -1,0 +1,26 @@
+!Descrição dos Painéis Fotovoltaicos
+
+//Loadshapes 1-seg 24horas. O arquivo "LoadshapePV2.csv" é fornecido
+!juntamente à instalação do OpenDSS. A única diferença é que, aqui, foram
+!adicionados zeros para completar as 86400 amostras
+New "LoadShape.PVLoadShape2" npts=86400 sinterval=1 mult=(File=LoadshapePV2.csv) Action=Normalize
+
+!Curva PT
+!Pmpp especificado a 25 graus Celsius
+New XYCurve.MyPvsT npts=4  xarray=[0  25  75  100]  yarray=[1.2 1.0 0.8  0.6] 
+
+!Curva de eficiência
+New XYCurve.MyEff npts=4  xarray=[.1  .2  .4  1.0]  yarray=[.86  .9  .93  .97]  
+
+
+!Curva de Temperatura
+New Tshape.MyTemp npts=24 interval=1 temp=[25, 25, 25, 25, 25, 25, 25, 25, 35, 40, 45, 50  60 60  55 40  35  30  25 25 25 25 25 25]
+
+!Definição do PV em si
+New PVSystem.PV_1 phases=3 bus1=PV_Med_1 kV=0.48 debugtrace=yes  kVA=1500  irrad=1.0  Pmpp=1500 temperature=25 PF=1 
+~ %cutin=0.1 %cutout=0.1  effcurve=Myeff  P-TCurve=MyPvsT Daily=PVLoadShape2  TDaily=MyTemp 
+
+!Definição do transformador de interconexão
+New Transformer.PV_Med1  phases=3 xhl=5.750000  
+~ wdg=1 bus=PV_Med_1 kV=0.48 kVA=750.000000 conn=wye
+~ wdg=2 bus=300 kV=4.16 kVA=750.000000 conn=wye

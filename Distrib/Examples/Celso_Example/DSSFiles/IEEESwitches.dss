@@ -1,0 +1,14 @@
+!Switches normalmente fechados
+
+New Line.Sw1    phases=3  Bus1=150r   Bus2=149    r1=1e-3 r0=1e-3 x1=0.000 x0=0.000 c1=0.000 c0=0.000 Length=0.001
+New Line.Sw2    phases=3  Bus1=13     Bus2=152    r1=1e-3 r0=1e-3 x1=0.000 x0=0.000 c1=0.000 c0=0.000 Length=0.001
+New Line.Sw3    phases=3  Bus1=18     Bus2=135    r1=1e-3 r0=1e-3 x1=0.000 x0=0.000 c1=0.000 c0=0.000 Length=0.001
+New Line.Sw4    phases=3  Bus1=60     Bus2=160    r1=1e-3 r0=1e-3 x1=0.000 x0=0.000 c1=0.000 c0=0.000 Length=0.001
+New Line.Sw5    phases=3  Bus1=97     Bus2=197    r1=1e-3 r0=1e-3 x1=0.000 x0=0.000 c1=0.000 c0=0.000 Length=0.001
+New Line.Sw6    phases=3  Bus1=61     Bus2=61s    r1=1e-3 r0=1e-3 x1=0.000 x0=0.000 c1=0.000 c0=0.000 Length=0.001
+
+
+!Swithes normalmente abertos
+New Line.Sw7    phases=3  Bus1=151    Bus2=300_OPEN   r1=1e-3 r0=1e-3  x1=0.000 x0=0.000 c1=0.000 c0=0.000 Length=0.001
+New Line.Sw8    phases=1  Bus1=54.1   Bus2=94_OPEN.1  r1=1e-3 r0=1e-3  x1=0.000 x0=0.000 c1=0.000 c0=0.000 Length=0.001
+
