@@ -334,8 +334,10 @@ Begin
                         'and the first two winding resistances are defaulted to the %loadloss value.';
      PropertyHelp[8] := 'Per unit tap that this winding is on.';
      PropertyHelp[9] := 'Percent resistance this winding.  (half of total for a 2-winding).';
-     PropertyHelp[10] := 'Default = -1. Neutral resistance of wye (star)-connected winding in actual ohms.' +
-                         'If entered as a negative value, the neutral is assumed to be open, or floating.';
+     PropertyHelp[10] := 'Default = -1. Neutral resistance of wye (star)-connected winding in actual ohms. ' +
+                         'If entered as a negative value, the neutral is assumed to be open, or floating. ' +
+                         'To solidly ground the neutral, connect the neutral conductor to Node 0 in the Bus property spec for this winding. ' +
+                         'For example: Bus=MyBusName.1.2.3.0, which is generally the default connection.';
      PropertyHelp[11] := 'Neutral reactance of wye(star)-connected winding in actual ohms.  May be + or -.';
 
    // General Data
