@@ -199,7 +199,8 @@ TYPE
 // IncMatrix Row and column descriptors
 // Rows array (array of strings that tells what is the order of the PDElements)
 // Columns array (array of strigns with the names of the cols of the Inc matrix)'
-// Levels array (array of integers that describes the level for each bus)
+// Levels array (array of integers that describes the proximity level for each
+// bus to the circuit's backbone)
       Inc_Mat_Rows  :  Array of String;
       Inc_Mat_Cols  :  Array of String;
       Inc_Mat_levels:  Array of Integer;
@@ -260,6 +261,10 @@ TYPE
 
        PROCEDURE Calc_Inc_Matrix(ActorID : Integer);                // Calculates the incidence matrix for the Circuit
        PROCEDURE Calc_Inc_Matrix_Org(ActorID : Integer);            // Calculates the incidence matrix hierarchically organized for the Circuit
+       function Tear_Circuit(): Integer;                            // Tears the circuit considering the number of Buses of the original Circuit
+       function get_IncMatrix_Row(Col : integer): Integer;          // Gets the index of the Row connected to the specified Column
+       function get_IncMatrix_Col(Row : integer): Integer;          // Gets the index of the Column connected to the specified Row
+       function CheckLocationIdx(Idx : Integer): Integer;           // Evaluates the area covered by the tearing point to see if there is a better one
 
        procedure AddLines2IncMatrix(ActorID : Integer);             // Adds the Lines to the Incidence matrix arrays
        procedure AddXfmr2IncMatrix(ActorID : Integer);              // Adds the Xfmrs to the Incidence matrix arrays
@@ -281,7 +286,7 @@ implementation
 USES  SolutionAlgs,
       DSSClassDefs, DSSGlobals, DSSForms, PDElement,  ControlElem, Fault,
       Executive, AutoAdd,  YMatrix, Load,CKtTree,
-      ParserDel, Generator,Capacitor,
+      ParserDel, Generator,Capacitor,SHELLAPI,
 {$IFDEF DLL_ENGINE}
       ImplGlobals,  // to fire events
 {$ENDIF}
@@ -1388,6 +1393,46 @@ Begin
       IncMat_Ordered  :=  False;
     End;
 End;
+{*******************************************************************************
+* This function delivers the Row index connected to the Column at the input    *
+*                   Inside the B2N incidence Matrix                            *
+********************************************************************************}
+function TSolutionObj.get_IncMatrix_Row(Col:Integer):Integer;
+var
+  Tflag : Boolean;
+  idx_1 : Integer;
+begin
+  Result            :=  -1;
+  Tflag             :=  True;
+  for idx_1 := 1 to ((length(IncMatrix)  div 3) - 1) do    //Looks for the Column in the IncMatrix
+  begin
+    if (IncMatrix[idx_1*3 + 1] = Col) and Tflag then
+    begin
+      Result :=   IncMatrix[idx_1*3];
+      Tflag  :=   False;
+    end;
+  end;
+end;
+{*******************************************************************************
+* This function delivers the Column index connected to the Row at the input    *
+*                   Inside the B2N incidence Matrix                            *
+********************************************************************************}
+function TSolutionObj.get_IncMatrix_Col(Row:Integer):Integer;
+var
+  Tflag : Boolean;
+  Idx_1 : Integer;
+Begin
+  Result  :=  -1;
+  Tflag   :=  True;    // Detection Flag
+  for Idx_1 := 1 to ((length(IncMatrix)  div 3) - 1) do    //Looks for the row in the IncMatrix
+  begin
+    if (IncMatrix[Idx_1*3] = Row) and Tflag then
+    begin
+      Result :=  IncMatrix[Idx_1*3 + 1];
+      Tflag  :=  False;
+    end;
+  end;
+End;
 
 //*********Routine for extracting the Branch to Node incidence matrix***********
 //*     Organized hierarchically. This routine also calculates the             *
@@ -1397,23 +1442,21 @@ End;
 PROCEDURE TSolutionObj.Calc_Inc_Matrix_Org(ActorID : Integer);
 
 Var
-  F, Ftree       : TextFile;
-  FileNm, TreeNm : String;
+//  Ftree       : TextFile;                           // For debugging
   pdElem         : TPDElement;
-  pControlElem   : TDSSCktElement;
-  LoadElem       : TLoadObj;
   topo           : TCktTree;
-  FileRoot,
-  PDE_Name       : String;
-  PDE_Buses      : Array of string;
-  Temp_Array     : Array of Integer;
-  nLevels,
-  i,
-  j,
-  j2,
-  ZeroLevel,
-  BusdotIdx,
-  nPDE           : Integer;
+//  TreeNm,                                           // For debugging
+//  FileRoot,                                         // For debugging
+  PDE_Name       : String;                            // Name of the PDElement
+  PDE_Buses      : Array of string;                   // Buses of the PDElement
+  Temp_Array     : Array of Integer;                  // Local Shared variable
+  nLevels,                                            // Current number of levels for the active Bus
+  i,                                                  // Default counter
+  j,                                                  // Default counter
+  j2,                                                 // Default counter
+  ZeroLevel,                                          // Number of Zero level Buses
+  BusdotIdx,                                          // Local Shared variable
+  nPDE           : Integer;                           // PDElements index
 Begin
   Try
     if ActiveCircuit[ActorID]<>nil then
@@ -1429,11 +1472,8 @@ Begin
         PDElem                  := topo.First;
         While Assigned (PDElem) do begin
           nLevels                 := topo.Level;
-          inc(nPDE);
-          setlength(Inc_Mat_Rows,nPDE);
           PDE_Name                :=  PDElem.ParentClass.Name+'.'+PDElem.Name;
-          Inc_Mat_Rows[nPDE-1]    :=  PDE_Name;
-  //******************Gets the buses to which the PDE is ocnnected****************
+//******************Gets the buses to which the PDE is connected****************
           With ActiveCircuit[ActorID] do
           Begin
             ActiveCircuit[ActorID].SetElementActive(PDE_Name);
@@ -1454,6 +1494,9 @@ Begin
             end
             else                               //The Cols array is populated with something
             begin
+              inc(nPDE);
+              setlength(Inc_Mat_Rows,nPDE);
+              Inc_Mat_Rows[nPDE-1]    :=  PDE_Name;
               for j := 0 to ActiveCktElement.Nterms-1 do
               Begin
                 ActiveIncCell[1]  :=  length(IncMatrix);  // Gets the offset inside the vector
@@ -1481,10 +1524,10 @@ Begin
           PDElem := topo.GoForward;
         End;
       End;
-{******************************************************************************
- ****Now the levels array needs to be reprocessed to get the 0 level buses,****
- *****they are on a continuous path from the feeder head to the feeder end*****
-*******************************************************************************}
+{*******************************************************************************
+*   Now the levels array needs to be reprocessed to get the 0 level buses,     *
+*   they are on a continuous path from the feeder head to the feeder end       *
+********************************************************************************}
       BusdotIdx :=  MaxIntValue(Inc_Mat_levels);
       for i := 0 to length(Inc_Mat_levels) do
         if Inc_Mat_levels[i] = BusdotIdx then nLevels := i;
@@ -1496,7 +1539,7 @@ Begin
         end;
         Inc_Mat_levels[ZeroLevel]  := 0;
       end;
-  //**********Normalize the branches of the level between zero level buses********
+//**********Normalize the branches of the level between zero level buses********
       BusdotIdx :=  0;
       j         :=  0;
       ZeroLevel :=  0;
@@ -1520,39 +1563,22 @@ Begin
             Temp_Array[length(Temp_Array) - 1]  :=  Inc_Mat_levels[i];
           end;
       end;
-  //************Verifies is something else was missing at the end*****************
+//************Verifies is something else was missing at the end*****************
       if (ZeroLevel < (length(Inc_Mat_levels) - 1)) then
       begin
-        BusdotIdx :=  0;                  // COunter for defining the level
-        j         :=  0;                  // Stores the previous value (shift reg)
+        BusdotIdx :=  0;                                                // Counter for defining the level
+        j         :=  0;                                                // Stores the previous value (shift reg)
         for j2 := ZeroLevel to (length(Inc_Mat_levels) - 1) do
         begin
           if Inc_Mat_levels[j2] >= j then inc(BusdotIdx)
           else
           begin
-            ActiveIncCell[1]  :=  -1;     // Variable to store the row at the col location
-            ActiveIncCell[0]  :=  0;      // Detection Flag
-            for i := 1 to ((length(IncMatrix)  div 3) - 1) do    //Looks for the Column in the IncMatrix
-            begin
-              if (IncMatrix[i*3 + 1] = j2) and (ActiveIncCell[0] = 0) then
-              begin
-                ActiveIncCell[1] :=  IncMatrix[i*3];
-                ActiveIncCell[0] := 1;
-              end;
-            end;
-            if ActiveIncCell[1] < 0 then  //Checks if the col was located (just in case)
+            ActiveIncCell[1]  :=  get_IncMatrix_Row(j2);                //Looks for the Column in the IncMatrix
+            if ActiveIncCell[1] < 0 then                                //Checks if the col was located (just in case)
               BusdotIdx     :=  1
             else
             begin
-              ActiveIncCell[0]  :=  0;    // Detection Flag
-              for i := 1 to ((length(IncMatrix)  div 3) - 1) do    //Looks for the row in the IncMatrix
-              begin
-                if (IncMatrix[i*3] = ActiveIncCell[1]) and (ActiveIncCell[0] = 0) then
-                begin
-                  ActiveIncCell[2] :=  IncMatrix[i*3 + 1];
-                  ActiveIncCell[0]  :=  1;
-                end;
-              end;
+              ActiveIncCell[2] := get_IncMatrix_Col(ActiveIncCell[1]);  //Looks for the row in the IncMatrix
               BusdotIdx :=  Inc_Mat_levels[ActiveIncCell[2]]  + 1;
             end;
           end;
@@ -1566,8 +1592,131 @@ Begin
 
   End;
 End;
+{*******************************************************************************
+*           Routine created to empty a recently created folder                 *
+********************************************************************************}
+procedure DelFilesFromDir(Directory, FileMask: string; DelSubDirs: Boolean);
+var
+  SourceLst: string;
+  FOS: TSHFileOpStruct;
+begin
+  FillChar(FOS, SizeOf(FOS), 0);
+  FOS.wFunc := FO_DELETE;
+  SourceLst := Directory + '\' + FileMask + #0;
+  FOS.pFrom := PChar(SourceLst);
+  if not DelSubDirs then
+    FOS.fFlags := FOS.fFlags OR FOF_FILESONLY;
+  // Remove the next line if you want a confirmation dialog box
+  FOS.fFlags := FOS.fFlags OR FOF_NOCONFIRMATION;
+  // Add the next line for a "silent operation" (no progress box)
+  FOS.fFlags := FOS.fFlags OR FOF_SILENT;
+  SHFileOperation(FOS);
+end;
+{*******************************************************************************
+*   This routine evaluates if the current location is the best or if its       *
+*   Necessary to move back one PDE just to cover a wider area                  *
+********************************************************************************}
+function TSolutionObj.CheckLocationIdx(Idx : Integer): Integer;
+begin
+  if Inc_Mat_Levels[Idx - 1] = 0 then  Result :=  idx - 1
+  else Result :=  idx;
+end;
 
+{*******************************************************************************
+*         This routine tears the circuit into many pieces as CPUs are          *
+*         available in the local computer (in the best case)                   *
+********************************************************************************}
+function TSolutionObj.Tear_Circuit(): Integer;
+var
+  Num_Pieces,                                       // Max Number of pieces considering the number of local CPUs
+  Num_buses,                                        // Goal for number of buses on each subsystem
+  Num_target,                                       // Generic accumulator
+  Location_idx,                                     // Active Location
+  i             : Integer;                          // Generic counter variables
+  Candidates,                                       // Array for 0 level buses idx
+  Locations     : Array of Integer;                 // Array for the best tearing locations
+  Locations_V   : Array of Double;                  // Array to store the VMag and angle at the location
+  TreeNm,                                           // For debugging
+  Fileroot,
+  Command,                                          // Built OpenDSS Command
+  PDElement     : String;
+  Ftree         : TextFile;
+  flag          : Boolean;                          // Stop flag
+  EMeter        : TEnergyMeterObj;
+  Execute       : TExecutive;
 
+Begin
+  Num_Pieces  :=  CPU_Cores-1;
+  Calc_Inc_Matrix_Org(ActiveActor);                 //Calculates the ordered incidence matrix
+  Num_buses   :=  length(Inc_Mat_Cols) div Num_Pieces;  // Estimates the number of buses for each subsystem
+  setlength(Candidates,0);
+  for i := 0 to length(Inc_Mat_Levels) do           //Extracts the 0 Level Buses
+  Begin
+    if Inc_Mat_Levels[i] = 0 then
+    Begin
+      setlength(Candidates,length(Candidates)+1);
+      Candidates[Length(Candidates)-1]  :=  i;
+    End;
+  End;
+  setlength(Locations,Num_pieces-1);                // Setups the array for the tearing locations
+  for i := 0 to length(Locations) do Locations[i] :=  -1; // Initializes the locations array
+  Num_target    :=  Num_buses;
+  Location_idx  :=  0;
+  for i := 0 to length(Candidates) do
+  Begin
+    if (Candidates[i] >= Num_target) and (Location_idx < (Num_pieces-1)) then
+    begin
+      Num_target :=  Num_target + Num_buses;
+      if Candidates[i] > Num_target*1.05 then
+        Locations[Location_idx] :=  Candidates[i-1]
+      else
+        Locations[Location_idx] :=  Candidates[i];
+      inc(Location_idx);
+    end;
+  End;
+  Fileroot  :=  ExpandFileName(Parser[ActiveActor].StrValue);
+  i         :=  length(Fileroot);
+  flag      :=  True;
+  i         :=  i - 1;
+  while flag do
+  begin
+    if Fileroot[i] = '\' then flag  :=  False;
+    i         :=  i - 1;
+    if i  < 0 then flag :=  False;
+  end;
+  Fileroot  :=  copy(Fileroot,0,i+1);
+  Fileroot  :=  Fileroot  + 'Teared_Circuit';
+  CreateDir(Fileroot);                        // Creates the folder for storing the modified circuit
+  DelFilesFromDir(Fileroot,'*',True);         // Removes all the files inside the new directory (if exists)
+//***********The directory is ready for storing the new circuit****************
+  With ActiveCircuit[ActiveActor] Do          // Disables all the previous EnergyMeters
+  Begin
+    EMeter    := EnergyMeters.First;
+    while EMeter  <> Nil do
+    begin
+      EMeter.Enabled  :=  False;
+      EMeter          :=  EnergyMeters.Next;
+    end;
+  End;
+//************ Creates the meters at the tearing locations  ********************
+  Result  :=  1;                              // Resets the result variable (Return)
+  setlength(Locations_V,length(Locations)*2);
+  for i := 0 to (length(Locations)-1) do
+  begin
+    if Locations[i] >= 0 then
+    Begin
+      inc(Result);
+      PDElement :=  Inc_Mat_Rows[get_IncMatrix_Row(Locations[i])]; // Gets the name of the PDE for placing the EnergyMeter
+      Command  :=  'New EnergyMeter.Zone_' + inttostr(i + 1) + ' element=' + PDElement +
+                 ' term=1 option=R action=C'; // Generates the OpenDSS Command
+      Execute.Command :=  pchar(Command);     // Creates the EnergyMeter
+      SetActiveBus(Inc_Mat_Cols[get_IncMatrix_Col(Locations[i])]);  // Activates the Bus
+    End;
+  end;
+  Solve(ActiveActor);
+  Command :=  'save circuit Dir=' + Fileroot; // Generates the OpenDSS Command for the new circuit
+  Execute.Command :=  pchar(Command);         // Creates the new Circuit
+End;
 //----------------------------------------------------------------------------
 FUNCTION TDSSSolution.Init(Handle:Integer; ActorID : Integer):Integer;
 

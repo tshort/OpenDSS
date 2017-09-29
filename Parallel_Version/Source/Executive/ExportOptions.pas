@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExportOptions = 52;
+        NumExportOptions = 56;
 
 FUNCTION DoExportCmd:Integer;
 
@@ -82,6 +82,10 @@ Begin
       ExportOption[50] := 'Storage_Meters';
       ExportOption[51] := 'Sections';
       ExportOption[52] := 'ErrorLog';
+      ExportOption[53] := 'IncMatrix';
+      ExportOption[54] := 'IncMatrixRows';
+      ExportOption[55] := 'IncMatrixCols';
+      ExportOption[56] := 'BusLevels';
 
       ExportHelp[ 1] := '(Default file = EXP_VOLTAGES.CSV) Voltages to ground by bus/node.';
       ExportHelp[ 2] := '(Default file = EXP_SEQVOLTAGES.CSV) Sequence voltages.';
@@ -141,6 +145,11 @@ Begin
       ExportHelp[51] := '(Default file = EXP_SECTIONS.CSV) Data for each section between overcurrent protection devices. ' +CRLF+CRLF+
                         'Examples: ' + CRLF + '  Export Sections [optional filename]' + CRLF + 'Export Sections meter=M1 [optional filename]';
       ExportHelp[52] := '(Default file = EXP_ErrorLog.TXT) All entries in the present Error log.';
+      ExportHelp[53] := 'Exports the Branch-to-Node Incidence matrix calculated for the circuit in compressed coordianted format (Row,Col,Value)';
+      ExportHelp[54] := 'Exports the names of the rows (PDElements) used for calculating the Branch-to-Node Incidence matrix for the active circuit';
+      ExportHelp[55] := 'Exports the names of the Cols (Buses) used for calculating the Branch-to-Node Incidence matrix for the active circuit';
+      ExportHelp[56] := 'Exports the names and the level of each Bus inside the Circuit based on its topology information. The level value defines' +
+                        'how far or close is the bus from the circuits backbone (0 means that the bus is at the backbone)';
 
 End;
 
@@ -298,6 +307,10 @@ Begin
          50: FileName := 'EXP_STORAGEMeters.CSV';
          51: FileName := 'EXP_SECTIONS.CSV';
          52: FileName := 'EXP_ErrorLog.txt';
+         53: FileName := 'Inc_Matrix.csv';
+         54: FileName := 'Inc_Matrix_Rows.csv';
+         55: FileName := 'Inc_Matrix_Cols.csv';
+         56: FileName := 'Bus_Levels.csv';
 
        ELSE
              FileName := 'EXP_VOLTAGES.CSV';    // default
@@ -378,6 +391,10 @@ Begin
      50: ExportStorageMeters(FileName);
      51: ExportSections(FileName, pMeter);
      52: ExportErrorLog(FileName);
+     53: ExportIncMatrix(FileName);
+     54: ExportIncMatrixRows(FileName);
+     55: ExportIncMatrixCols(FileName);
+     56: ExportBusLevels(FileName);
 
    ELSE
         // ExportVoltages(FileName);    // default

@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 111;
+     NumExecCommands = 112;
 
 Var
 
@@ -148,6 +148,7 @@ Begin
      ExecCommand[109] := 'CalcIncMatrix';
      ExecCommand[110] := 'Diakoptics';
      ExecCommand[111] := 'CalcIncMatrix_O';
+     ExecCommand[112] := 'Tear_Circuit';
 
 
 
@@ -477,12 +478,16 @@ Begin
      CommandHelp[110] := 'Starts the form for configuring the A-Diakoptics algorithm and to apply it into the active simulation';
      CommandHelp[111] := 'Calculates the incidence matrix of the Active Circuit. However, in this case the matrix will be calculated by considering its hierarchical order,'+
                          'which means that the buses order will be generated considering their distribution from the substation to the last load in a radial hierarchy';
+     CommandHelp[112] := 'Estimates the buses for tearing the system in many parts as CPUs - 1 are in the local computer, is used for creating a balanced distribution of' +
+                         'Distribution of subsystems for the A-Diakoptics algorithm';
 End;
 
 //----------------------------------------------------------------------------
 PROCEDURE ProcessCommand(Const CmdLine:String);
 VAR
-   ParamPointer, i:Integer;
+   ParamPointer,
+   Temp_int,
+   i:Integer;
    ParamName:String;
    Param:String;
    ObjName, PropName:String;
@@ -600,6 +605,10 @@ Begin
             end;
        111: begin
               ActiveCircuit[ActiveActor].Solution.Calc_Inc_Matrix_Org(ActiveActor);
+            end;
+       112: begin
+              Temp_int  :=  ActiveCircuit[ActiveActor].Solution.Tear_Circuit();
+              GlobalResult := 'Sub-Circuits Created: ' + inttostr(Temp_int);
             end
 
 

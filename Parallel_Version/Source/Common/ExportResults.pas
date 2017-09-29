@@ -58,6 +58,10 @@ Procedure ExportYVoltages(FileNM:String);
 Procedure ExportYCurrents(FileNM:String);
 Procedure ExportSections(FileNM:String; pMeter:TEnergyMeterObj);
 Procedure ExportErrorLog(FileNm:String);
+Procedure ExportIncMatrix(FileNm:String);
+Procedure ExportIncMatrixRows(FileNm:String);
+Procedure ExportIncMatrixCols(FileNm:String);
+Procedure ExportBusLevels(FileNm:String);
 
 
 IMPLEMENTATION
@@ -3061,6 +3065,78 @@ Begin
      GlobalResult := FileNm;
 End;
 
+Procedure ExportIncMatrix(FileNm:String);
+var
+  F             : TextFile;
+  i             : Integer;
+Begin
+  with ActiveCircuit[ActiveActor].Solution do
+  Begin
+    Assignfile(F,FileNm);
+    ReWrite(F);
+    Writeln(F,'Row,Col,Value');
+    for i := 1 to ((length(IncMatrix) div 3)-1) do
+    begin
+      Writeln(F,inttostr(IncMatrix[i*3]) + ',' + inttostr(IncMatrix[i*3 + 1]) + ',' + inttostr(IncMatrix[i*3 + 2]));
+    end;
+    CloseFile(F);
+  End;
+End;
+
+Procedure ExportIncMatrixRows(FileNm:String);
+var
+  F             : TextFile;
+  i             : Integer;
+Begin
+  with ActiveCircuit[ActiveActor].Solution do
+  Begin
+    Assignfile(F,FileNm);
+    ReWrite(F);
+    Writeln(F,'B2N Incidence Matrix Row Names (PDElements)');
+    for i := 0 to (length(Inc_Mat_Rows)-1) do
+    begin
+      Writeln(F,Inc_Mat_Rows[i]);
+    end;
+    CloseFile(F);
+  End;
+End;
+//-------------------------------------------------------------------
+Procedure ExportIncMatrixCols(FileNm:String);
+var
+  F             : TextFile;
+  i             : Integer;
+Begin
+  with ActiveCircuit[ActiveActor].Solution do
+  Begin
+    Assignfile(F,FileNm);
+    ReWrite(F);
+    Writeln(F,'B2N Incidence Matrix Column Names (Buses)');
+    for i := 0 to (length(Inc_Mat_Cols)-1) do
+    begin
+      Writeln(F,Inc_Mat_Cols[i]);
+    end;
+    CloseFile(F);
+  End;
+End;
+//-------------------------------------------------------------------
+Procedure ExportBusLevels(FileNm:String);
+var
+  F             : TextFile;
+  i             : Integer;
+Begin
+  with ActiveCircuit[ActiveActor].Solution do
+  Begin
+    Assignfile(F,FileNm);
+    ReWrite(F);
+    Writeln(F,'B2N Incidence Matrix Column Names (Buses) and their level within the matrix');
+    Writeln(F,'Bus Name,Bus Level');
+    for i := 0 to (length(Inc_Mat_Cols)-1) do
+    begin
+      Writeln(F,Inc_Mat_Cols[i] + ',' + inttostr(Inc_Mat_levels[i]));
+    end;
+    CloseFile(F);
+  End;
+End;
 //-------------------------------------------------------------------
 Procedure ExportVoltagesElements(FileNm:String);
 
