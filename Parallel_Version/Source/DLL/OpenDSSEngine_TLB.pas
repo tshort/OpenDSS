@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 6/8/2017 3:02:44 PM from Type Library described below.
+// File generated on 9/29/2017 4:23:42 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\OpenDSS\Parallel_Version\Source\DLL\OpenDSSengine (1)
@@ -1146,6 +1146,9 @@ type
     function Get_Time_of_Step: Double; safecall;
     procedure SolveAll; safecall;
     function Get_IncMatrix: OleVariant; safecall;
+    function Get_IncMatrixRows: OleVariant; safecall;
+    function Get_IncMatrixCols: OleVariant; safecall;
+    function Get_BusLevels: OleVariant; safecall;
     property Mode: Integer read Get_Mode write Set_Mode;
     property Frequency: Double read Get_Frequency write Set_Frequency;
     property Hour: Integer read Get_Hour write Set_Hour;
@@ -1186,6 +1189,9 @@ type
     property Process_Time: Double read Get_Process_Time;
     property Time_of_Step: Double read Get_Time_of_Step;
     property IncMatrix: OleVariant read Get_IncMatrix;
+    property IncMatrixRows: OleVariant read Get_IncMatrixRows;
+    property IncMatrixCols: OleVariant read Get_IncMatrixCols;
+    property BusLevels: OleVariant read Get_BusLevels;
   end;
 
 // *********************************************************************//
@@ -1251,6 +1257,9 @@ type
     property Time_of_Step: Double readonly dispid 227;
     procedure SolveAll; dispid 228;
     property IncMatrix: OleVariant readonly dispid 229;
+    property IncMatrixRows: OleVariant readonly dispid 230;
+    property IncMatrixCols: OleVariant readonly dispid 231;
+    property BusLevels: OleVariant readonly dispid 232;
   end;
 
 // *********************************************************************//

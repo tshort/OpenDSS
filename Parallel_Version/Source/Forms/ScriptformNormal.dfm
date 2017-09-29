@@ -26,7 +26,7 @@ object MainEditFormNormal: TMainEditFormNormal
     Width = 585
     Height = 374
     Align = alClient
-    Font.Charset = DEFAULT_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
@@ -38,6 +38,7 @@ object MainEditFormNormal: TMainEditFormNormal
     ScrollBars = ssBoth
     TabOrder = 0
     WordWrap = False
+    Zoom = 100
     OnChange = EditorChange
     OnKeyDown = EditorKeyDown
     OnSelectionChange = EditorSelectionChange

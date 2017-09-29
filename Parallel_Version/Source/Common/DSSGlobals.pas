@@ -175,7 +175,7 @@ VAR
    In_Redirect        :Boolean;
    DIFilesAreOpen     :Boolean;
    AutoShowExport     :Boolean;
-   SolutionWasAttempted :Boolean;
+   SolutionWasAttempted : Array of Boolean;
 
    GlobalHelpString   :String;
    GlobalPropertyValue:String;
@@ -245,6 +245,7 @@ VAR
    ActorHandle        : Array of TThread;
    Parallel_enabled   : Boolean;
    ConcatenateReports : Boolean;
+   IncMat_Ordered     : Boolean;
 // KLU Variable arrays per actor
 {   ActorKLU           : Array of THandle;
    NewSparseSet       : Array of TNewSparseSet;
@@ -804,6 +805,7 @@ initialization
    setlength(ActorHandle,CPU_Cores + 1);
    setlength(Parser,CPU_Cores + 1);
    setlength(ActiveYPrim,CPU_Cores + 1);
+   SetLength(SolutionWasAttempted,CPU_Cores + 1);
 
    for ActiveActor := 1 to CPU_Cores do
    begin
@@ -871,7 +873,7 @@ initialization
    MaxAllocationIterations := 2;
    SolutionAbort         := FALSE;
    AutoShowExport        := FALSE;
-   SolutionWasAttempted  := FALSE;
+   SolutionWasAttempted[ActiveActor]  := FALSE;
 
    DefaultBaseFreq       := 60.0;
    DaisySize             := 1.0;

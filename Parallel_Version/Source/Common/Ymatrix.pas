@@ -174,7 +174,7 @@ Begin
         SERIESONLY: LogThisEvent('Building Series Y Matrix');
      End;
           // Add in Yprims for all devices
-     pElem := CktElements.First;
+     pElem := ActiveCircuit[ActorID].CktElements.First;
      WHILE pElem <> Nil Do
        Begin
          WITH pElem Do
@@ -188,7 +188,7 @@ Begin
               if AddPrimitiveMatrix(hY, Yorder, @NodeRef[1], @ActiveYPrim[ActorID][1]) < 1 then
                  Raise EEsolv32Problem.Create('Node index out of range adding to System Y Matrix')
          End;   // If Enabled
-         pElem := CktElements.Next;
+         pElem := ActiveCircuit[ActorID].CktElements.Next;
        End;
      //{****} CloseFile(Ftrace);
      //{****} FireOffEditor(  'YmatrixTrace.txt');

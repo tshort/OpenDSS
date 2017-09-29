@@ -255,7 +255,7 @@ Begin
               Temp0 :=  N;
             End;
 
-            Increment_time;
+            ActiveCircuit[ActorID].Solution.Increment_time;
             DefaultHourMult := DefaultDailyShapeObj.getmult(dblHour);
             // Assume pricesignal stays constant for dutycycle calcs
             SolveSnap(ActorID);
@@ -295,8 +295,8 @@ Begin
                 SolveSnap(ActorID);
 
                 FinishTimeStep(ActorID);
-  
-          End;
+                ActorPctProgress[ActorID] :=  (N*100) div NumberofTimes;
+           End;
     End;
 End;
 

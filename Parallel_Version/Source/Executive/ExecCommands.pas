@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 110;
+     NumExecCommands = 111;
 
 Var
 
@@ -147,6 +147,7 @@ Begin
      ExecCommand[108] := 'SolveAll';
      ExecCommand[109] := 'CalcIncMatrix';
      ExecCommand[110] := 'Diakoptics';
+     ExecCommand[111] := 'CalcIncMatrix_O';
 
 
 
@@ -474,6 +475,8 @@ Begin
      CommandHelp[108] := 'Solves all the circuits loaded into memory';
      CommandHelp[109] := 'Calculates the incidence matrix of the Active Circuit';
      CommandHelp[110] := 'Starts the form for configuring the A-Diakoptics algorithm and to apply it into the active simulation';
+     CommandHelp[111] := 'Calculates the incidence matrix of the Active Circuit. However, in this case the matrix will be calculated by considering its hierarchical order,'+
+                         'which means that the buses order will be generated considering their distribution from the substation to the last load in a radial hierarchy';
 End;
 
 //----------------------------------------------------------------------------
@@ -594,6 +597,9 @@ Begin
             end;
        110: begin
               ShowDiakopticsBox;
+            end;
+       111: begin
+              ActiveCircuit[ActiveActor].Solution.Calc_Inc_Matrix_Org(ActiveActor);
             end
 
 

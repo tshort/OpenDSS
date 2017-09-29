@@ -180,7 +180,10 @@ uses
   ScriptEdit in '..\Forms\ScriptEdit.pas',
   vccs in '..\PCElements\vccs.pas',
   MemoryMap_lib in '..\Meters\MemoryMap_lib.pas',
-  Parallel_Lib in '..\Parallel_Lib\Parallel_Lib.pas';
+  Parallel_Lib in '..\Parallel_Lib\Parallel_Lib.pas',
+  IndMach012 in '..\PCElements\IndMach012.pas',
+  ESPVLControl in '..\Controls\ESPVLControl.pas',
+  Diakoptics in '..\Forms\Diakoptics.pas' {DiakopticsBox};
 
 {$R *.RES}
 
@@ -209,8 +212,8 @@ begin
   end else begin
     {Instantiate basic forms}
     Application.CreateForm(TControlPanel, ControlPanel);
-    Application.CreateForm(TTViewForm, TViewForm);
-    //  Application.CreateForm(TMainEditForm, MainEditForm);
+  Application.CreateForm(TTViewForm, TViewForm);
+  //  Application.CreateForm(TMainEditForm, MainEditForm);
     Application.CreateForm(TProgress, Progress);
     Application.CreateForm(TPlotOptionsForm, PlotOptionsForm);
     Application.CreateForm(TListBoxForm, ListBoxForm);

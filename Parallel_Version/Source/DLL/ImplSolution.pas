@@ -101,6 +101,9 @@ type
     procedure Set_IntervalHrs(Value: Double); safecall;
     procedure SolveAll; safecall;
     function Get_IncMatrix: OleVariant; safecall;
+    function Get_BusLevels: OleVariant; safecall;
+    function Get_IncMatrixRows: OleVariant; safecall;
+    function Get_IncMatrixCols: OleVariant; safecall;
   end;
 
 implementation
@@ -728,6 +731,81 @@ begin
       end;
     END
     Else Result := VarArrayCreate([0,0], varInteger);
+end;
+
+function TSolution.Get_BusLevels: OleVariant;
+var
+  i,
+  IMIdx,
+  Idx,
+  ArrSize : Integer;
+begin
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        with ACtiveCircuit[ActiveActor].Solution do
+        begin
+           ArrSize    :=  length(Inc_Mat_Levels)-1;    // Removes the 3 initial zeros and the extra index
+                                                  // Since it starts on 0
+           Result     :=  VarArrayCreate([0, ArrSize], varInteger);
+           for IMIdx  :=  0 to ArrSize Do
+           Begin
+              Result[IMIdx] := Inc_Mat_levels[IMIdx];
+           End;
+        end;
+      END
+      Else Result := VarArrayCreate([0,0], varInteger);
+end;
+
+function TSolution.Get_IncMatrixRows: OleVariant;
+var
+  i,
+  IMIdx,
+  Idx,
+  ArrSize : Integer;
+begin
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        with ACtiveCircuit[ActiveActor].Solution do
+        begin
+          ArrSize    :=  length(Inc_Mat_Rows)-1;
+          Result     :=  VarArrayCreate([0, ArrSize], varOleStr);
+          for IMIdx  :=  0 to ArrSize Do
+          Begin
+             Result[IMIdx] := Inc_Mat_Rows[IMIdx];
+          End;
+        end;
+      END
+      Else Result := VarArrayCreate([0,0], varInteger);
+end;
+
+function TSolution.Get_IncMatrixCols: OleVariant;
+var
+  i,
+  IMIdx,
+  Idx,
+  ArrSize : Integer;
+begin
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+       with ActiveCircuit[ActiveActor].Solution,ActiveCircuit[ActiveActor]  do
+       begin
+        if IncMat_Ordered then
+        begin
+          ArrSize    :=  length(Inc_Mat_Cols)-1;
+          Result     :=  VarArrayCreate([0, ArrSize], varOleStr);
+          for IMIdx  :=  0 to ArrSize Do
+          Begin
+             Result[IMIdx] := Inc_Mat_Cols[IMIdx];
+          End;
+        end
+        else
+        begin
+             Result := VarArrayCreate([0, NumBuses-1], varOleStr);
+             FOR i := 0 to NumBuses-1 DO
+             Begin
+                 Result[i] := BusList.Get(i+1);
+             End;
+        end;
+       end;
+     End
+     Else Result := VarArrayCreate([0,0], varInteger);
 end;
 
 initialization

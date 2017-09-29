@@ -131,7 +131,7 @@ begin
   imax := cmdList.Count - 1;
   if imax < 0 then Exit;
 
-  SolutionWasAttempted := FALSE;      // Global variable
+  SolutionWasAttempted[ActiveActor] := FALSE;      // Global variable
 
   Screen.Cursor := crHourglass;
   for i := 0 to imax do begin
@@ -151,7 +151,7 @@ begin
       UpdateResultForm;
 //      UpdateSummaryForm(ActiveActor);
       If Assigned(ActiveCircuit[ActiveActor]) Then With ActiveCircuit[ActiveActor] Do
-        if (SolutionWasAttempted) and (Not IsSolved) then Begin
+        if (SolutionWasAttempted[ActiveActor]) and (Not IsSolved) then Begin
           Beep;
           ControlPanel.ResultPages.ActivePage := ControlPanel.SummaryTab;
         End;

@@ -160,7 +160,7 @@ begin
   imax := cmdList.Count - 1;
   if imax < 0 then Exit;
 
-  SolutionWasAttempted := FALSE;      // Global variable
+  SolutionWasAttempted[ActiveActor] := FALSE;      // Global variable
 
   Screen.Cursor := crHourglass;
   for i := 0 to imax do begin

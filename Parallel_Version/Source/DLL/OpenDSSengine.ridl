@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 6/11/2017 6:07:19 PM (- $Rev: 12980 $, 257272625).
+// File generated on 9/29/2017 4:23:43 AM (- $Rev: 12980 $, 1138890).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -960,6 +960,12 @@ library OpenDSSengine
     HRESULT _stdcall SolveAll(void);
     [propget, id(0x000000E5)]
     HRESULT _stdcall IncMatrix([out, retval] VARIANT* Value);
+    [propget, id(0x000000E6)]
+    HRESULT _stdcall IncMatrixRows([out, retval] VARIANT* Value);
+    [propget, id(0x000000E7)]
+    HRESULT _stdcall IncMatrixCols([out, retval] VARIANT* Value);
+    [propget, id(0x000000E8)]
+    HRESULT _stdcall BusLevels([out, retval] VARIANT* Value);
   };
 
   [

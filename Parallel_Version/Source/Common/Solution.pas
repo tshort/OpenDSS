@@ -52,7 +52,8 @@ USES
     System.Classes,
     System.SyncObjs,
     Parallel_Lib,
-    Windows;
+    Windows,
+    CktElement;
 
 CONST
 
@@ -193,7 +194,16 @@ TYPE
 // [0] = row
 // [1] = col
 // [2] = value
-       ActiveIncCell  :  Array[0..2] of Integer;
+      ActiveIncCell  :  Array[0..2] of Integer;
+//******************************************************************************
+// IncMatrix Row and column descriptors
+// Rows array (array of strings that tells what is the order of the PDElements)
+// Columns array (array of strigns with the names of the cols of the Inc matrix)'
+// Levels array (array of integers that describes the level for each bus)
+      Inc_Mat_Rows  :  Array of String;
+      Inc_Mat_Cols  :  Array of String;
+      Inc_Mat_levels:  Array of Integer;
+      temp_counter  : Integer;
 //******************************************************************************
        constructor Create(ParClass:TDSSClass; const solutionname:String);
        destructor  Destroy; override;
@@ -247,7 +257,10 @@ TYPE
        PROCEDURE GetSourceInjCurrents(ActorID : Integer);
        PROCEDURE ZeroInjCurr(ActorID : Integer);
        PROCEDURE Upload2IncMatrix;
-       PROCEDURE Calc_Inc_Matrix(ActorID : Integer);                 // Calculates the incidence matrix for the Circuit
+
+       PROCEDURE Calc_Inc_Matrix(ActorID : Integer);                // Calculates the incidence matrix for the Circuit
+       PROCEDURE Calc_Inc_Matrix_Org(ActorID : Integer);            // Calculates the incidence matrix hierarchically organized for the Circuit
+
        procedure AddLines2IncMatrix(ActorID : Integer);             // Adds the Lines to the Incidence matrix arrays
        procedure AddXfmr2IncMatrix(ActorID : Integer);              // Adds the Xfmrs to the Incidence matrix arrays
        procedure AddSeriesCap2IncMatrix(ActorID : Integer);         // Adds capacitors in series to the Incidence matrix arrays
@@ -266,8 +279,8 @@ VAR
 implementation
 
 USES  SolutionAlgs,
-      DSSClassDefs, DSSGlobals, DSSForms, CktElement,  ControlElem, Fault,
-      Executive, AutoAdd,  YMatrix,
+      DSSClassDefs, DSSGlobals, DSSForms, PDElement,  ControlElem, Fault,
+      Executive, AutoAdd,  YMatrix, Load,CKtTree,
       ParserDel, Generator,Capacitor,
 {$IFDEF DLL_ENGINE}
       ImplGlobals,  // to fire events
@@ -475,7 +488,7 @@ var
 
 Begin
      ActiveCircuit[ActorID].Issolved := False;
-     SolutionWasAttempted   := TRUE;
+     SolutionWasAttempted[ActorID]   := TRUE;
 
 {Check of some special conditions that must be met before executing solutions}
 
@@ -1174,6 +1187,9 @@ begin
         ActiveIncCell[2]  :=  1;
         for TermIdx := 1 to 2 do
         Begin
+            inc(temp_counter);
+            setlength(Inc_Mat_Rows,temp_counter);
+            Inc_Mat_Rows[temp_counter - 1]  :=  'Line.'+elem.Name;
             SetLength(IncMatrix, Length(IncMatrix) + 3);
             LineBus           :=  elem.GetBus(TermIdx);
             BusdotIdx         :=  ansipos('.',LineBus);
@@ -1226,6 +1242,9 @@ begin
         ActiveIncCell[2]       :=  1;
         for TermIdx := 1 to elem.NumberOfWindings do
         Begin
+            inc(temp_counter);
+            setlength(Inc_Mat_Rows,temp_counter);
+            Inc_Mat_Rows[temp_counter - 1]  :=  'Transformer.'+elem.Name;
             SetLength(IncMatrix, Length(IncMatrix) + 3);
             LineBus     :=  elem.GetBus(TermIdx);
             BusdotIdx   :=  ansipos('.',LineBus);
@@ -1269,6 +1288,9 @@ begin
       Begin
         if elem.Enabled then
         Begin
+          inc(temp_counter);
+          setlength(Inc_Mat_Rows,temp_counter);
+          Inc_Mat_Rows[temp_counter - 1]  :=  'Capacitor.'+elem.Name;
           ActiveIncCell[2]  :=  1;
           for CapTermIdx := 1 to 2 do
           Begin
@@ -1318,6 +1340,9 @@ begin
       BusdotIdx   :=  ansipos('.0',RBus);
       if BusdotIdx = 0 then
       Begin
+        inc(temp_counter);
+        setlength(Inc_Mat_Rows,temp_counter);
+        Inc_Mat_Rows[temp_counter - 1]  :=  'Reactor.'+ActiveCktElement.Name;
         ActiveIncCell[2]  :=  1;
         for TermIdx := 1 to 2 do
         Begin
@@ -1342,7 +1367,9 @@ begin
     End;
   End;
 end;
-// ===========================================================================================
+//*********Routine for extracting the Branch to Node incidence matrix***********
+//*     The order depends on the way the lines, xfmr, series cap and reactors  *
+//******************************************************************************
 PROCEDURE TSolutionObj.Calc_Inc_Matrix(ActorID : Integer);
 var
   dlong : Integer;
@@ -1350,6 +1377,7 @@ Begin
   if ActiveCircuit[ActorID]<>nil then
     with ActiveCircuit[ActorID] do
     Begin
+      temp_counter  :=  0;
       setlength(IncMatrix,3);           // Init array
       ActiveIncCell[0]  := 1;           // Activates row 1 of the incidence matrix
       // Now we proceed to evaluate the link branches
@@ -1357,8 +1385,188 @@ Begin
       AddXfmr2IncMatrix(ActorID);       // Includes the Xfmrs
       AddSeriesCap2IncMatrix(ActorID);  // Includes Series Cap
       AddSeriesReac2IncMatrix(ActorID); // Includes Series Reactors
+      IncMat_Ordered  :=  False;
     End;
 End;
+
+//*********Routine for extracting the Branch to Node incidence matrix***********
+//*     Organized hierarchically. This routine also calculates the             *
+//*     Levels vector for defining the proximity of the bus to the circuit's   *
+//*     Backbone. To do it, this routine uses the CktTree class                *
+//******************************************************************************
+PROCEDURE TSolutionObj.Calc_Inc_Matrix_Org(ActorID : Integer);
+
+Var
+  F, Ftree       : TextFile;
+  FileNm, TreeNm : String;
+  pdElem         : TPDElement;
+  pControlElem   : TDSSCktElement;
+  LoadElem       : TLoadObj;
+  topo           : TCktTree;
+  FileRoot,
+  PDE_Name       : String;
+  PDE_Buses      : Array of string;
+  Temp_Array     : Array of Integer;
+  nLevels,
+  i,
+  j,
+  j2,
+  ZeroLevel,
+  BusdotIdx,
+  nPDE           : Integer;
+Begin
+  Try
+    if ActiveCircuit[ActorID]<>nil then
+    begin
+//      TreeNm := FileRoot + 'TopoTree_Cols.csv';   // For debuging
+      topo := ActiveCircuit[ActiveActor].GetTopology;
+      nLevels     := 0;
+      nPDE        := 0;
+      setlength(Inc_Mat_Cols,0);
+      setlength(IncMatrix,3);           // Init array
+      ActiveIncCell[0]  := -1;           // Activates row 1 of the incidence matrix
+      If Assigned (topo) Then Begin
+        PDElem                  := topo.First;
+        While Assigned (PDElem) do begin
+          nLevels                 := topo.Level;
+          inc(nPDE);
+          setlength(Inc_Mat_Rows,nPDE);
+          PDE_Name                :=  PDElem.ParentClass.Name+'.'+PDElem.Name;
+          Inc_Mat_Rows[nPDE-1]    :=  PDE_Name;
+  //******************Gets the buses to which the PDE is ocnnected****************
+          With ActiveCircuit[ActorID] do
+          Begin
+            ActiveCircuit[ActorID].SetElementActive(PDE_Name);
+            SetLength(PDE_Buses,ActiveCktElement.Nterms);
+            For i := 1 to  ActiveCktElement.Nterms Do
+            Begin
+              PDE_Buses[i-1] :=  ActiveCktElement.GetBus(i);
+              BusdotIdx         :=  ansipos('.',PDE_Buses[i-1]);
+              if BusdotIdx <> 0 then
+                PDE_Buses[i-1]  :=  Copy(PDE_Buses[i-1],0,BusdotIdx-1);  // removes the dot from the Bus Name
+            End;
+            if length(Inc_Mat_Cols) = 0 then  //First iteration so the Cols array will be loaded
+            begin
+              setlength(Inc_Mat_Cols,1);
+              setlength(Inc_Mat_Levels,1);
+              Inc_Mat_Cols[0]   :=  PDE_Buses[0];
+              Inc_Mat_levels[0] :=  nLevels;
+            end
+            else                               //The Cols array is populated with something
+            begin
+              for j := 0 to ActiveCktElement.Nterms-1 do
+              Begin
+                ActiveIncCell[1]  :=  length(IncMatrix);  // Gets the offset inside the vector
+                setlength(IncMatrix,ActiveIncCell[1] + 3);
+                IncMatrix[ActiveIncCell[1]] :=  ActiveIncCell[0]; //Sets the row
+                BusdotIdx           :=  -1;       // Flag to not create a new variable
+                for i := 0 to length(Inc_Mat_Cols)-1 do   // Checks if the bus already exists in the Cols array
+                  if Inc_Mat_Cols[i] = PDE_Buses[j] then  BusdotIdx :=  i;
+                if BusdotIdx >= 0 then  IncMatrix[ActiveIncCell[1]  + 1] :=  BusdotIdx   //Sets the Col
+                else
+                Begin
+                  setlength(Inc_Mat_Cols,length(Inc_Mat_Cols)+1);
+                  setlength(Inc_Mat_levels,length(Inc_Mat_levels)+1);
+                  Inc_Mat_Cols[length(Inc_Mat_Cols)-1]  :=  PDE_Buses[j];
+                  Inc_Mat_levels[length(Inc_Mat_Cols)-1]:=  nLevels;
+                  IncMatrix[ActiveIncCell[1]  + 1] :=  length(Inc_Mat_Cols) - 1; //Sets the Col
+                End;
+                if j = 0 then IncMatrix[ActiveIncCell[1]  + 2]  :=  1 //Sets the value
+                else IncMatrix[ActiveIncCell[1]  + 2] :=  -1;
+
+              End;
+            end;
+          End;
+          inc(ActiveIncCell[0]);
+          PDElem := topo.GoForward;
+        End;
+      End;
+{******************************************************************************
+ ****Now the levels array needs to be reprocessed to get the 0 level buses,****
+ *****they are on a continuous path from the feeder head to the feeder end*****
+*******************************************************************************}
+      BusdotIdx :=  MaxIntValue(Inc_Mat_levels);
+      for i := 0 to length(Inc_Mat_levels) do
+        if Inc_Mat_levels[i] = BusdotIdx then nLevels := i;
+      for j := 1 to BusdotIdx-1 do
+      begin
+        for i := 0 to nLevels do
+        begin
+          if Inc_Mat_levels[i] = j then ZeroLevel := i;
+        end;
+        Inc_Mat_levels[ZeroLevel]  := 0;
+      end;
+  //**********Normalize the branches of the level between zero level buses********
+      BusdotIdx :=  0;
+      j         :=  0;
+      ZeroLevel :=  0;
+      SetLength(Temp_Array,0);
+      for i := 0 to (length(Inc_Mat_levels)-1) do
+      begin
+          if (Inc_Mat_levels[i] = 0) then
+          begin
+            if length(Temp_Array) > 0 then    // The array subset is large enough for
+            begin                             //Normalizing it
+              BusdotIdx :=  MinIntValue(Temp_Array) - 1;
+              for j2 := ZeroLevel to (length(Temp_Array) + ZeroLevel - 1) do
+                Inc_Mat_levels[j2]  :=  Inc_Mat_levels[j2] - BusdotIdx;
+              SetLength(Temp_Array,0);
+            end;
+            ZeroLevel :=  i + 1;
+          end
+          else
+          begin
+            setlength(Temp_Array,length(Temp_Array) + 1);
+            Temp_Array[length(Temp_Array) - 1]  :=  Inc_Mat_levels[i];
+          end;
+      end;
+  //************Verifies is something else was missing at the end*****************
+      if (ZeroLevel < (length(Inc_Mat_levels) - 1)) then
+      begin
+        BusdotIdx :=  0;                  // COunter for defining the level
+        j         :=  0;                  // Stores the previous value (shift reg)
+        for j2 := ZeroLevel to (length(Inc_Mat_levels) - 1) do
+        begin
+          if Inc_Mat_levels[j2] >= j then inc(BusdotIdx)
+          else
+          begin
+            ActiveIncCell[1]  :=  -1;     // Variable to store the row at the col location
+            ActiveIncCell[0]  :=  0;      // Detection Flag
+            for i := 1 to ((length(IncMatrix)  div 3) - 1) do    //Looks for the Column in the IncMatrix
+            begin
+              if (IncMatrix[i*3 + 1] = j2) and (ActiveIncCell[0] = 0) then
+              begin
+                ActiveIncCell[1] :=  IncMatrix[i*3];
+                ActiveIncCell[0] := 1;
+              end;
+            end;
+            if ActiveIncCell[1] < 0 then  //Checks if the col was located (just in case)
+              BusdotIdx     :=  1
+            else
+            begin
+              ActiveIncCell[0]  :=  0;    // Detection Flag
+              for i := 1 to ((length(IncMatrix)  div 3) - 1) do    //Looks for the row in the IncMatrix
+              begin
+                if (IncMatrix[i*3] = ActiveIncCell[1]) and (ActiveIncCell[0] = 0) then
+                begin
+                  ActiveIncCell[2] :=  IncMatrix[i*3 + 1];
+                  ActiveIncCell[0]  :=  1;
+                end;
+              end;
+              BusdotIdx :=  Inc_Mat_levels[ActiveIncCell[2]]  + 1;
+            end;
+          end;
+          j :=  Inc_Mat_levels[j2];
+          Inc_Mat_levels[j2]  :=  BusdotIdx;
+        end;
+      end;
+      IncMat_Ordered  :=  True;
+    end;
+  Finally
+
+  End;
+End;
+
 
 //----------------------------------------------------------------------------
 FUNCTION TDSSSolution.Init(Handle:Integer; ActorID : Integer):Integer;

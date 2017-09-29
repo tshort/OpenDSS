@@ -257,6 +257,10 @@ begin
   47: begin  // Solution.CalcIncMatrix
     With ActiveCircuit[ActiveActor].Solution do
       Calc_Inc_Matrix(ActiveActor);
+  end;
+  48: begin  // Solution.CalcIncMatrix_O
+    With ActiveCircuit[ActiveActor].Solution do
+      Calc_Inc_Matrix_Org(ActiveActor);
   end
   else
       Result:=-1;
@@ -495,9 +499,64 @@ begin
         end;
       END
       Else arg := VarArrayCreate([0,0], varInteger);
-     end
+     end;
+  2: begin  // Solution.BusLevels
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        with ACtiveCircuit[ActiveActor].Solution do
+        begin
+           ArrSize    :=  length(Inc_Mat_Levels)-1;    // Removes the 3 initial zeros and the extra index
+                                                  // Since it starts on 0
+           arg     :=  VarArrayCreate([0, ArrSize], varInteger);
+           for IMIdx  :=  0 to ArrSize Do
+           Begin
+              arg[IMIdx] := Inc_Mat_levels[IMIdx];
+           End;
+        end;
+      END
+      Else arg := VarArrayCreate([0,0], varInteger);
+    end;
+  3: begin  // Solution.IncMatrixRows
+      If ActiveCircuit[ActiveActor] <> Nil Then Begin
+        with ACtiveCircuit[ActiveActor].Solution do
+        begin
+          ArrSize    :=  length(Inc_Mat_Rows)-1;
+          arg     :=  VarArrayCreate([0, ArrSize], varOleStr);
+          for IMIdx  :=  0 to ArrSize Do
+          Begin
+             arg[IMIdx] := Inc_Mat_Rows[IMIdx];
+          End;
+        end;
+      END
+      Else arg := VarArrayCreate([0,0], varInteger);
+    end;
+  4: begin  // Solution.IncMatrixCols
+     If ActiveCircuit[ActiveActor] <> Nil Then Begin
+       with ActiveCircuit[ActiveActor].Solution,ActiveCircuit[ActiveActor]  do
+       begin
+        if IncMat_Ordered then
+        begin
+          ArrSize    :=  length(Inc_Mat_Cols)-1;
+          arg     :=  VarArrayCreate([0, ArrSize], varOleStr);
+          for IMIdx  :=  0 to ArrSize Do
+          Begin
+             arg[IMIdx] := Inc_Mat_Cols[IMIdx];
+          End;
+        end
+        else
+        begin
+             arg := VarArrayCreate([0, NumBuses-1], varOleStr);
+             FOR i := 0 to NumBuses-1 DO
+             Begin
+                 arg[i] := BusList.Get(i+1);
+             End;
+        end;
+       end;
+     End
+     Else arg := VarArrayCreate([0,0], varInteger);
+    end
     else
       arg[0] := 'Error, paratemer not recognized';
   end;
+
 end;
 end.
