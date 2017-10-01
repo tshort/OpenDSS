@@ -1685,7 +1685,7 @@ Begin
     if i  < 0 then flag :=  False;
   end;
   Fileroot  :=  copy(Fileroot,0,i+1);
-  Fileroot  :=  Fileroot  + 'Teared_Circuit';
+  Fileroot  :=  Fileroot  + 'Torn_Circuit';
   CreateDir(Fileroot);                        // Creates the folder for storing the modified circuit
   DelFilesFromDir(Fileroot,'*',True);         // Removes all the files inside the new directory (if exists)
 //***********The directory is ready for storing the new circuit****************
