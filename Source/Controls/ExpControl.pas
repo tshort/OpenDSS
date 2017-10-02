@@ -168,7 +168,7 @@ Begin
      PropertyHelp[3] := 'Per-unit reactive power injection / per-unit voltage deviation from Vreg; defaults to 50.'+CRLF+CRLF+
                         'Unlike InvControl, base reactive power is constant at the inverter kva rating.';
      PropertyHelp[4] := 'Time constant for adaptive Vreg. Defaults to 1200 seconds.'+CRLF+CRLF+
-                        'When the control injects or absorbs reactive power due to a voltage deviation from the Q=0 crossing of vvc_curve1, '+
+                        'When the control injects or absorbs reactive power due to a voltage deviation from the Q=0 crossing of the volt-var curve, '+
                         'the Q=0 crossing will move toward the actual terminal voltage with this time constant. '+
                         'Over time, the effect is to gradually bring inverter reactive power to zero as the grid voltage changes due to non-solar effects. '+
                         'If zero, then Vreg stays fixed';
@@ -176,11 +176,13 @@ Begin
                         'Enter > 0 for lagging (capacitive) bias, < 0 for leading (inductive) bias.';
      PropertyHelp[6] := 'Lower limit on adaptive Vreg; defaults to 0.95 per-unit';
      PropertyHelp[7] := 'Upper limit on adaptive Vreg; defaults to 1.05 per-unit';
-     PropertyHelp[8] := 'Limit on leading (inductive) reactive power injection, in per-unit of base kva; defaults to 1.'+CRLF+CRLF+
-                        'Even if QmaxLead = 1, the reactive power injection is still '+
+     PropertyHelp[8] := 'Limit on leading (inductive) reactive power injection, in per-unit of base kva; defaults to 0.44.'+
+                        'For Category A inverters per P1547/D7, set this value to 0.25.'+CRLF+CRLF+
+                        'Regardless of QmaxLead, the reactive power injection is still '+
                         'limited by dynamic headroom when actual real power output exceeds 0%';
-     PropertyHelp[9] := 'Limit on lagging (capacitive) reactive power injection, in per-unit of base kva; defaults to 1.'+CRLF+CRLF+
-                        'Even if QmaxLag = 1, the reactive power injection is still '+
+     PropertyHelp[9] := 'Limit on lagging (capacitive) reactive power injection, in per-unit of base kva; defaults to 0.44.'+CRLF+CRLF+
+                        'For Category A inverters per P1547/D7, set this value to 0.25.'+
+                        'Regardless of QmaxLag, the reactive power injection is still '+
                         'limited by dynamic headroom when actual real power output exceeds 0%';
      PropertyHelp[10] := '{Yes/True* | No/False} Default is No for ExpControl. Log control actions to Eventlog.';
      PropertyHelp[11] := 'Convergence parameter; Defaults to 0.7. '+CRLF+CRLF+
@@ -347,8 +349,8 @@ Begin
      FQbias := 0.0;
      FVregMin := 0.95;
      FVregMax := 1.05;
-     FQmaxLead := 1.0;
-     FQmaxLag := 1.0;
+     FQmaxLead := 0.44;
+     FQmaxLag := 0.44;
      FdeltaQ_factor := 0.7; // only on control iterations, not the final solution
 
      //generic for control
@@ -464,6 +466,7 @@ VAR
   Qset, DeltaQ  :Double;
   Qmaxpu, Qpu   :Double;
   Qbase         :Double;
+  Qinvmaxpu     :Double;
   PVSys         :TPVSystemObj;
 BEGIN
   for i := 1 to FPVSystemPointerList.ListSize do begin
@@ -474,6 +477,7 @@ BEGIN
       PVSys.Varmode := VARMODEKVAR;  // Set var mode to VARMODEKVAR to indicate we might change kvar
       FTargetQ[i] := 0.0;
       Qbase  := PVSys.kVARating;
+      Qinvmaxpu := PVSys.kvarLimit / Qbase;
       Qpu := PVSys.Presentkvar / Qbase; // no change for now
 
       if (FWithinTol[i]=False) then begin
@@ -485,6 +489,7 @@ BEGIN
 
       // apply limits on Qpu, then define the target in kVAR
       Qmaxpu := Sqrt(1 - Sqr(PVSys.PresentkW/Qbase)); // dynamic headroom
+      if Qmaxpu > Qinvmaxpu then Qmaxpu := Qinvmaxpu;
       if Abs(Qpu) > Qmaxpu then Qpu := QmaxPu * Sign(Qpu);
       if Qpu < -FQmaxLead then Qpu := -FQmaxLead;
       if Qpu > FQmaxLag then Qpu := FQmaxLag;
@@ -569,8 +574,8 @@ begin
   PropertyValue[5]  := '0';     // Q bias
   PropertyValue[6]  := '0.95';  // Vreg min
   PropertyValue[7]  := '1.05';  // Vreg max
-  PropertyValue[8]  := '1';     // Qmax leading
-  PropertyValue[9]  := '1';     // Qmax lagging
+  PropertyValue[8]  := '0.44';     // Qmax leading
+  PropertyValue[9]  := '0.44';     // Qmax lagging
   PropertyValue[10] := 'no';    // write event log?
   PropertyValue[11] := '0.7';   // DeltaQ_factor
   inherited  InitPropertyValues(NumPropsThisClass);
