@@ -30,7 +30,7 @@
         <CommandLineParams Value="IEEE13Nodeckt.dss"/>
       </local>
     </RunParams>
-    <Units Count="119">
+    <Units Count="120">
       <Unit0>
         <Filename Value="opendsscmd.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -510,6 +510,11 @@
         <Filename Value="KLUSolve.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit118>
+      <Unit119>
+        <Filename Value="fncs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FNCS"/>
+      </Unit119>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -170,7 +170,8 @@ uses
   WireData in '..\General\WireData.pas',
   XfmrCode in '..\General\XfmrCode.pas',
   XYcurve in '..\General\XYcurve.pas',
-  Ymatrix in '..\Common\Ymatrix.pas';
+  Ymatrix in '..\Common\Ymatrix.pas',
+  FNCS;
 
 
 function UserFinished(Cmd:String):boolean;
@@ -198,6 +199,7 @@ type
 procedure TMyApplication.DoRun;
 var
   ErrorMsg, Cmd: String;
+  FNCSconn: TFNCS;
 begin
 	NoFormsAllowed := True;
 	DSSExecutive := TExecutive.Create;  // Make a DSS object
@@ -208,10 +210,18 @@ begin
 
 	NoFormsAllowed := False;  // messages will go to the console
 
+  FNCSconn := TFNCS.Create;
+  if FNCSconn.IsReady then begin
+    writeln('FNCS connected');
+  end else begin
+    writeln('FNCS not connected');
+  end;
+
 	// quick check parameters
-  ErrorMsg:=CheckOptions('h', 'help');
+  ErrorMsg:=CheckOptions('hf', 'help fncs');
   if ErrorMsg<>'' then begin
-    ShowException(Exception.Create(ErrorMsg));
+    writeln(ErrorMsg);
+//    ShowException(Exception.Create(ErrorMsg));
     Terminate;
     Exit;
   end;
@@ -219,6 +229,28 @@ begin
   // parse parameters
   if HasOption('h', 'help') then begin
     WriteHelp;
+    Terminate;
+    Exit;
+  end;
+
+  if HasOption('f', 'fncs') then begin
+    if FNCSconn.IsReady then begin
+      if paramcount > 1 then begin
+    	  Cmd := 'compile ' + ParamStr(2);
+        writeln(Cmd);
+        DSSExecutive.Command := Cmd;
+        if DSSExecutive.Error <> 0 then begin
+    		  writeln('Last Error: ' + DSSExecutive.LastError);
+          writeln('FNCS option failed: the optional filename would not compile first');
+          Terminate;
+          Exit;
+        end;
+      end;
+      writeln ('Starting FNCS loop');
+      FNCSconn.RunFNCSLoop;
+    end else begin
+      writeln ('FNCS option failed: the FNCS library could not be loaded');
+    end;
     Terminate;
     Exit;
   end;
@@ -255,8 +287,13 @@ end;
 
 procedure TMyApplication.WriteHelp;
 begin
-  { add your help code here }
-  writeln('Usage: ', ExeName, ' -h');
+  writeln('Usage: ', ExeName, ' [-h | -f] [filename]');
+  writeln(' [filename] optional DSS command file. If provided, runs this file and exits.');
+  writeln('      If provided, runs this file and exits.');
+  writeln('      If not provided, accepts user commands at the >> prompt.');
+  writeln(' -h displays this message and exits');
+  writeln(' -f starts in FNCS co-simulation mode, after reading optional filename');
+  writeln('    (requires FNCS installation and opendss.yaml file)');
 end;
 
 var
