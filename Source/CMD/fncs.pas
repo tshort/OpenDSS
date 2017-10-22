@@ -7,10 +7,17 @@ unit FNCS;
 
 {$mode delphi}
 
+{$MACRO ON}
+{$IFDEF Windows}
+{$DEFINE FNCS_CALL:=stdcall}
+{$ELSE} // Darwin and Unix
+{$DEFINE FNCS_CALL:=cdecl}
+{$ENDIF}
+
 interface
 
 uses
-  Classes, SysUtils, unix, dynlibs;
+  Classes, SysUtils, {* unix, *} dynlibs;
 
 type
   fncs_time = qword;
@@ -19,71 +26,67 @@ type
   private
     FLibHandle: TLibHandle;
     FuncError: Boolean;
-    {$IFDEF Windows}
-      // to be as below, but stdcall instead of cdecl
-    {$ELSE} // Darwin and Unix
+    // Connect to broker and parse config file.
+    fncs_initialize: procedure;FNCS_CALL;
+    // Connect to broker and parse inline configuration.
+    fncs_initialize_config: procedure (configuration:Pchar);FNCS_CALL;
+    // Connect to broker and parse config file for Transactive agents.
+    fncs_agentRegister: procedure;FNCS_CALL;
+    // Connect to broker and parse inline configuration for transactive agents.
+    fncs_agentRegisterConfig: procedure (configuration:Pchar);FNCS_CALL;
+    // Check whether simulator is configured and connected to broker.
+    fncs_is_initialized: function:longint;FNCS_CALL;
+    // Request the next time step to process.
+    fncs_time_request: function (next:fncs_time):fncs_time;FNCS_CALL;
+    // Publish value using the given key.
+    fncs_publish: procedure (key:Pchar; value:Pchar);FNCS_CALL;
+    // Publish value anonymously using the given key.
+    fncs_publish_anon: procedure (key:Pchar; value:Pchar);FNCS_CALL;
+    // Publish function for transactive agents.
+    fncs_agentPublish: procedure (value:Pchar);FNCS_CALL;
+    // Publish value using the given key, adding from:to into the key.
+    fncs_route: procedure (source:Pchar; target:Pchar; key:Pchar; value:Pchar);FNCS_CALL;
+    // Tell broker of a fatal client error.
+    fncs_die: procedure;FNCS_CALL;
+    // Close the connection to the broker.
+    fncs_finalize: procedure;FNCS_CALL;
+    // Update minimum time delta after connection to broker is made. Assumes time unit is not changing.
+    fncs_update_time_delta: procedure (delta:fncs_time);FNCS_CALL;
+    // Get the number of keys for all values that were updated during the last time_request.
+    fncs_get_events_size: function:size_t;FNCS_CALL;
+    // Get the keys for all values that were updated during the last time_request.
+    fncs_get_events: function:ppchar;FNCS_CALL;
+    // Get one key for the given event index that as updated during the last time_request.
+    fncs_get_event_at: function (index:size_t):pchar;FNCS_CALL;
+    // Get the agent events for all values that were updated during the last time_request.
+    fncs_agentGetEvents: function:pchar;FNCS_CALL;
+    // Get a value from the cache with the given key. Will hard fault if key is not found.
+    fncs_get_value: function (key:Pchar):pchar;FNCS_CALL;
+    // Get the number of values from the cache with the given key.
+    fncs_get_values_size: function (key:Pchar):size_t;FNCS_CALL;
+    // Get an array of values from the cache with the given key. Will return an array of size 1 if only a single value exists.
+    fncs_get_values: function (key:Pchar):ppchar;FNCS_CALL;
+    // Get a single value from the array of values for the given key.
+    fncs_get_value_at: function (key:Pchar; index:size_t):pchar;FNCS_CALL;
+    // Get the number of subscribed keys.
+    fncs_get_keys_size: function:size_t;FNCS_CALL;
+    // Get the subscribed keys. Will return NULL if fncs_get_keys_size() returns 0.
+    fncs_get_keys: function:ppchar;FNCS_CALL;
+    // Get the subscribed key at the given index. Will return NULL if fncs_get_keys_size() returns 0.
+    fncs_get_key_at: function (index:size_t):pchar;FNCS_CALL;
+    // Return the name of the simulator.
+    fncs_get_name: function:pchar;FNCS_CALL;
+    // Return a unique numeric ID for the simulator.
+    fncs_get_id: function:longint;FNCS_CALL;
+    // Return the number of simulators connected to the broker.
+    fncs_get_simulator_count: function:longint;FNCS_CALL;
+    // Run-time API version detection.
+    fncs_get_version: procedure (major:Plongint; minor:Plongint; patch:Plongint);FNCS_CALL;
+    // Convenience wrapper around libc free.
+    fncs_free: procedure (ptr:pointer);FNCS_CALL;
 
-      // Connect to broker and parse config file.
-    	fncs_initialize: procedure;cdecl;
-      // Connect to broker and parse inline configuration.
-      fncs_initialize_config: procedure (configuration:Pchar);cdecl;
-      // Connect to broker and parse config file for Transactive agents.
-      fncs_agentRegister: procedure;cdecl;
-      // Connect to broker and parse inline configuration for transactive agents.
-      fncs_agentRegisterConfig: procedure (configuration:Pchar);cdecl;
-      // Check whether simulator is configured and connected to broker.
-      fncs_is_initialized: function:longint;cdecl;
-      // Request the next time step to process.
-      fncs_time_request: function (next:fncs_time):fncs_time;cdecl;
-      // Publish value using the given key.
-      fncs_publish: procedure (key:Pchar; value:Pchar);cdecl;
-      // Publish value anonymously using the given key.
-      fncs_publish_anon: procedure (key:Pchar; value:Pchar);cdecl;
-      // Publish function for transactive agents.
-      fncs_agentPublish: procedure (value:Pchar);cdecl;
-      // Publish value using the given key, adding from:to into the key.
-      fncs_route: procedure (source:Pchar; target:Pchar; key:Pchar; value:Pchar);cdecl;
-      // Tell broker of a fatal client error.
-      fncs_die: procedure;cdecl;
-      // Close the connection to the broker.
-      fncs_finalize: procedure;cdecl;
-      // Update minimum time delta after connection to broker is made. Assumes time unit is not changing.
-      fncs_update_time_delta: procedure (delta:fncs_time);cdecl;
-      // Get the number of keys for all values that were updated during the last time_request.
-      fncs_get_events_size: function:size_t;cdecl;
-      // Get the keys for all values that were updated during the last time_request.
-      fncs_get_events: function:ppchar;cdecl;
-      // Get one key for the given event index that as updated during the last time_request.
-      fncs_get_event_at: function (index:size_t):pchar;cdecl;
-      // Get the agent events for all values that were updated during the last time_request.
-      fncs_agentGetEvents: function:pchar;cdecl;
-      // Get a value from the cache with the given key. Will hard fault if key is not found.
-      fncs_get_value: function (key:Pchar):pchar;cdecl;
-      // Get the number of values from the cache with the given key.
-      fncs_get_values_size: function (key:Pchar):size_t;cdecl;
-      // Get an array of values from the cache with the given key. Will return an array of size 1 if only a single value exists.
-      fncs_get_values: function (key:Pchar):ppchar;cdecl;
-      // Get a single value from the array of values for the given key.
-      fncs_get_value_at: function (key:Pchar; index:size_t):pchar;cdecl;
-      // Get the number of subscribed keys.
-      fncs_get_keys_size: function:size_t;cdecl;
-      // Get the subscribed keys. Will return NULL if fncs_get_keys_size() returns 0.
-      fncs_get_keys: function:ppchar;cdecl;
-      // Get the subscribed key at the given index. Will return NULL if fncs_get_keys_size() returns 0.
-      fncs_get_key_at: function (index:size_t):pchar;cdecl;
-      // Return the name of the simulator.
-      fncs_get_name: function:pchar;cdecl;
-      // Return a unique numeric ID for the simulator.
-      fncs_get_id: function:longint;cdecl;
-      // Return the number of simulators connected to the broker.
-      fncs_get_simulator_count: function:longint;cdecl;
-      // Run-time API version detection.
-      fncs_get_version: procedure (major:Plongint; minor:Plongint; patch:Plongint);cdecl;
-      // Convenience wrapper around libc free.
-      fncs_free: procedure (ptr:pointer);cdecl;
-
-    {$ENDIF}
     function find_fncs_function (name: String): Pointer;
+
   public
     function IsReady:Boolean;
     procedure RunFNCSLoop;
