@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="9"/>
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
@@ -548,6 +548,7 @@
         <GenerateDebugInfo Value="False"/>
       </Debugging>
       <Options>
+        <PassLinkerOptions Value="True"/>
         <LinkerOptions Value="-lc -lm -lgcc_s -lstdc++"/>
       </Options>
     </Linking>

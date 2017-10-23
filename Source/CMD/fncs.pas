@@ -17,7 +17,7 @@ unit FNCS;
 interface
 
 uses
-  Classes, SysUtils, {* unix, *} dynlibs;
+  Classes, SysUtils, {$IFDEF Unix} unix, {$ENDIF} dynlibs;
 
 type
   fncs_time = qword;
