@@ -9,7 +9,7 @@ procedure PVsystemsV(mode:longint;out arg:variant);cdecl;
 
 implementation
 
-uses ComServ, DSSGlobals, PVSystem, Variants, SysUtils;
+uses DSSGlobals, PVSystem, Variants, SysUtils;
 
 function PVsystemsI(mode:longint;arg:longint):longint;cdecl;
 

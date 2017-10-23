@@ -9,7 +9,7 @@ procedure IsourceV(mode:longint;out arg:variant);cdecl;
 
 implementation
 
-uses ComServ, Variants, PointerList, Isource, DSSGlobals, CktElement;
+uses Variants, PointerList, Isource, DSSGlobals, CktElement;
 
 function IsourceI(mode:longint;arg:longint):Longint;cdecl;
 

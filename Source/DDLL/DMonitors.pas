@@ -402,7 +402,7 @@ begin
                FirstCol := AuxParser.StrValue;  // Get rid of first two columns
                AuxParser.AutoIncrement := FALSE;
                // check first col to see if it is "Hour"
-               If System.Sysutils.CompareText(FirstCol, 'hour') = 0  Then Begin
+               If Sysutils.CompareText(FirstCol, 'hour') = 0  Then Begin
                     AllocSize :=  Sizeof(SngBuffer^[1]) * Header.RecordSize;
                     SngBuffer := Allocmem(AllocSize);
                     k := 0;
@@ -436,7 +436,7 @@ begin
                FirstCol := AuxParser.StrValue;  // Get rid of first two columns
                AuxParser.AutoIncrement := FALSE;
                // check first col to see if it is "Freq" for harmonics solution
-               If System.Sysutils.CompareText(FirstCol, 'freq') = 0  Then Begin
+               If Sysutils.CompareText(FirstCol, 'freq') = 0  Then Begin
                     AllocSize :=  Sizeof(SngBuffer^[1]) * Header.RecordSize;
                     SngBuffer := Allocmem(AllocSize);
                     k := 0;

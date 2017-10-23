@@ -9,7 +9,7 @@ procedure ParserV(mode: longint; out arg:variant);cdecl;
 
 implementation
 
-uses ComServ, ParserDel, Variants, ArrayDef;
+uses ParserDel, Variants, ArrayDef;
 
 Var ComParser : ParserDel.TParser;
 

@@ -3,7 +3,7 @@ unit DXYCurves;
 interface
 
 uses
-  ActiveX, XYCurve, DSSClass, Arraydef, UComplex, Solution;
+  XYCurve, DSSClass, Arraydef, UComplex, Solution;
 
 function XYCurvesI(mode:longint;arg:longint):longint;cdecl;
 function XYCurvesF(mode:longint;arg:double):double;cdecl;
@@ -12,7 +12,7 @@ procedure XYCurvesV(mode:longint; var arg:variant);cdecl;
 
 implementation
 
-uses ComServ, DSSGlobals, DSSObject, Variants;
+uses DSSGlobals, DSSObject, Variants;
 
 function XYCurvesI(mode:longint;arg:longint):longint;cdecl;
 

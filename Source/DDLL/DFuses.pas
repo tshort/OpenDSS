@@ -9,7 +9,7 @@ procedure FusesV(mode:longint;out arg:variant);cdecl;
 
 implementation
 
-uses ComServ, Executive, Sysutils, Fuse, Pointerlist, DSSGlobals, Variants;
+uses Executive, Sysutils, Fuse, Pointerlist, DSSGlobals, Variants;
 
 procedure Set_Parameter(const parm: string; const val: string);
 var

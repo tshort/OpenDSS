@@ -10,9 +10,13 @@ implementation
 
 uses DSSClassDefs,
      DSSGlobals,
+     {$IFDEF FPC}
+     CMDForms,
+     {$ELSE}
      DSSForms,
      Forms,
      ScriptFormNormal,
+     {$ENDIF}
      DSSClass,
      Exechelper,
      sysUtils,
@@ -31,6 +35,8 @@ begin
       DoClearCmd;
   end;
   2: begin  // DSS.ShowPanel
+    {$IFDEF FPC} // TODO - what can be done here?
+    {$ELSE}
     If Not Assigned (MainEditFormNormal) Then
     Begin
           MainEditFormNormal := TMainEditFormnormal.Create(Nil);
@@ -38,6 +44,7 @@ begin
           MainEditFormNormal.isMainWindow := TRUE;
     End;
     MainEditFormNormal.Show;
+    {$ENDIF}
   end;
   3: begin  // DSS.Start
     Result :=  1;
