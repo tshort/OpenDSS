@@ -3108,7 +3108,8 @@ Procedure ShowY(FileNm:String);
 
 Var
     F                :TextFile;
-    hY, nNZ, nBus    :LongWord;
+    hY               :NativeUInt;
+    nNZ, nBus        :LongWord;
     i, row, col      :LongWord;
     re, im           :Double;
     ColIdx, RowIdx   :array of LongWord;
