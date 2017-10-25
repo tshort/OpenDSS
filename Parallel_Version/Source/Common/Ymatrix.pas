@@ -232,7 +232,7 @@ Function CheckYMatrixforZeroes(ActorID : Integer):String;
 Var
     i                           :LongWord;
     c                           :Complex;
-    hY                          :LongWord;
+    hY                          :NativeUInt;
     sCol                        :LongWord;
     nIslands, iCount, iFirst, p :LongWord;
     Cliques                     :array of LongWord;

@@ -1754,7 +1754,8 @@ VAR
 
    // for dumping the matrix in compressed columns
    p                :LongWord;
-   hY, nBus, nNZ    :LongWord;
+   hY               :NativeUInt;
+   nBus, nNZ        :LongWord;
    ColPtr, RowIdx   :array of LongWord;
    cVals            :array of Complex;
 Begin

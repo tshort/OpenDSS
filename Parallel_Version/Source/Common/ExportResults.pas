@@ -2590,7 +2590,8 @@ Procedure ExportY(FileNm:String);
 Var
     F                :TextFile;
     i,j,p            :LongWord;
-    hY, nBus, nNZ    :LongWord;
+    hY               :NativeUInt;
+    nBus, nNZ        :LongWord;
     ColPtr, RowIdx   :array of LongWord;
     cVals            :array of Complex;
     re, im           :Double;

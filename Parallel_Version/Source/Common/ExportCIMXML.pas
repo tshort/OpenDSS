@@ -848,7 +848,7 @@ begin
         val := Xsc^[seq] * Zbase;
         DoubleNode (F, 'ShortCircuitTest.leakageImpedance', val);
         DoubleNode (F, 'ShortCircuitTest.leakageImpedanceZero', val);
-        if seq = 2 then begin  // TODO - profile requires a value for each test
+        if seq = 1 then begin  // TODO - profile requires a value for each test
           val := 0.01 * pctLoadLoss * Winding^[1].kva;
           DoubleNode (F, 'ShortCircuitTest.loss', val);
           DoubleNode (F, 'ShortCircuitTest.lossZero', val);
