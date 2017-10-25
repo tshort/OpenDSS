@@ -32,7 +32,7 @@
         <CommandLineParams Value="IEEE13Nodeckt.dss"/>
       </local>
     </RunParams>
-    <Units Count="121">
+    <Units Count="123">
       <Unit0>
         <Filename Value="OpenDSSDirect.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -520,6 +520,14 @@
         <Filename Value="..\CMD\KLUSolve.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit120>
+      <Unit121>
+        <Filename Value="DCircuit.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit121>
+      <Unit122>
+        <Filename Value="DYMatrix.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit122>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
