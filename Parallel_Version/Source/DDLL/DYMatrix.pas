@@ -4,8 +4,8 @@ interface
 
 Uses Arraydef, UComplex, Solution;
 
-Function  InitAndGetYparams(var hY, nBus, nNZ:LongWord): Longword; cdecl;
-Procedure GetCompressedYMatrix(hY, nBus, nNz:Longword; Var ColPtr, RowIdx:pIntegerArray; Var cVals:pComplexArray); cdecl;
+Function  InitAndGetYparams(var hY: NativeUInt; var nBus, nNZ:LongWord): Longword; cdecl;
+Procedure GetCompressedYMatrix(hY:NativeUInt; nBus, nNz:Longword; Var ColPtr, RowIdx:pIntegerArray; Var cVals:pComplexArray); cdecl;
 //01202016
 procedure ZeroInjCurr; cdecl;
 procedure GetSourceInjCurrents; cdecl;
@@ -30,7 +30,7 @@ Var {Global variables in this Module}
    YValues : pComplexArray;
 
 
-Function InitAndGetYparams(var hY, nBus, nNZ:LongWord): Longword; cdecl;
+Function InitAndGetYparams(var hY: NativeUInt; var nBus, nNZ:LongWord): Longword; cdecl;
 
 // Call this first
 
@@ -58,7 +58,7 @@ Begin
 End;
 
 
-Procedure GetCompressedYMatrix(hY, nBus, nNz:Longword; Var ColPtr, RowIdx:pIntegerArray; Var cVals:pComplexArray); cdecl;
+Procedure GetCompressedYMatrix(hY:NativeUInt; nBus, nNz:Longword; Var ColPtr, RowIdx:pIntegerArray; Var cVals:pComplexArray); cdecl;
 
 {Returns Pointers to column and row and matrix values}
 
