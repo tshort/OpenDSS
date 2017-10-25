@@ -285,7 +285,8 @@ var
    BusName:String;
    iV, p               :LongWord;
    NValues          :LongWord;
-   hY, nBus, nNZ    :LongWord;
+   nBus, nNZ        :LongWord;
+   hY               :NativeUInt;
    ColPtr, RowIdx   :array of LongWord;
    cVals            :array of Complex;
    Temp:pDoubleArray;
