@@ -4,7 +4,7 @@ interface
 
 Uses Arraydef, UComplex, Solution;
 
-Function  InitAndGetYparams(var hY:NativeUInt; nBus, nNZ:LongWord): Longword; cdecl;
+Function  InitAndGetYparams(var hY:NativeUInt; var nBus, nNZ:LongWord): Longword; cdecl;
 Procedure GetCompressedYMatrix(hY:NativeUInt; nBus, nNz:Longword; Var ColPtr, RowIdx:pIntegerArray; Var cVals:pComplexArray); cdecl;
 //01202016
 procedure ZeroInjCurr; cdecl;
@@ -30,7 +30,7 @@ Var {Global variables in this Module}
    YValues : pComplexArray;
 
 
-Function InitAndGetYparams(var hY:NativeUInt; nBus, nNZ:LongWord): Longword; cdecl;
+Function InitAndGetYparams(var hY:NativeUInt; var nBus, nNZ:LongWord): Longword; cdecl;
 
 // Call this first
 
