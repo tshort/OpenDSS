@@ -76,7 +76,7 @@ begin
        varSmallint,VarInteger: Begin
                        i := Idx;
                        If (Circuits.ListSize > i) and (i >= 0) Then
-                         ActiveCircuit := Circuits.Get(i+1)
+                         ActiveCircuit[ActiveActor] := Circuits.Get(i+1)
                        Else
                          DoSimpleMsg('Circuit index requested ('+ IntToStr(i) +') is invalid', 5009);
 
@@ -256,7 +256,7 @@ begin
      End;
 
      LastClassReferenced[ActiveActor] := DevClassIndex;
-     ActiveDSSClass := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
+     ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
      Result := LastClassReferenced[ActiveActor];
 
 end;

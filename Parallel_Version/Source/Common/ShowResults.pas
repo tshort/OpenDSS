@@ -1742,7 +1742,7 @@ Begin
             Writeln(F);
             Writeln(Fdisabled, 'All DISABLED Elements in Class "', ClassName, '"');
             Writeln(Fdisabled);
-            ActiveDSSClass := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
+            ActiveDSSClass[ActiveActor] := DSSClassList[ActiveActor].Get(LastClassReferenced[ActiveActor]);
             FOR i := 1 to ActiveDSSClass[ActiveActor].ElementCount Do
             Begin
                   ActiveDSSClass[ActiveActor].Active := i;
