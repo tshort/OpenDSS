@@ -663,7 +663,7 @@ begin
   ipst:=1;
   ts := pT[2] - pT[1];
   for i := 1 to N do pRms[i] := pRms[i] / vbase;
-  pBuf := AllocMem (N * sizeof (pBuf[1]));
+  pBuf := AllocMem (N * sizeof (Single));
   Fhp(N, ts, whp, pRms, pBuf);
   Fw1(N, ts, w1, k, lam, pBuf, pRms);
   Fw2(N, ts, w2, w3, w4, pRms, pBuf);

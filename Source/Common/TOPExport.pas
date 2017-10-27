@@ -74,7 +74,7 @@ implementation
 {$IFNDEF FPC}
 Uses ComObj, AnsiStrings, SysUtils, Dialogs, ActiveX, DSSGlobals;
 {$ELSE}
-Uses SysUtils, DSSGlobals, CmdForms;
+Uses SysUtils, DSSGlobals, CmdForms, Variants;
 {$ENDIF}
 Var
   TOP_Inited:Boolean;

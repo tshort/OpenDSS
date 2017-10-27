@@ -1593,8 +1593,8 @@ begin
 
           {Find Max number of points}
            RecordBytes := Sizeof(SngBuffer[1]) * RecordSize;
-           VBuf := AllocMem(Sizeof(VBuf^[1])* RecordSize);  // Put Everything in here for now
-           CBuf := AllocMem(Sizeof(VBuf^[1])* 1);   // just a dummy -- Cbuf is ignored here
+           VBuf := AllocMem(Sizeof(Double)* RecordSize);  // Put Everything in here for now
+           CBuf := AllocMem(Sizeof(Double)* 1);   // just a dummy -- Cbuf is ignored here
 
            {Get first time value and set the interval to this value}
            hr:= 0.0;

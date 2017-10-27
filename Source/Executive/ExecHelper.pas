@@ -1055,7 +1055,7 @@ VAR
 
 Begin
 
-     Dummy := AllocMem(Sizeof(Dummy^[1]) * 100); // Big Buffer
+     Dummy := AllocMem(Sizeof(Double) * 100); // Big Buffer
      Num   := Parser.ParseAsVector(100, Dummy);
      {Parsing zero-fills the array}
 
@@ -1773,7 +1773,7 @@ Begin
      Begin
          NValues := NConds*Nterms;
          GlobalResult := '';
-         cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
+         cBuffer := Allocmem(sizeof(Complex)*NValues);
          GetCurrents(cBuffer);
          For i := 1 to  NValues DO
          Begin
@@ -1858,7 +1858,7 @@ Begin
   WITH ActiveCircuit.ActiveCktElement DO
   Begin
       NValues := NPhases;
-      cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
+      cBuffer := Allocmem(sizeof(Complex)*NValues);
       GlobalResult := '';
       GetPhaseLosses( NValues, cBuffer);
       For i := 1 to  NValues DO Begin
@@ -1885,7 +1885,7 @@ Begin
   Begin
       NValues := NConds*Nterms;
       GlobalResult := '';
-      cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
+      cBuffer := Allocmem(sizeof(Complex)*NValues);
       GetPhasePower(cBuffer);
       For i := 1 to  NValues DO Begin
          GlobalResult := GlobalResult+ Format('%10.5g, %10.5g,', [cBuffer^[i].re*0.001, cBuffer^[i].im*0.001]);
@@ -1920,7 +1920,7 @@ Begin
         THEN  For i := 0 to  3*Nterms-1 DO GlobalResult := GlobalResult + ' -1.0,'  // Signify n/A
         ELSE Begin
           NValues := NConds * Nterms;
-          cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
+          cBuffer := Allocmem(sizeof(Complex)*NValues);
           GetCurrents(cBuffer);
           For j := 1 to Nterms Do
           Begin
@@ -1967,7 +1967,7 @@ Begin
          For i := 0 to 2*3*Nterms-1 DO GlobalResult := GlobalResult + '-1.0, '  // Signify n/A
       ELSE Begin
         NValues := NConds * Nterms;
-        cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
+        cBuffer := Allocmem(sizeof(Complex)*NValues);
         GetCurrents(cBuffer);
         FOR j := 1 to Nterms Do Begin
          k :=(j-1) * NConds;
@@ -2282,7 +2282,7 @@ Begin
    ELSE Begin
        DoAllHarmonics := FALSE;
 
-       Dummy := AllocMem(Sizeof(Dummy^[1]) * 100); // Big Buffer
+       Dummy := AllocMem(Sizeof(Double) * 100); // Big Buffer
        Num   := Parser.ParseAsVector(100, Dummy);
        {Parsing zero-fills the array}
 

@@ -548,7 +548,7 @@ Begin
        THEN Begin
         NCond := pelem.NConds;
         Nterm := pelem.Nterms;
-        Getmem(cBuffer, Sizeof(cBuffer^[1])*NCond*Nterm);
+        Getmem(cBuffer, Sizeof(Complex)*NCond*Nterm);
           pelem.GetCurrents(cBuffer);
 
           FOR j := 1 to NTerm Do
@@ -1641,7 +1641,7 @@ Begin
            {Bus Norton Equivalent Current, Isc has been previously computed}
            With Buses^[iBus] Do Begin
              YFault := TcMatrix.CreateMatrix(NumNodesThisBus);
-             Getmem(VFault, Sizeof(VFault^[1])* NumNodesThisBus);
+             Getmem(VFault, Sizeof(Complex)* NumNodesThisBus);
 
              GFault := Cmplx(10000.0, 0.0);
 

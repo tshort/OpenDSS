@@ -366,11 +366,11 @@ BEGIN
 
      OldNumLists := NumLists;
 
-     NewStringPtr := AllocMem(SizeOf(newStringPtr^[1]) * NewSize);
+     NewStringPtr := AllocMem(SizeOf(string) * NewSize);
      NewNumLists := round(sqrt(NewSize));
      ElementsPerList := NewSize div NewNumLists + 1;
      If NewNumLists < 1 Then NewNumLists := 1;  // make sure at least one list
-     Getmem(NewListPtr, Sizeof(NewListptr^[1]) * NewNumLists);
+     Getmem(NewListPtr, Sizeof(TSubList) * NewNumLists);
      FOR i := 1 to NumLists DO BEGIN
          {Allocate initial Sublists}
          WITH NewListPtr^[i] DO BEGIN

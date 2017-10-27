@@ -163,7 +163,7 @@ implementation
 {Allocate LT}
 //     LT:=nil;
 
-     GetMem(LT,SizeOf(LT^[1])*L);
+     GetMem(LT,SizeOf(Integer)*L);
      IF LT=nil THEN
      BEGIN
       InvertError:=1;

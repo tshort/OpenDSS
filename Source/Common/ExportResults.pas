@@ -1494,7 +1494,7 @@ Begin
    { Solve for Fault Injection Currents}
 
              YFault := TcMatrix.CreateMatrix(NumNodesThisBus);
-             Getmem(VFault, Sizeof( VFault^[1])* NumNodesThisBus);
+             Getmem(VFault, Sizeof(Complex)* NumNodesThisBus);
 
              {Build YscTemp}
 

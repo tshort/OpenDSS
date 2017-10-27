@@ -2070,7 +2070,7 @@ Begin
    SaveDelims := AuxParser.Delimiters;
    AuxParser.Delimiters := ',';
    ArraySize   := 10;
-   FieldLength := Allocmem(Sizeof(FieldLength^[1]) * ArraySize);
+   FieldLength := Allocmem(Sizeof(Integer) * ArraySize);
 
  Try
    {Scan once to set field lengths}

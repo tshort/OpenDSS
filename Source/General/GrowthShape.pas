@@ -215,12 +215,12 @@ BEGIN
             1: Npts := Parser.Intvalue;
             2: BEGIN
                  ReAllocmem(Year, Sizeof(Year^[1])*Npts);
-                 YrBuffer := Allocmem(Sizeof(YrBuffer^[1])*Npts);
+                 YrBuffer := Allocmem(Sizeof(Double)*Npts);
                  InterpretDblArray(Param, Npts, YrBuffer);  // Parser.ParseAsVector(Npts, Yrbuffer);
                  
                  FOR i := 1 to Npts DO Year^[i] := Round(YrBuffer^[i]);
                  BaseYear := Year^[1];
-                 FreeMem( YrBuffer,Sizeof(YrBuffer^[1])*Npts);
+                 FreeMem( YrBuffer,Sizeof(Double)*Npts);
                END;
             3: BEGIN
                  ReAllocmem(Multiplier, Sizeof(Multiplier^[1])*Npts);

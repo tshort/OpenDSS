@@ -43,7 +43,7 @@ uses SysUtils;
 Function AllocStringArray(Size:Integer):pStringArray;
 // Allocates a string array initialized with nil values
 Begin
-      Result := AllocMem(SizeOf(Result^[1])*Size);
+      Result := AllocMem(SizeOf(string)*Size);
 End;
 
 Procedure FreeStringArray(var pS:pStringArray; Size:Integer);

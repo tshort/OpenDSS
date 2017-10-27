@@ -822,8 +822,8 @@ Begin
 
        Hr_Time := 0.0;
 
-       VBuf := AllocMem(Sizeof(VBuf^[1])* ObjList.ListSize);
-       CBuf := AllocMem(Sizeof(VBuf^[1])* 1);   // just a dummy -- Cbuf is ignored here
+       VBuf := AllocMem(Sizeof(Double)* ObjList.ListSize);
+       CBuf := AllocMem(Sizeof(Double)* 1);   // just a dummy -- Cbuf is ignored here
 
        For i := 1 to MaxPts Do Begin
           For j := 1 to ObjList.ListSize Do Begin

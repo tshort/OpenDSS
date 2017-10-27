@@ -1473,7 +1473,7 @@ begin
   TotalLosses := Losses;   // Side effect: computes Iterminal
 
   {Compute No load losses in Yprim_Shunt}
-  cTempIterminal := AllocMem(Sizeof(cTempIterminal^[1])* Yorder);
+  cTempIterminal := AllocMem(Sizeof(Complex)* Yorder);
   ComputeVterminal;
   Yprim_Shunt.MVmult(cTempIterminal, Vterminal) ;
   {No Load Losses are sum of all powers coming into YPrim_Shunt from each terminal}
@@ -1864,11 +1864,11 @@ begin
    Y_1Volt_NL.Clear;
 
    {Allocate temp complex arrays}
-   ctempArray1 := AllocMem(SizeOF(ctempArray1^[1]) * NumWindings * 2);
-   ctempArray2 := AllocMem(SizeOF(ctempArray2^[1]) * NumWindings * 2);
+   ctempArray1 := AllocMem(SizeOf(Complex) * NumWindings * 2);
+   ctempArray2 := AllocMem(SizeOf(Complex) * NumWindings * 2);
 
    
-   A          := AllocMem(SizeOF(A^[1]) * NumWindings * 2);
+   A          := AllocMem(SizeOf(Complex) * NumWindings * 2);
    cMinusOne  := cmplx(-1.0, 0.0);
    AT         := TcMatrix.Creatematrix(NumWindings);
    FOR i := 1 to NumWindings-1 Do AT.SetElement(i+1, i, cONE);
