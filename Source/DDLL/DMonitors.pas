@@ -195,6 +195,7 @@ begin
   end;
   15: begin  // Monitor.FileVersion
       If ActiveCircuit <> Nil Then Begin
+        ReadMonitorHeader(Header, TRUE);
          Result := Header.Version;
       End;
   end;
@@ -265,7 +266,7 @@ begin
       THEN Begin      // Search list of monitors in active circuit for name
            WITH ActiveCircuit.Monitors DO
            Begin
-             S := widestring(arg);  // Convert to Pascal String
+             S := string(arg);  // Convert to Pascal String
              Found := FALSE;
              ActiveSave := ActiveIndex;
              pMon := First;
@@ -295,8 +296,8 @@ begin
      if ActiveCircuit <> Nil then begin
         pMon := ActiveCircuit.Monitors.Active;
         if PMon <> Nil then Begin
-           pMon.ElementName := widestring(arg) ;
-           pMon.PropertyValue [1] := widestring(arg);
+           pMon.ElementName := string(arg) ;
+           pMon.PropertyValue [1] := string(arg);
            pMon.RecalcElementData ;
         End;
      end;
@@ -403,7 +404,7 @@ begin
                AuxParser.AutoIncrement := FALSE;
                // check first col to see if it is "Hour"
                If Sysutils.CompareText(FirstCol, 'hour') = 0  Then Begin
-                    AllocSize :=  Sizeof(SngBuffer^[1]) * Header.RecordSize;
+                    AllocSize :=  Sizeof(Single) * Header.RecordSize;
                     SngBuffer := Allocmem(AllocSize);
                     k := 0;
                     for i := 1 to pMon.SampleCount  do Begin

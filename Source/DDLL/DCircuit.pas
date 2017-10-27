@@ -549,7 +549,7 @@ begin
      WITH ActiveCircuit DO
      Begin
        // Make a Temporary Array big enough to hold all nodes
-       Temp := AllocMem(SizeOF(Temp^[1]) * NumNodes);
+       Temp := AllocMem(SizeOF(Double) * NumNodes);
 
        // Find nodes connected to specified phase
        k:=0;

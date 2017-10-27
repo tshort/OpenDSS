@@ -181,7 +181,7 @@ begin
   end;
   1: begin  // Settings.AutoBusLits write
      IF ActiveCircuit <> NIL
-     THEN DoAutoAddBusList(widestring(arg));
+     THEN DoAutoAddBusList(string(arg));
   end;
   2: begin  // Settings.PriceCurve read
       IF ActiveCircuit <> NIL
@@ -192,7 +192,7 @@ begin
     IF ActiveCircuit <> NIL
     THEN WITH ActiveCircuit DO
                Begin
-                  PriceCurve    := widestring(arg);
+                  PriceCurve    := string(arg);
                   PriceCurveObj := LoadShapeClass.Find(Pricecurve);
                   IF PriceCurveObj=nil THEN
                    DoSimpleMsg('Price Curve: "' +Pricecurve+ '" not found.', 5006);

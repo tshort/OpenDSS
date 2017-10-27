@@ -37,7 +37,7 @@ BEGIN
            IF (Nphases = 1) and PositiveSequence THEN
            Begin
                 NValues := NConds*NTerms;
-                cBuffer := Allocmem(sizeof(cBuffer^[1])*NValues);
+                cBuffer := Allocmem(sizeof(Complex)*NValues);
                 GetCurrents(cBuffer);
 
                 For i := 1 to  3*NTerms DO i012^[i] := CZERO;   // Initialize Result
@@ -372,7 +372,7 @@ begin
   end;
   2: begin                                          // CktElement.Display - Write
      If ActiveCircuit <> Nil Then
-        ActiveCircuit.ActiveCktElement.DisplayName := widestring(arg);
+        ActiveCircuit.ActiveCktElement.DisplayName := string(arg);
      Result := pAnsiChar(AnsiString(''));
   end;
   3: begin                                          // CktElement.GUID

@@ -108,7 +108,7 @@ begin
   case mode of
   0: begin  // Parser.Vector
     ExpectedSize:=integer(arg);
-    VectorBuffer := Allocmem(SizeOf(VectorBuffer^[1])*ExpectedSize);
+    VectorBuffer := Allocmem(SizeOf(Double)*ExpectedSize);
     ActualSize := ComParser.ParseAsVector(ExpectedSize, VectorBuffer);
     arg := VarArrayCreate([0, (ActualSize-1)], varDouble);
     For i := 0 to (ActualSize-1) Do arg[i] := VectorBuffer^[i+1];
@@ -117,7 +117,7 @@ begin
   1: begin  // Parser.Matrix
     ExpectedOrder:=integer(arg);
     MatrixSize := ExpectedOrder*ExpectedOrder;
-    MatrixBuffer := Allocmem(SizeOf(MatrixBuffer^[1])*MatrixSize);
+    MatrixBuffer := Allocmem(SizeOf(Double)*MatrixSize);
     ComParser.ParseAsMatrix(ExpectedOrder, MatrixBuffer);
 
     arg := VarArrayCreate([0, (MatrixSize-1)], varDouble);

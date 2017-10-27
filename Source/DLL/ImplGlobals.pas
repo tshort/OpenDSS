@@ -122,7 +122,14 @@ Procedure Fire_CheckControls;
 
 implementation
 
-uses DSSGlobals, Executive, sysutils;
+uses DSSGlobals, Executive, {$IFNDEF FPC}AnsiStrings, {$ENDIF}sysutils;
+
+{$IFNDEF FPC}
+function StrPLCopy(Dest: PAnsiChar; const Source: AnsiString; MaxLen: Cardinal): PAnsiChar; inline;
+begin
+  Result := System.AnsiStrings.StrPLCopy(Dest, Source, MaxLen);
+end;
+{$ENDIF}
 
 Procedure Fire_InitControls;
 begin
