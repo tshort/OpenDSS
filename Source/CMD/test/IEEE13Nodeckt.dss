@@ -156,6 +156,8 @@ BusCoords IEEE13Node_BusXY.csv
 
 
 Show Voltages LN Nodes
+
+Export Yprims
 // Show Currents Elem
 // Show Powers kVA Elem
 // Show Losses
