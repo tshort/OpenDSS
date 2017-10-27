@@ -24,10 +24,11 @@ implementation
 Uses DSSGlobals, Ymatrix, KLUSolve;
 
 Var {Global variables in this Module}
-   Yhandle, NumNZ, NumBuses : LongWord;
+   Yhandle			: NativeUInt 
+   NumNZ, NumBuses 	: LongWord;
    YColumns,
-   YRows   : pIntegerArray;
-   YValues : pComplexArray;
+   YRows   			: pIntegerArray;
+   YValues 			: pComplexArray;
 
 
 Function InitAndGetYparams(var hY: NativeUInt; var nBus, nNZ:LongWord): Longword; cdecl;
