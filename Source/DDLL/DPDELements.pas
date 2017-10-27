@@ -246,7 +246,7 @@ begin
   1: begin  // PDElements.Name write
       If Assigned(ActiveCircuit) Then
       With ActiveCircuit Do Begin
-          TestString := widestring(arg);
+          TestString := string(arg);
           // Search through list of PD Elements until we find this one
           ActivePDElement := PDElements.First;
           While Assigned(ActivePDElement) do

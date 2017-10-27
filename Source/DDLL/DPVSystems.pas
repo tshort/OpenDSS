@@ -206,7 +206,7 @@ begin
   THEN Begin      // Search list of PVSystems in active circuit for name
        WITH ActiveCircuit.PVSystems DO
          Begin
-             S := widestring(arg);  // Convert to Pascal String
+             S := string(arg);  // Convert to Pascal String
              Found := FALSE;
              ActiveSave := ActiveIndex;
              PVSystem := First;

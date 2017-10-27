@@ -192,12 +192,12 @@ begin
   1: begin  // Reclosers.Name write
      If ActiveCircuit <> Nil Then
      Begin
-          If RecloserClass.SetActive(widestring(arg)) Then
+          If RecloserClass.SetActive(string(arg)) Then
           Begin
                ActiveCircuit.ActiveCktElement := RecloserClass.ElementList.Active ;
           End
           Else Begin
-              DoSimpleMsg('Recloser "'+ widestring(arg) +'" Not Found in Active Circuit.', 77003);
+              DoSimpleMsg('Recloser "'+ string(arg) +'" Not Found in Active Circuit.', 77003);
           End;
      End;
   end;
@@ -208,7 +208,7 @@ begin
   end;
   3: begin  // Reclosers.MonitoredObj write
       elem := RecloserClass.GetActiveObj ;
-      if elem <> nil then Set_parameter('monitoredObj', widestring(arg));
+      if elem <> nil then Set_parameter('monitoredObj', string(arg));
   end;
   4: begin  // Reclosers.SwitchedObj read
       Result := pAnsiChar(AnsiString(''));
@@ -217,7 +217,7 @@ begin
   end;
   5: begin  // Reclosers.SwitchedObj write
       elem := RecloserClass.GetActiveObj ;
-      if elem <> nil then Set_parameter('SwitchedObj', widestring(arg));
+      if elem <> nil then Set_parameter('SwitchedObj', string(arg));
   end
   else
       Result:=pAnsiChar(AnsiString('Error, parameter not valid'));

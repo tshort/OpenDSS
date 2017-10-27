@@ -265,14 +265,14 @@ begin
   Result := pAnsiChar(AnsiString(''));  // Default return value
   case mode of
   0: begin  // RegControls.Name read
-     Result := pAnsiChar(AnsiString(''));
+     Result := string(AnsiString(''));
       elem := ActiveRegControl;
       if elem <> nil then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // RegControls.Name write
       IF ActiveCircuit <> NIL THEN Begin
         lst := ActiveCircuit.RegControls;
-        S := widestring(arg);  // Convert to Pascal String
+        S := string(arg);  // Convert to Pascal String
         Found := FALSE;
         ActiveSave := lst.ActiveIndex;
         elem := lst.First;
@@ -292,23 +292,23 @@ begin
       End;
   end;
   2: begin  // RegControls.MonitoredBus read
-      Result := pAnsiChar(AnsiString(''));
+      Result := string(AnsiString(''));
       elem := ActiveRegControl;
       if elem <> nil then Result := pAnsiChar(AnsiString(elem.ControlledBusName));
   end;
   3: begin  // RegControls.MonitoredBus write
-      Set_Parameter ('Bus', widestring(arg));
+      Set_Parameter ('Bus', string(arg));
   end;
   4: begin  // RegControls.Transformer read
-      Result:=pAnsiChar(AnsiString(''));
+      Result:=string(AnsiString(''));
       elem := ActiveRegControl;
       if elem <> nil then Result:=pAnsiChar(AnsiString(elem.Transformer.Name));
   end;
   5: begin  // RegControls.Transformer write
-      Set_Parameter ('Transformer', arg);
+      Set_Parameter ('Transformer', string(arg));
   end
   else
-      Result:=pAnsiChar(AnsiString('Error, parameter not valid'));
+      Result:=string(AnsiString('Error, parameter not valid'));
   end;
 end;
 

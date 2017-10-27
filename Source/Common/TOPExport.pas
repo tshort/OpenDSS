@@ -72,12 +72,19 @@ VAR
 
 implementation
 {$IFNDEF FPC}
-Uses ComObj, SysUtils, AnsiStrings, Dialogs, ActiveX, DSSGlobals;
+Uses ComObj, AnsiStrings, SysUtils, Dialogs, ActiveX, DSSGlobals;
 {$ELSE}
 Uses SysUtils, DSSGlobals, CmdForms;
 {$ENDIF}
 Var
   TOP_Inited:Boolean;
+
+{$IFNDEF FPC}
+function StrCopy(Dest: PAnsiChar; const Source: PAnsiChar): PAnsiChar; inline;
+begin
+  Result := System.AnsiStrings.StrCopy(Dest, Source);
+end;
+{$ENDIF}
 
 Procedure StartTop;
 
@@ -163,7 +170,7 @@ BEGIN
          IDXData := IDXCurrentNames + NCurrents * CurrNameSize;
          IdxBaseData := 0;
 
-         sysutils.StrCopy(Title1,pAnsichar(Title));
+         StrCopy(Title1,pAnsichar(Title));
          Title2[0] := #0;
          Title3[0] := #0;
          Title4[0] := #0;
@@ -188,13 +195,13 @@ BEGIN
 
      If Header.NVoltages > 0 Then
      For i:=0 to Vnames.Count-1 Do Begin
-        Sysutils.StrCopy(Buf, pAnsichar(AnsiString(Vnames.Strings[i])));    // Assign string to a buffer
+        StrCopy(Buf, pAnsichar(AnsiString(Vnames.Strings[i])));    // Assign string to a buffer
         BlockWrite(Fout, Buf, Header.VoltNameSize, NumWrite);    // Strings is default property of TStrings
      END;
 
      If Header.NCurrents > 0 Then
      For i:=0 to Cnames.Count-1 Do Begin
-        Sysutils.StrCopy(Buf, pAnsichar(AnsiString(Cnames.Strings[i])));    // Assign string to a buffer
+        StrCopy(Buf, pAnsichar(AnsiString(Cnames.Strings[i])));    // Assign string to a buffer
         BlockWrite(Fout, Buf, Header.CurrNameSize, NumWrite);
      END;
 

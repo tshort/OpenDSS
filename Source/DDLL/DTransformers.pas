@@ -248,7 +248,7 @@ begin
       if elem <> nil then Result := pAnsiChar(AnsiString(elem.XfmrCode));
   end;
   1: begin  // Transformers.XfmrCode write
-      Set_Parameter ('XfmrCode', arg);
+      Set_Parameter ('XfmrCode', string(arg));
   end;
   2: begin  // Transformers.Name read
       Result := pAnsiChar(AnsiString(''));
@@ -260,7 +260,7 @@ begin
   3: begin  // Transformers.Name write
       IF ActiveCircuit <> NIL THEN Begin
         lst := ActiveCircuit.Transformers;
-        S := widestring(arg);  // Convert to Pascal String
+        S := string(arg);  // Convert to Pascal String
         Found := FALSE;
         ActiveSave := lst.ActiveIndex;
         elem := lst.First;

@@ -90,50 +90,47 @@ end;
 function CtrlQueueI(mode: longint; arg: longint):longint;cdecl;
 
 var
-    COMControlProxyObj :TCOMControlProxyObj;
-    Hour: Integer; Seconds: Double;
+    COMControlProxyObj :TCOMControlProxyObj; // TODO : how is this ever initialized?!
+    Hour: Integer;
+    Seconds: Double;
     ActionCode,DeviceHandle: Integer;
 
 begin
   Result := 0;
+  Hour := 0;
+  Seconds := 0.0;
+  ActionCode := 0;
+  DeviceHandle := 0;
   case mode of
   0: begin  // CtrlQueue.ClearQueue
-     If ActiveCircuit <> Nil then Begin
+     If ActiveCircuit <> Nil then
         ActiveCircuit.ControlQueue.Clear;
-     End;
   end;
   1: begin // CtrlQueue.Delete
-      If ActiveCircuit <> Nil then Begin
+      If ActiveCircuit <> Nil then
         ActiveCircuit.ControlQueue.Delete(arg);
-     End;
   end;
   2: begin  // CtrlQueue.NumActions
-      Result := 0;
-        Result := COMControlProxyObj.ActionList.Count;
+      Result := COMControlProxyObj.ActionList.Count;
   end;
   3: begin  // CtrlQueue.Action
       With COMControlProxyObj Do
-       If arg < ActionList.Count then Begin
+       If arg < ActionList.Count then
          ActiveAction := ActionList.Items[arg - 1];
-      End;
   end;
   4: begin  // CtrlQueue.ActionCode
-     Result := 0;
-      If ActiveAction<> NIl then   Result := ActiveAction^.ActionCode ;
+    If ActiveAction<> NIl then   Result := ActiveAction^.ActionCode ;
   end;
   5: begin  // CtrlQueue.DeviceHandle
-       Result := 0;
-        If ActiveAction<> NIl then   Result := ActiveAction^.DeviceHandle;
+    If ActiveAction<> NIl then Result := ActiveAction^.DeviceHandle;
   end;
   6: begin  // CtrlQueue.Push
-     Result := 0;
-     If ActiveCircuit <> Nil then Begin
-        Result := ActiveCircuit.ControlQueue.push(Hour, Seconds, ActionCode, DeviceHandle, COMControlProxyObj);
-   End;
+    If ActiveCircuit <> Nil then
+      Result := ActiveCircuit.ControlQueue.push(Hour, Seconds, ActionCode, DeviceHandle, COMControlProxyObj);
   end;
   7: begin  // CtrlQueue.Show
-       If ActiveCircuit <> Nil then
-          ActiveCircuit.ControlQueue.ShowQueue(DSSDirectory + 'COMProxy_ControlQueue.CSV');
+    If ActiveCircuit <> Nil then
+      ActiveCircuit.ControlQueue.ShowQueue(DSSDirectory + 'COMProxy_ControlQueue.CSV');
   end;
   8: begin  // CtrlQueue.ClearActions
       COMControlProxyObj.ClearActionList;

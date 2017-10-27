@@ -9,7 +9,7 @@ procedure DSSLoadsV(mode:longint; out arg:variant); cdecl;
 
 implementation
 
-uses DSSGlobals, Executive, Load, Variants, SysUtils, math;
+uses DSSGlobals, Executive, Load, Variants, SysUtils;
 
 // Mode defines the property of the Loads Class
 // Arg defines the argument and complementary data in case the property will be edited
@@ -442,7 +442,7 @@ begin
       THEN Begin      // Search list of Loads in active circuit for name
          WITH ActiveCircuit.Loads DO
          Begin
-               S := WideString(arg);  // Convert to Pascal String
+               S := string(arg);  // Convert to Pascal String
                Found := FALSE;
                ActiveSave := ActiveIndex;
                pLoad := First;
@@ -472,7 +472,7 @@ begin
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.CVRshape));
   end;
   3: begin                                     // Loads.CVRCurve - Write
-      Set_Parameter ('CVRcurve', widestring(arg));
+      Set_Parameter ('CVRcurve', string(arg));
       Result:=pAnsiChar(AnsiString(''));
   end;
   4: begin                                     // Loads.Daily - Read
@@ -481,7 +481,7 @@ begin
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.DailyShape));
   end;
   5: begin                                     // Loads.Daily - Write
-      Set_Parameter ('Daily', widestring(arg));
+      Set_Parameter ('Daily', string(arg));
       Result:=pAnsiChar(AnsiString(''));
   end;
   6: begin                                     // Loads.Duty - read
@@ -490,7 +490,7 @@ begin
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.DailyShape));
   end;
   7: begin                                     // Loads.Duty - Write
-      Set_Parameter ('Duty', widestring(arg));
+      Set_Parameter ('Duty', string(arg));
       Result:=pAnsiChar(AnsiString(''));
   end;
   8: begin                                     // Loads.Spectrum - Read
@@ -499,7 +499,7 @@ begin
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.Spectrum));
   end;
   9: begin                                     // Loads.Spectrum - Write
-      Set_Parameter ('Spectrum', widestring(arg));
+      Set_Parameter ('Spectrum', string(arg));
       Result:=pAnsiChar(AnsiString(''));
   end;
   10: begin                                    // Loads.Yearly - Read
@@ -508,7 +508,7 @@ begin
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.YearlyShape));
   end;
   11: begin                                    // Loads.Yearly - Write
-      Set_Parameter ('Yearly', widestring(arg));
+      Set_Parameter ('Yearly', string(arg));
       Result:=pAnsiChar(AnsiString(''));
   end;
   12: begin                                    // Loads.Growth - read
@@ -517,7 +517,7 @@ begin
       if pLoad <> nil then Result := pAnsiChar(AnsiString(pLoad.GrowthShape));
   end;
   13: begin                                    // Loads.Growth - Write
-      Set_Parameter ('Growth', Widestring(arg));
+      Set_Parameter ('Growth', string(arg));
       Result:=pAnsiChar(AnsiString(''));
   end
   else

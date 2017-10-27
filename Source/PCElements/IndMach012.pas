@@ -1356,6 +1356,8 @@ Var
 
 Begin
 
+   E := Czero; // implementation was commented out below?
+
    // Set the VTerminal array
    ComputeVterminal;
 

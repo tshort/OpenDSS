@@ -165,7 +165,7 @@ Begin
         // No energymeters in circuit
         // Include all buses in the circuit
          BusIdxListSize :=  ActiveCircuit.BusList.listsize;
-         BusIdxList := AllocMem(Sizeof(BusIdxList^[i])*BusIdxListSize);
+         BusIdxList := AllocMem(Sizeof(BusIdxList^[1])*BusIdxListSize);
 
          For i := 1 to BusIdxListSize Do Begin
              BusIdxList^[i] := i;

@@ -6,12 +6,12 @@ function DSSPut_Command(a:PAnsiChar):PAnsiChar;cdecl;
 
 implementation
 
-uses DSSGlobals, Executive, Dialogs, SysUtils;
+uses DSSGlobals, Executive, SysUtils;
 
 function DSSPut_Command(a:PAnsiChar):PAnsiChar;cdecl;
 begin
    SolutionAbort := FALSE;  // Reset for commands entered from outside
-   DSSExecutive.Command := WideString(a);  {Convert to String}
+   DSSExecutive.Command := string(a);  {Convert to String}
    Result:=PAnsiChar(AnsiString(GlobalResult));
 end;
 

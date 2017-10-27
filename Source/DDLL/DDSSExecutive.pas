@@ -34,23 +34,23 @@ begin
   Result:=pAnsiChar(AnsiString('0'));// Default return value
   case mode of
   0: begin // DSS_Executive.Command
-     i:=StrToInt(widestring(arg));
+     i:=StrToInt(string(arg));
      Result := pAnsiChar(AnsiString(ExecCommand[i]));
   end;
   1: begin // DSS_Executive.Option
-     i:=StrToInt(widestring(arg));
+     i:=StrToInt(string(arg));
      Result := pAnsiChar(AnsiString(ExecOption[i]));
   end;
   2: begin // DSS_Executive.CommandHelp
-     i:=StrToInt(widestring(arg));
+     i:=StrToInt(string(arg));
      Result := pAnsiChar(AnsiString(CommandHelp[i]));
   end;
   3: begin // DSS_Executive.OptionHelp
-     i:=StrToInt(widestring(arg));
+     i:=StrToInt(string(arg));
      Result := pAnsiChar(AnsiString(OptionHelp[i]));
   end;
   4: begin // DSS_Executive.OptionValue
-     i:=StrToInt(widestring(arg));
+     i:=StrToInt(string(arg));
      DSSExecutive.Command := 'get ' + ExecOption[i];
      Result := pAnsiChar(AnsiString(GlobalResult));
   end

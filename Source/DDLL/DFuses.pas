@@ -155,12 +155,12 @@ begin
   1: begin  // Fuses.Name write
      If ActiveCircuit <> Nil Then
      Begin
-          If FuseClass.SetActive(widestring(arg)) Then
+          If FuseClass.SetActive(string(arg)) Then
           Begin
                ActiveCircuit.ActiveCktElement := FuseClass.ElementList.Active ;
           End
           Else Begin
-              DoSimpleMsg('Fuse "'+ widestring(arg) +'" Not Found in Active Circuit.', 77003);
+              DoSimpleMsg('Fuse "'+ string(arg) +'" Not Found in Active Circuit.', 77003);
           End;
      End;
   end;
@@ -171,7 +171,7 @@ begin
   end;
   3: begin  // Fuses. MonitoredObj write
       elem := FuseClass.GetActiveObj ;
-      if elem <> nil then Set_parameter('monitoredObj', widestring(arg));
+      if elem <> nil then Set_parameter('monitoredObj', string(arg));
   end;
   4: begin  // Fuses.SwitchedObj read
       Result := pAnsiChar(AnsiString(''));
@@ -180,7 +180,7 @@ begin
   end;
   5: begin  // Fuses.SwitchedObj write
       elem := FuseClass.GetActiveObj ;
-      if elem <> nil then Set_parameter('SwitchedObj', widestring(arg));
+      if elem <> nil then Set_parameter('SwitchedObj', string(arg));
   end;
   6: begin  // Fuses.TCCcurve read
       elem := FuseClass.GetActiveObj ;
@@ -189,7 +189,7 @@ begin
   end;
   7: begin  // Fuses.TCCcurve write
       elem := FuseClass.GetActiveObj ;
-      if elem <> nil then Set_parameter('FuseCurve', widestring(arg));
+      if elem <> nil then Set_parameter('FuseCurve', string(arg));
   end
   else
       Result:= pAnsiChar(AnsiString('Error, parameter not valid'));

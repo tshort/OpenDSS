@@ -116,12 +116,12 @@ begin
   1: begin   // Relays.Name write
      If ActiveCircuit <> Nil Then
      Begin
-          If RelayClass.SetActive(widestring(arg)) Then
+          If RelayClass.SetActive(string(arg)) Then
           Begin
                ActiveCircuit.ActiveCktElement := RelayClass.ElementList.Active ;
           End
           Else Begin
-              DoSimpleMsg('Relay "'+ widestring(arg) +'" Not Found in Active Circuit.', 77003);
+              DoSimpleMsg('Relay "'+ string(arg) +'" Not Found in Active Circuit.', 77003);
           End;
      End;
   end;
@@ -132,7 +132,7 @@ begin
   end;
   3: begin   // Relays.MonitoredObj write
       elem := RelayClass.GetActiveObj ;
-      if elem <> nil then Set_parameter('monitoredObj', widestring(arg));
+      if elem <> nil then Set_parameter('monitoredObj', string(arg));
   end;
   4: begin   // Relays.SwitchedObj read
       Result := pAnsiChar(AnsiString(''));
@@ -141,7 +141,7 @@ begin
   end;
   5: begin   // Relays.SwitchedObj write
       elem := RelayClass.GetActiveObj ;
-      if elem <> nil then Set_parameter('SwitchedObj', widestring(arg));
+      if elem <> nil then Set_parameter('SwitchedObj', string(arg));
   end
   else
       Result:=pAnsiChar(AnsiString('Error, parameter not valid'));

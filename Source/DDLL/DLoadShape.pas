@@ -169,13 +169,13 @@ begin
   1: begin  // LoadShapes.Name write
      If ActiveCircuit <> Nil Then
      Begin
-          If LoadshapeClass.SetActive(widestring(arg)) Then
+          If LoadshapeClass.SetActive(string(arg)) Then
           Begin
                ActiveLSObject := LoadshapeClass.ElementList.Active ;
                ActiveDSSObject    := ActiveLSObject;
           End
           Else Begin
-              DoSimpleMsg('Relay "'+ widestring(arg) +'" Not Found in Active Circuit.', 77003);
+              DoSimpleMsg('Relay "'+ string(arg) +'" Not Found in Active Circuit.', 77003);
           End;
      End;
   end

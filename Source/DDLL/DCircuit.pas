@@ -232,13 +232,13 @@ begin
        IF ActiveCircuit <> Nil THEN
        WITH ActiveCircuit DO
        Begin
-          SetElementActive(widestring(arg));
+          SetElementActive(string(arg));
           If ActiveCktElement<>nil THEN ActiveCktElement.Enabled := FALSE;
        End;
   end;
   2: begin                                             // Circuit.Enable
        WITH ActiveCircuit DO Begin
-          SetElementActive(widestring(arg));
+          SetElementActive(string(arg));
           If ActiveCktElement<>nil THEN ActiveCktElement.Enabled := TRUE;
        End;
   end;
@@ -246,19 +246,19 @@ begin
       Result := pAnsiChar(AnsiString('-1'));
        IF ActiveCircuit <> NIL
        THEN Begin
-           Result := pAnsiChar(AnsiString(Inttostr(ActiveCircuit.SetElementActive(widestring(arg)) - 1)));   // make zero based to be compatible with collections and variant arrays
+           Result := pAnsiChar(AnsiString(Inttostr(ActiveCircuit.SetElementActive(string(arg)) - 1)));   // make zero based to be compatible with collections and variant arrays
        End
        ELSE DoSimpleMsg('Create a circuit before trying to set an element active!', 5015);
   end;
   4: begin                                             // Circuit.SetActiveBus
-     DSSGlobals.SetActiveBus(StripExtension(widestring(arg)));
+     DSSGlobals.SetActiveBus(StripExtension(string(arg)));
      If Assigned(Activecircuit) then Result := pAnsiChar(AnsiString(InttoStr(ActiveCircuit.ActiveBusIndex - 1))) Else Result := pAnsiChar(AnsiString('-1'));
   end;
   5: begin                                             // Circuit.SetActiveClass
      Result := pAnsiChar(AnsiString('0'));
-     DevClassIndex := ClassNames.Find(widestring(arg));
+     DevClassIndex := ClassNames.Find(string(arg));
      If DevClassIndex = 0 Then  Begin
-        DoSimplemsg('Error: Class ' + widestring(arg) + ' not found.' , 5016);
+        DoSimplemsg('Error: Class ' + string(arg) + ' not found.' , 5016);
         Exit;
      End;
 
@@ -280,7 +280,7 @@ var
    pTransf:TTransfObj;
    pCktElem:TDSSCktElement;
    cPower, cLoss, Volts, Curr:Complex;
-   i,j,k,NodeIdx, Phase:Integer;
+   i,j,k,NodeIdx, Phase:LongWord;
    BaseFactor, VoltsD: double;
    BusName:String;
    iV, p               :LongWord;

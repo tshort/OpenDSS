@@ -326,11 +326,11 @@ Begin
       ActiveDSSClass := DSSClassList.Get(LastClassReferenced);
       RegEx1:=TPerlRegEx.Create;
       RegEx1.Options:=[preCaseLess];
-      RegEx1.RegEx:=UTF8String(Pattern);
+      RegEx1.RegEx:=Pattern; // UTF8String(Pattern);
       ActiveDSSClass.First;
       pObj:=ActiveDSSClass.GetActiveObj;
       while pObj <> Nil do begin
-        RegEx1.Subject:=UTF8String(pObj.Name);
+        RegEx1.Subject:=pObj.Name; // UTF8String(pObj.Name);
         if RegEx1.Match then begin
           Parser.Position:=Params;
           ActiveDSSClass.Edit;
@@ -3224,8 +3224,8 @@ Var
     pElem       :TDSSObject;
 {$ENDIF}
 Begin
+  Result := 0;
 {$IF not defined(FPC)}
-     Result := 0;
      // Abort if no circuit or solution
      If not assigned(ActiveCircuit) Then
      Begin

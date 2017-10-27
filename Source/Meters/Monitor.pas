@@ -196,8 +196,8 @@ implementation
 USES
 
     ParserDel, DSSClassDefs, DSSGlobals, Circuit, CktElement,Transformer, PCElement,
-    Sysutils, ucmatrix, showresults, mathUtil, PointerList, TOPExport, Dynamics, PstCalc,
-    Capacitor;
+    {$IFNDEF FPC}AnsiStrings, {$ENDIF}Sysutils, ucmatrix, showresults, mathUtil,
+    PointerList, TOPExport, Dynamics, PstCalc, Capacitor;
 
 CONST
     SEQUENCEMASK = 16;
@@ -210,6 +210,13 @@ CONST
 
 VAR
     StrBuffer:TMonitorStrBuffer;
+
+{$IFNDEF FPC}
+function StrLCat(Dest: PAnsiChar; const Source: PAnsiChar; MaxLen: Cardinal): PAnsiChar; inline;
+begin
+  Result := System.AnsiStrings.StrLCat(Dest, Source, MaxLen);
+end;
+{$ENDIF}
 
 {--------------------------------------------------------------------------}
 constructor TDSSMonitor.Create;  // Creates superstructure for all Monitor objects
@@ -1611,7 +1618,7 @@ begin
 
            {Now find Maxtime in Monitor}
            PositionSave := MonitorStream.Position;
-           MonitorStream.Seek(-(Recordbytes+8), soFromEnd);
+           MonitorStream.Seek(-(Recordbytes+8), soEnd);
            If Not (MonitorStream.Position>=MonitorStream.Size) Then
              With MonitorStream Do Begin
                   Read( hr, 4);  // singles
@@ -1627,7 +1634,7 @@ begin
            END;
 
            {Go Back to where we were}
-           MonitorStream.Seek(PositionSave, soFromBeginning);
+           MonitorStream.Seek(PositionSave, soBeginning);
 
            TopTransferFile.WriteHeader(Time, MaxTime, Time, RecordSize, 0, 16,  'DSS (TM), EPRI (R)');
            TopTransferFile.WriteNames(NameList, CNames);

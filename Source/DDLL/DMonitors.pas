@@ -257,7 +257,7 @@ begin
        Begin
             pMon := ActiveCircuit.Monitors.Active;
             If PMon <> Nil Then Result := pAnsiChar(AnsiString(PMon.Name))
-            Else Result := pAnsiChar(AnsiString(''));
+            Else Result := string(AnsiString(''));
    End;
   end;
   2: begin  // Monitors.Nme Write
@@ -302,7 +302,7 @@ begin
      end;
   end
   else
-      Result:=pAnsiChar(AnsiString('Error, parameter not valid'));
+      Result:=string(AnsiString('Error, parameter not valid'));
   end;
 end;
 

@@ -8,7 +8,7 @@ procedure TopologyV(mode:longint; out arg:variant);cdecl;
 
 implementation
 
-uses CktTree, DSSGlobals, CktElement, PDElement, PCElement, Variants, SysUtils;
+uses CktTree, DSSGlobals, CktElement, PDElement, Variants, SysUtils;
 
 function ActiveTree: TCktTree;
 begin
@@ -204,7 +204,7 @@ begin
   1: begin  // Topology.BranchName write
       Found := FALSE;
       elem := nil;
-      S := widestring(arg);  // Convert to Pascal String
+      S := string(arg);  // Convert to Pascal String
       topo := ActiveTree;
       if assigned(topo) then begin
         elem := ActiveCircuit.ActiveCktElement;
@@ -234,7 +234,7 @@ begin
   3: begin  // Topology.BusName write
       Found := FALSE;
       elem := nil;
-      S := widestring(arg);  // Convert to Pascal String
+      S := string(arg);  // Convert to Pascal String
       topo := ActiveTree;
       if assigned(topo) then begin
         elem := ActiveCircuit.ActiveCktElement;

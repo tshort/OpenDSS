@@ -20,7 +20,7 @@ PROCEDURE DoSimpleMsgCallback(S:pAnsiChar; maxlen:Cardinal); StdCall; // Call ba
 
 implementation
 
-Uses  ParserDel, DSSGlobals, Executive, {$IFNDEF FPC}AnsiStrings,{$ENDIF} SysUtils, CktElement, Math, PDElement;
+Uses  ParserDel, DSSGlobals, Executive, {$IFNDEF FPC}AnsiStrings,{$ELSE}SysUtils,{$ENDIF} CktElement, Math, PDElement;
 
 Var
    CallBackParser  :TParser;
@@ -74,7 +74,7 @@ Procedure ParserStrValue(s:pAnsiChar; Maxlen:Cardinal); StdCall;
 
 Begin
     With CallBackParser Do Begin
-      SysUtils.StrlCopy(s, pAnsiChar(AnsiString(CB_Param)), Maxlen) ;
+      StrlCopy(s, pAnsiChar(AnsiString(CB_Param)), Maxlen) ;
     End;
 End;
 
@@ -87,7 +87,7 @@ Begin
         CB_ParamName  := NextParam ;
         CB_Param      := StrValue;
    End;
-   SysUtils.StrlCopy(ParamName, pAnsiChar(AnsiString(CB_ParamName)), Maxlen) ; // Copies up to Maxlen
+   StrlCopy(ParamName, pAnsiChar(AnsiString(CB_ParamName)), Maxlen) ; // Copies up to Maxlen
    Result := Length(CB_Param);
 End;
 
@@ -108,19 +108,19 @@ Var
    CktElement :TDSSCktElement;
    BusIdx     :Integer;
 Begin
-   SysUtils.StrlCopy(Name1, pAnsiChar(''), Len1) ;  // Initialize to null
-   SysUtils.StrlCopy(Name2, pAnsiChar(''), Len2) ;
+   StrlCopy(Name1, pAnsiChar(''), Len1) ;  // Initialize to null
+   StrlCopy(Name2, pAnsiChar(''), Len2) ;
    If ActiveCircuit <> Nil Then Begin
      CktElement :=  ActiveCircuit.Activecktelement ;
      If CktElement <> Nil Then Begin
      {First bus}
        BusIdx := CktElement.Terminals^[1].busref;
        If BusIdx > 0 Then With  ActiveCircuit.Buses^[BusIdx]  Do
-         If CoordDefined Then SysUtils.StrlCopy(Name1, pAnsiChar(AnsiString(ActiveCircuit.BusList.Get(Busidx))), Len1) ;
+         If CoordDefined Then StrlCopy(Name1, pAnsiChar(AnsiString(ActiveCircuit.BusList.Get(Busidx))), Len1) ;
       {Second bus}
        BusIdx := CktElement.Terminals^[2].busref;
        If BusIdx > 0 Then With  ActiveCircuit.Buses^[BusIdx] do
-         If CoordDefined Then SysUtils.StrlCopy(Name2, pAnsiChar(AnsiString(ActiveCircuit.BusList.Get(Busidx))), Len2) ;
+         If CoordDefined Then StrlCopy(Name2, pAnsiChar(AnsiString(ActiveCircuit.BusList.Get(Busidx))), Len2) ;
       End; {If CktElement}
    End;  {If ActiveCircuit}
 End;
@@ -372,7 +372,7 @@ Begin
            With ActiveCktElement Do Begin
               S := ParentClass.Name + '.' + Name;
 
-          SysUtils.StrlCopy(FullName, pAnsiChar(AnsiString(S)), Maxlen) ;
+          StrlCopy(FullName, pAnsiChar(AnsiString(S)), Maxlen) ;
           Result := Length(FullName);
         End;
 End;
@@ -389,7 +389,7 @@ End;
 
 Procedure GetResultStrCallBack(S:pAnsiChar; Maxlen:Cardinal); StdCall;
 Begin
-     SysUtils.StrlCopy(S, pAnsiChar(AnsiString( GlobalResult )), Maxlen) ;
+     StrlCopy(S, pAnsiChar(AnsiString( GlobalResult )), Maxlen) ;
 End;
 
 {====================================================================================================================}

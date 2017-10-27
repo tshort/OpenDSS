@@ -1096,6 +1096,7 @@ VAR
   PVSys                                     :TPVSystemObj;
 
 BEGIN
+  QTemp2 := 0.0;
 
 
 

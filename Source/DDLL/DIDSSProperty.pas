@@ -13,7 +13,7 @@ var
 function DSSProperties(mode:longint; arg:pAnsiChar):pAnsiChar; cdecl;
 begin
   Result := pAnsiChar(AnsiString('')); // Default return value
-  FPropIndex := StrToInt(arg);
+  FPropIndex := StrToInt(string(arg));
   case mode of
     0: begin                                           // DSSProperties.Name
       Result := pAnsiChar(AnsiString(''));

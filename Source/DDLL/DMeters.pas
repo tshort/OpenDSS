@@ -462,10 +462,10 @@ begin
           Begin
               Result := pAnsiChar(AnsiString(pMeterObj.ElementName));
           End
-          Else Result := pAnsiChar(AnsiString(''));
+          Else Result := string(AnsiString(''));
      End
      ELSE Begin
-          Result := pAnsiChar(AnsiString(''));
+          Result := string(AnsiString(''));
      End;
   end;
   3: begin  // Meters.MeteredElement Write
@@ -482,7 +482,7 @@ begin
        End;
   end
   else
-      Result:=pAnsiChar(AnsiString('Error, Parameter not recognized'));
+      Result:=string(AnsiString('Error, Parameter not recognized'));
   end;
 end;
 

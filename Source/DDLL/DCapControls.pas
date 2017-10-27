@@ -212,17 +212,17 @@ var
   lst: TPointerList;
 
 begin
-  Result:=pAnsiChar(AnsiString('0'));
+  Result:=string(AnsiString('0'));
   case mode of
   0: begin  // CapControl.Name read
-      Result := pAnsiChar(AnsiString(''));
+      Result := string(AnsiString(''));
       elem := ActiveCapControl;
       if elem <> nil then Result := pAnsiChar(AnsiString(elem.Name));
   end;
   1: begin  // CapControl.Name write
       IF ActiveCircuit <> NIL THEN Begin
         lst := ActiveCircuit.CapControls;
-        S := widestring(arg);  // Convert to Pascal String
+        S := string(arg);  // Convert to Pascal String
         Found := FALSE;
         ActiveSave := lst.ActiveIndex;
         elem := lst.First;
@@ -242,23 +242,23 @@ begin
       End;
   end;
   2: begin  // CapControl.Capacitor read
-      Result := pAnsiChar(AnsiString(''));
+      Result := string(AnsiString(''));
       elem := ActiveCapControl;
       if elem <> nil then Result := pAnsiChar(AnsiString(elem.This_Capacitor.Name));
   end;
   3: begin  // CapControl.Capacitor write
-      Set_Parameter ('Capacitor', widestring(arg));
+      Set_Parameter ('Capacitor', string(arg));
   end;
   4: begin  // CapControl.MonitoredObj read
-      Result := pAnsiChar(AnsiString(''));
+      Result := string(AnsiString(''));
       elem := ActiveCapControl;
       if elem <> nil then Result := pAnsiChar(AnsiString(elem.ElementName));
   end;
   5: begin  // CapControl.MonitoredObj write
-      Set_Parameter ('Element', widestring(arg));
+      Set_Parameter ('Element', string(arg));
   end
   else
-      Result:=pAnsiChar(AnsiString('Error, parameter not valid'));
+      Result:=string(AnsiString('Error, parameter not valid'));
   end;
 end;
 

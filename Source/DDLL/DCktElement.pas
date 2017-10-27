@@ -124,7 +124,7 @@ End;
 function CktElementI(mode:longint; arg:longint):longint;cdecl;
 var
    pCktElement : TDSSCktElement;
-   iControl : integer;
+   i, iControl : integer;
 
 begin
     Result:=0;  // Default return value
@@ -392,7 +392,7 @@ begin
   end;
   5: begin                                          // CktElement.Controller
       Result := pAnsiChar(AnsiString(''));
-      i   :=  strtoInt(arg);
+      i   :=  strtoInt(string(arg));
       If ActiveCircuit <> Nil Then With ActiveCircuit Do begin
         If (i>0) and (i <= ActiveCktElement.ControlElementList.Listsize) Then
         Begin
@@ -412,7 +412,7 @@ procedure CktElementV(mode:longint; out arg:variant);cdecl;
 var
   VPh, V012 : Array[1..3] of Complex;
   IPh, I012 : Array[1..3] of Complex;
-  j,k: integer;
+  i,j,k: integer;
   NValues : Integer;
   cValues : pComplexArray;
   CMagAng: polar;
@@ -436,11 +436,11 @@ begin
      If ActiveCircuit <> Nil Then
      Begin
        With ActiveCircuit Do Begin
-         Low := VarArrayLowBound(widestring(arg), 1);
-         Count := VarArrayHighBound(widestring(arg), 1) - Low + 1;
+         Low := VarArrayLowBound(string(arg), 1);
+         Count := VarArrayHighBound(string(arg), 1) - Low + 1;
          If Count >  ActiveCktElement.NTerms Then Count := ActiveCktElement.NTerms;
          For i := 1 to Count Do Begin
-             ActiveCktElement.SetBus(i, widestring(arg[i-1 + Low]));
+             ActiveCktElement.SetBus(i, string(arg[i-1 + Low]));
          End;
        End;
      End;

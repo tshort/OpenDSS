@@ -1058,7 +1058,7 @@ begin
        2:  Result := GetBus(2);
        4:  Result  := GetDSSArray_Real(FNumSteps, Fkvarrating);
        8:  Begin
-               FTemp := Allocmem(SizeOF(FTemp^[1])*FNumSteps);
+               FTemp := Allocmem(SizeOf(Double)*FNumSteps);
                For i := 1 to FNumSteps Do FTemp^[i] := FC^[i] * 1.0e6;  // To microfarads
                Result  := GetDSSArray_Real(FNumSteps, FTemp);
                Reallocmem(FTemp, 0); // throw away temp storage

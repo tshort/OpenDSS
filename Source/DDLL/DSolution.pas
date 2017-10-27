@@ -413,7 +413,7 @@ begin
       IF ActiveCircuit <> Nil
       THEN With ActiveCircuit DO
       Begin
-            LoadDurCurve    := widestring(arg);
+            LoadDurCurve    := string(arg);
             LoadDurCurveObj := LoadShapeClass.Find(LoadDurCurve);
             IF LoadDurCurveObj=NIL THEN
              DoSimpleMsg('Load-Duration Curve not found.', 5001);
@@ -428,7 +428,7 @@ begin
      If ActiveCircuit <> Nil
      Then
      Begin
-           TestLoadShapeObj := LoadShapeClass.Find(widestring(arg));
+           TestLoadShapeObj := LoadShapeClass.Find(string(arg));
            IF TestLoadShapeObj <> NIL THEN ActiveCircuit.DefaultDailyShapeObj  := TestLoadShapeObj;
      END;
   end;
@@ -441,7 +441,7 @@ begin
      If ActiveCircuit <> Nil
      Then
      Begin
-           TestLoadShapeObj := LoadShapeClass.Find(widestring(arg));
+           TestLoadShapeObj := LoadShapeClass.Find(string(arg));
            IF TestLoadShapeObj <> NIL THEN ActiveCircuit.DefaultYearlyShapeObj  := TestLoadShapeObj;
      END;
   end

@@ -404,7 +404,7 @@ begin
       THEN Begin      // Search list of Lines in active circuit for name
            WITH ActiveCircuit.Lines DO
              Begin
-                 S := widestring(arg);  // Convert to Pascal String
+                 S := string(arg);  // Convert to Pascal String
                  Found := FALSE;
                  ActiveSave := ActiveIndex;
                  pLine := First;
@@ -428,7 +428,7 @@ begin
       End;
   end;
   2: begin  // Lines.Bus1 read
-      Result := pAnsiChar(AnsiString(''));
+      Result := string(AnsiString(''));
       IF ActiveCircuit <> NIL
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
@@ -440,12 +440,12 @@ begin
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
            WITH TLineObj(ActiveCircuit.ActiveCktElement) Do Begin
-             SetBus(1, widestring(arg));
+             SetBus(1, string(arg));
            END;
       End;
   end;
   4: begin  // Lines.Bus2 read
-      Result := pAnsiChar(AnsiString(''));
+      Result := string(AnsiString(''));
       IF ActiveCircuit <> NIL
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
@@ -457,12 +457,12 @@ begin
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
            WITH TLineObj(ActiveCircuit.ActiveCktElement) Do Begin
-             SetBus(2, widestring(arg));
+             SetBus(2, string(arg));
            END;
       End;
   end;
   6: begin  // Lines.LineCode read
-      Result := pAnsiChar(AnsiString(''));
+      Result := string(AnsiString(''));
       IF ActiveCircuit <> NIL
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
@@ -474,13 +474,13 @@ begin
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
            With TLineObj(ActiveCircuit.ActiveCktElement) DO Begin
-             FetchLineCode(widestring(arg));
+             FetchLineCode(string(arg));
              YprimInvalid := True;
            End;
       End;
   end;
   8: begin  // Lines.Geometry read
-      Result := pAnsiChar(AnsiString(''));
+      Result := string(AnsiString(''));
       IF ActiveCircuit <> NIL
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
@@ -492,14 +492,14 @@ begin
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
            WITH TLineObj(ActiveCircuit.ActiveCktElement) Do Begin
-             Parser.CmdString := 'geometry='+widestring(arg);
+             Parser.CmdString := 'geometry='+string(arg);
              Edit;
              YprimInvalid := True;
            END;
       End;
   end;
   10: begin  // Lines.Spacing read
-      Result := pAnsiChar(AnsiString(''));
+      Result := string(AnsiString(''));
       IF ActiveCircuit <> NIL
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
@@ -511,14 +511,14 @@ begin
       THEN If IsLine(ActiveCircuit.ActiveCktElement)
       THEN Begin
            WITH TLineObj(ActiveCircuit.ActiveCktElement) Do Begin
-             Parser.CmdString := 'spacing='+widestring(arg);
+             Parser.CmdString := 'spacing='+string(arg);
              Edit;
              YprimInvalid := True;
            END;
       End;
   end
   else
-      Result:=pAnsiChar(AnsiString('Error, parameter not recognized'));
+      Result:=string(AnsiString('Error, parameter not recognized'));
   end;
 end;
 

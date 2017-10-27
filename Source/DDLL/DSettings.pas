@@ -199,7 +199,7 @@ begin
                End;
   end;
   else
-      Result:=pAnsiChar(AnsiString('Error, parameter not recognized'));
+      Result:=string(AnsiString('Error, parameter not recognized'));
   end;
 end;
 
