@@ -5,7 +5,7 @@ interface
 function ParserI(mode: longint; arg:longint):longint;cdecl;
 function ParserF(mode: longint; arg:double):double;cdecl;
 function ParserS(mode: longint; arg:pAnsiChar):pAnsiChar;cdecl;
-procedure ParserV(mode: longint; out arg:variant);cdecl;
+procedure ParserV(mode: longint; var arg:variant);cdecl; // sometimes ParserV uses the input arg value
 
 implementation
 
@@ -97,7 +97,7 @@ begin
 end;
 
 //***************************Variant type properties****************************
-procedure ParserV(mode: longint; out arg:variant);cdecl;
+procedure ParserV(mode: longint; var arg:variant);cdecl;
 
 Var  i, ActualSize,MatrixSize:Integer;
      VectorBuffer:pDoubleArray;
