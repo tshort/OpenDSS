@@ -299,7 +299,7 @@ end;
 var
   Application: TMyApplication;
 
-{$R *.res}
+// {$R *.res}
 
 begin
   Application:=TMyApplication.Create(nil);
