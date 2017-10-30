@@ -172,7 +172,7 @@ uses
   XYcurve in '..\General\XYcurve.pas',
   Ymatrix in '..\Common\Ymatrix.pas',
   FNCS in 'fncs.pas',
-  editline in 'editline.pas',
+//  editline in 'editline.pas',
   linenoise in 'linenoise.pas';
 
 
