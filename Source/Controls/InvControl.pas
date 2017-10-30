@@ -3113,6 +3113,7 @@ BEGIN
       if FVV_ReacPower_ref = 'VARAVAL_WATTS' then QHeadRoom[j] := SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW));
       if (FVV_ReacPower_ref = 'VARMAX_VARS') or (FVV_ReacPower_ref = 'VARMAX_WATTS') then QHeadRoom[j] := PVSys.kvarLimit;
 
+      if(QHeadRoom[j] = 0) then QHeadRoom[j] := PVSys.kvarLimit;
       QPresentpu   := PVSys.Presentkvar / QHeadRoom[j];
       voltagechangesolution := 0.0;
 
@@ -3222,6 +3223,7 @@ BEGIN
           Qdesiredpu[j] := Fvvc_curve.GetYValue(FPresentVpu[j]-Fvvc_curveOffset);
         end;
 
+    if SQRT(Sqr(PVSys.kVARating)-Sqr(PVSys.PresentkW)) = 0 then QDesiredpu[j] := 0.0;
     // only move deltaQ_factor amount to the desired p.u. available var
     // output
     if (FROCEvaluated[j] = False) then
