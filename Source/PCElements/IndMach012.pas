@@ -132,7 +132,6 @@ TYPE
         FirstIteration, FixedSlip:Boolean;
 
         RandomMult  :Double;
-        IndMach012SolutionCount : Integer;
         IndMach012SwitchOpen    : Boolean;
 
         // Debugging
@@ -1356,8 +1355,6 @@ Var
 
 Begin
 
-   E := Czero; // implementation was commented out below?
-
    // Set the VTerminal array
    ComputeVterminal;
 
@@ -1676,8 +1673,8 @@ Procedure TIndMach012Obj.InitHarmonics;
  Refer to Load for how to do a Norton equivalent
  }
 
-Var
-  E, Va:complex;
+{Var
+  E, Va:complex; }
 begin
 
      YPrimInvalid   := TRUE;  // Force rebuild of YPrims
@@ -2006,9 +2003,9 @@ Procedure TIndMach012Obj.GetAllVariables(States: pDoubleArray);
   This is a virtual function. You do not need to write this routine
   if you are not defining state variables.
 }
-Var  i, N:Integer;
+Var  i:Integer;
+
 begin
-     N := 0;
      For i := 1 to NumIndMach012Variables Do States^[i] := Variable[i];
 end;
 
@@ -2047,7 +2044,7 @@ Procedure TIndMach012Obj.MakePosSequence;
 
 Var
     S :String;
-    V :Double;
+   { V :Double; }
 
 begin
 
