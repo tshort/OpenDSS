@@ -30,7 +30,7 @@
         <CommandLineParams Value="IEEE13Nodeckt.dss"/>
       </local>
     </RunParams>
-    <Units Count="120">
+    <Units Count="122">
       <Unit0>
         <Filename Value="opendsscmd.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -515,6 +515,14 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="FNCS"/>
       </Unit119>
+      <Unit120>
+        <Filename Value="editline.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit120>
+      <Unit121>
+        <Filename Value="linenoise.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit121>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

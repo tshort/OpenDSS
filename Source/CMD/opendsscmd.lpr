@@ -171,7 +171,9 @@ uses
   XfmrCode in '..\General\XfmrCode.pas',
   XYcurve in '..\General\XYcurve.pas',
   Ymatrix in '..\Common\Ymatrix.pas',
-  FNCS;
+  FNCS in 'fncs.pas',
+  editline in 'editline.pas',
+  linenoise in 'linenoise.pas';
 
 
 function UserFinished(Cmd:String):boolean;
@@ -199,6 +201,7 @@ type
 procedure TMyApplication.DoRun;
 var
   ErrorMsg, Cmd: String;
+  LNresult: Pchar;
   FNCSconn: TFNCS;
 begin
 	NoFormsAllowed := True;
@@ -262,13 +265,37 @@ begin
 		writeln('Last Error: ' + DSSExecutive.LastError);
 		Terminate;
 	end else begin
-		repeat begin
+{		repeat begin
 			write('>>');
 			readln(Cmd);
 			DSSExecutive.Command := Cmd;
 			writeln(DSSExecutive.LastError);
 		end until UserFinished (Cmd);
-	end;
+}
+ // the linenoise-ng library seems to be "sluggish" dropping typed characters
+      repeat begin
+          LNresult := linenoise.linenoise('>>');
+          if LNResult <> nil then begin
+            Cmd := LNResult;
+            DSSExecutive.Command := Cmd;
+            linenoiseHistoryAdd (LNResult);
+            linenoiseFree (LNResult);
+          end;
+      end until (LNResult = nil) or UserFinished (Cmd);
+
+{ // the editline library won't capture at all!!
+      repeat begin
+        LNresult := editline.readline('>>');
+        writeln (LNResult);
+        if LNResult <> nil then begin
+          Cmd := LNResult;
+          DSSExecutive.Command := Cmd;
+          editline.add_history (LNResult);
+          editline.rl_free (LNResult);
+        end;
+      end until (LNResult = nil) or UserFinished (Cmd);
+}
+  end;
 
   // stop program loop
   Terminate;
