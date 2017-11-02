@@ -188,6 +188,39 @@ Begin
 		result := true;
 End;
 
+procedure SaveCommandHistory;
+var
+  i: integer;
+  pc: Pchar;
+begin
+  DSS_Registry.Section := 'CommandHistory';
+  for i:= 0 to 1000 do begin
+    pc := linenoiseHistoryLine (i);
+    if pc = nil then begin
+      break;
+    end else begin
+      DSS_Registry.WriteString ('Line' + IntToStr(i), pc);
+      linenoiseFree (pc);
+    end;
+  end;
+  DSS_Registry.WriteInteger ('Length', i);
+end;
+
+procedure LoadCommandHistory;
+var
+  i, n: integer;
+  s: string;
+begin
+  DSS_Registry.Section := 'CommandHistory';
+  n := DSS_Registry.ReadInteger ('Length', 0);
+  i := 0;
+  while i < n do begin
+    s := DSS_Registry.ReadString ('Line' + IntToStr(i), 'help');
+    linenoiseHistoryAdd(PChar(s));
+    Inc(i);
+  end;
+end;
+
 type
   TMyApplication = class(TCustomApplication)
   protected
@@ -265,25 +298,27 @@ begin
 		writeln('Last Error: ' + DSSExecutive.LastError);
 		Terminate;
 	end else begin
-{		repeat begin
+{		repeat begin  // this has no command history
 			write('>>');
 			readln(Cmd);
 			DSSExecutive.Command := Cmd;
 			writeln(DSSExecutive.LastError);
 		end until UserFinished (Cmd);
 }
- // the linenoise-ng library seems to be "sluggish" dropping typed characters
-      repeat begin
-          LNresult := linenoise.linenoise('>>');
-          if LNResult <> nil then begin
-            Cmd := LNResult;
-            DSSExecutive.Command := Cmd;
-            linenoiseHistoryAdd (LNResult);
-            linenoiseFree (LNResult);
-          end;
-      end until (LNResult = nil) or UserFinished (Cmd);
+ // the linenoise-ng library seems to be "sluggish" dropping typed characters on Windows
+    LoadCommandHistory;
+    repeat begin
+      LNresult := linenoise.linenoise('>>');
+      if LNResult <> nil then begin
+        Cmd := LNResult;
+        DSSExecutive.Command := Cmd;
+        linenoiseHistoryAdd (LNResult);
+        linenoiseFree (LNResult);
+      end;
+    end until (LNResult = nil) or UserFinished (Cmd);
+    SaveCommandHistory;
 
-{ // the editline library won't capture at all!!
+{ // the editline library won't capture at all on Windows!!
       repeat begin
         LNresult := editline.readline('>>');
         writeln (LNResult);
