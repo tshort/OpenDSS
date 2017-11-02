@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>2017/06/11 12:24:16.000.040,C:\OpenDSS\Parallel_Version\Source\Forms\Diakoptics.dfm=C:\OpenDSS\Parallel_Version\Source\DLL\Unit1.dfm</Transaction>
+    <Transaction>2017/06/11 12:24:16.000.040,C:\OpenDSS\Parallel_Version\Source\DLL\Unit1.dfm=C:\OpenDSS\Parallel_Version\Source\Forms\Diakoptics.dfm</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="..\..\Source"/>
@@ -57,6 +57,7 @@
     <File Path="..\Executive\ExportOptions.pas"/>
     <File Path="..\Executive\PlotOptions.pas"/>
     <File Path="..\Executive\ShowOptions.pas"/>
+    <File Path="..\Executive\ConnectOptions.pas"/>
     <File Path="..\Forms"/>
     <File Path="..\Forms\About.pas"/>
     <File Path="..\Forms\About.dfm"/>
@@ -177,6 +178,8 @@
     <File Path="..\Shared\StackDef.pas"/>
     <File Path="..\Shared\Ucmatrix.pas"/>
     <File Path="..\Shared\Ucomplex.pas"/>
+    <File Path="..\TCP_IP"/>
+    <File Path="..\TCP_IP\TCP_IP.pas"/>
     <File Path="ImplActiveClass.pas"/>
     <File Path="ImplBus.pas"/>
     <File Path="ImplCapacitors.pas"/>
