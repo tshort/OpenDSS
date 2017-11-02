@@ -1190,11 +1190,11 @@ begin
       if elem.Enabled then
       Begin
         ActiveIncCell[2]  :=  1;
+        inc(temp_counter);
+        setlength(Inc_Mat_Rows,temp_counter);
+        Inc_Mat_Rows[temp_counter - 1]  :=  'Line.'+elem.Name;
         for TermIdx := 1 to 2 do
         Begin
-            inc(temp_counter);
-            setlength(Inc_Mat_Rows,temp_counter);
-            Inc_Mat_Rows[temp_counter - 1]  :=  'Line.'+elem.Name;
             SetLength(IncMatrix, Length(IncMatrix) + 3);
             LineBus           :=  elem.GetBus(TermIdx);
             BusdotIdx         :=  ansipos('.',LineBus);
@@ -1245,11 +1245,11 @@ begin
       if elem.Enabled then
       Begin
         ActiveIncCell[2]       :=  1;
+        inc(temp_counter);
+        setlength(Inc_Mat_Rows,temp_counter);
+        Inc_Mat_Rows[temp_counter - 1]  :=  'Transformer.'+elem.Name;
         for TermIdx := 1 to elem.NumberOfWindings do
         Begin
-            inc(temp_counter);
-            setlength(Inc_Mat_Rows,temp_counter);
-            Inc_Mat_Rows[temp_counter - 1]  :=  'Transformer.'+elem.Name;
             SetLength(IncMatrix, Length(IncMatrix) + 3);
             LineBus     :=  elem.GetBus(TermIdx);
             BusdotIdx   :=  ansipos('.',LineBus);
