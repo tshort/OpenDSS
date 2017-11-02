@@ -200,7 +200,9 @@ uses
   ESPVLControl in '..\Controls\ESPVLControl.pas',
   IndMach012 in '..\PCElements\IndMach012.pas',
   DLineCodes in 'DLineCodes.pas',
-  Diakoptics in '..\Forms\Diakoptics.pas' {DiakopticsBox};
+  Diakoptics in '..\Forms\Diakoptics.pas' {DiakopticsBox},
+  TCP_IP in '..\TCP_IP\TCP_IP.pas',
+  ConnectOptions in '..\Executive\ConnectOptions.pas';
 
 //**************************end of the functions*************************************
 exports

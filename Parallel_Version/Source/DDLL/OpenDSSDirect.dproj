@@ -6,7 +6,7 @@
         <MainSource>OpenDSSDirect.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
     </PropertyGroup>
@@ -378,6 +378,8 @@
             <Form>DiakopticsBox</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="..\TCP_IP\TCP_IP.pas"/>
+        <DCCReference Include="..\Executive\ConnectOptions.pas"/>
         <None Include="..\DLL\OpenDSSengine.dpr"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -445,6 +447,12 @@
                 <DeployFile LocalName="..\x64\OpenDSSDirect.dll" Configuration="Release" Class="ProjectOutput"/>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule"/>
                 <DeployFile LocalName="Win32\Debug\OpenDSSDirect.dll" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="..\x86\OpenDSSDirect.dll" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>OpenDSSDirect.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>
