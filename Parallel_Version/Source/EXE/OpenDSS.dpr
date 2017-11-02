@@ -183,7 +183,9 @@ uses
   Parallel_Lib in '..\Parallel_Lib\Parallel_Lib.pas',
   IndMach012 in '..\PCElements\IndMach012.pas',
   ESPVLControl in '..\Controls\ESPVLControl.pas',
-  Diakoptics in '..\Forms\Diakoptics.pas' {DiakopticsBox};
+  Diakoptics in '..\Forms\Diakoptics.pas' {DiakopticsBox},
+  TCP_IP in '..\TCP_IP\TCP_IP.pas',
+  ConnectOptions in '..\Executive\ConnectOptions.pas';
 
 {$R *.RES}
 
