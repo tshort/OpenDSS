@@ -240,9 +240,13 @@ begin
 	NoFormsAllowed := True;
 	DSSExecutive := TExecutive.Create;  // Make a DSS object
 	DSSExecutive.CreateDefaultDSSItems;
-	writeln('Startup Directory: ', StartupDirectory);
+//	writeln('Startup Directory: ', StartupDirectory);
+//	writeln('Data Directory: ', DataDirectory);
+//	writeln('Output Directory: ', OutputDirectory);
+//	writeln('GetCurrentDir: ', GetCurrentDir);
 	DataDirectory := StartupDirectory;
 	OutputDirectory := StartupDirectory;
+  SetCurrentDir(DataDirectory);
 
 	NoFormsAllowed := False;  // messages will go to the console
 
