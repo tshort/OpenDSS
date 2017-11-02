@@ -21,7 +21,7 @@ unit DSSGlobals;
 interface
 
 Uses Classes, DSSClassDefs, DSSObject, DSSClass, ParserDel, Hashlist, PointerList,
-     UComplex, Arraydef, CktElement, Circuit, IniRegSave, Graphics,
+     UComplex, Arraydef, CktElement, Circuit, IniRegSave, Graphics, System.IOUtils, inifiles,
 
      {Some units which have global vars defined here}
      Spectrum,
@@ -134,6 +134,11 @@ VAR
    DLLDebugFile   :TextFile;
    ProgramName    :String;
    DSS_Registry   :TIniRegSave; // Registry   (See Executive)
+
+   // Global variables for the DSS visualization tool
+   DSS_Viz_installed   :Boolean=False; // DSS visualization tool (flag of existance)
+   DSS_Viz_path: String;
+   DSS_Viz_enable: Boolean=False;
    
    IsDLL,
    NoFormsAllowed  :Boolean;
@@ -758,6 +763,39 @@ Begin
      ReallocMem(p, newsize);
 End;
 
+// Advance visualization tool check
+function GetIni(s,k: string; d: string; f: string=''): string; overload;
+var
+  ini: TMemIniFile;
+begin
+  Result := d;
+  if f = '' then
+  begin
+    ini := TMemIniFile.Create(lowercase(ChangeFileExt(ParamStr(0),'.ini')));
+  end
+  else
+  begin
+    if not FileExists(f) then Exit;
+    ini := TMemIniFile.Create(f);
+  end;
+  if ini.ReadString(s,k,'') = '' then
+  begin
+    ini.WriteString(s,k,d);
+    ini.UpdateFile;
+  end;
+  Result := ini.ReadString(s,k,d);
+  FreeAndNil(ini);
+end;
+
+function CheckDSSVisualizationTool: Boolean;
+begin
+  DSS_Viz_path:=GetIni('Application','path','', TPath.GetHomePath+'\OpenDSS Visualization Tool\settings.ini');
+  Result:=true;
+  if DSS_Viz_path='' then
+    Result:=false;
+end;
+// End of visualization tool check
+
 initialization
 
 //***************Initialization for Parallel Processing*************************
@@ -912,6 +950,8 @@ initialization
 //   YBMatrix.Start_Ymatrix_Critical;   // Initializes the critical segment for the YMatrix class
 
    //WriteDLLDebugFile('DSSGlobals');
+
+  DSS_Viz_installed:= CheckDSSVisualizationTool; // DSS visualization tool (flag of existance)
 
 Finalization
 

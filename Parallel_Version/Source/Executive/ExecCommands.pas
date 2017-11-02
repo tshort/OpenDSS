@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 112;
+     NumExecCommands = 114;
 
 Var
 
@@ -28,7 +28,7 @@ PROCEDURE ProcessCommand(Const CmdLine:String);
 implementation
 
 Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions,  PlotOptions,
-     ExportOptions, ParserDel, LoadShape, DSSForms, sysutils, Utilities, SolutionAlgs,
+     ExportOptions, ConnectOptions, ParserDel, LoadShape, DSSForms, sysutils, Utilities, SolutionAlgs,
      DSSClassDefs, windows, KLUSolve;
 
 
@@ -149,6 +149,8 @@ Begin
      ExecCommand[110] := 'Diakoptics';
      ExecCommand[111] := 'CalcIncMatrix_O';
      ExecCommand[112] := 'Tear_Circuit';
+     ExecCommand[113] := 'Connect';
+     ExecCommand[114] := 'Disconnect';
 
 
 
@@ -480,6 +482,8 @@ Begin
                          'which means that the buses order will be generated considering their distribution from the substation to the last load in a radial hierarchy';
      CommandHelp[112] := 'Estimates the buses for tearing the system in many parts as CPUs - 1 are in the local computer, is used for creating a balanced distribution of' +
                          'Distribution of subsystems for the A-Diakoptics algorithm';
+     CommandHelp[113] := 'Request to create a TCP/IP socket to communicate data with external modules. This function requires the host address and TCP port to connect.';
+     CommandHelp[114] := 'Request to terminate a TCP/IP socket. This function requires the host address and TCP port to disconnect.';
 End;
 
 //----------------------------------------------------------------------------
@@ -746,6 +750,8 @@ Begin
       102: EndofTimeStepCleanup(ActiveActor);
       103: FinishTimeStep(ActiveActor);
       104: CmdResult := DoNodeListCmd;
+      113: CmdResult := DoConnectCmd; //'TCP/IP connect';
+      114: CmdResult := DoDisConnectCmd; //'TCP/IP disconnect';
      ELSE
        // Ignore excess parameters
      End;

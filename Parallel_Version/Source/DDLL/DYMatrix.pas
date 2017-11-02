@@ -24,7 +24,7 @@ implementation
 Uses DSSGlobals, Ymatrix, KLUSolve;
 
 Var {Global variables in this Module}
-   Yhandle			: NativeUInt 
+   Yhandle			: NativeUInt;
    NumNZ, NumBuses 	: LongWord;
    YColumns,
    YRows   			: pIntegerArray;

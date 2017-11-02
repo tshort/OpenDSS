@@ -204,11 +204,14 @@ Begin
                      ValueIndex := 2;
                     End;
                'C': PlotType := ptCircuitplot;
+               'E': PlotType := ptEvolutionPlot;
                'G': PlotType := ptGeneralDataPlot;
                'L': PlotType := ptLoadshape;
-               'M': PlotType := ptMonitorplot;
+               'M': IF CompareTextShortest('mon', Param)=0 Then PlotType := ptMonitorplot
+                    ELSE PlotType := ptMatrixplot;
                'P': IF CompareTextShortest('pro', Param)=0 Then PlotType := ptProfile
                     ELSE PlotType := ptPriceShape;
+               'S': PlotType := ptScatterPlot;
                'T': PlotType := ptTshape;
                'D': Begin
                       PlotType := ptDaisyplot;
@@ -293,9 +296,26 @@ Begin
      If Not ActiveCircuit[ActiveActor].Issolved Then DSSPlotObj.Quantity := pqNone;
 
      With DSSPlotObj Do Begin
-
-        Execute;   // makes a new plot based on these options
-
+      if DSS_Viz_enable then
+      begin
+        if (DSS_Viz_installed and ((
+            PlotType = ptMonitorplot) or (
+            PlotType = ptLoadshape) or (
+            PlotType = ptProfile) or (
+            PlotType = ptScatterPlot) or (
+            PlotType = ptEvolutionPlot) or (
+            PlotType = ptMatrixplot))) then
+          DSSVizPlot; // DSS Visualization tool
+      end
+      else
+      begin
+        if (PlotType = ptScatterPlot) or (
+           PlotType = ptEvolutionPlot) or (
+           PlotType = ptMatrixplot) then
+           DoSimpleMsg('The DSS Visualization tool is disabled (Check the DSSVisualizationTool option).',0)
+        else
+           Execute;   // makes a new plot based on these options
+      end;
      End;
 
 End;
