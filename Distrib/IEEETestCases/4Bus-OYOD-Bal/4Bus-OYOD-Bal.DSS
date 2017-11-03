@@ -72,11 +72,11 @@ calcvoltagebases     ! **** let DSS compute voltage bases
 solve
 
 ! Various reports ...
-Show Voltage  LL Nodes
-show voltages LN Nodes 
-show voltages     ! You can see zero sequence voltages with this report and infer neutral shift (about 6%)
-show currents resid=yes elements
-Show Powers kva Elements      ! Note: Phase powers on delta side have little meaning
+//Show Voltage  LL Nodes
+//show voltages LN Nodes 
+//show voltages     ! You can see zero sequence voltages with this report and infer neutral shift (about 6%)
+//show currents resid=yes elements
+//Show Powers kva Elements      ! Note: Phase powers on delta side have little meaning
 
 
 
@@ -137,10 +137,10 @@ calcvoltagebases     ! **** let DSS compute voltage bases
 solve
 
 ! Various reports ...
-Show Voltage  LL Nodes
-show voltages LN Nodes    ! Voltages are more realistic in this script
-show voltages     ! You can see zero sequence voltages with this report (about 1%)
-show currents resid=yes elements
-Show Powers kva Elements    ! Note phase powers are more normal using this method
+//Show Voltage  LL Nodes
+//show voltages LN Nodes    ! Voltages are more realistic in this script
+//show voltages     ! You can see zero sequence voltages with this report (about 1%)
+//show currents resid=yes elements
+//Show Powers kva Elements    ! Note phase powers are more normal using this method
 ! However, kvars  in reactor are lower than specified due to low voltage
 
