@@ -1667,8 +1667,8 @@ Begin
         pName1.GUID := geoGUID;
         StartInstance (F, 'TapChangerInfo', pName1);
         DoubleNode (F, 'TapChangerInfo.ptRatio', PT);
-        DoubleNode (F, 'TapChangerInfo.ctRatio', CT);
-        DoubleNode (F, 'TapChangerInfo.ctRating', CT / 0.2);
+        DoubleNode (F, 'TapChangerInfo.ctRatio', CT / 0.2);
+        DoubleNode (F, 'TapChangerInfo.ctRating', CT);
         EndInstance (F, 'TapChangerInfo');
 
         pName2.LocalName := pReg.LocalName + '_Ctrl';
