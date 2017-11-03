@@ -910,7 +910,10 @@ begin
       IntegerNode (F, 'TransformerEndInfo.endNumber', i);
       if pXfmr.FNPhases < 3 then begin
         WindingConnectionEnum (F, 'I');
-        IntegerNode (F, 'TransformerEndInfo.phaseAngleClock', 0)
+        if (i = 3) and (Winding^[i].kvll < 0.3) then // for center-tap secondary
+          IntegerNode (F, 'TransformerEndInfo.phaseAngleClock', 6)
+        else
+          IntegerNode (F, 'TransformerEndInfo.phaseAngleClock', 0)
       end else begin
         if Winding^[i].Connection = 1 then
           WindingConnectionEnum (F, 'D')
