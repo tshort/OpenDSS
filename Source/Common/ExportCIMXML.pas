@@ -1088,18 +1088,21 @@ begin
   pLine := ActiveCircuit.Lines.First;
   while pLine <> nil do begin
     with pLine do begin
-      phs := PhaseString (pLine, 1);
-      for i:=1 to NumConductorsAvailable do
-        if pWire = ConductorData[i] then begin
-          if i = 1 then RefNode (F, 'Asset.PowerSystemResources', pLine);
-          if i > length(phs) then begin
-            tmp := GetDevGuid (LinePhase, pLine.Name + '_N' , 1);
+      if pLine.Enabled then begin
+        phs := PhaseString (pLine, 1);
+        for i:=1 to NumConductorsAvailable do begin
+          if pWire = ConductorData[i] then begin
+            if i = 1 then RefNode (F, 'Asset.PowerSystemResources', pLine);
+            if i > length(phs) then begin
+              tmp := GetDevGuid (LinePhase, pLine.Name + '_N' , 1);
 //						writeln('neutral found ' + pLine.Name + ' ' + phs + pWire.Name);
-          end else begin
-            tmp := GetDevGuid (LinePhase, pLine.Name + '_' + phs[i], 1);
+            end else begin
+              tmp := GetDevGuid (LinePhase, pLine.Name + '_' + phs[i], 1);
+            end;
+					  GuidNode (F, 'Asset.PowerSystemResources', tmp);
           end;
-					GuidNode (F, 'Asset.PowerSystemResources', tmp);
         end;
+      end;
     end;
     pLine := ActiveCircuit.Lines.Next;
   end;
