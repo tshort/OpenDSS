@@ -129,7 +129,8 @@ new load.load1 phases=3 bus1=n4 conn=Delta kV=4.16 kW=3600 pf=0.9  model=1
 
 
 ! Add 1-kvar Reactor to stabilize the neutral point on the Delta Side
-New Reactor.Stabilizer Bus1=N4  kV=4.16 kvar=1  Conn=wye  R=0
+! New Reactor.Stabilizer Bus1=N4  kV=4.16 kvar=1  Conn=wye  R=0
+New Capacitor.Stabilizer Bus1=N4  kV=4.16 kvar=1  Conn=wye  R=0
 ! (a capacitor would also suffice)
 
 set voltagebases=[12.47, 4.16] 
