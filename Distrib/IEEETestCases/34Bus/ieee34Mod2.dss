@@ -83,24 +83,24 @@ New Capacitor.C848      Bus1=848        Phases=3        kVAR=450        kV=24.9
 
 ! Regulators - three independent phases
 ! Regulator 1
-new transformer.reg1a phases=1 windings=2 buses=(814.1 814r.1) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
+new transformer.reg1a phases=1 windings=2 bank=reg1 buses=(814.1 814r.1) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
 ~ wdg=1 %r=.0001 wdg=2 %r=.0001 ppm=0
 new regcontrol.creg1a transformer=reg1a winding=2 vreg=122 band=2 ptratio=120 ctprim=100 R=2.7 X=1.6
-new transformer.reg1b phases=1 windings=2 buses=(814.2 814r.2) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
+new transformer.reg1b phases=1 windings=2 bank=reg1 buses=(814.2 814r.2) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
 ~ wdg=1 %r=.0001 wdg=2 %r=.0001 ppm=0
 new regcontrol.creg1b transformer=reg1b winding=2 vreg=122 band=2 ptratio=120 ctprim=100 R=2.7 X=1.6
-new transformer.reg1c phases=1 windings=2 buses=(814.3 814r.3) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
+new transformer.reg1c phases=1 windings=2 bank=reg1 buses=(814.3 814r.3) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
 ~ wdg=1 %r=.0001 wdg=2 %r=.0001 ppm=0
 new regcontrol.creg1c transformer=reg1c winding=2 vreg=122 band=2 ptratio=120 ctprim=100 R=2.7 X=1.6
 
 ! Regulator 2
-new transformer.reg2a phases=1 windings=2 buses=(852.1 852r.1) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
+new transformer.reg2a phases=1 windings=2 bank=reg2 buses=(852.1 852r.1) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
 ~ wdg=1 %r=.0001 wdg=2 %r=.0001 ppm=0
 new regcontrol.creg2a transformer=reg2a winding=2 vreg=124 band=2 ptratio=120 ctprim=100 R=2.5 X=1.5 delay=30
-new transformer.reg2b phases=1 windings=2 buses=(852.2 852r.2) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
+new transformer.reg2b phases=1 windings=2 bank=reg2 buses=(852.2 852r.2) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
 ~ wdg=1 %r=.0001 wdg=2 %r=.0001 ppm=0
 new regcontrol.creg2b transformer=reg2b winding=2 vreg=124 band=2 ptratio=120 ctprim=100 R=2.5 X=1.5 delay=30
-new transformer.reg2c phases=1 windings=2 buses=(852.3 852r.3) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
+new transformer.reg2c phases=1 windings=2 bank=reg2 buses=(852.3 852r.3) conns='wye wye' kvs="14.376 14.376" kvas="2000 2000" XHL=.01
 ~ wdg=1 %r=.0001 wdg=2 %r=.0001 ppm=0
 new regcontrol.creg2c transformer=reg2c winding=2 vreg=124 band=2 ptratio=120 ctprim=100 R=2.5 X=1.5 delay=30
 

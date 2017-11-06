@@ -58,9 +58,9 @@ New Line.L34    Phases=3 Bus1=744.1.2.3  Bus2=729.1.2.3  LineCode=724  Length=0.
 New Line.L35    Phases=3 Bus1=799r.1.2.3 Bus2=701.1.2.3  LineCode=721  Length=1.85
 
 ! Regulator - open delta with C leading, A lagging, base LDC setting is 1.5 + j3
-new transformer.reg1a phases=1 windings=2 buses=(799.1.2 799r.1.2) conns='delta delta' kvs="4.8 4.8" kvas="2000 2000" XHL=1
+new transformer.reg1a phases=1 windings=2 bank=reg1 buses=(799.1.2 799r.1.2) conns='delta delta' kvs="4.8 4.8" kvas="2000 2000" XHL=1
 new regcontrol.creg1a transformer=reg1a winding=2 vreg=122 band=2 ptratio=40 ctprim=350 R=-0.201 X=3.348
-new transformer.reg1c like=reg1a buses=(799.3.2 799r.3.2)
+new transformer.reg1c like=reg1a bank=reg1 buses=(799.3.2 799r.3.2)
 new regcontrol.creg1c like=creg1a transformer=reg1c R=2.799 X=1.848
 New Line.Jumper Phases=1 Bus1=799.2      Bus2=799r.2     r0=1e-3 r1=1e-3 x0=0 x1=0 c0=0 c1=0
 
