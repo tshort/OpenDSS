@@ -52,6 +52,7 @@ TYPE
        MultArray   : pComplexArray;
 
        Procedure SetMultArray;
+       Function HarmArrayHasaZero(var zeropoint:Integer):Boolean;
 
       public
        NumHarm    : Integer;          // Public so solution can get to it.
@@ -154,6 +155,7 @@ VAR
    ParamPointer:Integer;
    ParamName:String;
    Param:String;
+   iZeroPoint :Integer;  // for error trapping
 
 BEGIN
   Result := 0;
@@ -204,11 +206,14 @@ BEGIN
          Param := Parser.StrValue;
      END;       {WHILE}
 
-
-     IF (HarmArray <> NIL)
-     AND (puMagArray <> NIL)
-     AND (AngleArray <> NIL)
-     THEN SetMultArray;
+     if HarmArrayHasaZero(iZeroPoint) then
+          DoSimpleMsg(Format('Error: Zero frequency detected in Spectrum.%s, point %d. Not allowed',[Name, iZeroPoint]), 65001)
+     else Begin
+         IF  (HarmArray <> NIL)
+         AND (puMagArray <> NIL)
+         AND (AngleArray <> NIL)
+         THEN SetMultArray;
+     End;
 
 
   END; {WITH}
@@ -294,11 +299,11 @@ BEGIN
      DSSObjType := ParClass.DSSClassType;
 
 
-     NumHarm    :=0;
+     NumHarm    := 0;
      HarmArray  := Nil;
      puMagArray := Nil;
      AngleArray := Nil;
-     MultArray := Nil;
+     MultArray  := Nil;
 
 
      InitPropertyValues(0);
@@ -327,7 +332,7 @@ BEGIN
        AssignFile(F,FileName);
        Reset(F);
     EXCEPT
-       DoSimpleMsg('Error Opening File: "' + FileName, 653);
+       DoSimpleMsg('Error Opening CSV File: "' + FileName, 653);
        CloseFile(F);
        Exit;
     END;
@@ -335,7 +340,7 @@ BEGIN
     TRY
 
        WITH ActiveSpectrumObj DO BEGIN
-         ReAllocmem(HarmArray,  Sizeof(HarmArray^[1])*NumHarm);
+         ReAllocmem(HarmArray,  Sizeof(HarmArray^[1]) *NumHarm);
          ReAllocmem(puMagArray, Sizeof(puMagArray^[1])*NumHarm);
          ReAllocmem(AngleArray, Sizeof(AngleArray^[1])*NumHarm);
          i := 0;
@@ -452,6 +457,20 @@ begin
     Else
     End;
 
+end;
+
+function TSpectrumObj.HarmArrayHasaZero(var ZeroPoint:Integer): Boolean;
+Var
+    i :Integer;
+begin
+    Result := FALSE;
+    ZeroPoint := 0;
+    For i := 1 to NumHarm do
+        if HarmArray^[i]=0.0 then Begin
+           Result := TRUE;
+           ZeroPoint := i;
+           Break;
+        End;
 end;
 
 procedure TSpectrumObj.InitPropertyValues(ArrayOffset: Integer);
