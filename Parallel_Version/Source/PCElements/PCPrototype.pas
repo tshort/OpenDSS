@@ -391,7 +391,7 @@ Begin
 
      // After editing is complete, the typical next step is to call the RecalcElementData function
      RecalcElementData;
-     YPrimInvalid := True; // Setting this flag notifies the DSS that something has changed
+     YprimInvalid[ActorID] := True; // Setting this flag notifies the DSS that something has changed
                            // and the Yprim will have to be rebuilt
   End;
 
@@ -423,7 +423,7 @@ Begin
          NConds := Fnphases;  // Forces reallocation of terminal stuff
 
          Yorder := Fnconds*Fnterms;
-         YPrimInvalid := True;
+         YprimInvalid[ActorID] := True;
 
        End;
 
@@ -701,7 +701,7 @@ Begin
 
      // First clear present value; redefine if necessary
      // Note: Complex matrix (TcMatrix -- see uCmatrix.pas) is used for this
-     If YPrimInvalid
+     If YprimInvalid[ActorID]
      Then  Begin
          If YPrim_Shunt<>nil Then YPrim_Shunt.Free;
          YPrim_Shunt := TcMatrix.CreateMatrix(Yorder);
@@ -1152,7 +1152,7 @@ Var
   E, Va:complex;
 begin
 
-     YPrimInvalid   := TRUE;  // Force rebuild of YPrims
+     YprimInvalid[ActorID]   := TRUE;  // Force rebuild of YPrims
      GenFundamental := ActiveCircuit.Solution.Frequency ;  // Whatever the frequency is when we enter here.
 
      With GenVars Do Begin
@@ -1226,7 +1226,7 @@ Var
     Vabc  :Array[1..3] of Complex;
 
 begin
-  YPrimInvalid := TRUE;  // Force rebuild of YPrims
+  YprimInvalid[ActorID] := TRUE;  // Force rebuild of YPrims
 
   With GenVars Do Begin
 

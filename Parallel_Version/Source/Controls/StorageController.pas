@@ -1020,7 +1020,7 @@ Begin
                     If abs(TDiff) < DynaVars.h/7200.0 Then
                     Begin
                         {Time is within 1 time step of the trigger time}
-                          If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, 'Fleet Set to Discharging (up ramp)by Schedule');
+                          If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, 'Fleet Set to Discharging (up ramp)by Schedule',ActorID);
                           SetFleetToDischarge;
                           ChargingAllowed := FALSE;
                           pctDischargeRate :=  min(pctkWRate, max(pctKWRate * Tdiff/UpRampTime, 0.0));
@@ -1050,7 +1050,7 @@ Begin
                               SetFleetToIdle;
                               ChargingAllowed := TRUE;
                               pctDischargeRate := 0.0;
-                              If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, 'Fleet Set to Idling by Schedule');
+                              If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, 'Fleet Set to Idling by Schedule',ActorID);
 
                           End Else Begin  // We're on the down ramp
 
@@ -1089,7 +1089,7 @@ Begin
                      If Not (FleetState=STORE_DISCHARGING) Then
                      Begin
                         {Time is within 1 time step of the trigger time}
-                          If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, 'Fleet Set to Discharging by Time Trigger');
+                          If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, 'Fleet Set to Discharging by Time Trigger',ActorID);
                           SetFleetToDischarge;
                           SetFleetkWRate(pctKWRate);
                           DischargeInhibited := FALSE;
@@ -1108,7 +1108,7 @@ Begin
                If Not (FleetState=STORE_CHARGING) Then
                Begin
                     {Time is within 1 time step of the trigger time}
-                    If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, 'Fleet Set to Charging by Time Trigger');
+                    If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, 'Fleet Set to Charging by Time Trigger',ActorID);
                     SetFleetToCharge;
                     DischargeInhibited := TRUE;
                     OutOfOomph         := FALSE;
@@ -1194,7 +1194,7 @@ Begin
              MODEFOLLOW: Begin
                               If DischargeTriggeredByTime Then Begin
                                   If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name,
-                                     Format('Fleet Set to Discharging by Time Trigger; Old kWTarget = %-.6g; New = %-.6g',[FkwTarget, S.re * 0.001]));
+                                     Format('Fleet Set to Discharging by Time Trigger; Old kWTarget = %-.6g; New = %-.6g',[FkwTarget, S.re * 0.001]),ActorID);
                                   FkwTarget := Max(FkWThreshold, S.re * 0.001);  // Capture present kW and reset target
                                   DischargeTriggeredByTime := FALSE;  // so we don't come back in here right away
                                   SetFleetToIdle;
@@ -1255,7 +1255,7 @@ Begin
                If abs(PDiff) > HalfkWBand Then
                  Begin // Attempt to change storage dispatch
                        If Not (FleetState=STORE_DISCHARGING) Then SetFleetToDischarge;
-                       If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, Format('Attempting to dispatch %-.6g kW with %-.6g kWh remaining and %-.6g reserve.', [kWneeded, RemainingkWh, ReservekWh]));
+                       If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, Format('Attempting to dispatch %-.6g kW with %-.6g kWh remaining and %-.6g reserve.', [kWneeded, RemainingkWh, ReservekWh]),ActorID);
                        For i := 1 to FleetSize Do
                        Begin
                             StorageObj := FleetPointerList.Get(i);
@@ -1281,7 +1281,7 @@ Begin
                     End;
                     ChargingAllowed := TRUE;
                     OutOfOomph := TRUE;
-                    If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, Format('Ran out of OOMPH: %-.6g kWh remaining and %-.6g reserve.', [RemainingkWh, ReservekWh]));
+                    If ShowEventLog Then  AppendToEventLog('StorageController.' + Self.Name, Format('Ran out of OOMPH: %-.6g kWh remaining and %-.6g reserve.', [RemainingkWh, ReservekWh]),ActorID);
               End;
        End;
 
@@ -1290,7 +1290,7 @@ Begin
        // Redispatch the vars only if the PF is outside the band
        If DispatchVars and (Abs(PFDiff) > HalfPFBand) Then
          Begin
-              If ShowEventLog Then AppendToEventLog('StorageController.' + Self.Name, Format('Changed kvar Dispatch. PF Diff needed = %.6g', [PFDiff]));
+              If ShowEventLog Then AppendToEventLog('StorageController.' + Self.Name, Format('Changed kvar Dispatch. PF Diff needed = %.6g', [PFDiff]),ActorID);
           // Redispatch Storage elements
               For i := 1 to FleetSize Do
               Begin

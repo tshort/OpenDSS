@@ -819,8 +819,8 @@ begin
                           Begin
                               TapChangeToMake := AtLeastOneTap(PendingTapChange, TapIncrement[TapWinding]);
                               If (DebugTrace) Then RegWriteTraceRecord(TapChangeToMake, ActorID);
-                              PresentTap[TapWinding] := PresentTap[TapWinding] + TapChangeToMake;
-                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d taps to %-.6g.',[Lastchange,PresentTap[TapWinding]]));
+                              PresentTap[TapWinding,ActorID] := PresentTap[TapWinding,ActorID] + TapChangeToMake;
+                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d taps to %-.6g.',[Lastchange,PresentTap[TapWinding,ActorID]]),ActorID);
                               PendingTapChange := 0.0;  // Reset to no change.  Program will determine if another needed.
                               Armed := FALSE;
                           End;
@@ -829,7 +829,7 @@ begin
                           Begin
                               TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding]);
                               If (DebugTrace) Then RegWriteTraceRecord(TapChangeToMake, ActorID);
-                              PresentTap[TapWinding] := PresentTap[TapWinding] + TapChangeToMake;
+                              PresentTap[TapWinding,ActorID] := PresentTap[TapWinding,ActorID] + TapChangeToMake;
                               IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(DynaVars.intHour, Dynavars.t + TapDelay, 0, 0, Self, ActorID)
                               ELSE Armed := FALSE;
                           End;
@@ -838,9 +838,9 @@ begin
                           Begin
                               TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding]);
                               If (DebugTrace) Then RegWriteTraceRecord(TapChangeToMake, ActorID);
-                              PresentTap[TapWinding] := PresentTap[TapWinding] + TapChangeToMake;
-                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d tap to %-.6g.',[Lastchange,PresentTap[TapWinding]]));
-                              If (DebugTrace) Then RegWriteDebugRecord(Format('--- Regulator.%s Changed %d tap to %-.6g.',[ControlledElement.Name, Lastchange,PresentTap[TapWinding]]));
+                              PresentTap[TapWinding,ActorID] := PresentTap[TapWinding,ActorID] + TapChangeToMake;
+                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d tap to %-.6g.',[Lastchange,PresentTap[TapWinding,ActorID]]),ActorID);
+                              If (DebugTrace) Then RegWriteDebugRecord(Format('--- Regulator.%s Changed %d tap to %-.6g.',[ControlledElement.Name, Lastchange,PresentTap[TapWinding,ActorID]]));
 
                               IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(DynaVars.intHour, DynaVars.t + TapDelay, 0, 0, Self, ActorID)
                               ELSE Armed := FALSE;
@@ -849,9 +849,9 @@ begin
                           Begin
                               TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding]);
                               If (DebugTrace) Then RegWriteTraceRecord(TapChangeToMake, ActorID);
-                              PresentTap[TapWinding] := PresentTap[TapWinding] + TapChangeToMake;
-                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d tap to %-.6g.',[Lastchange,PresentTap[TapWinding]]));
-                              If (DebugTrace) Then RegWriteDebugRecord(Format('--- Regulator.%s Changed %d tap to %-.6g.',[ControlledElement.Name, Lastchange,PresentTap[TapWinding]]));
+                              PresentTap[TapWinding,ActorID] := PresentTap[TapWinding,ActorID] + TapChangeToMake;
+                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d tap to %-.6g.',[Lastchange,PresentTap[TapWinding,ActorID]]),ActorID);
+                              If (DebugTrace) Then RegWriteDebugRecord(Format('--- Regulator.%s Changed %d tap to %-.6g.',[ControlledElement.Name, Lastchange,PresentTap[TapWinding,ActorID]]));
 
                               IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(DynaVars.intHour, DynaVars.t + TapDelay, 0, 0, Self, ActorID)
                               ELSE Armed := FALSE;
@@ -972,10 +972,10 @@ begin
                           If Not Armed Then
                           Begin
                               PendingTapChange := 0.0;
-                              If (abs(PresentTap[TapWinding]-1.0) > Epsilon) Then
+                              If (abs(PresentTap[TapWinding,ActorID]-1.0) > Epsilon) Then
                               Begin
                                  Increment := TapIncrement[TapWinding];
-                                 PendingTapChange := Round((1.0 - PresentTap[Tapwinding])/Increment)*Increment;
+                                 PendingTapChange := Round((1.0 - PresentTap[Tapwinding,ActorID])/Increment)*Increment;
                                  If (PendingTapChange <> 0.0) and Not Armed Then
                                  With ActiveCircuit[ActorID] Do Begin
                                       If (DebugTrace) Then
@@ -1048,7 +1048,7 @@ begin
          // Check for out of band voltage
          if InReverseMode then
          Begin
-            Vactual := Vactual /  PresentTap[TapWinding];
+            Vactual := Vactual /  PresentTap[TapWinding,ActorID];
             VregTest := RevVreg;
             BandTest := RevBandwidth;
          End Else
@@ -1081,7 +1081,7 @@ begin
                      // Now see if any tap change is possible in desired direction  Else ignore
                      IF PendingTapChange > 0.0 THEN
                        Begin
-                         IF  PresentTap[TapWinding] < MaxTap[TapWinding]  THEN
+                         IF  PresentTap[TapWinding,ActorID] < MaxTap[TapWinding]  THEN
                              WITH ActiveCircuit[ActorID] Do Begin
                                    ControlActionHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self, ActorID);
                                    Armed := TRUE;  // Armed to change taps
@@ -1089,7 +1089,7 @@ begin
                        End
                      ELSE
                        Begin
-                         IF  PresentTap[TapWinding] > MinTap[TapWinding]  THEN
+                         IF  PresentTap[TapWinding,ActorID] > MinTap[TapWinding]  THEN
                              WITH ActiveCircuit[ActorID] Do Begin
                                    ControlActionHandle := ControlQueue.Push(Solution.DynaVars.intHour, Solution.DynaVars.t + ComputeTimeDelay(Vactual), ACTION_TAPCHANGE, 0, Self, ActorID);
                                    Armed := TRUE;  // Armed to change taps
@@ -1135,7 +1135,7 @@ if ControlledElement <> nil then
     ctrldTransformer := Get_Transformer;
     ictrldWinding := TRWinding;
     With ctrldTransformer Do
-    Result := round((PresentTap[ictrldWinding] - (MaxTap[ictrldWinding] + MinTap[ictrldWinding])/2.0) / TapIncrement[ictrldWinding]);
+    Result := round((PresentTap[ictrldWinding,ActiveActor] - (MaxTap[ictrldWinding] + MinTap[ictrldWinding])/2.0) / TapIncrement[ictrldWinding]);
 
   end
   else
@@ -1197,7 +1197,7 @@ Begin
                         ActiveCircuit[ActorID].Solution.ControlIteration:0, Separator,
                         ActiveCircuit[ActorID].Solution.Iteration:0, Separator,
                         ActiveCircuit[ActorID].LoadMultiplier:6:2, Separator,
-                        PresentTap[ElementTerminal]:8:5, Separator,
+                        PresentTap[ElementTerminal,ActorID]:8:5, Separator,
                         PendingTapChange:8:5, Separator,
                         TapChangeMade:8:5, Separator,
                         TapIncrement[ElementTerminal]:8:5, Separator,
@@ -1297,7 +1297,7 @@ begin
       ctrldTransformer := TTransfObj(ControlledElement);
       ictrldWinding := TRWinding;
       With ctrldTransformer Do
-       PresentTap[ictrldWinding] := Value * TapIncrement[ictrldWinding] + ((MaxTap[ictrldWinding] + MinTap[ictrldWinding])/2.0);
+       PresentTap[ictrldWinding,ActiveActor] := Value * TapIncrement[ictrldWinding] + ((MaxTap[ictrldWinding] + MinTap[ictrldWinding])/2.0);
 
 // Tap range checking is done in PresentTap
 // You can attempt to set the tap at an illegal value but it won't do anything

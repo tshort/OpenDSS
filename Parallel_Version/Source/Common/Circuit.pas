@@ -93,7 +93,7 @@ TYPE
           Function SaveBusCoords:Boolean;
           Function SaveVoltageBases:Boolean;
 
-          Procedure ReallocDeviceList;
+          procedure ReallocDeviceList(ActorID: integer);
           procedure Set_CaseName(const Value: String);
 
           function Get_Name:String;
@@ -738,7 +738,7 @@ BEGIN
    Inc(NumDevices);
 
    // Resize DeviceList if no. of devices greatly exceeds allocation
-   If Cardinal(NumDevices)> 2*DeviceList.InitialAllocation Then ReAllocDeviceList;
+   If Cardinal(NumDevices)> 2*DeviceList.InitialAllocation Then ReAllocDeviceList(ActiveActor);
    DeviceList.Add(ActiveCktElement.Name);
    CktElements.Add(ActiveCktElement);
 
@@ -792,10 +792,10 @@ BEGIN
    so that all changes to the circuit will result in rebuilding the lists}
   If Not MeterZonesComputed or Not ZonesLocked Then
   Begin
-     If LogEvents Then LogThisEvent('Resetting Meter Zones');
+     If LogEvents Then LogThisEvent('Resetting Meter Zones',ActorID);
      EnergyMeterClass[ActorID].ResetMeterZonesAll(ActorID);
      MeterZonesComputed := True;
-     If LogEvents Then LogThisEvent('Done Resetting Meter Zones');
+     If LogEvents Then LogThisEvent('Done Resetting Meter Zones',ActorID);
   End;
 
   FreeTopology;
@@ -870,7 +870,7 @@ VAR
     i:integer;
 
 BEGIN
-     If LogEvents Then LogThisEvent('Reprocessing Bus Definitions');
+     If LogEvents Then LogThisEvent('Reprocessing Bus Definitions',ActorID);
 
      AbortBusProcess := FALSE;
      SaveBusInfo;  // So we don't have to keep re-doing this
@@ -981,7 +981,7 @@ BEGIN
    p := PCElements.First;
    WHILE (p <> nil)
    DO BEGIN
-        p.YprimInvalid := True;
+        p.YprimInvalid[ActiveActor] := True;
         p := PCElements.Next;
    END;
 
@@ -1328,7 +1328,7 @@ begin
 
 end;
 
-procedure TDSSCircuit.ReallocDeviceList;
+procedure TDSSCircuit.ReallocDeviceList(ActorID: integer);
 
 Var
     TempList:THashList;
@@ -1336,7 +1336,7 @@ Var
 
 begin
 {Reallocate the device list to improve the performance of searches}
-    If LogEvents Then LogThisEvent('Reallocating Device List');
+    If LogEvents Then LogThisEvent('Reallocating Device List',ActorID);
     TempList := THashList.Create(2*NumDevices);
 
     For i := 1 to DeviceList.ListSize Do

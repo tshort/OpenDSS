@@ -48,7 +48,7 @@ Begin
 
   WITH ActiveCircuit[ActorID] Do
   Begin
-     If LogEvents Then LogThisEvent('Recalc All Yprims');
+     If LogEvents Then LogThisEvent('Recalc All Yprims',ActorID);
      pElem := CktElements.First;
      WHILE pElem<>nil Do Begin
        pElem.CalcYPrim(ActorID);
@@ -69,12 +69,12 @@ Begin
 
   WITH ActiveCircuit[ActorID] Do
   Begin
-     If LogEvents Then LogThisEvent('Recalc Invalid Yprims');
+     If LogEvents Then LogThisEvent('Recalc Invalid Yprims',ActorID);
      pElem := CktElements.First;
      WHILE pElem<>nil Do
      Begin
        WITH pElem Do
-       IF YprimInvalid THEN CalcYPrim(ActorID);
+       IF YprimInvalid[ActorID] THEN CalcYPrim(ActorID);
        pElem := CktElements.Next;
      End;
   End;
@@ -170,8 +170,8 @@ Begin
      FrequencyChanged := FALSE;
 
      If LogEvents Then  Case BuildOption of
-        WHOLEMATRIX: LogThisEvent('Building Whole Y Matrix');
-        SERIESONLY: LogThisEvent('Building Series Y Matrix');
+        WHOLEMATRIX: LogThisEvent('Building Whole Y Matrix',ActorID);
+        SERIESONLY: LogThisEvent('Building Series Y Matrix',ActorID);
      End;
           // Add in Yprims for all devices
      pElem := ActiveCircuit[ActorID].CktElements.First;
@@ -196,7 +196,7 @@ Begin
      // Allocate voltage and current vectors if requested
      IF   AllocateVI
      THEN Begin
-         If LogEvents Then LogThisEvent('ReAllocating Solution Arrays');
+         If LogEvents Then LogThisEvent('ReAllocating Solution Arrays',ActorID);
          ReAllocMem(NodeV,    SizeOf(NodeV^[1])        * (NumNodes+1)); // Allocate System Voltage array - allow for zero element
          NodeV^[0] := CZERO;
          ReAllocMem(Currents, SizeOf(Currents^[1]) * (NumNodes+1)); // Allocate System current array

@@ -353,7 +353,7 @@ BEGIN
 
          //YPrim invalidation on anything that changes impedance values or no. of terminals
          CASE ParamPointer OF
-             3..8: YprimInvalid := True;
+             3..8: YprimInvalid[ActorID] := True;
          ELSE
          END;
 
@@ -384,7 +384,7 @@ BEGIN
          NConds   := Fnphases; // force reallocation of terminals and conductors
 
          Yorder := Fnconds*Fnterms;
-         YPrimInvalid := True;
+         YprimInvalid[ActiveActor] := True;
 
        END;
 
@@ -541,7 +541,7 @@ VAR
 
 BEGIN
 
-    If YPrimInvalid THEN BEGIN    // Reallocate YPrim if something has invalidated old allocation
+    If YprimInvalid[ActorID] THEN BEGIN    // Reallocate YPrim if something has invalidated old allocation
        IF YPrim_Series<>nil THEN  YPrim_Series.Free;
        YPrim_Series := TCmatrix.CreateMatrix(Yorder);
        IF YPrim_Shunt<>nil THEN  YPrim_Shunt.Free;
@@ -634,7 +634,7 @@ BEGIN
     YPrim.CopyFrom(YPrimTemp);
 
     Inherited CalcYPrim(ActorID);
-    YprimInvalid := False;
+    YprimInvalid[ActorID] := False;
 END;
 
 Procedure TGICTransformerObj.DumpProperties(Var F:TextFile; Complete:Boolean);

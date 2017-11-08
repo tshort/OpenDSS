@@ -609,8 +609,9 @@ Begin
 
      // After editing is complete, the typical next step is to call the RecalcElementData function
      RecalcElementData(ActorID);
-     YPrimInvalid := True; // Setting this flag notifies the DSS that something has changed
+     YprimInvalid[ActorID] := True; // Setting this flag notifies the DSS that something has changed
                            // and the Yprim will have to be rebuilt
+
   End;
 
 End;
@@ -642,7 +643,7 @@ Begin
          NConds := Fnphases;  // Forces reallocation of terminal stuff
 
          Yorder := Fnconds*Fnterms;
-         YPrimInvalid := True;
+         YprimInvalid[ActiveActor] := True;
        End;
 
        PresentkV := OtherIndMach012.PresentkV;
@@ -1029,7 +1030,7 @@ Var
 
 begin
 
-  YPrimInvalid := TRUE;  // Force rebuild of YPrims
+  YprimInvalid[ActorID] := TRUE;  // Force rebuild of YPrims
 
   With MachineData Do Begin
 
@@ -1222,7 +1223,7 @@ Begin
 
      // First clear present value; redefine if necessary
      // Note: Complex matrix (TcMatrix -- see uCmatrix.pas) is used for this
-     If YPrimInvalid
+     If YprimInvalid[ActorID]
      Then  Begin
          If YPrim_Shunt<>nil Then YPrim_Shunt.Free;
          YPrim_Shunt := TcMatrix.CreateMatrix(Yorder);
@@ -1557,7 +1558,7 @@ Begin
    End;  {With ActiveCircuit}
 
    // If machine state changes, force re-calc of Y matrix
-   If MachineON <> MachineOn_Saved Then YPrimInvalid := True;
+   If MachineON <> MachineOn_Saved Then YprimInvalid[ActorID] := True;
 
 End;
 
@@ -1678,7 +1679,7 @@ Var
   E, Va:complex;
 begin
 
-     YPrimInvalid   := TRUE;  // Force rebuild of YPrims
+     YprimInvalid[ActorID]   := TRUE;  // Force rebuild of YPrims
 
 (****
      GenFundamental := ActiveCircuit.Solution.Frequency ;  // Whatever the frequency is when we enter here.

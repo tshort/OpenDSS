@@ -36,7 +36,8 @@ TYPE
       PROCEDURE Set_NPhases(Value:Integer);
       PROCEDURE Set_ActiveTerminal(value:Integer);
       FUNCTION  Get_ConductorClosed(Index:Integer):Boolean;
-      PROCEDURE Set_YprimInvalid(Value:Boolean);
+      PROCEDURE Set_YprimInvalid(ActorID: integer; const Value:Boolean);
+      FUNCTION Get_YprimInvalid(ActorID: integer):Boolean;
       FUNCTION  Get_FirstBus:String;
       FUNCTION  Get_NextBus:String;
       FUNCTION  Get_Losses:Complex;   // Get total losses for property...
@@ -133,7 +134,7 @@ TYPE
 
       Property Handle:Integer         read FHandle write Set_Handle;
       Property Enabled:Boolean        read FEnabled     write Set_Enabled;
-      Property YPrimInvalid:Boolean   read FYPrimInvalid   write set_YprimInvalid;
+      Property YPrimInvalid[ActorID: integer]:Boolean   read get_YprimInvalid   write set_YprimInvalid;
       Property YPrimFreq:double       read FYprimFreq write Set_Freq;
       Property NTerms:Integer         read Fnterms         Write Set_NTerms;
       Property NConds:Integer         read Fnconds         write Set_Nconds;
@@ -179,7 +180,7 @@ Begin
      DSSObjType  := 0;
      Yorder      := 0;
 
-     YPrimInvalid   := TRUE;
+     YPrimInvalid[ActiveActor]   := TRUE;
      FEnabled       := TRUE;
      HasEnergyMeter := FALSE;
      HasSensorObj   := FALSE;
@@ -232,13 +233,18 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROCEDURE TDSSCktElement.Set_YprimInvalid(Value:Boolean);
+FUNCTION TDSSCktElement.Get_YprimInvalid(ActorID: integer): Boolean;
+Begin
+    result:= FYPrimInvalid;
+End;
+
+PROCEDURE TDSSCktElement.Set_YprimInvalid(ActorID: integer; const Value:Boolean);
 Begin
     FYPrimInvalid := value;
     IF   Value   THEN Begin
 
         // If this device is in the circuit, then we have to rebuild Y on a change in Yprim
-        IF   FEnabled  THEN ActiveCircuit[ActiveActor].Solution.SystemYChanged := True;
+        IF   FEnabled  THEN ActiveCircuit[ActorID].Solution.SystemYChanged := True;
 
     End;
 End;
@@ -294,7 +300,7 @@ Begin
 
         FOR i := 1 to Fnphases DO Terminals^[FActiveTerminal].Conductors^[i].Closed := Value;
         ActiveCircuit[ActiveActor].Solution.SystemYChanged := True;  // force Y matrix rebuild
-        YPrimInvalid := True;
+        YPrimInvalid[ActiveActor] := True;
 
      End
      ELSE Begin
@@ -302,9 +308,9 @@ Begin
         IF  (Index > 0)  and (Index <= Fnconds) THEN Begin
             Terminals^[FActiveTerminal].Conductors^[index].Closed := Value;
             ActiveCircuit[ActiveActor].Solution.SystemYChanged := True;
-            YPrimInvalid := True;
+            YPrimInvalid[ActiveActor] := True;
         End;
-        
+
      End;
 
 End;
@@ -414,7 +420,7 @@ Begin
        // This code was too cute and prevented rebuilding of meter zones
        // Removed 7/24/01
        (*IF Value THEN Begin
-     
+
          NumNodesSaved := NumNodes;
          ProcessBusDefs;     // If we create new nodes, force rebuild of bus lists
          If NumNodes>NumNodesSaved Then BusNameRedefined := True
@@ -927,7 +933,7 @@ End;
 
 procedure TDSSCktElement.InitPropertyValues(ArrayOffset: Integer);
 begin
- 
+
     PropertyValue[ArrayOffset + 1] := Format('%-g',[BaseFrequency]);  // Base freq
     PropertyValue[ArrayOffset + 2] := 'true';  // Enabled
     FEnabledProperty := ArrayOffset + 2;     // keep track of this

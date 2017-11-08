@@ -392,8 +392,8 @@ BEGIN
 
          //YPrim invalidation on anything that changes impedance values
          CASE ParamPointer OF
-             3..8: YprimInvalid := True;
-             12,13: YprimInvalid := True;
+             3..8: YprimInvalid[ActorID] := True;
+             12,13: YprimInvalid[ActorID] := True;
          ELSE
          END;
 
@@ -426,7 +426,7 @@ BEGIN
          NConds := Fnphases; // force reallocation of terminals and conductors
 
          Yorder := Fnconds*Fnterms;
-         YPrimInvalid := True;
+         YprimInvalid[ActiveActor] := True;
 
        END;
 
@@ -632,7 +632,7 @@ BEGIN
 // Bus1 <> Bus 2
 
 
-    If YPrimInvalid
+    If YprimInvalid[ActorID]
     THEN Begin    // Reallocate YPrim if something has invalidated old allocation
        IF YPrim_Shunt <> nil THEN  YPrim_Shunt.Free;
        YPrim_Shunt := TcMatrix.CreateMatrix(Yorder);
@@ -670,7 +670,7 @@ BEGIN
 
     Inherited CalcYPrim(ActorID);
 
-    YprimInvalid := False;
+    YprimInvalid[ActorID] := False;
 END;
 
 Procedure TCapacitorObj.DumpProperties(Var F:TextFile; Complete:Boolean);
@@ -823,7 +823,7 @@ procedure TCapacitorObj.set_States(Idx: Integer; const Value: Integer);
 begin
       If FStates^[Idx] <> Value Then Begin
           FStates^[Idx] := Value;
-          YprimInvalid := True;
+          YprimInvalid[ActiveActor] := True;
       End;
 End;
 
@@ -933,7 +933,7 @@ Begin
      for i := Value+1 to FNumSteps do  FStates^[i] := 0;
 
      // Force rebuild of YPrims if necessary.
-     If Value <> FLastStepInService Then YprimInvalid := TRUE;
+     If Value <> FLastStepInService Then YprimInvalid[ActiveActor] := TRUE;
 
      FLastStepInService := Value;
 End;

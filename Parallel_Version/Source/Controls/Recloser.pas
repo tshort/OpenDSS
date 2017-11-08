@@ -608,14 +608,14 @@ begin
                                     ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
                                     IF OperationCount > NumReclose THEN Begin
                                           LockedOut := TRUE;
-                                          AppendtoEventLog('Recloser.'+Self.Name, 'Opened, Locked Out');
+                                          AppendtoEventLog('Recloser.'+Self.Name, 'Opened, Locked Out',ActorID);
                                        End
                                     ELSE Begin
-                                           IF OperationCount>NumFast THEN  AppendtoEventLog('Recloser.'+Self.Name, 'Opened, Delayed')
-                                           ELSE  AppendtoEventLog('Recloser.'+Self.Name, 'Opened, Fast');
+                                           IF OperationCount>NumFast THEN  AppendtoEventLog('Recloser.'+Self.Name, 'Opened, Delayed',ActorID)
+                                           ELSE  AppendtoEventLog('Recloser.'+Self.Name, 'Opened, Fast',ActorID);
                                         End;
-                                    If PhaseTarget Then AppendtoEventLog(' ', 'Phase Target');
-                                    If GroundTarget Then AppendtoEventLog(' ', 'Ground Target');
+                                    If PhaseTarget Then AppendtoEventLog(' ', 'Phase Target',ActorID);
+                                    If GroundTarget Then AppendtoEventLog(' ', 'Ground Target',ActorID);
                                     ArmedForOpen := FALSE;
                                END;
                     ELSE {nada}
@@ -624,7 +624,7 @@ begin
                          CTRL_OPEN:IF ArmedForClose and Not LockedOut THEN Begin
                                   ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
                                   Inc(OperationCount);
-                                  AppendtoEventLog('Recloser.'+Self.Name, 'Closed');
+                                  AppendtoEventLog('Recloser.'+Self.Name, 'Closed',ActorID);
                                   ArmedForClose     := FALSE;
                               End;
                     ELSE {Nada}

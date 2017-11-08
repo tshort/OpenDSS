@@ -558,7 +558,7 @@ begin
     Winding^[i].kvll := obj.BasekVLL[i];
     Winding^[i].VBase := obj.BaseVoltage[i];
     Winding^[i].kva := obj.WdgKVA[i];
-    Winding^[i].puTap := obj.PresentTap[i];
+    Winding^[i].puTap := obj.PresentTap[i,ActiveActor];
     Winding^[i].Rpu := obj.WdgResistance[i];
     Winding^[i].Rneut := obj.WdgRneutral[i];
     Winding^[i].Xneut := obj.WdgXneutral[i];

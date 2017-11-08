@@ -104,8 +104,8 @@ Function  RewriteAlignedFile(const Filename:String):Boolean;
 
 {Event Log}
 PROCEDURE ClearEventLog;
-PROCEDURE AppendToEventLog(const opdev:string; Const action:String);
-PROCEDURE LogThisEvent(Const EventName:String);
+PROCEDURE AppendToEventLog(const opdev:string; Const action:String; const ActorID:integer);
+PROCEDURE LogThisEvent(Const EventName:String; const ActorID:integer);
 
 PROCEDURE ClearErrorLog;
 
@@ -1555,7 +1555,7 @@ Begin
 
       WHILE pcelem <> NIL Do
        Begin
-          If pcelem.Enabled Then pcelem.YPrimInvalid := TRUE;
+          If pcelem.Enabled Then pcelem.YprimInvalid[ActiveActor] := TRUE;
           pcelem := PCElements.Next;
        End;
    End;
@@ -1761,28 +1761,28 @@ Begin
 End;
 
 
-PROCEDURE LogThisEvent(Const EventName:String);
+PROCEDURE LogThisEvent(Const EventName:String; const ActorID:integer);
 
 Begin
     {****  WriteDLLDebugFile(Format('LogThisEvent: EventStrings= %p', [@EventStrings])); }
-    With ActiveCircuit[ActiveActor].Solution do
-    EventStrings[ActiveActor].Add(Format('Hour=%d, Sec=%-.8g, Iteration=%d, ControlIter=%d, Event=%s',
+    With ActiveCircuit[ActorID].Solution do
+    EventStrings[ActorID].Add(Format('Hour=%d, Sec=%-.8g, Iteration=%d, ControlIter=%d, Event=%s',
           [DynaVars.intHour, Dynavars.t, iteration, ControlIteration, EventName ]));
 
      //     'Time=' + TimeToStr(Time)+': '+EventName);
  {****  ShowMessageForm(EventStrings); }
 End;
 
-PROCEDURE AppendToEventLog(const opdev:string; Const action:String);
+PROCEDURE AppendToEventLog(const opdev:string; Const action:String; const ActorID:integer);
 VAR
         S:String;
 
 Begin
   {****  WriteDLLDebugFile(Format('LogThisEvent: EventStrings= %p', [@EventStrings])); }
-          With  ActiveCircuit[ActiveActor].Solution  Do
+          With  ActiveCircuit[ActorID].Solution  Do
           S :=  Format('Hour=%d, Sec=%-.5g, ControlIter=%d, Element=%s, Action=%s',
           [DynaVars.intHour, Dynavars.t, ControlIteration, OpDev, Uppercase(action) ]);
-          EventStrings[ActiveActor].Add(S);
+          EventStrings[ActorID].Add(S);
   {****  ShowMessageForm(EventStrings); }
 End;
 

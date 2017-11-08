@@ -1046,7 +1046,7 @@ Begin
      2: Begin     // Monitor Transformer Tap Position
 
               With TTransfObj(MeteredElement) Do Begin
-                   AddDblToBuffer(PresentTap[MeteredTerminal]);
+                   AddDblToBuffer(PresentTap[MeteredTerminal,ActorID]);
               End;
               Exit;  // Done with this mode now.
         End;

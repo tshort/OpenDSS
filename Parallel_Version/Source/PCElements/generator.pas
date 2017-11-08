@@ -534,7 +534,7 @@ Begin
             VBase105 := Vmaxpu * VBase;
 
             Yorder := Fnconds * Fnterms;
-            YPrimInvalid := True;
+            YprimInvalid[ActiveActor] := True;
         End;
 
 End;
@@ -682,7 +682,7 @@ Begin
      End;
 
      RecalcElementData(ActorID);
-     YPrimInvalid := True;
+     YprimInvalid[ActorID] := True;
   End;
 
 End;
@@ -705,7 +705,7 @@ Begin
          NConds := Fnphases;  // Forces reallocation of terminal stuff
 
          Yorder := Fnconds*Fnterms;
-         YPrimInvalid := True;
+         YprimInvalid[ActiveActor] := True;
        End;
 
        GenVars.kVGeneratorBase := OtherGenerator.GenVars.kVGeneratorBase;
@@ -1118,7 +1118,7 @@ Begin
    End;  {With ActiveCircuit[ActiveActor]}
 
    // If generator state changes, force re-calc of Y matrix
-   If GenON <> GenON_Saved Then YPrimInvalid := True;
+   If GenON <> GenON_Saved Then YprimInvalid[ActorID] := True;
 
 End;
 
@@ -1279,7 +1279,7 @@ Begin
 
      // Build only shunt Yprim
      // Build a dummy Yprim Series so that CalcV does not fail
-     If YPrimInvalid
+     If YprimInvalid[ActorID]
      Then  Begin
          If YPrim_Shunt<>nil Then YPrim_Shunt.Free;
          YPrim_Shunt := TcMatrix.CreateMatrix(Yorder);
@@ -2283,7 +2283,7 @@ Var
   E, Va:complex;
 begin
 
-     YPrimInvalid   := TRUE;  // Force rebuild of YPrims
+     YprimInvalid[ActorID]   := TRUE;  // Force rebuild of YPrims
      GenFundamental := ActiveCircuit[ActorID].Solution.Frequency ;  // Whatever the frequency is when we enter here.
 
      With GenVars Do Begin
@@ -2377,7 +2377,7 @@ Var
     Vabc  :Array[1..3] of Complex;
 
 begin
-  YPrimInvalid := TRUE;  // Force rebuild of YPrims
+  YprimInvalid[ActorID] := TRUE;  // Force rebuild of YPrims
 
   With GenVars Do Begin
 

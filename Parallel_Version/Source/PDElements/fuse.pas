@@ -475,7 +475,7 @@ begin
            CTRL_CLOSE:IF ReadyToBlow[Phs] THEN
                    Begin   // ignore if we became disarmed in meantime
                       ControlledElement.Closed[Phs] := FALSE;   // Open all phases of active terminal
-                      AppendtoEventLog('Fuse.'+Self.Name, 'Phase '+IntToStr(Phs)+' Blown');
+                      AppendtoEventLog('Fuse.'+Self.Name, 'Phase '+IntToStr(Phs)+' Blown',ActorID);
                       hAction[phs] := 0;
                    END;
          ELSE

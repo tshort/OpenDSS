@@ -83,7 +83,7 @@ begin
     THEN Begin
          With TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement)Do Begin
            Nphases := arg;
-           YprimInvalid := True;
+           YprimInvalid[ActiveActor] := True;
          End;
     End;
   end;
@@ -132,7 +132,7 @@ begin
                 begin
                    Parser[ActiveActor].CmdString := Format('units=%s', [LineUnitsStr(arg)]);
                    Edit(ActiveActor);
-                   YprimInvalid := True;
+                   YprimInvalid[ActiveActor] := True;
                 end
               else
                 DoSimpleMsg('Invalid line units integer sent via COM interface.  Please enter a value within range.',183);
@@ -163,7 +163,7 @@ begin
     THEN Begin
          WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) Do Begin
            Len := arg;
-           YprimInvalid := True;
+           YprimInvalid[ActiveActor] := True;
          END;
     End;
   end;
@@ -182,7 +182,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) Do Begin
              R1 := arg;
              SymComponentsChanged := True;
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            END;
       End;
   end;
@@ -201,7 +201,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) DO Begin
              X1 := arg;
              SymComponentsChanged := True;
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            END;
     End;
   end;
@@ -220,7 +220,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement)DO Begin
                R0 := arg;
                SymComponentsChanged := True;
-               YprimInvalid := True;
+               YprimInvalid[ActiveActor] := True;
            END;
       End;
   end;
@@ -239,7 +239,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement)DO Begin
              X0 := arg;
              SymComponentsChanged := True;
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            End;
       End;
   end;
@@ -258,7 +258,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) DO Begin
              C1 := arg * 1.0e-9;
              SymComponentsChanged := True;
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            End;
       End;
   end;
@@ -277,7 +277,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) DO Begin
              C0 := arg * 1.0e-9;
              SymComponentsChanged := True;
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            End;
       End;
   end;
@@ -330,7 +330,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) Do Begin
              Parser[ActiveActor].CmdString := Format('rg=%.7g', [arg]);
              Edit(ActiveActor);
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            END;
       End;
   end;
@@ -348,7 +348,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) Do Begin
              Parser[ActiveActor].CmdString := Format('xg=%.7g', [arg]);
              Edit(ActiveActor);
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            END;
       End;
   end;
@@ -367,7 +367,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) Do Begin
              Parser[ActiveActor].CmdString := Format('rho=%.7g', [arg]);
              Edit(ActiveActor);
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            END;
       End;
   end
@@ -475,7 +475,7 @@ begin
       THEN Begin
            With TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) DO Begin
              FetchLineCode(widestring(arg));
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            End;
       End;
   end;
@@ -494,7 +494,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) Do Begin
              Parser[ActiveActor].CmdString := 'geometry='+widestring(arg);
              Edit(ActiveActor);
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            END;
       End;
   end;
@@ -513,7 +513,7 @@ begin
            WITH TLineObj(ActiveCircuit[ActiveActor].ActiveCktElement) Do Begin
              Parser[ActiveActor].CmdString := 'spacing='+widestring(arg);
              Edit(ActiveActor);
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            END;
       End;
   end
@@ -584,7 +584,7 @@ begin
                  Z.SetElement(i,j, Cmplx( arg[k], ZTemp.im));
                  Inc(k);
               End;
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            End;
       End;
   end;
@@ -618,7 +618,7 @@ begin
                  Z.SetElement(i,j, Cmplx(Ztemp.re, arg[k]));
                  Inc(k);
               End;
-              YprimInvalid := True;
+              YprimInvalid[ActiveActor] := True;
            End;
       End;
   end;
@@ -653,7 +653,7 @@ begin
                  Yc.SetElement(i,j, Cmplx(0.0, arg[k]*Factor));
                  Inc(k);
               End;
-             YprimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
            End;
       End;
   end;

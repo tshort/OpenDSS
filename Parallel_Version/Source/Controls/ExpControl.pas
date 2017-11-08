@@ -483,7 +483,7 @@ BEGIN
         // look up Qpu from the slope crossing at Vreg, and add the bias
         Qpu := -FSlope * (FPresentVpu[i] - FVregs[i]) + FQbias;
         If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+','+PVSys.Name,
-          Format(' Setting Qpu= %.5g at FVreg= %.5g, Vpu= %.5g', [Qpu, FVregs[i],FPresentVpu[i]]));
+          Format(' Setting Qpu= %.5g at FVreg= %.5g, Vpu= %.5g', [Qpu, FVregs[i],FPresentVpu[i]]),ActorID);
       end;
 
       // apply limits on Qpu, then define the target in kVAR
@@ -501,7 +501,7 @@ BEGIN
       If PVSys.Presentkvar <> Qset Then PVSys.Presentkvar := Qset;
       If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name +','+ PVSys.Name,
                              Format(' Setting PVSystem output kvar= %.5g',
-                             [PVSys.Presentkvar]));
+                             [PVSys.Presentkvar]),ActorID);
       FPriorQ[i] := Qset;
       FPriorVpu[i] := FPresentVpu[i];
       ActiveCircuit[ActorID].Solution.LoadsNeedUpdating := TRUE;
@@ -552,11 +552,11 @@ begin
           With  ActiveCircuit[ActorID].Solution.DynaVars do
             ControlActionHandle := ActiveCircuit[ActorID].ControlQueue.Push (intHour, t + TimeDelay, PendingChange[i], 0, Self, ActorID);
           If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+' '+PVSys.Name, Format
-            (' outside Hit Tolerance, Verr= %.5g, Qerr=%.5g', [Verr,Qerr]));
+            (' outside Hit Tolerance, Verr= %.5g, Qerr=%.5g', [Verr,Qerr]),ActorID);
         end else begin
           if ((Verr <= FVoltageChangeTolerance) and (Qerr <= FVarChangeTolerance)) then FWithinTol[i] := True;
           If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+' '+PVSys.Name, Format
-            (' within Hit Tolerance, Verr= %.5g, Qerr=%.5g', [Verr,Qerr]));
+            (' within Hit Tolerance, Verr= %.5g, Qerr=%.5g', [Verr,Qerr]),ActorID);
         end;
       end;
     end;  {For}
@@ -710,7 +710,7 @@ begin
     PVSys.Set_Variable(5,FVregs[j]);
     If ShowEventLog Then AppendtoEventLog('ExpControl.' + Self.Name+','+PVSys.Name,
       Format(' Setting new Vreg= %.5g Vpu=%.5g Verr=%.5g',
-      [FVregs[j], FPresentVpu[j], Verr]));
+      [FVregs[j], FPresentVpu[j], Verr]),ActorID);
   end;
 end;
 

@@ -241,7 +241,7 @@ begin
       end;
 
       case ParamPointer of
-        1..16: YprimInvalid := True;
+        1..16: YprimInvalid[ActorID] := True;
       else
       end;
 
@@ -267,7 +267,7 @@ begin
         NConds   := Fnphases;
         FNdc := OtherVSC.FNdc;
         Yorder := FnConds * FnTerms;
-        YPrimInvalid := True;
+        YprimInvalid[ActiveActor] := True;
         FkVac := OtherVSC.FkVac;
         FkVdc := OtherVSC.FkVdc;
         FkW := OtherVSC.FkW;
@@ -364,7 +364,7 @@ var
   i:Integer;
 begin
 // build YPrim_Series non-zero for just the AC phases, and it will be diagonal
-  if YPrimInvalid then begin
+  if YprimInvalid[ActorID] then begin
     if YPrim_Series<>nil then  YPrim_Series.Free;
     YPrim_Series := TCmatrix.CreateMatrix(Yorder);
     if YPrim <> nil then  YPrim.Free;
@@ -391,7 +391,7 @@ begin
   end;
   YPrim.CopyFrom(YPrim_Series);
   Inherited CalcYPrim(ActorID); // may open some conductors
-  YprimInvalid := False;
+  YprimInvalid[ActorID] := False;
 end;
 
 function TVSConverterObj.InjCurrents(ActorID : Integer):Integer;

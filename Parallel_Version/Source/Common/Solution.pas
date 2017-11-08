@@ -787,7 +787,7 @@ Begin
    Repeat
        Inc(Iteration);
 
-       If LogEvents Then LogThisEvent('Solution Iteration ' + IntToStr(Iteration));
+       If LogEvents Then LogThisEvent('Solution Iteration ' + IntToStr(Iteration),ActorID);
 
     { Get injcurrents for all PC devices  }
        ZeroInjCurr(ActorID);
@@ -803,7 +803,7 @@ Begin
         IF UseAuxCurrents THEN AddInAuxCurrents(NORMALSOLVE, ActorID);
 
       // Solve for voltages                      {Note:NodeV[0] = 0 + j0 always}
-       If LogEvents Then LogThisEvent('Solve Sparse Set DoNormalSolution ...');
+       If LogEvents Then LogThisEvent('Solve Sparse Set DoNormalSolution ...',ActorID);
        SolveSystem(NodeV, ActorID);
        LoadsNeedUpdating := FALSE;
 
@@ -892,7 +892,7 @@ Begin
 
    IF Not SolutionInitialized THEN Begin
      
-        If ActiveCircuit[ActorID].LogEvents Then LogThisEvent('Initializing Solution');
+        If ActiveCircuit[ActorID].LogEvents Then LogThisEvent('Initializing Solution',ActorID);
       TRY
         //SolveZeroLoadSnapShot;
         SolveYDirect(ActorID);  // 8-14-06 This should give a better answer than zero load snapshot
@@ -950,7 +950,7 @@ Begin
         Raise EEsolv32Problem.Create('Series Y matrix not built yet in SolveZeroLoadSnapshot.');
     hY := hYseries;
 
-    If ActiveCircuit[ActiveActor].LogEvents Then LogThisEvent('Solve Sparse Set ZeroLoadSnapshot ...');
+    If ActiveCircuit[ActiveActor].LogEvents Then LogThisEvent('Solve Sparse Set ZeroLoadSnapshot ...',ActorID);
 
     SolveSystem(NodeV, ActorID);  // also sets voltages in radial part of the circuit if radial solution
 
@@ -1021,7 +1021,7 @@ PROCEDURE TSolutionObj.CheckControls(ActorID : Integer);
 Begin
       If ControlIteration < MaxControlIterations then Begin
            IF ConvergedFlag Then Begin
-               If ActiveCircuit[ActorID].LogEvents Then LogThisEvent('Control Iteration ' + IntToStr(ControlIteration));
+               If ActiveCircuit[ActorID].LogEvents Then LogThisEvent('Control Iteration ' + IntToStr(ControlIteration),ActorID);
                Sample_DoControlActions(ActorID);
                Check_Fault_Status(ActorID);
            End
@@ -1068,7 +1068,7 @@ Begin
        SolutionAbort := TRUE;   // this will stop this message in dynamic power flow modes
    End;
 
-   If ActiveCircuit[ActorID].LogEvents Then LogThisEvent('Solution Done');
+   If ActiveCircuit[ActorID].LogEvents Then LogThisEvent('Solution Done',ActorID);
 
 {$IFDEF DLL_ENGINE}
    Fire_StepControls;

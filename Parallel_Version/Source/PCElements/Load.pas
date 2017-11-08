@@ -532,7 +532,7 @@ Begin
             VBaseLow   := VLowpu   * VBase;
 
             Yorder := Fnconds * Fnterms;
-            YPrimInvalid := True;
+            YprimInvalid[ActiveActor] := True;
         End;
 
 End;
@@ -659,7 +659,7 @@ Begin
      End;
 
      RecalcElementData(ActorID);
-     YPrimInvalid := True;
+     YprimInvalid[ActorID] := True;
   End;
 
 End;
@@ -682,7 +682,7 @@ Begin
          Nphases := OtherLoad.Fnphases;
          SetNcondsForConnection; // Forces reallocation of terminal stuff
          Yorder  := Fnconds*Fnterms;
-         YPrimInvalid := TRUE;
+         YprimInvalid[ActiveActor] := TRUE;
        End;
 
        kVLoadBase     := OtherLoad.kVLoadBase;
@@ -1256,7 +1256,7 @@ Begin
 
 // Build only YPrim Shunt for a Load  then Copy to YPrim
 // Build a dummy Yprim Series so that CalcV does not fail
-     IF YPrimInvalid THEN Begin
+     IF YprimInvalid[ActorID] THEN Begin
          IF YPrim_Shunt <> nil  THEN Yprim_Shunt.Free;
          IF YPrim_Series <> nil THEN Yprim_Series.Free;
          IF YPrim <> nil        THEN Yprim.Free;

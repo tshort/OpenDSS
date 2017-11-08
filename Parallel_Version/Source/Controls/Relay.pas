@@ -754,11 +754,11 @@ begin
                                     IF OperationCount > NumReclose THEN
                                       Begin
                                           LockedOut := TRUE;
-                                          AppendtoEventLog('Relay.'+Self.Name, 'Opened on '+RelayTarget+' & Locked Out ');
+                                          AppendtoEventLog('Relay.'+Self.Name, 'Opened on '+RelayTarget+' & Locked Out ',ActorID);
                                        End
-                                    ELSE AppendtoEventLog('Relay.'+Self.Name, 'Opened');
-                                    If PhaseTarget Then AppendtoEventLog(' ', 'Phase Target');
-                                    If GroundTarget Then AppendtoEventLog(' ', 'Ground Target');
+                                    ELSE AppendtoEventLog('Relay.'+Self.Name, 'Opened',ActorID);
+                                    If PhaseTarget Then AppendtoEventLog(' ', 'Phase Target',ActorID);
+                                    If GroundTarget Then AppendtoEventLog(' ', 'Ground Target',ActorID);
                                     ArmedForOpen := FALSE;
                                  END;
                     ELSE {nada}
@@ -768,7 +768,7 @@ begin
                                 Begin
                                   ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
                                   Inc(OperationCount);
-                                  AppendtoEventLog('Relay.'+Self.Name, 'Closed');
+                                  AppendtoEventLog('Relay.'+Self.Name, 'Closed',ActorID);
                                   ArmedForClose     := FALSE;
                                 End;
                     ELSE {Nada}

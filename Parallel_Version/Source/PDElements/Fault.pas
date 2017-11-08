@@ -316,7 +316,7 @@ BEGIN
 
          //YPrim invalidation on anything that changes impedance values
          CASE ParamPointer OF
-             3,4,6: YprimInvalid := True;
+             3,4,6: YprimInvalid[ActorID] := True;
          ELSE
          END;
 
@@ -346,7 +346,7 @@ BEGIN
          NConds := Fnphases; // force reallocation of terminals and conductors
 
          Yorder := Fnconds*Fnterms;
-         YPrimInvalid := True;
+         YprimInvalid[ActiveActor] := True;
 
        END;
 
@@ -476,7 +476,7 @@ BEGIN
      // Give the multiplier some skew to approximate more uniform/Gaussian current distributions
      //  RandomMult :=  Cube(RandomMult);   removed 12/7/04
 
-     YPrimInvalid := True;    // force rebuilding of matrix
+     YprimInvalid[ActorID] := True;    // force rebuilding of matrix
 END;
 
 
@@ -493,7 +493,7 @@ VAR
 
 BEGIN
 
-    If YPrimInvalid THEN BEGIN    // Reallocate YPrim if something has invalidated old allocation
+    If YprimInvalid[ActorID] THEN BEGIN    // Reallocate YPrim if something has invalidated old allocation
        IF YPrim_Series<>nil THEN  YPrim_Series.Free;
        YPrim_Series := TCmatrix.CreateMatrix(Yorder);
        IF YPrim_Shunt<>nil THEN  YPrim_Shunt.Free;
@@ -556,7 +556,7 @@ BEGIN
    YPrim.CopyFrom(YPrimTemp);
     
     Inherited CalcYPrim(ActorID);
-    YprimInvalid := False;
+    YprimInvalid[ActorID] := False;
 END;
 
 Procedure TFaultObj.DumpProperties(Var F:TextFile; Complete:Boolean);
@@ -622,8 +622,8 @@ begin
                   IF (PresentTimeInSec > On_Time) and Not Cleared Then
                    Begin
                      Is_ON := TRUE;
-                     YPrimInvalid := TRUE ;
-                     AppendtoEventLog('Fault.' + Name, '**APPLIED**');
+                     YprimInvalid[ActorID] := TRUE ;
+                     AppendtoEventLog('Fault.' + Name, '**APPLIED**',ActorID);
                    End;
                 End
               ELSE
@@ -633,8 +633,8 @@ begin
                        Begin
                          Is_ON := FALSE;
                          Cleared := TRUE;
-                         YPrimInvalid := TRUE;
-                         AppendtoEventLog('Fault.' + Name, '**CLEARED**');
+                         YprimInvalid[ActorID] := TRUE;
+                         AppendtoEventLog('Fault.' + Name, '**CLEARED**',ActorID);
                        End;
                 End;
            End;

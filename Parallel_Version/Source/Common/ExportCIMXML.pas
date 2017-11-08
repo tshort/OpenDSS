@@ -1533,7 +1533,7 @@ Begin
 
         StartFreeInstance (F, 'SvTapStep');
         RefNode (F, 'SvTapStep.TapChanger', pReg);
-        val := Transformer.PresentTap[TrWinding];
+        val := Transformer.PresentTap[TrWinding,ActiveActor];
 //        i1 := Round((val - Transformer.Mintap[TrWinding]) / Transformer.TapIncrement[TrWinding]); // tap step
         DoubleNode (F, 'SvTapStep.position', val);
         EndInstance (F, 'SvTapStep');

@@ -228,7 +228,7 @@ Begin
      End;
 
     // RecalcElementData;
-     YPrimInvalid := True;
+     YprimInvalid[ActorID] := True;
   End;
 
 End;
@@ -254,7 +254,7 @@ Begin
          NConds  := Fnphases;  // Forces reallocation of terminal stuff
 
          Yorder := Fnconds * Fnterms;
-         YPrimInvalid := True;
+         YprimInvalid[ActiveActor] := True;
 
          For i := 1 to FnTerms Do R1^[i] := OtherEquivalent.R1^[i];
          For i := 1 to FnTerms Do R0^[i] := OtherEquivalent.R0^[i];
@@ -418,7 +418,7 @@ Var
 Begin
 
  // Build only YPrim Series
-     IF YPrimInvalid THEN Begin
+     IF YprimInvalid[ActorID] THEN Begin
        IF YPrim_Series <> nil Then YPrim_Series.Free;
        YPrim_Series := TcMatrix.CreateMatrix(Yorder);
        IF YPrim <> nil Then YPrim.Free;
@@ -462,7 +462,7 @@ Begin
      {For any conductor that is open, zero out row and column}
      Inherited CalcYPrim(ActorID);
 
-     YPrimInvalid := False;
+     YprimInvalid[ActorID] := False;
 
 End;
 

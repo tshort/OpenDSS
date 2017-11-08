@@ -141,7 +141,7 @@ begin
       Result := 0.0;
       elem := ActiveTransformer;
       if elem <> nil then
-        Result := elem.PresentTap[elem.ActiveWinding];
+        Result := elem.PresentTap[elem.ActiveWinding,ActiveActor];
   end;
   3: begin  // Transformers.Tap write
       Set_Parameter ('Tap', FloatToStr (arg));

@@ -2003,7 +2003,7 @@ Function TapPosition(const Transformer:TTransfObj; iWind:Integer):Integer;
 
 Begin
         With Transformer Do
-        Result :=   Round((PresentTap[iWind] - (Maxtap[iWind] + Mintap[iWind])/2.0 ) / TapIncrement[iWind]  );
+        Result :=   Round((PresentTap[iWind,ActiveActor] - (Maxtap[iWind] + Mintap[iWind])/2.0 ) / TapIncrement[iWind]  );
 
 End;
 
@@ -2036,7 +2036,7 @@ Begin
                   Begin
                        iWind := pReg.TrWinding;
                        Write(F, Pad(Name, 12), ' ');
-                       Writeln(F, Format('%8.5f %8.5f %8.5f %8.5f     %d' , [PresentTap[iWind], MinTap[iWind], MaxTap[iWind], TapIncrement[iWind], TapPosition(pREg.Transformer, iWind)]));
+                       Writeln(F, Format('%8.5f %8.5f %8.5f %8.5f     %d' , [PresentTap[iWind,ActiveActor], MinTap[iWind], MaxTap[iWind], TapIncrement[iWind], TapPosition(pREg.Transformer, iWind)]));
                   End;
                  pReg := RegControls.Next;
              End;

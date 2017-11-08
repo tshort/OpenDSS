@@ -603,7 +603,7 @@ Begin
           VBase105 := Vmaxpu * VBase;
 
           Yorder := Fnconds * Fnterms;
-          YPrimInvalid := True;
+          YprimInvalid[ActiveActor] := True;
       End;
 End;
 
@@ -766,7 +766,7 @@ Begin
      End;
 
      RecalcElementData(ActorID);
-     YPrimInvalid := True;
+     YprimInvalid[ActorID] := True;
   End;
 
 End;
@@ -790,7 +790,7 @@ Begin
            Nphases := OtherStorageObj.Fnphases;
            NConds := Fnphases;  // Forces reallocation of terminal stuff
            Yorder := Fnconds*Fnterms;
-           YPrimInvalid := True;
+           YprimInvalid[ActiveActor] := True;
          End;
 
          StorageVars.kVStorageBase := OtherStorageObj.StorageVars.kVStorageBase;
@@ -1359,7 +1359,7 @@ Begin
 
    // If Storage element state changes, force re-calc of Y matrix
    If FStateChanged Then  Begin
-      YPrimInvalid  := True;
+      YprimInvalid[ActorID]  := True;
       FStateChanged := FALSE;  // reset the flag
    End;
 
@@ -1578,7 +1578,7 @@ Begin
      If OldState <> Fstate
      Then Begin
           FstateChanged := TRUE;
-          YPrimInvalid := TRUE;
+          YprimInvalid[ActorID] := TRUE;
      End;
 End;
 
@@ -1592,7 +1592,7 @@ Begin
 
      // Build only shunt Yprim
      // Build a dummy Yprim Series so that CalcV Does not fail
-     If YPrimInvalid
+     If YprimInvalid[ActorID]
      Then  Begin
          If YPrim_Shunt<>nil Then YPrim_Shunt.Free;
          YPrim_Shunt := TcMatrix.CreateMatrix(Yorder);
@@ -2246,7 +2246,7 @@ Begin
 
     // the update is done at the end of a time step so have to force
     // a recalc of the Yprim for the next time step.  Else it will stay the same.
-    If FstateChanged Then YPrimInvalid := TRUE;
+    If FstateChanged Then YprimInvalid[ActorID] := TRUE;
 
 End;
 
@@ -2327,7 +2327,7 @@ VAR
   E, Va:complex;
 
 Begin
-     YPrimInvalid       := TRUE;  // Force rebuild of YPrims
+     YprimInvalid[ActorID]       := TRUE;  // Force rebuild of YPrims
      StorageFundamental := ActiveCircuit[ActorID].Solution.Frequency ;  // Whatever the frequency is when we enter here.
 
      Yeq := Cinv(Cmplx(StorageVars.RThev,StorageVars.XThev));      // used for current calcs  Always L-N
@@ -2375,7 +2375,7 @@ VAR
 
 Begin
 
-     YPrimInvalid := TRUE;  // Force rebuild of YPrims
+     YprimInvalid[ActorID] := TRUE;  // Force rebuild of YPrims
 
      With StorageVars do Begin
         ZThev :=  Cmplx(RThev, XThev);

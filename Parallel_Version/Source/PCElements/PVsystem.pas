@@ -646,7 +646,7 @@ Begin
           VBaseMax := Vmaxpu * VBase;
 
           Yorder := Fnconds * Fnterms;
-          YPrimInvalid := True;
+          YprimInvalid[ActiveActor] := True;
       End;
 End;
 
@@ -782,7 +782,7 @@ Begin
      End;
 
      RecalcElementData(ActorID);
-     YPrimInvalid := True;
+     YprimInvalid[ActorID] := True;
   End;
 
 End;
@@ -807,7 +807,7 @@ Begin
              Nphases := OtherPVsystemObj.Fnphases;
              NConds := Fnphases;  // Forces reallocation of terminal stuff
              Yorder := Fnconds*Fnterms;
-             YPrimInvalid := True;
+             YprimInvalid[ActiveActor] := True;
          End;
 
          PVSystemVars.kVPVSystemBase    := OtherPVsystemObj.PVSystemVars.kVPVSystemBase;
@@ -1572,7 +1572,7 @@ Begin
 
      // Build only shunt Yprim
      // Build a dummy Yprim Series so that CalcV Does not fail
-     If YPrimInvalid
+     If YprimInvalid[ActorID]
      Then  Begin
          If YPrim_Shunt<>nil Then YPrim_Shunt.Free;
          YPrim_Shunt := TcMatrix.CreateMatrix(Yorder);
@@ -2260,7 +2260,7 @@ VAR
   E, Va:complex;
 
 Begin
-     YPrimInvalid       := TRUE;  // Force rebuild of YPrims
+     YprimInvalid[ActorID]       := TRUE;  // Force rebuild of YPrims
      PVSystemFundamental := ActiveCircuit[ActorID].Solution.Frequency ;  // Whatever the frequency is when we enter here.
 
      {Compute reference Thevinen voltage from phase 1 current}
@@ -2302,7 +2302,7 @@ VAR
     Vabc  :Array[1..3] of Complex;
 
 Begin
-    YPrimInvalid := TRUE;  // Force rebuild of YPrims
+    YprimInvalid[ActorID] := TRUE;  // Force rebuild of YPrims
 
     With PVSystemVars do
     Begin

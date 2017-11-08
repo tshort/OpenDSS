@@ -395,7 +395,7 @@ Begin
        NConds       := Fnphases;  // Force Reallocation of terminal info
        //Fnconds := Fnphases;
        Yorder := Fnconds * Fnterms;
-       // YPrimInvalid := True;  (set in Edit; this is redundant)
+       // YprimInvalid[ActorID] := True;  (set in Edit; this is redundant)
 
 
    End
@@ -590,7 +590,7 @@ Begin
                  Nphases      := Parser[ActorID].IntValue ;
                  NConds       := Fnphases;  // Force Reallocation of terminal info
                  Yorder       := Fnterms * Fnconds;
-                 {YPrimInvalid := True;}  // now set below
+                 {YprimInvalid[ActorID] := True;}  // now set below
                  RecalcElementData(ActorID);  // Reallocate Z, etc.
               End Else Begin
                  DoSimpleMsg('Illegal change of number of phases for Line.'+Name, 18101);
@@ -607,7 +607,7 @@ Begin
                        ResetLengthUnits; KillGeometrySpecified; KillSpacingSpecified;
                  End;
           15: If IsSwitch Then Begin
-                SymComponentsChanged := True;  YprimInvalid := True;
+                SymComponentsChanged := True;  YprimInvalid[ActorID] := True;
                 GeometrySpecified := FALSE; SpacingSpecified := False;
                 r1 := 1.0; x1 := 1.0; r0 := 1.0; x0 := 1.0;
                 c1 := 1.1 * 1.0e-9; c0 := 1.0 * 1.0e-9;  len := 0.001;
@@ -623,14 +623,14 @@ Begin
                 SymComponentsChanged := False;
                 KillGeometrySpecified;
               end;
-              YprimInvalid := True;
+              YprimInvalid[ActorID] := True;
             End;
          ELSE
          End;
 
          //YPrim invalidation on anything that changes impedance values
          CASE ParamPointer OF
-             3..14: YprimInvalid := True;
+             3..14: YprimInvalid[ActorID] := True;
              18: If GeometrySpecified and assigned(FLineGeometryObj) Then FlineGeometryObj.rhoearth := rho;
          ELSE
          End;
@@ -664,7 +664,7 @@ Begin
          NConds  := Fnphases; // force reallocation of terminals and conductors
 
          Yorder := Fnconds * Fnterms;
-         YPrimInvalid := True;
+         YprimInvalid[ActiveActor] := True;
 
          IF Z    <> nil THEN Z.Free;
          IF Zinv <> nil THEN Zinv.Free;
@@ -1040,7 +1040,7 @@ Begin
 
     YPrim.AddFrom(Yprim_Shunt);
     Inherited CalcYPrim(ActorID);
-    YprimInvalid := False;
+    YprimInvalid[ActorID] := False;
 
 End;
 
@@ -1367,7 +1367,7 @@ begin
 
       LenUnitsSaved := LengthUnits;
 
-      YPrimInvalid := True;
+      YprimInvalid[ActiveActor] := True;
 
       // Redefine property values to make it appear that line was defined this way originally using matrices
 
@@ -1578,7 +1578,7 @@ begin
       NPhases       := FLineSpacingObj.NPhases;
       Nconds        := FNPhases;  // Force Reallocation of terminal info
       Yorder        := Fnconds * Fnterms;
-      YPrimInvalid  := True;       // Force Rebuild of Y matrix
+      YprimInvalid[ActiveActor]  := True;       // Force Rebuild of Y matrix
 
     end
     else  DoSimpleMsg ('Line Spacing object ' + Code + ' not found.(LINE.'+Name+')', 181011);
@@ -1688,7 +1688,7 @@ Begin
          NPhases       := FLineGeometryObj.Nconds;
          Nconds        := FNPhases;  // Force Reallocation of terminal info
          Yorder        := Fnconds * Fnterms;
-         YPrimInvalid  := True;       // Force Rebuild of Y matrix
+         YprimInvalid[ActiveActor]  := True;       // Force Rebuild of Y matrix
 
      End
    ELSE
@@ -1787,7 +1787,7 @@ end;
 procedure TLineObj.ClearYPrim;
 begin
  // Line Object needs both Series and Shunt YPrims built
-    IF YPrimInvalid THEN
+    IF YprimInvalid[ActiveActor] THEN
       Begin // Reallocate YPrim if something has invalidated old allocation
          IF YPrim_Series <> nil THEN  YPrim_Series.Free;
          IF YPrim_Shunt  <> nil THEN  YPrim_Shunt.Free;

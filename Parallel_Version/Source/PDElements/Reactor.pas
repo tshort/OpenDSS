@@ -426,10 +426,10 @@ BEGIN
 
          //YPrim invalidation on anything that changes impedance values
          CASE ParamPointer OF
-             3..16: YprimInvalid := True;
+             3..16: YprimInvalid[ActorID] := True;
              17: If RCurveObj=nil Then DoSimpleMsg('Resistance-frequency curve XYCurve.'+RCurve+' not Found.', 2301);
              18: If LCurveObj=nil Then DoSimpleMsg('Inductance-frequency curve XYCurve.'+LCurve+' not Found.', 2301);
-             19: YprimInvalid := True;
+             19: YprimInvalid[ActorID] := True;
          ELSE
          END;
 
@@ -461,7 +461,7 @@ BEGIN
          NConds := Fnphases; // force reallocation of terminals and conductors
 
          Yorder := Fnconds*Fnterms;
-         YPrimInvalid := True;
+         YprimInvalid[ActiveActor] := True;
 
        END;
 
@@ -672,7 +672,7 @@ BEGIN
 // Bus1 <> Bus 2
 
 
-    If YPrimInvalid
+    If YprimInvalid[ActorID]
     THEN Begin    // Reallocate YPrim if something has invalidated old allocation
        IF YPrim_Shunt <> nil THEN  YPrim_Shunt.Free;
        YPrim_Shunt := TcMatrix.CreateMatrix(Yorder);
@@ -930,7 +930,7 @@ BEGIN
 
     Inherited CalcYPrim(ActorID);
 
-    YprimInvalid := False;
+    YprimInvalid[ActorID] := False;
 END;
 
 Procedure TReactorObj.DumpProperties(Var F:TextFile; Complete:Boolean);

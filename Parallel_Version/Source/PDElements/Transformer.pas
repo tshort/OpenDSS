@@ -92,8 +92,8 @@ TYPE
         pctImag                :Double;
         XRConst                :Boolean;
 
-        FUNCTION  Get_PresentTap(i: Integer): double;
-        PROCEDURE Set_PresentTap(i: Integer; const Value: double);
+        FUNCTION  Get_PresentTap(i: Integer;ActorID: integer): double;
+        PROCEDURE Set_PresentTap(i: Integer; ActorID: integer; const Value: double);
         FUNCTION  Get_MinTap(i: Integer): Double;
         FUNCTION  Get_MaxTap(i: Integer): Double;
         FUNCTION  Get_TapIncrement(i: Integer): Double;
@@ -176,7 +176,7 @@ TYPE
 
         PROCEDURE MakePosSequence(ActorID : Integer);Override;  // Make a positive Sequence Model
 
-        Property PresentTap[i:Integer]   :Double read Get_PresentTap write Set_PresentTap;
+        Property PresentTap[i:Integer;ActorID: integer]:Double read Get_PresentTap write Set_PresentTap;
         Property Mintap[i:Integer]       :Double Read Get_MinTap;
         Property Maxtap[i:Integer]       :Double Read Get_MaxTap;
         Property TapIncrement[i:Integer] :Double Read Get_TapIncrement;
@@ -524,10 +524,10 @@ Begin
 
          //YPrim invalidation on anything that changes impedance values
          CASE ParamPointer OF
-           5..19  : YprimInvalid := TRUE;
-           26..27 : YprimInvalid := TRUE;
-           35..37 : YprimInvalid := TRUE;
-           41..43 : YPrimInvalid := TRUE;
+           5..19  : YprimInvalid[ActorID] := TRUE;
+           26..27 : YprimInvalid[ActorID] := TRUE;
+           35..37 : YprimInvalid[ActorID] := TRUE;
+           41..43 : YprimInvalid[ActorID] := TRUE;
          ELSE
          End;
 
@@ -580,7 +580,7 @@ Begin
                  End;
             End;
             Yorder := fNConds * fNTerms;
-            YPrimInvalid := True;
+            YprimInvalid[ActiveActor] := True;
         End;
 End;
 
@@ -734,7 +734,7 @@ Begin
        NConds := Fnphases + 1; // forces reallocation of terminals and conductors
 
        Yorder := fNConds*fNTerms;
-       YPrimInvalid := True;
+       YprimInvalid[ActiveActor] := True;
 
        FOR i := 1 to NumWindings DO
        WITH Winding^[i] Do
@@ -1075,7 +1075,7 @@ VAR
 
 Begin
 
-    IF   YPrimInvalid THEN Begin
+    IF   YprimInvalid[ActorID] THEN Begin
          // Reallocate YPrim if something has invalidated old allocation
          IF YPrim_Series<>nil THEN  YPrim_Series.Free;
          IF YPrim_Shunt<>nil  THEN  YPrim_Shunt.Free;
@@ -1110,7 +1110,7 @@ Begin
     {For any conductor that is open, zero out row and column}
     Inherited CalcYPrim(ActorID);
 
-    YprimInvalid := False;
+    YprimInvalid[ActorID] := False;
 End;
 
 PROCEDURE TTransfObj.DumpProperties(Var F:TextFile;Complete:Boolean);
@@ -1271,14 +1271,14 @@ Begin
     Inherited Destroy;
 End;
 
-FUNCTION TTransfObj.Get_PresentTap(i: Integer): double;
+FUNCTION TTransfObj.Get_PresentTap(i: Integer;ActorID: integer): double;
 Begin
      IF (i > 0) and (i <= NumWindings)
          THEN Result := Winding^[i].puTap
          ELSE Result := 0.0;
 end;
 
-PROCEDURE TTransfObj.Set_PresentTap(i: Integer; const Value: double);
+PROCEDURE TTransfObj.Set_PresentTap(i: Integer; ActorID: integer; const Value: double);
 
 Var
    TempVal :Double;
@@ -1293,8 +1293,8 @@ Begin
 
            IF TempVal <> puTap THEN Begin    {Only if there's been a change}
               puTap        := TempVal;
-              YPrimInvalid := True;  // this property triggers setting SystemYChanged=true
-              RecalcElementData(ActiveActor);
+              YprimInvalid[ActorID] := True;  // this property triggers setting SystemYChanged=true
+              RecalcElementData(ActorID);
            End;
        End;
 end;
@@ -1983,7 +1983,7 @@ begin
     EmergMaxHkVA     := Obj.EmergMaxHkVA;
     ppm_FloatFactor  := Obj.ppm_FloatFactor;
     Yorder := fNConds*fNTerms;
-    YPrimInvalid := True;
+    YprimInvalid[ActiveActor] := True;
     Y_Terminal_FreqMult := 0.0;
 
     RecalcElementData(ActiveActor)
