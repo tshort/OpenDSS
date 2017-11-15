@@ -136,7 +136,7 @@ CONST
     AVGPHASES = -1;
     MAXPHASE  = -2;
     MINPHASE  = -3;
-    NumPropsThisClass = 21;
+    NumPropsThisClass = 22;
 
 
 {--------------------------------------------------------------------------}
@@ -191,6 +191,7 @@ Begin
      PropertyName[19] := 'UserModel';
      PropertyName[20] := 'UserData';
      PropertyName[21] := 'pctMinkvar';
+     PropertyName[22] := 'Reset';
 
 
      PropertyHelp[1] := 'Full object name of the circuit element, typically a line or transformer, '+
@@ -243,6 +244,7 @@ Begin
      PropertyHelp[19] :=  'Name of DLL containing user-written CapControl model, overriding the default model.  Set to "none" to negate previous setting. ';
      PropertyHelp[20] :=  'String (in quotes or parentheses if necessary) that gets passed to the user-written CapControl model Edit function for defining the data required for that model. ';
      PropertyHelp[21] :=  'For PF control option, min percent of total bank kvar at which control will close capacitor switch. Default = 50.';
+     PropertyHelp[22] :=  '{Yes | No} If Yes, forces Reset of this CapControl.' ;
 
      ActiveProperty  := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
@@ -327,6 +329,10 @@ Begin
            19: UserModel.Name := Parser.StrValue;  // Connect to user written model
            20: UserModel.Edit := Parser.StrValue;  // Send edit string to user model
            21: FpctMinKvar := Parser.DblValue;
+           22: If InterpretYesNo (Param) Then Begin  // force a reset
+                  Reset;
+                  PropertyValue[22]  := 'n'; // so it gets reported properly
+               End;
 
          ELSE
            // Inherited parameters
