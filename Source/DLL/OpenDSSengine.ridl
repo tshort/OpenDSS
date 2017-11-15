@@ -6,7 +6,7 @@
 // However, when applying changes via the Editor this file will be regenerated
 // and comments or formatting changes will be lost.
 // ************************************************************************ //
-// File generated on 5/22/2017 2:08:41 PM (- $Rev: 12980 $, 14075375).
+// File generated on 11/15/2017 11:51:23 AM (- $Rev: 12980 $, 142695781).
 
 [
   uuid(8BFDE413-245A-4514-B151-B16DCC243796),
@@ -1958,6 +1958,8 @@ library OpenDSSengine
     HRESULT _stdcall DeadTime([in] double Value);
     [propget, id(0x000000DB), helpstring("Number of CapControls in Active Circuit\0ep. Control may reset before actually switching.\0 actually operating the switch.\0lf state).\0etc.)\0eturns 0 if no more.\0llElementNames.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0")]
     HRESULT _stdcall Count([out, retval] long* Value);
+    [id(0x000000DC), helpstring("Force a Reset of this CapControl")]
+    HRESULT _stdcall Reset(void);
   };
 
   [
@@ -2065,6 +2067,8 @@ library OpenDSSengine
     HRESULT _stdcall TapNumber([out, retval] long* Value);
     [propput, id(0x000000E2), helpstring("Integer number of the tap that the controlled transformer winding is currentliy on.")]
     HRESULT _stdcall TapNumber([in] long Value);
+    [id(0x000000E3), helpstring("Force Reset of this RegControl element")]
+    HRESULT _stdcall Reset(void);
   };
 
   [

@@ -12,7 +12,7 @@ unit OpenDSSengine_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 5/22/2017 1:50:56 PM from Type Library described below.
+// File generated on 11/15/2017 11:51:18 AM from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: C:\Users\prdu001\OpenDSS\Source\DLL\OpenDSSengine (1)
@@ -2390,6 +2390,7 @@ type
     function Get_DeadTime: Double; safecall;
     procedure Set_DeadTime(Value: Double); safecall;
     function Get_Count: Integer; safecall;
+    procedure Reset; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property Name: WideString read Get_Name write Set_Name;
     property First: Integer read Get_First;
@@ -2437,6 +2438,7 @@ type
     property DelayOff: Double dispid 217;
     property DeadTime: Double dispid 218;
     property Count: Integer readonly dispid 219;
+    procedure Reset; dispid 220;
   end;
 
 // *********************************************************************//
@@ -2494,6 +2496,7 @@ type
     function Get_Count: Integer; safecall;
     function Get_TapNumber: Integer; safecall;
     procedure Set_TapNumber(Value: Integer); safecall;
+    procedure Reset; safecall;
     property AllNames: OleVariant read Get_AllNames;
     property Name: WideString read Get_Name write Set_Name;
     property First: Integer read Get_First;
@@ -2555,6 +2558,7 @@ type
     property ReverseVreg: Double dispid 224;
     property Count: Integer readonly dispid 225;
     property TapNumber: Integer dispid 226;
+    procedure Reset; dispid 227;
   end;
 
 // *********************************************************************//
