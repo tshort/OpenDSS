@@ -1067,7 +1067,7 @@ Begin
         With ActiveCircuit[ActiveActor] Do
         Begin
               ActiveCktElement.ActiveTerminalIdx := Terminal;
-              ActiveCktElement.Closed[Conductor] := FALSE;
+              ActiveCktElement.Closed[Conductor,ActiveActor] := FALSE;
               With ActiveCktElement Do SetActiveBus(StripExtension(Getbus(ActiveTerminalIdx)));
         End;
   End
@@ -1104,7 +1104,7 @@ Begin
         With ActiveCircuit[ActiveActor] Do
          Begin
           ActiveCktElement.ActiveTerminalIdx := Terminal;
-          ActiveCktElement.Closed[Conductor] := TRUE;
+          ActiveCktElement.Closed[Conductor,ActiveActor] := TRUE;
           With ActiveCktElement Do SetActiveBus(StripExtension(Getbus(ActiveTerminalIdx)));
          End;
 

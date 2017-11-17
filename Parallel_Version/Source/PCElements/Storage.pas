@@ -187,7 +187,7 @@ TYPE
         FUNCTION  Get_kWIdlingLosses: Double;
 
       Protected
-        PROCEDURE Set_ConductorClosed(Index:Integer; Value:Boolean); Override;
+        PROCEDURE Set_ConductorClosed(Index:Integer; ActorID:integer; Value:Boolean); Override;
         PROCEDURE GetTerminalCurrents(Curr:pComplexArray; ActorID : Integer); Override ;
 
       public
@@ -2712,7 +2712,7 @@ Begin
   inherited;   // write out other properties
 End;
 
-PROCEDURE TStorageObj.Set_ConductorClosed(Index: Integer;
+PROCEDURE TStorageObj.Set_ConductorClosed(Index: Integer; ActorID: Integer;
   Value: Boolean);
 Begin
    inherited;

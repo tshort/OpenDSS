@@ -183,7 +183,7 @@ TYPE
         Procedure CalcGenModelContribution(ActorID : Integer);
         Procedure CalcInjCurrentArray(ActorID : Integer);
         Procedure CalcVterminal(ActorID : Integer);
-        Procedure CalcVTerminalPhase;
+        Procedure CalcVTerminalPhase(ActorID : Integer);
         Procedure CalcVthev_Dyn;      // 3-phase Voltage behind transient reactance
         Procedure CalcVthev_Dyn_Mod7(const V:Complex);
         PROCEDURE CalcYearlyMult(Hr:double);
@@ -199,7 +199,7 @@ TYPE
         Procedure DoPVTypeGen(ActorID : Integer);
         Procedure DoUserModel(ActorID : Integer);
 
-        Procedure Integrate(Reg:Integer; const Deriv:Double; Const Interval:Double);
+        Procedure Integrate(Reg:Integer; const Deriv:Double; Const Interval:Double; ActorID: integer);
         Procedure SetDragHandRegister(Reg:Integer; const Value:Double);
         Procedure StickCurrInTerminalArray(TermArray:pComplexArray; Const Curr:Complex; i:Integer);
 
@@ -219,7 +219,7 @@ TYPE
         PROCEDURE SetkWkvar(const PkW, Qkvar:Double);
 
       Protected
-        PROCEDURE Set_ConductorClosed(Index:Integer; Value:Boolean); Override;
+        PROCEDURE Set_ConductorClosed(Index:Integer; ActorID:integer; Value:Boolean); Override;
         Procedure GetTerminalCurrents(Curr:pComplexArray; ActorID : Integer); Override ;
 
       public
@@ -266,7 +266,7 @@ TYPE
         Procedure Randomize(Opt:Integer);   // 0 = reset to 1.0; 1 = Gaussian around mean and std Dev  ;  // 2 = uniform
 
         Procedure ResetRegisters;
-        Procedure TakeSample;
+        Procedure TakeSample(ActorID: integer);
 
         // Procedures for setting the DQDV used by the Solution Object
         Procedure InitDQDVCalc;
@@ -822,7 +822,7 @@ Begin
       pGen := ActiveCircuit[ActorID].Generators.First;
       WHILE pGen<>Nil Do
       Begin
-          If pGen.enabled Then pGen.TakeSample;
+          If pGen.enabled Then pGen.TakeSample(ActorID);
           pGen := ActiveCircuit[ActorID].Generators.Next;
       End;
 End;
@@ -1448,7 +1448,7 @@ Begin
     ****)
 
 
-        CalcVTerminalPhase; // get actual voltage across each phase of the load
+        CalcVTerminalPhase(ActorID); // get actual voltage across each phase of the load
         FOR i := 1 to Fnphases Do Begin
             V    := Vterminal^[i];
             VMag := Cabs(V);
@@ -1494,7 +1494,7 @@ Begin
 
 // Assume Yeq is kept up to date
     CalcYPrimContribution(InjCurrent,ActorID);  // Init InjCurrent Array
-    CalcVTerminalPhase; // get actual voltage across each phase of the load
+    CalcVTerminalPhase(ActorID); // get actual voltage across each phase of the load
     ZeroITerminal;
     If Connection=0 Then Yeq2 := Yeq Else Yeq2 := CdivReal(Yeq, 3.0);
 
@@ -1522,7 +1522,7 @@ Var
 Begin
 
     CalcYPrimContribution(InjCurrent, ActorID);  // Init InjCurrent Array
-    CalcVTerminalPhase; // get actual voltage across each phase of the generator
+    CalcVTerminalPhase(ActorID); // get actual voltage across each phase of the generator
     ZeroITerminal;
 
     // Guess at a new var output value
@@ -1570,7 +1570,7 @@ Var
 
 Begin
     CalcYPrimContribution(InjCurrent, ActorID);  // Init InjCurrent Array
-    CalcVTerminalPhase; // get actual voltage across each phase of the load
+    CalcVTerminalPhase(ActorID); // get actual voltage across each phase of the load
     ZeroITerminal;
 
     FOR i := 1 to Fnphases DO Begin
@@ -1618,7 +1618,7 @@ Var
 Begin
 
     CalcYPrimContribution(InjCurrent, ActorID);  // Init InjCurrent Array
-    CalcVTerminalPhase; // get actual voltage across each phase of the load
+    CalcVTerminalPhase(ActorID); // get actual voltage across each phase of the load
     ZeroITerminal;
 
     FOR i := 1 to Fnphases DO
@@ -1701,7 +1701,7 @@ Begin
      //Treat this just like the Load model
 
     CalcYPrimContribution(InjCurrent, ActorID);  // Init InjCurrent Array
-    CalcVTerminalPhase; // get actual voltage across each phase of the load
+    CalcVTerminalPhase(ActorID); // get actual voltage across each phase of the load
 
     If ForceBalanced and (Fnphases=3) Then Begin    // convert to pos-seq only
         Phase2SymComp(Vterminal, @V012);
@@ -1898,7 +1898,7 @@ End;
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - -
-Procedure TGeneratorObj.CalcVTerminalPhase;
+Procedure TGeneratorObj.CalcVTerminalPhase(ActorID : Integer);
 
 VAR i,j:Integer;
 
@@ -1908,12 +1908,12 @@ Begin
    Case Connection OF
 
      0:Begin
-         With ActiveCircuit[ActiveActor].Solution Do
+         With ActiveCircuit[ActorID].Solution Do
            FOR i := 1 to Fnphases Do Vterminal^[i] := VDiff(NodeRef^[i], NodeRef^[Fnconds]);
        End;
 
      1:Begin
-         With ActiveCircuit[ActiveActor].Solution Do
+         With ActiveCircuit[ActorID].Solution Do
           FOR i := 1 to Fnphases Do  Begin
              j := i + 1;
              If j > Fnconds Then j := 1;
@@ -1923,7 +1923,7 @@ Begin
 
    End;
 
-   GeneratorSolutionCount := ActiveCircuit[ActiveActor].Solution.SolutionCount;
+   GeneratorSolutionCount := ActiveCircuit[ActorID].Solution.SolutionCount;
 
 End;
 
@@ -1937,7 +1937,7 @@ Begin
 
    ComputeVTerminal(ActorID);
 
-   GeneratorSolutionCount := ActiveCircuit[ActiveActor].Solution.SolutionCount;
+   GeneratorSolutionCount := ActiveCircuit[ActorID].Solution.SolutionCount;
 
 End;
 
@@ -2118,10 +2118,10 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Procedure TGeneratorObj.Integrate(Reg:Integer; const Deriv:Double; Const Interval:Double);
+Procedure TGeneratorObj.Integrate(Reg:Integer; const Deriv:Double; Const Interval:Double; ActorID: integer);
 
 Begin
-     IF ActiveCircuit[ActiveActor].TrapezoidalIntegration
+     IF ActiveCircuit[ActorID].TrapezoidalIntegration
      THEN Begin
         {Trapezoidal Rule Integration}
         If Not FirstSampleAfterReset Then Registers[Reg] := Registers[Reg] + 0.5 * Interval * (Deriv + Derivatives[Reg]);
@@ -2133,7 +2133,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Procedure TGeneratorObj.TakeSample;
+Procedure TGeneratorObj.TakeSample(ActorID: integer);
 // Update Energy from metered zone
 
 VAR
@@ -2157,20 +2157,20 @@ Begin
          HourValue :=0.0;
       End;
 
-      IF GenON or ActiveCircuit[ActiveActor].TrapezoidalIntegration THEN
+      IF GenON or ActiveCircuit[ActorID].TrapezoidalIntegration THEN
       {Make sure we always integrate for Trapezoidal case
        Don't need to for Gen Off and normal integration}
-      WITH ActiveCircuit[ActiveActor].Solution Do Begin
-           IF ActiveCircuit[ActiveActor].PositiveSequence THEN Begin
+      WITH ActiveCircuit[ActorID].Solution Do Begin
+           IF ActiveCircuit[ActorID].PositiveSequence THEN Begin
               S    := CmulReal(S, 3.0);
               Smag := 3.0*Smag;
            End;
-           Integrate            (Reg_kWh,   S.re, IntervalHrs);   // Accumulate the power
-           Integrate            (Reg_kvarh, S.im, IntervalHrs);
+           Integrate            (Reg_kWh,   S.re, IntervalHrs, ActorID);   // Accumulate the power
+           Integrate            (Reg_kvarh, S.im, IntervalHrs, ActorID);
            SetDragHandRegister  (Reg_MaxkW, abs(S.re));
            SetDragHandRegister  (Reg_MaxkVA, Smag);
-           Integrate            (Reg_Hours, HourValue, IntervalHrs);  // Accumulate Hours in operation
-           Integrate            (Reg_Price, S.re*ActiveCircuit[ActiveActor].PriceSignal * 0.001 , IntervalHrs);  // Accumulate Hours in operation
+           Integrate            (Reg_Hours, HourValue, IntervalHrs, ActorID);  // Accumulate Hours in operation
+           Integrate            (Reg_Price, S.re*ActiveCircuit[ActorID].PriceSignal * 0.001 , IntervalHrs, ActorID);  // Accumulate Hours in operation
            FirstSampleAfterReset := False;
       End;
    End;
@@ -2716,7 +2716,7 @@ begin
   inherited;
 end;
 
-procedure TGeneratorObj.Set_ConductorClosed(Index: Integer;
+procedure TGeneratorObj.Set_ConductorClosed(Index: Integer; ActorID: Integer;
   Value: Boolean);
 begin
    inherited;

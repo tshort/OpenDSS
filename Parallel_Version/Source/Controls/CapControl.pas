@@ -561,9 +561,9 @@ Begin
                  // Get control synched up with capacitor
                  With ControlledCapacitor Do
                    If ControlVars.AvailableSteps = Numsteps
-                     Then ControlledElement.Closed[0] := FALSE
-                     Else ControlledElement.Closed[0] := TRUE;
-                   IF ControlledElement.Closed [0]      // Check state of phases of active terminal
+                     Then ControlledElement.Closed[0,ActorID] := FALSE
+                     Else ControlledElement.Closed[0,ActorID] := TRUE;
+                   IF ControlledElement.Closed [0,ActorID]      // Check state of phases of active terminal
                      THEN ControlVars.PresentState := CTRL_CLOSE
                      ELSE ControlVars.PresentState := CTRL_OPEN;
            End
@@ -751,7 +751,7 @@ begin
                     1: Begin
                         IF PresentState=CTRL_CLOSE Then Begin
 
-                          ControlledElement.Closed[0] := FALSE;  // Open all phases of active terminal
+                          ControlledElement.Closed[0,ActorID] := FALSE;  // Open all phases of active terminal
                           ControlledCapacitor.SubtractStep;
 
                           If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Opened**',ActorID);
@@ -763,7 +763,7 @@ begin
                         If PresentState=CTRL_CLOSE Then Begin      // Do this only if at least one step is closed
                            If NOT ControlledCapacitor.SubtractStep Then Begin
                               PresentState := CTRL_OPEN;
-                              ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
+                              ControlledElement.Closed[0,ActorID] := FALSE;   // Open all phases of active terminal
                               If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Opened**',ActorID);
                            End
                            ELSE If ShowEventLog Then AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Step Down**',ActorID);
@@ -771,7 +771,7 @@ begin
                     END;
             CTRL_CLOSE: BEGIN
                       If PresentState=CTRL_OPEN Then Begin
-                           ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                           ControlledElement.Closed[0,ActorID] := TRUE;    // Close all phases of active terminal
                            If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Closed**',ActorID);
                            PresentState := CTRL_CLOSE;
                            ControlledCapacitor.AddStep;
@@ -860,7 +860,7 @@ VAR
 begin
 
      ControlledElement.ActiveTerminalIdx := 1;
-     IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
+     IF  ControlledElement.Closed [0,ActorID]      // Check state of phases of active terminal
      THEN ControlVars.PresentState := CTRL_CLOSE
      ELSE ControlVars.PresentState := CTRL_OPEN;
 
@@ -875,7 +875,7 @@ begin
               If   VoverrideBusSpecified then Begin
                    GetBusVoltages(ActiveCircuit[ActorID].Buses^[VOverrideBusIndex], cBuffer, ActorID);
               End
-              Else MonitoredElement.GetTermVoltages (ElementTerminal, cBuffer);
+              Else MonitoredElement.GetTermVoltages (ElementTerminal, cBuffer, ActorID);
 
               GetControlVoltage(Vtest);
 
@@ -941,7 +941,7 @@ begin
 
               VOLTAGECONTROL: {Voltage}
                  Begin
-                     MonitoredElement.GetTermVoltages(ElementTerminal, cBuffer);
+                     MonitoredElement.GetTermVoltages(ElementTerminal, cBuffer, ActorID);
 
                      GetControlVoltage(Vtest);
 
@@ -1009,7 +1009,7 @@ begin
                      // Load up test data into the public data record
                        SampleP := CmulReal(MonitoredElement.Power[ElementTerminal], 0.001);  // kW kvar
 
-                       MonitoredElement.GetTermVoltages(ElementTerminal, cBuffer);
+                       MonitoredElement.GetTermVoltages(ElementTerminal, cBuffer, ActorID);
                        GetControlVoltage(SampleV);
 
                        MonitoredElement.GetCurrents(cBuffer, ActorID);
@@ -1183,8 +1183,8 @@ begin
       With ControlVars Do
       Begin
             CASE InitialState of
-                  CTRL_OPEN:   ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
-                  CTRL_CLOSE:  ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                  CTRL_OPEN:   ControlledElement.Closed[0,ActiveActor] := FALSE;   // Open all phases of active terminal
+                  CTRL_CLOSE:  ControlledElement.Closed[0,ActiveActor] := TRUE;    // Close all phases of active terminal
             END;
             ShouldSwitch := FALSE;
             LastOpenTime := -DeadTime;

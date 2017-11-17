@@ -686,7 +686,7 @@ Begin
       WITH ActiveCktElement DO
       Begin
         ActiveTerminal := Terminals^[Term];
-        Closed[Phs] := TRUE;
+        Closed[Phs,ActiveActor] := TRUE;
       End;
    End;
 
@@ -703,7 +703,7 @@ Begin
       WITH ActiveCktElement DO
       Begin
         ActiveTerminal := Terminals^[Term];
-        Closed[Phs] := FALSE;
+        Closed[Phs,ActiveActor] := FALSE;
       End;
    End;
 
@@ -758,7 +758,7 @@ begin
          Begin
              Result := False;
              For i := 1 to ActiveCktElement.NConds Do
-                 If not ActiveCktElement.Closed[i] Then
+                 If not ActiveCktElement.Closed[i,ActiveActor] Then
                  Begin
                     Result :=  True;
                     Exit;
@@ -766,7 +766,7 @@ begin
          End
          Else // Check a specific phase or conductor
          Begin
-             Result := Not ActiveCktElement.Closed[Phs];
+             Result := Not ActiveCktElement.Closed[Phs,ActiveActor];
          End;
      End;
 end;

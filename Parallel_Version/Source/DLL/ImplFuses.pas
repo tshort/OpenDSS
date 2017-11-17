@@ -271,7 +271,7 @@ Var
   elem: TFuseObj;
 begin
   elem := FuseClass.GetActiveObj ;
-  if elem <> nil then elem.ControlledElement.Closed [0] := FALSE; // Open all phases
+  if elem <> nil then elem.ControlledElement.Closed [0,ActiveActor] := FALSE; // Open all phases
 end;
 
 procedure TFuses.Close;
@@ -301,7 +301,7 @@ begin
   elem := FuseClass.GetActiveObj ;
   if elem <> nil then Begin
       for i := 1 to elem.nphases do
-          If not elem.ControlledElement.Closed[i] Then Result := TRUE;
+          If not elem.ControlledElement.Closed[i,ActiveActor] Then Result := TRUE;
   End;
 end;
 

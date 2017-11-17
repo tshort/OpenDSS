@@ -414,7 +414,7 @@ Begin
                If Enabled then ControlledElement.HasOCPDevice := TRUE;  // For Reliability calcs
 
                For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do
-                 IF  ControlledElement.Closed [i]      // Check state of i-th phase of active terminal
+                 IF  ControlledElement.Closed [i,ActorID]      // Check state of i-th phase of active terminal
                  THEN
                    Begin
                        PresentState[i] := CTRL_CLOSE;
@@ -474,7 +474,7 @@ begin
          CASE PresentState[Phs] of
            CTRL_CLOSE:IF ReadyToBlow[Phs] THEN
                    Begin   // ignore if we became disarmed in meantime
-                      ControlledElement.Closed[Phs] := FALSE;   // Open all phases of active terminal
+                      ControlledElement.Closed[Phs,ActorID] := FALSE;   // Open all phases of active terminal
                       AppendtoEventLog('Fuse.'+Self.Name, 'Phase '+IntToStr(Phs)+' Blown',ActorID);
                       hAction[phs] := 0;
                    END;
@@ -497,10 +497,10 @@ Begin
          Case LowerCase(Action)[1] of
 
             'o','t': Begin
-                       ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
+                       ControlledElement.Closed[0,ActiveActor] := FALSE;   // Open all phases of active terminal
                      End;
             'c':  Begin
-                     ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                     ControlledElement.Closed[0,ActiveActor] := TRUE;    // Close all phases of active terminal
                   End;
          END;
     End;
@@ -525,7 +525,7 @@ begin
      FOR i := 1 to Min(FUSEMAXDIM, MonitoredElement.Nphases) Do
       Begin
 
-         IF  ControlledElement.Closed [i]      // Check state of phases of active terminal
+         IF  ControlledElement.Closed [i,ActorID]      // Check state of phases of active terminal
          THEN PresentState[i] := CTRL_CLOSE
          ELSE PresentState[i] := CTRL_OPEN;
 
@@ -601,7 +601,7 @@ Begin
          For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do ReadyToBlow[i]   := FALSE;
          For i := 1 to Min(FUSEMAXDIM, ControlledElement.Nphases) Do hAction[i]   := 0;
           ControlledElement.ActiveTerminalIdx  := ElementTerminal;  // Set active terminal
-          ControlledElement.Closed[0] := TRUE;             // Close all phases of active terminal
+          ControlledElement.Closed[0,ActiveActor] := TRUE;             // Close all phases of active terminal
       End;
 end;
 

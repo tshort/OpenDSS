@@ -82,7 +82,7 @@ PROCEDURE DumpAllDSSCommands(Var Filename:String);
 PROCEDURE DumpAllocationFactors(Var Filename:String);
 PROCEDURE DumpComplexMatrix(Var F:TextFile; AMatrix:TcMatrix);
 FUNCTION  NearestBasekV(kV:Double):Double;
-FUNCTION  PresentTimeInSec:Double;
+FUNCTION  PresentTimeInSec(ActorID:integer):Double;
 FUNCTION  DoResetFaults:Integer;
 FUNCTION  DoResetControls:Integer;
 PROCEDURE DoResetKeepList;
@@ -1561,10 +1561,10 @@ Begin
    End;
 End;
 
-FUNCTION PresentTimeInSec:Double;
+FUNCTION PresentTimeInSec(ActorID:integer):Double;
 
 Begin
-    With ActiveCircuit[ActiveActor].Solution Do
+    With ActiveCircuit[ActorID].Solution Do
        Result := Dynavars.t + DynaVars.intHour*3600.0;
 End;
 
@@ -1837,7 +1837,7 @@ Begin
        Result := False;
        ThisElement.ActiveTerminalIdx := i;
        FOR j := 1 to ThisElement.NPhases DO
-       IF   ThisElement.Closed[j]
+       IF   ThisElement.Closed[j,ActiveActor]
        Then Begin
            Result := True;
            Break;

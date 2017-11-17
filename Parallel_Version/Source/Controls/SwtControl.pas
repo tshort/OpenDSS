@@ -207,8 +207,8 @@ Begin
              7: Begin
                   if NormalState=CTRL_NONE then  NormalState := PresentState;
                   Case PresentState of     // Force state
-                    CTRL_OPEN:  ControlledElement.Closed[0] := FALSE;
-                    CTRL_CLOSE: ControlledElement.Closed[0] := TRUE;
+                    CTRL_OPEN:  ControlledElement.Closed[0,ActorID] := FALSE;
+                    CTRL_CLOSE: ControlledElement.Closed[0,ActorID] := TRUE;
                   End;
                 End;
          end;
@@ -355,12 +355,12 @@ begin
      else
           if not Locked then begin
               if (Code = Integer(CTRL_OPEN)) and (PresentState = CTRL_CLOSE) then begin
-                ControlledElement.Closed[0] := FALSE; // Open all phases of active terminal
+                ControlledElement.Closed[0,ActorID] := FALSE; // Open all phases of active terminal
                 PresentState := CTRL_OPEN;
                 AppendtoEventLog('SwtControl.'+Self.Name, 'Opened',ActorID);
               end;
               if (Code = Integer(CTRL_CLOSE)) and (PresentState = CTRL_OPEN) then begin
-                ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                ControlledElement.Closed[0,ActorID] := TRUE;    // Close all phases of active terminal
                 PresentState := CTRL_CLOSE;
                 AppendtoEventLog('SwtControl.'+Self.Name, 'Closed',ActorID);
               end;
@@ -463,7 +463,7 @@ begin
          End;
       7: Begin
              ControlledElement.ActiveTerminalIdx := ElementTerminal;
-             If ControlledElement.Closed[0] then Result := 'Closed'
+             If ControlledElement.Closed[0,ActiveActor] then Result := 'Closed'
              else Result := 'open';
          End;
       8: Result := 'n';  // Always no; yes is executed immediately
@@ -482,9 +482,9 @@ Begin
       IF ControlledElement <> NIL  THEN  Begin
           ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Set active terminal
           case FNormalState of
-            CTRL_OPEN:  ControlledElement.Closed[0] := FALSE;
+            CTRL_OPEN:  ControlledElement.Closed[0,ActiveActor] := FALSE;
           else
-            {CTRL_CLOSE:} ControlledElement.Closed[0] := TRUE;  // Close all phases of active terminal
+            {CTRL_CLOSE:} ControlledElement.Closed[0,ActiveActor] := TRUE;  // Close all phases of active terminal
           end;
       End;
     End;

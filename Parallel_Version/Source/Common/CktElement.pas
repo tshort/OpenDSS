@@ -35,7 +35,7 @@ TYPE
       PROCEDURE Set_Nconds(Value:Integer);
       PROCEDURE Set_NPhases(Value:Integer);
       PROCEDURE Set_ActiveTerminal(value:Integer);
-      FUNCTION  Get_ConductorClosed(Index:Integer):Boolean;
+      FUNCTION  Get_ConductorClosed(Index:Integer;ActorID:integer):Boolean;
       PROCEDURE Set_YprimInvalid(ActorID: integer; const Value:Boolean);
       FUNCTION Get_YprimInvalid(ActorID: integer):Boolean;
       FUNCTION  Get_FirstBus:String;
@@ -63,7 +63,7 @@ TYPE
       FYprimFreq     :double;     // Frequency at which YPrim has been computed
 
       PROCEDURE Set_Enabled(Value:Boolean);Virtual;
-      PROCEDURE Set_ConductorClosed(Index:Integer; Value:Boolean); Virtual;
+      PROCEDURE Set_ConductorClosed(Index:Integer; ActorID:Integer ;Value:Boolean); Virtual;
       PROCEDURE Set_NTerms(Value:Integer); Virtual;
       PROCEDURE Set_Handle(Value:Integer);
     public
@@ -122,7 +122,7 @@ TYPE
 
       PROCEDURE MakePosSequence(ActorID : Integer);Virtual;  // Make a positive Sequence Model
 
-      PROCEDURE GetTermVoltages(iTerm:Integer; VBuffer:PComplexArray);
+      PROCEDURE GetTermVoltages(iTerm:Integer; VBuffer:PComplexArray; ActorID:Integer);
       PROCEDURE GetPhasePower(PowerBuffer:pComplexArray); Virtual;
       PROCEDURE GetPhaseLosses(Var Num_Phases:Integer; LossBuffer:pComplexArray); Virtual;
       PROCEDURE GetLosses(Var TotalLosses, LoadLosses, NoLoadLosses:Complex; ActorID : Integer); Virtual;
@@ -144,7 +144,7 @@ TYPE
       Property Losses:Complex         read Get_Losses;
       Property Power[idxTerm:Integer]:Complex  read Get_Power;  // Total power in active terminal
       Property ActiveTerminalIdx:Integer       read FActiveTerminal      write Set_ActiveTerminal;
-      Property Closed[Index:Integer]:Boolean   read Get_ConductorClosed  write Set_ConductorClosed;
+      Property Closed[Index:Integer;ActorID:Integer]:Boolean   read Get_ConductorClosed  write Set_ConductorClosed;
       PROCEDURE SumCurrents;
 
   End;
@@ -264,7 +264,7 @@ begin
   FHandle := value;
 end;
 
-FUNCTION TDSSCktElement.Get_ConductorClosed(Index:Integer):Boolean;
+FUNCTION TDSSCktElement.Get_ConductorClosed(Index:Integer;ActorID:integer):Boolean;
 
 // return state of selected conductor
 // if index=0 return true if all phases closed, else false
@@ -291,7 +291,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROCEDURE TDSSCktElement.Set_ConductorClosed(Index:Integer; Value:Boolean);
+PROCEDURE TDSSCktElement.Set_ConductorClosed(Index:Integer; ActorID:integer; Value:Boolean);
 VAR
    i:Integer;
 Begin
@@ -299,16 +299,16 @@ Begin
      IF   (Index = 0)  THEN Begin  // Do all conductors
 
         FOR i := 1 to Fnphases DO Terminals^[FActiveTerminal].Conductors^[i].Closed := Value;
-        ActiveCircuit[ActiveActor].Solution.SystemYChanged := True;  // force Y matrix rebuild
-        YPrimInvalid[ActiveActor] := True;
+        ActiveCircuit[ActorID].Solution.SystemYChanged := True;  // force Y matrix rebuild
+        YPrimInvalid[ActorID] := True;
 
      End
      ELSE Begin
 
         IF  (Index > 0)  and (Index <= Fnconds) THEN Begin
             Terminals^[FActiveTerminal].Conductors^[index].Closed := Value;
-            ActiveCircuit[ActiveActor].Solution.SystemYChanged := True;
-            YPrimInvalid[ActiveActor] := True;
+            ActiveCircuit[ActorID].Solution.SystemYChanged := True;
+            YPrimInvalid[ActorID] := True;
         End;
 
      End;
@@ -897,7 +897,7 @@ Begin
       End;
 end;
 
-PROCEDURE TDSSCktElement.GetTermVoltages(iTerm: Integer;   VBuffer: PComplexArray);
+PROCEDURE TDSSCktElement.GetTermVoltages(iTerm: Integer;   VBuffer: PComplexArray; ActorID:Integer);
 
 // Bus Voltages at indicated terminal
 // Fill Vbuffer array which must be adequately allocated by calling routine
@@ -917,7 +917,7 @@ Begin
           Exit;
      End;
 
-     WITH ActiveCircuit[ActiveActor].Solution Do
+     WITH ActiveCircuit[ActorID].Solution Do
          FOR i := 1 to  NCond DO
             Vbuffer^[i] := NodeV^[Terminals^[iTerm].TermNodeRef^[i]];
 

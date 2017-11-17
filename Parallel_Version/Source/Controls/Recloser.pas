@@ -535,7 +535,7 @@ Begin
                  ControlledElement.HasAutoOCPDevice := TRUE;  // For Reliability calcs
              End;
 
-             IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
+             IF  ControlledElement.Closed [0,ActorID]      // Check state of phases of active terminal
              THEN Begin
                 PresentState := CTRL_CLOSE;
                 LockedOut := FALSE;
@@ -605,7 +605,7 @@ begin
          CASE Code of
             Integer(CTRL_OPEN):   CASE PresentState of
                          CTRL_CLOSE:IF ArmedForOpen THEN Begin   // ignore if we became disarmed in meantime
-                                    ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
+                                    ControlledElement.Closed[0,ActorID] := FALSE;   // Open all phases of active terminal
                                     IF OperationCount > NumReclose THEN Begin
                                           LockedOut := TRUE;
                                           AppendtoEventLog('Recloser.'+Self.Name, 'Opened, Locked Out',ActorID);
@@ -622,7 +622,7 @@ begin
                     END;
             Integer(CTRL_CLOSE):  CASE PresentState of
                          CTRL_OPEN:IF ArmedForClose and Not LockedOut THEN Begin
-                                  ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                                  ControlledElement.Closed[0,ActorID] := TRUE;    // Close all phases of active terminal
                                   Inc(OperationCount);
                                   AppendtoEventLog('Recloser.'+Self.Name, 'Closed',ActorID);
                                   ArmedForClose     := FALSE;
@@ -652,12 +652,12 @@ Begin
          Case LowerCase(Action)[1] of
 
             'o','t': Begin
-                       ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
+                       ControlledElement.Closed[0,ActiveActor] := FALSE;   // Open all phases of active terminal
                        LockedOut := True;
                        OperationCount := NumReclose + 1;
                      End;
             'c':  Begin
-                     ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                     ControlledElement.Closed[0,ActiveActor] := TRUE;    // Close all phases of active terminal
                      LockedOut := False;
                      OperationCount := 1;
                   End;
@@ -683,7 +683,7 @@ begin
 
      ControlledElement.ActiveTerminalIdx := ElementTerminal;
 
-     IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
+     IF  ControlledElement.Closed [0,ActorID]      // Check state of phases of active terminal
      THEN PresentState := CTRL_CLOSE
      ELSE PresentState := CTRL_OPEN;
 
@@ -849,7 +849,7 @@ Begin
     IF ControlledElement <> NIL  THEN
       Begin
           ControlledElement.ActiveTerminalIdx  := ElementTerminal;  // Set active terminal
-          ControlledElement.Closed[0] := TRUE;             // Close all phases of active terminal
+          ControlledElement.Closed[0,ActiveActor] := TRUE;             // Close all phases of active terminal
       End;
 
 

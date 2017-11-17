@@ -189,7 +189,7 @@ TYPE
       Protected
 
         {A couple of virtual procedures you can override}
-        PROCEDURE Set_ConductorClosed(Index:Integer; Value:Boolean); Override;
+        PROCEDURE Set_ConductorClosed(Index:Integer; ActorID:integer; Value:Boolean); Override;
         Procedure GetTerminalCurrents(Curr:pComplexArray; ActorID : Integer); Override ;
 
         PROCEDURE DoDynamicMode(ActorID : Integer);
@@ -2095,7 +2095,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------
-procedure TIndMach012Obj.Set_ConductorClosed(Index: Integer;  Value: Boolean);
+procedure TIndMach012Obj.Set_ConductorClosed(Index: Integer; ActorID:integer;  Value: Boolean);
 //----------------------------------------------------------------------------
 
 // Routine for handling Open/Close procedures

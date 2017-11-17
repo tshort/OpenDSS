@@ -78,7 +78,7 @@ begin
   end;
   5: begin  // Fuse.Open
     elem := FuseClass.GetActiveObj ;
-    if elem <> nil then elem.ControlledElement.Closed [0] := FALSE; // Open all phases
+    if elem <> nil then elem.ControlledElement.Closed [0,ActiveActor] := FALSE; // Open all phases
   end;
   6: begin  // Fuse.Close
     elem := FuseClass.GetActiveObj ;
@@ -89,7 +89,7 @@ begin
       elem := FuseClass.GetActiveObj ;
       if elem <> nil then Begin
           for i := 1 to elem.nphases do
-              If not elem.ControlledElement.Closed[i] Then Result := 1;
+              If not elem.ControlledElement.Closed[i,ActiveActor] Then Result := 1;
       End;
   end;
   8: begin  // Fuse.Idx read

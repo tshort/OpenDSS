@@ -619,7 +619,7 @@ begin
            Begin
               IF Not Is_ON Then
                 Begin   {Turn it on unless it has been previously cleared}
-                  IF (PresentTimeInSec > On_Time) and Not Cleared Then
+                  IF (PresentTimeInSec(ActorID) > On_Time) and Not Cleared Then
                    Begin
                      Is_ON := TRUE;
                      YprimInvalid[ActorID] := TRUE ;

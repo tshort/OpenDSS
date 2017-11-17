@@ -152,7 +152,7 @@ begin
               WITH ActiveCktElement DO
               Begin
                ActiveTerminal := Terminals^[arg];
-              Closed[3] := FALSE;
+              Closed[3,ActiveActor] := FALSE;
               End;
            End;
            Result:=0;
@@ -165,7 +165,7 @@ begin
               WITH ActiveCktElement DO
               Begin
                ActiveTerminal := Terminals^[arg];
-              Closed[3] := TRUE;
+              Closed[3,ActiveActor] := TRUE;
               End;
            End;
            Result:=0;
@@ -177,7 +177,7 @@ begin
                With ActiveCktElement Do ActiveTerminal := Terminals^[arg];
                Result := 0;
                For i := 1 to ActiveCktElement.NConds Do
-                  If not ActiveCktElement.Closed[i] Then
+                  If not ActiveCktElement.Closed[i,ActiveActor] Then
                     Begin
                        Result :=  1;
                        Exit;

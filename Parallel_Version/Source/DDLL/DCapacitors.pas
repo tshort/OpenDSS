@@ -128,7 +128,7 @@ begin
         WITH elem DO
         Begin
           ActiveTerminal := Terminals^[1];  // make sure terminal 1 is closed
-          Closed[0] := TRUE;    // closes all phases
+          Closed[0,ActiveActor] := TRUE;    // closes all phases
           for i := 1 to NumSteps  do  States[i] := 1;
         End;
      End;

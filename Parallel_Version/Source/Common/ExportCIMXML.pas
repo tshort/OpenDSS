@@ -1553,7 +1553,7 @@ Begin
           StartInstance (F, 'LoadBreakSwitch', pLine);
           CircuitNode (F, ActiveCircuit[ActiveActor]);
           DoubleNode (F, 'ProtectedSwitch.breakingCapacity', pLine.NormAmps);
-          if pLine.Closed[0] then
+          if pLine.Closed[0,ActiveActor] then
             StringNode (F, 'Switch.normalOpen', 'false')
           else
             StringNode (F, 'Switch.normalOpen', 'true');

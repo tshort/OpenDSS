@@ -659,7 +659,7 @@ Begin
                ControlledElement.HasAutoOCPDevice := TRUE;  // For Reliability calcs
              End;
 
-             IF  ControlledElement.Closed [0]  THEN    // Check state of phases of active terminal
+             IF  ControlledElement.Closed [0,ActorID]  THEN    // Check state of phases of active terminal
                Begin
                 PresentState := CTRL_CLOSE;
                 LockedOut := FALSE;
@@ -743,6 +743,7 @@ PROCEDURE TRelayObj.DoPendingAction(Const Code, ProxyHdl:Integer;ActorID : Integ
 
 
 begin
+
     WITH   ControlledElement Do
       Begin
          ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Set active terminal of CktElement to terminal 1
@@ -750,7 +751,7 @@ begin
             Integer(CTRL_OPEN):   CASE PresentState of
                          CTRL_CLOSE:IF ArmedForOpen THEN
                                  Begin   // ignore if we became disarmed in meantime
-                                    ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
+                                    ControlledElement.Closed[0,ActorID] := FALSE;   // Open all phases of active terminal
                                     IF OperationCount > NumReclose THEN
                                       Begin
                                           LockedOut := TRUE;
@@ -766,7 +767,7 @@ begin
             Integer(CTRL_CLOSE):  CASE PresentState of
                          CTRL_OPEN:IF ArmedForClose and Not LockedOut THEN
                                 Begin
-                                  ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                                  ControlledElement.Closed[0,ActorID] := TRUE;    // Close all phases of active terminal
                                   Inc(OperationCount);
                                   AppendtoEventLog('Relay.'+Self.Name, 'Closed',ActorID);
                                   ArmedForClose     := FALSE;
@@ -796,12 +797,12 @@ Begin
          Case LowerCase(Action)[1] of
 
             'o','t': Begin
-                       ControlledElement.Closed[0] := FALSE;   // Open all phases of active terminal
+                       ControlledElement.Closed[0,ActiveActor] := FALSE;   // Open all phases of active terminal
                        LockedOut := True;
                        OperationCount := NumReclose + 1;
                      End;
             'c':  Begin
-                     ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+                     ControlledElement.Closed[0,ActiveActor] := TRUE;    // Close all phases of active terminal
                      LockedOut := False;
                      OperationCount := 1;
                   End;
@@ -816,7 +817,7 @@ PROCEDURE TRelayObj.Sample(ActorID : Integer);
 begin
 
      ControlledElement.ActiveTerminalIdx := ElementTerminal;
-     IF  ControlledElement.Closed [0]      // Check state of phases of active terminal
+     IF  ControlledElement.Closed [0,ActorID]      // Check state of phases of active terminal
      THEN PresentState := CTRL_CLOSE
      ELSE PresentState := CTRL_OPEN;
 
@@ -891,7 +892,7 @@ Begin
     IF ControlledElement <> NIL  THEN
       Begin
          ControlledElement.ActiveTerminalIdx := ElementTerminal;  // Set active terminal
-         ControlledElement.Closed[0] := TRUE;    // Close all phases of active terminal
+         ControlledElement.Closed[0,ActiveActor] := TRUE;    // Close all phases of active terminal
       End;
 
 
@@ -1174,7 +1175,7 @@ begin
 
 end;
 
-procedure TRelayObj.RevPowerLogic;
+procedure TRelayObj.RevPowerLogic(ActorID : Integer);
 
 VAR
 
@@ -1210,7 +1211,7 @@ begin
    End;  {With MonitoredElement}
 end;
 
-procedure TRelayObj.VoltageLogic;
+procedure TRelayObj.VoltageLogic(ActorID : Integer);
 
 VAR
    i           :Integer;
@@ -1227,7 +1228,7 @@ begin
  WITH   MonitoredElement Do
    Begin
    {**** Fix so that fastest trip time applies ****}
-     MonitoredElement.GetTermVoltages(MonitoredElementTerminal, cBuffer);
+     MonitoredElement.GetTermVoltages(MonitoredElementTerminal, cBuffer, ActorID);
 
      Vmin := 1.0E50;
      Vmax := 0.0;
@@ -1336,7 +1337,7 @@ begin
 
 end;
 
-procedure TRelayObj.NegSeq47Logic;
+procedure TRelayObj.NegSeq47Logic(ActorID : Integer);
 
 {Neg Seq voltage Relay}
 
@@ -1348,7 +1349,7 @@ begin
 
  WITH   MonitoredElement Do
    Begin
-      MonitoredElement.GetTermVoltages (MonitoredElementTerminal, cBuffer);
+      MonitoredElement.GetTermVoltages (MonitoredElementTerminal, cBuffer, ActorID);
       Phase2SymComp(cBuffer, @V012); // Phase to symmetrical components
       NegSeqVoltageMag :=  Cabs(V012[3]);
       IF NegSeqVoltageMag >=  PickupVolts47 THEN
