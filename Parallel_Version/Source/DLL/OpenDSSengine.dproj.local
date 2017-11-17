@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>2017/06/11 12:24:16.000.040,C:\OpenDSS\Parallel_Version\Source\DLL\Unit1.dfm=C:\OpenDSS\Parallel_Version\Source\Forms\Diakoptics.dfm</Transaction>
+    <Transaction>2017/06/11 12:24:16.000.040,C:\OpenDSS\Parallel_Version\Source\Forms\Diakoptics.dfm=C:\OpenDSS\Parallel_Version\Source\DLL\Unit1.dfm</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="..\..\Source"/>
@@ -50,6 +50,7 @@
     <File Path="..\EXE"/>
     <File Path="..\EXE\MyDSSClassDefs.Pas"/>
     <File Path="..\Executive"/>
+    <File Path="..\Executive\ConnectOptions.pas"/>
     <File Path="..\Executive\ExecCommands.pas"/>
     <File Path="..\Executive\ExecHelper.pas"/>
     <File Path="..\Executive\ExecOptions.pas"/>
@@ -57,7 +58,6 @@
     <File Path="..\Executive\ExportOptions.pas"/>
     <File Path="..\Executive\PlotOptions.pas"/>
     <File Path="..\Executive\ShowOptions.pas"/>
-    <File Path="..\Executive\ConnectOptions.pas"/>
     <File Path="..\Forms"/>
     <File Path="..\Forms\About.pas"/>
     <File Path="..\Forms\About.dfm"/>
