@@ -880,7 +880,7 @@ VAR
 
 Begin
   TRY
-   WITH    ActiveCircuit[ActiveActor].Solution DO
+   WITH    ActiveCircuit[ActorID].Solution DO
     Begin
         ComputeVTerminal(ActorID);
 

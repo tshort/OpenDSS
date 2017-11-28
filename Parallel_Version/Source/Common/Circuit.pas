@@ -79,7 +79,7 @@ TYPE
           Procedure AddDeviceHandle(Handle:Integer);
           Procedure AddABus;
           Procedure AddANodeBus;
-          Function  AddBus(const BusName:String; NNodes:Integer):Integer;
+          Function  AddBus(const BusName:String; NNodes:Integer;ActorID: integer):Integer;
           Procedure Set_ActiveCktElement(Value:TDSSCktElement);
           Procedure Set_BusNameRedefined(Value:Boolean);
           Function Get_Losses:Complex; //Total Circuit losses
@@ -577,7 +577,7 @@ BEGIN
            For i := np + 1 to NCond DO NodeBuffer^[i] := 0;
 
            // Parser will override bus connection if any specified
-           BusName :=  Parser[ActorID].ParseAsBusName(NNodes, NodeBuffer);
+           BusName :=  Parser[ActorID].ParseAsBusName(NNodes, NodeBuffer,ActorID);
 
            // Check for error in node specification
            For j := 1 to NNodes Do
@@ -604,7 +604,7 @@ BEGIN
            If NodesOK Then
            Begin
              ActiveTerminalIdx := iTerm;
-             ActiveTerminal.BusRef := AddBus(BusName,   Ncond);
+             ActiveTerminal.BusRef := AddBus(BusName,   Ncond, ActorID);
              SetNodeRef(iTerm, NodeBuffer);  // for active circuit
            End;
            Parser[ActorID].Token := NextBus;
@@ -632,7 +632,7 @@ BEGIN
 END;
 
 //----------------------------------------------------------------------------
-Function TDSSCircuit.AddBus(const BusName:String; NNodes:Integer):Integer;
+Function TDSSCircuit.AddBus(const BusName:String; NNodes:Integer;ActorID: integer):Integer;
 
 VAR
    NodeRef, i :Integer;
@@ -659,7 +659,7 @@ BEGIN
     {Replace Nodebuffer values with global reference number}
     WITH Buses^[Result] DO BEGIN
       FOR i := 1 to NNodes DO BEGIN
-         NodeRef := Add(NodeBuffer^[i]);
+         NodeRef := Add(NodeBuffer^[i],ActorID);
          If NodeRef=NumNodes THEN BEGIN  // This was a new node so Add a NodeToBus element ????
              AddANodeBus;   // Allocates more memory if necessary
              MapNodeToBus^[NumNodes].BusRef  := Result;

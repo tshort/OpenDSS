@@ -131,7 +131,7 @@ Begin
         For i := 1 to Yorder Do CAccum(Curr^[i], CNegate(Injcurrent^[i]));
         set_ITerminalUpdated(TRUE, ActorID);
     End;
-    IterminalSolutionCount := ActiveCircuit[ActorID].Solution.SolutionCount;
+    IterminalSolutionCount[ActorID] := ActiveCircuit[ActorID].Solution.SolutionCount;
 End;
 
 //= = =  = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -283,10 +283,10 @@ end;
 
 procedure TPCElement.ComputeIterminal(ActorID : Integer);
 begin
-  IF IterminalSolutionCount <> ActiveCircuit[ActorID].Solution.SolutionCount THEN
+  IF IterminalSolutionCount[ActorID] <> ActiveCircuit[ActorID].Solution.SolutionCount THEN
     Begin
       GetCurrents(Iterminal, ActorID);
-      IterminalSolutionCount := ActiveCircuit[ActorID].Solution.SolutionCount;
+      IterminalSolutionCount[ActorID] := ActiveCircuit[ActorID].Solution.SolutionCount;
     End;
 
 end;
@@ -300,7 +300,7 @@ end;
 procedure TPCElement.set_ITerminalUpdated(const Value: Boolean; ActorID : Integer);
 begin
   FITerminalUpdated := Value;
-  If Value Then ITerminalSolutionCount :=  ActiveCircuit[ActorID].Solution.SolutionCount;
+  If Value Then ITerminalSolutionCount[ActorID] :=  ActiveCircuit[ActorID].Solution.SolutionCount;
 end;
 
 end.

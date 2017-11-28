@@ -230,7 +230,7 @@ begin
                   Add(Format('Hour = %d ',[ActiveCircuit[ActiveActor].Solution.DynaVars.intHour]));
                   Add('Max pu. voltage = '+Format('%-.5g ',[GetMaxPUVoltage]));
                   Add('Min pu. voltage = '+Format('%-.5g ',[GetMinPUVoltage(TRUE)]));
-                  cPower :=  CmulReal(GetTotalPowerFromSources, 0.000001);  // MVA
+                  cPower :=  CmulReal(GetTotalPowerFromSources(ActiveActor), 0.000001);  // MVA
                   Add(Format('Total Active Power:   %-.6g MW',[cpower.re]));
                   Add(Format('Total Reactive Power: %-.6g Mvar',[cpower.im]));
                   cLosses := CmulReal(ActiveCircuit[ActiveActor].Losses, 0.000001);

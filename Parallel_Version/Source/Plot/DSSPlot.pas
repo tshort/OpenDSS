@@ -1288,7 +1288,7 @@ begin
             pqPower:
                Begin
                   Result := Round
-                    (5.0 * (abs(pLine.Power[1].re)* 0.001 / MaxScale )); // kW
+                    (5.0 * (abs(pLine.Power[1,ActiveActor].re)* 0.001 / MaxScale )); // kW
                End;
             pqLosses:
                Begin // Losses per unit length
@@ -3326,7 +3326,7 @@ begin
                      With pLine Do
                      Begin
                         // ----ActiveTerminalIdx := 1;
-                        MaxScale := Max(MaxScale, abs(Power[1].re))
+                        MaxScale := Max(MaxScale, abs(Power[1,ActiveActor].re))
                      End;
                   pLine := ActiveCircuit[ActiveActor].Lines.Next;
                End;

@@ -1188,7 +1188,7 @@ Begin
        SkipkWDispatch   := FALSE;
 
        //----MonitoredElement.ActiveTerminalIdx := ElementTerminal;
-       S := MonitoredElement.Power[ElementTerminal];  // Power in active terminal
+       S := MonitoredElement.Power[ElementTerminal,ActorID];  // Power in active terminal
        CASE  DischargeMode of
              // Following Load; try to keep load below kW Target
              MODEFOLLOW: Begin

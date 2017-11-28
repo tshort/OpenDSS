@@ -2288,7 +2288,7 @@ end;
 
 procedure TSolutionObj.Set_Year(const Value: Integer);
 begin
-      If DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles;
+      If DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles(ActiveActor);
       FYear := Value;
       DynaVars.intHour := 0;  {Change year, start over}
       Dynavars.t := 0.0;

@@ -489,7 +489,7 @@ Begin
        If Currmag  > MaxCurrent then   MaxCurrent :=  Currmag;
     End;
     //----pElem.ActiveTerminalIdx := 1;
-    LocalPower := CmulReal(pElem.Power[1], 0.001);
+    LocalPower := CmulReal(pElem.Power[1,ActiveActor], 0.001);
     If (pElem.NormAmps=0.0) or (pElem.EmergAmps=0.0) then
          Write(F,Format(', %10.6g, %8.2f, %8.2f',  [MaxCurrent, 0.0 , 0.0]))
     Else Write(F,Format(', %10.6g, %8.2f, %8.2f',  [MaxCurrent, MaxCurrent/pElem.NormAmps*100.0 , MaxCurrent/pElem.Emergamps*100.0]));
@@ -1090,17 +1090,17 @@ Begin
         Begin
           Write(F,  Pad('"'+PDelem.DSSClassName + '.' + UpperCase(PDElem.Name)+'"', 24), Separator, j:3);
            //----PDElem.ActiveTerminalIdx := j;
-           S := PDElem.Power[j];
+           S := PDElem.Power[j,ActiveActor];
            If Opt=1 Then S := CmulReal(S, 0.001);
            Write(F, Separator, S.re*0.001:11:1);
            Write(F, Separator, S.im*0.001:11:1);
            If j = 1  Then begin
              //----PDelem.ActiveTerminalIdx := 1;
-             S := PDElem.ExcesskVANorm[1];
+             S := PDElem.ExcesskVANorm[1,ActiveActor];
              If Opt=1 Then S := CmulReal(S, 0.001);
              Write(F, Separator, Abs(S.re):11:1);
              Write(F, Separator, Abs(S.im):11:1);
-             S := PDElem.ExcesskVAEmerg[1];
+             S := PDElem.ExcesskVAEmerg[1,ActiveActor];
              If Opt=1 Then S := CmulReal(S, 0.001);
              Write(F, Separator, Abs(S.re):11:1);
              Write(F, Separator, Abs(S.im):11:1);
@@ -1125,7 +1125,7 @@ Begin
         Begin
            Write(F,  Pad('"'+PCElem.DSSClassName + '.' + UpperCase(PCElem.Name)+'"', 24), Separator, j:3);
            //----pcElem.ActiveTerminalIdx := j;
-           S := pCElem.Power[j] ;
+           S := pCElem.Power[j,ActiveActor] ;
            If Opt=1 Then S := CmulReal(S, 0.001);
            Write(F, Separator, S.re*0.001:11:1);
            Write(F, Separator, S.im*0.001:11:1);
@@ -1363,11 +1363,11 @@ Begin
              If j = 1
              Then begin
                  //----PDelem.ActiveTerminalIdx := 1;
-                 S := PDElem.ExcesskVANorm[1];
+                 S := PDElem.ExcesskVANorm[1,ActiveActor];
                  If Opt=1 Then S := CmulReal(S, 0.001);
                  Write(F, Separator, Abs(S.re):11:1);
                  Write(F, Separator, Abs(S.im):11:1);
-                 S := PDElem.ExcesskVAEmerg[1];
+                 S := PDElem.ExcesskVAEmerg[1,ActiveActor];
                  If Opt=1 Then S := CmulReal(S, 0.001);
                  Write(F, Separator, Abs(S.re):11:1);
                  Write(F, Separator, Abs(S.im):11:1);
@@ -2446,7 +2446,7 @@ Begin
              IF (CMax > PDElem.NormAmps) OR (Cmax > pdelem.EmergAmps)
              THEN Begin
                // Get terminal 1 power
-                 Spower := Cabs(PDElem.Power[1]) * 0.001;   // kW
+                 Spower := Cabs(PDElem.Power[1,ActiveActor]) * 0.001;   // kW
 
                  Write(F, Format('%s, %d, ' ,[Pad(('"'+pDelem.DSSClassName + '.' + Uppercase(pDelem.Name)+'"'), 22),j]));
                  Write(F, Format('%8.2f, ',[I1 ]));
@@ -2834,7 +2834,7 @@ Begin
           Write(F, Format(', %d',    [ActiveCircuit[ActiveActor].Solution.DynaVars.intHour]));
           Write(F, Format(', %-.5g', [GetMaxPUVoltage]));
           Write(F, Format(', %-.5g', [GetMinPUVoltage(TRUE)]));
-          cPower :=  CmulReal(GetTotalPowerFromSources, 0.000001);  // MVA
+          cPower :=  CmulReal(GetTotalPowerFromSources(ActiveActor), 0.000001);  // MVA
           Write(F, Format(', %-.6g', [cPower.re]));
           Write(F, Format(', %-.6g', [cPower.im]));
           cLosses := CmulReal(ActiveCircuit[ActiveActor].Losses, 0.000001);

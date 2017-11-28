@@ -272,7 +272,7 @@ Begin
    Begin
         pMeter := ActiveCircuit[ActiveActor].EnergyMeters.Active;
         If pMeter <> Nil Then
-          pMeter.SaveRegisters;
+          pMeter.SaveRegisters(ActiveActor);
    End;
 
 end;
@@ -557,14 +557,14 @@ end;
 procedure TMeters.CloseAllDIFiles;
 begin
      IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
-        EnergyMeterClass[ActiveActor].CloseAllDIFiles;
+        EnergyMeterClass[ActiveActor].CloseAllDIFiles(ActiveActor);
      End;
 end;
 
 procedure TMeters.OpenAllDIFiles;
 begin
      IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
-        EnergyMeterClass[ActiveActor].OpenAllDIFiles;
+        EnergyMeterClass[ActiveActor].OpenAllDIFiles(ActiveActor);
      End;
 end;
 

@@ -10,7 +10,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ComCtrls, Menus, ToolWin, ImgList,ScriptEdit, ExtCtrls, PsAPI
+  StdCtrls, ComCtrls, Menus, ToolWin, ImgList,ScriptEdit, ExtCtrls, PsAPI,
+  System.ImageList
   {$IFDEF VER300} // Seattle
   ,System.ImageList, YMatrix;
   {$ELSE}
@@ -1069,7 +1070,7 @@ begin
     StatusBar1.Panels[2].Text := ' ';
   End;
 
-  DemandInterval1.Checked   := EnergyMeterclass[ActiveActor].SaveDemandInterval ;
+  DemandInterval1.Checked   := EnergyMeterclass[ActiveActor].SaveDemandInterval[ActiveActor] ;
   Caption := ProgramName + ' Data Directory: ' + DataDirectory[ActiveActor]; // NOTE: not necessarily same as output directory
   If ActiveCircuit[ActiveActor] <> nil then
     With ActiveCircuit[ActiveActor] Do Begin
@@ -1934,7 +1935,7 @@ end;
 procedure TControlPanel.DemandInterval1Click(Sender: TObject);
 begin
      DemandInterval1.Checked := NOT DemandInterval1.checked;
-     EnergyMeterclass[ActiveActor].SaveDemandInterval:= DemandInterval1.Checked;
+     EnergyMeterclass[ActiveActor].SaveDemandInterval[ActiveActor]:= DemandInterval1.Checked;
 end;
 
 procedure TControlPanel.ZonesLocked1Click(Sender: TObject);

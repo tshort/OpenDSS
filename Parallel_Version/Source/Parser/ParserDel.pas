@@ -90,7 +90,7 @@ Type
        Property Token:String      read TokenBuffer   write TokenBuffer;
        Property Remainder:String  Read Get_Remainder;
        Property NextParam:String  read GetNextParam;
-       Function ParseAsBusName(Var NumNodes:Integer; NodeArray:pIntegerArray):String;
+       Function ParseAsBusName(Var NumNodes:Integer; NodeArray:pIntegerArray; actorID:integer):String;
        Function ParseAsVector(ExpectedSize:Integer; VectorBuffer:pDoubleArray):Integer;
        Function ParseAsMatrix(ExpectedOrder:Integer; MatrixBuffer:pDoubleArray):Integer;
        Function ParseAsSymMatrix(ExpectedOrder:Integer; MatrixBuffer:pDoubleArray):Integer;
@@ -447,7 +447,7 @@ End;
 
 {=======================================================================================================================}
 
-Function TParser.ParseAsBusName(Var NumNodes:Integer; NodeArray:pIntegerArray):String;
+Function TParser.ParseAsBusName(Var NumNodes:Integer; NodeArray:pIntegerArray; actorID:integer):String;
 
 { Looking for "BusName.1.2.3" in the TokenBuffer
   Assumes NodeArray is big enough to hold the numbers}

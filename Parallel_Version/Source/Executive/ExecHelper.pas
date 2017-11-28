@@ -560,7 +560,7 @@ Begin
      FOR i := 1 to ListSize Do
      Begin
          pMtr := Get(i);
-         pMtr.SaveRegisters;
+         pMtr.SaveRegisters(ActiveActor);
      End;
 
      Exit;
@@ -649,7 +649,6 @@ Begin
    // just invoke solution obj's editor to pick up parsing and execute rest of command
    ActiveSolutionObj := ActiveCircuit[ActiveActor].Solution;
    Result := SolutionClass[ActiveActor].Edit(ActiveActor);
-
 End;
 
 
@@ -1227,7 +1226,7 @@ Begin
               metobj := ActiveCircuit[ActiveActor].EnergyMeters.First;
               While metobj <> nil Do
               Begin
-                MetObj.ReduceZone;
+                MetObj.ReduceZone(ActiveActor);
                 MetObj := ActiveCircuit[ActiveActor].EnergyMeters.Next;
               End;
           End;
@@ -1241,7 +1240,7 @@ Begin
           If MeterClass.SetActive (Param) Then   // Try to set it active
           Begin
             MetObj := MeterClass.GetActiveObj;
-            MetObj.ReduceZone;
+            MetObj.ReduceZone(ActiveActor);
           End
           Else DoSimpleMsg('EnergyMeter "'+Param+'" not found.', 262);
        End;
@@ -2188,7 +2187,7 @@ begin
            {Now let the EnergyMeters run down the circuit setting the loads}
             pMeter := EnergyMeters.First;
             WHILE pMeter <> NIL Do Begin
-                pMeter.AllocateLoad;
+                pMeter.AllocateLoad(ActorID);
                 pMeter := EnergyMeters.Next;
             End;
             Solution.Solve(ActorID);  {Update the solution}
@@ -2922,7 +2921,7 @@ Begin
          S := S + Format('Hour = %d ',[ActiveCircuit[ActiveActor].Solution.DynaVars.intHour]) + CRLF;
          S := S + 'Max pu. voltage = '+Format('%-.5g ',[GetMaxPUVoltage]) + CRLF;
          S := S + 'Min pu. voltage = '+Format('%-.5g ',[GetMinPUVoltage(TRUE)]) + CRLF;
-         cPower :=  CmulReal(GetTotalPowerFromSources, 0.000001);  // MVA
+         cPower :=  CmulReal(GetTotalPowerFromSources(ActiveActor), 0.000001);  // MVA
          S := S + Format('Total Active Power:   %-.6g MW',[cpower.re]) + CRLF;
          S := S + Format('Total Reactive Power: %-.6g Mvar',[cpower.im]) + CRLF;
          cLosses := CmulReal(ActiveCircuit[ActiveActor].Losses, 0.000001);
@@ -3002,7 +3001,7 @@ Var
 {$ENDIF}
 Begin
 {$IFNDEF DLL_ENGINE}
-     IF DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles;
+     IF DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles(ActiveActor);
 
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
 
@@ -3062,7 +3061,7 @@ Var
 {$ENDIF}
 Begin
 {$IFNDEF DLL_ENGINE}
-     IF DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles;
+     IF DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles(ActiveActor);
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
      CaseName1 := 'base';
      CaseName2 := '';
@@ -3120,7 +3119,7 @@ Var
 {$ENDIF}
 Begin
 {$IFNDEF DLL_ENGINE}
-     IF DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles;
+     IF DIFilesAreOpen Then EnergyMeterClass[ActiveActor].CloseAllDIFiles(ActiveActor);
 
      If Not Assigned(DSSPlotObj) Then DSSPlotObj := TDSSPlot.Create;
 
@@ -3257,7 +3256,7 @@ FUNCTION DoCloseDICmd:Integer;
 
 Begin
     Result  := 0;
-    EnergyMeterClass[ActiveActor].CloseAllDIFiles;
+    EnergyMeterClass[ActiveActor].CloseAllDIFiles(ActiveActor);
 End;
 
 FUNCTION DoADOScmd:Integer;
@@ -3592,7 +3591,7 @@ Begin
     // Get first node voltage
     AuxParser.Token := sNode1;
     NodeBuffer[1] := 1;
-    sBusName := AuxParser.ParseAsBusName (numNodes,  @NodeBuffer);
+    sBusName := AuxParser.ParseAsBusName (numNodes,  @NodeBuffer,ActiveActor);
     iBusidx := ActiveCircuit[ActiveActor].Buslist.Find(sBusName);
     If iBusidx>0 Then Begin
         B1Ref := ActiveCircuit[ActiveActor].Buses^[iBusidx].Find(NodeBuffer[1])
@@ -3606,7 +3605,7 @@ Begin
     // Get 2nd node voltage
     AuxParser.Token := sNode2;
     NodeBuffer[1] := 1;
-    sBusName := AuxParser.ParseAsBusName (numNodes,  @NodeBuffer);
+    sBusName := AuxParser.ParseAsBusName (numNodes,  @NodeBuffer,ActiveActor);
     iBusidx := ActiveCircuit[ActiveActor].Buslist.Find(sBusName);
     If iBusidx>0 Then Begin
         B2Ref := ActiveCircuit[ActiveActor].Buses^[iBusidx].Find(NodeBuffer[1])

@@ -1075,7 +1075,7 @@ begin
              Mmass := 2.0 * Hmass * kVArating * 1000.0/ (w0);   // M = W-sec
              D     := Dpu * kVArating * 1000.0/ (w0);
          End;
-         Pshaft := Power[1].re; // Initialize Pshaft to present power consumption of motor
+         Pshaft := Power[1,ActorID].re; // Initialize Pshaft to present power consumption of motor
 
          Speed := -LocalSlip * w0;    // relative to synch speed
          dSpeed := 0.0;
@@ -1443,7 +1443,7 @@ Begin
 
    WITH ActiveCircuit[ActorID].Solution  DO
      Begin
-        If IterminalSolutionCount <> ActiveCircuit[ActorID].Solution.SolutionCount Then
+        If IterminalSolutionCount[ActorID] <> ActiveCircuit[ActorID].Solution.SolutionCount Then
         Begin     // recalc the contribution
           // You will likely want some logic like this
           IF Not IndMach012SwitchOpen Then CalcIndMach012ModelContribution(ActorID);  // Adds totals in Iterminal as a side effect
@@ -1772,7 +1772,7 @@ begin
          // Put special cases here
          // often a good idea to convert numeric values to strings, for example
          4:  Result := Format('%.6g', [kWBase]);
-         5:  Result := Format('%.6g', [PowerFactor(Power[1])]);
+         5:  Result := Format('%.6g', [PowerFactor(Power[1,ActiveActor])]);
          7:  Result := Format('%.6g', [MachineData.kVArating]);
          8:  Result := Format('%.6g', [MachineData.Hmass]);
          9:  Result := Format('%.6g', [MachineData.D]);
@@ -1970,8 +1970,8 @@ begin
       20: Begin  // Shaft Power  (hp)
              Result := 3.0/746.0*(Sqr(Cabs(Ir1))*(1.0 - S1)/S1 + Sqr(Cabs(Ir2))*(1.0 - S2)/S2 )* Zr.re;
           End;
-      21: Result := PowerFactor(Power[1]);
-      22: Result := (1.0 - (GetStatorLosses + GetRotorLosses) / power[1].re) * 100.0;    // Efficiency
+      21: Result := PowerFactor(Power[1,ActiveActor]);
+      22: Result := (1.0 - (GetStatorLosses + GetRotorLosses) / power[1,ActiveActor].re) * 100.0;    // Efficiency
     Else
 
     End;
@@ -2154,7 +2154,7 @@ begin
       Write(TraceFile, Format('%-.6g, %-.6g, ', [Cabs(Is1), Cabs(Is2)]));
       Write(TraceFile, Format('%-.6g, %-.6g, %-.6g, %-.6g, ', [Cabs(E1), Cabs(dE1dt), Cabs(E2), Cabs(dE2dt)]));
       Write(TraceFile, Format('%-.6g, %-.6g, ', [Cabs(V1), Cabs(V2)]));
-      Write(TraceFile, Format('%-.6g, %-.6g, ', [MachineData.Pshaft, power[1].re]));
+      Write(TraceFile, Format('%-.6g, %-.6g, ', [MachineData.Pshaft, power[1,ActorID].re]));
       Write(TraceFile, Format('%-.6g, %-.6g, ', [MachineData.speed, MachineData.dSpeed]));
 
       Writeln(TraceFile);

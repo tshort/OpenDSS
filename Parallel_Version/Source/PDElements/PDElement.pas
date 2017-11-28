@@ -22,8 +22,8 @@ TYPE
    TPDElement = class(TDSSCktElement)
      private
 
-       FUNCTION Get_ExcessKVANorm (idxTerm:Integer):Complex;
-       FUNCTION Get_ExcessKVAEmerg(idxTerm:Integer):Complex;
+       FUNCTION Get_ExcessKVANorm (idxTerm:Integer;ActorID:integer):Complex;
+       FUNCTION Get_ExcessKVAEmerg(idxTerm:Integer;ActorID:integer):Complex;
 
      public
 
@@ -67,8 +67,8 @@ TYPE
        PROCEDURE CalcCustInterrupts;
        PROCEDURE ZeroReliabilityAccums; // Zero out reliability accumulators
 
-       Property ExcesskVANorm[idxTerm:Integer] :Complex Read Get_ExcesskVANorm;
-       Property ExcesskVAEmerg[idxTerm:Integer]:Complex Read Get_ExcesskVAEmerg;
+       Property ExcesskVANorm[idxTerm:Integer;ActorID:Integer] :Complex Read Get_ExcesskVANorm;
+       Property ExcesskVAEmerg[idxTerm:Integer;ActorID:integer]:Complex Read Get_ExcesskVAEmerg;
 
    end;
 
@@ -217,7 +217,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - -
-FUNCTION TPDElement.Get_ExcessKVANorm(idxTerm:Integer):Complex;
+FUNCTION TPDElement.Get_ExcessKVANorm(idxTerm:Integer;ActorID: integer):Complex;
 
 VAR
    Factor:Double;
@@ -230,7 +230,7 @@ Begin
           Exit;
      End;
 
-     kVA    := CmulReal(Power[idxTerm], 0.001);  // Also forces computation of Current into Itemp
+     kVA    := CmulReal(Power[idxTerm,ActorID], 0.001);  // Also forces computation of Current into Itemp
      Factor := (MaxTerminalOneIMag/NormAmps - 1.0);
      IF    (Factor > 0.0) THEN  Begin
         OverLoad_EEN := Factor;
@@ -244,7 +244,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - -
-FUNCTION TPDElement.Get_ExcessKVAEmerg(idxTerm:Integer):Complex;
+FUNCTION TPDElement.Get_ExcessKVAEmerg(idxTerm:Integer;ActorID:integer):Complex;
 VAR
    Factor:Double;
    kVA :Complex;
@@ -256,7 +256,7 @@ Begin
           Exit;
      End;
 
-     kVA := CmulReal(Power[idxTerm], 0.001);  // Also forces computation of Current into Itemp
+     kVA := CmulReal(Power[idxTerm,ActorID], 0.001);  // Also forces computation of Current into Itemp
 
      Factor := (MaxTerminalOneIMag/EmergAmps-1.0);
      IF    Factor > 0.0

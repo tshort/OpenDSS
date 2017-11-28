@@ -2044,7 +2044,7 @@ Procedure TGeneratorObj.GetTerminalCurrents(Curr:pComplexArray; ActorID : Intege
 Begin
    WITH ActiveCircuit[ActorID].Solution  DO
      Begin
-        If IterminalSolutionCount <> ActiveCircuit[ActorID].Solution.SolutionCount Then Begin     // recalc the contribution
+        If IterminalSolutionCount[ActorID] <> ActiveCircuit[ActorID].Solution.SolutionCount Then Begin     // recalc the contribution
           IF Not GenSwitchOpen Then CalcGenModelContribution(ActorID);  // Adds totals in Iterminal as a side effect
         End;
         Inherited GetTerminalCurrents(Curr,ActorID);
@@ -2432,7 +2432,7 @@ begin
            GenVars.Mmass := 2.0 * GenVars.Hmass * GenVars.kVArating * 1000.0/ (w0);   // M = W-sec
            D := Dpu * kVArating *1000.0/(w0);
          End;
-         Pshaft := -Power[1].re; // Initialize Pshaft to present power Output
+         Pshaft := -Power[1,ActorID].re; // Initialize Pshaft to present power Output
 
          Speed  := 0.0;    // relative to synch speed
          dSpeed := 0.0;

@@ -917,7 +917,7 @@ begin
 
               If LookingForward Then   // If looking forward, check to see if we should reverse
                 Begin
-                  FwdPower := -ControlledTransformer.Power[ElementTerminal].re;  // watts
+                  FwdPower := -ControlledTransformer.Power[ElementTerminal,ActorID].re;  // watts
                   If Not ReversePending Then  // If reverse is already pending, don't send any more messages
                   Begin
                         If (FwdPower < -RevPowerThreshold) Then
@@ -943,7 +943,7 @@ begin
               Else      // Looking the reverse direction
 
                 Begin   // If reversed look to see if power is back in forward direction
-                      FwdPower := -ControlledTransformer.Power[ElementTerminal].re;  // watts
+                      FwdPower := -ControlledTransformer.Power[ElementTerminal,ActorID].re;  // watts
                       If Not ReversePending Then
                       Begin
                             If (FwdPower > RevPowerThreshold) Then

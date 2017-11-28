@@ -234,7 +234,7 @@ var
   elem: TCapacitorObj;
 begin
   elem := ActiveCapacitor;
-  if elem <> nil then Result := elem.AddStep;
+  if elem <> nil then Result := elem.AddStep(ActiveActor);
 end;
 
 function TCapacitors.SubtractStep: WordBool;
@@ -242,7 +242,7 @@ var
   elem: TCapacitorObj;
 begin
   elem := ActiveCapacitor;
-  if elem <> nil then Result := elem.SubtractStep;
+  if elem <> nil then Result := elem.SubtractStep(ActiveActor);
 
 end;
 
@@ -269,7 +269,7 @@ Begin
         VarArrayRedim(Result, elem.NumSteps  -1);
         k:=0;
         for i:= 1 to elem.Numsteps DO Begin
-            Result[k] := elem.States[i];
+            Result[k] := elem.States[i,ActiveActor];
             Inc(k);
         End;
       End;
@@ -296,7 +296,7 @@ begin
          k := 1;
          for i := VarArrayLowBound(Value,1) to LoopLimit do
          Begin
-             elem.States[k] := Value[i];
+             elem.States[k,ActiveActor] := Value[i];
              inc(k);
          End;
 
@@ -319,7 +319,7 @@ Begin
       If elem <> nil THEN
       WITH elem DO
       Begin
-        for i := 1 to NumSteps  do  States[i] := 0;   // open all steps
+        for i := 1 to NumSteps  do  States[i,ActiveActor] := 0;   // open all steps
       End;
    End;
 
@@ -340,7 +340,7 @@ Begin
       Begin
         ActiveTerminal := Terminals^[1];  // make sure terminal 1 is closed
         Closed[0,ActiveActor] := TRUE;    // closes all phases
-        for i := 1 to NumSteps  do  States[i] := 1;
+        for i := 1 to NumSteps  do  States[i,ActiveActor] := 1;
       End;
    End;
 

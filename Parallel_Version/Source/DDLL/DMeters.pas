@@ -93,7 +93,7 @@ begin
      Begin
           pMeter := ActiveCircuit[ActiveActor].EnergyMeters.Active;
           If pMeter <> Nil Then
-            pMeter.SaveRegisters;
+            pMeter.SaveRegisters(ActiveActor);
      End;
   end;
   6: begin  // Meters.MeteredTerminal read
@@ -144,13 +144,13 @@ begin
   end;
   11: begin  // Meters.OpenAllDIFiles
      IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
-        EnergyMeterClass[ActiveActor].OpenAllDIFiles;
+        EnergyMeterClass[ActiveActor].OpenAllDIFiles(ActiveActor);
      End;
      Result:=0;
   end;
   12: begin  // Meters.CloseAllDIFiles
      IF ActiveCircuit[ActiveActor] <> Nil THEN Begin
-        EnergyMeterClass[ActiveActor].CloseAllDIFiles;
+        EnergyMeterClass[ActiveActor].CloseAllDIFiles(ActiveActor);
      End;
      Result:=0;
   end;

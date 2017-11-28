@@ -130,7 +130,7 @@ FUNCTION  RetrieveSavedVoltages:Boolean;
 
 Function GetMaxPUVoltage:Double;
 Function GetMinPUVoltage(IgnoreNeutrals:Boolean):Double;
-Function GetTotalPowerFromSources:Complex;
+Function GetTotalPowerFromSources(ActorID:integer):Complex;
 Function GetMaxCktElementSize:Integer;
 Function GetUniqueNodeNumber(const sBusName:String; StartNode:Integer):Integer;
 
@@ -2179,17 +2179,17 @@ Begin
 
 End;
 
-Function GetTotalPowerFromSources:Complex;
+Function GetTotalPowerFromSources(ActorID:Integer):Complex;
 
 Var CktElem:TDSSCktElement;
 
 Begin
   Result := CZERO;
-  cktElem := ActiveCircuit[ActiveActor].Sources.First;
+  cktElem := ActiveCircuit[ActorID].Sources.First;
   While CktElem <>nil Do Begin
      //----CktElem.ActiveTerminalIdx := 1;
-     Caccum( Result, Cnegate(CktElem.power[1]));
-     cktElem := ActiveCircuit[ActiveActor].Sources.Next;
+     Caccum( Result, Cnegate(CktElem.power[1,ActorID]));
+     cktElem := ActiveCircuit[ActorID].Sources.Next;
   End;
 End;
 
@@ -2546,7 +2546,7 @@ Begin
     Result := StartNode;
     iBusidx := ActiveCircuit[ActiveActor].Buslist.Find(sBusName);
     If iBusidx>0 Then While ActiveCircuit[ActiveActor].Buses^[iBusidx].FindIdx(Result) <> 0 Do Inc(Result);
-    ActiveCircuit[ActiveActor].Buses^[iBusidx].Add (result);  // add it to the list so next call will be unique
+    ActiveCircuit[ActiveActor].Buses^[iBusidx].Add (result,ActiveActor);  // add it to the list so next call will be unique
 End;
 
 Procedure ShowMessageBeep(Const s:String);

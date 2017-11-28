@@ -2074,7 +2074,7 @@ PROCEDURE TStorageObj.GetTerminalCurrents(Curr:pComplexArray; ActorID : Integer)
 Begin
    WITH ActiveCircuit[ActorID].Solution  DO
      Begin
-        If IterminalSolutionCount <> ActiveCircuit[ActorID].Solution.SolutionCount Then Begin     // recalc the contribution
+        If IterminalSolutionCount[ActorID] <> ActiveCircuit[ActorID].Solution.SolutionCount Then Begin     // recalc the contribution
           IF Not StorageObjSwitchOpen Then CalcStorageModelContribution(ActorID);  // Adds totals in Iterminal as a side effect
         End;
         Inherited GetTerminalCurrents(Curr, ActorID);
@@ -2261,9 +2261,9 @@ FUNCTION TStorageObj.Get_kWTotalLosses: Double;
 begin
      Result := 0.0;
      CASE StorageState of
-          STORE_CHARGING:   Result := abs(Power[1].re * (100.0 - pctChargeEff)/100000.0) + pctChargeEff*kWIdlingLosses/100.0; // kW
+          STORE_CHARGING:   Result := abs(Power[1,ActiveActor].re * (100.0 - pctChargeEff)/100000.0) + pctChargeEff*kWIdlingLosses/100.0; // kW
           STORE_IDLING:     Result := kWIdlingLosses;
-          STORE_DISCHARGING:Result := abs(Power[1].re * (100.0 - pctDisChargeEff)/100000.0) + (2.0 - pctChargeEff/100.0) * kWIdlingLosses;  // kW
+          STORE_DISCHARGING:Result := abs(Power[1,ActiveActor].re * (100.0 - pctDisChargeEff)/100000.0) + (2.0 - pctChargeEff/100.0) * kWIdlingLosses;  // kW
      END;
 end;
 
@@ -2532,8 +2532,8 @@ Begin
     CASE i of
        1: Result := kWhStored;
        2: Result := FState;
-       3: If Not (FState=STORE_DISCHARGING) Then Result := 0.0 Else Result := Power[1].re*0.001; // kW_Out; // pctkWout;
-       4: If Not (FState=STORE_CHARGING)    Then Result := 0.0 Else Result := Power[1].re*0.001; // kW_out; // pctkWin;
+       3: If Not (FState=STORE_DISCHARGING) Then Result := 0.0 Else Result := Power[1,ActiveActor].re*0.001; // kW_Out; // pctkWout;
+       4: If Not (FState=STORE_CHARGING)    Then Result := 0.0 Else Result := Power[1,ActiveActor].re*0.001; // kW_out; // pctkWin;
        5: Result := kWTotalLosses; {Present kW charge or discharge loss incl idle losses}
        6: Result := kWIdlingLosses; {Present Idling Loss}
        7: Result := kWhStored - kWhBeforeUpdate;

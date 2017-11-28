@@ -110,7 +110,7 @@ Begin
   Try
 
     IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage elements
-    IF Not DIFilesAreOpen then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired   Creates DI_Totals
+    IF Not DIFilesAreOpen then EnergyMeterClass[ActorID].OpenAllDIFiles(ActorID);   // Open Demand Interval Files, if desired   Creates DI_Totals
     Twopct := Max(NumberOfTimes div 50, 1);
     FOR N := 1 TO NumberOfTimes Do
       IF Not SolutionAbort Then With Dynavars do Begin
@@ -126,7 +126,7 @@ Begin
       End;
   Finally
     MonitorClass[ActorID].SaveAll(ActorID);
-    EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files    See DIFilesAreOpen Logic
+    EnergyMeterClass[ActorID].CloseAllDIFiles(ActorID);   // Save Demand interval Files    See DIFilesAreOpen Logic
   End;
  End;
 End;
@@ -155,7 +155,7 @@ Begin
     Try
 
       IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters
-      IF Not DIFilesAreOpen then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Append Demand Interval Files, if desired
+      IF Not DIFilesAreOpen then EnergyMeterClass[ActorID].OpenAllDIFiles(ActorID);   // Append Demand Interval Files, if desired
 
       FOR N := 1 TO NumberOfTimes Do
         IF Not SolutionAbort Then With DynaVars Do Begin
@@ -172,7 +172,7 @@ Begin
 
     Finally
       MonitorClass[ActorID].SaveAll(ActorID);
-      EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
+      EnergyMeterClass[ActorID].CloseAllDIFiles(ActorID);   // Save Demand interval Files
     End; {Try}
    End;  {WITH}
 End;
@@ -204,7 +204,7 @@ Begin
      Try
         DynaVars.intHour := 0; DynaVars.dblHour := 0.0;
         IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage devices
-        If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
+        If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles(ActorID);   // Open Demand Interval Files, if desired
 
         FOR N := 1 TO NumberOfTimes Do
         IF Not SolutionAbort Then With DynaVars Do Begin
@@ -220,7 +220,7 @@ Begin
         End;
       Finally
         MonitorClass[ActorID].SaveAll(ActorID);
-        EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
+        EnergyMeterClass[ActorID].CloseAllDIFiles(ActorID);   // Save Demand interval Files
       End;
      End;  {WITH}
 End;
@@ -426,7 +426,7 @@ Begin
         IntervalHrs := DynaVars.h / 3600.0;  // needed for energy meters and storage devices
         Ndaily := Round(24.0 / IntervalHrs);
 
-        If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
+        If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles(ActorID);   // Open Demand Interval Files, if desired
 
 {        ProgressCaption('Monte Carlo Mode 2, ' + IntToStr(NumberofTimes) + ' Days.', ActorID);
         ProgressCount := 0;       }
@@ -467,7 +467,7 @@ Begin
         End;
       Finally
         MonitorClass[ActorID].SaveAll(ActorID);
-        EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
+        EnergyMeterClass[ActorID].CloseAllDIFiles(ActorID);   // Save Demand interval Files
 //        ProgressHide(ActorID);
       End;
     End;
@@ -493,7 +493,7 @@ Begin
         // EnergyMeterClass.ResetAll;
         IntervalHrs := 1.0;  // just get per unit energy and multiply result as necessary
 
-        If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
+        If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles(ActorID);   // Open Demand Interval Files, if desired
 
 {        ProgressCaption( 'Monte Carlo Mode 3, ' + IntToStr(NumberofTimes) + ' Different Load Levels.', ActorID);
         ProgressCount := 0;    }
@@ -529,7 +529,7 @@ Begin
         End;
       Finally
         MonitorClass[ActorID].SaveAll(ActorID);
-        EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
+        EnergyMeterClass[ActorID].CloseAllDIFiles(ActorID);   // Save Demand interval Files
 //        ProgressHide(ActorID);
       End;
     End; {WITH}
@@ -562,7 +562,7 @@ Begin
 
       NDaily := Round(24.0 / DynaVars.h * 3600.0);
 
-      If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
+      If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles(ActorID);   // Open Demand Interval Files, if desired
 
 //      ProgressCaption( 'Load-Duration Mode 1 Solution. ', ActorID);
 
@@ -612,7 +612,7 @@ Begin
       End;
     Finally
       MonitorClass[ActorID].SaveAll(ActorID);
-      EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
+      EnergyMeterClass[ActorID].CloseAllDIFiles(ActorID);   // Save Demand interval Files
 //      ProgressHide(ActorID);
     End;
  End; {WITH ActiveCircuit[ActiveActor]}
@@ -645,7 +645,7 @@ Begin
     // EnergyMeterClass.ResetAll;
 
     DefaultHourMult := DefaultDailyShapeObj.GetMult(DynaVars.dblHour);
-    If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles;   // Open Demand Interval Files, if desired
+    If Not DIFilesAreOpen Then EnergyMeterClass[ActorID].OpenAllDIFiles(ActorID);   // Open Demand Interval Files, if desired
 
     // (set in Solve Method) DefaultGrowthFactor :=  IntPower(DefaultGrowthRate, (Year-1));
 
@@ -677,7 +677,7 @@ Begin
       End;
     Finally
       MonitorClass[ActorID].SaveAll(ActorID);
-      EnergyMeterClass[ActorID].CloseAllDIFiles;   // Save Demand interval Files
+      EnergyMeterClass[ActorID].CloseAllDIFiles(ActorID);   // Save Demand interval Files
     End;
   End; {WITH ActiveCircuit[ActiveActor]}
 

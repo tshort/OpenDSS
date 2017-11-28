@@ -94,13 +94,13 @@ begin
   7: begin  // Capacitors.AddStep
       elem := ActiveCapacitor;
       if elem <> nil then begin
-        if elem.AddStep then Result := 1;
+        if elem.AddStep(ActiveActor) then Result := 1;
       end;
   end;
   8: begin  // Capacitors.SubtractStep
       elem := ActiveCapacitor;
       if elem <> nil then begin
-        if elem.SubtractStep then Result :=1;
+        if elem.SubtractStep(ActiveActor) then Result :=1;
       end;
   end;
   9: begin  // Capacitors.AvailableSteps
@@ -115,7 +115,7 @@ begin
         If elem <> nil THEN
         WITH elem DO
         Begin
-          for i := 1 to NumSteps  do  States[i] := 0;   // open all steps
+          for i := 1 to NumSteps  do  States[i,ActiveActor] := 0;   // open all steps
         End;
      End;
   end;
@@ -129,7 +129,7 @@ begin
         Begin
           ActiveTerminal := Terminals^[1];  // make sure terminal 1 is closed
           Closed[0,ActiveActor] := TRUE;    // closes all phases
-          for i := 1 to NumSteps  do  States[i] := 1;
+          for i := 1 to NumSteps  do  States[i,ActiveActor] := 1;
         End;
      End;
   end
@@ -255,7 +255,7 @@ begin
             VarArrayRedim(arg, elem.NumSteps  -1);
             k:=0;
             for i:= 1 to elem.Numsteps DO Begin
-                arg[k] := elem.States[i];
+                arg[k] := elem.States[i,ActiveActor];
                 Inc(k);
             End;
           End;
@@ -273,7 +273,7 @@ begin
          k := 1;
          for i := VarArrayLowBound(arg,1) to LoopLimit do
          Begin
-             elem.States[k] := arg[i];
+             elem.States[k,ActiveActor] := arg[i];
              inc(k);
          End;
          elem.FindLastStepInService;

@@ -1091,7 +1091,7 @@ Begin
               With TCapacitorObj(MeteredElement) Do Begin
                   for i := 1 to NumSteps do
                     begin
-                      AddDblToBuffer(States[i]);
+                      AddDblToBuffer(States[i,ActorID]);
                     end;
               End;
               Exit;  // Done with this mode now.

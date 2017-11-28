@@ -1844,7 +1844,7 @@ Begin
 
    WITH ActiveCircuit[ActorID].Solution  DO
      Begin
-        If IterminalSolutionCount <> ActiveCircuit[ActorID].Solution.SolutionCount Then Begin     // recalc the contribution
+        If IterminalSolutionCount[ActorID] <> ActiveCircuit[ActorID].Solution.SolutionCount Then Begin     // recalc the contribution
             CalcLoadModelContribution(ActorID);  // Adds totals in Iterminal as a side effect
         End;
         Inherited GetTerminalCurrents(Curr, ActorID);

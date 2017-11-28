@@ -178,7 +178,7 @@ Begin
         With ActiveCircuit[ActiveActor] Do
            With ActiveCktElement Do Begin
              //----ActiveTerminalIdx := Terminal;
-             TotalPower := Power[Terminal];
+             TotalPower := Power[Terminal,ActiveActor];
         End;
 End;
 

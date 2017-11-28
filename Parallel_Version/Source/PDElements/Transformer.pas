@@ -1637,7 +1637,7 @@ begin
        {Load up auxiliary parser}
        AuxParser.CmdString  := GetBus(iW);
        AuxParser.NextParam;
-       S := AuxParser.ParseAsBusName(N, @Nodes);
+       S := AuxParser.ParseAsBusName(N, @Nodes,ActorID);
        If N =0 then OnPhase1 := TRUE;
        For i := 1 to N Do If Nodes[i]=1 Then OnPhase1 := TRUE;
        If Not OnPhase1 Then Begin

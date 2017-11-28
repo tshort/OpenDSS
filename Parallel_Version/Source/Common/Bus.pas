@@ -62,7 +62,7 @@ TYPE
        Procedure AllocateBusVoltages;
        Procedure AllocateBusCurrents;
 
-       FUNCTION Add(NodeNum:Integer)      :Integer;
+       FUNCTION Add(NodeNum:Integer; ActorID: integer)      :Integer;
        FUNCTION Find(NodeNum:Integer)     :Integer; // Returns reference num for node by node number
        FUNCTION FindIdx(NodeNum:Integer)  :Integer; // Returns index of node by node number
        FUNCTION GetRef(NodeIndex:Integer) :Integer; // Returns reference Num for node by node index
@@ -138,7 +138,7 @@ Begin
      End;
 End;
 
-FUNCTION TDSSBus.Add(NodeNum:Integer):Integer;
+FUNCTION TDSSBus.Add(NodeNum:Integer; ActorID: integer):Integer;
 Begin
      If NodeNum=0 THEN Result := 0
 
@@ -150,7 +150,7 @@ Begin
              AddANode;
              Nodes^[FNumNodesThisBus] := NodeNum;
 
-             With ActiveCircuit[ActiveActor] DO Begin
+             With ActiveCircuit[ActorID] DO Begin
               INC(NumNodes);  // Global node number for circuit
               RefNo^[FNumNodesThisBus] := NumNodes;
               Result := NumNodes;  // Return global node number

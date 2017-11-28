@@ -752,7 +752,7 @@ begin
                         IF PresentState=CTRL_CLOSE Then Begin
 
                           ControlledElement.Closed[0,ActorID] := FALSE;  // Open all phases of active terminal
-                          ControlledCapacitor.SubtractStep;
+                          ControlledCapacitor.SubtractStep(ActorID);
 
                           If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Opened**',ActorID);
                           PresentState := CTRL_OPEN;
@@ -761,7 +761,7 @@ begin
                        End;
                     ELSE
                         If PresentState=CTRL_CLOSE Then Begin      // Do this only if at least one step is closed
-                           If NOT ControlledCapacitor.SubtractStep Then Begin
+                           If NOT ControlledCapacitor.SubtractStep(ActorID) Then Begin
                               PresentState := CTRL_OPEN;
                               ControlledElement.Closed[0,ActorID] := FALSE;   // Open all phases of active terminal
                               If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Opened**',ActorID);
@@ -774,10 +774,10 @@ begin
                            ControlledElement.Closed[0,ActorID] := TRUE;    // Close all phases of active terminal
                            If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Closed**',ActorID);
                            PresentState := CTRL_CLOSE;
-                           ControlledCapacitor.AddStep;
+                           ControlledCapacitor.AddStep(ActorID);
                        End
                        ELSE Begin
-                           IF ControlledCapacitor.AddStep Then
+                           IF ControlledCapacitor.AddStep(ActorID) Then
                              If ShowEventLog Then  AppendtoEventLog('Capacitor.' + ControlledElement.Name, '**Step Up**',ActorID);
                        END;
                    END;
@@ -975,7 +975,7 @@ begin
               KVARCONTROL: {kvar}
                  Begin
                       //----MonitoredElement.ActiveTerminalIdx := ElementTerminal;
-                      S := MonitoredElement.Power[ElementTerminal];
+                      S := MonitoredElement.Power[ElementTerminal,ActorID];
                       Q := S.im * 0.001;  // kvar
 
                       CASE PresentState of
@@ -1007,7 +1007,7 @@ begin
                USERCONTROL: If UserModel.Exists  Then   // selects the model associated with this control
                   Begin
                      // Load up test data into the public data record
-                       SampleP := CmulReal(MonitoredElement.Power[ElementTerminal], 0.001);  // kW kvar
+                       SampleP := CmulReal(MonitoredElement.Power[ElementTerminal,ActorID], 0.001);  // kW kvar
 
                        MonitoredElement.GetTermVoltages(ElementTerminal, cBuffer, ActorID);
                        GetControlVoltage(SampleV);
@@ -1085,7 +1085,7 @@ begin
                  PFCONTROL: {PF}
                  Begin
                       //----MonitoredElement.ActiveTerminalIdx := ElementTerminal;
-                      S := MonitoredElement.Power[ElementTerminal];
+                      S := MonitoredElement.Power[ElementTerminal,ActorID];
                       PF := PF1to2(S);
 
                       {PF is in range of 0 .. 2;  Leading is 1..2}

@@ -87,8 +87,8 @@ TYPE
         SpecType        :Integer;
         NumTerm         : Integer;   // Flag used to indicate The number of terminals
 
-        function  get_States(Idx: Integer): Integer;
-        procedure set_States(Idx: Integer; const Value: Integer);
+        function  get_States(Idx: Integer; ActorID: Integer): Integer;
+        procedure set_States(Idx: Integer; ActorID: Integer; const Value: Integer);
         procedure set_LastStepInService(const Value: Integer);
 
         Procedure ProcessHarmonicSpec(const Param:String);
@@ -113,12 +113,12 @@ TYPE
         PROCEDURE DumpProperties(Var F:TextFile;Complete:Boolean);Override;
         FUNCTION  GetPropertyValue(Index:Integer):String;Override;
 
-        FUNCTION AddStep:Boolean;
-        FUNCTION SubtractStep:Boolean;
+        FUNCTION AddStep(ActorID:integer):Boolean;
+        FUNCTION SubtractStep(ActorID:Integer):Boolean;
         FUNCTION AvailableSteps:Integer;
         PROCEDURE FindLastStepInService;
         Property NumSteps:Integer  Read FNumSteps write set_NumSteps;
-        Property States[Idx:Integer]:Integer Read get_States write set_States;
+        Property States[Idx:Integer;ActorID:Integer]:Integer Read get_States write set_States;
         Property Totalkvar:Double Read FTotalkvar;
         Property NomKV:Double Read kvrating;
         Property LastStepInService:Integer Read FLastStepInService Write set_LastStepInService;
@@ -814,16 +814,16 @@ begin
 end;
 
 
-function TCapacitorObj.get_States(Idx: Integer): Integer;
+function TCapacitorObj.get_States(Idx: Integer; ActorID: Integer): Integer;
 begin
         Result := FStates^[Idx];
 end;
 
-procedure TCapacitorObj.set_States(Idx: Integer; const Value: Integer);
+procedure TCapacitorObj.set_States(Idx: Integer; ActorID: Integer; const Value: Integer);
 begin
       If FStates^[Idx] <> Value Then Begin
           FStates^[Idx] := Value;
-          YprimInvalid[ActiveActor] := True;
+          YprimInvalid[ActorID] := True;
       End;
 End;
 
@@ -1081,7 +1081,7 @@ begin
 
 end;
 
-function TCapacitorObj.AddStep: Boolean;
+function TCapacitorObj.AddStep(ActorID:Integer): Boolean;
 begin
      // Start with last step in service and see if we can add more.  If not return FALSE
 
@@ -1089,17 +1089,17 @@ begin
         Result := FALSE
      ELSE Begin
          Inc(FLastStepInService);
-         States[FLastStepInService] := 1;
+         States[FLastStepInService,ActorID] := 1;
          Result := TRUE;
      END;
 end;
 
-function TCapacitorObj.SubtractStep: Boolean;
+function TCapacitorObj.SubtractStep(ActorID:Integer): Boolean;
 begin
      If LastStepInService=0 Then
         Result := FALSE
      ELSE Begin
-         States[FLastStepInService] := 0;
+         States[FLastStepInService,ActorID] := 0;
          Dec(FLastStepInService);
          IF LastStepInService=0 Then Result := FALSE Else Result := TRUE;   // signify bank OPEN
      END;

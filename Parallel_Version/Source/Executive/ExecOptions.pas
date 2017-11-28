@@ -597,12 +597,12 @@ Begin
            57: SetDataPath(Param);  // Set a legal data path
            58: DoKeeperBusList(Param);
            59: DoSetReduceStrategy(param);
-           60: EnergyMeterClass[ActiveActor].SaveDemandInterval := InterpretYesNo(Param);
+           60: EnergyMeterClass[ActiveActor].SaveDemandInterval[ActiveActor] := InterpretYesNo(Param);
            61: Begin
                  ActiveCircuit[ActiveActor].PctNormalFactor := Parser[ActiveActor].DblValue;
                  DoSetNormal(ActiveCircuit[ActiveActor].PctNormalFactor);
                End;
-           62: EnergyMeterClass[ActiveActor].DI_Verbose   := InterpretYesNo(Param);
+           62: EnergyMeterClass[ActiveActor].DI_Verbose[ActiveActor]   := InterpretYesNo(Param);
            63: ActiveCircuit[ActiveActor].CaseName        := Parser[ActiveActor].StrValue;
            64: ActiveCircuit[ActiveActor].NodeMarkerCode  := Parser[ActiveActor].IntValue;
            65: ActiveCircuit[ActiveActor].NodeMarkerWidth := Parser[ActiveActor].IntValue;
@@ -802,9 +802,9 @@ Begin
            57: AppendGlobalResult(DataDirectory[ActiveActor]); // NOTE - not necessarily output directory
            58: With ActiveCircuit[ActiveActor] Do For i := 1 to NumBuses Do If Buses^[i].Keep Then AppendGlobalResult(BusList.Get(i));
            59: AppendGlobalResult(ActiveCircuit[ActiveActor].ReductionStrategyString );
-           60: If EnergyMeterClass[ActiveActor].SaveDemandInterval Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           60: If EnergyMeterClass[ActiveActor].SaveDemandInterval[ActiveActor] Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
            61: AppendGlobalResult(Format('%-.g', [ActiveCircuit[ActiveActor].PctNormalFactor]));
-           62: If EnergyMeterClass[ActiveActor].DI_Verbose Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
+           62: If EnergyMeterClass[ActiveActor].DI_Verbose[ActiveActor] Then  AppendGlobalResult('Yes') else AppendGlobalResult('No');
            63: AppendGlobalResult(ActiveCircuit[ActiveActor].CaseName);
            64: AppendGlobalResult(Format('%d' ,[ActiveCircuit[ActiveActor].NodeMarkerCode]));
            65: AppendGlobalResult(Format('%d' ,[ActiveCircuit[ActiveActor].NodeMarkerWidth]));

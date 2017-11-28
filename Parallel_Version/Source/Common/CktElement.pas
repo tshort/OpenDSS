@@ -41,7 +41,7 @@ TYPE
       FUNCTION  Get_FirstBus:String;
       FUNCTION  Get_NextBus:String;
       FUNCTION  Get_Losses:Complex;   // Get total losses for property...
-      FUNCTION  Get_Power(idxTerm:Integer):Complex;    // Get total complex power in active terminal
+      FUNCTION  Get_Power(idxTerm:Integer; ActorID: integer):Complex;    // Get total complex power in active terminal
 
       PROCEDURE DoYprimCalcs(Ymatrix: TCMatrix);
 
@@ -54,7 +54,7 @@ TYPE
 
       ComplexBuffer :pComplexArray;
 
-      IterminalSolutionCount :Integer;
+      IterminalSolutionCount : Array of Integer;
 
       BusIndex       :Integer;
       YPrim_Series,
@@ -142,7 +142,7 @@ TYPE
       Property FirstBus:String        read Get_FirstBus;
       Property NextBus:String         read Get_NextBus;    // null string if no more values
       Property Losses:Complex         read Get_Losses;
-      Property Power[idxTerm:Integer]:Complex  read Get_Power;  // Total power in active terminal
+      Property Power[idxTerm:Integer; ActorID: integer]:Complex  read Get_Power;  // Total power in active terminal
       Property ActiveTerminalIdx:Integer       read FActiveTerminal      write Set_ActiveTerminal;
       Property Closed[Index:Integer;ActorID:Integer]:Boolean   read Get_ConductorClosed  write Set_ConductorClosed;
       PROCEDURE SumCurrents;
@@ -156,6 +156,8 @@ USES DSSGlobals, SysUtils, Utilities, Math;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 constructor TDSSCktElement.Create(ParClass:TDSSClass);
+var
+  i : integer;
 Begin
 
      Inherited Create(ParClass);
@@ -200,7 +202,9 @@ Begin
      LastTerminalChecked := 0;
 
 {    Indicates which solution Itemp is computed for    }
-     IterminalSolutionCount := -1;
+    setlength(IterminalSolutionCount,CPU_Cores + 1);
+    for i := 0 to CPU_Cores do
+      IterminalSolutionCount[i] := -1;
 
      BaseFrequency := ActiveCircuit[ActiveActor].Fundamental;
 
@@ -605,9 +609,9 @@ PROCEDURE TDSSCktElement.ComputeIterminal(ActorID : Integer);
 Begin
 
 // to save time, only recompute if a different solution than last time it was computed.
-  IF IterminalSolutionCount <> ActiveCircuit[ActorID].Solution.SolutionCount THEN Begin
+  IF IterminalSolutionCount[ActorID] <> ActiveCircuit[ActorID].Solution.SolutionCount THEN Begin
       GetCurrents(Iterminal, ActorID);
-      IterminalSolutionCount := ActiveCircuit[ActorID].Solution.SolutionCount;
+      IterminalSolutionCount[ActorID] := ActiveCircuit[ActorID].Solution.SolutionCount;
   End;
 End;
 
@@ -627,7 +631,7 @@ Begin
 End;
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-FUNCTION  TDSSCktElement.Get_Power(idxTerm:Integer):Complex;    // Get total complex power in active terminal
+FUNCTION  TDSSCktElement.Get_Power(idxTerm:Integer; ActorID:integer):Complex;    // Get total complex power in active terminal
 
 VAR
    cPower:Complex;
@@ -639,10 +643,10 @@ Begin
    ActiveTerminalIdx := idxTerm;
 
    If FEnabled Then Begin
-       ComputeIterminal(ActiveActor);
+       ComputeIterminal(ActorID);
 
     // Method: Sum complex power going into phase conductors of active terminal
-       WITH ActiveCircuit[ActiveActor].Solution DO
+       WITH ActiveCircuit[ActorID].Solution DO
          Begin
            k := (idxTerm -1)*Fnconds;
            FOR i := 1 to Fnconds DO     // 11-7-08 Changed from Fnphases - was not accounting for all conductors
@@ -653,7 +657,7 @@ Begin
          End;
 
        {If this is a positive sequence circuit, then we need to multiply by 3 to get the 3-phase power}
-        IF   ActiveCircuit[ActiveActor].PositiveSequence
+        IF   ActiveCircuit[ActorID].PositiveSequence
         THEN cPower := cMulReal(cPower, 3.0);
    End;
 
