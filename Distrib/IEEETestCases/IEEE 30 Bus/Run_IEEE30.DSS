@@ -1,7 +1,11 @@
 
 // Standard IEEE 30-Bus Transmission System Test Case
 
+
+
 Compile Master.DSS
+
+Set TotalTime=0
 
 ! The compile builds the circuit model and sets the voltage bases
 
@@ -11,6 +15,7 @@ Set maxiterations=100
 ! This command solves the base case power flow
 Solve
 
+Get totalTime
 
 show voltage    ! sequence voltage magnitudes
 show voltage  LN Nodes   ! Detailed
