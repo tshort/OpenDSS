@@ -33,7 +33,8 @@ Const
 Type
    TPlotType = (ptAutoAddLogPlot, ptCircuitplot, ptGeneralDataPlot,
       ptGeneralCircuitPlot, ptmonitorplot, ptdaisyplot, ptMeterZones,
-      ptLoadShape, ptTShape, ptPriceShape, ptProfile);
+      ptLoadShape, ptTShape, ptPriceShape, ptProfile, ptScatterPlot,
+      ptEvolutionPlot, ptMatrixplot);
    TPlotQuantity = (pqVoltage, pqCurrent, pqPower, pqLosses, pqCapacity,
       pqNone);
 
@@ -122,6 +123,7 @@ Type
 
       Procedure Execute;
       Procedure SetDefaults;
+      procedure DSSVizPlot;
 
       Procedure DoLoadShapePlot(Const LoadShapeName: String);
       Procedure DoTempShapePlot(Const TempShapeName: String);
@@ -170,6 +172,7 @@ Var
 implementation
 
 Uses DSSGraph,
+   TCP_IP,
    Comobj,
    DSSClassDefs,
    DssGlobals,
@@ -1087,6 +1090,31 @@ Begin
    ShowGraph;
  END;
 
+end;
+
+procedure TDSSPlot.DSSVizPlot;
+begin
+  If Not Assigned(DSSConnectObj) Then // First connection
+  begin
+    DSSConnectObj := TDSSConnect.Create;  // Creates the connection
+  end;
+
+  DSSConnectObj.Connect;  // Connects to the server
+
+  Case PlotType of  // Classifies the plot message
+    ptmonitorplot:
+      DSSConnectObj.MonitorPlotMsg(ObjectName);
+    ptLoadshape:
+      DSSConnectObj.LoadshapePlotMsg(ObjectName);
+    ptProfile:
+      DSSConnectObj.ProfilePlotMsg(ObjectName);
+    ptScatterPlot:
+      DSSConnectObj.ScatterPlotMsg;
+    ptEvolutionPlot:
+      DSSConnectObj.EvolutionPlotMsg;
+    ptMatrixplot:
+      DSSConnectObj.MatrixPlotMsg;
+  End;
 end;
 
 function TDSSPlot.InterpolateGradientColor(Color1, Color2: TColor;

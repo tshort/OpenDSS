@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-        NumExecOptions = 110;
+        NumExecOptions = 111;
 
 VAR
          ExecOption,
@@ -143,6 +143,7 @@ Begin
      ExecOption[108] := 'StepTime';
      ExecOption[109] := 'SampleEnergyMeters';
      ExecOption[110] := 'MinIterations'; // default is 2
+     ExecOption[111] := 'DSSVisualizationTool';
 
 
 
@@ -396,6 +397,8 @@ Begin
                         'Normally Time and Duty modes do not automatically sample EnergyMeters whereas Daily, Yearly, M1, M2, M3, LD1 and LD2 modes do. ' +
                         'Use this Option to turn sampling on or off';
      OptionHelp[110] := 'Minimum number of iterations required for a solution. Default is 2.';
+     OptionHelp[111] := 'Activates/Deactivates the extended version of the plot command for figures with the DSS Visualization Tool.';
+
 End;
 //----------------------------------------------------------------------------
 FUNCTION DoSetCmd_NoCircuit:Boolean;  // Set Commands that do not require a circuit
@@ -427,6 +430,9 @@ Begin
            67: DSSExecutive.RecorderOn := InterpretYesNo(Param);
            73: DefaultBaseFreq  := Parser.DblValue;
           102: UpdateRegistry   := InterpretYesNo(Param);
+          111:  begin
+            DSS_Viz_enable  :=  InterpretYesNo(Param);
+          end;
          ELSE
             Begin
                 DoSimpleMsg('You must create a new circuit object first: "new circuit.mycktname" to execute this Set command.', 301);
@@ -619,6 +625,8 @@ Begin
           107: ActiveCircuit.Solution.Total_Time  :=  Parser.DblValue;
           109: ActiveCircuit.Solution.SampleTheMeters :=  InterpretYesNo(Param);
           110: ActiveCircuit.solution.MinIterations   := Parser.IntValue;
+          111: DSS_Viz_enable  :=  InterpretYesNo(Param);
+
          ELSE
            // Ignore excess parameters
          End;
@@ -795,6 +803,8 @@ Begin
           108: AppendGlobalResult(Format('%-g' ,[ActiveCircuit.Solution.Time_Step]));
           109: If ActiveCircuit.Solution.SampleTheMeters Then AppendGlobalResult('Yes') else AppendGlobalResult('No');
           110: AppendGlobalResult(IntToStr(ActiveCircuit.solution.MinIterations));
+          111: if DSS_Viz_enable then AppendGlobalResult('Yes') else AppendGlobalResult('No');
+
          ELSE
            // Ignore excess parameters
          End;

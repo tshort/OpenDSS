@@ -11,7 +11,7 @@ interface
 Uses Command;
 
 CONST
-     NumExecCommands = 104;
+     NumExecCommands = 106;
 
 Var
 
@@ -28,7 +28,7 @@ PROCEDURE ProcessCommand(Const CmdLine:String);
 implementation
 
 Uses DSSGlobals, ExecHelper, Executive, ExecOptions, ShowOptions,
-     ExportOptions, ParserDel, LoadShape,
+     ExportOptions, ConnectOptions, ParserDel, LoadShape,
      {$IFDEF FPC} CmdForms,{$ELSE} PlotOptions, DSSForms,{$ENDIF}
      sysutils, Utilities, SolutionAlgs;
 
@@ -142,6 +142,8 @@ Begin
      ExecCommand[102] := 'Cleanup';
      ExecCommand[103] := 'FinishTimeStep';
      ExecCommand[104] := 'NodeList';
+     ExecCommand[105] := 'Connect';
+     ExecCommand[106] := 'Disconnect';
 
 
 
@@ -460,6 +462,8 @@ Begin
                          'If the optional circuit element name is supplied, the program makes it the active element. Usage:' +CRLF+CRLF+
                          'NodeList' + CRLF +
                          'NodeList Line.Myline';
+     CommandHelp[105] := 'Request to create a TCP/IP socket to communicate data with external modules. This function requires the host address and TCP port to connect.';
+     CommandHelp[106] := 'Request to terminate a TCP/IP socket. This function requires the host address and TCP port to disconnect.';
 
 End;
 
@@ -686,6 +690,8 @@ Begin
       102: EndofTimeStepCleanup;
       103: FinishTimeStep;
       104: CmdResult := DoNodeListCmd;
+      105: CmdResult := DoConnectCmd; //'TCP/IP connect';
+      106: CmdResult := DoDisConnectCmd; //'TCP/IP disconnect';
      ELSE
        // Ignore excess parameters
      End;
