@@ -805,6 +805,9 @@ initialization
    DefaultEarthModel     := DERI;
    ActiveEarthModel      := DefaultEarthModel;
 
+   ErrorStrings     := TStringList.Create;
+   ErrorStrings.Clear;
+
    {Initialize filenames and directories}
 
    {$IFDEF FPC}
@@ -826,6 +829,8 @@ initialization
    StartupDirectory := GetCurrentDir+'\';
    SetDataPath (GetDefaultDataDirectory + '\' + ProgramName + '\');
    DSS_Registry     := TIniRegSave.Create('\Software\' + ProgramName);
+
+
 {$ELSE}
 {$IFDEF WINDOWS} // deliberately different from MSWindows (Delphi)
         StartupDirectory := GetCurrentDir+'\';
@@ -861,8 +866,7 @@ initialization
 
    EventStrings     := TStringList.Create;
    SavedFileList    := TStringList.Create;
-   ErrorStrings     := TStringList.Create;
-   ErrorStrings.Clear;
+
 
    LogQueries       := FALSE;
    QueryLogFileName := '';
