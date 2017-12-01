@@ -273,8 +273,8 @@ TYPE
           // Access to topology from the first source
           Function GetTopology: TCktTree;
           Procedure FreeTopology;
-          Function GetBusAdjacentPDLists: TAdjArray;
-          Function GetBusAdjacentPCLists: TAdjArray;
+          Function GetBusAdjacentPDLists(ActorID: integer): TAdjArray;
+          Function GetBusAdjacentPCLists(ActorID: integer): TAdjArray;
 
           property Name             : String         Read Get_Name;
           Property CaseName         : String         Read FCaseName         Write Set_CaseName;
@@ -1360,15 +1360,15 @@ begin
    Result:=LocalName;
 end;
 
-Function TDSSCircuit.GetBusAdjacentPDLists: TAdjArray;
+Function TDSSCircuit.GetBusAdjacentPDLists(ActorID: integer): TAdjArray;
 begin
-  if not Assigned (BusAdjPD) then BuildActiveBusAdjacencyLists (BusAdjPD, BusAdjPC);
+  if not Assigned (BusAdjPD) then BuildActiveBusAdjacencyLists (BusAdjPD, BusAdjPC,ActorID);
   Result := BusAdjPD;
 end;
 
-Function TDSSCircuit.GetBusAdjacentPCLists: TAdjArray;
+Function TDSSCircuit.GetBusAdjacentPCLists(ActorID: integer): TAdjArray;
 begin
-  if not Assigned (BusAdjPC) then BuildActiveBusAdjacencyLists (BusAdjPD, BusAdjPC);
+  if not Assigned (BusAdjPC) then BuildActiveBusAdjacencyLists (BusAdjPD, BusAdjPC,ActorID);
   Result := BusAdjPC;
 end;
 

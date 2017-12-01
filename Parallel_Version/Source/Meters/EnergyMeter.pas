@@ -804,7 +804,7 @@ Begin
     End;
 
     // Set up the bus adjacency lists for faster searches to build meter zone lists.
-    BuildActiveBusAdjacencyLists (BusAdjPD, BusAdjPC);
+    BuildActiveBusAdjacencyLists (BusAdjPD, BusAdjPC,ActorID);
 
     {Set Hasmeter flag for all cktelements}
     SetHasMeterFlag(ActorID);

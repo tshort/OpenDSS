@@ -115,7 +115,7 @@ TYPE
         PROCEDURE RegWriteTraceRecord(TapChangeMade:Double; ActorID : Integer);
         PROCEDURE RegWriteDebugRecord(S:String);
         procedure set_PendingTapChange(const Value: Double);
-        FUNCTION  AtLeastOneTap(Const ProposedChange:Double; Increment:Double):Double;
+        FUNCTION  AtLeastOneTap(Const ProposedChange:Double; Increment:Double;ActorID:integer):Double;
         Function  ComputeTimeDelay(Vavg:Double):Double;
         Function  GetControlVoltage(VBuffer:pComplexArray; Nphs:Integer; PTRatio:Double ):Complex;
         Procedure Set_TapNum(const Value: Integer);
@@ -195,10 +195,12 @@ CONST
     NumPropsThisClass = 28;
 
 Var
-    LastChange:Integer;
+    LastChange: Array of Integer;
     
 {--------------------------------------------------------------------------}
 constructor TRegControl.Create;  // Creates superstructure for all RegControl objects
+var
+  i: integer;
 Begin
      Inherited Create;
 
@@ -209,6 +211,10 @@ Begin
 
      CommandList := TCommandList.Create(Slice(PropertyName^, NumProperties));
      CommandList.Abbrev := TRUE;
+
+     setlength(LastChange,CPU_Cores+1);
+     for i := 0 to CPU_Cores do
+        LastChange[i]:=0;
 End;
 
 {--------------------------------------------------------------------------}
@@ -737,7 +743,7 @@ Begin
 End;
 
 {--------------------------------------------------------------------------}
-FUNCTION TRegControlObj.AtLeastOneTap(Const ProposedChange:Double; Increment:Double):Double;
+FUNCTION TRegControlObj.AtLeastOneTap(Const ProposedChange:Double; Increment:Double;ActorID:integer):Double;
 
 // Called in STATIC mode
 // Changes 70% of the way but at least one tap, subject to maximum allowable tap change
@@ -752,35 +758,35 @@ Begin
 
      If NumTaps > TapLimitPerChange Then NumTaps := TapLimitPerChange;
 
-     LastChange := NumTaps;
+     LastChange[ActorID] := NumTaps;
 
      IF ProposedChange > 0.0    // check sign on change
      THEN  Result := NumTaps * Increment
      ELSE  Begin
         Result := -NumTaps * Increment;
-        LastChange := -NumTaps;
+        LastChange[ActorID] := -NumTaps;
      End;
 
 End;
 
 
 {--------------------------------------------------------------------------}
-FUNCTION OneInDirectionOf(Var ProposedChange:Double; Increment:Double):Double;
+FUNCTION OneInDirectionOf(Var ProposedChange:Double; Increment:Double; ActorID: integer):Double;
 
 // Computes the amount of one tap change in the direction of the pending tapchange
 // Automatically decrements the proposed change by that amount
 
 Begin
-    LastChange := 0;
+    LastChange[ActorID] := 0;
     IF ProposedChange > 0.0
     THEN Begin
          Result := Increment;
-         LastChange := 1;
+         LastChange[ActorID] := 1;
          ProposedChange := ProposedChange - Increment;
     End
     ELSE Begin
          Result := -Increment;
-         LastChange := -1;
+         LastChange[ActorID] := -1;
          ProposedChange := ProposedChange + Increment;
     End;
 
@@ -817,17 +823,17 @@ begin
                      CASE ControlMode of
                        CTRLSTATIC:
                           Begin
-                              TapChangeToMake := AtLeastOneTap(PendingTapChange, TapIncrement[TapWinding]);
+                              TapChangeToMake := AtLeastOneTap(PendingTapChange, TapIncrement[TapWinding],ActorID);
                               If (DebugTrace) Then RegWriteTraceRecord(TapChangeToMake, ActorID);
                               PresentTap[TapWinding,ActorID] := PresentTap[TapWinding,ActorID] + TapChangeToMake;
-                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d taps to %-.6g.',[Lastchange,PresentTap[TapWinding,ActorID]]),ActorID);
+                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d taps to %-.6g.',[Lastchange[ActorID],PresentTap[TapWinding,ActorID]]),ActorID);
                               PendingTapChange := 0.0;  // Reset to no change.  Program will determine if another needed.
                               Armed := FALSE;
                           End;
 
                        EVENTDRIVEN:
                           Begin
-                              TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding]);
+                              TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding],ActorID);
                               If (DebugTrace) Then RegWriteTraceRecord(TapChangeToMake, ActorID);
                               PresentTap[TapWinding,ActorID] := PresentTap[TapWinding,ActorID] + TapChangeToMake;
                               IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(DynaVars.intHour, Dynavars.t + TapDelay, 0, 0, Self, ActorID)
@@ -836,22 +842,22 @@ begin
 
                        TIMEDRIVEN:
                           Begin
-                              TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding]);
+                              TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding],ActorID);
                               If (DebugTrace) Then RegWriteTraceRecord(TapChangeToMake, ActorID);
                               PresentTap[TapWinding,ActorID] := PresentTap[TapWinding,ActorID] + TapChangeToMake;
-                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d tap to %-.6g.',[Lastchange,PresentTap[TapWinding,ActorID]]),ActorID);
-                              If (DebugTrace) Then RegWriteDebugRecord(Format('--- Regulator.%s Changed %d tap to %-.6g.',[ControlledElement.Name, Lastchange,PresentTap[TapWinding,ActorID]]));
+                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d tap to %-.6g.',[Lastchange[ActorID],PresentTap[TapWinding,ActorID]]),ActorID);
+                              If (DebugTrace) Then RegWriteDebugRecord(Format('--- Regulator.%s Changed %d tap to %-.6g.',[ControlledElement.Name, Lastchange[ActorID],PresentTap[TapWinding,ActorID]]));
 
                               IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(DynaVars.intHour, DynaVars.t + TapDelay, 0, 0, Self, ActorID)
                               ELSE Armed := FALSE;
                           End;
                        MULTIRATE:
                           Begin
-                              TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding]);
+                              TapChangeToMake := OneInDirectionOf(FPendingTapChange, TapIncrement[TapWinding],ActorID);
                               If (DebugTrace) Then RegWriteTraceRecord(TapChangeToMake, ActorID);
                               PresentTap[TapWinding,ActorID] := PresentTap[TapWinding,ActorID] + TapChangeToMake;
-                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d tap to %-.6g.',[Lastchange,PresentTap[TapWinding,ActorID]]),ActorID);
-                              If (DebugTrace) Then RegWriteDebugRecord(Format('--- Regulator.%s Changed %d tap to %-.6g.',[ControlledElement.Name, Lastchange,PresentTap[TapWinding,ActorID]]));
+                              If ShowEventLog Then AppendtoEventLog('Regulator.' + ControlledElement.Name, Format(' Changed %d tap to %-.6g.',[Lastchange[ActorID],PresentTap[TapWinding,ActorID]]),ActorID);
+                              If (DebugTrace) Then RegWriteDebugRecord(Format('--- Regulator.%s Changed %d tap to %-.6g.',[ControlledElement.Name, Lastchange[ActorID],PresentTap[TapWinding,ActorID]]));
 
                               IF   PendingTapChange <> 0.0 THEN ControlQueue.Push(DynaVars.intHour, DynaVars.t + TapDelay, 0, 0, Self, ActorID)
                               ELSE Armed := FALSE;
