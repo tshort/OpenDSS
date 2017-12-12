@@ -192,7 +192,7 @@ CONST
     ACTION_TAPCHANGE = 0;
     ACTION_REVERSE   = 1;
 
-    NumPropsThisClass = 28;
+    NumPropsThisClass = 29;
 
 Var
     LastChange: Array of Integer;
@@ -263,6 +263,7 @@ Begin
      PropertyName[26] := 'EventLog';
      PropertyName[27] := 'RemotePTRatio';
      PropertyName[28] := 'TapNum';
+     PropertyName[29] := 'Reset';
 
      PropertyHelp[1] := 'Name of Transformer element to which the RegControl is connected. '+
                         'Do not specify the full object name; "Transformer" is assumed for '  +
@@ -318,6 +319,8 @@ Begin
                          'Is initialized to PTratio property. Set this property after setting PTratio.';
      PropertyHelp[28] := 'An integer number indicating the tap position that the controlled transformer winding tap position is currently at, or is being set to.  If being set, and the value is outside the range of the transformer min or max tap,'+
                          ' then set to the min or max tap position as appropriate. Default is 0';
+     PropertyHelp[29] := '{Yes | No} If Yes, forces Reset of this RegControl.' ;
+
      ActiveProperty := NumPropsThisClass;
      inherited DefineProperties;  // Add defs of inherited properties to bottom of list
 
@@ -400,6 +403,10 @@ Begin
             26: ShowEventLog := InterpretYesNo(param);
             27: RemotePTRatio := Parser[ActorID].DblValue;
             28: TapNum := Parser[ActorID].IntValue;
+            29: If InterpretYesNo (Param) Then Begin  // force a reset
+                  Reset;
+                  PropertyValue[29]  := 'n'; // so it gets reported properly
+               End;
          ELSE
            // Inherited parameters
            ClassEdit( ActiveRegControlObj, ParamPointer - NumPropsthisClass)

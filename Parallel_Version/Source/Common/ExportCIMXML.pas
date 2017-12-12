@@ -1,5 +1,7 @@
 unit ExportCIMXML;
 
+{$IFDEF FPC}{$MODE Delphi}{$ENDIF}
+
 {
   ----------------------------------------------------------
   Copyright (c) 2009-2015, Electric Power Research Institute, Inc.
@@ -29,8 +31,7 @@ Uses SysUtils, Utilities, Circuit, DSSClassDefs, DSSGlobals, CktElement,
 
 Type
   GuidChoice = (Bank, Wdg, XfCore, XfMesh, WdgInf, ScTest, OcTest,
-    BaseV, LinePhase, LoadPhase, CapPhase, XfTerm, XfLoc, LoadLoc,
-    LineLoc, CapLoc);
+    BaseV, LinePhase, LoadPhase, GenPhase, CapPhase, XfLoc, LoadLoc, LineLoc, CapLoc, Topo, ReacLoc);
   TBankObject = class(TNamedObject)
   public
     vectorGroup: String;
@@ -51,71 +52,55 @@ Type
     procedure BuildVectorGroup;
   end;
 
-  TBusLoad = class(TNamedObject)
-  public
-    pa, pb, pc, qa, qb, qc: double;
-    na, nb, nc: Integer;
-    pLastLoad: TLoadObj;
-    constructor Create;
-  end;
-
-  TBusCap = class(TNamedObject)
-  public
-    qa, qb, qc: double;
-    pLastCap: TCapacitorObj;
-    constructor Create;
-  end;
-
 Var
   GuidHash: THashList;       // index is 1-based
   GuidList: array of TGuid;  // index is 0-based
   BankHash: THashList;
   BankList: array of TBankObject;
-  BusLoadHash: THashList;
-  BusLoadList: array of TBusLoad;
-  BusCapHash: THashList;
-  BusCapList: array of TBusCap;
 
 Const
-  CIM_NS = 'http://iec.ch/TC57/2010/CIM-schema-cim15';
+  CIM_NS = 'http://iec.ch/TC57/2012/CIM-schema-cim16';
 
-constructor TBusLoad.Create;
-begin
-  pa := 0.0;
-  pb := 0.0;
-  pc := 0.0;
-  qa := 0.0;
-  qb := 0.0;
-  qc := 0.0;
-  na := 0;
-  nb := 0;
-  nc := 0;
-  pLastLoad := nil;
-end;
-
-constructor TBusCap.Create;
-begin
-  qa := 0.0;
-  qb := 0.0;
-  qc := 0.0;
-  pLastCap := nil;
-end;
-
-procedure StartBusLoadList (size: Integer);
-begin
-  BusLoadHash := THashList.Create(size);
-  SetLength (BusLoadList, size);
-end;
-
-procedure StartBusCapList (size: Integer);
-begin
-  BusCapHash := THashList.Create(size);
-  SetLength (BusCapList, size);
-end;
-
-function PhaseString (pElem:TDSSCktElement; bus: Integer):String;
+// this returns s1, s2, or a combination of ABCN
+function PhaseString (pElem:TDSSCktElement; bus: Integer):String; // if order doesn't matter
 var
   val, phs: String;
+  dot: Integer;
+	bSec: boolean;
+begin
+  phs := pElem.FirstBus;
+  for dot:= 2 to bus do phs := pElem.NextBus;
+	bSec := false;
+  if pElem.NPhases = 2 then
+  	if ActiveCircuit[ActiveActor].Buses^[pElem.Terminals^[bus].BusRef].kVBase < 0.25 then bSec := true;
+  if pElem.NPhases = 1 then
+  	if ActiveCircuit[ActiveActor].Buses^[pElem.Terminals^[bus].BusRef].kVBase < 0.13 then bSec := true;
+
+	dot := pos('.',phs);
+  if dot < 1 then begin
+    val := 'ABC';
+  end else begin
+    phs := Copy (phs, dot+1, Length(phs));
+		if Pos ('3', phs) > 0 then bSec := false; // i.e. it's a three-phase secondary, not split-phase
+		if bSec then begin
+			if Pos ('1', phs) > 0 then begin
+				val := 's1';
+				if Pos ('2', phs) > 0 then val := val + '2';
+			end else if Pos ('2', phs) > 0 then val := 's2';
+		end else begin
+			val := '';
+			if Pos ('1', phs) > 0 then val := val + 'A';
+			if Pos ('2', phs) > 0 then val := val + 'B';
+			if Pos ('3', phs) > 0 then val := val + 'C';
+			if Pos ('4', phs) > 0 then val := val + 'N';
+		end;
+  end;
+  Result := val;
+end;
+
+function PhaseOrderString (pElem:TDSSCktElement; bus: Integer):String; // for transposition
+var
+  phs: String;
   dot: Integer;
 begin
   phs := pElem.FirstBus;
@@ -123,112 +108,82 @@ begin
 
   dot := pos('.',phs);
   if dot < 1 then begin
-    val := 'ABC';
+    Result := 'ABC';
   end else begin
     phs := Copy (phs, dot+1, Length(phs));
-    val := '';
-    if Pos ('1', phs) > 0 then val := val + 'A';
-    if Pos ('2', phs) > 0 then val := val + 'B';
-    if Pos ('3', phs) > 0 then val := val + 'C';
-    if Pos ('4', phs) > 0 then val := val + 'N';
+    if Pos ('1.2.3', phs) > 0 then
+      Result := 'ABC'
+    else if Pos('1.3.2', phs) > 0 then
+      Result := 'ACB'
+    else if Pos('2.3.1', phs) > 0 then
+      Result := 'BCA'
+    else if Pos('2.1.3', phs) > 0 then
+      Result := 'BAC'
+    else if Pos('3.2.1', phs) > 0 then
+      Result := 'CBA'
+    else if Pos('3.1.2', phs) > 0 then
+      Result := 'CAB'
+    else if Pos('1.2', phs) > 0 then
+      Result := 'AB'
+    else if Pos('1.3', phs) > 0 then
+      Result := 'AC'
+    else if Pos('2.3', phs) > 0 then
+      Result := 'BC'
+    else if Pos('2.1', phs) > 0 then
+      Result := 'BA'
+    else if Pos('3.2', phs) > 0 then
+      Result := 'CB'
+    else if Pos('3.1', phs) > 0 then
+      Result := 'CA'
+    else if Pos('1', phs) > 0 then
+      Result := 'A'
+    else if Pos('2', phs) > 0 then
+      Result := 'B'
+    else
+      Result := 'C';
   end;
-  Result := val;
 end;
 
-function GetBusLoad (sBus: String): TBusLoad;
+function DeltaPhaseString (pElem:TDSSCktElement):String;
 var
-  ref : Integer;
+  phs: String;
+  dot: Integer;
 begin
-  Result := nil;
-  ref := BusLoadHash.Find (sBus);
-  if ref > 0 then Result:=BusLoadList[ref-1];
-end;
+  phs := pElem.FirstBus;
 
-procedure AccumulateBusLoad (pLoad: TLoadObj);
-var
-  pBus: TBusLoad;
-  sBus, phs: String;
-  ref, size, n: Integer;
-  xph, p, q: double;
-begin
-  sBus := StripExtension (pLoad.FirstBus);
-  ref := BusLoadHash.Find(sBus);
-  if ref < 1 then begin
-    ref := BusLoadHash.Add(sBus);
-    size := High(BusLoadList) + 1;
-    if ref > size then SetLength (BusLoadList, 2 * size);
-    BusLoadList[ref-1] := TBusLoad.Create;
+  dot := pos('.',phs);
+  if (dot < 1) or (pElem.NPhases = 3) then begin
+    Result := 'ABC'; // if Nphases < 3 this would be a user input error
+  end else begin
+    phs := Copy (phs, dot+1, Length(phs));
+    if pElem.NPhases = 1 then begin
+      if Pos ('1.2', phs) > 0 then
+        Result := 'A'
+      else if Pos ('2.1', phs) > 0 then
+        Result := 'A'
+      else if Pos ('2.3', phs) > 0 then
+        Result := 'B'
+      else if Pos ('3.2', phs) > 0 then
+        Result := 'B'
+      else if Pos ('1.3', phs) > 0 then
+        Result := 'C'
+      else if Pos ('3.1', phs) > 0 then
+        Result := 'C'
+    end else begin
+      if Pos ('1.2.3', phs) > 0 then
+        Result := 'AB'
+      else if Pos ('1.3.2', phs) > 0 then
+        Result := 'CB'
+      else if Pos ('2.1.3', phs) > 0 then
+        Result := 'AC'
+      else if Pos ('2.3.1', phs) > 0 then
+        Result := 'BC'
+      else if Pos ('3.1.2', phs) > 0 then
+        Result := 'CA'
+      else if Pos ('3.2.1', phs) > 0 then
+        Result := 'BA'
+    end;
   end;
-  pBus := BusLoadList[ref-1];
-  pBus.LocalName := sBus;
-  phs := PhaseString (pLoad, 1);
-  xph := length (phs);
-  n := pLoad.NumCustomers div length (phs);
-  p := pLoad.kWBase / xph;
-  q := pLoad.kvarBase / xph;
-  if Pos('A', phs) > 0 then begin
-    pBus.pa := pBus.pa + p;
-    pBus.qa := pBus.qa + q;
-    pBus.na := pBus.na + n;
-  end;
-  if Pos('B', phs) > 0 then begin
-    pBus.pb := pBus.pb + p;
-    pBus.qb := pBus.qb + q;
-    pBus.nb := pBus.nb + n;
-  end;
-  if Pos('C', phs) > 0 then begin
-    pBus.pc := pBus.pc + p;
-    pBus.qc := pBus.qc + q;
-    pBus.nc := pBus.nc + n;
-  end;
-  pBus.pLastLoad := pLoad;
-end;
-
-function GetBusCap (sBus: String): TBusCap;
-var
-  ref : Integer;
-begin
-  Result := nil;
-  ref := BusCapHash.Find (sBus);
-  if ref > 0 then Result:=BusCapList[ref-1];
-end;
-
-procedure AccumulateBusCap (pCap: TCapacitorObj);
-var
-  pBus: TBusCap;
-  sBus, phs: String;
-  ref, size: Integer;
-  xph, q: double;
-begin
-  sBus := StripExtension (pCap.FirstBus);
-  ref := BusCapHash.Find(sBus);
-  if ref < 1 then begin
-    ref := BusCapHash.Add(sBus);
-    size := High(BusCapList) + 1;
-    if ref > size then SetLength (BusCapList, 2 * size);
-    BusCapList[ref-1] := TBusCap.Create;
-  end;
-  pBus := BusCapList[ref-1];
-  pBus.LocalName := sBus;
-  phs := PhaseString (pCap, 1);
-  xph := length (phs);
-  q := pCap.Totalkvar / xph;
-  if Pos('A', phs) > 0 then pBus.qa := pBus.qc + q;
-  if Pos('B', phs) > 0 then pBus.qb := pBus.qc + q;
-  if Pos('C', phs) > 0 then pBus.qc := pBus.qc + q;
-  pBus.pLastCap := pCap;
-end;
-
-procedure FreeBusLoadList;
-begin
-  BusLoadHash.Free;
-  BusLoadList := nil;
-end;
-
-procedure FreeBusCapList;
-begin
-  BusCapHash.Free;
-  BusCapList := nil;
 end;
 
 {$R+}
@@ -336,12 +291,27 @@ begin
   if ref > 0 then Result:=BankList[ref-1];
 end;
 
+function GetHashedGuid (key: String): TGuid;
+var
+  ref: integer;
+  size: integer;
+begin
+  ref:=GuidHash.Find(key);
+  if ref = 0 then begin
+    ref := GuidHash.Add(key);
+    CreateGuid (Result);
+    size := High(GuidList) + 1;
+    if ref > size then SetLength (GuidList, 2 * (size+1));
+    GuidList[ref-1] := Result
+  end else begin
+    Result := GuidList[ref-1]
+  end;
+end;
+
 // any temporary object (not managed by DSS) should have '=' prepended to the Name
 function GetDevGuid (which: GuidChoice; Name: String; Seq: Integer): TGuid;
 var
   key: String;
-  ref: Integer;
-  size: Integer;
 begin
   case which of
     Bank: key := 'Bank=';
@@ -354,24 +324,25 @@ begin
     BaseV: key := 'BaseV=';
     LinePhase: key := 'LinePhase=';
     LoadPhase: key := 'LoadPhase=';
+    GenPhase: key := 'GenPhase=';
     CapPhase: key := 'CapPhase=';
-    XfTerm: key := 'XfTerm=';
     XfLoc: key := 'XfLoc=';
     LoadLoc: key := 'LoadLoc=';
     LineLoc: key := 'LineLoc=';
+		ReacLoc: key := 'ReacLoc=';
     CapLoc: key := 'CapLoc=';
+		Topo: key := 'Topo=';
   end;
   key:=key + Name + '=' + IntToStr (Seq);
-  ref:=GuidHash.Find(key);
-  if ref = 0 then begin
-    ref := GuidHash.Add(key);
-    CreateGuid (Result);
-    size := High(GuidList) + 1;
-    if ref > size then SetLength (GuidList, 2 * size);
-    GuidList[ref-1] := Result
-  end else begin
-    Result := GuidList[ref-1]
-  end;
+  Result := GetHashedGuid (key);
+end;
+
+function GetTermGuid (pElem: TDSSCktElement; Seq: Integer): TGuid;
+var
+  key: String;
+begin
+  key:=IntToStr (pElem.ClassIndex) + '=' + pElem.Name + '=' + IntToStr (Seq);
+  Result := GetHashedGuid (key);
 end;
 
 {$R-}
@@ -379,7 +350,7 @@ end;
 function GetBaseVName (val: double): String;
 begin
 //  Result := Format('BaseV_%.3f', [val]);
-  Result := 'BaseV_' + FloatToStr (val);
+  Result := 'BaseV_' + FloatToStrF (val, ffFixed, 6, 4);
 end;
 
 function GetBaseVGuid (val: double): TGuid;
@@ -500,26 +471,26 @@ end;
 
 procedure CableShieldMaterialEnum (var F: TextFile; val: String);
 begin
-  Writeln (F, Format ('  <cim:CableInfo.shieldMaterial rdf:resource="%s#CableShieldMaterialKind.%s"/>',
-    [CIM_NS, val]));
+//  Writeln (F, Format ('  <cim:CableInfo.shieldMaterial rdf:resource="%s#CableShieldMaterialKind.%s"/>',
+//    [CIM_NS, val]));
 end;
 
 procedure ConductorMaterialEnum (var F: TextFile; val: String);
 begin
-  Writeln (F, Format ('  <cim:WireInfo.material rdf:resource="%s#WireMaterialKind.%s"/>',
-    [CIM_NS, val]));
+//  Writeln (F, Format ('  <cim:WireInfo.material rdf:resource="%s#WireMaterialKind.%s"/>',
+//    [CIM_NS, val]));
 end;
 
 procedure CableOuterJacketEnum (var F: TextFile; val: String);
 begin
-  Writeln (F, Format ('  <cim:CableInfo.outerJacketKind rdf:resource="%s#CableOuterJacketKind.%s"/>',
-    [CIM_NS, val]));
+//  Writeln (F, Format ('  <cim:CableInfo.outerJacketKind rdf:resource="%s#CableOuterJacketKind.%s"/>',
+//    [CIM_NS, val]));
 end;
 
 procedure CableConstructionEnum (var F: TextFile; val: String);
 begin
-  Writeln (F, Format ('  <cim:CableInfo.constructionKind rdf:resource="%s#CableConstructionKind.%s"/>',
-    [CIM_NS, val]));
+//  Writeln (F, Format ('  <cim:CableInfo.constructionKind rdf:resource="%s#CableConstructionKind.%s"/>',
+//    [CIM_NS, val]));
 end;
 
 procedure TransformerControlEnum (var F: TextFile; val: String);
@@ -542,6 +513,7 @@ end;
 procedure StartInstance (var F: TextFile; Root: String; Obj: TNamedObject);
 begin
   Writeln(F, Format('<cim:%s rdf:ID="%s">', [Root, Obj.CIM_ID]));
+	StringNode (F, 'IdentifiedObject.mRID', Obj.CIM_ID);
   StringNode (F, 'IdentifiedObject.name', Obj.localName);
 end;
 
@@ -576,7 +548,25 @@ begin
     [Root, CIM_NS, val]));
 end;
 
-procedure AttachLinePhases (var F: TextFile; pLine:TLineObj; Root: String);
+procedure PhaseSideNode (var F: TextFile; Root: String; Side: integer; val: String);
+begin
+  Writeln (F, Format ('  <cim:%s.phaseSide%d rdf:resource="%s#SinglePhaseKind.%s"/>',
+    [Root, Side, CIM_NS, val]));
+end;
+
+procedure ShuntConnectionKindNode (var F: TextFile; Root: String; val: String); // D, Y, Yn, I
+begin
+  Writeln (F, Format ('  <cim:%s.phaseConnection rdf:resource="%s#PhaseShuntConnectionKind.%s"/>',
+    [Root, CIM_NS, val]));
+end;
+
+procedure WindingConnectionKindNode (var F: TextFile; val: String); // D, Y, Z, Yn, Zn, A, I
+begin
+  Writeln (F, Format ('  <cim:PowerTransformerEnd.connectionKind rdf:resource="%s#WindingConnection.%s"/>',
+    [CIM_NS, val]));
+end;
+
+procedure AttachLinePhases (var F: TextFile; pLine:TLineObj);
 var
   s, phs: String;
   i: Integer;
@@ -585,8 +575,12 @@ begin
   if pLine.NPhases = 3 then if pLine.NumConductorsAvailable = 0 then exit;
   pPhase := TNamedObject.Create('dummy');
   s := PhaseString(pLine, 1);
+	if pLine.NumConductorsAvailable > length(s) then s := s + 'N'; // so we can specify the neutral conductor
   for i := 1 to length(s) do begin
     phs := s[i];
+		if phs = 's' then continue;
+		if phs = '1' then phs := 's1';
+		if phs = '2' then phs := 's2';
     pPhase.LocalName := pLine.Name + '_' + phs;
     pPhase.GUID := GetDevGuid (LinePhase, pPhase.LocalName, 1);
     StartInstance (F, 'ACLineSegmentPhase', pPhase);
@@ -598,56 +592,173 @@ begin
   end;
 end;
 
-procedure AttachCapPhases (var F: TextFile; pCap:TCapacitorObj; pBus:TBusCap);
+procedure AttachSwitchPhases (var F: TextFile; pLine:TLineObj);
+var
+  s1, s2, phs1, phs2: String;
+  i: Integer;
+  pPhase: TNamedObject;
+begin
+  // also write the switch phases if needed to support transpositions
+  s1 := PhaseOrderString(pLine, 1);
+  s2 := PhaseOrderString(pLine, 2);
+  if (pLine.NPhases = 3) and (length(s1) = 3) and (s1 = s2) then exit;
+  pPhase := TNamedObject.Create('dummy');
+  for i := 1 to length(s1) do begin
+    phs1 := s1[i];
+    phs2 := s2[i];
+    pPhase.LocalName := pLine.Name + '_' + phs1;
+    pPhase.GUID := GetDevGuid (LinePhase, pPhase.LocalName, 1);
+    StartInstance (F, 'SwitchPhase', pPhase);
+    BooleanNode (F, 'SwitchPhase.closed', pLine.Closed[0, ActiveActor]);
+    BooleanNode (F, 'SwitchPhase.normalOpen', not pLine.Closed[0, ActiveActor]);
+    PhaseSideNode (F, 'SwitchPhase', 1, phs1);
+    PhaseSideNode (F, 'SwitchPhase', 2, phs2);
+    RefNode (F, 'SwitchPhase.Switch', pLine);
+    GuidNode (F, 'PowerSystemResource.Location', GetDevGuid (LineLoc, pLine.Name, 1));
+    EndInstance (F, 'SwitchPhase');
+  end;
+end;
+
+procedure AttachCapPhases (var F: TextFile; pCap:TCapacitorObj; geoGUID: TGuid);
 var
   s, phs: String;
   i: Integer;
   pPhase: TNamedObject;
-  xph: double;
+  bph: double;
 begin
-//  if pCap.NPhases = 3 then exit;
+  if pCap.NPhases = 3 then exit;
   pPhase := TNamedObject.Create('dummy');
   s := PhaseString(pCap, 1);
-  xph := length (s);
+  with pCap do begin
+    bph := 0.001 * Totalkvar / NomKV / NomKV / NumSteps / NPhases;
+    if (Connection = 1) then s := DeltaPhaseString(pCap);
+  end;
   for i := 1 to length(s) do begin
     phs := s[i];
     pPhase.LocalName := pCap.Name + '_' + phs;
     pPhase.GUID := GetDevGuid (CapPhase, pPhase.LocalName, 1);
-    StartInstance (F, 'ShuntCompensatorPhase', pPhase);
+    StartInstance (F, 'LinearShuntCompensatorPhase', pPhase);
     PhaseKindNode (F, 'ShuntCompensatorPhase', phs);
-    DoubleNode (F, 'ShuntCompensatorPhase.bPerSection',
-      pCap.NomKV / pCap.Totalkvar / pCap.NumSteps / xph);
-    DoubleNode (F, 'ShuntCompensatorPhase.gPerSection', 0.0);
-    RefNode (F, 'ShuntCompensatorPhase.ShuntCompensator', pBus);
-    GuidNode (F, 'PowerSystemResource.Location',
-      GetDevGuid (CapLoc, StripExtension (pCap.FirstBus), 1));
-    EndInstance (F, 'ShuntCompensatorPhase');
+    DoubleNode (F, 'LinearShuntCompensatorPhase.bPerSection', bph);
+    DoubleNode (F, 'LinearShuntCompensatorPhase.gPerSection', 0.0);
+		IntegerNode (F, 'ShuntCompensatorPhase.normalSections', pCap.NumSteps);
+		IntegerNode (F, 'ShuntCompensatorPhase.maximumSections', pCap.NumSteps);
+    RefNode (F, 'ShuntCompensatorPhase.ShuntCompensator', pCap);
+    GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+    EndInstance (F, 'LinearShuntCompensatorPhase');
   end;
 end;
 
-procedure AttachLoadPhases (var F: TextFile; pLoad:TLoadObj; pBus:TBusLoad);
+procedure AttachSecondaryPhases (var F: TextFile; pLoad:TLoadObj; geoGUID: TGuid; pPhase: TNamedObject; p, q: double; phs:String);
+begin
+	pPhase.LocalName := pLoad.Name + '_' + phs;
+	pPhase.GUID := GetDevGuid (LoadPhase, pPhase.LocalName, 1);
+	StartInstance (F, 'EnergyConsumerPhase', pPhase);
+	PhaseKindNode (F, 'EnergyConsumerPhase', phs);
+	DoubleNode (F, 'EnergyConsumerPhase.pfixed', p);
+	DoubleNode (F, 'EnergyConsumerPhase.qfixed', q);
+	RefNode (F, 'EnergyConsumerPhase.EnergyConsumer', pLoad);
+	GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+	EndInstance (F, 'EnergyConsumerPhase');
+end;
+
+procedure AttachLoadPhases (var F: TextFile; pLoad:TLoadObj; geoGUID: TGuid);
 var
   s, phs: String;
   i: Integer;
   pPhase: TNamedObject;
-  xph: double;
+  p, q: double;
 begin
-//  if pLoad.NPhases = 3 then exit;
-  pPhase := TNamedObject.Create('dummy');
-  s := PhaseString(pLoad, 1);
-  xph := length (s);
+  if pLoad.NPhases = 3 then exit;
+  p := 1000.0 * pLoad.kWBase / pLoad.NPhases;
+  q := 1000.0 * pLoad.kvarBase / pLoad.NPhases;
+  if pLoad.Connection = 1 then
+    s := DeltaPhaseString(pLoad)
+  else
+    s := PhaseString(pLoad, 1);
+
+	pPhase := TNamedObject.Create('dummy');
+  // first, filter out what appear to be split secondary loads
+  // these can be 2-phase loads (balanced) nominally 0.208 kV, or
+  //  1-phase loads (possibly unbalanced) nominally 0.12 kV
+  //  TODO - handle s1 to s2 240-volt loads; these would be s12, which is not a valid SinglePhaseKind
+	if pLoad.kVLoadBase < 0.25 then begin
+		if pLoad.NPhases=2 then begin
+			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, 's1');
+			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, 's2');
+			exit;
+		end else begin
+			AttachSecondaryPhases (F, pLoad, geoGUID, pPhase, p, q, s);
+      exit;
+    end;
+	end;
+
   for i := 1 to length(s) do begin
     phs := s[i];
     pPhase.LocalName := pLoad.Name + '_' + phs;
     pPhase.GUID := GetDevGuid (LoadPhase, pPhase.LocalName, 1);
     StartInstance (F, 'EnergyConsumerPhase', pPhase);
     PhaseKindNode (F, 'EnergyConsumerPhase', phs);
-    DoubleNode (F, 'EnergyConsumerPhase.pfixed', pLoad.kWBase / xph);
-    DoubleNode (F, 'EnergyConsumerPhase.qfixed', pLoad.kvarBase / xph);
-    RefNode (F, 'EnergyConsumerPhase.EnergyConsumer', pBus);
-    GuidNode (F, 'PowerSystemResource.Location',
-      GetDevGuid (LoadLoc, StripExtension (pLoad.FirstBus), 1));
+    DoubleNode (F, 'EnergyConsumerPhase.pfixed', p);
+    DoubleNode (F, 'EnergyConsumerPhase.qfixed', q);
+    RefNode (F, 'EnergyConsumerPhase.EnergyConsumer', pLoad);
+    GuidNode (F, 'PowerSystemResource.Location', geoGUID);
     EndInstance (F, 'EnergyConsumerPhase');
+  end;
+end;
+
+procedure AttachSecondaryGenPhases (var F: TextFile; pGen:TGeneratorObj; geoGUID: TGuid; pPhase: TNamedObject; p, q: double; phs:String);
+begin
+	pPhase.LocalName := pGen.Name + '_' + phs;
+	pPhase.GUID := GetDevGuid (GenPhase, pPhase.LocalName, 1);
+	StartInstance (F, 'RotatingMachinePhase', pPhase);
+	PhaseKindNode (F, 'RotatingMachinePhase', phs);
+	DoubleNode (F, 'RotatingMachinePhase.pfixed', p);
+	DoubleNode (F, 'RotatingMachinePhase.qfixed', q);
+	RefNode (F, 'RotatingMachinePhase.RotatingMachine', pGen);
+	GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+	EndInstance (F, 'RotatingMachinePhase');
+end;
+
+procedure AttachGeneratorPhases (var F: TextFile; pGen:TGeneratorObj; geoGUID: TGuid);
+var
+  s, phs: String;
+  i: Integer;
+  pPhase: TNamedObject;
+  p, q: double;
+begin
+  if pGen.NPhases = 3 then exit;
+  p := 1000.0 * pGen.Presentkw / pGen.NPhases;
+  q := 1000.0 * pGen.Presentkvar / pGen.NPhases;
+  if pGen.Connection = 1 then
+    s := DeltaPhaseString(pGen)
+  else
+    s := PhaseString(pGen, 1);
+
+	pPhase := TNamedObject.Create('dummy');
+  //  TODO - handle s1 to s2 240-volt loads; these would be s12, which is not a valid SinglePhaseKind
+	if pGen.Presentkv < 0.25 then begin
+		if pGen.NPhases=2 then begin
+			AttachSecondaryGenPhases (F, pGen, geoGUID, pPhase, p, q, 's1');
+			AttachSecondaryGenPhases (F, pGen, geoGUID, pPhase, p, q, 's2');
+			exit;
+		end else begin
+			AttachSecondaryGenPhases (F, pGen, geoGUID, pPhase, p, q, s);
+      exit;
+    end;
+	end;
+
+  for i := 1 to length(s) do begin
+    phs := s[i];
+    pPhase.LocalName := pGen.Name + '_' + phs;
+    pPhase.GUID := GetDevGuid (GenPhase, pPhase.LocalName, 1);
+    StartInstance (F, 'RotatingMachinePhase', pPhase);
+    PhaseKindNode (F, 'RotatingMachinePhase', phs);
+    DoubleNode (F, 'RotatingMachinePhase.p', p);
+    DoubleNode (F, 'RotatingMachinePhase.q', q);
+    RefNode (F, 'RotatingMachinePhase.RotatingMachine', pGen);
+    GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+    EndInstance (F, 'RotatingMachinePhase');
   end;
 end;
 
@@ -664,6 +775,7 @@ procedure WriteLoadModel (var F: TextFile; Name: String; ID: TGuid;
   eP: Double; eQ: Double);
 begin
   Writeln(F, Format('<cim:LoadResponseCharacteristic rdf:ID="%s">', [GUIDToCIMString(ID)]));
+	StringNode (F, 'IdentifiedObject.mRID', GUIDToCIMString(ID));
   StringNode (F, 'IdentifiedObject.name', Name);
   if (eP > 0.0) or (eQ > 0.0) then
     BooleanNode (F, 'LoadResponseCharacteristic.exponentModel', true)
@@ -708,6 +820,7 @@ begin
   Nterm := pElem.Nterms;
   BusName := pElem.FirstBus;
   Writeln(F, Format('<cim:Location rdf:ID="%s">', [GUIDToCIMString(geoGUID)]));
+	StringNode(F, 'IdentifiedObject.mRID', GUIDToCIMString(geoGUID));
   StringNode(F, 'IdentifiedObject.name', pElem.LocalName + '_Loc');
   GuidNode (F, 'Location.CoordinateSystem', crsGUID);
   EndInstance (F, 'Location');
@@ -731,29 +844,23 @@ procedure WriteReferenceTerminals(var F:TextFile; pElem:TDSSCktElement;
 var
   Nterm, j, ref : Integer;
   BusName, TermName : String;
-  temp: TGuid;
+  TermGuid: TGuid;
 begin
   Nterm := pElem.Nterms;
   BusName := pElem.FirstBus;
   for j := 1 to NTerm do begin
     if IsGroundBus (BusName) = False then begin
       ref := pElem.Terminals^[j].BusRef;
-//      Str (j, TermName);
-      TermName := IntToStr (j);
-      TermName := pElem.Name + '_T' + TermName;
-      CreateGUID (temp);
-
-      Writeln(F, Format('<cim:Terminal rdf:ID="%s">', [GUIDToCIMString(temp)]));
+      TermName := pElem.Name + '_T' + IntToStr(j);
+      TermGuid := GetTermGuid (pElem, j);
+      Writeln(F, Format('<cim:Terminal rdf:ID="%s">', [GUIDToCIMString(TermGuid)]));
+			StringNode (F, 'IdentifiedObject.mRID', GUIDToCIMString(TermGuid));
       StringNode (F, 'IdentifiedObject.name', TermName);
-//      IntegerNode (F, 'Terminal.sequenceNumber', j);
       GuidNode (F, 'Terminal.ConductingEquipment', refGUID);
-//      Writeln (F, Format('  <cim:Terminal.ConductingEquipment rdf:resource="#%s"/>',
-//        [refGUID]));
       Writeln (F, Format('  <cim:Terminal.ConnectivityNode rdf:resource="#%s"/>',
         [ActiveCircuit[ActiveActor].Buses[ref].CIM_ID]));
       EndInstance (F, 'Terminal');
     end;
-
     BusName := pElem.Nextbus;
   end;
   WritePositions (F, pElem, geoGUID, crsGUID);
@@ -762,6 +869,15 @@ end;
 procedure WriteTerminals(var F:TextFile; pElem:TDSSCktElement; geoGUID: TGuid; crsGUID: TGuid);
 begin
   WriteReferenceTerminals (F, pElem, geoGUID, crsGUID, pElem.GUID);
+end;
+
+procedure VbaseNode(var F:TextFile; pElem:TDSSCktElement);
+var
+  j: integer;
+begin
+  j := pElem.Terminals^[1].BusRef;
+  GuidNode (F, 'ConductingEquipment.BaseVoltage',
+    GetBaseVGuid (sqrt(3.0) * ActiveCircuit[ActiveActor].Buses^[j].kVBase));
 end;
 
 Procedure WriteXfmrCode (var F: TextFile; pXfmr: TXfmrCodeObj);
@@ -778,7 +894,6 @@ begin
     CreateGUID (temp);
     pBank.GUID := temp;
     StartInstance (F, 'PowerTransformerInfo', pBank);
-    RefNode (F, 'PowerTransformerInfo.TransformerTankInfo', pXfmr); // CIM: why both ways?
     EndInstance (F, 'PowerTransformerInfo');
     StartInstance (F, 'TransformerTankInfo', pXfmr);
     RefNode (F, 'TransformerTankInfo.PowerTransformerInfo', pBank);
@@ -795,7 +910,10 @@ begin
       IntegerNode (F, 'TransformerEndInfo.endNumber', i);
       if pXfmr.FNPhases < 3 then begin
         WindingConnectionEnum (F, 'I');
-        IntegerNode (F, 'TransformerEndInfo.phaseAngleClock', 0)
+        if (i = 3) and (Winding^[i].kvll < 0.3) then // for center-tap secondary
+          IntegerNode (F, 'TransformerEndInfo.phaseAngleClock', 6)
+        else
+          IntegerNode (F, 'TransformerEndInfo.phaseAngleClock', 0)
       end else begin
         if Winding^[i].Connection = 1 then
           WindingConnectionEnum (F, 'D')
@@ -809,29 +927,28 @@ begin
         else
           IntegerNode (F, 'TransformerEndInfo.phaseAngleClock', 0);
       end;
-      DoubleNode (F, 'TransformerEndInfo.ratedU', Winding^[i].kvll);
-      DoubleNode (F, 'TransformerEndInfo.ratedS', Winding^[i].kva);
-      DoubleNode (F, 'TransformerEndInfo.shortTermS', Winding^[i].kva * ratShort);
-      DoubleNode (F, 'TransformerEndInfo.emergencyS', Winding^[i].kva * ratEmerg);
+      DoubleNode (F, 'TransformerEndInfo.ratedU', 1000 * Winding^[i].kvll);
+      DoubleNode (F, 'TransformerEndInfo.ratedS', 1000 * Winding^[i].kva);
+      DoubleNode (F, 'TransformerEndInfo.shortTermS', 1000 * Winding^[i].kva * ratShort);
+      DoubleNode (F, 'TransformerEndInfo.emergencyS', 1000 * Winding^[i].kva * ratEmerg);
       DoubleNode (F, 'TransformerEndInfo.r', Winding^[i].Rpu * Zbase);
       DoubleNode (F, 'TransformerEndInfo.insulationU', 0.0);
       EndInstance (F, 'TransformerEndInfo');
     end;
-    seq := 0;
-    Inc (seq);
-    pName.localName:= pXfmr.Name + '_' + IntToStr(seq);
-    pName.GUID := GetDevGuid (OcTest, pXfmr.Name, seq);
+    pName.localName:= pXfmr.Name + '_' + IntToStr(1);
+    pName.GUID := GetDevGuid (OcTest, pXfmr.Name, 1);
     StartInstance (F, 'NoLoadTest', pName);
     GuidNode (F, 'NoLoadTest.EnergisedEnd', GetDevGuid (WdgInf, pXfmr.Name, 1));
-    DoubleNode (F, 'NoLoadTest.energisedEndVoltage', Winding^[1].kvll);
+    DoubleNode (F, 'NoLoadTest.energisedEndVoltage', 1000.0 * Winding^[1].kvll);
     DoubleNode (F, 'NoLoadTest.excitingCurrent', pctImag);
     DoubleNode (F, 'NoLoadTest.excitingCurrentZero', pctImag);
-    val := 0.01 * pctNoLoadLoss * Winding^[1].kva;
+    val := 0.01 * pctNoLoadLoss * Winding^[1].kva; // losses to be in kW
     DoubleNode (F, 'NoLoadTest.loss', val);
     DoubleNode (F, 'NoLoadTest.lossZero', val);
-    DoubleNode (F, 'TransformerTest.basePower', Winding^[1].kva);
+    DoubleNode (F, 'TransformerTest.basePower', 1000.0 * Winding^[1].kva);
     DoubleNode (F, 'TransformerTest.temperature', 50.0);
     EndInstance (F, 'NoLoadTest');
+    seq := 0;
     for i:= 1 to NumWindings do
       for j:= (i+1) to NumWindings do begin
         Inc (seq);
@@ -848,12 +965,15 @@ begin
         val := Xsc^[seq] * Zbase;
         DoubleNode (F, 'ShortCircuitTest.leakageImpedance', val);
         DoubleNode (F, 'ShortCircuitTest.leakageImpedanceZero', val);
-        if seq = 1 then begin  // TODO - profile requires a value for each test
-          val := 0.01 * pctLoadLoss * Winding^[1].kva;
+        if seq = 1 then begin // put all the load loss on test from wdg1 to wdg2
+          val := 0.01 * pctLoadLoss * Winding^[1].kva; // losses are to be in kW
           DoubleNode (F, 'ShortCircuitTest.loss', val);
           DoubleNode (F, 'ShortCircuitTest.lossZero', val);
+				end else begin
+					DoubleNode (F, 'ShortCircuitTest.loss', 0.0);
+					DoubleNode (F, 'ShortCircuitTest.lossZero', 0.0);
         end;
-        DoubleNode (F, 'TransformerTest.basePower', Winding^[i].kva);
+        DoubleNode (F, 'TransformerTest.basePower', 1000.0 * Winding^[i].kva);
         DoubleNode (F, 'TransformerTest.temperature', 50.0);
         EndInstance (F, 'ShortCircuitTest');
       end;
@@ -869,13 +989,15 @@ begin
     v1 := To_Meters (RadiusUnits);
     BooleanNode (F, 'WireInfo.insulated', True);
     DoubleNode (F, 'WireInfo.insulationThickness', v1 * pCab.InsLayer);
-    ConductorInsulationEnum (F, 'crosslinkedPolyethylene');
+    ConductorInsulationEnum (F, 'crosslinkedPolyethylene'); // TODO -  code EpsR
     CableOuterJacketEnum (F, 'none');
     CableConstructionEnum (F, 'stranded');
+    BooleanNode (F, 'CableInfo.isStrandFill', False); // we don't really know this
     DoubleNode (F, 'CableInfo.diameterOverCore',
       v1 * (pCab.DiaIns - 2.0 * pCab.InsLayer));
     DoubleNode (F, 'CableInfo.diameterOverInsulation', v1 * pCab.DiaIns);
     DoubleNode (F, 'CableInfo.diameterOverJacket', v1 * pCab.DiaCable);
+		DoubleNode (F, 'CableInfo.nominalTemperature', 90.0);  // we don't really know this
   end;
 end;
 
@@ -912,6 +1034,7 @@ begin
     DoubleNode (F, 'ConcentricNeutralCableInfo.neutralStrandRDC20',
       v1 * pCab.RStrand);
     IntegerNode (F, 'ConcentricNeutralCableInfo.neutralStrandCount', pCab.NStrand);
+		BooleanNode (F, 'CableInfo.sheathAsNeutral', False);
   end;
 end;
 
@@ -965,17 +1088,21 @@ begin
   pLine := ActiveCircuit[ActiveActor].Lines.First;
   while pLine <> nil do begin
     with pLine do begin
-      phs := PhaseString (pLine, 1);
-      for i:=1 to NumConductorsAvailable do
-        if pWire = ConductorData[i] then begin
-          if i = 1 then RefNode (F, 'Asset.PowerSystemResources', pLine);
-          if i > length(phs) then begin
-//            tmp := GetDevGuid (LinePhase, pLine.Name + '_N' , 1);
-          end else begin
-            tmp := GetDevGuid (LinePhase, pLine.Name + '_' + phs[i], 1);
-            GuidNode (F, 'Asset.PowerSystemResources', tmp);
+      if pLine.Enabled then begin
+        phs := PhaseString (pLine, 1);
+        for i:=1 to NumConductorsAvailable do begin
+          if pWire = ConductorData[i] then begin
+            if i = 1 then RefNode (F, 'Asset.PowerSystemResources', pLine);
+            if i > length(phs) then begin
+              tmp := GetDevGuid (LinePhase, pLine.Name + '_N' , 1);
+//						writeln('neutral found ' + pLine.Name + ' ' + phs + pWire.Name);
+            end else begin
+              tmp := GetDevGuid (LinePhase, pLine.Name + '_' + phs[i], 1);
+            end;
+					  GuidNode (F, 'Asset.PowerSystemResources', tmp);
           end;
         end;
+      end;
     end;
     pLine := ActiveCircuit[ActiveActor].Lines.Next;
   end;
@@ -990,11 +1117,13 @@ Var
   val    : double;
   bval   : Boolean;
   v1, v2 : double;
-  i1, i2, i3 : Integer;
+  i1, i2 : Integer;
   Zs, Zm : complex;
   Rs, Rm, Xs, Xm, R1, R0, X1, X0: double;
   pName1, pName2  : TNamedObject;
+  pIsland, pSwing : TNamedObject;  // island and ref node
   zbase  : double;
+  s      : String;
 
   pBank  : TBankObject;
   maxWdg : Integer;
@@ -1002,6 +1131,7 @@ Var
   CoreList : array of TNamedObject;
   MeshList : array of TNamedObject;
   sBank  : String;
+  bTanks : boolean;
 
   pLoad  : TLoadObj;
   pVsrc  : TVsourceObj;
@@ -1012,6 +1142,7 @@ Var
   pXf   : TTransfObj;
   pReg  : TRegControlObj;
   pLine : TLineObj;
+  pReac : TReactorObj;
 
   clsCode : TLineCode;
   clsGeom : TLineGeometry;
@@ -1042,10 +1173,6 @@ Var
   geoGUID: TGuid;
   crsGUID: TGuid;
   tmpGUID: TGuid;
-
-  // for phase modeling
-  pBusLoad: TBusLoad;
-  pBusCap: TBusCap;
 Begin
   Try
     clsCode := DSSClassList[ActiveActor].Get(ClassNames[ActiveActor].Find('linecode'));
@@ -1061,23 +1188,23 @@ Begin
     i2 := ActiveCircuit[ActiveActor].Transformers.ListSize * 11; // bank, info, 3 wdg, 3 wdg info, 3sctest
     StartGuidList (i1 + i2);
     StartBankList (ActiveCircuit[ActiveActor].Transformers.ListSize);
-    StartBusLoadList (ActiveCircuit[ActiveActor].Loads.ListSize);
-    StartBusCapList (ActiveCircuit[ActiveActor].ShuntCapacitors.ListSize);
 
+    {$IFDEF FPC}
+ 		Writeln(FileNm);    // this only works in the command line version
+    {$ENDIF}
     Assignfile(F, FileNm);
     ReWrite(F);
 
     Writeln(F,'<?xml version="1.0" encoding="utf-8"?>');
     Writeln(F,'<!-- un-comment this line to enable validation');
     Writeln(F,'-->');
-//    Writeln(F,'<rdf:RDF xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">');
     Writeln(F,'<rdf:RDF xmlns:cim="' + CIM_NS + '#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">');
     Writeln(F,'<!--');
     Writeln(F,'-->');
 
     VersionInstance (F);
 
-    pName1.LocalName := ActiveCircuit[ActiveActor].Name + '_CrsUrn';
+		pName1.LocalName := ActiveCircuit[ActiveActor].Name + '_CrsUrn';
     CreateGUID (crsGUID);
     pName1.GUID := crsGUID;
     StartInstance (F, 'CoordinateSystem', pName1);
@@ -1108,19 +1235,54 @@ Begin
     RefNode (F, 'PowerSystemResource.Location', pName1);
     EndInstance (F, 'Line');
 
+		// the whole system will be a topo island
+		pIsland := TNamedObject.Create('Island');
+		pIsland.localName := ActiveCircuit[ActiveActor].Name + '_Island';
+		CreateGUID (geoGUID);
+		pIsland.GUID := geoGUID;
+		pSwing := TNamedObject.Create('SwingBus');
+		pSwing.localName := ActiveCircuit[ActiveActor].Name + '_SwingBus';
+
     with ActiveCircuit[ActiveActor] do begin
       for i := 1 to NumBuses do begin
         Buses^[i].localName:= BusList.Get(i);
       end;
 
-      for i := 1 to NumBuses do begin
-        Writeln(F, Format('<cim:ConnectivityNode rdf:ID="%s">',
-          [GUIDToCIMString (Buses^[i].GUID)]));
-        StringNode (F, 'IdentifiedObject.name', Buses^[i].localName);
-        Writeln (F, Format('  <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#%s"/>',
-          [ActiveCircuit[ActiveActor].CIM_ID]));
-        Writeln (F,'</cim:ConnectivityNode>');
-      end;
+			// each bus corresponds to a topo node and connectivity node
+			for i := 1 to NumBuses do begin
+				geoGUID := GetDevGuid (Topo, Buses^[i].localName, 1);
+				Writeln(F, Format('<cim:TopologicalNode rdf:ID="%s">', [GUIDToCIMString (geoGUID)]));
+				StringNode (F, 'IdentifiedObject.mRID', GUIDToCIMString(geoGUID));
+				StringNode (F, 'IdentifiedObject.name', Buses^[i].localName);
+				GuidNode (F, 'TopologicalNode.TopologicalIsland', pIsland.GUID);
+				Writeln (F,'</cim:TopologicalNode>');
+
+				Writeln(F, Format('<cim:ConnectivityNode rdf:ID="%s">',
+					[GUIDToCIMString (Buses^[i].GUID)]));
+				StringNode (F, 'IdentifiedObject.mRID', GUIDToCIMString(Buses^[i].GUID));
+				StringNode (F, 'IdentifiedObject.name', Buses^[i].localName);
+				GuidNode (F, 'ConnectivityNode.TopologicalNode', geoGUID);
+				Writeln (F, Format('  <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#%s"/>',
+					[ActiveCircuit[ActiveActor].CIM_ID]));
+				Writeln (F,'</cim:ConnectivityNode>');
+			end;
+
+			// find the swing bus ==> first voltage source
+			pVsrc := ActiveCircuit[ActiveActor].Sources.First; // pIsrc are in the same list
+			while pVsrc <> nil do begin
+				if pVsrc.ClassNameIs('TVSourceObj') then begin
+					if pVsrc.Enabled then begin
+						i := pVsrc.Terminals^[1].BusRef;
+						geoGUID := GetDevGuid (Topo, Buses^[i].localName, 1);
+						pSwing.GUID := geoGUID;
+						StartInstance (F, 'TopologicalIsland', pIsland);
+						RefNode (F, 'TopologicalIsland.AngleRefTopologicalNode', pSwing);
+						EndInstance (F, 'TopologicalIsland');
+						break;
+					end;
+				end;
+				pVsrc := ActiveCircuit[ActiveActor].Sources.Next;
+			end;
 
       i := 1;
       while LegalVoltageBases[i] > 0.0 do begin
@@ -1135,31 +1297,28 @@ Begin
 
     pGen := ActiveCircuit[ActiveActor].Generators.First;
     while pGen <> nil do begin
-      pName1.localName := pGen.Name + '_GenUnit';
-      CreateGUID (geoGUID);
-      pName1.GUID := geoGUID;
-      StartInstance (F, 'GeneratingUnit', pName1);
-      DoubleNode (F, 'GeneratingUnit.ratedNetMaxP', pGen.GenVars.kVArating / 1000.0);
-      DoubleNode (F, 'GeneratingUnit.initialP', pGen.PresentkW / 1000.0);
-      GeneratorControlEnum (F, 'plantControl');
-      EndInstance (F, 'GeneratingUnit');
-
-      StartInstance (F, 'SynchronousMachine', pGen);
-      CircuitNode (F, ActiveCircuit[ActiveActor]);
-      DoubleNode (F, 'SynchronousMachine.minQ', pGen.kvarMin / 1000.0);
-      DoubleNode (F, 'SynchronousMachine.maxQ', pGen.kvarMax / 1000.0);
-      DoubleNode (F, 'SynchronousMachine.baseQ', pGen.Presentkvar / 1000.0);
-      RefNode (F, 'SynchronousMachine.GeneratingUnit', pName1);
-      SynchMachTypeEnum (F, 'generator');
-      SynchMachModeEnum (F, 'generator');
-      EndInstance (F, 'SynchronousMachine');
- //     AttachPhases (F, pGen, 1, 'SynchronousMachine');
-      pGen := ActiveCircuit[ActiveActor].Generators.Next;
+     if pGen.Enabled  then   begin
+        StartInstance (F, 'SynchronousMachine', pGen);
+        CircuitNode (F, ActiveCircuit[ActiveActor]);
+        DoubleNode (F, 'RotatingMachine.p', pGen.Presentkw * 1000.0);
+        DoubleNode (F, 'RotatingMachine.q', pGen.Presentkvar * 1000.0);
+        DoubleNode (F, 'RotatingMachine.ratedS', pGen.GenVars.kvarating * 1000.0);
+        DoubleNode (F, 'RotatingMachine.ratedU', pGen.Presentkv * 1000.0);
+        SynchMachTypeEnum (F, 'generator');
+        SynchMachModeEnum (F, 'generator');
+        CreateGuid (geoGUID);
+        GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+        EndInstance (F, 'SynchronousMachine');
+        AttachGeneratorPhases (F, pGen, geoGUID);
+        WriteTerminals (F, pGen, geoGUID, crsGUID);
+     end;
+     pGen := ActiveCircuit[ActiveActor].Generators.Next;
     end;
 
     pVsrc := ActiveCircuit[ActiveActor].Sources.First; // pIsrc are in the same list
     while pVsrc <> nil do begin
       if pVsrc.ClassNameIs('TVSourceObj') then
+        if pVsrc.Enabled  then
         with pVsrc do begin
           Zs := Z.AvgDiagonal;
           Zm := Z.AvgOffDiagonal;
@@ -1182,8 +1341,9 @@ Begin
 
           StartInstance (F, 'EnergySource', pVsrc);
           CircuitNode (F, ActiveCircuit[ActiveActor]);
-          DoubleNode (F, 'EnergySource.nominalVoltage', kVbase);
-          DoubleNode (F, 'EnergySource.voltageMagnitude', kVbase * PerUnit);
+          VbaseNode (F, pVsrc);
+          DoubleNode (F, 'EnergySource.nominalVoltage', 1000 * kVbase);
+          DoubleNode (F, 'EnergySource.voltageMagnitude', 1000 * kVbase * PerUnit);
           DoubleNode (F, 'EnergySource.voltageAngle', TwoPi * Angle / 360.0);
           DoubleNode (F, 'EnergySource.r', R1);
           DoubleNode (F, 'EnergySource.x', X1);
@@ -1198,79 +1358,69 @@ Begin
       pVsrc := ActiveCircuit[ActiveActor].Sources.Next;
     end;
 
-    // catering to the transmission folks, we export the total capacitance at each bus,
-    //  and then a breakdown by phase
-    pCap := ActiveCircuit[ActiveActor].ShuntCapacitors.First;
-    while pCap <> nil do begin
-      if pCap.Enabled then AccumulateBusCap (pCap);
-      pCap := ActiveCircuit[ActiveActor].ShuntCapacitors.Next;
-    end;
-
-    for i := Low (BusCapList) to High (BusCapList) do begin
-      pBusCap := BusCapList[i];
-      if pBusCap = nil then begin
-        break;
-      end;
-      CreateGUID (geoGUID);
-      pBusCap.GUID := geoGUID;
-      StartInstance (F, 'ShuntCompensator', pBusCap);
-      CircuitNode (F, ActiveCircuit[ActiveActor]);
-      val := pBusCap.qa + pBusCap.qb + pBusCap.qc;
-      with pBusCap.pLastCap do begin
-        DoubleNode (F, 'ShuntCompensator.nomU', NomKV);
-//        DoubleNode (F, 'ShuntCompensator.nomQ', TotalKvar);
-        DoubleNode (F, 'ShuntCompensator.bPerSection', NomKV / val / NumSteps);
-        DoubleNode (F, 'ShuntCompensator.gPerSection', 0.0);
-        IntegerNode (F, 'ShuntCompensator.normalSections', NumSteps);
-        IntegerNode (F, 'ShuntCompensator.maximumSections', NumSteps);
-      end;
-      geoGUID := GetDevGuid (CapLoc, StripExtension (pBusCap.pLastCap.FirstBus), 1);
-      GuidNode (F, 'PowerSystemResource.Location', geoGUID);
-      EndInstance (F, 'ShuntCompensator');
-      WriteReferenceTerminals (F, pBusCap.pLastCap, geoGUID, crsGUID, pBusCap.GUID);
-    end;
-
     pCap := ActiveCircuit[ActiveActor].ShuntCapacitors.First;
     while pCap <> nil do begin
       if pCap.Enabled then begin
-        pBusCap := GetBusCap (StripExtension (pCap.FirstBus));
-        AttachCapPhases (F, pCap, pBusCap);
+        StartInstance (F, 'LinearShuntCompensator', pCap);
+        CircuitNode (F, ActiveCircuit[ActiveActor]);
+        VbaseNode (F, pCap);
+        with pCap do begin
+          val := 0.001 * Totalkvar / NomKV / NomKV / NumSteps;
+          DoubleNode (F, 'ShuntCompensator.nomU', 1000.0 * NomKV);
+          DoubleNode (F, 'LinearShuntCompensator.bPerSection', val);
+          DoubleNode (F, 'LinearShuntCompensator.gPerSection', 0.0);
+
+					val := 0.0;
+					pCapC := ActiveCircuit[ActiveActor].CapControls.First;
+					while (pCapC <> nil) do begin
+						if pCapC.This_Capacitor = pCap then val := pCapC.OnDelayVal;
+						pCapC := ActiveCircuit[ActiveActor].CapControls.Next;
+					end;
+					DoubleNode (F, 'ShuntCompensator.aVRDelay', val);
+
+					if Connection = 0 then begin
+            ShuntConnectionKindNode (F, 'ShuntCompensator', 'Y');
+            BooleanNode (F, 'ShuntCompensator.grounded', True);  // TODO - check bus 2
+            DoubleNode (F, 'LinearShuntCompensator.b0PerSection', val);
+          end else begin
+            ShuntConnectionKindNode (F, 'ShuntCompensator', 'D');
+            BooleanNode (F, 'LinearShuntCompensator.grounded', False);
+            DoubleNode (F, 'LinearShuntCompensator.b0PerSection', 0.0);
+          end;
+          DoubleNode (F, 'LinearShuntCompensator.g0PerSection', 0.0);
+          IntegerNode (F, 'ShuntCompensator.normalSections', NumSteps);
+          IntegerNode (F, 'ShuntCompensator.maximumSections', NumSteps);
+					geoGUID := GetDevGuid (CapLoc, pCap.localName, 1);
+          GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+          EndInstance (F, 'LinearShuntCompensator');
+          AttachCapPhases (F, pCap, geoGUID);
+          WriteTerminals (F, pCap, geoGUID, crsGUID);
+        end;
       end;
       pCap := ActiveCircuit[ActiveActor].ShuntCapacitors.Next;
     end;
 
-{*
-    pCap := ActiveCircuit[ActiveActor].ShuntCapacitors.First;
-    while pCap <> nil do begin
-      with pCap do begin
-        StartInstance (F, 'ShuntCompensator', pCap);
-        CircuitNode (F, ActiveCircuit[ActiveActor]);
-        DoubleNode (F, 'ShuntCompensator.nomU', NomKV);
-//        DoubleNode (F, 'ShuntCompensator.nomQ', TotalKvar);
-        DoubleNode (F, 'ShuntCompensator.bPerSection', NomKV / TotalKvar / NumSteps);
-        DoubleNode (F, 'ShuntCompensator.gPerSection', 0.0);
-        IntegerNode (F, 'ShuntCompensator.normalSections', NumSteps);
-        IntegerNode (F, 'ShuntCompensator.maximumSections', NumSteps);
-        CreateGuid (geoGUID);
-        GuidNode (F, 'PowerSystemResource.Location', geoGUID);
-        EndInstance (F, 'ShuntCompensator');
-        AttachCapPhases (F, pCap);
-        WriteTerminals (F, pCap, geoGUID, crsGUID);
-      end;
-      pCap := ActiveCircuit[ActiveActor].ShuntCapacitors.Next;
-    end;
- *}
     pCapC := ActiveCircuit[ActiveActor].CapControls.First;
     while (pCapC <> nil) do begin
       with pCapC do begin
         StartInstance (F, 'RegulatingControl', pCapC);
+      	GuidNode (F, 'PowerSystemResource.Location', GetDevGuid (CapLoc, This_Capacitor.Name, 1));
         RefNode (F, 'RegulatingControl.RegulatingCondEq', This_Capacitor);
+        i1 := GetCktElementIndex(ElementName); // Global function
+        GuidNode (F, 'RegulatingControl.Terminal',
+          GetTermGuid (ActiveCircuit[ActiveActor].CktElements.Get(i1), ElementTerminal));
+        s := FirstPhaseString (ActiveCircuit[ActiveActor].CktElements.Get(i1), 1);
+        MonitoredPhaseNode (F, Char(Ord(s[1]) + PTPhase - 1)); // TODO - average, min and max unsupported in CIM
+        val := 1.0;
         if CapControlType = PFCONTROL then begin
           v1 := PfOnValue;
           v2 := PfOffValue
         end else begin
           v1 := OnValue;
-          v2 := OffValue
+          v2 := OffValue;
+					if CapControlType = KVARCONTROL then val:= 1000.0;
+          if CapControlType = CURRENTCONTROL then val:= CTRatioVal;
+          if CapControlType = VOLTAGECONTROL then val:= PTRatioVal
         end;
         case CapControlType of
           CURRENTCONTROL: RegulatingControlEnum (F, 'currentFlow');
@@ -1278,17 +1428,42 @@ Begin
           KVARCONTROL:    RegulatingControlEnum (F, 'reactivePower');
           TIMECONTROL:    RegulatingControlEnum (F, 'timeScheduled');
           PFCONTROL :     RegulatingControlEnum (F, 'powerFactor');
-          USERCONTROL :   RegulatingControlEnum (F, 'userDefined');
+          USERCONTROL :   RegulatingControlEnum (F, 'userDefined'); // i.e. unsupported in CIM
         end;
         BooleanNode (F, 'RegulatingControl.discrete', true);
-        DoubleNode (F, 'RegulatingControl.targetValue', v1);
-        DoubleNode (F, 'RegulatingControl.targetRange', v2);
+        BooleanNode (F, 'RegulatingControl.enabled', Enabled);
+        DoubleNode (F, 'RegulatingControl.targetValue', val * 0.5 * (v1 + v2));
+        DoubleNode (F, 'RegulatingControl.targetDeadband', val * (v2 - v1));
         EndInstance (F, 'RegulatingControl');
       end;
       pCapC := ActiveCircuit[ActiveActor].CapControls.Next;
     end;
 
-    // begin the transformers; write all the XfmrCodes first (CIM TransformerTankInfo)
+    // begin the transformers; 
+		//   1. if balanced three-phase and no XfmrCode, use PowerTransformerEnd(s), mesh impedances and core admittances with no tanks
+    //   2. with XfmrCode, write TransformerTank, TransformerTankEnd(s) and references to TransformerTankInfoInfo
+    //   3. otherwise, write TransformerTank, then create and reference TransformerTankInfo classes
+
+    // for case 3, it's better to identify and create the info classes first
+    //    TODO: side effect is that these transformers will reference XfmrCode until the text file is reloaded. Solution results should be the same.
+    pXf := ActiveCircuit[ActiveActor].Transformers.First;
+    while pXf <> nil do begin
+      if pXf.Enabled then begin
+        if (length(pXf.XfmrCode) < 1) and (pXf.NPhases <> 3) then begin
+          sBank := 'CIMXfmrCode_' + pXf.Name;
+          clsXfmr.NewObject (sBank);
+          clsXfmr.Code := sBank;
+          pXfmr := ActiveXfmrCodeObj;
+          CreateGUID (tmpGUID);
+          pXfmr.GUID := tmpGUID;
+          pXfmr.PullFromTransformer (pXf);
+          pXf.XfmrCode := pXfmr.Name;
+        end;
+			end;
+			pXf := ActiveCircuit[ActiveActor].Transformers.Next;
+		end;
+
+		// write all the XfmrCodes first (CIM TransformerTankInfo)
     pXfmr := clsXfmr.ElementList.First;
     while pXfmr <> nil do begin
       WriteXfmrCode (F, pXfmr);
@@ -1312,53 +1487,67 @@ Begin
     maxWdg := 0;
     pXf := ActiveCircuit[ActiveActor].Transformers.First;
     while pXf <> nil do begin
-      if pXf.NumberOfWindings > maxWdg then maxWdg := pXf.NumberofWindings;
-      pXf := ActiveCircuit[ActiveActor].Transformers.Next;
-    end;
-    SetLength (WdgList, maxWdg);
-    SetLength (CoreList, maxWdg);
-    SetLength (MeshList, (maxWdg-1)*maxWdg div 2);
-    for i:=1 to maxWdg do WdgList[i-1]:=TNamedObject.Create('dummy');
-    CoreList[0]:=TNamedObject.Create('dummy');
-    for i:=1 to ((maxWdg-1)*maxWdg div 2) do MeshList[i-1]:=TNamedObject.Create('dummy');
-
-    pXf := ActiveCircuit[ActiveActor].Transformers.First;
-    while pXf <> nil do begin
-      if pXf.XfmrBank = '' then
-        sBank := '=' + pXf.Name
-      else
-        sBank := pXf.XfmrBank;
-      pBank := GetBank (sBank);
-      if pBank = nil then begin
-        pBank := TBankObject.Create(maxWdg);
-        pBank.localName := sBank;
-        pBank.GUID := GetDevGuid (Bank, sBank, 0);
-        AddBank (pBank);
-      end;
+      if pXf.Enabled then
+        if pXf.NumberOfWindings > maxWdg then maxWdg := pXf.NumberofWindings;
       pXf := ActiveCircuit[ActiveActor].Transformers.Next;
     end;
 
-    // write all the transformers (CIM TransformerTank, with Ends)
-    //   with XfmrCode, write references to Info classes
-    //   without XfmrCode, write mesh impedances and core admittances
+    if MaxWdg>0 then  Begin
+      SetLength (WdgList, maxWdg);
+      SetLength (CoreList, maxWdg);
+      SetLength (MeshList, (maxWdg-1)*maxWdg div 2);
+      for i:=1 to maxWdg do WdgList[i-1]:=TNamedObject.Create('dummy');
+      CoreList[0]:=TNamedObject.Create('dummy');
+      for i:=1 to ((maxWdg-1)*maxWdg div 2) do MeshList[i-1]:=TNamedObject.Create('dummy');
+    End;
+
     pXf := ActiveCircuit[ActiveActor].Transformers.First;
     while pXf <> nil do begin
-      with pXf do begin
-        // write this Tank, add to the Bank, write its location and XfmrCode (if used)
-        StartInstance (F, 'TransformerTank', pXf);
+      if pXf.Enabled  then  Begin
         if pXf.XfmrBank = '' then
           sBank := '=' + pXf.Name
         else
           sBank := pXf.XfmrBank;
         pBank := GetBank (sBank);
-        RefNode (F, 'TransformerTank.PowerTransformer', pBank);
-        pBank.AddTransformer (pXf);
-        geoGUID := GetDevGuid (XfLoc, pXf.Name, 1);
-        GuidNode (F, 'PowerSystemResource.Location', geoGUID);
-        EndInstance (F, 'TransformerTank');
-        WritePositions (F, pXf, geoGUID, crsGUID);
+        if pBank = nil then begin
+          pBank := TBankObject.Create(maxWdg);
+          pBank.localName := sBank;
+          pBank.GUID := GetDevGuid (Bank, sBank, 0);
+          AddBank (pBank);
+        end;
+      End;
+      pXf := ActiveCircuit[ActiveActor].Transformers.Next;
+    end;
 
-        // make the winding name objects for easy reference
+    // write all the transformers, according to the three cases
+    pXf := ActiveCircuit[ActiveActor].Transformers.First;
+    while pXf <> nil do begin
+      if pXf.Enabled then with pXf do begin
+        // collect this transformer into tanks and banks, and make a location
+        if pXf.XfmrBank = '' then
+          sBank := '=' + pXf.Name
+        else
+          sBank := pXf.XfmrBank;
+				bTanks := true;  // defaults to case 2 or 3 if XfmrCode exists
+				if (length(pXf.XfmrCode) < 1) and (pXf.NPhases = 3) then
+					bTanks := false; // case 1, balanced three-phase
+
+				pBank := GetBank (sBank);
+				pBank.AddTransformer (pXf);
+				geoGUID := GetDevGuid (XfLoc, pXf.Name, 1);
+
+				if bTanks then begin
+					StartInstance (F, 'TransformerTank', pXf);
+					CircuitNode (F, ActiveCircuit[ActiveActor]);
+					RefNode (F, 'TransformerTank.PowerTransformer', pBank);
+					GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+					EndInstance (F, 'TransformerTank');
+					WritePositions (F, pXf, geoGUID, crsGUID);
+				end else begin
+					WritePositions (F, pXf, geoGUID, crsGUID);
+				end;
+
+        // make the winding, mesh and core name objects for easy reference
         for i:=1 to NumberOfWindings do begin
           WdgList[i-1].localName := pXf.Name + '_End_' + IntToStr(i);
           WdgList[i-1].GUID := GetDevGuid (Wdg, pXf.Name, i);
@@ -1370,9 +1559,9 @@ Begin
           MeshList[i-1].GUID := GetDevGuid (XfMesh, pXf.Name, i);
         end;
 
-        if length (pXf.XfmrCode) < 1 then begin // write the impedances first, if no XfmrCode
-          val := BaseVoltage[1];  // write core Y
-          zbase := val * val / baseVA;
+        if not bTanks then begin // write the mesh impedances and core admittances
+          val := BaseKVLL[1];
+          zbase := 1000.0 * val * val / WdgKva[1];
           StartInstance (F, 'TransformerCoreAdmittance', CoreList[0]);
           val := pXf.noLoadLossPct / 100.0 / zbase;
           DoubleNode (F, 'TransformerCoreAdmittance.g', val);
@@ -1380,12 +1569,13 @@ Begin
           val := pXf.imagPct / 100.0 / zbase;
           DoubleNode (F, 'TransformerCoreAdmittance.b', val);
           DoubleNode (F, 'TransformerCoreAdmittance.b0', val);
+          RefNode (F, 'TransformerCoreAdmittance.TransformerEnd', WdgList[0]);
           EndInstance (F, 'TransformerCoreAdmittance');
           seq := 1; // write mesh Z
           for i:=1 to NumberOfWindings do begin
             for k := i+1 to NumberOfWindings do begin
-              val := BaseVoltage[i];
-              zbase := val * val / (1000.0 * WdgKva[i]);
+              val := BaseKVLL[i];
+              zbase := 1000.0 * val * val / WdgKva[i];
               StartInstance (F, 'TransformerMeshImpedance', MeshList[seq-1]);
               val := zbase * (WdgResistance[i] + WdgResistance[k]);
               DoubleNode (F, 'TransformerMeshImpedance.r', val);
@@ -1394,6 +1584,8 @@ Begin
               inc (seq);
               DoubleNode (F, 'TransformerMeshImpedance.x', val);
               DoubleNode (F, 'TransformerMeshImpedance.x0', val);
+              RefNode (F, 'TransformerMeshImpedance.FromTransformerEnd', WdgList[i-1]);
+              RefNode (F, 'TransformerMeshImpedance.ToTransformerEnd', WdgList[k-1]);
               EndInstance (F, 'TransformerMeshImpedance');
             end;
           end;
@@ -1401,41 +1593,48 @@ Begin
 
         // write the Ends, and a Terminal for each End
         for i:=1 to NumberOfWindings do begin
-          StartInstance (F, 'TransformerTankEnd', WdgList[i-1]);
-          IntegerNode (F, 'TransformerEnd.endNumber', i);
-          XfmrPhasesEnum (F, pXf, i);
-          if length (pXf.XfmrCode) < 1 then begin // wire in the Yc and Z exported above
-            if i=1 then RefNode (F, 'TransformerEnd.CoreAdmittance', CoreList[0]);
-            i3 := (NumberOfWindings-1)*NumberOfWindings div 2;
-            i1 := 1;
-            i2 := i1 + 1;
-            for seq:=1 to i3 do begin
-              if i1=i then RefNode (F, 'TransformerEnd.FromMeshImpedance', MeshList[seq-1]);
-              if i2=i then RefNode (F, 'TransformerEnd.ToMeshImpedance', MeshList[seq-1]);
-              inc(i2);
-              if i2 > NumberOfWindings then begin
-                inc(i1);
-                i2:=i1+1;
-              end;
-            end;
-          end;
-          RefNode (F, 'TransformerTankEnd.TransformerTank', pXf);
+					if bTanks then begin
+						StartInstance (F, 'TransformerTankEnd', WdgList[i-1]);
+						XfmrPhasesEnum (F, pXf, i);
+						RefNode (F, 'TransformerTankEnd.TransformerTank', pXf);
+					end else begin
+						StartInstance (F, 'PowerTransformerEnd', WdgList[i-1]);
+						RefNode (F, 'PowerTransformerEnd.PowerTransformer', pBank);
+						DoubleNode (F, 'PowerTransformerEnd.ratedS', 1000 * WdgKva[i]);
+						DoubleNode (F, 'PowerTransformerEnd.ratedU', 1000 * Winding^[i].kvll);
+						zbase := 1000.0 * BaseKVLL[i] * BaseKVLL[i] / WdgKva[i];
+						DoubleNode (F, 'PowerTransformerEnd.r', zbase * WdgResistance[i]);
+						if Winding^[i].Connection = 1 then
+							WindingConnectionKindNode (F, 'D')
+						else
+							if (Winding^[i].Rneut > 0.0) or (Winding^[i].Xneut > 0.0) then
+								WindingConnectionKindNode (F, 'Yn')
+							else
+								WindingConnectionKindNode (F, 'Y');
+						if Winding^[i].Connection <> Winding^[1].Connection then  // TODO - this assumes HV winding first, and normal usages
+							IntegerNode (F, 'PowerTransformerEnd.phaseAngleClock', 1)
+						else
+							IntegerNode (F, 'PowerTransformerEnd.phaseAngleClock', 0);
+					end;
+					IntegerNode (F, 'TransformerEnd.endNumber', i);
           if (Winding^[i].Rneut < 0.0) or (Winding^[i].Connection = 1) then begin
             BooleanNode (F, 'TransformerEnd.grounded', false);
           end else begin
             BooleanNode (F, 'TransformerEnd.grounded', true);
             DoubleNode (F, 'TransformerEnd.rground', Winding^[i].Rneut);
-            DoubleNode (F, 'TransformerEnd.xground', Winding^[i].Xneut)
+            DoubleNode (F, 'TransformerEnd.xground', Winding^[i].Xneut);
           end;
           j := pXf.Terminals^[i].BusRef;
           pName2.LocalName := pXf.Name + '_T' + IntToStr (i);
-          pName2.GUID := GetDevGuid (XfTerm, pXf.Name, i);
+          pName2.GUID := GetTermGuid (pXf, i);
           RefNode (F, 'TransformerEnd.Terminal', pName2);
           GuidNode (F, 'TransformerEnd.BaseVoltage', GetBaseVGuid (sqrt(3.0) * ActiveCircuit[ActiveActor].Buses^[j].kVBase));
-          EndInstance (F, 'TransformerTankEnd');
+					if bTanks then
+						EndInstance (F, 'TransformerTankEnd')
+					else
+						EndInstance (F, 'PowerTransformerEnd');
           // write the Terminal for this End
           StartInstance (F, 'Terminal', pName2);
-//          IntegerNode (F, 'Terminal.sequenceNumber', i);
           RefNode (F, 'Terminal.ConductingEquipment', pBank);
           Writeln (F, Format('<cim:Terminal.ConnectivityNode rdf:resource="#%s"/>',
             [ActiveCircuit[ActiveActor].Buses[j].CIM_ID]));
@@ -1450,6 +1649,9 @@ Begin
       pBank := BankList[i];
       if pBank = nil then break;
       pBank.BuildVectorGroup;
+			// we don't want = sign in the name.  These should still be unique names
+			if AnsiPos ('=', pBank.localName) = 1 then 
+				pBank.localName := Copy(pBank.localName, 2, MaxInt);
       StartInstance (F, 'PowerTransformer', pBank);
       CircuitNode (F, ActiveCircuit[ActiveActor]);
       StringNode (F, 'PowerTransformer.vectorGroup', pBank.vectorGroup);
@@ -1471,19 +1673,21 @@ Begin
         pName1.GUID := geoGUID;
         StartInstance (F, 'TapChangerInfo', pName1);
         DoubleNode (F, 'TapChangerInfo.ptRatio', PT);
-        DoubleNode (F, 'TapChangerInfo.ctRating', CT);
         DoubleNode (F, 'TapChangerInfo.ctRatio', CT / 0.2);
+        DoubleNode (F, 'TapChangerInfo.ctRating', CT);
         EndInstance (F, 'TapChangerInfo');
 
         pName2.LocalName := pReg.LocalName + '_Ctrl';
         CreateGUID (geoGUID);
         pName2.GUID := geoGUID;
         StartInstance (F, 'TapChangerControl', pName2);
+        RegulatingControlEnum (F, 'voltage');
+        GuidNode (F, 'RegulatingControl.Terminal', GetTermGuid (Transformer, TrWinding));
         MonitoredPhaseNode (F, FirstPhaseString (Transformer, TrWinding));
-        GuidNode (F, 'RegulatingControl.Terminal',
-          GetDevGuid (XfTerm, Transformer.Name, TrWinding));
-        DoubleNode (F, 'RegulatingControl.targetValue', PT * TargetVoltage);
-        DoubleNode (F, 'RegulatingControl.targetRange', PT * BandVoltage);
+        BooleanNode (F, 'RegulatingControl.enabled', pReg.Enabled);
+        BooleanNode (F, 'RegulatingControl.discrete', True);
+        DoubleNode (F, 'RegulatingControl.targetValue', TargetVoltage);
+        DoubleNode (F, 'RegulatingControl.targetDeadband', BandVoltage);
         BooleanNode (F, 'TapChangerControl.lineDropCompensation', UseLineDrop);
         DoubleNode (F, 'TapChangerControl.lineDropR', LineDropR);
         DoubleNode (F, 'TapChangerControl.lineDropX', LineDropX);
@@ -1506,19 +1710,18 @@ Begin
         GuidNode (F, 'RatioTapChanger.TransformerEnd',
           GetDevGuid (Wdg, Transformer.Name, TrWinding));
         GuidNode (F, 'TapChanger.TapChangerControl', pName2.GUID);
+        DoubleNode (F, 'RatioTapChanger.stepVoltageIncrement', 100.0 * TapIncrement);
+        TransformerControlEnum (F, 'volt');
         IntegerNode (F, 'TapChanger.highStep', NumTaps);
         IntegerNode (F, 'TapChanger.lowStep', 0);
         IntegerNode (F, 'TapChanger.neutralStep', NumTaps div 2);
         IntegerNode (F, 'TapChanger.normalStep', NumTaps div 2);
         DoubleNode (F, 'TapChanger.neutralU', 120.0 * PT);
-        DoubleNode (F, 'RatioTapChanger.stepVoltageIncrement', 100.0 * TapIncrement);
         DoubleNode (F, 'TapChanger.initialDelay', InitialDelay);
         DoubleNode (F, 'TapChanger.subsequentDelay', SubsequentDelay);
         BooleanNode (F, 'TapChanger.ltcFlag', True);
-        BooleanNode (F, 'TapChanger.regulationStatus', True);
-
-        TransformerControlEnum (F, 'volt');
-
+        BooleanNode (F, 'TapChanger.controlEnabled', pReg.Enabled);
+        DoubleNode (F, 'TapChanger.step', Transformer.PresentTap[TrWinding,ActiveActor]);
         GuidNode (F, 'PowerSystemResource.Location',
           GetDevGuid (XfLoc, Transformer.Name, 1));
         EndInstance (F, 'RatioTapChanger');
@@ -1530,56 +1733,86 @@ Begin
         RefNode (F, 'Asset.AssetInfo', pName1);
         RefNode (F, 'Asset.PowerSystemResources', pReg);
         EndInstance (F, 'Asset');
-
-        StartFreeInstance (F, 'SvTapStep');
-        RefNode (F, 'SvTapStep.TapChanger', pReg);
-        val := Transformer.PresentTap[TrWinding,ActiveActor];
-//        i1 := Round((val - Transformer.Mintap[TrWinding]) / Transformer.TapIncrement[TrWinding]); // tap step
-        DoubleNode (F, 'SvTapStep.position', val);
-        EndInstance (F, 'SvTapStep');
       end;
       pReg := ActiveCircuit[ActiveActor].RegControls.Next;
     end;
 
     // done with the transformers
 
+		// series reactors, exported as lines
+		pReac := ActiveCircuit[ActiveActor].Reactors.First;
+		while pReac <> nil do begin
+			if pReac.Enabled then begin
+				StartInstance (F, 'ACLineSegment', pReac);
+				CircuitNode (F, ActiveCircuit[ActiveActor]);
+				VbaseNode (F, pReac);
+				geoGUID := GetDevGuid (ReacLoc, pReac.Name, 1);
+				GuidNode (F, 'PowerSystemResource.Location', geoGUID);
+				DoubleNode (F, 'Conductor.length', 1.0);
+				DoubleNode (F, 'ACLineSegment.r', pReac.SimpleR);
+				DoubleNode (F, 'ACLineSegment.x', pReac.SimpleX);
+				DoubleNode (F, 'ACLineSegment.bch', 0.0);
+				DoubleNode (F, 'ACLineSegment.gch', 0.0);
+				DoubleNode (F, 'ACLineSegment.r0', pReac.SimpleR);
+				DoubleNode (F, 'ACLineSegment.x0', pReac.SimpleX);
+				DoubleNode (F, 'ACLineSegment.b0ch', 0.0);
+				DoubleNode (F, 'ACLineSegment.b0ch', 0.0);
+				EndInstance (F, 'ACLineSegment');
+				// AttachLinePhases (F, pReac); // for the 8500-node circuit, we only need 3 phase series reactors
+				WriteTerminals (F, pReac, geoGUID, crsGUID);
+			end;
+			pReac := ActiveCircuit[ActiveActor].Reactors.Next;
+		end;
+
     pLine := ActiveCircuit[ActiveActor].Lines.First;
     while pLine <> nil do begin
-      with pLine do begin
+      If pLine.Enabled Then
+      With pLine do begin
         bval := False; // flag to write a "line code" of PULengthPhaseZ
         v1 := To_Meters (pLine.LengthUnits);
         geoGUID := GetDevGuid (LineLoc, pLine.Name, 1);
         if IsSwitch then begin
           StartInstance (F, 'LoadBreakSwitch', pLine);
           CircuitNode (F, ActiveCircuit[ActiveActor]);
+          VbaseNode (F, pLine);
           DoubleNode (F, 'ProtectedSwitch.breakingCapacity', pLine.NormAmps);
-          if pLine.Closed[0,ActiveActor] then
-            StringNode (F, 'Switch.normalOpen', 'false')
-          else
-            StringNode (F, 'Switch.normalOpen', 'true');
+          DoubleNode (F, 'Switch.ratedCurrent', pLine.NormAmps);
+          // some OpenDSS models have enabled=false to signal open switches, but we can't actually
+          // export them because disabled elements don't have terminal references in memory
+          if Enabled then begin
+            BooleanNode (F, 'Switch.normalOpen', not pLine.Closed[0,ActiveActor]);
+            BooleanNode (F, 'Switch.open', not pLine.Closed[0,ActiveActor]);
+          end else begin
+            BooleanNode (F, 'Switch.normalOpen', true);
+            BooleanNode (F, 'Switch.open', true);
+          end;
+          BooleanNode (F, 'Switch.retained', True);
           GuidNode (F, 'PowerSystemResource.Location', geoGUID);
           EndInstance (F, 'LoadBreakSwitch');
-          AttachLinePhases (F, pLine, 'Switch');
+          AttachSwitchPhases (F, pLine);
         end else begin
           StartInstance (F, 'ACLineSegment', pLine);
           CircuitNode (F, ActiveCircuit[ActiveActor]);
+          VbaseNode (F, pLine);
           if LineCodeSpecified then begin
             DoubleNode (F, 'Conductor.length', Len * v1);
             LineCodeRefNode (F, clsCode, pLine.CondCode);
           end else if GeometrySpecified then begin
-            DoubleNode (F, 'Conductor.length', Len * v1);
+            DoubleNode (F, 'Conductor.length', Len * v1); // assetinfo attached below
           end else if SpacingSpecified then begin
-            DoubleNode (F, 'Conductor.length', Len * v1);
+            DoubleNode (F, 'Conductor.length', Len * v1); // assetinfo attached below
           end else begin
-            if SymComponentsModel then begin
+            if SymComponentsModel and (NPhases=3) then begin
               val := 1.0e-9 * TwoPi * BaseFrequency; // convert nF to mhos
-              DoubleNode (F, 'Conductor.length', Len * v1);
-              DoubleNode (F, 'ACLineSegment.r', R1);
-              DoubleNode (F, 'ACLineSegment.x', X1);
-              DoubleNode (F, 'ACLineSegment.bch', C1 * val);
-              DoubleNode (F, 'ACLineSegment.r0', R0);
-              DoubleNode (F, 'ACLineSegment.x0', X0);
-              DoubleNode (F, 'ACLineSegment.b0ch', C0 * val);
+              DoubleNode (F, 'Conductor.length', 1.0); // we don't know the physical length
+              DoubleNode (F, 'ACLineSegment.r', Len * R1); // total ohms
+              DoubleNode (F, 'ACLineSegment.x', Len * X1);
+              DoubleNode (F, 'ACLineSegment.bch', Len * C1 * val);
+              DoubleNode (F, 'ACLineSegment.gch', 0.0);
+              DoubleNode (F, 'ACLineSegment.r0', Len * R0);
+              DoubleNode (F, 'ACLineSegment.x0', Len * X0);
+              DoubleNode (F, 'ACLineSegment.b0ch', Len * C0 * val);
+              DoubleNode (F, 'ACLineSegment.b0ch', 0.0);
             end else begin
               bval := True;
               pName1.LocalName := pLine.Name + '_PUZ';
@@ -1592,7 +1825,7 @@ Begin
           end;
           GuidNode (F, 'PowerSystemResource.Location', geoGUID);
           EndInstance (F, 'ACLineSegment');
-          AttachLinePhases (F, pLine, 'ACLineSegment');
+          AttachLinePhases (F, pLine);
           if bVal = True then begin  // writing PuZ on the fly
             StartInstance (F, 'PerLengthPhaseImpedance', pName1);
             IntegerNode (F, 'PerLengthPhaseImpedance.conductorCount', NPhases);
@@ -1655,60 +1888,13 @@ Begin
         100, 0, 0,
         0, 0);
 
-    // catering to the transmission folks, we export the total load at each bus,
-    //  and then a breakdown by phase
-    pLoad := ActiveCircuit[ActiveActor].Loads.First;
-    while pLoad <> nil do begin
-      if pLoad.Enabled then AccumulateBusLoad (pLoad);
-      pLoad := ActiveCircuit[ActiveActor].Loads.Next;
-    end;
-
-    for i := Low (BusLoadList) to High (BusLoadList) do begin
-      pBusLoad := BusLoadList[i];
-      if pBusLoad = nil then begin
-        break;
-      end;
-      CreateGUID (geoGUID);
-      pBusLoad.GUID := geoGUID;
-      StartInstance (F, 'EnergyConsumer', pBusLoad);
-      CircuitNode (F, ActiveCircuit[ActiveActor]);
-      case pBusLoad.pLastLoad.FLoadModel of
-        1: GuidNode (F, 'EnergyConsumer.LoadResponse', id1_ConstkVA);
-        2: GuidNode (F, 'EnergyConsumer.LoadResponse', id2_ConstZ);
-        3: GuidNode (F, 'EnergyConsumer.LoadResponse', id3_ConstPQuadQ);
-        4: GuidNode (F, 'EnergyConsumer.LoadResponse', id4_LinPQuadQ);
-        5: GuidNode (F, 'EnergyConsumer.LoadResponse', id5_ConstI);
-        6: GuidNode (F, 'EnergyConsumer.LoadResponse', id6_ConstPConstQ);
-        7: GuidNode (F, 'EnergyConsumer.LoadResponse', id7_ConstPConstX);
-      end;
-      val := pBusLoad.pa + pBusLoad.pb + pBusLoad.pc;
-      DoubleNode (F, 'EnergyConsumer.pfixed', val);
-      val := pBusLoad.qa + pBusLoad.qb + pBusLoad.qc;
-      DoubleNode (F, 'EnergyConsumer.qfixed', val);
-      seq := pBusLoad.na + pBusLoad.nb + pBusLoad.nc;
-      IntegerNode (F, 'EnergyConsumer.customerCount', seq);
-      geoGUID := GetDevGuid (LoadLoc, StripExtension (pBusLoad.pLastLoad.FirstBus), 1);
-      GuidNode (F, 'PowerSystemResource.Location', geoGUID);
-      EndInstance (F, 'EnergyConsumer');
-      WriteReferenceTerminals (F, pBusLoad.pLastLoad, geoGUID, crsGUID, pBusLoad.GUID);
-    end;
-
-    pLoad := ActiveCircuit[ActiveActor].Loads.First;
-    while pLoad <> nil do begin
-      if pLoad.Enabled then begin
-        pBusLoad := GetBusLoad (StripExtension (pLoad.FirstBus));
-        AttachLoadPhases (F, pLoad, pBusLoad);
-      end;
-      pLoad := ActiveCircuit[ActiveActor].Loads.Next;
-    end;
-
-{*
     pLoad := ActiveCircuit[ActiveActor].Loads.First;
     while pLoad <> nil do begin
       if pLoad.Enabled then
         with pLoad do begin
           StartInstance (F, 'EnergyConsumer', pLoad);
           CircuitNode (F, ActiveCircuit[ActiveActor]);
+          VbaseNode (F, pLoad);
           case FLoadModel of
             1: GuidNode (F, 'EnergyConsumer.LoadResponse', id1_ConstkVA);
             2: GuidNode (F, 'EnergyConsumer.LoadResponse', id2_ConstZ);
@@ -1718,31 +1904,40 @@ Begin
             6: GuidNode (F, 'EnergyConsumer.LoadResponse', id6_ConstPConstQ);
             7: GuidNode (F, 'EnergyConsumer.LoadResponse', id7_ConstPConstX);
           end;
-          DoubleNode (F, 'EnergyConsumer.qfixed', kvarBase);
-          DoubleNode (F, 'EnergyConsumer.pfixed', kWBase);
+          DoubleNode (F, 'EnergyConsumer.pfixed', 1000.0 * kWBase);
+          DoubleNode (F, 'EnergyConsumer.qfixed', 1000.0 * kvarBase);
           IntegerNode (F, 'EnergyConsumer.customerCount', NumCustomers);
+          if Connection = 0 then begin
+            ShuntConnectionKindNode (F, 'EnergyConsumer', 'Y');
+            BooleanNode (F, 'EnergyConsumer.grounded', True);  // TODO - check bus 2
+          end else begin
+            ShuntConnectionKindNode (F, 'EnergyConsumer', 'D');
+            BooleanNode (F, 'EnergyConsumer.grounded', False);
+          end;
           CreateGuid (geoGUID);
           GuidNode (F, 'PowerSystemResource.Location', geoGUID);
           EndInstance (F, 'EnergyConsumer');
-          AttachLoadPhases (F, pLoad);
+          AttachLoadPhases (F, pLoad, geoGUID);
           WriteTerminals (F, pLoad, geoGUID, crsGUID);
         end;
         pLoad := ActiveCircuit[ActiveActor].Loads.Next;
     end;
-*}
+
     pCode := clsCode.ElementList.First;
     while pCode <> nil do begin
       with pCode do begin
         v1 := To_per_Meter (pCode.Units);
-        if SymComponentsModel then begin
+        if SymComponentsModel and (NumPhases=3) then begin
           v2 := 1.0e-9 * TwoPi * BaseFrequency; // convert nF to mhos
           StartInstance (F, 'PerLengthSequenceImpedance', pCode);
           DoubleNode (F, 'PerLengthSequenceImpedance.r', R1 * v1);
           DoubleNode (F, 'PerLengthSequenceImpedance.x', X1 * v1);
           DoubleNode (F, 'PerLengthSequenceImpedance.bch', C1 * v1 * v2);
+          DoubleNode (F, 'PerLengthSequenceImpedance.gch', 0.0);
           DoubleNode (F, 'PerLengthSequenceImpedance.r0', R0 * v1);
           DoubleNode (F, 'PerLengthSequenceImpedance.x0', X0 * v1);
           DoubleNode (F, 'PerLengthSequenceImpedance.b0ch', C0 * v1 * v2);
+          DoubleNode (F, 'PerLengthSequenceImpedance.g0ch', 0.0);
           EndInstance (F, 'PerLengthSequenceImpedance')
         end else begin
           StartInstance (F, 'PerLengthPhaseImpedance', pCode);
@@ -1878,6 +2073,7 @@ Begin
         RefNode (F, 'Asset.AssetInfo', pSpac);
         pLine := ActiveCircuit[ActiveActor].Lines.First;
         while pLine <> nil do begin
+          if pLine.Enabled then
           if pLine.SpacingSpecified then
             if pLine.SpacingCode = pSpac.Name then
                 RefNode (F, 'Asset.PowerSystemResources', pLine);
@@ -1893,8 +2089,6 @@ Begin
 
     FreeGuidList;
     FreeBankList;
-    FreeBusLoadList;
-    FreeBusCapList;
 
     Writeln (F, '</rdf:RDF>');
 

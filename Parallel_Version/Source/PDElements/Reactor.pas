@@ -119,6 +119,9 @@ TYPE
         PROCEDURE InitPropertyValues(ArrayOffset:Integer);         Override;
         Procedure DumpProperties(Var F:TextFile;Complete:Boolean); Override;
 
+				// CIM XML access - this is only tested for the IEEE 8500-node feeder
+				property SimpleR: double read R;
+				property SimpleX: double read X;
    end;
 
 VAR
