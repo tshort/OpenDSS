@@ -2015,7 +2015,7 @@ begin
               begin
                   if ((FHitkVALimit[i] = True) or (FHitkvarLimit[i] = True)) and (ActiveCircuit.Solution.Dynavars.dblHour>0.0) then exit;
                   // if inverter is off then exit
-                  if (ControlledElement[i].InverterON = FALSE) then exit;
+  //                if (ControlledElement[i].InverterON = FALSE) then exit;
                   if (ControlledElement[i].InverterON = FALSE) and (ControlledElement[i].VarFollowInverter = TRUE) then exit;
 
                   // if volt-watt curve does not exist, exit
